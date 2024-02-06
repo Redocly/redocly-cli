@@ -19,6 +19,6 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: git branch
+      - run: echo "Please add either a changeset or a label 'No changeset needed' to the PR."
       - name: Check for changeset
         run: npx changeset status --since origin/main --verbose
