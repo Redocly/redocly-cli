@@ -1,11 +1,11 @@
-name: Require Either a Changeset or a Label 'No changeset needed'
+name: Require Either a Changeset or a Label 'No Changeset Needed'
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
-  require-changeset:
-    if: ${{ github.event.label.name != 'question' }}
+  require-changeset-or-label:
+    if: ${{ github.event.label.name != 'No Changeset Needed' }}
     runs-on: ubuntu-latest
     env:
       CI: true
