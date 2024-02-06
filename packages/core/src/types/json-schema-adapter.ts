@@ -1,3 +1,5 @@
+// For internal usage only
+
 import Ajv from '@redocly/ajv/dist/2020';
 import { isPlainObject } from '../utils';
 
@@ -32,7 +34,7 @@ const findOneOf = (
   };
 };
 
-export const transformJSONSchemaToNodeType = (
+const transformJSONSchemaToNodeType = (
   propertyName: string,
   schema: JSONSchema,
   ctx: Record<string, NodeType>
@@ -200,3 +202,9 @@ const extractNodeToContext = (
   ctx[propertyName] = { properties, additionalProperties, items, required };
   return propertyName;
 };
+
+export const getNodeTypesFromJSONSchema = (schemaName: string, entrySchema: JSONSchema): Record<string, NodeType> => {
+  const ctx: Record<string, NodeType> = {};
+  extractNodeToContext(schemaName, entrySchema, ctx);
+  return ctx;
+}

@@ -1,7 +1,7 @@
-import { DefaultPortalConfigNodeTypes } from './portal-config-schema';
+import { rootRedoclyConfigSchema } from './portal-config-schema';
 import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { transformJSONSchemaToNodeType } from './json-schema-adapter';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 
 import type { NodeType } from '.';
 import type { JSONSchema } from 'json-schema-to-ts';
@@ -1063,8 +1063,7 @@ const ConfigMockServer: NodeType = {
 
 export const createConfigTypes = (extraPortalSchemas: JSONSchema) => {
   // Create new types based on external schemas
-  const nodeTypes = {};
-  transformJSONSchemaToNodeType('rootRedoclyConfigSchema', extraPortalSchemas, nodeTypes);
+  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraPortalSchemas);
 
   return {
     ...CoreConfigTypes, // ...ConfigTypes,
@@ -1075,6 +1074,11 @@ export const createConfigTypes = (extraPortalSchemas: JSONSchema) => {
     ...nodeTypes,
   };
 };
+
+const DefaultPortalConfigNodeTypes: Record<string, NodeType> = getNodeTypesFromJSONSchema(
+  'rootRedoclyConfigSchema',
+  rootRedoclyConfigSchema
+);
 
 const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
@@ -1146,5 +1150,3 @@ export const ConfigTypes: Record<string, NodeType> = {
   ...CoreConfigTypes,
   ...DefaultPortalConfigNodeTypes,
 };
-
-// console.log(JSON.stringify(ConfigTypes, null, 2));

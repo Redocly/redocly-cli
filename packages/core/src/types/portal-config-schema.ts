@@ -3,11 +3,9 @@ import {
   AuthProviderType,
   DEFAULT_TEAM_CLAIM_NAME,
 } from '../config';
-import { transformJSONSchemaToNodeType } from './json-schema-adapter';
 import { themeConfigSchema } from './theme-config';
 
 import type { FromSchema } from 'json-schema-to-ts';
-import type { NodeType } from '.';
 import type { ThemeConfig } from './theme-config';
 
 const oidcIssuerMetadataSchema = {
@@ -431,13 +429,3 @@ export type SsoConfig = FromSchema<typeof ssoOnPremConfigSchema>;
 export type I18nConfig = FromSchema<typeof i18ConfigSchema>;
 
 export type ApiConfig = FromSchema<typeof apiConfigSchema>;
-
-export const DefaultPortalConfigNodeTypes: Record<string, NodeType> = {};
-
-transformJSONSchemaToNodeType(
-  'rootRedoclyConfigSchema',
-  rootRedoclyConfigSchema,
-  DefaultPortalConfigNodeTypes
-);
-
-// console.log(JSON.stringify(DefaultPortalConfigNodeTypes, null, 2));
