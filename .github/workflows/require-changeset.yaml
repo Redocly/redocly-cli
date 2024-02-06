@@ -5,7 +5,7 @@ on:
 
 jobs:
   require-changeset-or-label:
-    if: ${{ github.event.label.name != 'No Changeset Needed' }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'No Changeset Needed') }}
     runs-on: ubuntu-latest
     env:
       CI: true
