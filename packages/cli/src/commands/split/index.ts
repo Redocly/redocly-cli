@@ -6,8 +6,6 @@ import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 
-// FIXME: CHANGED
-
 import {
   printExecutionTime,
   pathToFilename,
