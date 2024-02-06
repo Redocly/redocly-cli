@@ -205,6 +205,6 @@ const extractNodeToContext = (
 
 export const getNodeTypesFromJSONSchema = (schemaName: string, entrySchema: JSONSchema): Record<string, NodeType> => {
   const ctx: Record<string, NodeType> = {};
-  extractNodeToContext(schemaName, entrySchema, ctx);
+  transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
   return ctx;
 }
