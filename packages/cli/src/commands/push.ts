@@ -55,7 +55,7 @@ export function commonPushHandler({
   if (project && mountPath) {
     return handleCMSPush;
   }
-  return handlePush;
+  return transformPush(handlePush);
 }
 
 export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
@@ -354,8 +354,7 @@ export function getDestinationProps(
 }
 
 type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
-  maybeDestination?: string;
-  maybeBranchName?: string;
+  apis?: string[];
   branch?: string;
   destination?: string;
 };
@@ -364,9 +363,7 @@ export const transformPush =
   (callback: typeof handlePush) =>
   (
     {
-      api: maybeApiOrDestination,
-      maybeDestination,
-      maybeBranchName,
+      apis,
       branch,
       'batch-id': batchId,
       'job-id': jobId,
@@ -374,6 +371,8 @@ export const transformPush =
     }: BarePushArgs & { 'batch-id'?: string },
     config: Config
   ) => {
+    const [maybeApiOrDestination, maybeDestination, maybeBranchName] = apis || [];
+
     if (batchId) {
       process.stderr.write(
         yellow(
@@ -410,12 +409,10 @@ export const transformPush =
       apiFile = maybeApiOrDestination;
     }
 
-    destination = rest.destination || destination;
-
     return callback(
       {
         ...rest,
-        destination,
+        destination: rest.destination ?? destination,
         api: apiFile,
         branchName: branch ?? maybeBranchName,
         'job-id': jobId || batchId,

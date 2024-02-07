@@ -5,7 +5,7 @@ exports[`E2E join with options test with option: { name: 'prefix-components-with
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition foo.
+  title: Foo Example OpenAPI 3 definition foo.
   description: Information about API
   license:
     name: MIT
@@ -52,23 +52,27 @@ paths:
         - bar_other
 components:
   schemas:
-    Example OpenAPI 3 definition foo._some-property:
+    Foo Example OpenAPI 3 definition foo._some-property:
       description: foo description
       type: string
-    Example OpenAPI 3 definition._some-property:
+    Foo Example OpenAPI 3 definition foo._another-property:
+      description: description
+      $ref: '#/components/schemas/Foo Example OpenAPI 3 definition foo._some-property'
+    Bar Example OpenAPI 3 definition._some-property:
       description: bar description
       type: string
+    Bar Example OpenAPI 3 definition._another-property:
+      description: description
+      $ref: '#/components/schemas/Bar Example OpenAPI 3 definition._some-property'
 x-tagGroups:
-  - name: foo
+  - name: Foo Example OpenAPI 3 definition foo.
     tags:
       - Foo
       - foo_other
-    description: Information about API
-  - name: bar
+  - name: Bar Example OpenAPI 3 definition.
     tags:
       - Bar
       - bar_other
-    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 

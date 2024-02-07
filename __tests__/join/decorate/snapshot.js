@@ -4,7 +4,7 @@ exports[`E2E join with options test with option: { name: 'decorate', value: true
 
 openapi: 3.0.0
 info:
-  title: Example API
+  title: Foo Example API
   description: This is an example API.
   version: 1.0.0
 servers:
@@ -46,7 +46,7 @@ paths:
         - bar_other
 components: {}
 x-tagGroups:
-  - name: bar
+  - name: Bar Example API
     tags:
       - bar_other
 

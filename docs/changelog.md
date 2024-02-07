@@ -7,6 +7,21 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.8.2 (2024-02-01)
+
+### Patch Changes
+
+- Added markdown format option to stats command for use with GitHub job summaries.
+- Fixed an issue with the `push` command, when `destination` option does not work without specifying it in `redocly.yaml`.
+- Updated @redocly/openapi-core to v1.8.2.
+
+## 1.8.1 (2024-01-29)
+
+### Patch Changes
+
+- Added git to the docker image, so the push command can use git metadata.
+- Updated @redocly/openapi-core to v1.8.1.
+
 ## 1.8.0 (2024-01-26)
 
 ### Minor Changes

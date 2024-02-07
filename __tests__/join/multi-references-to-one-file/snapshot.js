@@ -76,12 +76,11 @@ components:
         subFoo:
           $ref: '#/components/schemas/FooObject'
 x-tagGroups:
-  - name: foo
+  - name: Sample API
     tags:
       - GetSingleFoo
       - Foo
       - foo_other
-    description: My sample api
   - name: bar
     tags:
       - CreateBar
