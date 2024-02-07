@@ -32,7 +32,8 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
           return Object.assign(
             {},
             schema.properties,
-            ...(schema.allOf?.map(elevateProperties) ?? [])
+            ...(schema.allOf?.map(elevateProperties) ?? []),
+            ...((schema as Oas3Schema).anyOf?.map(elevateProperties) ?? []),
           );
         };
 
