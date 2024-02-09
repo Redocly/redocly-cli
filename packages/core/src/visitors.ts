@@ -359,7 +359,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
         possibleChildren.add(from.additionalProperties);
       }
     }
-    if (from.items) {
+    if (from.items && typeof from.items !== 'function') {
       if (from.items === to) {
         addWeakFromStack(ruleConf, stack);
       } else if (from.items.name !== undefined) {

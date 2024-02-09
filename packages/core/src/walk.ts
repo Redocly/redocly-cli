@@ -272,7 +272,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           const itemsType = type.items;
           if (itemsType !== undefined) {
             for (let i = 0; i < resolvedNode.length; i++) {
-              walkNode(resolvedNode[i], itemsType, resolvedLocation.child([i]), resolvedNode, i);
+              const itemType =
+                typeof itemsType === 'function'
+                  ? itemsType(resolvedNode[i], resolvedLocation.child([i]).absolutePointer)
+                  : itemsType;
+              if (isNamedType(itemType)) {
+                walkNode(resolvedNode[i], itemType, resolvedLocation.child([i]), resolvedNode, i);
+              }
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {

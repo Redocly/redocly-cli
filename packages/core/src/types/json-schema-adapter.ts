@@ -84,22 +84,20 @@ const transformJSONSchemaToNodeType = (
     throw new Error('Unexpected anyOf.');
   }
 
-  if (isPlainObject(schema.items) && schema.items.oneOf) {
-    throw new Error('Unexpected oneOf in items.');
-  }
-
   if (
     isPlainObject(schema.properties) ||
     isPlainObject(schema.additionalProperties) ||
     (isPlainObject(schema.items) &&
-      (isPlainObject(schema.items.properties) || isPlainObject(schema.items.additionalProperties)))
+      (isPlainObject(schema.items.properties) ||
+        isPlainObject(schema.items.additionalProperties) ||
+        schema.items.oneOf)) // exclude scalar array types
   ) {
     return extractNodeToContext(propertyName, schema, ctx);
   }
 
   if (schema.oneOf) {
     if ((schema as Oas3Schema).discriminator) {
-      const discriminatedPropertyName = (schema as Oas3Schema).discriminator?.propertyName ;
+      const discriminatedPropertyName = (schema as Oas3Schema).discriminator?.propertyName;
       if (!discriminatedPropertyName) {
         throw new Error('Unexpected discriminator without a propertyName.');
       }
@@ -116,10 +114,13 @@ const transformJSONSchemaToNodeType = (
       });
 
       return (value: any, key: string) => {
-        if (!isPlainObject(value)) {
-          return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
+        if (isPlainObject(value)) {
+          const discriminatedTypeName = value[discriminatedPropertyName];
+          if (typeof discriminatedTypeName === 'string' && ctx[discriminatedTypeName]) {
+            return discriminatedTypeName;
+          }
         }
-        return value[discriminatedPropertyName] as PropType;
+        return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
       };
     } else {
       const oneOfs = schema.oneOf.map((option, i) =>
@@ -173,10 +174,11 @@ const extractNodeToContext = (
   let items;
   if (
     isPlainObject(schema.items) &&
-    (isPlainObject(schema.items.properties) || isPlainObject(schema.items.additionalProperties))
+    (isPlainObject(schema.items.properties) ||
+      isPlainObject(schema.items.additionalProperties) ||
+      schema.items.oneOf) // exclude scalar array types
   ) {
-    items = propertyName + '_items';
-    transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
+    items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
   }
 
   let required = schema.required as NodeType['required'];
@@ -203,8 +205,11 @@ const extractNodeToContext = (
   return propertyName;
 };
 
-export const getNodeTypesFromJSONSchema = (schemaName: string, entrySchema: JSONSchema): Record<string, NodeType> => {
+export const getNodeTypesFromJSONSchema = (
+  schemaName: string,
+  entrySchema: JSONSchema
+): Record<string, NodeType> => {
   const ctx: Record<string, NodeType> = {};
   transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
   return ctx;
-}
+};

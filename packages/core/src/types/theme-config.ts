@@ -194,6 +194,21 @@ const gtmAnalyticsConfigSchema = {
   required: ['trackingId'],
 } as const;
 
+const productGoogleAnalyticsConfigSchema = {
+  type: 'object',
+  properties: {
+    includeInDevelopment: { type: 'boolean' },
+    trackingId: { type: 'string' },
+
+    conversionId: { type: 'string' },
+    floodlightId: { type: 'string' },
+    optimizeId: { type: 'string' },
+    exclude: { type: 'array', items: { type: 'string' } },
+  },
+  additionalProperties: false,
+  required: ['trackingId'],
+} as const;
+
 const googleAnalyticsConfigSchema = {
   type: 'object',
   properties: {
@@ -210,6 +225,12 @@ const googleAnalyticsConfigSchema = {
     optimizeId: { type: 'string' },
     anonymizeIp: { type: 'boolean' },
     cookieExpires: { type: 'number' },
+
+    // All enabled tracking configs
+    trackers: {
+      type: 'object',
+      additionalProperties: productGoogleAnalyticsConfigSchema,
+    },
   },
   additionalProperties: false,
   required: ['trackingId'],
@@ -698,6 +719,12 @@ export const productThemeOverrideSchema = {
     search: themeConfigSchema.properties.search,
     codeSnippet: themeConfigSchema.properties.codeSnippet,
     breadcrumbs: themeConfigSchema.properties.breadcrumbs,
+    analytics: {
+      type: 'object',
+      properties: {
+        ga: productGoogleAnalyticsConfigSchema,
+      },
+    },
   },
   additionalProperties: true,
   default: {},
@@ -730,11 +757,13 @@ export type ThemeConfig = FromSchema<typeof themeConfigSchema>;
 // };
 
 export type ProductConfig = FromSchema<typeof productConfigSchema>;
+
+export type ProductGoogleAnalyticsConfig = FromSchema<typeof productGoogleAnalyticsConfigSchema>;
 // TODO: cannot export  as it relies on external types
 // export type ProductThemeOverrideConfig = Pick<
 //   ThemeUIConfig,
 //   'logo' | 'navbar' | 'footer' | 'sidebar' | 'search' | 'codeSnippet' | 'breadcrumbs'
-// >;
+// > & { analytics?: { ga?: ProductGoogleAnalyticsConfig } };
 // export type ProductUiConfig = ProductConfig & {
 //   slug: string;
 //   link: string;

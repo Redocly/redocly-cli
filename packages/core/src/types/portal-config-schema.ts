@@ -25,10 +25,11 @@ const oidcProviderConfigSchema = {
   properties: {
     type: { type: 'string', const: AuthProviderType.OIDC },
     title: { type: 'string' },
+    pkce: { type: 'boolean', default: false },
     configurationUrl: { type: 'string', minLength: 1 },
     configuration: oidcIssuerMetadataSchema,
     clientId: { type: 'string', minLength: 1 },
-    clientSecret: { type: 'string', minLength: 1 },
+    clientSecret: { type: 'string', minLength: 0 },
     teamsClaimName: { type: 'string' },
     teamsClaimMap: { type: 'object', additionalProperties: { type: 'string' } },
     defaultTeams: { type: 'array', items: { type: 'string' } },
@@ -38,7 +39,7 @@ const oidcProviderConfigSchema = {
     tokenRequestCustomParams: { type: 'object', additionalProperties: { type: 'string' } },
     audience: { type: 'array', items: { type: 'string' } },
   },
-  required: ['type', 'clientId', 'clientSecret'],
+  required: ['type', 'clientId'],
   oneOf: [{ required: ['configurationUrl'] }, { required: ['configuration'] }],
   additionalProperties: false,
 } as const;
@@ -274,25 +275,9 @@ const devOnboardingConfigSchema = {
   required: ['adapters'],
   additionalProperties: false,
   properties: {
-    // adapters: {
-    //   type: 'array',
-    //   items: devOnboardingAdapterConfigSchema,
-    // }, // TODO: figure out how to make oneOf work with arrays
     adapters: {
-      oneOf: [
-        {
-          type: 'array',
-          items: apigeeXAdapterConfigSchema,
-        },
-        {
-          type: 'array',
-          items: apigeeEdgeAdapterConfigSchema,
-        },
-        {
-          type: 'array',
-          items: graviteeAdapterConfigSchema,
-        },
-      ],
+      type: 'array',
+      items: devOnboardingAdapterConfigSchema,
     },
   },
 } as const;
@@ -376,7 +361,7 @@ const redoclyConfigSchema = {
     theme: themeConfigSchema,
   },
   default: { redirects: {} },
-  additionalProperties: false,
+  additionalProperties: true,
 } as const;
 
 const environmentSchema = {
@@ -399,6 +384,7 @@ export const rootRedoclyConfigSchema = {
   },
   default: {},
   // required: ['redirects'], // FIXME: why redirects is required?
+  additionalProperties: false,
 } as const;
 
 export type RedoclyConfig<T = ThemeConfig> = FromSchema<typeof rootRedoclyConfigSchema> & {

@@ -979,7 +979,7 @@ describe('lint', () => {
               "source": "",
             },
           ],
-          "message": "Expected type \`rootRedoclyConfigSchema.developerOnboarding.adapters_0_items\` (object) but got \`string\`",
+          "message": "Expected type \`APIGEE_X\` (object) but got \`string\`",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
