@@ -244,7 +244,7 @@ With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppr
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
-`redocly lint museum-with-errors.yaml --generate-ignore-file` will run the lint command and add all the errors to an ignore file.
+`redocly lint museum-with-errors.yaml --generate-ignore-file` runs the lint command and add all the errors to an ignore file.
 
 ```bash
 Generated ignore file with 3 problems.
