@@ -112,7 +112,7 @@ export async function lintConfig(opts: {
   resolvedRefMap?: ResolvedRefMap;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
-  externalConfigTypes?: Record<string, NodeType>
+  externalConfigTypes?: Record<string, NodeType>;
 }) {
   const { document, severity, externalRefResolver = new BaseResolver() } = opts;
 
@@ -141,7 +141,6 @@ export async function lintConfig(opts: {
       ruleId: 'configuration no-unresolved-refs',
       visitor: NoUnresolvedRefs({ severity: 'error' }),
     },
-    // TODO: ? use another rule similar to no-invalid-media-type-examples to validate { type: array, items: { oneOf: [...] } } like in `devOnboardingAdapterConfigSchema`?
   ];
   const normalizedVisitors = normalizeVisitors(rules, types);
   const resolvedRefMap =

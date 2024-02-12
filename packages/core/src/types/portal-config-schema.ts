@@ -137,15 +137,15 @@ const apiConfigSchema = {
       type: 'object',
       properties: {
         openapi: themeConfigSchema.properties.openapi,
-        graphql: themeConfigSchema.properties.graphql, // TODO: should it be here?
+        graphql: themeConfigSchema.properties.graphql,
       },
       additionalProperties: false,
     },
     title: { type: 'string' },
     metadata: { type: 'object', additionalProperties: true },
-    rules: { type: 'object', additionalProperties: true }, // FIXME: either add this here or uncomment `additionalProperties: true`
+    rules: { type: 'object', additionalProperties: true },
+    decorators: { type: 'object', additionalProperties: true },
   },
-  // additionalProperties: true, // FIXME: do we need this?
   required: ['root'],
 } as const;
 
@@ -379,11 +379,10 @@ export const rootRedoclyConfigSchema = {
     ...redoclyConfigSchema.properties,
     env: {
       type: 'object',
-      additionalProperties: environmentSchema, // TODO: if we want full valiadation we need to override apis, theme and the root
+      additionalProperties: environmentSchema, // TODO: if we want full validation we need to override apis, theme and the root
     },
   },
   default: {},
-  // required: ['redirects'], // FIXME: why redirects is required?
   additionalProperties: false,
 } as const;
 

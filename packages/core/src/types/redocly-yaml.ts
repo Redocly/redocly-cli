@@ -320,7 +320,6 @@ const createConfigRootTheme = (nodeTypes: Record<string, NodeType>): NodeType =>
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.theme']?.properties,
     openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
-    // mockServer: 'ConfigMockServer', // TODO: do we still need this? It looks like we declare it in the redoclyConfigSchema
   },
 });
 
@@ -1061,13 +1060,12 @@ const ConfigMockServer: NodeType = {
   },
 };
 
-export const createConfigTypes = (extraPortalSchemas: JSONSchema) => {
-  // Create new types based on external schemas
-  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraPortalSchemas);
+export const createConfigTypes = (extraSchemas: JSONSchema) => {
+  // Create types based on external schemas
+  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
 
   return {
-    ...CoreConfigTypes, // ...ConfigTypes,
-    // Override the below as those are created using DefaultPortalConfigNodeTypes
+    ...CoreConfigTypes,
     ConfigRoot: createConfigRoot(nodeTypes),
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     ConfigRootTheme: createConfigRootTheme(nodeTypes),
@@ -1075,16 +1073,9 @@ export const createConfigTypes = (extraPortalSchemas: JSONSchema) => {
   };
 };
 
-const DefaultPortalConfigNodeTypes: Record<string, NodeType> = getNodeTypesFromJSONSchema(
-  'rootRedoclyConfigSchema',
-  rootRedoclyConfigSchema
-);
-
 const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
-  ConfigRoot: createConfigRoot(DefaultPortalConfigNodeTypes),
   ConfigApis,
-  ConfigApisProperties: createConfigApisProperties(DefaultPortalConfigNodeTypes),
   ConfigStyleguide,
   ConfigReferenceDocs,
   ConfigMockServer,
@@ -1094,7 +1085,6 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  ConfigRootTheme: createConfigRootTheme(DefaultPortalConfigNodeTypes),
   AssertDefinition,
   ThemeColors,
   CommonThemeColors,
@@ -1146,7 +1136,4 @@ const CoreConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionSubject,
 };
 
-export const ConfigTypes: Record<string, NodeType> = {
-  ...CoreConfigTypes,
-  ...DefaultPortalConfigNodeTypes,
-};
+export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);

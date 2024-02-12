@@ -271,11 +271,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         if (Array.isArray(resolvedNode)) {
           const itemsType = type.items;
           if (itemsType !== undefined) {
+            const isTypeAFunction = typeof itemsType === 'function';
             for (let i = 0; i < resolvedNode.length; i++) {
-              const itemType =
-                typeof itemsType === 'function'
-                  ? itemsType(resolvedNode[i], resolvedLocation.child([i]).absolutePointer)
-                  : itemsType;
+              const itemType = isTypeAFunction
+                ? itemsType(resolvedNode[i], resolvedLocation.child([i]).absolutePointer)
+                : itemsType;
               if (isNamedType(itemType)) {
                 walkNode(resolvedNode[i], itemType, resolvedLocation.child([i]), resolvedNode, i);
               }

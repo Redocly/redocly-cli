@@ -263,7 +263,7 @@ const navItemSchema = {
       default: 'top',
     },
     version: { type: 'string' },
-    menuStyle: { type: 'string', enum: ['drilldown'/*  as MenuStyle */] },
+    menuStyle: { type: 'string', enum: ['drilldown'] },
     expanded: { type: 'string', const: 'always' },
     selectFirstItemOnExpand: { type: 'boolean' },
     flatten: { type: 'boolean' },
@@ -272,7 +272,6 @@ const navItemSchema = {
       items: { type: 'string' },
     },
   },
-  // additionalProperties: false, // TODO: check this
 } as const;
 
 const navItemsSchema = {
@@ -347,7 +346,6 @@ const scorecardConfigSchema = {
           name: { type: 'string' },
           color: { type: 'string' },
           extends: { type: 'array', items: { type: 'string' } },
-          // FIXME: override rules?
           rules: {
             type: 'object',
             additionalProperties: {
