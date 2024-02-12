@@ -62,12 +62,12 @@ redocly bundle openapi/openapi.yaml --output dist/openapi.json
 This command creates one bundled file for each of the specified apis in the `dist/` folder. Bundled files are in JSON format.
 
 ```bash Command
-redocly bundle --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
+redocly bundle --output dist --ext json openapi/openapi.yaml openapi/museum.yaml
 ```
 
 ```bash Output
 dist/openapi.json
-dist/petstore.json
+dist/museum.json
 ```
 
 ### Create a fully dereferenced bundle
@@ -75,7 +75,7 @@ dist/petstore.json
 A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the API description file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
 
 ```bash
-redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
+redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/museum.yaml
 ```
 
 {% admonition type="warning" name="Note" %}
@@ -89,98 +89,6 @@ By default, the CLI tool looks for the Redocly configuration file in the current
 ```bash
 redocly bundle --config=./another/directory/config.yaml
 ```
-
-### Format
-
-#### Codeframe (default)
-
-```bash
-redocly bundle pet.yaml store.yaml -o ./bundled --format=codeframe
-## equivalent to: redocly bundle pet.yaml store.yaml -o ./bundled
-```
-
-Note: Errors display in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
-
-Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
-
-#### Stylish
-
-```bash
-redocly bundle pet.yaml store.yaml -o ./bundled --format=stylish
-```
-
-In this format, `bundle` shows the filename, line number, and column where the problem occurred.
-
-The compressed output omits other contexts and suggestions.
-
-#### JSON
-
-{% tabs %}
-{% tab label="Command" %}
-
-```bash
-redocly bundle pet.yaml store.yaml -o ./bundled --format=json
-```
-
-{% /tab  %}
-{% tab label="Output" %}
-
-```bash
-bundling pet.yaml...
-{
-  "totals": {
-    "errors": 0,
-    "warnings": 0,
-    "ignored": 0
-  },
-  "version": "1.0.0-beta.54",
-  "problems": []
-}📦 Created a bundle for pet.yaml at bundled/pet.yaml 28ms.
-bundling store.yaml...
-{
-  "totals": {
-    "errors": 0,
-    "warnings": 0,
-    "ignored": 0
-  },
-  "version": "1.0.0-beta.54",
-  "problems": []
-}📦 Created a bundle for store.yaml at bundled/store.yaml 15ms.
-```
-
-{% /tab  %}
-{% /tabs  %}
-
-In this format, `bundle` shows the result of bundling (including the number of errors and warnings and their descriptions) in JSON-like output.
-
-#### Checkstyle
-
-{% tabs %}
-{% tab label="Command" %}
-
-```bash
-redocly bundle pet.yaml -o ./bundled --lint --format=checkstyle
-```
-
-{% /tab  %}
-{% tab label="Output" %}
-
-```bash
-bundling pet.yaml...
-<?xml version="1.0" encoding="UTF-8"?>
-<checkstyle version="4.3">
-<file name="pet.yaml">
-</file>
-</checkstyle>
-📦 Created a bundle for pet.yaml at bundled/pet.yaml 35ms.
-```
-
-{% /tab  %}
-{% /tabs  %}
-In this format, `bundle` uses the [Checkstyle](https://checkstyle.org/) XML report format.
-Due to the limitations of this format, the output _only_ includes the filename, line, column, severity,
-and rule ID (in the `source` attribute).
-All other information is omitted.
 
 ### Skip preprocessor, rule, or decorator
 

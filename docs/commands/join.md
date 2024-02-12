@@ -105,7 +105,7 @@ x-tagGroups:
     description: 'Text from info: description of the first input file'
   - name: second-api
     tags:
-      - pets
+      - partner
     description: 'Text from info: description of the second input file'
 ```
 
@@ -123,17 +123,17 @@ Path names and component names must be unique in all input files, but their cont
 If the `join` command detects any conflicting content while trying to combine the input files, it displays informative messages about the conflicts and exits without creating an output file. To prevent this, use optional parameters to add prefixes to tags and components.
 
 ```bash
-Conflict on tags => all : pets in files: petstore.yaml,test.yaml
+Conflict on tags => all : tickets in files: museum.yaml,exhibition.yaml
 
 1 conflict(s) on tags.
 Suggestion: please use prefix-tags-with-filename, prefix-tags-with-info-prop or without-x-tag-groups to prevent naming conflicts.
 
-Conflict on paths => /pets : get in files: petstore.yaml,test.yaml
-Conflict on paths => /pets : post in files: petstore.yaml,test.yaml
-Conflict on paths => operationIds : listPets in files: petstore.yaml,test.yaml
-Conflict on paths => operationIds : createPets in files: petstore.yaml,test.yaml
-Conflict on paths => operationIds : showPetById in files: petstore.yaml,test.yaml
-Conflict on paths => /pets/{petId} : get in files: petstore.yaml,test.yaml
+Conflict on paths => /tickets : get in files: museum.yaml,exhibition.yaml
+Conflict on paths => /tickets : post in files: museum.yaml,exhibition.yaml
+Conflict on paths => operationIds : listEvents in files: museum.yaml,exhibition.yaml
+Conflict on paths => operationIds : createEvent in files: museum.yaml,exhibition.yaml
+Conflict on paths => operationIds : getEvent in files: museum.yaml,exhibition.yaml
+Conflict on paths => /tickets/{Id} : get in files: museum.yaml,exhibition.yaml
 
 Please fix conflicts before running join.
 ```
@@ -167,9 +167,9 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
   description: endpoints tag description
   x-displayName: endpoints
 
-- name: Second document title_pets
-  description: pets tag description
-  x-displayName: pets
+- name: Second document title_events
+  description: events tag description
+  x-displayName: events
 ```
 
 {% /tab  %}
@@ -198,9 +198,9 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
   description: endpoints tag description
   x-displayName: endpoints
 
-- name: second-api_pets
-  description: pets tag description
-  x-displayName: pets
+- name: second-api_events
+  description: events tag description
+  x-displayName: events
 ```
 
 {% /tab  %}
@@ -230,11 +230,8 @@ If any of the input files have conflicting component names, this option can be u
 
 #### Usage
 
-{% tabs %}
-{% tab label="Command" %}
-
 ```bash
-redocly join first-api.yaml second-api.json --prefix-components-with-info-prop version
+redocly join museum_v1.yaml museum_v2.json --prefix-components-with-info-prop version
 ```
 
 {% /tab  %}
@@ -243,35 +240,51 @@ redocly join first-api.yaml second-api.json --prefix-components-with-info-prop v
 ```yaml
 components:
   schemas:
-    1.0.1_Pet:
-      allOf:
-        - $ref: '#/components/schemas/NewPet'
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              format: int64
-    1.0.1_NewPet:
+    1.0.0_BuyMuseumTicketsRequest:
+      description: Request payload used for purchasing museum tickets.
       type: object
-      required:
-        - name
       properties:
-        name:
-          type: string
-        tag:
-          type: string
-    1.2.0_Pet:
-      allOf:
-        - $ref: '#/components/schemas/NewPet'
-        - type: object
-          required:
-            - id
-          properties:
-            id:
-              type: integer
-              format: int64
+        ticketType:
+          $ref: '#/components/schemas/1.0.0_TicketType'
+        eventId:
+          description: >-
+            Unique identifier for a special event. Required if purchasing
+            tickets for the museum's special events.
+          $ref: '#/components/schemas/1.0.0_1.0.0_EventId'
+        ticketDate:
+          description: Date that the ticket is valid for.
+          $ref: '#/components/schemas/1.0.0_1.0.0_Date'
+        email:
+          $ref: '#/components/schemas/1.0.0_Email'
+        phone:
+          $ref: '#/components/schemas/1.0.0_Phone'
+      required:
+        - ticketType
+        - ticketDate
+        - email
+    1.2.0_BuyMuseumTicketsRequest:
+      description: Request payload used for purchasing museum tickets.
+      type: object
+      properties:
+        ticketType:
+          $ref: '#/components/schemas/1.2.0_TicketType'
+        eventId:
+          description: >-
+            Unique identifier for a special event. Required if purchasing
+            tickets for the museum's special events.
+          $ref: '#/components/schemas/1.2.0_1.2.0_EventId'
+        ticketDate:
+          description: Date that the ticket is valid for.
+          $ref: '#/components/schemas/1.2.0_1.2.0_Date'
+        email:
+          $ref: '#/components/schemas/1.2.0_Email'
+        phone:
+          $ref: '#/components/schemas/1.2.0_Phone'
+      required:
+        - ticketType
+        - ticketDate
+        - email
+
 ```
 
 {% /tab  %}
