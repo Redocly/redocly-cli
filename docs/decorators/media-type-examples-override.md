@@ -34,7 +34,7 @@ Replace a `requestBody` media type example by using the `request` key in `redocl
 The `examples` section in the API description is wholly replaced by the contents of the file you reference.
 
 Replace a response media type example for a specific status by setting `responses` and then the desired status in your configuration file.
-The `examples` section for that response status is replaced by the contents fo the file specified.
+The `examples` section for that response status is replaced by the contents of the file specified.
 **Note:** Only the `examples` field is replaced; the response status must already exist and be defined in the API description.
 
 ## Examples
