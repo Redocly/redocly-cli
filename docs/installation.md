@@ -83,4 +83,3 @@ docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
 - Set up [autocomplete for Redocly CLI](./guides/autocomplete.md).
 - Check the full list of [Redocly CLI commands](./commands/index.md) available.
 - Try things out with the [Museum Example API](https://github.com/Redocly/museum-openapi-example).
-
