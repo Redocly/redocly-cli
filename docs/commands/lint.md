@@ -68,7 +68,7 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 
 #### All configured APIs
 
-You can omit apis completely when executing the `lint` command to check all APIs defined in the configuration file. Run `redocly lint` with noarguments to lint all defined APIs; an example `redocly.yaml` file is shown below:
+You can omit apis completely when executing the `lint` command to check all APIs defined in the configuration file. Run `redocly lint` with no arguments to lint all defined APIs; an example `redocly.yaml` file is shown below:
 
 ```yaml
 apis:
