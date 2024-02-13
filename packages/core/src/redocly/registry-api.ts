@@ -8,6 +8,7 @@ import type {
 import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const version = require('../../package.json').version;
 
@@ -41,9 +42,12 @@ export class RegistryApi {
       throw new Error('Unauthorized');
     }
 
+    const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+    const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
+    
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
-      Object.assign({}, options, { headers })
+      Object.assign({}, options, { headers, agent })
     );
 
     if (response.status === 401) {

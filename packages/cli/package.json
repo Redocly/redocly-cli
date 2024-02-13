@@ -45,6 +45,7 @@
     "get-port-please": "^3.0.1",
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
+    "https-proxy-agent": "^7.0.2",
     "mobx": "^6.0.4",
     "node-fetch": "^2.6.1",
     "react": "^17.0.0 || ^18.2.0",
