@@ -42,7 +42,7 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    # if: github.head_ref == 'changeset-release/main'
+    if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,7 +63,7 @@ jobs:
           npm run make-test
       - name: Run Benchmark
         run: |
-          cd bechmark/
+          cd benchmark/
           npm test
           cat benchmark_check.md
         env:
