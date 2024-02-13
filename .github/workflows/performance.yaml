@@ -71,5 +71,5 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: benchmark_check.md
+          filePath: benchmark/benchmark_check.md
           comment_tag: historical-versions-comparison
