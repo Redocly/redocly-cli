@@ -42,12 +42,12 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    # if: github.head_ref == 'refs/heads/changeset-release/main'
+    # if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{ github.head_ref }}
       - run: echo "HERE IT IS"
-        if: github.head_ref == 'refs/heads/chore/add-historical-benchmark'
+        if: github.head_ref == 'chore/add-historical-benchmark'
       # - uses: actions/checkout@v3
       # - uses: actions/setup-node@v3
       #   with:
