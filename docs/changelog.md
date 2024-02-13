@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.9.0 (2024-02-13)
+
+### Minor Changes
+
+- - Removed descriptions adding for x-tagGroups for the `join` command. Descriptions in x-tagGroups are not supported and cause errors on linting.
+  - Updated `info.title` to be used as a name in x-tagGroups instead of a file name for the `join` command, so you can now join files with the same names.
+- Added new `no-required-schema-properties-undefined` rule to check if each required schema property is defined.
+
+### Patch Changes
+
+- Fixed an issue where using the `--prefix-components-with-info-prop` option with the `join` command caused `$refs` to include duplicated prefixes.
+- Fixed an issue where `$ref`s ending in `#` (instead of `#/`) would break the application.
+- Updated @redocly/openapi-core to v1.9.0.
+
 ## 1.8.2 (2024-02-01)
 
 ### Patch Changes
