@@ -42,7 +42,7 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    if: github.head_ref == 'changeset-release/main'
+    if: github.head_ref == 'chore/add-historical-benchmark'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
