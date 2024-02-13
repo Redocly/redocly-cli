@@ -2,14 +2,13 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
 import { RegistryApi } from './registry-api';
-import { DOMAINS, AVAILABLE_REGIONS } from '../config/config';
 import { env } from '../env';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
-import { DEFAULT_REGION, getRedoclyDomain, setRedoclyDomain } from '../domains';
+import { AVAILABLE_REGIONS, DEFAULT_REGION, DOMAINS, getRedoclyDomain, setRedoclyDomain } from '../domains';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 

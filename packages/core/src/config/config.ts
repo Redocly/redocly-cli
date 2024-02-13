@@ -29,13 +29,11 @@ import type {
 } from './types';
 import { getResolveConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
-import { getDomains } from '../domains';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
-
 
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {
@@ -46,9 +44,6 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
     return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
-
-export const DOMAINS = getDomains();
-export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
 export class StyleguideConfig {
   plugins: Plugin[];

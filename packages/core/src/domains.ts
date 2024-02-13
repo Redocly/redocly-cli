@@ -1,8 +1,11 @@
 import { Region } from './config/types';
 
+let REDOCLY_DOMAIN = 'redocly.com';
+
 export const DEFAULT_REGION = 'us';
 
-let REDOCLY_DOMAIN = 'redocly.com';
+export const DOMAINS = getDomains();
+export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
 export function getDomains() {
   const domains: { [region in Region]: string } = {

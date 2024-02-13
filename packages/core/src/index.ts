@@ -43,6 +43,8 @@ export {
 
 export { RedoclyClient } from './redocly';
 
+export * from './domains';
+
 export {
   Source,
   BaseResolver,

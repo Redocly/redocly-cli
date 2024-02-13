@@ -5,10 +5,10 @@ import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
-import { DOMAINS, HttpResolveConfig } from './config';
 import { env } from './env';
 import { logger, colorize } from './logger';
-import { DEFAULT_REGION, getRedoclyDomain } from './domains';
+import { DEFAULT_REGION, DOMAINS, getRedoclyDomain } from './domains';
+import { HttpResolveConfig } from './config';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
