@@ -42,7 +42,7 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    if: github.head_ref == 'changeset-release/main'
+    # if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -54,13 +54,16 @@ jobs:
         run: npm ci
       - name: Install External
         run: npm i -g hyperfine
-      - name: Prepare & Run Benchmark
+      - name: Prepare
         run: |
           npm run compile
           npm run pack:prepare
           cd benchmark/
           npm i
           npm run make-test
+      - name: Run Benchmark
+        run: |
+          cd bechmark/
           npm test
           cat benchmark_check.md
         env:
