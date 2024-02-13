@@ -2,13 +2,14 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
 import { RegistryApi } from './registry-api';
-import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS } from '../config/config';
+import { DOMAINS, AVAILABLE_REGIONS } from '../config/config';
 import { env } from '../env';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
+import { DEFAULT_REGION, getRedoclyDomain, setRedoclyDomain } from '../domains';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 
@@ -23,7 +24,7 @@ export class RedoclyClient {
     this.loadTokens();
     this.domain = region ? DOMAINS[region] : env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
-    env.REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
+    setRedoclyDomain(this.domain)
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
@@ -36,9 +37,9 @@ export class RedoclyClient {
       );
     }
 
-    if (env.REDOCLY_DOMAIN) {
+    if (getRedoclyDomain()) {
       return (AVAILABLE_REGIONS.find(
-        (region) => DOMAINS[region as Region] === env.REDOCLY_DOMAIN
+        (region) => DOMAINS[region as Region] === getRedoclyDomain()
       ) || DEFAULT_REGION) as Region;
     }
     return region || DEFAULT_REGION;
@@ -169,19 +170,4 @@ export class RedoclyClient {
       unlinkSync(credentialsPath);
     }
   }
-}
-
-export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
-
-  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
-
-  if (
-    !link.startsWith(`https://api.${domain}/registry/`) &&
-    !link.startsWith(`https://api.${legacyDomain}/registry/`)
-  ) {
-    return false;
-  }
-
-  return true;
 }

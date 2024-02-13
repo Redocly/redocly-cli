@@ -10,7 +10,7 @@ import {
   Oas3RuleSet,
   Async2RuleSet,
 } from '../oas-types';
-import { isBrowser, env } from '../env';
+import { isBrowser } from '../env';
 
 import type { NodeType } from '../types';
 import type {
@@ -29,30 +29,13 @@ import type {
 } from './types';
 import { getResolveConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
+import { getDomains } from '../domains';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
-export const DEFAULT_REGION = 'us';
-
-function getDomains() {
-  const domains: { [region in Region]: string } = {
-    us: 'redocly.com',
-    eu: 'eu.redocly.com',
-  };
-
-  // FIXME: temporary fix for our lab environments
-  const domain = env.REDOCLY_DOMAIN;
-  if (domain?.endsWith('.redocly.host')) {
-    domains[domain.split('.')[0] as Region] = domain;
-  }
-  if (domain === 'redoc.online') {
-    domains[domain as Region] = domain;
-  }
-  return domains;
-}
 
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {

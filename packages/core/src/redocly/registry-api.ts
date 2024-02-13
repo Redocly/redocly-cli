@@ -6,9 +6,10 @@ import type {
   PushApiParams,
 } from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
-import { DEFAULT_REGION, DOMAINS } from '../config/config';
+import { DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { DEFAULT_REGION } from '../domains';
 
 const version = require('../../package.json').version;
 
