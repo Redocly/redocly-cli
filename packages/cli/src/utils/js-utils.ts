@@ -15,3 +15,10 @@ export function keysOf<T>(obj: T) {
   if (!obj) return [];
   return Object.keys(obj) as (keyof T)[];
 }
+
+export function capitalize(s: string) {
+  if (s?.length > 0) {
+    return s[0].toUpperCase() + s.slice(1);
+  }
+  return s;
+}
