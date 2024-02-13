@@ -42,34 +42,35 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    if: github.ref == 'refs/heads/chore/add-historical-benchmark'
+    # if: github.ref == 'refs/heads/changeset-release/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: Install Dependencies
-        run: npm ci
-      - name: Install External
-        run: npm i -g hyperfine
-      - name: Prepare & Run Benchmark
-        run: |
-          npm run compile
-          npm run pack:prepare
-          cd benchmark/
-          npm i
-          npm run make-test
-          npm test
-          cat benchmark_check.md
-        env:
-          CI: true
-          REDOCLY_TELEMETRY: off
+      - run: echo ${{ github.ref }}
+      # - uses: actions/checkout@v3
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 20
+      #     cache: 'npm'
+      # - name: Install Dependencies
+      #   run: npm ci
+      # - name: Install External
+      #   run: npm i -g hyperfine
+      # - name: Prepare & Run Benchmark
+      #   run: |
+      #     npm run compile
+      #     npm run pack:prepare
+      #     cd benchmark/
+      #     npm i
+      #     npm run make-test
+      #     npm test
+      #     cat benchmark_check.md
+      #   env:
+      #     CI: true
+      #     REDOCLY_TELEMETRY: off
 
-      - name: Comment PR
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          filePath: benchmark/benchmark_check.md
-          comment_tag: historical-versions-comparison
+      # - name: Comment PR
+      #   if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     filePath: benchmark/benchmark_check.md
+      #     comment_tag: historical-versions-comparison
