@@ -8,7 +8,13 @@ import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
-import { AVAILABLE_REGIONS, DEFAULT_REGION, DOMAINS, getRedoclyDomain, setRedoclyDomain } from '../domains';
+import {
+  AVAILABLE_REGIONS,
+  DEFAULT_REGION,
+  DOMAINS,
+  getRedoclyDomain,
+  setRedoclyDomain,
+} from '../domains';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 
@@ -23,7 +29,7 @@ export class RedoclyClient {
     this.loadTokens();
     this.domain = region ? DOMAINS[region] : env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
-    setRedoclyDomain(this.domain)
+    setRedoclyDomain(this.domain);
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 

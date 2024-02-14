@@ -44,7 +44,7 @@ export class RegistryApi {
 
     const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
     const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
-    
+
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
       Object.assign({}, options, { headers, agent })
