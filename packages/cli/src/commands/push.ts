@@ -24,7 +24,7 @@ import {
 } from '../utils/miscellaneous';
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import { getProxyAgent } from 'core/src/utils';
 
 const DEFAULT_VERSION = 'latest';
 
@@ -441,9 +441,6 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       ? fs.statSync(filePathOrBuffer).size
       : filePathOrBuffer.byteLength;
 
-  const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-  const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
-
   const readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
@@ -453,6 +450,6 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       'Content-Length': fileSizeInBytes.toString(),
     },
     body: readStream,
-    agent,
+    agent: getProxyAgent(),
   });
 }

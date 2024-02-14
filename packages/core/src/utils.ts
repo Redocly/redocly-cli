@@ -9,6 +9,7 @@ import { env } from './env';
 import { logger, colorize } from './logger';
 import { DEFAULT_REGION, DOMAINS, getRedoclyDomain } from './domains';
 import { HttpResolveConfig } from './config';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -289,4 +290,9 @@ export function isRedoclyRegistryURL(link: string): boolean {
   }
 
   return true;
+}
+
+export function getProxyAgent() {
+  const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }
