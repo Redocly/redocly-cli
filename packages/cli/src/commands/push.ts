@@ -14,6 +14,7 @@ import {
   slash,
   Region,
   getMergedConfig,
+  getProxyAgent
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -24,7 +25,6 @@ import {
 } from '../utils/miscellaneous';
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
-import { getProxyAgent } from 'core/src/utils';
 
 const DEFAULT_VERSION = 'latest';
 
