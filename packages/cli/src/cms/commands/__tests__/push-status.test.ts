@@ -90,7 +90,7 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 PREVIEW deployment succeeded.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
     );
   });
 
@@ -110,10 +110,10 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(2);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 PREVIEW deployment succeeded.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 PRODUCTION deployment succeeded.\nPreview URL: https://test-url\n'
+      '🚀 Production deploy success.\nProduction URL: https://test-url\n'
     );
   });
 
@@ -139,7 +139,7 @@ describe('handlePushStatus()', () => {
       mockConfig
     );
     expect(exitWithError).toHaveBeenCalledWith(
-      '❌ PREVIEW deployment failed.\nPreview URL: https://test-url'
+      '❌ Preview deploy fail.\nPreview URL: https://test-url'
     );
   });
 
@@ -176,7 +176,7 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 PREVIEW deployment succeeded.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith('\nScorecard:');
     expect(process.stdout.write).toHaveBeenCalledWith(

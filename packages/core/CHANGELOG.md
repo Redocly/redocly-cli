@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 1.9.0
+
+### Minor Changes
+
+- Added new `no-required-schema-properties-undefined` rule to check if each required schema property is defined.
+
+### Patch Changes
+
+- Fixed an issue where `$ref`s ending in `#` (instead of `#/`) would break the application.
+
+## 1.8.2
+
 ## 1.8.1
 
 ## 1.8.0

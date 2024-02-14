@@ -4,7 +4,7 @@ tags:
     description: Pet Discription
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition with foo title.
+  title: Foo Example OpenAPI 3 definition with foo title.
   description: Information about API
   license:
     name: MIT

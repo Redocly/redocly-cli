@@ -43,6 +43,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'path-params-defined': 'error',
     'required-string-property-missing-min-length': 'error',
     'response-contains-header': 'error',
+    'no-required-schema-properties-undefined': 'error',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'error',

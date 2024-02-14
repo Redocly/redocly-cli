@@ -4,7 +4,7 @@ tags:
     description: Bar Discription
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
+  title: Bar Example OpenAPI 3 definition.
   description: Information about API
   license:
     name: MIT
@@ -25,3 +25,6 @@ components:
     some-property:
       description: bar description
       type: string
+    another-property:
+      description: description
+      $ref: '#/components/schemas/some-property'

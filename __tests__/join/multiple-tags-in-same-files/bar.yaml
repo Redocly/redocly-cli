@@ -6,7 +6,7 @@ tags:
     description: Wild description
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
+  title: Bar Example OpenAPI 3 definition.
   description: Information about API
   license:
     name: MIT

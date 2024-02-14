@@ -1,0 +1,10 @@
+openapi: 3.0.3
+paths:
+  /pets/{petId}:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/Pet.json#'

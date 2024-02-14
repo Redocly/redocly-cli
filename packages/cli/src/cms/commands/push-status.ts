@@ -5,6 +5,7 @@ import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { yellow } from 'colorette';
 import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
+import { capitalize } from '../../utils/js-utils';
 
 import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
 
@@ -177,15 +178,15 @@ function displayDeploymentAndBuildStatus({
     case 'success':
       spinner.stop();
       return process.stdout.write(
-        `${colors.green(
-          `🚀 ${buildType.toLocaleUpperCase()} deployment succeeded.`
-        )}\n${colors.magenta('Preview URL')}: ${colors.cyan(previewUrl!)}\n`
+        `${colors.green(`🚀 ${capitalize(buildType)} deploy success.`)}\n${colors.magenta(
+          `${capitalize(buildType)} URL`
+        )}: ${colors.cyan(previewUrl!)}\n`
       );
     case 'failed':
       spinner.stop();
       throw new DeploymentError(
-        `${colors.red(`❌ ${buildType.toLocaleUpperCase()} deployment failed.`)}\n${colors.magenta(
-          'Preview URL'
+        `${colors.red(`❌ ${capitalize(buildType)} deploy fail.`)}\n${colors.magenta(
+          `${capitalize(buildType)} URL`
         )}: ${colors.cyan(previewUrl!)}`
       );
     case 'pending':
