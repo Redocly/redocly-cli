@@ -94,7 +94,7 @@ externalDocs
 
 By default, the `info.description` property is taken only from the first file, even if it exists in other input files.
 
-However, if any of the input files contain the `tags` object, the `join` command automatically creates the `x-tagGroups` object in the output file. This object contains the `info.description` property from each of the input files.
+However, if any of the input files contain the `tags` object, the `join` command automatically creates the `x-tagGroups` object in the output file.
 
 ```yaml
 x-tagGroups:
@@ -102,17 +102,17 @@ x-tagGroups:
     tags:
       - expanded
       - other
-    description: 'Text from info: description of the first input file'
   - name: second-api
     tags:
       - partner
-    description: 'Text from info: description of the second input file'
 ```
 
 {% admonition type="info" %}
 If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
 
 If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
+
+The `info.title` field is used as a name in `x-tagGroups` instead of a file name for the `join` command, so you can join files with the same names. If you need to adjust the `info.title` field, you can also use the [info-override decorator](https://redocly.com/docs/cli/decorators/info-override/).
 
 {% /admonition %}
 
