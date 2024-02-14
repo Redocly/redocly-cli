@@ -7,7 +7,7 @@ import type {
 } from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
 import { getProxyAgent, isNotEmptyObject } from '../utils';
-import { DEFAULT_REGION, DOMAINS } from '../domains';
+import { getRedoclyDomain } from '../domains';
 
 const version = require('../../package.json').version;
 
@@ -18,8 +18,8 @@ export class RegistryApi {
     return isNotEmptyObject(this.accessTokens) && this.accessTokens[this.region];
   }
 
-  getBaseUrl(region: Region = DEFAULT_REGION) {
-    return `https://api.${DOMAINS[region]}/registry`;
+  getBaseUrl() {
+    return `https://api.${getRedoclyDomain()}/registry`;
   }
 
   setAccessTokens(accessTokens: AccessTokens) {
@@ -27,7 +27,7 @@ export class RegistryApi {
     return this;
   }
 
-  private async request(path = '', options: RequestInit = {}, region?: Region) {
+  private async request(path = '', options: RequestInit = {}) {
     const currentCommand =
       typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
     const redoclyEnv = typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
@@ -42,7 +42,7 @@ export class RegistryApi {
     }
 
     const response = await fetch(
-      `${this.getBaseUrl(region)}${path}`,
+      `${this.getBaseUrl()}${path}`,
       Object.assign({}, options, { headers, agent: getProxyAgent() })
     );
 
@@ -60,11 +60,10 @@ export class RegistryApi {
 
   async authStatus(
     accessToken: string,
-    region: Region,
     verbose = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
     try {
-      const response = await this.request('', { headers: { authorization: accessToken } }, region);
+      const response = await this.request('', { headers: { authorization: accessToken } });
 
       return await response.json();
     } catch (error) {
@@ -98,7 +97,6 @@ export class RegistryApi {
           isUpsert,
         }),
       },
-      this.region
     );
 
     if (response.ok) {
@@ -138,7 +136,6 @@ export class RegistryApi {
           batchSize,
         }),
       },
-      this.region
     );
 
     if (response.ok) {

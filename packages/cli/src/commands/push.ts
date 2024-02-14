@@ -63,8 +63,12 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
-    const clientToken = await promptClientToken(client.domain);
-    await client.login(clientToken);
+    try {
+      const clientToken = await promptClientToken(client.domain);
+      await client.login(clientToken);
+    } catch (e) {
+      exitWithError(e)
+    }
   }
 
   const startedAt = performance.now();

@@ -102,7 +102,7 @@ export class RedoclyClient {
     const allTokens = this.getAllTokens();
 
     const verifiedTokens = await Promise.allSettled(
-      allTokens.map(({ token, region }) => this.verifyToken(token, region))
+      allTokens.map(({ token }) => this.verifyToken(token))
     );
 
     return allTokens
@@ -126,7 +126,7 @@ export class RedoclyClient {
     }
 
     try {
-      await this.verifyToken(accessToken, this.region);
+      await this.verifyToken(accessToken);
 
       return true;
     } catch (err) {
@@ -144,17 +144,16 @@ export class RedoclyClient {
 
   async verifyToken(
     accessToken: string,
-    region: Region,
     verbose: boolean = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
-    return this.registryApi.authStatus(accessToken, region, verbose);
+    return this.registryApi.authStatus(accessToken, verbose);
   }
 
   async login(accessToken: string, verbose: boolean = false) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
 
     try {
-      await this.verifyToken(accessToken, this.region, verbose);
+      await this.verifyToken(accessToken, verbose);
     } catch (err) {
       throw new Error('Authorization failed. Please check if you entered a valid API key.');
     }
