@@ -81,6 +81,7 @@
             - page: rules/no-invalid-parameter-examples.md
             - page: rules/no-invalid-schema-examples.md
             - page: rules/no-path-trailing-slash.md
+            - page: rules/no-required-schema-properties-undefined.ts
             - page: rules/no-server-example-com.md
             - page: rules/no-server-trailing-slash.md
             - page: rules/no-server-variables-empty-enum.md
