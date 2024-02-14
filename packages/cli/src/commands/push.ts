@@ -14,7 +14,7 @@ import {
   slash,
   Region,
   getMergedConfig,
-  getProxyAgent
+  getProxyAgent,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
