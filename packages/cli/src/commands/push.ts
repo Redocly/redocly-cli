@@ -67,7 +67,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
       const clientToken = await promptClientToken(client.domain);
       await client.login(clientToken);
     } catch (e) {
-      exitWithError(e)
+      exitWithError(e);
     }
   }
 

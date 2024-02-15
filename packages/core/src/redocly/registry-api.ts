@@ -96,7 +96,7 @@ export class RegistryApi {
           filename,
           isUpsert,
         }),
-      },
+      }
     );
 
     if (response.ok) {
@@ -118,25 +118,22 @@ export class RegistryApi {
     batchId,
     batchSize,
   }: PushApiParams) {
-    const response = await this.request(
-      `/${organizationId}/${name}/${version}`,
-      {
-        method: 'PUT',
-        headers: {
-          'content-type': 'application/json',
-          authorization: this.accessToken,
-        } as HeadersInit,
-        body: JSON.stringify({
-          rootFilePath,
-          filePaths,
-          branch,
-          isUpsert,
-          isPublic,
-          batchId,
-          batchSize,
-        }),
-      },
-    );
+    const response = await this.request(`/${organizationId}/${name}/${version}`, {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+        authorization: this.accessToken,
+      } as HeadersInit,
+      body: JSON.stringify({
+        rootFilePath,
+        filePaths,
+        branch,
+        isUpsert,
+        isPublic,
+        batchId,
+        batchSize,
+      }),
+    });
 
     if (response.ok) {
       return;
