@@ -756,8 +756,17 @@ function addComponentsPrefix(description: string, componentsPrefix: string) {
 function addSecurityPrefix(security: any, componentsPrefix: string) {
   return componentsPrefix
     ? security?.map((s: any) => {
-        const key = Object.keys(s)[0];
-        return { [componentsPrefix + '_' + key]: s[key] };
+        // Check if security contains more than one object to determine if its logical 'OR' or 'AND'
+        if (Object.keys(s).length > 1) {
+          const joinedSecuritySchema = {};
+          for (const [key, value] of Object.entries(s)) {
+            Object.assign(joinedSecuritySchema, { [componentsPrefix + '_' + key]: value });
+          }
+          return joinedSecuritySchema;
+        } else {
+          const key = Object.keys(s)[0];
+          return { [componentsPrefix + '_' + key]: s[key] };
+        }
       })
     : security;
 }

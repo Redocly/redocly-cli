@@ -27,7 +27,11 @@ paths:
       responses:
         '200':
           description: example description
-
+      security:
+        - scheme1: []
+          scheme2: []
+          scheme3: []
+          scheme4: []
 components:
   schemas:
     some-property:
