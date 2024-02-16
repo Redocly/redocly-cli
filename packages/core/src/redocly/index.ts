@@ -14,7 +14,7 @@ import {
   DOMAINS,
   getRedoclyDomain,
   setRedoclyDomain,
-} from '../domains';
+} from './domains';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 

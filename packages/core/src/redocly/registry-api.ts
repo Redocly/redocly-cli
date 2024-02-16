@@ -7,7 +7,7 @@ import type {
 } from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
 import { getProxyAgent, isNotEmptyObject } from '../utils';
-import { getRedoclyDomain } from '../domains';
+import { getRedoclyDomain } from './domains';
 
 const version = require('../../package.json').version;
 

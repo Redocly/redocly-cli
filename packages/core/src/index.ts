@@ -50,7 +50,7 @@ export {
 
 export { RedoclyClient } from './redocly';
 
-export * from './domains';
+export * from './redocly/domains';
 
 export {
   Source,

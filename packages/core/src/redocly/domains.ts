@@ -1,4 +1,4 @@
-import { Region } from './config/types';
+import { Region } from '../config/types';
 
 let REDOCLY_DOMAIN = 'redocly.com';
 
@@ -30,4 +30,19 @@ export function setRedoclyDomain(domain: string) {
 
 export function getRedoclyDomain(): string {
   return REDOCLY_DOMAIN;
+}
+
+export function isRedoclyRegistryURL(link: string): boolean {
+  const domain = getRedoclyDomain() || DOMAINS[DEFAULT_REGION];
+
+  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
+
+  if (
+    !link.startsWith(`https://api.${domain}/registry/`) &&
+    !link.startsWith(`https://api.${legacyDomain}/registry/`)
+  ) {
+    return false;
+  }
+
+  return true;
 }

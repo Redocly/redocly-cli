@@ -7,7 +7,6 @@ import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import { env } from './env';
 import { logger, colorize } from './logger';
-import { DEFAULT_REGION, DOMAINS, getRedoclyDomain } from './domains';
 import { HttpResolveConfig } from './config';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
@@ -275,21 +274,6 @@ export function nextTick() {
 
 function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
   return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
-}
-
-export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = getRedoclyDomain() || DOMAINS[DEFAULT_REGION];
-
-  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
-
-  if (
-    !link.startsWith(`https://api.${domain}/registry/`) &&
-    !link.startsWith(`https://api.${legacyDomain}/registry/`)
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 export function getProxyAgent() {

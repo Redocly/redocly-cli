@@ -1,4 +1,4 @@
-import { setRedoclyDomain } from '../../domains';
+import { setRedoclyDomain } from '../domains';
 import { RedoclyClient } from '../index';
 
 jest.mock('node-fetch', () => ({

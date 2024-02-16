@@ -12,7 +12,7 @@ import type { Document } from '../resolve';
 import type { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
 import type { BaseResolver, ResolvedRefMap } from '../resolve';
-import { DOMAINS } from '../domains';
+import { DOMAINS } from '../redocly/domains';
 
 async function addConfigMetadata({
   rawConfig,

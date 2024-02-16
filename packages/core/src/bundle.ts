@@ -13,7 +13,8 @@ import {
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
-import { isPlainObject, isTruthy, isRedoclyRegistryURL } from './utils';
+import { isPlainObject, isTruthy } from './utils';
+import { isRedoclyRegistryURL } from './redocly/domains';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 import { ConfigTypes } from './types/redocly-yaml';
