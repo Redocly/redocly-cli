@@ -2,12 +2,10 @@ name: Require Either a Changeset or a Label 'No Changeset Needed'
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-    branches-ignore:
-      - chore/fix-reuqire-changeset # changeset-release/main
 
 jobs:
   require-changeset-or-label:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'No Changeset Needed') }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'No Changeset Needed') && github.head_ref != 'chore/fix-reuqire-changeset' }}
     runs-on: ubuntu-latest
     env:
       CI: true
