@@ -39,6 +39,11 @@ paths:
       responses:
         '200':
           description: example description
+      security:
+        - Foo Example OpenAPI 3 definition foo._scheme1: []
+          Foo Example OpenAPI 3 definition foo._scheme2: []
+          Foo Example OpenAPI 3 definition foo._scheme3: []
+          Foo Example OpenAPI 3 definition foo._scheme4: []
       tags:
         - foo_other
   /pets/{petId}:
@@ -48,6 +53,11 @@ paths:
       responses:
         '201':
           description: example description
+      security:
+        - Bar Example OpenAPI 3 definition._scheme1: []
+          Bar Example OpenAPI 3 definition._scheme2: []
+        - Bar Example OpenAPI 3 definition._scheme3: []
+          Bar Example OpenAPI 3 definition._scheme4: []
       tags:
         - bar_other
 components:

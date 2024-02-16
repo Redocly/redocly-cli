@@ -756,8 +756,11 @@ function addComponentsPrefix(description: string, componentsPrefix: string) {
 function addSecurityPrefix(security: any, componentsPrefix: string) {
   return componentsPrefix
     ? security?.map((s: any) => {
-        const key = Object.keys(s)[0];
-        return { [componentsPrefix + '_' + key]: s[key] };
+        const joinedSecuritySchema = {};
+        for (const [key, value] of Object.entries(s)) {
+          Object.assign(joinedSecuritySchema, { [componentsPrefix + '_' + key]: value });
+        }
+        return joinedSecuritySchema;
       })
     : security;
 }
