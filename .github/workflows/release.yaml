@@ -199,7 +199,7 @@ jobs:
 
       - name: Send to a Slack channel
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@v1.25.0
         with:
           channel-id: C019K52TC0L #releases
           payload-file-path: './output/release-message.json'
