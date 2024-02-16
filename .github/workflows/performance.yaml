@@ -6,13 +6,13 @@ on:
       - main
 
 jobs:
-  hyperfine:
+  latest-vs-next:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Install Dependencies
         run: npm ci
@@ -38,4 +38,41 @@ jobs:
         uses: thollander/actions-comment-pull-request@v2
         with:
           filePath: benchmark_check.md
-          comment_tag: hyperfine-comparison
+          comment_tag: latest-vs-next-comparison
+
+  historical-versions:
+    # Run only on release branch (changeset-release/main):
+    if: github.head_ref == 'changeset-release/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install External
+        run: npm i -g hyperfine
+      - name: Prepare
+        run: |
+          npm run compile
+          npm run pack:prepare
+          cd benchmark/
+          npm i
+          npm run make-test
+      - name: Run Benchmark
+        run: |
+          cd benchmark/
+          npm test
+          cat benchmark_check.md
+        env:
+          CI: true
+          REDOCLY_TELEMETRY: off
+
+      - name: Comment PR
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: benchmark/benchmark_check.md
+          comment_tag: historical-versions-comparison

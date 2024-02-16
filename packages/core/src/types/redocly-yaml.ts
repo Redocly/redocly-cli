@@ -1,8 +1,10 @@
-import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema';
-import { themeConfigSchema } from './theme-config';
-import { NodeType, listOf } from '.';
+import { rootRedoclyConfigSchema } from './portal-config-schema';
+import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { PortalConfigNodeTypes } from './portal-config-schema';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
+
+import type { NodeType } from '.';
+import type { JSONSchema } from 'json-schema-to-ts';
 
 const builtInCommonRules = [
   'spec',
@@ -97,8 +99,49 @@ const builtInRules = [
 
 type BuiltInRuleId = typeof builtInRules[number];
 
-const nodeTypesList = [
-  'any',
+const oas2NodeTypesList = [
+  'Root',
+  'Tag',
+  'TagList',
+  'ExternalDocs',
+  'SecurityRequirement',
+  'SecurityRequirementList',
+  'Info',
+  'Contact',
+  'License',
+  'Paths',
+  'PathItem',
+  'Parameter',
+  'ParameterList',
+  'ParameterItems',
+  'Operation',
+  'Example',
+  'ExamplesMap',
+  'Examples',
+  'Header',
+  'Responses',
+  'Response',
+  'Schema',
+  'Xml',
+  'SchemaProperties',
+  'NamedSchemas',
+  'NamedResponses',
+  'NamedParameters',
+  'NamedSecuritySchemes',
+  'SecurityScheme',
+  'TagGroup',
+  'TagGroups',
+  'EnumDescriptions',
+  'Logo',
+  'XCodeSample',
+  'XCodeSampleList',
+  'XServer',
+  'XServerList',
+] as const;
+
+export type Oas2NodeType = typeof oas2NodeTypesList[number];
+
+const oas3NodeTypesList = [
   'Root',
   'Tag',
   'TagList',
@@ -153,12 +196,33 @@ const nodeTypesList = [
   'AuthorizationCode',
   'OAuth2Flows',
   'SecurityScheme',
+  'TagGroup',
+  'TagGroups',
+  'EnumDescriptions',
+  'Logo',
   'XCodeSample',
   'XCodeSampleList',
+  'XUsePkce',
   'WebhooksMap',
-  'SpecExtension',
-  'Message',
-];
+] as const;
+
+export type Oas3NodeType = typeof oas3NodeTypesList[number];
+
+const oas3_1NodeTypesList = [
+  'Root',
+  'Schema',
+  'SchemaProperties',
+  'Info',
+  'License',
+  'Components',
+  'NamedPathItems',
+  'SecurityScheme',
+  'Operation',
+] as const;
+
+export type Oas3_1NodeType = typeof oas3_1NodeTypesList[number];
+
+const asyncNodeTypesList = ['Message'] as const;
 
 const ConfigStyleguide: NodeType = {
   properties: {
@@ -186,22 +250,13 @@ const ConfigStyleguide: NodeType = {
   },
 };
 
-const RootConfigStyleguide: NodeType = {
+const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes.rootRedoclyConfigSchema,
   properties: {
-    plugins: {
-      type: 'array',
-      items: { type: 'string' },
-    },
+    ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigStyleguide.properties,
-  },
-};
-
-const ConfigRoot: NodeType = {
-  properties: {
-    ...rootRedoclyConfigSchema.properties,
-    ...RootConfigStyleguide.properties,
-    apis: 'ConfigApis',
-    theme: 'ConfigRootTheme',
+    apis: 'ConfigApis', // Override apis with internal format
+    theme: 'ConfigRootTheme', // Override theme with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
@@ -220,17 +275,17 @@ const ConfigRoot: NodeType = {
       },
     },
   },
-};
+});
 
 const ConfigApis: NodeType = {
   properties: {},
   additionalProperties: 'ConfigApisProperties',
 };
 
-const ConfigApisProperties: NodeType = {
+const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
-    ...apiConfigSchema.properties,
-    root: { type: 'string' },
+    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     labels: {
       type: 'array',
       items: {
@@ -240,7 +295,6 @@ const ConfigApisProperties: NodeType = {
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    theme: 'ConfigRootTheme',
     files: {
       type: 'array',
       items: {
@@ -248,8 +302,7 @@ const ConfigApisProperties: NodeType = {
       },
     },
   },
-  required: ['root'],
-};
+});
 
 const ConfigHTTP: NodeType = {
   properties: {
@@ -262,13 +315,13 @@ const ConfigHTTP: NodeType = {
   },
 };
 
-const ConfigRootTheme: NodeType = {
+const createConfigRootTheme = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes['rootRedoclyConfigSchema.theme'],
   properties: {
-    ...themeConfigSchema.properties,
-    openapi: 'ConfigReferenceDocs',
-    mockServer: 'ConfigMockServer',
+    ...nodeTypes['rootRedoclyConfigSchema.theme']?.properties,
+    openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
   },
-};
+});
 
 const Rules: NodeType = {
   properties: {},
@@ -302,7 +355,18 @@ const ObjectRule: NodeType = {
 
 const AssertionDefinitionSubject: NodeType = {
   properties: {
-    type: { enum: nodeTypesList },
+    type: {
+      enum: [
+        ...new Set([
+          'any',
+          ...oas2NodeTypesList,
+          ...oas3NodeTypesList,
+          ...oas3_1NodeTypesList,
+          ...asyncNodeTypesList,
+          'SpecExtension',
+        ]),
+      ],
+    },
     property: (value: unknown) => {
       if (Array.isArray(value)) {
         return { type: 'array', items: { type: 'string' } };
@@ -863,8 +927,9 @@ const GenerateCodeSamples: NodeType = {
 };
 
 const ConfigReferenceDocs: NodeType = {
+  // TODO: partially invalid @Viacheslav
   properties: {
-    theme: 'ConfigTheme',
+    theme: 'ConfigTheme', // TODO: deprecated @Viacheslav
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
@@ -995,12 +1060,22 @@ const ConfigMockServer: NodeType = {
   },
 };
 
-export const ConfigTypes: Record<string, NodeType> = {
+export const createConfigTypes = (extraSchemas: JSONSchema) => {
+  // Create types based on external schemas
+  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
+
+  return {
+    ...CoreConfigTypes,
+    ConfigRoot: createConfigRoot(nodeTypes),
+    ConfigApisProperties: createConfigApisProperties(nodeTypes),
+    ConfigRootTheme: createConfigRootTheme(nodeTypes),
+    ...nodeTypes,
+  };
+};
+
+const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
-  ConfigRoot,
   ConfigApis,
-  ConfigApisProperties,
-  RootConfigStyleguide,
   ConfigStyleguide,
   ConfigReferenceDocs,
   ConfigMockServer,
@@ -1010,7 +1085,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  ConfigRootTheme,
   AssertDefinition,
   ThemeColors,
   CommonThemeColors,
@@ -1060,5 +1134,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   Typography,
   AssertionDefinitionAssertions,
   AssertionDefinitionSubject,
-  ...PortalConfigNodeTypes,
 };
+
+export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);

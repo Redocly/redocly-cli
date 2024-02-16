@@ -1,5 +1,9 @@
-import { NodeType, listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
+
+import type { NodeType } from '.';
+import type { Oas3NodeType } from './redocly-yaml';
+
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
 const Root: NodeType = {
@@ -531,7 +535,7 @@ const XUsePkce: NodeType = {
   },
 };
 
-export const Oas3Types: Record<string, NodeType> = {
+export const Oas3Types: Record<Oas3NodeType, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),

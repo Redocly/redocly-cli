@@ -21,31 +21,28 @@ export type NormalizedScalarSchema = {
 export type NodeType = {
   properties: Record<string, PropType | ResolveTypeFn>;
   additionalProperties?: PropType | ResolveTypeFn;
-  items?: string;
+  items?: PropType | ResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
 };
-type PropType = string | NodeType | ScalarSchema | undefined | null;
-type ResolveTypeFn = (value: any, key: string) => string | PropType;
+export type PropType = string | NodeType | ScalarSchema | undefined | null;
+export type ResolveTypeFn = (value: any, key: string) => string | PropType;
 
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
-  items?: NormalizedNodeType;
+  items?: NormalizedPropType | NormalizedResolveTypeFn;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
 };
 
-type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | undefined | null;
-type NormalizedResolveTypeFn = (
-  value: any,
-  key: string
-) => NormalizedNodeType | NormalizedScalarSchema | undefined | null;
+type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
+type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 
 export function listOf(typeName: string) {
   return {
@@ -142,8 +139,6 @@ export function normalizeTypes(
   }
 }
 
-export function isNamedType(
-  t: NormalizedNodeType | NormalizedScalarSchema | null | undefined
-): t is NormalizedNodeType {
+export function isNamedType(t: NormalizedPropType): t is NormalizedNodeType {
   return typeof t?.name === 'string';
 }

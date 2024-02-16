@@ -269,8 +269,20 @@ export async function resolveDocument(opts: {
         if (itemsType === undefined && type !== unknownType && type !== SpecExtension) {
           return;
         }
+        const isTypeAFunction = typeof itemsType === 'function';
         for (let i = 0; i < node.length; i++) {
-          walk(node[i], itemsType || unknownType, joinPointer(nodeAbsoluteRef, i));
+          const itemType = isTypeAFunction
+            ? itemsType(node[i], joinPointer(nodeAbsoluteRef, i))
+            : itemsType;
+          // we continue resolving unknown types, but stop early on known scalars
+          if (itemType === undefined && type !== unknownType && type !== SpecExtension) {
+            continue;
+          }
+          walk(
+            node[i],
+            isNamedType(itemType) ? itemType : unknownType,
+            joinPointer(nodeAbsoluteRef, i)
+          );
         }
         return;
       }
