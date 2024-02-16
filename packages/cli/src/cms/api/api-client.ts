@@ -37,7 +37,7 @@ class RemotesApiClient {
     );
 
     if (!response) {
-      throw new Error(`Failed to get default branch: Request timed out.`);
+      throw new Error(`Failed to get default branch.`);
     }
 
     try {
@@ -75,7 +75,7 @@ class RemotesApiClient {
     );
 
     if (!response) {
-      throw new Error(`Failed to upsert: Request timed out.`);
+      throw new Error(`Failed to upsert.`);
     }
 
     try {
@@ -142,7 +142,7 @@ class RemotesApiClient {
     );
 
     if (!response) {
-      throw new Error(`Failed to get remotes list: Request timed out.`);
+      throw new Error(`Failed to get remotes list.`);
     }
 
     try {
@@ -173,7 +173,7 @@ class RemotesApiClient {
     );
 
     if (!response) {
-      throw new Error(`Failed to get push status: Request timed out.`);
+      throw new Error(`Failed to get push status.`);
     }
 
     try {
