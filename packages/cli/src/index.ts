@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-console.log('Test')
+
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import { outputExtensions, PushArguments, regionChoices } from './types';
