@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fix an issue when using `join` command returned incorrect security schemas, depending if schema used logical OR or AND.
+Fix an issue when using `join` command resulted in generating incorrect schema, if security schema used logical AND for security requirements.
