@@ -1,5 +1,8 @@
-import { NodeType, listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import { Oas3Types } from './oas3';
+
+import type { NodeType } from '.';
+import type { Oas3_1NodeType } from './redocly-yaml';
 
 const Root: NodeType = {
   properties: {
@@ -262,7 +265,7 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Oas3_1Types: Record<string, NodeType> = {
+export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
   ...Oas3Types,
   Info,
   Root,
