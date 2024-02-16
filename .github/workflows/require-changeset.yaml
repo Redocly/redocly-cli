@@ -5,7 +5,7 @@ on:
 
 jobs:
   require-changeset-or-label:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'No Changeset Needed') && github.head_ref != 'chore/fix-reuqire-changeset' }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'No Changeset Needed') && github.head_ref != 'changeset-release/main' }}
     runs-on: ubuntu-latest
     env:
       CI: true
