@@ -2,6 +2,8 @@ name: Require Either a Changeset or a Label 'No Changeset Needed'
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches-ignore:
+      - chore/fix-reuqire-changeset # changeset-release/main
 
 jobs:
   require-changeset-or-label:
