@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Fix an issue with certain requests failing when using CLI behind a proxy.
+Users can run the CLI tool behind a proxy by using `HTTP_PROXY` or `HTTPS_PROXY` environment variables to configure the proxy settings. 
