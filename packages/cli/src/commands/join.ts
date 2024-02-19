@@ -801,30 +801,33 @@ async function validateApi(
   }
 }
 
-function crawl(object: any, visitor: any) {
+export function startsWithComponents(node: string) {
+  return node.startsWith(`#/${COMPONENTS}/`);
+}
+
+export function crawl(object: unknown, visitor: (node: unknown) => void) {
   if (!isObject(object)) return;
   for (const key of Object.keys(object)) {
-    visitor(object[key], key);
+    visitor(object[key]);
     crawl(object[key], visitor);
   }
 }
 
-function replace$Refs(obj: any, componentsPrefix: string) {
-  crawl(obj, (node: any) => {
-    if (node.$ref && isString(node.$ref) && node.$ref.startsWith(`#/${COMPONENTS}/`)) {
+function replace$Refs(obj: unknown, componentsPrefix: string) {
+  crawl(obj, (node: unknown) => {
+    if (!node || !isObject(node)) return;
+
+    if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
       const name = path.basename(node.$ref);
       node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);
-    } else if (
-      node.discriminator &&
-      node.discriminator.mapping &&
-      isObject(node.discriminator.mapping)
-    ) {
+    } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
-        if (isString(mapping[name]) && mapping[name].startsWith(`#/${COMPONENTS}/`)) {
-          mapping[name] = mapping[name]
+        const mappingPointer = mapping[name];
+        if (typeof mappingPointer === 'string' && startsWithComponents(mappingPointer)) {
+          mapping[name] = mappingPointer
             .split('/')
-            .map((name: string, i: number, arr: []) => {
+            .map((name, i, arr) => {
               return arr.length - 1 === i && !name.includes(componentsPrefix)
                 ? componentsPrefix + '_' + name
                 : name;

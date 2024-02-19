@@ -28,7 +28,7 @@ export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
 }
-export interface refObj {
+export interface RefObject {
   [$ref: string]: string;
 }
 
@@ -36,8 +36,6 @@ export const COMPONENTS = 'components';
 export const PATHS = 'paths';
 export const WEBHOOKS = 'webhooks';
 export const xWEBHOOKS = 'x-webhooks';
-export const componentsPath = `#/${COMPONENTS}/`;
-
 export enum OPENAPI3_METHOD {
   get = 'get',
   put = 'put',

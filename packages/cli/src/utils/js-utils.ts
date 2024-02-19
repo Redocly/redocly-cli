@@ -1,4 +1,4 @@
-export function isObject(obj: any) {
+export function isObject(obj: unknown): obj is Record<string, unknown> {
   const type = typeof obj;
   return type === 'function' || (type === 'object' && !!obj);
 }
