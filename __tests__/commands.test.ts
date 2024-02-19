@@ -204,6 +204,19 @@ describe('E2E', () => {
       const lintResult = getCommandOutput(lintArgs, folderPath);
       (<any>expect(lintResult)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
+
+    test('openapi json file with discriminator', () => {
+      const folderPath = join(__dirname, `split/discriminator-in-json`);
+      const file = '../../../__tests__/split/discriminator-in-json/openapi.json';
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        file,
+        '--outDir=output',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('join', () => {

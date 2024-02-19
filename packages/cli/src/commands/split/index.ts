@@ -16,7 +16,7 @@ import {
   writeToFileByExtension,
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous';
-import { isString, isObject, isEmptyObject } from '../../utils/js-utils';
+import { isObject, isEmptyObject } from '../../utils/js-utils';
 import {
   Definition,
   Oas2Definition,
@@ -26,11 +26,10 @@ import {
   Oas3Components,
   Oas3ComponentName,
   ComponentsFiles,
-  refObj,
+  RefObject,
   Oas3PathItem,
   OPENAPI3_COMPONENT,
   COMPONENTS,
-  componentsPath,
   OPENAPI3_METHOD_NAMES,
   OPENAPI3_COMPONENT_NAMES,
   Referenced,
@@ -93,8 +92,8 @@ function splitDefinition(
   writeToFileByExtension(openapi, path.join(openapiDir, `openapi.${ext}`));
 }
 
-function isStartsWithComponents(node: string) {
-  return node.startsWith(componentsPath);
+export function startsWithComponents(node: string) {
+  return node.startsWith(`#/${COMPONENTS}/`);
 }
 
 function isSupportedExtension(filename: string) {
@@ -152,25 +151,24 @@ function crawl(object: any, visitor: any) {
   }
 }
 
-function replace$Refs(obj: any, relativeFrom: string, componentFiles = {} as ComponentsFiles) {
-  crawl(obj, (node: any) => {
-    if (node.$ref && isString(node.$ref) && isStartsWithComponents(node.$ref)) {
-      replace(node, '$ref');
-    } else if (
-      node.discriminator &&
-      node.discriminator.mapping &&
-      isObject(node.discriminator.mapping)
-    ) {
+function replace$Refs(obj: unknown, relativeFrom: string, componentFiles = {} as ComponentsFiles) {
+  crawl(obj, (node: unknown) => {
+    if (!node || !isObject(node)) return;
+
+    if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
+      replace(node as RefObject, '$ref');
+    } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
-        if (isString(mapping[name]) && isStartsWithComponents(mapping[name])) {
-          replace(node.discriminator.mapping, name);
+        const mappingPointer = mapping[name];
+        if (typeof mappingPointer === 'string' && startsWithComponents(mappingPointer)) {
+          replace(node.discriminator.mapping as RefObject, name);
         }
       }
     }
   });
 
-  function replace(node: refObj, key: string) {
+  function replace(node: RefObject, key: string) {
     const splittedNode = node[key].split('/');
     const name = splittedNode.pop();
     const groupName = splittedNode[2];

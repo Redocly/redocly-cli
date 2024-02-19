@@ -4,20 +4,15 @@ import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 import {
   Config,
-  Oas3Definition,
   SpecVersion,
   BaseResolver,
-  Document,
   StyleguideConfig,
-  Oas3Tag,
   formatProblems,
   getTotals,
   lintDocument,
   detectSpec,
   bundleDocument,
-  Referenced,
   isRef,
-  RuleSeverity,
 } from '@redocly/openapi-core';
 
 import {
@@ -32,16 +27,18 @@ import {
   checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
 import { isObject, isString, keysOf } from '../utils/js-utils';
-import {
+import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
+import { startsWithComponents } from './split';
+
+import { Oas3Definition, Document, Oas3Tag, Referenced, RuleSeverity } from '@redocly/openapi-core';
+import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
+import type {
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3_1Definition,
 } from '@redocly/openapi-core/lib/typings/openapi';
-import { OPENAPI3_METHOD } from './split/types';
-import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
-const COMPONENTS = 'components';
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
 let potentialConflictsTotal = 0;
@@ -799,10 +796,6 @@ async function validateApi(
   } catch (err) {
     handleError(err, document.parsed);
   }
-}
-
-export function startsWithComponents(node: string) {
-  return node.startsWith(`#/${COMPONENTS}/`);
 }
 
 export function crawl(object: unknown, visitor: (node: unknown) => void) {

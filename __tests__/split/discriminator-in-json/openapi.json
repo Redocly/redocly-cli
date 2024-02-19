@@ -1,0 +1,76 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Test",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.server.test/v1"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchemaWithDiscriminator"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SchemaWithNull": {
+        "type": "string",
+        "default": null,
+        "nullable": true
+      },
+      "SchemaWithRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "schemaType": "string",
+            "const": "foo"
+          },
+          "foo": {
+            "$ref": "#/components/schemas/SchemaWithNull"
+          }
+        }
+      },
+      "SchemaWithDiscriminator": {
+        "discriminator": {
+          "propertyName": "schemaType",
+          "mapping": {
+            "foo": "#/components/schemas/SchemaWithRef",
+            "bar": "#/components/schemas/SchemaWithNull"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SchemaWithRef"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "schemaType": {
+                "schemaType": "string",
+                "const": "bar"
+              },
+              "bar": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
