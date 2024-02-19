@@ -96,6 +96,27 @@ describe('ref-utils', () => {
     expect(result).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should parse a ref correctly', () => {
+    expect(parseRef('./info.md#/description')).toEqual({
+      uri: './info.md',
+      pointer: ['description'],
+    });
+  });
+
+  it('should parse a ref which contain a hash in the middle', () => {
+    expect(parseRef('./info#description.md')).toEqual({
+      uri: './info#description.md',
+      pointer: [],
+    });
+  });
+
+  it('should parse a ref which ends with a hash', () => {
+    expect(parseRef('./info.md#')).toEqual({
+      uri: './info.md',
+      pointer: [],
+    });
+  });
+
   describe('refBaseName', () => {
     it('returns base name for file reference', () => {
       expect(refBaseName('../testcase/Pet.yaml')).toStrictEqual('Pet');

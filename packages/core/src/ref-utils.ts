@@ -43,9 +43,9 @@ export function escapePointer<T extends string | number>(fragment: T): T {
 }
 
 export function parseRef(ref: string): { uri: string | null; pointer: string[] } {
-  const [uri, pointer = ''] = ref.split('#');
+  const [uri, pointer = ''] = ref.split('#/');
   return {
-    uri: uri || null,
+    uri: (uri.endsWith('#') ? uri.slice(0, -1) : uri) || null,
     pointer: parsePointer(pointer),
   };
 }
