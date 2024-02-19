@@ -27,7 +27,7 @@ import {
 } from '../utils/miscellaneous';
 import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
-import { startsWithComponents } from './split';
+import { crawl, startsWithComponents } from './split';
 
 import type {
   Oas3Definition,
@@ -803,18 +803,8 @@ async function validateApi(
   }
 }
 
-function crawl(object: unknown, visitor: (node: unknown) => void) {
-  if (!isObject(object)) return;
-  for (const key of Object.keys(object)) {
-    visitor(object[key]);
-    crawl(object[key], visitor);
-  }
-}
-
 function replace$Refs(obj: unknown, componentsPrefix: string) {
-  crawl(obj, (node: unknown) => {
-    if (!node || !isObject(node)) return;
-
+  crawl(obj, (node: Record<string, unknown>) => {
     if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
       const name = path.basename(node.$ref);
       node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);

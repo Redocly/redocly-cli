@@ -145,18 +145,17 @@ function traverseDirectoryDeepCallback(
   writeToFileByExtension(pathData, filename);
 }
 
-function crawl(object: any, visitor: any) {
+export function crawl(object: unknown, visitor: (node: Record<string, unknown>) => void) {
   if (!isObject(object)) return;
+
+  visitor(object);
   for (const key of Object.keys(object)) {
-    visitor(object, key);
     crawl(object[key], visitor);
   }
 }
 
 function replace$Refs(obj: unknown, relativeFrom: string, componentFiles = {} as ComponentsFiles) {
-  crawl(obj, (node: unknown) => {
-    if (!node || !isObject(node)) return;
-
+  crawl(obj, (node: Record<string, unknown>) => {
     if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
       replace(node as RefObject, '$ref');
     } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
