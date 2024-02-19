@@ -29,7 +29,13 @@ import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
 import { startsWithComponents } from './split';
 
-import type { Oas3Definition, Document, Oas3Tag, Referenced, RuleSeverity } from '@redocly/openapi-core';
+import type {
+  Oas3Definition,
+  Document,
+  Oas3Tag,
+  Referenced,
+  RuleSeverity,
+} from '@redocly/openapi-core';
 import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {
   Oas3Parameter,
@@ -797,7 +803,7 @@ async function validateApi(
   }
 }
 
-export function crawl(object: unknown, visitor: (node: unknown) => void) {
+function crawl(object: unknown, visitor: (node: unknown) => void) {
   if (!isObject(object)) return;
   for (const key of Object.keys(object)) {
     visitor(object[key]);
