@@ -14,7 +14,6 @@ import {
   bundleDocument,
   isRef,
 } from '@redocly/openapi-core';
-
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -30,7 +29,7 @@ import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
 import { startsWithComponents } from './split';
 
-import { Oas3Definition, Document, Oas3Tag, Referenced, RuleSeverity } from '@redocly/openapi-core';
+import type { Oas3Definition, Document, Oas3Tag, Referenced, RuleSeverity } from '@redocly/openapi-core';
 import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {
   Oas3Parameter,

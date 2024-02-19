@@ -1,11 +1,9 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
 import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
-import type { OasRef } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
-
 import {
   printExecutionTime,
   pathToFilename,
@@ -18,6 +16,14 @@ import {
 } from '../../utils/miscellaneous';
 import { isObject, isEmptyObject } from '../../utils/js-utils';
 import {
+  OPENAPI3_COMPONENT,
+  COMPONENTS,
+  OPENAPI3_METHOD_NAMES,
+  OPENAPI3_COMPONENT_NAMES,
+} from './types';
+
+import type { OasRef } from '@redocly/openapi-core';
+import type {
   Definition,
   Oas2Definition,
   Oas3Schema,
@@ -28,10 +34,6 @@ import {
   ComponentsFiles,
   RefObject,
   Oas3PathItem,
-  OPENAPI3_COMPONENT,
-  COMPONENTS,
-  OPENAPI3_METHOD_NAMES,
-  OPENAPI3_COMPONENT_NAMES,
   Referenced,
 } from './types';
 
