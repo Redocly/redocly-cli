@@ -4,22 +4,16 @@ import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 import {
   Config,
-  Oas3Definition,
   SpecVersion,
   BaseResolver,
-  Document,
   StyleguideConfig,
-  Oas3Tag,
   formatProblems,
   getTotals,
   lintDocument,
   detectSpec,
   bundleDocument,
-  Referenced,
   isRef,
-  RuleSeverity,
 } from '@redocly/openapi-core';
-
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -32,16 +26,24 @@ import {
   checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
 import { isObject, isString, keysOf } from '../utils/js-utils';
-import {
+import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
+import { crawl, startsWithComponents } from './split';
+
+import type {
+  Oas3Definition,
+  Document,
+  Oas3Tag,
+  Referenced,
+  RuleSeverity,
+} from '@redocly/openapi-core';
+import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
+import type {
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3_1Definition,
 } from '@redocly/openapi-core/lib/typings/openapi';
-import { OPENAPI3_METHOD } from './split/types';
-import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
-const COMPONENTS = 'components';
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
 let potentialConflictsTotal = 0;
@@ -801,30 +803,19 @@ async function validateApi(
   }
 }
 
-function crawl(object: any, visitor: any) {
-  if (!isObject(object)) return;
-  for (const key of Object.keys(object)) {
-    visitor(object[key], key);
-    crawl(object[key], visitor);
-  }
-}
-
-function replace$Refs(obj: any, componentsPrefix: string) {
-  crawl(obj, (node: any) => {
-    if (node.$ref && isString(node.$ref) && node.$ref.startsWith(`#/${COMPONENTS}/`)) {
+function replace$Refs(obj: unknown, componentsPrefix: string) {
+  crawl(obj, (node: Record<string, unknown>) => {
+    if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
       const name = path.basename(node.$ref);
       node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);
-    } else if (
-      node.discriminator &&
-      node.discriminator.mapping &&
-      isObject(node.discriminator.mapping)
-    ) {
+    } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
-        if (isString(mapping[name]) && mapping[name].startsWith(`#/${COMPONENTS}/`)) {
-          mapping[name] = mapping[name]
+        const mappingPointer = mapping[name];
+        if (typeof mappingPointer === 'string' && startsWithComponents(mappingPointer)) {
+          mapping[name] = mappingPointer
             .split('/')
-            .map((name: string, i: number, arr: []) => {
+            .map((name, i, arr) => {
               return arr.length - 1 === i && !name.includes(componentsPrefix)
                 ? componentsPrefix + '_' + name
                 : name;

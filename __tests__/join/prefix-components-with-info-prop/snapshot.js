@@ -71,6 +71,8 @@ components:
     Bar Example OpenAPI 3 definition._some-property:
       description: bar description
       type: string
+      nullable: true
+      default: null
     Bar Example OpenAPI 3 definition._another-property:
       description: description
       $ref: '#/components/schemas/Bar Example OpenAPI 3 definition._some-property'

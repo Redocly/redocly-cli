@@ -1,7 +1,7 @@
-import { handleJoin } from '../../commands/join';
-import { exitWithError, writeToFileByExtension, writeYaml } from '../../utils/miscellaneous';
 import { yellow } from 'colorette';
 import { detectSpec } from '@redocly/openapi-core';
+import { handleJoin } from '../../commands/join';
+import { exitWithError, writeToFileByExtension } from '../../utils/miscellaneous';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 import { ConfigFixture } from '../fixtures/config';
 
@@ -9,7 +9,7 @@ jest.mock('../../utils/miscellaneous');
 
 jest.mock('colorette');
 
-describe('handleJoin fails', () => {
+describe('handleJoin', () => {
   const colloreteYellowMock = yellow as jest.Mock<any, any>;
   colloreteYellowMock.mockImplementation((string: string) => string);
 
@@ -180,5 +180,139 @@ describe('handleJoin fails', () => {
     const config = loadConfig();
     expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
     expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
+  });
+
+  it('should handle join with prefix-components-with-info-prop and null values', async () => {
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml', 'third.yaml'],
+        'prefix-components-with-info-prop': 'title',
+        output: 'join-result.yaml',
+      },
+      ConfigFixture as any,
+      'cli-version'
+    );
+
+    expect(writeToFileByExtension).toHaveBeenCalledWith(
+      {
+        openapi: '3.0.0',
+        info: {
+          description: 'example test',
+          version: '1.0.0',
+          title: 'First API',
+          termsOfService: 'http://swagger.io/terms/',
+          license: {
+            name: 'Apache 2.0',
+            url: 'http://www.apache.org/licenses/LICENSE-2.0.html',
+          },
+        },
+        servers: [
+          {
+            url: 'http://localhost:8080',
+          },
+          {
+            url: 'https://api.server.test/v1',
+          },
+        ],
+        tags: [
+          {
+            name: 'pet',
+            'x-displayName': 'pet',
+          },
+        ],
+        paths: {
+          '/GETUser/{userId}': {
+            summary: 'get user by id',
+            description: 'user info',
+            servers: [
+              {
+                url: '/user',
+              },
+              {
+                url: '/pet',
+                description: 'pet server',
+              },
+            ],
+            get: {
+              tags: ['pet'],
+              summary: 'Find pet by ID',
+              description: 'Returns a single pet',
+              operationId: 'getPetById',
+              servers: [
+                {
+                  url: '/pet',
+                },
+              ],
+            },
+            parameters: [
+              {
+                name: 'param1',
+                in: 'header',
+                schema: {
+                  description: 'string',
+                },
+              },
+            ],
+          },
+        },
+        components: {
+          schemas: {
+            'Third API_SchemaWithNull': {
+              type: 'string',
+              default: null,
+              nullable: true,
+            },
+            'Third API_SchemaWithRef': {
+              type: 'object',
+              properties: {
+                schemaType: {
+                  type: 'string',
+                  enum: ['foo'],
+                },
+                foo: {
+                  $ref: '#/components/schemas/Third API_SchemaWithNull',
+                },
+              },
+            },
+            'Third API_SchemaWithDiscriminator': {
+              discriminator: {
+                propertyName: 'schemaType',
+                mapping: {
+                  foo: '#/components/schemas/Third API_SchemaWithRef',
+                  bar: '#/components/schemas/Third API_SchemaWithNull',
+                },
+              },
+              oneOf: [
+                {
+                  $ref: '#/components/schemas/Third API_SchemaWithRef',
+                },
+                {
+                  type: 'object',
+                  properties: {
+                    schemaType: {
+                      type: 'string',
+                      enum: ['bar'],
+                    },
+                    bar: {
+                      type: 'string',
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        'x-tagGroups': [
+          {
+            name: 'First API',
+            tags: ['pet'],
+          },
+        ],
+      },
+      'join-result.yaml',
+      true
+    );
   });
 });

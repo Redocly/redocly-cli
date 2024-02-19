@@ -1,5 +1,5 @@
 import { ConfigFixture } from './../../__tests__/fixtures/config';
-import { firstDocument, secondDocument } from '../documents';
+import { firstDocument, secondDocument, thirdDocument } from '../documents';
 
 import type { Document } from '@redocly/openapi-core';
 
@@ -47,6 +47,9 @@ export class BaseResolver {
     )
     .mockImplementationOnce(() =>
       Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument })
+    )
+    .mockImplementationOnce(() =>
+      Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument })
     );
 }
 
