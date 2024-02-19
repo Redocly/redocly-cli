@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed resolving $refs. Previously it was failing resolve file names that contain the hash symbol.
+Fixed resolving $refs. Previously, it was failing to correctly resolve file names that contain the hash symbol.
