@@ -214,6 +214,16 @@ describe('E2E', () => {
         '--outDir=output',
       ]);
 
+      // run the split command and write the result to files
+      spawnSync('ts-node', args, {
+        cwd: folderPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          NO_COLOR: 'TRUE',
+        },
+      });
+
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
