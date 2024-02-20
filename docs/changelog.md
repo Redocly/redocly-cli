@@ -7,6 +7,15 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.9.1 (2024-02-20)
+
+### Patch Changes
+
+- Adds support for using logical AND for the security schema so that the `join` command generates the correct schema.
+- Fixed a bug with resolving $refs to file names that contain the hash symbol.
+- Fixed a problem where the `join` command did not process schemas containing `null` values when the `--prefix-components-with-info-prop` option was used.'
+- Updated @redocly/openapi-core to v1.9.1.
+
 ## 1.9.0 (2024-02-13)
 
 ### Minor Changes

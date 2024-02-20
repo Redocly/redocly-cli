@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.9.1
+
+### Patch Changes
+
+- Fixed a bug with resolving $refs to file names that contain the hash symbol.
+
 ## 1.9.0
 
 ### Minor Changes
