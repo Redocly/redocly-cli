@@ -1,6 +1,6 @@
 import { Region } from '../config/types';
 
-let REDOCLY_DOMAIN = 'redocly.com';
+let redoclyDomain = 'redocly.com';
 
 export const DEFAULT_REGION = 'us';
 
@@ -14,7 +14,7 @@ export function getDomains() {
   };
 
   // FIXME: temporary fix for our lab environments
-  const domain = REDOCLY_DOMAIN;
+  const domain = redoclyDomain;
   if (domain?.endsWith('.redocly.host')) {
     domains[domain.split('.')[0] as Region] = domain;
   }
@@ -25,11 +25,11 @@ export function getDomains() {
 }
 
 export function setRedoclyDomain(domain: string) {
-  REDOCLY_DOMAIN = domain;
+  redoclyDomain = domain;
 }
 
 export function getRedoclyDomain(): string {
-  return REDOCLY_DOMAIN;
+  return redoclyDomain;
 }
 
 export function isRedoclyRegistryURL(link: string): boolean {
