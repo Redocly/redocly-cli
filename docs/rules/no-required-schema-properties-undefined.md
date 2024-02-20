@@ -85,7 +85,7 @@ schemas:
         example: doggie
 ```
 
-The rule works case-sensitive, which means a property `name` will be invalid in combination with the string `Name` in the `required` list:
+The rule is case-sensitive, which means a property `name` does not match the string `Name` in the `required` list:
 
 ```yaml
 schemas:
