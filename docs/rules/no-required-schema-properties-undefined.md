@@ -53,12 +53,12 @@ schemas:
   Pet:
     type: object
     required:
-        - id
-        - name
+      - id
+      - name
     properties:
-        id:
-          type: integer
-          format: int64
+      id:
+        type: integer
+        format: int64
 ```
 
 Expected error message when linting incorrect schema example:
@@ -74,15 +74,28 @@ schemas:
   Pet:
     type: object
     required:
-        - id
-        - name
+      - id
+      - name
     properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-          example: doggie
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+        example: doggie
+```
+
+The rule is case-sensitive, which means a property `name` does not match the string `Name` in the `required` list:
+
+```yaml
+schemas:
+  Pet:
+    type: object
+    properties:
+      name:
+        type: string
+    required:
+      - Name
 ```
 
 ## Related rules
