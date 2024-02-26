@@ -43,7 +43,7 @@ The `stats` command behaves differently depending on how you pass the API to it 
 
 #### Pass an OpenAPI file
 
-You can use `stats` command with an OpenAPI description directly, with a command like the following:
+You can use the `stats` command with an OpenAPI description directly, with a command like the following:
 
 ```bash
 redocly stats openapi/openapi.yaml
@@ -68,7 +68,7 @@ You can obtain the stats by giving the API alias name, as shown below:
 redocly stats core@v1
 ```
 
-In this case, after resolving the path behind the `core@v1` name `stats` displays statistics for the `openapi/api-description.json` file.
+In this case, after resolving the path behind the `core@v1` name, `stats` displays statistics for the `openapi/api-description.json` file.
 
 ### Custom configuration file
 
@@ -149,8 +149,8 @@ You can use the JSON output to pass to another program.
 
 #### Markdown
 
-Add `--format=markdown` and the command will return output that you can use in Markdown files or other Markdown-friendly applications.
-It uses a table format, there are examples of the source and the formatted output below:
+Add `--format=markdown` and the command returns output that you can use in Markdown files or other Markdown-friendly applications.
+It uses a table format; there are examples of the source and the formatted output below:
 
 ```markdown
 | Feature  | Count  |
@@ -199,7 +199,7 @@ jobs:
         run: redocly stats --format=markdown museum.yaml >> $GITHUB_STEP_SUMMARY 2>&1
 ```
 
-This GitHub action uses the output of the stats command in Markdown format as the value for `$GITHUB_STEP_SUMMARY`.
+This GitHub action uses the output of the `stats` command in Markdown format as the value for `$GITHUB_STEP_SUMMARY`.
 When the job is complete, it adds your API stats to the summary page, as shown in the following screenshot:
 
 ![GitHub job summary showing API stats](./images/stats-github-job-summary.png)
