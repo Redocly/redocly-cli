@@ -18,7 +18,8 @@
     "path": "path-browserify",
     "os": false,
     "node-fetch": false,
-    "colorette": false
+    "colorette": false,
+    "https-proxy-agent": false
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
