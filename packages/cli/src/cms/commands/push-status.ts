@@ -1,5 +1,5 @@
 import * as colors from 'colorette';
-import { Config } from '@redocly/openapi-core';
+import { Config, OutputFormat } from '@redocly/openapi-core';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
@@ -17,7 +17,7 @@ export type PushStatusOptions = {
   pushId: string;
   domain?: string;
   config?: string;
-  format?: 'stylish' | 'json';
+  format?: Extract<OutputFormat, 'stylish' | 'json'>;
   wait?: boolean;
   'max-execution-time': number;
 };
