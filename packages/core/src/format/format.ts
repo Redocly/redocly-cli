@@ -51,7 +51,8 @@ export type OutputFormat =
   | 'json'
   | 'checkstyle'
   | 'codeclimate'
-  | 'summary';
+  | 'summary'
+  | 'markdown';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
