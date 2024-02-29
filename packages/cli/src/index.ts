@@ -207,7 +207,7 @@ yargs
             required: true,
             alias: 'p',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: true },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: false },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
