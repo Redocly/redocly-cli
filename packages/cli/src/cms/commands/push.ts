@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, slash } from '@redocly/openapi-core';
+import { Config, OutputFormat, slash } from '@redocly/openapi-core';
 import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { green, yellow } from 'colorette';
 import pluralize = require('pluralize');
@@ -30,6 +30,7 @@ export type PushOptions = {
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
   verbose?: boolean;
+  format?: Extract<OutputFormat, 'stylish' | 'json'>;
 };
 
 type FileToUpload = { name: string; path: string };
@@ -65,6 +66,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
       'default-branch': defaultBranch,
       'wait-for-deployment': waitForDeployment,
       'max-execution-time': maxExecutionTime,
+      format: format,
     } = argv;
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
@@ -126,6 +128,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
           wait: true,
           domain,
           'max-execution-time': maxExecutionTime,
+          format,
         },
         config
       );
