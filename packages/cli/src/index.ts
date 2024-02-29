@@ -204,9 +204,10 @@ yargs
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
+            required: true,
             alias: 'p',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: true },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
