@@ -38,12 +38,6 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
 
   const domain = argv.domain || getDomain();
 
-  if (!domain) {
-    return exitWithError(
-      `No domain provided, please use --domain option or environment variable REDOCLY_DOMAIN.`
-    );
-  }
-
   const maxExecutionTime = argv['max-execution-time'] || 600;
 
   try {
