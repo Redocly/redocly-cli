@@ -52,7 +52,8 @@ export type OutputFormat =
   | 'checkstyle'
   | 'codeclimate'
   | 'summary'
-  | 'github-actions';
+  | 'github-actions'
+  | 'markdown';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
