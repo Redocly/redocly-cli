@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed a problem where the `join` command with `--prefix-components-with-info-prop` was creating $refs with spaces by replacing them with underscores.
+Added inflection to the `join` command so that `--prefix-components-with-info-prop` replaces spaces with underscores to create less confusing $refs.
