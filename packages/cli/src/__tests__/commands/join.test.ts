@@ -259,12 +259,12 @@ describe('handleJoin', () => {
         },
         components: {
           schemas: {
-            'Third_API_SchemaWithNull': {
+            Third_API_SchemaWithNull: {
               type: 'string',
               default: null,
               nullable: true,
             },
-            'Third_API_SchemaWithRef': {
+            Third_API_SchemaWithRef: {
               type: 'object',
               properties: {
                 schemaType: {
@@ -276,7 +276,7 @@ describe('handleJoin', () => {
                 },
               },
             },
-            'Third_API_SchemaWithDiscriminator': {
+            Third_API_SchemaWithDiscriminator: {
               discriminator: {
                 propertyName: 'schemaType',
                 mapping: {
