@@ -13,15 +13,15 @@ info:
 servers:
   - url: https://redocly.com/v1
 tags:
-  - name: Foo Example OpenAPI 3 definition with foo title._Pet
+  - name: Foo_Example_OpenAPI_3_definition_with_foo_title._Pet
     description: Pet Discription
     x-displayName: Pet
-  - name: Foo Example OpenAPI 3 definition with foo title._other
+  - name: Foo_Example_OpenAPI_3_definition_with_foo_title._other
     x-displayName: other
-  - name: Bar Example OpenAPI 3 definition._Pet
+  - name: Bar_Example_OpenAPI_3_definition._Pet
     description: Pet Discription
     x-displayName: Pet
-  - name: Bar Example OpenAPI 3 definition._other
+  - name: Bar_Example_OpenAPI_3_definition._other
     x-displayName: other
 paths:
   /pets:
@@ -40,7 +40,7 @@ paths:
         '200':
           description: example description
       tags:
-        - Foo Example OpenAPI 3 definition with foo title._other
+        - Foo_Example_OpenAPI_3_definition_with_foo_title._other
   /pets/{petId}:
     post:
       summary: summary example
@@ -49,17 +49,17 @@ paths:
         '201':
           description: example description
       tags:
-        - Bar Example OpenAPI 3 definition._other
+        - Bar_Example_OpenAPI_3_definition._other
 components: {}
 x-tagGroups:
   - name: Foo Example OpenAPI 3 definition with foo title.
     tags:
-      - Foo Example OpenAPI 3 definition with foo title._Pet
-      - Foo Example OpenAPI 3 definition with foo title._other
+      - Foo_Example_OpenAPI_3_definition_with_foo_title._Pet
+      - Foo_Example_OpenAPI_3_definition_with_foo_title._other
   - name: Bar Example OpenAPI 3 definition.
     tags:
-      - Bar Example OpenAPI 3 definition._Pet
-      - Bar Example OpenAPI 3 definition._other
+      - Bar_Example_OpenAPI_3_definition._Pet
+      - Bar_Example_OpenAPI_3_definition._other
 
 openapi.yaml: join processed in <test>ms
 

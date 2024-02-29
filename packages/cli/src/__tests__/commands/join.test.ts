@@ -259,12 +259,12 @@ describe('handleJoin', () => {
         },
         components: {
           schemas: {
-            'Third API_SchemaWithNull': {
+            Third_API_SchemaWithNull: {
               type: 'string',
               default: null,
               nullable: true,
             },
-            'Third API_SchemaWithRef': {
+            Third_API_SchemaWithRef: {
               type: 'object',
               properties: {
                 schemaType: {
@@ -272,21 +272,21 @@ describe('handleJoin', () => {
                   enum: ['foo'],
                 },
                 foo: {
-                  $ref: '#/components/schemas/Third API_SchemaWithNull',
+                  $ref: '#/components/schemas/Third_API_SchemaWithNull',
                 },
               },
             },
-            'Third API_SchemaWithDiscriminator': {
+            Third_API_SchemaWithDiscriminator: {
               discriminator: {
                 propertyName: 'schemaType',
                 mapping: {
-                  foo: '#/components/schemas/Third API_SchemaWithRef',
-                  bar: '#/components/schemas/Third API_SchemaWithNull',
+                  foo: '#/components/schemas/Third_API_SchemaWithRef',
+                  bar: '#/components/schemas/Third_API_SchemaWithNull',
                 },
               },
               oneOf: [
                 {
-                  $ref: '#/components/schemas/Third API_SchemaWithRef',
+                  $ref: '#/components/schemas/Third_API_SchemaWithRef',
                 },
                 {
                   type: 'object',
