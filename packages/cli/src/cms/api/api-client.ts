@@ -1,7 +1,7 @@
 import fetchWithTimeout from '../../utils/fetch-with-timeout';
 import fetch from 'node-fetch';
 import * as FormData from 'form-data';
-
+import { getProxyAgent } from '@redocly/openapi-core';
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
 import type {
@@ -25,7 +25,7 @@ class RemotesApiClient {
   }
 
   async getDefaultBranch(organizationId: string, projectId: string) {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
       {
         method: 'GET',
@@ -35,6 +35,10 @@ class RemotesApiClient {
         },
       }
     );
+
+    if (!response) {
+      throw new Error(`Failed to get default branch.`);
+    }
 
     try {
       const source = await this.getParsedResponse<ProjectSourceResponse>(response);
@@ -53,7 +57,7 @@ class RemotesApiClient {
       mountBranchName: string;
     }
   ): Promise<UpsertRemoteResponse> {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes`,
       {
         method: 'POST',
@@ -69,6 +73,10 @@ class RemotesApiClient {
         }),
       }
     );
+
+    if (!response) {
+      throw new Error(`Failed to upsert.`);
+    }
 
     try {
       return await this.getParsedResponse<UpsertRemoteResponse>(response);
@@ -110,6 +118,7 @@ class RemotesApiClient {
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: formData,
+        agent: getProxyAgent(),
       }
     );
 
@@ -121,7 +130,7 @@ class RemotesApiClient {
   }
 
   async getRemotesList(organizationId: string, projectId: string, mountPath: string) {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
       {
         method: 'GET',
@@ -131,6 +140,10 @@ class RemotesApiClient {
         },
       }
     );
+
+    if (!response) {
+      throw new Error(`Failed to get remotes list.`);
+    }
 
     try {
       return await this.getParsedResponse<ListRemotesResponse>(response);
@@ -160,7 +173,7 @@ class RemotesApiClient {
     );
 
     if (!response) {
-      throw new Error(`Failed to get push status: Time is up`);
+      throw new Error(`Failed to get push status.`);
     }
 
     try {

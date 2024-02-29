@@ -10,7 +10,7 @@ import {
   Oas3RuleSet,
   Async2RuleSet,
 } from '../oas-types';
-import { isBrowser, env } from '../env';
+import { isBrowser } from '../env';
 
 import type { NodeType } from '../types';
 import type {
@@ -35,25 +35,6 @@ const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
-export const DEFAULT_REGION = 'us';
-
-function getDomains() {
-  const domains: { [region in Region]: string } = {
-    us: 'redocly.com',
-    eu: 'eu.redocly.com',
-  };
-
-  // FIXME: temporary fix for our lab environments
-  const domain = env.REDOCLY_DOMAIN;
-  if (domain?.endsWith('.redocly.host')) {
-    domains[domain.split('.')[0] as Region] = domain;
-  }
-  if (domain === 'redoc.online') {
-    domains[domain as Region] = domain;
-  }
-  return domains;
-}
-
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {
     return doesYamlFileExist(configFile)
@@ -63,9 +44,6 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
     return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
-
-export const DOMAINS = getDomains();
-export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
 export class StyleguideConfig {
   plugins: Plugin[];
