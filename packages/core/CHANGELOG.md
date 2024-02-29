@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.10.1
+
+### Patch Changes
+
+- fix: Revert "Users can run the CLI tool behind a proxy by using HTTP_PROXY or HTTPS_PROXY environment variables to configure the proxy settings" temporary.
+
 ## 1.10.0
 
 ### Minor Changes
