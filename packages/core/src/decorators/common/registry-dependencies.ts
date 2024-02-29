@@ -1,5 +1,5 @@
 import { UserContext } from '../../walk';
-import { isRedoclyRegistryURL } from '../../redocly/domains';
+import { isRedoclyRegistryURL } from '../../redocly';
 
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 

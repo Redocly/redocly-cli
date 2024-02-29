@@ -42,7 +42,6 @@ describe('ApiClient', () => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${testToken}`,
           },
-          signal: expect.any(Object),
         }
       );
 
@@ -123,8 +122,6 @@ describe('ApiClient', () => {
             type: 'CICD',
             autoMerge: true,
           }),
-          signal: expect.any(Object),
-          agent: undefined,
         }
       );
 
