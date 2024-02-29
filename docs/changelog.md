@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.10.0 (2024-02-29)
+
+### Minor Changes
+
+- Users can run the CLI tool behind a proxy by using `HTTP_PROXY` or `HTTPS_PROXY` environment variables to configure the proxy settings.
+
+### Patch Changes
+
+- Added inflection to the `join` command so that `--prefix-components-with-info-prop` replaces spaces with underscores to create less confusing $refs.
+- Updated @redocly/openapi-core to v1.10.0.
+
 ## 1.9.1 (2024-02-20)
 
 ### Patch Changes
