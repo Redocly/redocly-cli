@@ -47,7 +47,7 @@ npm install # or npm i
 
 To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
 
-To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint openapi.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than the NPM itself.
+To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than the NPM itself.
 
 Format your code with `npm run prettier` before committing.
 
