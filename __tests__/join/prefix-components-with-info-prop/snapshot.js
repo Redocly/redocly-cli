@@ -40,10 +40,10 @@ paths:
         '200':
           description: example description
       security:
-        - Foo Example OpenAPI 3 definition foo._scheme1: []
-          Foo Example OpenAPI 3 definition foo._scheme2: []
-          Foo Example OpenAPI 3 definition foo._scheme3: []
-          Foo Example OpenAPI 3 definition foo._scheme4: []
+        - Foo_Example_OpenAPI_3_definition_foo._scheme1: []
+          Foo_Example_OpenAPI_3_definition_foo._scheme2: []
+          Foo_Example_OpenAPI_3_definition_foo._scheme3: []
+          Foo_Example_OpenAPI_3_definition_foo._scheme4: []
       tags:
         - foo_other
   /pets/{petId}:
@@ -54,28 +54,28 @@ paths:
         '201':
           description: example description
       security:
-        - Bar Example OpenAPI 3 definition._scheme1: []
-          Bar Example OpenAPI 3 definition._scheme2: []
-        - Bar Example OpenAPI 3 definition._scheme3: []
-          Bar Example OpenAPI 3 definition._scheme4: []
+        - Bar_Example_OpenAPI_3_definition._scheme1: []
+          Bar_Example_OpenAPI_3_definition._scheme2: []
+        - Bar_Example_OpenAPI_3_definition._scheme3: []
+          Bar_Example_OpenAPI_3_definition._scheme4: []
       tags:
         - bar_other
 components:
   schemas:
-    Foo Example OpenAPI 3 definition foo._some-property:
+    Foo_Example_OpenAPI_3_definition_foo._some-property:
       description: foo description
       type: string
-    Foo Example OpenAPI 3 definition foo._another-property:
+    Foo_Example_OpenAPI_3_definition_foo._another-property:
       description: description
-      $ref: '#/components/schemas/Foo Example OpenAPI 3 definition foo._some-property'
-    Bar Example OpenAPI 3 definition._some-property:
+      $ref: '#/components/schemas/Foo_Example_OpenAPI_3_definition_foo._some-property'
+    Bar_Example_OpenAPI_3_definition._some-property:
       description: bar description
       type: string
       nullable: true
       default: null
-    Bar Example OpenAPI 3 definition._another-property:
+    Bar_Example_OpenAPI_3_definition._another-property:
       description: description
-      $ref: '#/components/schemas/Bar Example OpenAPI 3 definition._some-property'
+      $ref: '#/components/schemas/Bar_Example_OpenAPI_3_definition._some-property'
 x-tagGroups:
   - name: Foo Example OpenAPI 3 definition foo.
     tags:

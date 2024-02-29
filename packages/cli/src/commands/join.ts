@@ -784,7 +784,7 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
         `prefix-${type}-with-info-prop`
       )} argument value length should not exceed 50 characters. \n\n`
     );
-  return info[prefixArg];
+  return info[prefixArg].replaceAll(/\s/g, '_');
 }
 
 async function validateApi(
