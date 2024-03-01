@@ -211,3 +211,11 @@ We use [Changesets](https://github.com/changesets/changesets) flow.
 After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR. Merging that PR triggers the release process.
+
+## Revert a release
+
+There's no possibility to revert a release itself.
+However, you can release a new version with a problematic commit reverted.
+Create a new branch from **main**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
+Create a changeset for the revert and open a PR with it.
+Merge the PR and cut a release according to the [Release flow](#release-flow).
