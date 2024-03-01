@@ -109,7 +109,7 @@ Some formats, such as CheckStyle or JSON, don't work well when mulitple APIs are
 
 #### Codeframe (default)
 
-The command `redocly lint --format=codeframe` lints the file and uses the default format of `codeframe`. You will see the same output as below if you omit the `--format` parameter.
+The command `redocly lint --format=codeframe` lints the file and uses the default format of `codeframe`. It produces the same output as below if you omit the `--format` parameter.
 
 ```bash
 [1] museum-with-errors.yaml:19:7 at #/paths/~1museum-hours/get/operationIds
