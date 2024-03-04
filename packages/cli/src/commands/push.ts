@@ -14,6 +14,7 @@ import {
   slash,
   Region,
   getMergedConfig,
+  getProxyAgent,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -62,8 +63,12 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
-    const clientToken = await promptClientToken(client.domain);
-    await client.login(clientToken);
+    try {
+      const clientToken = await promptClientToken(client.domain);
+      await client.login(clientToken);
+    } catch (e) {
+      exitWithError(e);
+    }
   }
 
   const startedAt = performance.now();
@@ -439,6 +444,7 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
     typeof filePathOrBuffer === 'string'
       ? fs.statSync(filePathOrBuffer).size
       : filePathOrBuffer.byteLength;
+
   const readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
@@ -448,5 +454,6 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       'Content-Length': fileSizeInBytes.toString(),
     },
     body: readStream,
+    agent: getProxyAgent(),
   });
 }
