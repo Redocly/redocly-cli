@@ -6,8 +6,8 @@ import type {
   PushApiParams,
 } from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
-import { getProxyAgent, isNotEmptyObject } from '../utils';
-import { getRedoclyDomain } from './domains';
+import { DEFAULT_REGION, DOMAINS } from '../config/config';
+import { isNotEmptyObject } from '../utils';
 
 const version = require('../../package.json').version;
 
@@ -18,8 +18,8 @@ export class RegistryApi {
     return isNotEmptyObject(this.accessTokens) && this.accessTokens[this.region];
   }
 
-  getBaseUrl() {
-    return `https://api.${getRedoclyDomain()}/registry`;
+  getBaseUrl(region: Region = DEFAULT_REGION) {
+    return `https://api.${DOMAINS[region]}/registry`;
   }
 
   setAccessTokens(accessTokens: AccessTokens) {
@@ -27,7 +27,7 @@ export class RegistryApi {
     return this;
   }
 
-  private async request(path = '', options: RequestInit = {}) {
+  private async request(path = '', options: RequestInit = {}, region?: Region) {
     const currentCommand =
       typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
     const redoclyEnv = typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
@@ -42,8 +42,8 @@ export class RegistryApi {
     }
 
     const response = await fetch(
-      `${this.getBaseUrl()}${path}`,
-      Object.assign({}, options, { headers, agent: getProxyAgent() })
+      `${this.getBaseUrl(region)}${path}`,
+      Object.assign({}, options, { headers })
     );
 
     if (response.status === 401) {
@@ -60,10 +60,11 @@ export class RegistryApi {
 
   async authStatus(
     accessToken: string,
+    region: Region,
     verbose = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
     try {
-      const response = await this.request('', { headers: { authorization: accessToken } });
+      const response = await this.request('', { headers: { authorization: accessToken } }, region);
 
       return await response.json();
     } catch (error) {
@@ -96,7 +97,8 @@ export class RegistryApi {
           filename,
           isUpsert,
         }),
-      }
+      },
+      this.region
     );
 
     if (response.ok) {
@@ -118,22 +120,26 @@ export class RegistryApi {
     batchId,
     batchSize,
   }: PushApiParams) {
-    const response = await this.request(`/${organizationId}/${name}/${version}`, {
-      method: 'PUT',
-      headers: {
-        'content-type': 'application/json',
-        authorization: this.accessToken,
-      } as HeadersInit,
-      body: JSON.stringify({
-        rootFilePath,
-        filePaths,
-        branch,
-        isUpsert,
-        isPublic,
-        batchId,
-        batchSize,
-      }),
-    });
+    const response = await this.request(
+      `/${organizationId}/${name}/${version}`,
+      {
+        method: 'PUT',
+        headers: {
+          'content-type': 'application/json',
+          authorization: this.accessToken,
+        } as HeadersInit,
+        body: JSON.stringify({
+          rootFilePath,
+          filePaths,
+          branch,
+          isUpsert,
+          isPublic,
+          batchId,
+          batchSize,
+        }),
+      },
+      this.region
+    );
 
     if (response.ok) {
       return;
