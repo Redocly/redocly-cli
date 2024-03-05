@@ -7,7 +7,7 @@ import type { Oas2Components } from '../../typings/swagger';
 export const RemoveUnusedComponents: Oas2Decorator = () => {
   const components = new Map<
     string,
-    { used: boolean; componentType?: keyof Oas2Components; name: string }
+    { used: null | Location[]; componentType?: keyof Oas2Components; name: string }
   >();
 
   function registerComponent(
@@ -16,15 +16,16 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     name: string
   ): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used || false,
+      used: null,
       componentType,
       name,
+      ...components.get(location.absolutePointer),
     });
   }
 
   return {
     ref: {
-      leave(ref, { type, resolve, key }) {
+      leave(ref, { location, type, resolve, key }) {
         if (['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
@@ -33,10 +34,17 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           const componentLevelLocalPointer = localPointer.split('/').slice(0, 3).join('/');
           const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
-          components.set(pointer, {
-            used: true,
-            name: key.toString(),
-          });
+          const registered = components.get(pointer);
+
+          if (registered) {
+            registered.used ??= [];
+            registered.used.push(location);
+          } else {
+            components.set(pointer, {
+              used: [location],
+              name: key.toString(),
+            });
+          }
         }
       },
     },
@@ -45,15 +53,27 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
         const data = ctx.getVisitorData() as { removedCount: number };
         data.removedCount = 0;
 
-        const rootComponents = new Set<keyof Oas2Components>();
-        components.forEach((usageInfo) => {
-          const { used, name, componentType } = usageInfo;
-          if (!used && componentType) {
-            rootComponents.add(componentType);
-            delete root[componentType]![name];
-            data.removedCount++;
+        const removedPaths: string[] = [];
+        const rootComponents: Array<keyof Oas2Components> = [];
+
+        let lastRemoveCount = 0;
+        do {
+          for (const [path, { used, name, componentType }] of components) {
+            const isUsed = used?.some(
+              (location) =>
+                !removedPaths.some((removed) => removed.startsWith(location.absolutePointer))
+            );
+            if (!isUsed && componentType) {
+              removedPaths.push(path);
+              rootComponents.push(componentType);
+              delete root[componentType]![name];
+              lastRemoveCount++;
+            }
           }
-        });
+
+          data.removedCount += lastRemoveCount;
+        } while (lastRemoveCount > 0);
+
         for (const component of rootComponents) {
           if (isEmptyObject(root[component])) {
             delete root[component];

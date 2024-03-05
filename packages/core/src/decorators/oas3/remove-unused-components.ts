@@ -7,7 +7,7 @@ import type { Oas3Components } from '../../typings/openapi';
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
-    { used: boolean; componentType?: keyof Oas3Components; name: string }
+    { used: null | Location[]; componentType?: keyof Oas3Components; name: string }
   >();
 
   function registerComponent(
@@ -16,15 +16,16 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     name: string
   ): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used || false,
+      used: null,
       componentType,
       name,
+      ...components.get(location.absolutePointer),
     });
   }
 
   return {
     ref: {
-      leave(ref, { type, resolve, key }) {
+      leave(ref, { location, type, resolve, key }) {
         if (
           ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(
             type.name
@@ -37,10 +38,17 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
           const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
-          components.set(pointer, {
-            used: true,
-            name: key.toString(),
-          });
+          const registered = components.get(pointer);
+
+          if (registered) {
+            registered.used ??= [];
+            registered.used.push(location);
+          } else {
+            components.set(pointer, {
+              used: [location],
+              name: key.toString(),
+            });
+          }
         }
       },
     },
@@ -49,17 +57,30 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
         const data = ctx.getVisitorData() as { removedCount: number };
         data.removedCount = 0;
 
-        components.forEach((usageInfo) => {
-          const { used, componentType, name } = usageInfo;
-          if (!used && componentType && root.components) {
-            const componentChild = root.components[componentType];
-            delete componentChild![name];
-            data.removedCount++;
-            if (isEmptyObject(componentChild)) {
-              delete root.components[componentType];
+        const removedPaths: string[] = [];
+
+        let lastRemoveCount = 0;
+        do {
+          for (const [path, { used, name, componentType }] of components) {
+            const isUsed = used?.some(
+              (location) =>
+                !removedPaths.some((removed) => removed.startsWith(location.absolutePointer))
+            );
+
+            if (!isUsed && componentType && root.components) {
+              removedPaths.push(path);
+              const componentChild = root.components[componentType];
+              delete componentChild![name];
+              lastRemoveCount++;
+              if (isEmptyObject(componentChild)) {
+                delete root.components[componentType];
+              }
             }
+
+            data.removedCount += lastRemoveCount;
           }
-        });
+        } while (lastRemoveCount > 0);
+
         if (isEmptyObject(root.components)) {
           delete root.components;
         }
