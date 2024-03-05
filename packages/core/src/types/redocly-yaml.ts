@@ -1,4 +1,4 @@
-import { rootRedoclyConfigSchema } from './portal-config-schema';
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
