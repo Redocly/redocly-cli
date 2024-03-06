@@ -61,6 +61,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
 
         let lastRemoveCount = 0;
         do {
+          lastRemoveCount = 0
           for (const [path, { used, name, componentType }] of components) {
             const isUsed = used?.some(
               (location) =>
