@@ -1,15 +1,16 @@
 import * as colors from 'colorette';
+import { yellow } from 'colorette';
 import { Config, OutputFormat } from '@redocly/openapi-core';
+
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
-import { yellow } from 'colorette';
 import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
 import { capitalize } from '../../utils/js-utils';
-
 import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
+import { retryUntilConditionMet } from './utils';
 
-const INTERVAL = 5000;
+const RETRY_INTERVAL = 5000; // ms
 
 export type PushStatusOptions = {
   organization: string;
@@ -37,33 +38,64 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
   }
 
   const domain = argv.domain || getDomain();
-
   const maxExecutionTime = argv['max-execution-time'] || 600;
+  const retryTimeout = maxExecutionTime * 1000;
 
   try {
     const apiKey = getApiKeys(domain);
     const client = new ReuniteApiClient(domain, apiKey);
 
-    if (wait) {
-      const push = await waitForDeployment(client, 'preview');
+    const previewPushData = await getPushData({
+      orgId,
+      projectId,
+      pushId,
+      wait,
+      client,
+      buildType: 'preview',
+      retryTimeout,
+      onRetry: (lastResult) => {
+        displayDeploymentAndBuildStatus({
+          status: lastResult.status['preview'].deploy.status,
+          previewUrl: lastResult.status['preview'].deploy.url,
+          spinner,
+          buildType: 'preview',
+          wait,
+        });
+      },
+    });
 
-      if (push.isMainBranch && push.status.preview.deploy.status === 'success') {
-        await waitForDeployment(client, 'production');
-      }
+    printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
+    printScorecard(previewPushData.status.preview.scorecard);
 
-      printPushStatusInfo();
-      return;
-    }
+    const fetchProdPushDatCondition =
+      previewPushData.isMainBranch &&
+      (wait ? previewPushData.status.preview.deploy.status === 'success' : true);
 
-    const pushPreview = await getAndPrintPushStatus(client, 'preview');
-    printScorecard(pushPreview.status.preview.scorecard);
+    const prodPushData = fetchProdPushDatCondition
+      ? await getPushData({
+          orgId,
+          projectId,
+          pushId,
+          wait,
+          client,
+          buildType: 'production',
+          retryTimeout,
+          onRetry: (lastResult) => {
+            displayDeploymentAndBuildStatus({
+              status: lastResult.status['production'].deploy.status,
+              previewUrl: lastResult.status['production'].deploy.url,
+              spinner,
+              buildType: 'production',
+              wait,
+            });
+          },
+        })
+      : null;
 
-    if (pushPreview.isMainBranch) {
-      await getAndPrintPushStatus(client, 'production');
-      printScorecard(pushPreview.status.production.scorecard);
-    }
+    printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
+    printScorecard(prodPushData?.status?.production?.scorecard);
 
-    printPushStatusInfo();
+    printPushStatusInfo({ orgId, projectId, pushId, startedAt });
   } catch (err) {
     const message =
       err instanceof DeploymentError
@@ -71,77 +103,92 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
         : `✗ Failed to get push status. Reason: ${err.message}\n`;
     exitWithError(message);
   }
+}
 
-  function printPushStatusInfo() {
+function printPushStatusInfo({
+  orgId,
+  projectId,
+  pushId,
+  startedAt,
+}: {
+  orgId: string;
+  projectId: string;
+  pushId: string;
+  startedAt: number;
+}) {
+  process.stderr.write(
+    `\nProcessed push-status for ${colors.yellow(orgId!)}, ${colors.yellow(
+      projectId
+    )} and pushID ${colors.yellow(pushId)}.\n`
+  );
+  printExecutionTime('push-status', startedAt, 'Finished');
+}
+
+async function getPushData({
+  orgId,
+  projectId,
+  pushId,
+  wait,
+  client,
+  buildType,
+  retryTimeout,
+  onRetry,
+}: {
+  orgId: string;
+  projectId: string;
+  pushId: string;
+  wait?: boolean;
+  client: ReuniteApiClient;
+  buildType: 'preview' | 'production';
+  retryTimeout: number;
+  onRetry?: (lastResult: PushResponse) => void;
+}): Promise<PushResponse> {
+  const pushData = await retryUntilConditionMet<PushResponse>({
+    operation: () =>
+      client.remotes.getPush({
+        organizationId: orgId!,
+        projectId,
+        pushId,
+      }),
+    condition: (result: PushResponse) =>
+      wait ? !['pending', 'running'].includes(result.status[buildType].deploy.status) : true,
+    onRetry,
+    retryTimeout: retryTimeout,
+    retryInterval: RETRY_INTERVAL,
+  });
+
+  return pushData;
+}
+
+async function printPushStatus({
+  buildType,
+  spinner,
+  push,
+}: {
+  buildType: 'preview' | 'production';
+  spinner: Spinner;
+  wait?: boolean;
+  push?: PushResponse | null;
+}) {
+  if (!push) {
+    return;
+  }
+  if (push.isOutdated || !push.hasChanges) {
     process.stderr.write(
-      `\nProcessed push-status for ${colors.yellow(orgId!)}, ${colors.yellow(
-        projectId
-      )} and pushID ${colors.yellow(pushId)}.\n`
+      yellow(`Files not uploaded. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`)
     );
-    printExecutionTime('push-status', startedAt, 'Finished');
-  }
-
-  async function waitForDeployment(
-    client: ReuniteApiClient,
-    buildType: 'preview' | 'production'
-  ): Promise<PushResponse> {
-    return new Promise((resolve, reject) => {
-      if (performance.now() - startedAt > maxExecutionTime * 1000) {
-        spinner.stop();
-        reject(new Error(`Time limit exceeded.`));
-      }
-
-      getAndPrintPushStatus(client, buildType)
-        .then((push) => {
-          if (!['pending', 'running'].includes(push.status[buildType].deploy.status)) {
-            printScorecard(push.status[buildType].scorecard);
-            resolve(push);
-            return;
-          }
-
-          setTimeout(async () => {
-            try {
-              const pushResponse = await waitForDeployment(client, buildType);
-              resolve(pushResponse);
-            } catch (e) {
-              reject(e);
-            }
-          }, INTERVAL);
-        })
-        .catch(reject);
+  } else {
+    displayDeploymentAndBuildStatus({
+      status: push.status[buildType].deploy.status,
+      previewUrl: push.status[buildType].deploy.url,
+      buildType,
+      spinner,
     });
-  }
-
-  async function getAndPrintPushStatus(
-    client: ReuniteApiClient,
-    buildType: 'preview' | 'production'
-  ) {
-    const push = await client.remotes.getPush({
-      organizationId: orgId!,
-      projectId,
-      pushId,
-    });
-
-    if (push.isOutdated || !push.hasChanges) {
-      process.stderr.write(
-        yellow(`Files not uploaded. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`)
-      );
-    } else {
-      displayDeploymentAndBuildStatus({
-        status: push.status[buildType].deploy.status,
-        previewUrl: push.status[buildType].deploy.url,
-        buildType,
-        spinner,
-        wait,
-      });
-    }
-
-    return push;
   }
 }
 
-function printScorecard(scorecard: ScorecardItem[]) {
-  if (!scorecard.length) {
+function printScorecard(scorecard?: ScorecardItem[]) {
+  if (!scorecard || !scorecard.length) {
     return;
   }
   process.stdout.write(`\n${colors.magenta('Scorecard')}:`);
