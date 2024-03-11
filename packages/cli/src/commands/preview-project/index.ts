@@ -21,12 +21,16 @@ export const previewProject = async (args: PreviewProjectOptions) => {
 
   process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX\n\n`);
 
-  const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx'
+  const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
-  spawn(npxExecutableName, ['-y', packageName, 'develop', `--plan=${plan}`, `--port=${port || 4000}`], {
-    stdio: 'inherit',
-    cwd: projectDir,
-  });
+  spawn(
+    npxExecutableName,
+    ['-y', packageName, 'develop', `--plan=${plan}`, `--port=${port || 4000}`],
+    {
+      stdio: 'inherit',
+      cwd: projectDir,
+    }
+  );
 };
 
 const isValidProduct = (product: string | undefined): product is Product => {
