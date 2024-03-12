@@ -27,7 +27,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
   const startedAt = performance.now();
   const spinner = new Spinner();
 
-  const { organization, project: projectId, pushId, wait } = argv;
+  const { organization, project: projectId, pushId, wait, format } = argv;
 
   const orgId = organization || config.organization;
 
@@ -54,18 +54,21 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
       buildType: 'preview',
       retryTimeout,
       onRetry: (lastResult) => {
-        displayDeploymentAndBuildStatus({
-          status: lastResult.status['preview'].deploy.status,
-          previewUrl: lastResult.status['preview'].deploy.url,
-          spinner,
-          buildType: 'preview',
-          wait,
-        });
+        format === 'stylish' &&
+          displayDeploymentAndBuildStatus({
+            status: lastResult.status['preview'].deploy.status,
+            previewUrl: lastResult.status['preview'].deploy.url,
+            spinner,
+            buildType: 'preview',
+            wait,
+          });
       },
     });
 
-    printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
-    printScorecard(previewPushData.status.preview.scorecard);
+    if (format === 'stylish') {
+      printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
+      printScorecard(previewPushData.status.preview.scorecard);
+    }
 
     const fetchProdPushDatCondition =
       previewPushData.isMainBranch &&
@@ -92,10 +95,28 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
         })
       : null;
 
-    printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
-    printScorecard(prodPushData?.status?.production?.scorecard);
+    if (format === 'stylish') {
+      printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
+      printScorecard(prodPushData?.status?.production?.scorecard);
+      printPushStatusInfo({ orgId, projectId, pushId, startedAt });
+    }
 
-    printPushStatusInfo({ orgId, projectId, pushId, startedAt });
+    if (format === 'json') {
+      process.stdout.write(
+        JSON.stringify({
+          preview: {
+            status: previewPushData.status.preview.deploy.status,
+            url: previewPushData.status.preview.deploy.url,
+            scorecard: previewPushData.status.preview.scorecard,
+          },
+          production: {
+            status: prodPushData?.status?.production?.deploy.status,
+            url: prodPushData?.status?.production?.deploy.url,
+            scorecard: prodPushData?.status?.production?.scorecard,
+          },
+        })
+      );
+    }
   } catch (err) {
     const message =
       err instanceof DeploymentError
