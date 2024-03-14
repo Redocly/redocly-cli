@@ -102,20 +102,33 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
     }
 
     if (format === 'json') {
-      process.stdout.write(
-        JSON.stringify({
-          preview: {
-            status: previewPushData.status.preview.deploy.status,
-            url: previewPushData.status.preview.deploy.url,
-            scorecard: previewPushData.status.preview.scorecard,
-          },
-          production: {
-            status: prodPushData?.status?.production?.deploy.status,
-            url: prodPushData?.status?.production?.deploy.url,
-            scorecard: prodPushData?.status?.production?.scorecard,
-          },
-        })
-      );
+      const summary = {
+        preview: {
+          status: previewPushData.status.preview.deploy.status,
+          url: previewPushData.status.preview.deploy.url,
+          scorecard: previewPushData.status.preview.scorecard,
+        },
+        production:
+          previewPushData.status.preview.deploy.status !== 'failed'
+            ? {
+                status: prodPushData?.status?.production?.deploy.status,
+                url: prodPushData?.status?.production?.deploy.url,
+                scorecard: prodPushData?.status?.production?.scorecard,
+              }
+            : undefined,
+      };
+
+      process.stdout.write(JSON.stringify(summary) + '\n');
+
+      if (summary.preview.status === 'failed') {
+        process.stdout.write('\n');
+        throw new DeploymentError(`${colors.red(`❌ Preview deploy failed.`)}`);
+      }
+
+      if (summary?.production?.status === 'failed') {
+        process.stdout.write('\n');
+        throw new DeploymentError(`${colors.red(`❌ Production deploy failed.`)}`);
+      }
     }
   } catch (err) {
     const message =
@@ -240,14 +253,14 @@ function displayDeploymentAndBuildStatus({
     case 'success':
       spinner.stop();
       return process.stdout.write(
-        `${colors.green(`🚀 ${capitalize(buildType)} deploy success.`)}\n${colors.magenta(
+        `${colors.green(`🚀 ${capitalize(buildType)} deploy finished.`)}\n${colors.magenta(
           `${capitalize(buildType)} URL`
         )}: ${colors.cyan(previewUrl!)}\n`
       );
     case 'failed':
       spinner.stop();
       throw new DeploymentError(
-        `${colors.red(`❌ ${capitalize(buildType)} deploy fail.`)}\n${colors.magenta(
+        `${colors.red(`❌ ${capitalize(buildType)} deploy failed.`)}\n${colors.magenta(
           `${capitalize(buildType)} URL`
         )}: ${colors.cyan(previewUrl!)}`
       );
