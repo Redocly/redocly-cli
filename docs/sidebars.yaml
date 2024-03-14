@@ -140,6 +140,10 @@
         - page: configuration/extends.md
         - page: configuration/rules.md
         - page: configuration/apis.md
+        - group: Reference
+          items:
+            - page: configuration/reference/apis.md
+            - page: configuration/reference/resolve.md
     - group: Custom plugins
       page: custom-plugins/index.md
       items:
