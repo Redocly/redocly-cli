@@ -1050,7 +1050,7 @@ const ConfigReferenceDocs: NodeType = {
     preserveOriginalExtensionsName: { type: 'boolean' },
     markdownHeadingsAnchorLevel: { type: 'number' },
   },
-  additionalProperties: { type: 'string' },
+  additionalProperties: {},
 };
 
 const ConfigMockServer: NodeType = {
