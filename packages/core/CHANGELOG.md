@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.10.4
+
+### Patch Changes
+
+- Added a platform check so `@redocly/openapi-core` can support running inside a worker.
+- Allowed additional properties in `theme.openapi` config schema to enable libraries that use `@redocly/openapi-core` for configuration linting to extend this part of the schema.
+
 ## 1.10.3
 
 ### Patch Changes
