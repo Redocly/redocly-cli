@@ -181,7 +181,7 @@ async function getPushData({
   return pushData;
 }
 
-async function printPushStatus({
+function printPushStatus({
   buildType,
   spinner,
   push,
