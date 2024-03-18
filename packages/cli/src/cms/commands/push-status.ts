@@ -103,6 +103,11 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
 
     if (format === 'json') {
       const summary = {
+        pushMetadata: {
+          pushId,
+          orgSlug: orgId,
+          projectSlug: projectId,
+        },
         preview: {
           status: previewPushData.status.preview.deploy.status,
           url: previewPushData.status.preview.deploy.url,
