@@ -70,7 +70,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
     } = argv;
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
-    const filesToUpload = collectFilesToPush(argv.files || argv.apis);
+    const filesToUpload = collectFilesToPush(argv.files || argv.apis, format);
 
     if (!filesToUpload.length) {
       return printExecutionTime('push', startedAt, `No files to upload`);
@@ -113,9 +113,11 @@ export async function handlePush(argv: PushOptions, config: Config) {
     filesToUpload.forEach((f) => {
       process.stderr.write(green(`✓ ${f.name}\n`));
     });
-    process.stdout.write('\n');
 
-    process.stdout.write(`Push ID: ${id}\n`);
+    if (format === 'stylish') {
+      process.stdout.write('\n');
+      process.stdout.write(`Push ID: ${id}\n`);
+    }
 
     if (waitForDeployment) {
       process.stdout.write('\n');
@@ -165,7 +167,7 @@ function parseCommitAuthor(author: string): { name: string; email: string } {
   };
 }
 
-function collectFilesToPush(files: string[]): FileToUpload[] {
+function collectFilesToPush(files: string[], format: PushOptions['format']): FileToUpload[] {
   const collectedFiles: Record<string, string> = {};
 
   for (const file of files) {
@@ -173,16 +175,16 @@ function collectFilesToPush(files: string[]): FileToUpload[] {
       const dir = file;
       const fileList = getFilesList(dir, []);
 
-      fileList.forEach((f) => addFile(f, dir));
+      fileList.forEach((f) => addFile(f, dir, format));
     } else {
-      addFile(file, path.dirname(file));
+      addFile(file, path.dirname(file), format);
     }
   }
 
-  function addFile(filePath: string, fileDir: string) {
+  function addFile(filePath: string, fileDir: string, format: PushOptions['format']) {
     const fileName = path.relative(fileDir, filePath);
 
-    if (collectedFiles[fileName]) {
+    if (collectedFiles[fileName] && format === 'stylish') {
       process.stdout.write(
         yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`)
       );
