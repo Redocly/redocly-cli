@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "1.10.3",
+  "version": "1.10.5",
   "description": "",
   "main": "lib/index.js",
   "engines": {
@@ -35,6 +35,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.11.0",
+    "@redocly/config": "^0.1.4",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
