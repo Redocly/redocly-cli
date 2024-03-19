@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Updated licenses.
+Updated license text for date and organization naming accuracy.
