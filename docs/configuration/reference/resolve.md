@@ -9,7 +9,6 @@ If a URL is not publicly accessible, use these configuration settings to add the
 One HTTP header is supported for each URL resolved.
 {% /admonition %}
 
-
 ## Options
 
 {% table %}

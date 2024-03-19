@@ -24,7 +24,6 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 ### Rule object
 
-
 {% table %}
 
 - Option

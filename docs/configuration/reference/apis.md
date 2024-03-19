@@ -9,7 +9,6 @@ For example, Developer onboarding means allowing developers to register apps and
 
 If your project contains multiple APIs, the `apis` configuration section allows you to set up different rules and settings for different APIs.
 
-
 ## Options
 
 {% table %}
@@ -54,7 +53,6 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 {% /table %}
 
-
 ## Examples
 
 <!--Related options
@@ -70,4 +68,3 @@ Include a bulleted list of related reference documentation links.-->
 Include a bulleted list of conceptual or how-to documentation links that are related to topic referenced.-->
 
 ## Resources
-
