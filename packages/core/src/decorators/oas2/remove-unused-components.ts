@@ -63,12 +63,13 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           for (const [path, { used, name, componentType }] of components) {
             const isUsed = used?.some(
               (location) =>
-                !removedPaths.some((removed) => removed.startsWith(location.absolutePointer))
+                !removedPaths.some((removed) => location.absolutePointer.startsWith(removed))
             );
             if (!isUsed && componentType) {
               removedPaths.push(path);
               rootComponents.push(componentType);
               delete root[componentType]![name];
+              components.delete(path);
               lastRemoveCount++;
             }
           }

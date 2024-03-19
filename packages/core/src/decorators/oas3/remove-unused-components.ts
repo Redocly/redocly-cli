@@ -61,25 +61,26 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
 
         let lastRemoveCount = 0;
         do {
-          lastRemoveCount = 0
+          lastRemoveCount = 0;
           for (const [path, { used, name, componentType }] of components) {
             const isUsed = used?.some(
               (location) =>
-                !removedPaths.some((removed) => removed.startsWith(location.absolutePointer))
+                !removedPaths.some((removed) => location.absolutePointer.startsWith(removed))
             );
 
             if (!isUsed && componentType && root.components) {
               removedPaths.push(path);
               const componentChild = root.components[componentType];
               delete componentChild![name];
+              components.delete(path);
               lastRemoveCount++;
               if (isEmptyObject(componentChild)) {
                 delete root.components[componentType];
               }
             }
-
-            data.removedCount += lastRemoveCount;
           }
+
+          data.removedCount += lastRemoveCount;
         } while (lastRemoveCount > 0);
 
         if (isEmptyObject(root.components)) {
