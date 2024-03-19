@@ -12,6 +12,7 @@ type CLICommands =
   | 'login'
   | 'logout'
   | 'preview-docs'
+  | 'verify-config'
   | 'push'
   | 'split'
   | 'stats'

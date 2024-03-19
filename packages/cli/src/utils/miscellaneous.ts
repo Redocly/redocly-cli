@@ -352,7 +352,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   process.stderr.write('\n');
 }
 
-export function printConfigLintTotals(totals: Totals): void {
+export function printConfigLintTotals(totals: Totals, command?: string | number): void {
   if (totals.errors > 0) {
     process.stderr.write(
       red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`)
@@ -361,6 +361,8 @@ export function printConfigLintTotals(totals: Totals): void {
     process.stderr.write(
       yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
     );
+  } else if (command === 'verify-config') {
+    process.stderr.write(green('✅ Your config is valid.\n'));
   }
 }
 

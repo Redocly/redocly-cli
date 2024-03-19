@@ -500,6 +500,26 @@ yargs
     }
   )
   .command(
+    'verify-config',
+    'Lint the Redocly configuration file.',
+    async (yargs) =>
+      yargs.option({
+        config: {
+          description: 'Path to the config file.',
+          type: 'string',
+        },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'error' as RuleSeverity,
+        },
+      }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'verify-config';
+      commandWrapper()(argv);
+    }
+  )
+  .command(
     'login',
     'Login to the Redocly API registry with an access token.',
     async (yargs) =>
