@@ -74,6 +74,16 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should bundle external refs and use schema title if useSchemaTitleAsRef is true', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({} as ResolvedConfig),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-using-title-as-ref.yaml'),
+      useSchemaTitleAsRef: true,
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),

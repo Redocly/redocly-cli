@@ -233,6 +233,36 @@ components:
 
 `;
 
+exports[`bundle should bundle external refs and use schema title if useSchemaTitleAsRef is true 1`] = `
+openapi: 3.1.0
+paths:
+  /football/match:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FootballMatch'
+  /basketball/match:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasketballMatch'
+components:
+  schemas:
+    FootballMatch:
+      title: FootballMatch
+      type: object
+    BasketballMatch:
+      title: BasketballMatch
+      type: object
+
+`;
+
 exports[`bundle should bundle external refs and warn for conflicting names 1`] = `
 openapi: 3.0.0
 paths:
