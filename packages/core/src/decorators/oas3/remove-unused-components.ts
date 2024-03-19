@@ -16,10 +16,9 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     name: string
   ): void {
     components.set(location.absolutePointer, {
-      used: null,
+      used: components.get(location.absolutePointer)?.used ?? null,
       componentType,
       name,
-      ...components.get(location.absolutePointer),
     });
   }
 
