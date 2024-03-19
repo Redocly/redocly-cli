@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.10.5 (2024-03-19)
+
+### Patch Changes
+
+- Updated license text for date and organization naming accuracy.
+- Updated @redocly/openapi-core to v1.10.5.
+
 ## 1.10.4 (2024-03-14)
 
 ### Patch Changes

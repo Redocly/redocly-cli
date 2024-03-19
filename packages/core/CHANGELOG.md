@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.10.5
+
+### Patch Changes
+
+- Updated license text for date and organization naming accuracy.
+
 ## 1.10.4
 
 ### Patch Changes
