@@ -144,6 +144,7 @@
           items:
             - page: configuration/reference/apis.md
             - page: configuration/reference/resolve.md
+            - page: configuration/reference/rules.md
     - group: Custom plugins
       page: custom-plugins/index.md
       items:

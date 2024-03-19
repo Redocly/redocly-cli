@@ -43,13 +43,13 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 ---
 
 - rules
-- [Rules object]
+- [Rules object](./rules.md)
 - Additional rule configuration for this API.
 
 ---
 
 - decorators
-- [Decorators object]
+- [Decorators object](./decorators.md)
 - Additional decorator configuration for this API.
 
 {% /table %}
