@@ -53,7 +53,7 @@ This section covers some examples and common use cases.
 Pick and mix the built-in decorators in your `redocly.yaml` file as you need to.
 The following example enables the `remove-unused-components` decorator, and uses `info-override` to update the title:
 
-```yaml 
+```yaml
 decorators:
   remove-unused-components: on
   info-override:

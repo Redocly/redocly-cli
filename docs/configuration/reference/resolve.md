@@ -62,7 +62,7 @@ One HTTP header is supported for each URL resolved.
 
 - envVariable
 - string
-- The name of the environment variable that contains the value to send for the header. Only one of `value` or `envVariable` can be used; `envVariable` is recommended for any secrets. 
+- The name of the environment variable that contains the value to send for the header. Only one of `value` or `envVariable` can be used; `envVariable` is recommended for any secrets.
 
 {% /table %}
 
@@ -84,7 +84,6 @@ resolve:
 ```
 
 When the OpenAPI description references a URL that matches these patterns, it is resolved using the additional header specified.
-
 
 ## Resources
 
