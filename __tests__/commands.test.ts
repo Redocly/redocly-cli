@@ -79,7 +79,7 @@ describe('E2E', () => {
       const folderPath = join(__dirname, `verify-config/${dirName}`);
 
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'verify-config', [
-        '--config=nested/redocly.yaml'
+        '--config=nested/redocly.yaml',
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
