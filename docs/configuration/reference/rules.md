@@ -3,7 +3,7 @@
 ## Introduction
 
 The `rules` configuration blocks configure linting rules and their severity.
-Configure [built-in rules](../../rules/built-in-rules.md) included by default, [configurable rules](../../rules/configurable-rules.md) you add yourself, and [rules from plugins](../../custom-plugins/rules.md).
+Configure [built-in rules](../../rules/built-in-rules.md) included by default, [configurable rules](../../rules/configurable-rules.md) you add yourself, and [rules from plugins](../../custom-plugins/custom-rules.md).
 The `rules` block can be used at the root of a configuration file, or inside an [API-specific section](./apis.md).
 
 ## Options

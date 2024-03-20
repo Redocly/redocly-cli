@@ -1,10 +1,5 @@
 # `apis`
 
-<!--Introduction
---------------------------
-Explain what the option is or does.
-For example, Developer onboarding means allowing developers to register apps and manage credentials.-->
-
 ## Introduction
 
 If your project contains multiple APIs, the `apis` configuration section allows you to set up different rules and settings for different APIs.
@@ -55,16 +50,30 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 ## Examples
 
-<!--Related options
--------------------
+The following example shows a simple `redocly.yaml` configuration file with settings for multiple APIs.
 
-Include a bulleted list of related reference documentation links.-->
+```yaml
+apis:
+  orders:
+    root: orders/openapi.yaml
+    rules:
+      tags-alphabetical: error
+      operation-operationId-unique: error
+      spec-strict-refs: error
+  newsletter:
+    root: newsletter/openapi.yaml
+    rules:
+      info-contact: off
+      operation-summary: off
+```
 
 ## Related options
 
-<!--Resources
--------------
-
-Include a bulleted list of conceptual or how-to documentation links that are related to topic referenced.-->
+- [extends](./extends.md) sets the base ruleset to use.
+- [rules](./rules.md) settings define the linting rules that are used.
+- [decorators](./decorators.md) offer some transformations for your OpenAPI documents.
 
 ## Resources
+
+- More information and examples of [per-API configuration](../apis.md).
+- List of [built-in rules](../../rules/built-in-rules.md).

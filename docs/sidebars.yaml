@@ -144,6 +144,8 @@
           items:
             - page: configuration/reference/apis.md
             - page: configuration/reference/decorators.md
+            - page: configuration/reference/extends.md
+            - page: configuration/reference/plugins.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins
