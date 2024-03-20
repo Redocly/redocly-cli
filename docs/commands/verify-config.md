@@ -13,10 +13,10 @@ redocly verify-config [--config=<path>]
 
 ## Options
 
-| Option                          | Type     | Description                                                                                                                  |
-| ------------------------------- | -------- |------------------------------------------------------------------------------------------------------------------------------|
-| --config                        | string   | Specify path to the [config file](#custom-configuration-file).                                                               |
-| --lint-config                   | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`. Default value is `error`. |
+| Option        | Type   | Description                                                                                                                  |
+| ------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| --config      | string | Specify path to the [config file](#custom-configuration-file).                                                               |
+| --lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`. Default value is `error`. |
 
 ## Examples
 
