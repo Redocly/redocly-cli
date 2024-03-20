@@ -30,6 +30,8 @@
           page: commands/split.md
         - label: stats
           page: commands/stats.md
+        - label: verify-config
+          page: commands/verify-config.md
     - group: Guides
       page: guides/index.md
       items:

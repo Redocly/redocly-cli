@@ -510,13 +510,13 @@ yargs
         },
         'lint-config': {
           description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          choices: ['warn', 'error'] as ReadonlyArray<RuleSeverity>,
           default: 'error' as RuleSeverity,
         },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'verify-config';
-      commandWrapper()(argv);
+      commandWrapper(() => {})(argv);
     }
   )
   .command(

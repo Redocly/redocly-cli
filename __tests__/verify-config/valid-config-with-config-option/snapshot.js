@@ -2,6 +2,6 @@
 
 exports[`E2E verify-config run with config option 1`] = `
 
-✅ Your config is valid.
+✅  Your config is valid.
 
 `;

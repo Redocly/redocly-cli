@@ -56,7 +56,6 @@ describe('E2E', () => {
 
   describe('verify-config', () => {
     const folderPathWithOptions: { dirName: string; option: string | null }[] = [
-      { dirName: 'invalid-config--lint-config-off', option: 'off' },
       { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
       { dirName: 'invalid-config--no-option', option: null },
