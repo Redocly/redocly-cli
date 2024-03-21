@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This is a dedicated command to lint a Redocly config file as the lint command does for an API description file to ensure the config file is valid.
+Use this command to check that everything in a Redocly configuration file is valid and in the expected format.
+Adding this check before using the configuration file with other commands can catch any problems at an early stage.
+This command uses the same mechanism as our API linting to match a file against an expected data structure.
 
 ## Usage
 
