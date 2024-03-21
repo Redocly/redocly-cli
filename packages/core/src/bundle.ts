@@ -464,6 +464,24 @@ function makeBundleVisitor(
     }
 
     const prevName = name;
+    const fileParts = fileRef.split('/'); // slice(2) removes "#/"
+
+    // throw away the last segment, we're using that already
+    fileParts.pop()
+    // add path segments until we have a name we can use (max depth = 4)
+    let depth = 0
+    while (fileParts.length > 0) {
+      name = fileParts.pop() + `-${name}`;
+      if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
+        return name;
+      }
+
+      depth++;
+      if(depth > 3) {
+        break;
+      }
+    }
+
     let serialId = 2;
     while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       name = `${prevName}-${serialId}`;
