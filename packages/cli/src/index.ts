@@ -516,7 +516,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'verify-config';
-      commandWrapper(() => {})(argv);
+      commandWrapper()(argv);
     }
   )
   .command(
