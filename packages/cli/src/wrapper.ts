@@ -11,7 +11,8 @@ import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 
 export function commandWrapper<T extends CommandOptions>(
-  commandHandler?: (argv: T, config: Config, version: string) => Promise<void>) {
+  commandHandler?: (argv: T, config: Config, version: string) => Promise<void>
+) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let hasConfig;
