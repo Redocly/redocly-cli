@@ -28,7 +28,7 @@ Please send your [statement of interest](https://developers.google.com/season-of
 
 Be sure to review the skills needed for each project and include references to your abilities in these areas in particular.
 
-You will also need to be able to meet remotely within the following timezones:
+You also need to be able to meet remotely within the following timezones:
 
 - Eastern Standard Time (EST) - UTC-05:00
 - Greenwich Mean time (GMT) - UTC+01:00
@@ -49,7 +49,7 @@ The following are the open source projects we would like some help with:
 - [Redocly CLI](https://github.com/Redocly/redocly-cli): Redocly CLI is an open source command-line tool for working with OpenAPI descriptions, developer portals, and other API lifecycle operations including API linting, enhancement, and bundling.
 - [OpenAPI starter](https://github.com/Redocly/openapi-starter): OpenAPI starter is a template repository that you can use to start your own OpenAPI project.
 
-To contribute to or discuss the project ideas, create a [GSOD project ideas](https://github.com/Redocly/redocly-cli/blob/main/.github/ISSUE_TEMPLATE/gsod-project-ideas.md) issue on the [redocly-cli repo](https://github.com/Redocly/redocly-cli/tree/main) in GitHub.
+To contribute to or discuss the project ideas, create a GSOD project ideas issue on the [redocly-cli repo](https://github.com/Redocly/redocly-cli/tree/main) in GitHub.
 
 ### Redocly CLI guides
 
@@ -69,7 +69,6 @@ The following skills are needed:
 - Strong understanding of OpenAPI.
 - Comfortable working in the command-line.
 - Familiarity with Markdown for documentation formatting.
-
 
 ### OpenAPI starter examples
 
@@ -92,7 +91,7 @@ The following skills are needed:
 
 ## Success metrics
 
-We will use the following metrics to determine the success of the projects:
+The following are the success metrics for our projects:
 
 - Increase in page views after updates.
 - Increase in positive reviews using our feedback mechanism.
@@ -101,37 +100,55 @@ We will use the following metrics to determine the success of the projects:
 ## Timeline
 
 {% table %}
-* Time frame
-* Expected activities
+
+- Time frame
+- Expected activities
+
 ---
-* April 10 - 28
-* Review technical writer statements of interest
+
+- April 10 - 28
+- Review technical writer statements of interest
+
 ---
-* May 1 - 10
-* Hire technical writers
+
+- May 1 - 10
+- Hire technical writers
+
 ---
-* May 20 - November 20
-* Documentation work is completed
+
+- May 20 - November 20
+- Documentation work is completed
+
 ---
-* November 23 - December 10
-* Final project evaluation
+
+- November 23 - December 10
+- Final project evaluation
+
 ---
-* December 13
-* Google posts program results
-{% /table %}
+
+- December 13
+- Google posts program results
+  {% /table %}
 
 ## Budget
 
 {% table %}
-* Budget item
-* Total amount
+
+- Budget item
+- Total amount
+
 ---
-* Technical writer stipend
-* $5,000
+
+- Technical writer stipend
+- $5,000
+
 ---
-* Technical writer stipend
-* $5,000
+
+- Technical writer stipend
+- $5,000
+
 ---
-* **Budget Total**
-* **$10,000**
-{% /table %}
+
+- **Budget Total**
+- **$10,000**
+  {% /table %}
