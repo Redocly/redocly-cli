@@ -233,7 +233,7 @@ omitted.
 The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
 Use `redocly lint --format=github-actions` to have any encountered problem annotated on the affected files.
 
-```
+```bash
 ::error title=spec,file=museum-with-errors.yaml,line=19,endLine=19,col=7,endColumn=7::Property `operationIds` is not expected here.
 ::error title=spec,file=museum-with-errors.yaml,line=29,endLine=29,col=11,endColumn=11::Property `require` is not expected here.
 ::warning title=operation-operationId,file=museum-with-errors.yaml,line=16,endLine=16,col=5,endColumn=5::Operation object should contain `operationId` field.
