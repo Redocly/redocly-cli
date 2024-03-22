@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as actions from '@actions/core';
 import { colorOptions, colorize, logger } from '../logger';
 import { output } from '../output';
 
@@ -158,30 +157,7 @@ export function formatProblems(
       formatSummary(problems);
       break;
     case 'github-actions':
-      for (const problem of problems) {
-        for (const location of problem.location.map(getLineColLocation)) {
-          let reporter;
-          switch (problem.severity) {
-            case 'error':
-              reporter = actions.error;
-              break;
-            case 'warn':
-              reporter = actions.warning;
-              break;
-          }
-          const suggest = formatDidYouMean(problem);
-          reporter(suggest !== '' ? problem.message + '\n\n' + suggest : problem.message, {
-            file: isAbsoluteUrl(location.source.absoluteRef)
-              ? location.source.absoluteRef
-              : path.relative(cwd, location.source.absoluteRef),
-            title: problem.ruleId,
-            startLine: location.start.line,
-            startColumn: location.start.col,
-            endLine: location.start.line,
-            endColumn: location.start.col,
-          });
-        }
-      }
+      outputForGithubActions(problems, cwd)
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -399,4 +375,64 @@ function xmlEscape(s: string): string {
         return `&#${char.charCodeAt(0)};`;
     }
   });
+}
+
+function outputForGithubActions(problems: NormalizedProblem[], cwd: string): void {
+  for (const problem of problems) {
+    for (const location of problem.location.map(getLineColLocation)) {
+      let command;
+      switch (problem.severity) {
+        case 'error':
+          command = 'error';
+          break;
+        case 'warn':
+          command = 'warning';
+          break;
+      }
+      const suggest = formatDidYouMean(problem);
+      const message = suggest !== '' ? problem.message + '\n\n' + suggest : problem.message;
+      const properties = {
+        title: problem.ruleId,
+        file: isAbsoluteUrl(location.source.absoluteRef)
+          ? location.source.absoluteRef
+          : path.relative(cwd, location.source.absoluteRef),
+        line: location.start.line,
+        col: location.start.col,
+        endLine: location.end?.line,
+        endColumn: location.end?.col,
+      }
+      output.write(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
+    }
+  }
+
+  function formatProperties(props: Record<string, any>): string {
+    return Object.entries(props)
+      .filter(([,v]) => v !== null && v !== undefined)
+      .map(([k, v]) => `${k}=${escapeProperty(v)}`)
+      .join(',')
+  }
+
+  function toString(v: any): string {
+    if (v === null || v === undefined) {
+      return ''
+    } else if (typeof v === 'string' || v instanceof String) {
+      return v as string
+    }
+    return JSON.stringify(v)
+  }
+
+  function escapeMessage(v: any): string {
+    return toString(v)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A')
+  }
+  function escapeProperty(v: any): string {
+    return toString(v)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A')
+      .replace(/:/g, '%3A')
+      .replace(/,/g, '%2C')
+  }
 }
