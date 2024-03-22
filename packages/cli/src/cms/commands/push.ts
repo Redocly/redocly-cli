@@ -35,7 +35,10 @@ export type PushOptions = {
 
 type FileToUpload = { name: string; path: string };
 
-export async function handlePush(argv: PushOptions, config: Config) {
+export async function handlePush(
+  argv: PushOptions,
+  config: Config
+): Promise<{ pushId: string } | void> {
   const startedAt = performance.now();
   const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
 
@@ -144,6 +147,10 @@ export async function handlePush(argv: PushOptions, config: Config) {
           filesToUpload.length
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
+
+    return {
+      pushId: id,
+    };
   } catch (err) {
     const message =
       err instanceof HandledError ? '' : `✗ File upload failed. Reason: ${err.message}`;

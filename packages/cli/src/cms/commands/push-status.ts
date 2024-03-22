@@ -101,28 +101,28 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
       printPushStatusInfo({ orgId, projectId, pushId, startedAt });
     }
 
-    if (format === 'json') {
-      const summary = {
-        pushMetadata: {
-          pushId,
-          orgSlug: orgId,
-          projectSlug: projectId,
-        },
-        preview: {
-          status: previewPushData.status.preview.deploy.status,
-          url: previewPushData.status.preview.deploy.url,
-          scorecard: previewPushData.status.preview.scorecard,
-        },
-        production:
-          previewPushData.status.preview.deploy.status !== 'failed'
-            ? {
-                status: prodPushData?.status?.production?.deploy.status,
-                url: prodPushData?.status?.production?.deploy.url,
-                scorecard: prodPushData?.status?.production?.scorecard,
-              }
-            : undefined,
-      };
+    const summary = {
+      pushMetadata: {
+        pushId,
+        orgSlug: orgId,
+        projectSlug: projectId,
+      },
+      preview: {
+        status: previewPushData.status.preview.deploy.status,
+        url: previewPushData.status.preview.deploy.url,
+        scorecard: previewPushData.status.preview.scorecard,
+      },
+      production:
+        previewPushData.status.preview.deploy.status !== 'failed'
+          ? {
+              status: prodPushData?.status?.production?.deploy.status,
+              url: prodPushData?.status?.production?.deploy.url,
+              scorecard: prodPushData?.status?.production?.scorecard,
+            }
+          : undefined,
+    };
 
+    if (format === 'json') {
       process.stdout.write(JSON.stringify(summary) + '\n');
 
       if (summary.preview.status === 'failed') {
@@ -135,6 +135,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
         throw new DeploymentError(`${colors.red(`❌ Production deploy failed.`)}`);
       }
     }
+    return summary;
   } catch (err) {
     const message =
       err instanceof DeploymentError
