@@ -26,7 +26,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     const removedLengthStart = removedPaths.length;
 
     for (const [path, { usedIn, name, componentType }] of components) {
-      const used = usedIn?.some(
+      const used = usedIn.some(
         (location) =>
           !removedPaths.some(
             (removed) =>
