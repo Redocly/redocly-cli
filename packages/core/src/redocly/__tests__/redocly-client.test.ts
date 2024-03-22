@@ -1,3 +1,4 @@
+import { setRedoclyDomain } from '../domains';
 import { RedoclyClient } from '../index';
 
 jest.mock('node-fetch', () => ({
@@ -16,6 +17,7 @@ describe('RedoclyClient', () => {
 
   afterEach(() => {
     delete process.env.REDOCLY_DOMAIN;
+    setRedoclyDomain('');
   });
 
   it('should resolve the US domain by default', () => {
@@ -40,19 +42,19 @@ describe('RedoclyClient', () => {
   });
 
   it('should resolve domain by EU region prioritizing flag over env variable', () => {
-    process.env.REDOCLY_DOMAIN = testRedoclyDomain;
+    setRedoclyDomain(testRedoclyDomain);
     const client = new RedoclyClient('eu');
     expect(client.domain).toBe(REDOCLY_DOMAIN_EU);
   });
 
   it('should resolve domain by US region prioritizing flag over env variable', () => {
-    process.env.REDOCLY_DOMAIN = testRedoclyDomain;
+    setRedoclyDomain(testRedoclyDomain);
     const client = new RedoclyClient('us');
     expect(client.domain).toBe(REDOCLY_DOMAIN_US);
   });
 
   it('should resolve domain by US region when REDOCLY_DOMAIN consists EU domain', () => {
-    process.env.REDOCLY_DOMAIN = REDOCLY_DOMAIN_EU;
+    setRedoclyDomain(REDOCLY_DOMAIN_EU);
     const client = new RedoclyClient();
     expect(client.getRegion()).toBe('eu');
   });

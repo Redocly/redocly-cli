@@ -18,7 +18,8 @@
     "path": "path-browserify",
     "os": false,
     "node-fetch": false,
-    "colorette": false
+    "colorette": false,
+    "https-proxy-agent": false
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
@@ -37,6 +38,7 @@
     "@redocly/ajv": "^8.11.0",
     "@redocly/config": "^0.1.4",
     "colorette": "^1.2.0",
+    "https-proxy-agent": "^7.0.4",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
     "lodash.isequal": "^4.5.0",
