@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as actions from '@actions/core';
 import { colorOptions, colorize, logger } from '../logger';
 import { output } from '../output';
 
@@ -51,7 +52,8 @@ export type OutputFormat =
   | 'json'
   | 'checkstyle'
   | 'codeclimate'
-  | 'summary';
+  | 'summary'
+  | 'github-actions';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -155,6 +157,31 @@ export function formatProblems(
     case 'summary':
       formatSummary(problems);
       break;
+    case 'github-actions':
+      for (const problem of problems) {
+        for (const location of problem.location.map(getLineColLocation)) {
+          let reporter;
+          switch (problem.severity) {
+            case 'error':
+              reporter = actions.error;
+              break;
+            case 'warn':
+              reporter = actions.warning;
+              break;
+          }
+          const suggest = formatDidYouMean(problem);
+          reporter(suggest !== '' ? problem.message + '\n\n' + suggest : problem.message, {
+            file: isAbsoluteUrl(location.source.absoluteRef)
+              ? location.source.absoluteRef
+              : path.relative(cwd, location.source.absoluteRef),
+            title: problem.ruleId,
+            startLine: location.start.line,
+            startColumn: location.start.col,
+            endLine: location.start.line,
+            endColumn: location.start.col,
+          });
+        }
+      }
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
