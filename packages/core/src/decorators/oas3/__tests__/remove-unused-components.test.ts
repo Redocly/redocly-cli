@@ -255,7 +255,7 @@ describe('oas3 remove-unused-components', () => {
               properties:
                 link:
                   $ref: '#/components/schemas/Unused'
-            Used: # <-- this will be removed INCORRECTLY because the pointer starts with a previously removed path 
+            Used:
               type: integer
             Transitive2:
               type: object
