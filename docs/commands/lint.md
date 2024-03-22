@@ -22,19 +22,19 @@ redocly lint --version
 
 ## Options
 
-| Option                 | Type     | Description                                                                                                                                            |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
-| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                  |
-| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                           |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe`. |
-| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                         |
-| --help                 | boolean  | Show help.                                                                                                                                             |
-| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                     |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                            |
-| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                           |
-| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                   |
-| --version              | boolean  | Show version number.                                                                                                                                   |
+| Option                 | Type     | Description                                                                                                                                                              |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                                               |
+| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                    |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                                             |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `summary`. Default value is `codeframe`. |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                           |
+| --help                 | boolean  | Show help.                                                                                                                                                               |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                       |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                                              |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                             |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                     |
+| --version              | boolean  | Show version number.                                                                                                                                                     |
 
 ## Examples
 
@@ -227,6 +227,17 @@ Use a command like `redocly lint --format=checkstyle` to get this standard forma
 Due to the limitations of this format, only file name, line, column, severity,
 and rule ID (in the `source` attribute) are included. All other information is
 omitted.
+
+#### GitHub Actions
+
+The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
+Use `redocly lint --format=github-actions` to have any encountered problem annotated on the affected files.
+
+```
+::error title=spec,file=museum-with-errors.yaml,line=19,endLine=19,col=7,endColumn=7::Property `operationIds` is not expected here.
+::error title=spec,file=museum-with-errors.yaml,line=29,endLine=29,col=11,endColumn=11::Property `require` is not expected here.
+::warning title=operation-operationId,file=museum-with-errors.yaml,line=16,endLine=16,col=5,endColumn=5::Operation object should contain `operationId` field.
+```
 
 ### <a id="max-problems"></a>Limit the problem count
 
