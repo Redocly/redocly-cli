@@ -1,4 +1,4 @@
-# `verify-config`
+# `check-config`
 
 ## Introduction
 
@@ -9,8 +9,8 @@ This command uses the same mechanism as our API linting to match a file against 
 ## Usage
 
 ```bash
-redocly verify-config
-redocly verify-config [--config=<path>]
+redocly check-config
+redocly check-config [--config=<path>]
 ```
 
 ## Options
@@ -27,7 +27,7 @@ redocly verify-config [--config=<path>]
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory.
 
 ```bash
-redocly verify-config
+redocly check-config
 ```
 
 ### Custom configuration file
@@ -35,5 +35,5 @@ redocly verify-config
 Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
-redocly verify-config --config=./another/directory/config.yaml
+redocly check-config --config=./another/directory/config.yaml
 ```

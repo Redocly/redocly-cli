@@ -361,7 +361,7 @@ export function printConfigLintTotals(totals: Totals, command?: string | number)
     process.stderr.write(
       yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
     );
-  } else if (command === 'verify-config') {
+  } else if (command === 'check-config') {
     process.stderr.write(green('✅  Your config is valid.\n'));
   }
 }

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E verify-config test with option: { dirName: 'invalid-config--lint-config-warn', option: 'warn' } 1`] = `
+exports[`E2E check-config test with option: { dirName: 'invalid-config--lint-config-warn', option: 'warn' } 1`] = `
 
 [1] .redocly.yaml:6:3 at #/rules/context
 

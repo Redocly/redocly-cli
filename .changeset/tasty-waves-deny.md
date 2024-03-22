@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Added `verify-config` command to validate a Redocly configuration file.
+Added `check-config` command to validate a Redocly configuration file.

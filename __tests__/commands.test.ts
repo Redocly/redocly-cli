@@ -54,7 +54,7 @@ describe('E2E', () => {
     });
   });
 
-  describe('verify-config', () => {
+  describe('check-config', () => {
     const folderPathWithOptions: { dirName: string; option: string | null }[] = [
       { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
@@ -64,10 +64,10 @@ describe('E2E', () => {
 
     test.each(folderPathWithOptions)('test with option: %s', (folderPathWithOptions) => {
       const { dirName, option } = folderPathWithOptions;
-      const folderPath = join(__dirname, `verify-config/${dirName}`);
+      const folderPath = join(__dirname, `check-config/${dirName}`);
       const args = [...([option && `--lint-config=${option}`].filter(Boolean) as string[])];
 
-      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'verify-config', args);
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
       (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -75,9 +75,9 @@ describe('E2E', () => {
 
     test('run with config option', () => {
       const dirName = 'valid-config-with-config-option';
-      const folderPath = join(__dirname, `verify-config/${dirName}`);
+      const folderPath = join(__dirname, `check-config/${dirName}`);
 
-      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'verify-config', [
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', [
         '--config=nested/redocly.yaml',
       ]);
 

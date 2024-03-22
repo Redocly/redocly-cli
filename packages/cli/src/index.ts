@@ -500,7 +500,7 @@ yargs
     }
   )
   .command(
-    'verify-config',
+    'check-config',
     'Lint the Redocly configuration file.',
     async (yargs) =>
       yargs.option({
@@ -515,7 +515,7 @@ yargs
         },
       }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'verify-config';
+      process.env.REDOCLY_CLI_COMMAND = 'check-config';
       commandWrapper()(argv);
     }
   )
