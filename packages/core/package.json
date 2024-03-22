@@ -34,6 +34,7 @@
     "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
+    "@actions/core": "^1.10.1",
     "@redocly/ajv": "^8.11.0",
     "@redocly/config": "^0.1.4",
     "colorette": "^1.2.0",
