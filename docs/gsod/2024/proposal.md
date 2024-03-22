@@ -31,7 +31,7 @@ Be sure to review the skills needed for each project and include references to y
 You also need to be able to meet remotely within the following timezones:
 
 - Eastern Standard Time (EST) - UTC-05:00
-- Greenwich Mean time (GMT) - UTC+01:00
+- Greenwich Mean time (GMT) - UTC+00:00
 
 ## Volunteers/mentors
 
