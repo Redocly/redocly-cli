@@ -3,7 +3,7 @@ name: GSOD project ideas
 about: Discuss or contribute to GSOD project ideas
 title: 'GSOD project ideas'
 labels: 'gsod'
-assignees: 'https://github.com/HCloward'
+assignees: '@HCloward'
 ---
 
 **Which project would you like to contribute to or discuss?**
