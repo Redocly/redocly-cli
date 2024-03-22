@@ -54,6 +54,38 @@ describe('E2E', () => {
     });
   });
 
+  describe('check-config', () => {
+    const folderPathWithOptions: { dirName: string; option: string | null }[] = [
+      { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
+      { dirName: 'invalid-config--lint-config-error', option: 'error' },
+      { dirName: 'invalid-config--no-option', option: null },
+      { dirName: 'valid-config', option: null },
+    ];
+
+    test.each(folderPathWithOptions)('test with option: %s', (folderPathWithOptions) => {
+      const { dirName, option } = folderPathWithOptions;
+      const folderPath = join(__dirname, `check-config/${dirName}`);
+      const args = [...([option && `--lint-config=${option}`].filter(Boolean) as string[])];
+
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', args);
+
+      const result = getCommandOutput(passedArgs, folderPath);
+      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('run with config option', () => {
+      const dirName = 'valid-config-with-config-option';
+      const folderPath = join(__dirname, `check-config/${dirName}`);
+
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', [
+        '--config=nested/redocly.yaml',
+      ]);
+
+      const result = getCommandOutput(passedArgs, folderPath);
+      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+  });
+
   describe('lint-config', () => {
     const lintOptions: { dirName: string; option: string | null; format?: string }[] = [
       { dirName: 'invalid-config--lint-config-off', option: 'off' },
@@ -454,6 +486,7 @@ describe('E2E', () => {
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
+
   describe('bundle with long description', () => {
     it('description should not be in folded mode', () => {
       const folderPath = join(__dirname, `bundle/bundle-description-long`);
