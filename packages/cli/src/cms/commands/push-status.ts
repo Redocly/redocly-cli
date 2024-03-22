@@ -20,10 +20,27 @@ export type PushStatusOptions = {
   config?: string;
   format?: Extract<OutputFormat, 'stylish' | 'json'>;
   wait?: boolean;
-  'max-execution-time': number;
+  'max-execution-time'?: number;
+  onRetry?: (lastResult: PushResponse) => void;
 };
 
-export async function handlePushStatus(argv: PushStatusOptions, config: Config) {
+export interface PushStatusSummary {
+  preview: {
+    status: DeploymentStatus;
+    url?: string;
+    scorecard: ScorecardItem[];
+  };
+  production?: {
+    status: DeploymentStatus;
+    url?: string;
+    scorecard: ScorecardItem[];
+  };
+}
+
+export async function handlePushStatus(
+  argv: PushStatusOptions,
+  config: Config
+): Promise<PushStatusSummary | undefined> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 
@@ -32,9 +49,10 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
   const orgId = organization || config.organization;
 
   if (!orgId) {
-    return exitWithError(
+    exitWithError(
       `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
     );
+    return;
   }
 
   const domain = argv.domain || getDomain();
@@ -62,6 +80,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
             buildType: 'preview',
             wait,
           });
+        argv?.onRetry?.(lastResult);
       },
     });
 
@@ -84,13 +103,15 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
           buildType: 'production',
           retryTimeout,
           onRetry: (lastResult) => {
-            displayDeploymentAndBuildStatus({
-              status: lastResult.status['production'].deploy.status,
-              previewUrl: lastResult.status['production'].deploy.url,
-              spinner,
-              buildType: 'production',
-              wait,
-            });
+            format === 'stylish' &&
+              displayDeploymentAndBuildStatus({
+                status: lastResult.status['production'].deploy.status,
+                previewUrl: lastResult.status['production'].deploy.url,
+                spinner,
+                buildType: 'production',
+                wait,
+              });
+            argv?.onRetry?.(lastResult);
           },
         })
       : null;
@@ -101,23 +122,19 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
       printPushStatusInfo({ orgId, projectId, pushId, startedAt });
     }
 
-    const summary = {
-      pushMetadata: {
-        pushId,
-        orgSlug: orgId,
-        projectSlug: projectId,
-      },
+    const summary: PushStatusSummary = {
       preview: {
         status: previewPushData.status.preview.deploy.status,
-        url: previewPushData.status.preview.deploy.url,
+        url: previewPushData.status.preview.deploy.url || undefined,
         scorecard: previewPushData.status.preview.scorecard,
       },
       production:
-        previewPushData.status.preview.deploy.status !== 'failed'
+        previewPushData.status.preview.deploy.status !== 'failed' &&
+        prodPushData?.status?.production
           ? {
-              status: prodPushData?.status?.production?.deploy.status,
-              url: prodPushData?.status?.production?.deploy.url,
-              scorecard: prodPushData?.status?.production?.scorecard,
+              status: prodPushData.status.production.deploy.status,
+              url: prodPushData.status.production.deploy.url || '',
+              scorecard: prodPushData.status.production.scorecard,
             }
           : undefined,
     };
@@ -142,6 +159,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
         ? err.message
         : `✗ Failed to get push status. Reason: ${err.message}\n`;
     exitWithError(message);
+    return;
   }
 }
 
