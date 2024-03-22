@@ -2,12 +2,12 @@ import { Location } from '../../ref-utils';
 import { isEmptyObject } from '../../utils';
 
 import type { Oas2Decorator } from '../../visitors';
-import type { Oas2Components } from '../../typings/swagger';
+import type { Oas2Components, Oas2Definition } from '../../typings/swagger';
 
 export const RemoveUnusedComponents: Oas2Decorator = () => {
   const components = new Map<
     string,
-    { used: null | Location[]; componentType?: keyof Oas2Components; name: string }
+    { usedIn: Location[]; componentType?: keyof Oas2Components; name: string }
   >();
 
   function registerComponent(
@@ -16,10 +16,39 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     name: string
   ): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used ?? null,
+      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
       componentType,
       name,
     });
+  }
+
+  function removeUnusedComponents(root: Oas2Definition, removedPaths: string[]): number {
+    const removedLengthStart = removedPaths.length;
+
+    for (const [path, { usedIn, name, componentType }] of components) {
+      const used = usedIn?.some(
+        (location) =>
+          !removedPaths.some(
+            (removed) =>
+              location.absolutePointer.startsWith(removed) &&
+              (location.absolutePointer.length === removed.length ||
+                location.absolutePointer[removed.length] === '/')
+          )
+      );
+      if (!used && componentType) {
+        removedPaths.push(path);
+        delete root[componentType]![name];
+        components.delete(path);
+
+        if (isEmptyObject(root[componentType])) {
+          delete root[componentType];
+        }
+      }
+    }
+
+    return removedPaths.length > removedLengthStart
+      ? removeUnusedComponents(root, removedPaths)
+      : removedPaths.length;
   }
 
   return {
@@ -36,11 +65,10 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           const registered = components.get(pointer);
 
           if (registered) {
-            registered.used ??= [];
-            registered.used.push(location);
+            registered.usedIn.push(location);
           } else {
             components.set(pointer, {
-              used: [location],
+              usedIn: [location],
               name: key.toString(),
             });
           }
@@ -50,37 +78,7 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
     Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
-        data.removedCount = 0;
-
-        const removedPaths: string[] = [];
-        const rootComponents: Array<keyof Oas2Components> = [];
-
-        let lastRemoveCount = 0;
-        do {
-          lastRemoveCount = 0;
-
-          for (const [path, { used, name, componentType }] of components) {
-            const isUsed = used?.some(
-              (location) =>
-                !removedPaths.some((removed) => location.absolutePointer.startsWith(removed))
-            );
-            if (!isUsed && componentType) {
-              removedPaths.push(path);
-              rootComponents.push(componentType);
-              delete root[componentType]![name];
-              components.delete(path);
-              lastRemoveCount++;
-            }
-          }
-
-          data.removedCount += lastRemoveCount;
-        } while (lastRemoveCount > 0);
-
-        for (const component of rootComponents) {
-          if (isEmptyObject(root[component])) {
-            delete root[component];
-          }
-        }
+        data.removedCount = removeUnusedComponents(root, []);
       },
     },
     NamedSchemas: {
