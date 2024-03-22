@@ -157,7 +157,7 @@ export function formatProblems(
       formatSummary(problems);
       break;
     case 'github-actions':
-      outputForGithubActions(problems, cwd)
+      outputForGithubActions(problems, cwd);
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -400,32 +400,29 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
         col: location.start.col,
         endLine: location.end?.line,
         endColumn: location.end?.col,
-      }
+      };
       output.write(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
     }
   }
 
   function formatProperties(props: Record<string, any>): string {
     return Object.entries(props)
-      .filter(([,v]) => v !== null && v !== undefined)
+      .filter(([, v]) => v !== null && v !== undefined)
       .map(([k, v]) => `${k}=${escapeProperty(v)}`)
-      .join(',')
+      .join(',');
   }
 
   function toString(v: any): string {
     if (v === null || v === undefined) {
-      return ''
+      return '';
     } else if (typeof v === 'string' || v instanceof String) {
-      return v as string
+      return v as string;
     }
-    return JSON.stringify(v)
+    return JSON.stringify(v);
   }
 
   function escapeMessage(v: any): string {
-    return toString(v)
-      .replace(/%/g, '%25')
-      .replace(/\r/g, '%0D')
-      .replace(/\n/g, '%0A')
+    return toString(v).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
   }
   function escapeProperty(v: any): string {
     return toString(v)
@@ -433,6 +430,6 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
       .replace(/\r/g, '%0D')
       .replace(/\n/g, '%0A')
       .replace(/:/g, '%3A')
-      .replace(/,/g, '%2C')
+      .replace(/,/g, '%2C');
   }
 }

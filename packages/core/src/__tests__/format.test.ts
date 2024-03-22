@@ -45,7 +45,7 @@ describe('format', () => {
     jest.spyOn(process.stdout, 'write').mockImplementation((str: string | Uint8Array) => {
       output += str;
       return true;
-    })
+    });
   });
 
   it('should correctly format summary output', () => {
@@ -103,6 +103,8 @@ describe('format', () => {
       totals: getTotals(problems),
     });
 
-    expect(output).toEqual("::error title=spec,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n");
+    expect(output).toEqual(
+      '::error title=spec,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n'
+    );
   });
 });
