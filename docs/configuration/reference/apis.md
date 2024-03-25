@@ -50,7 +50,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - preprocessors
 - [Decorators object](./decorators.md)
-- Preprocessors run before linting, and follow the same structure as decorators. We recommend use of decorators in most cases.
+- Preprocessors run before linting, and follow the same structure as decorators. We recommend the use of decorators over preprocessors in most cases.
 
 {% /table %}
 

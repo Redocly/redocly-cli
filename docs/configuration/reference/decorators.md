@@ -3,7 +3,7 @@
 ## Introduction
 
 The `decorators` configuration section defines the transformation steps that are applied to your API description when it is bundled.
-Both the [built-in decorators](../../decorators.md) and [decorators from custom plugins](../../custom-plugins/custom-decorators.md) are configured this way.
+Both the [built-in decorators](../../decorators.md) and [decorators from custom plugins](../../custom-plugins/custom-decorators.md) are configured in this section.
 The `decorators` block can be used at the root of a configuration file, or inside an [API-specific section](./apis.md).
 
 ## Options
