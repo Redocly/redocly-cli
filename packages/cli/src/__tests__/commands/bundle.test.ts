@@ -35,7 +35,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     expect(bundle).toBeCalledTimes(apis.length);
@@ -47,7 +46,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     await exitCb?.();
@@ -60,7 +58,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     await exitCb?.();
@@ -79,7 +76,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     await exitCb?.();
@@ -96,7 +92,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'json',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(1);
@@ -115,7 +110,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(0);

@@ -1,11 +1,4 @@
-import {
-  formatProblems,
-  getTotals,
-  getMergedConfig,
-  bundle,
-  Config,
-  OutputFormat,
-} from '@redocly/openapi-core';
+import { formatProblems, getTotals, getMergedConfig, bundle, Config } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -24,10 +17,8 @@ import { checkForDeprecatedOptions } from '../utils/miscellaneous';
 
 export type BundleOptions = {
   apis?: string[];
-  'max-problems'?: number;
   extends?: string[];
   config?: string;
-  format?: OutputFormat;
   output?: string;
   ext: OutputExtensions;
   dereferenced?: boolean;
@@ -43,12 +34,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-  const maxProblems = argv['max-problems'];
-  const deprecatedOptions: Array<keyof BundleOptions> = [
-    'format',
-    'extends',
-    'max-problems',
-  ];
+  const deprecatedOptions: Array<keyof BundleOptions> = ['extends'];
 
   checkForDeprecatedOptions(argv, deprecatedOptions);
 
@@ -97,8 +83,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       totals.ignored += fileTotals.ignored;
 
       formatProblems(problems, {
-        format: argv.format || 'codeframe',
-        maxProblems: maxProblems,
+        format: 'codeframe',
         totals: fileTotals,
         version,
       });

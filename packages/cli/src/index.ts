@@ -416,17 +416,6 @@ yargs
           description: 'Output file.',
           alias: 'o',
         },
-        format: {
-          description: 'Use a specific output format.',
-          choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
-          hidden: true,
-        },
-        'max-problems': {
-          requiresArg: true,
-          description: 'Reduce output to a maximum of N problems.',
-          type: 'number',
-          hidden: true,
-        },
         ext: {
           description: 'Bundle file extension.',
           requiresArg: true,

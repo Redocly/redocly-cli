@@ -1,8 +1,0 @@
-apis:
-  foo:
-    root: ./foo.yaml
-  bar:
-    root: ./bar.yaml
-
-extends:
-  - recommended

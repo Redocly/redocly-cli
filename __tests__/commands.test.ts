@@ -358,8 +358,6 @@ describe('E2E', () => {
     const excludeFolders = [
       'bundle-remove-unused-components',
       'bundle-remove-unused-components-from-config',
-      'bundle-lint-format',
-      'max-problems-argument',
     ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -379,51 +377,6 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
-
-    it('max-problems-argument', () => {
-      const folderPath = join(__dirname, 'bundle/max-problems-argument');
-      const entryPoints = getEntrypoints(folderPath);
-      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-        '--lint',
-        '--max-problems=1',
-        '--format=stylish',
-        ...entryPoints,
-      ]);
-      const result = getCommandOutput(args, folderPath);
-      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
-    });
-  });
-
-  describe('bundle lint format', () => {
-    const folderPath = join(__dirname, 'bundle/bundle-lint-format');
-    const entryPoints = getEntrypoints(folderPath);
-    const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-      '--lint',
-      '--max-problems=1',
-      '-o=/tmp/null',
-      ...entryPoints,
-    ]);
-
-    test.each(['codeframe', 'stylish', 'json', 'checkstyle'])(
-      'bundle lint: should be formatted by format: %s',
-      (format) => {
-        const params = [...args, `--format=${format}`];
-        const result = getCommandOutput(params, folderPath);
-        (<any>expect(result)).toMatchSpecificSnapshot(
-          join(folderPath, `${format}-format-snapshot.js`)
-        );
-      }
-    );
-
-    test.each(['noFormatParameter', 'emptyFormatValue'])(
-      'bundle lint: no format parameter or empty value should be formatted as codeframe',
-      (format) => {
-        const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
-        const params = [...args, ...formatArgument];
-        const result = getCommandOutput(params, folderPath);
-        (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
-      }
-    );
   });
 
   describe('bundle with option: remove-unused-components', () => {
@@ -502,10 +455,7 @@ describe('E2E', () => {
 
     test('bundle should resolve $refs in preprocessors', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
-      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-        'openapi.yaml',
-        '--lint',
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
