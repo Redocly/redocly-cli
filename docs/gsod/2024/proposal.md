@@ -148,4 +148,5 @@ The following are the success metrics for our projects:
 
 - **Budget Total**
 - **$10,000**
-  {% /table %}
+
+{% /table %}
