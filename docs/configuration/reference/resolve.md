@@ -43,13 +43,13 @@ One HTTP header is supported for each URL resolved.
 
 - matches
 - string
-- Required. The URL pattern to match, for example `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`.
+- **REQUIRED**. The URL pattern to match, for example `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`.
 
 ---
 
 - name
 - string
-- Required. The header name, for example `Authorization`.
+- **REQUIRED**. The header name, for example `Authorization`.
 
 ---
 

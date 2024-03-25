@@ -16,7 +16,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - `{name}@{version}`
 - [API object](#api-object)
-- Required. Each API needs a name and optionally a version. Supports alphanumeric characters and underscores.
+- **REQUIRED**. Each API needs a name and optionally a version. Supports alphanumeric characters and underscores.
 
 {% /table %}
 
@@ -32,7 +32,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - root
 - string
-- Required. Path to the root API description file.
+- **REQUIRED**. Path to the root API description file.
 
 ---
 

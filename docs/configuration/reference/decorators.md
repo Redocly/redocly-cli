@@ -18,7 +18,7 @@ The `decorators` block can be used at the root of a configuration file, or insid
 
 - {decorator name}
 - string _or_ [Decorator object](#decorator-object)
-- Required. You can add as many decorators as you wish. The keys must be either built-in decorators (for example `info-description-override`), or a decorator from a plugin (for example `tags-plugin/no-unused-tags`). Set the value to `on` or `off` to enable or disable a decorator, or use a [Decorator object](#decorator-object) to configure additional options for a specific decorator.
+- **REQUIRED**. You can add as many decorators as you wish. The keys must be either built-in decorators (for example `info-description-override`), or a decorator from a plugin (for example `tags-plugin/no-unused-tags`). Set the value to `on` or `off` to enable or disable a decorator, or use a [Decorator object](#decorator-object) to configure additional options for a specific decorator.
 
 {% /table %}
 

@@ -18,7 +18,7 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 - {rule name}
 - [Rule object](#rule-object)
-- Required. Add as many rule entries as you like. These keys must be built-in rules (for example `security-defined`), configurable rules that you declare here (for example `rule/my-custom-rule`), or a rule from a plugin (for example `my-plugin/add-awesome`).
+- **REQUIRED**. Add as many rule entries as you like. These keys must be built-in rules (for example `security-defined`), configurable rules that you declare here (for example `rule/my-custom-rule`), or a rule from a plugin (for example `my-plugin/add-awesome`).
 
 {% /table %}
 
