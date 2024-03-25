@@ -24,20 +24,17 @@ Our suite of products makes our customers’ APIs more accessible and loved by t
 ## How to apply
 
 We are glad you are interested in contributing to Redocly's open source project documentation.
-Please send your [statement of interest](https://developers.google.com/season-of-docs/docs/tech-writer-statement) to [gsod@redocly.com](mailto:docs@redocly.com) by April 26th.
+Please send your [statement of interest](https://developers.google.com/season-of-docs/docs/tech-writer-statement) to [gsod@redocly.com](mailto:gsod@redocly.com) by April 26th.
 
 Be sure to review the skills needed for each project and include references to your abilities in these areas in particular.
 
-You also need to be able to meet remotely within the following timezones:
-
-- Eastern Standard Time (EST) - UTC-05:00
-- Greenwich Mean time (GMT) - UTC+00:00
+You also need to be able to meet remotely within the US East Coast and EU time zones.
 
 ## Volunteers/mentors
 
 Heather Cloward - [heather.cloward@redocly.com](mailto:heather.cloward@redocly.com)
 
-Lorna Jane Mitchell - [lorna.mitchell@redocly.com](mailto:loran.mitchell@redocly.com)
+Lorna Jane Mitchell - [lorna.mitchell@redocly.com](mailto:lorna.mitchell@redocly.com)
 
 ## Project ideas
 
