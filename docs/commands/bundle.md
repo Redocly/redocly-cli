@@ -38,7 +38,6 @@ redocly bundle --version
 | --remove-unused-components      | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                              |
 | --skip-decorator                | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                       |
 | --skip-preprocessor             | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                    |
-| --skip-rule (**Deprecated**)    | [string] | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                            |
 | --version                       | boolean  | Show version number.                                                                                                                                                                                                                                            |
 
 ## Examples
@@ -92,13 +91,6 @@ You may want to skip specific preprocessors, rules, or decorators upon running t
 
 ```bash
 redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
-```
-
-{% /tab  %}
-{% tab label="Skip rules" %}
-
-```bash
-redocly bundle --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
 
 {% /tab  %}

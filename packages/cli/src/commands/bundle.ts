@@ -46,7 +46,6 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
   const maxProblems = argv['max-problems'];
   const deprecatedOptions: Array<keyof BundleOptions> = [
     'format',
-    'skip-rule',
     'extends',
     'max-problems',
   ];
@@ -59,7 +58,6 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       const resolvedConfig = getMergedConfig(config, alias);
       const { styleguide } = resolvedConfig;
 
-      styleguide.skipRules(argv['skip-rule']);
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
 
