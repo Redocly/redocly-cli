@@ -20,11 +20,6 @@ redocly bundle --version
 
 ## Options
 
-{% admonition type="warning" name="Important" %}
-The `--lint` switch and all related options (`--extends`, `--max-problems`, `--skip-rule`, `--format`) are deprecated and are marked for removal in future releases.
-Use the [lint command](./lint.md) separately to lint your APIs before bundling.
-{% /admonition %}
-
 | Option                          | Type     | Description                                                                                                                                                                                                                                                     |
 | ------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                            | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
@@ -36,7 +31,6 @@ Use the [lint command](./lint.md) separately to lint your APIs before bundling.
 | --format (**Deprecated**)       | string   | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.                                                                                                                                       |
 | --help                          | boolean  | Show help.                                                                                                                                                                                                                                                      |
 | --keep-url-references, -k       | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
-| --lint (**Deprecated**)         | boolean  | Lint API description files. Default value is `false`.                                                                                                                                                                                                           |
 | --lint-config                   | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                              |
 | --max-problems (**Deprecated**) | integer  | Truncate output to display the specified maximum number of problems. Default value is `100`.                                                                                                                                                                    |
 | --metafile                      | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |

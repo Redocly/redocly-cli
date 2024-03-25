@@ -2,8 +2,6 @@
 
 exports[`webpack-bundle test bundle check 1`] = `
 
-[WARNING] "lint" option is deprecated and will be removed in a future release. 
-
 [WARNING] "max-problems" option is deprecated and will be removed in a future release. 
 
 Woohoo! Your API descriptions are valid. 🎉

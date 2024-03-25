@@ -39,10 +39,6 @@ redocly bundle openapi.yaml -o bundled.yaml
 
 All the references are brought into a single file, that you can then pass on to other tools in your API workflow.
 
-{% admonition type="info" %}
-Pass `--lint` to the bundle command to have Redocly CLI check your API meets the expected standards before bundling. [Learn more about API standards and linting](./api-standards.md)
-{% /admonition %}
-
 ## Combine OpenAPI files
 
 {% admonition type="warning" %}
