@@ -38,4 +38,4 @@ extends:
 
 ## Resources
 
-- Detailed documentation and examples on [extending configuration](../extends.md)
+- Detailed documentation and examples on [extending configuration](../extends.md).
