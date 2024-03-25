@@ -20,7 +20,7 @@ plugins:
   - plugins/another-plugin.js
 ```
 
-Remember that you need to include plugins in the `plugins` section before you can use the contest of the plugin elsewhere in the configuration file.
+Remember that you need to include plugins in the `plugins` section before you can use the content of the plugin elsewhere in the configuration file.
 
 ## Related options
 
