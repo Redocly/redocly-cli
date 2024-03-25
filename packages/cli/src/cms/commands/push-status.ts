@@ -24,17 +24,17 @@ export type PushStatusOptions = {
   onRetry?: (lastResult: PushResponse) => void;
 };
 
+export interface DeploymentMetadata {
+  status: DeploymentStatus;
+  url?: string;
+  scorecard: ScorecardItem[];
+  isOutdated: boolean;
+  noChanges: boolean;
+}
+
 export interface PushStatusSummary {
-  preview: {
-    status: DeploymentStatus;
-    url?: string;
-    scorecard: ScorecardItem[];
-  };
-  production?: {
-    status: DeploymentStatus;
-    url?: string;
-    scorecard: ScorecardItem[];
-  };
+  preview: DeploymentMetadata;
+  production?: DeploymentMetadata;
 }
 
 export async function handlePushStatus(
@@ -127,6 +127,8 @@ export async function handlePushStatus(
         status: previewPushData.status.preview.deploy.status,
         url: previewPushData.status.preview.deploy.url || undefined,
         scorecard: previewPushData.status.preview.scorecard,
+        isOutdated: previewPushData.isOutdated,
+        noChanges: !previewPushData.hasChanges,
       },
       production:
         previewPushData.status.preview.deploy.status !== 'failed' &&
@@ -135,6 +137,8 @@ export async function handlePushStatus(
               status: prodPushData.status.production.deploy.status,
               url: prodPushData.status.production.deploy.url || '',
               scorecard: prodPushData.status.production.scorecard,
+              isOutdated: prodPushData.isOutdated,
+              noChanges: !prodPushData.hasChanges,
             }
           : undefined,
     };
@@ -277,7 +281,7 @@ function displayDeploymentAndBuildStatus({
     case 'success':
       spinner.stop();
       return process.stdout.write(
-        `${colors.green(`🚀 ${capitalize(buildType)} deploy finished.`)}\n${colors.magenta(
+        `${colors.green(`🚀 ${capitalize(buildType)} deploy succeed.`)}\n${colors.magenta(
           `${capitalize(buildType)} URL`
         )}: ${colors.cyan(previewUrl!)}\n`
       );
