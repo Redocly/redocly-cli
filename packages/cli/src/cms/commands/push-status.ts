@@ -18,7 +18,7 @@ export type PushStatusOptions = {
   pushId: string;
   domain?: string;
   config?: string;
-  format?: Extract<OutputFormat, 'stylish' | 'json'>;
+  format?: Extract<OutputFormat, 'stylish'>;
   wait?: boolean;
   'max-execution-time'?: number;
   onRetry?: (lastResult: PushResponse) => void;
@@ -44,7 +44,7 @@ export async function handlePushStatus(
   const startedAt = performance.now();
   const spinner = new Spinner();
 
-  const { organization, project: projectId, pushId, wait, format } = argv;
+  const { organization, project: projectId, pushId, wait } = argv;
 
   const orgId = organization || config.organization;
 
@@ -72,22 +72,19 @@ export async function handlePushStatus(
       buildType: 'preview',
       retryTimeout,
       onRetry: (lastResult) => {
-        format === 'stylish' &&
-          displayDeploymentAndBuildStatus({
-            status: lastResult.status['preview'].deploy.status,
-            previewUrl: lastResult.status['preview'].deploy.url,
-            spinner,
-            buildType: 'preview',
-            wait,
-          });
+        displayDeploymentAndBuildStatus({
+          status: lastResult.status['preview'].deploy.status,
+          previewUrl: lastResult.status['preview'].deploy.url,
+          spinner,
+          buildType: 'preview',
+          wait,
+        });
         argv?.onRetry?.(lastResult);
       },
     });
 
-    if (format === 'stylish') {
-      printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
-      printScorecard(previewPushData.status.preview.scorecard);
-    }
+    printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
+    printScorecard(previewPushData.status.preview.scorecard);
 
     const fetchProdPushDatCondition =
       previewPushData.isMainBranch &&
@@ -103,24 +100,21 @@ export async function handlePushStatus(
           buildType: 'production',
           retryTimeout,
           onRetry: (lastResult) => {
-            format === 'stylish' &&
-              displayDeploymentAndBuildStatus({
-                status: lastResult.status['production'].deploy.status,
-                previewUrl: lastResult.status['production'].deploy.url,
-                spinner,
-                buildType: 'production',
-                wait,
-              });
+            displayDeploymentAndBuildStatus({
+              status: lastResult.status['production'].deploy.status,
+              previewUrl: lastResult.status['production'].deploy.url,
+              spinner,
+              buildType: 'production',
+              wait,
+            });
             argv?.onRetry?.(lastResult);
           },
         })
       : null;
 
-    if (format === 'stylish') {
-      printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
-      printScorecard(prodPushData?.status?.production?.scorecard);
-      printPushStatusInfo({ orgId, projectId, pushId, startedAt });
-    }
+    printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
+    printScorecard(prodPushData?.status?.production?.scorecard);
+    printPushStatusInfo({ orgId, projectId, pushId, startedAt });
 
     const summary: PushStatusSummary = {
       preview: {
@@ -143,19 +137,6 @@ export async function handlePushStatus(
           : undefined,
     };
 
-    if (format === 'json') {
-      process.stdout.write(JSON.stringify(summary) + '\n');
-
-      if (summary.preview.status === 'failed') {
-        process.stdout.write('\n');
-        throw new DeploymentError(`${colors.red(`❌ Preview deploy failed.`)}`);
-      }
-
-      if (summary?.production?.status === 'failed') {
-        process.stdout.write('\n');
-        throw new DeploymentError(`${colors.red(`❌ Production deploy failed.`)}`);
-      }
-    }
     return summary;
   } catch (err) {
     const message =
