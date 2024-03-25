@@ -2,7 +2,6 @@ import {
   formatProblems,
   getTotals,
   getMergedConfig,
-  lint,
   bundle,
   Config,
   OutputFormat,
@@ -15,8 +14,6 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  printLintTotals,
-  checkIfRulesetExist,
   sortTopLevelKeysForOas,
 } from '../utils/miscellaneous';
 import type { OutputExtensions, Skips, Totals } from '../types';
@@ -35,7 +32,6 @@ export type BundleOptions = {
   ext: OutputExtensions;
   dereferenced?: boolean;
   force?: boolean;
-  lint?: boolean;
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
@@ -49,7 +45,6 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
   const deprecatedOptions: Array<keyof BundleOptions> = [
-    'lint',
     'format',
     'skip-rule',
     'extends',
@@ -67,34 +62,6 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       styleguide.skipRules(argv['skip-rule']);
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
-
-      if (argv.lint) {
-        checkIfRulesetExist(styleguide.rules);
-        if (config.styleguide.recommendedFallback) {
-          process.stderr.write(
-            `No configurations were provided -- using built in ${blue(
-              'recommended'
-            )} configuration by default.\n\n`
-          );
-        }
-        const results = await lint({
-          ref: path,
-          config: resolvedConfig,
-        });
-        const fileLintTotals = getTotals(results);
-
-        totals.errors += fileLintTotals.errors;
-        totals.warnings += fileLintTotals.warnings;
-        totals.ignored += fileLintTotals.ignored;
-
-        formatProblems(results, {
-          format: argv.format || 'codeframe',
-          totals: fileLintTotals,
-          version,
-          maxProblems: maxProblems,
-        });
-        printLintTotals(fileLintTotals, 2);
-      }
 
       process.stderr.write(gray(`bundling ${path}...\n`));
 

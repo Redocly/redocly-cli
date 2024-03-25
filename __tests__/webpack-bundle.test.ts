@@ -19,7 +19,6 @@ describe('webpack-bundle test', () => {
     const args = getParams('../../../dist/bundle.js', 'bundle', [
       '--max-problems=1',
       '-o=/tmp/null',
-      '--lint',
       ...entryPoint,
     ]);
     const result = getCommandOutput(args, folderPath);

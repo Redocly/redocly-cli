@@ -461,12 +461,6 @@ yargs
           description: 'Path to the config file.',
           type: 'string',
         },
-        lint: {
-          description: 'Lint API descriptions',
-          type: 'boolean',
-          default: false,
-          hidden: true,
-        },
         metafile: {
           description: 'Produce metadata about the bundle',
           type: 'string',

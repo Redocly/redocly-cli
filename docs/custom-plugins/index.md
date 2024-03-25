@@ -27,19 +27,6 @@ Custom plugins can extend the built-in functionality of Redocly in the following
 
 - **Write custom decorators in JavaScript**. Not all API descriptions are exactly as we'd like them to be before passing them to the next stage of the API lifecycle. Redocly has a selection of [decorators available](../decorators), but if you need to build something more then [visit the documentation for building decorators in custom plugins](./custom-decorators.md).
 
-### Order of execution
-
-Some commands, such as using `bundle` with `--lint`, may execute more than one type of functionality. The order is preprocessors first, then linting rules, and finally the decorators are applied.
-
-```mermaid
-graph LR
-    A(1. preprocessors) ==> B(2. rules)
-    B ==> V(3. decorators)
-    style A fill:#codaf9,stroke:#0044d4,stroke-width:4px
-    style B fill:#codaf9,stroke:#0044d4,stroke-width:4px
-    style V fill:#codaf9,stroke:#0044d4,stroke-width:4px
-```
-
 ## Add custom plugins to your project
 
 Each plugin can contain any or many of each type of extension (rules, configuration, decorators, etc).
