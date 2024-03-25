@@ -353,6 +353,12 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
+// TODO: add better type tree for this
+const Schema: NodeType = {
+  properties: {},
+  additionalProperties: {},
+};
+
 const AssertionDefinitionSubject: NodeType = {
   properties: {
     type: {
@@ -1120,6 +1126,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ButtonOverrides,
   Overrides,
   ObjectRule,
+  Schema,
   RightPanel,
   Rules,
   Shape,
