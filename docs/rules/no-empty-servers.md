@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/np-empty-servers
+slug: /docs/cli/rules/no-empty-servers
 ---
 
 # no-empty-servers

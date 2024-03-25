@@ -1,4 +1,4 @@
-import { rootRedoclyConfigSchema } from './portal-config-schema';
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
@@ -1050,7 +1050,7 @@ const ConfigReferenceDocs: NodeType = {
     preserveOriginalExtensionsName: { type: 'boolean' },
     markdownHeadingsAnchorLevel: { type: 'number' },
   },
-  additionalProperties: { type: 'string' },
+  additionalProperties: {},
 };
 
 const ConfigMockServer: NodeType = {

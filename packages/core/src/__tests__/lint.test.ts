@@ -6,7 +6,7 @@ import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
 import { detectSpec } from '../oas-types';
-import { themeConfigSchema } from '../types/theme-config';
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml';
 
 const testPortalConfig = parseYamlToDocument(
@@ -1128,20 +1128,6 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/theme/footer/items/0/items/0/href",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`href\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
               "pointer": "#/env/some-env/mockServer/off",
               "reportOnKey": false,
               "source": "",
@@ -1204,7 +1190,7 @@ describe('lint', () => {
       document,
       externalConfigTypes: createConfigTypes({
         type: 'object',
-        properties: { theme: themeConfigSchema },
+        properties: { theme: rootRedoclyConfigSchema.properties.theme },
         additionalProperties: false,
       }),
     });
@@ -1375,20 +1361,6 @@ describe('lint', () => {
             },
           ],
           "message": "Property \`env\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/theme/footer/items/0/items/0/href",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`href\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],

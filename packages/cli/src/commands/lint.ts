@@ -24,6 +24,8 @@ import { performance } from 'perf_hooks';
 import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
 import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
 import type { CommandOptions, Skips, Totals } from '../types';
+import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
+import { Arguments } from 'yargs';
 
 export type LintOptions = {
   apis?: string[];
@@ -144,7 +146,9 @@ export function lintConfigCallback(
       version,
     });
 
-    printConfigLintTotals(fileTotals);
+    const command = argv ? getCommandNameFromArgs(argv as unknown as Arguments) : undefined;
+
+    printConfigLintTotals(fileTotals, command);
 
     if (fileTotals.errors > 0) {
       throw new ConfigValidationError();

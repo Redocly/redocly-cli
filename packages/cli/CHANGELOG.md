@@ -1,5 +1,19 @@
 # @redocly/cli
 
+## 1.10.5
+
+### Patch Changes
+
+- Updated license text for date and organization naming accuracy.
+- Updated @redocly/openapi-core to v1.10.5.
+
+## 1.10.4
+
+### Patch Changes
+
+- Fixed a problem with the `preview` command crashing on Windows by adding operating system detection for the correct `npx` executable to use.
+- Updated @redocly/openapi-core to v1.10.4.
+
 ## 1.10.3
 
 ### Patch Changes

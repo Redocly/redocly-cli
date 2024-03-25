@@ -60,15 +60,13 @@ Use the [lint command](./lint.md) separately to lint your APIs before joining.
 
 ### Array of paths
 
-{% tabs %}
-{% tab label="Command" %}
+**Command**
 
 ```bash
 redocly join first-api.yaml second-api.json
 ```
 
-{% /tab %}
-{% tab label="Output" %}
+**Output**
 
 ```bash
 redocly join first-api.yaml second-api.json
@@ -76,8 +74,6 @@ redocly join first-api.yaml second-api.json
 openapi.yaml: join processed in 56ms
 ```
 
-{% /tab %}
-{% /tabs %}
 The command creates the output `openapi.yaml` file in the working directory.
 
 The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API description are always taken only from the first input file:
@@ -152,15 +148,13 @@ The output file preserves the original tag names as the value of the `x-displayN
 
 #### Usage
 
-{% tabs %}
-{% tab label="Command" %}
+**Command**
 
 ```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
 
-{% /tab  %}
-{% tab label="Output file example" %}
+**Output file example**
 
 ```yaml
 - name: First Document title_endpoints
@@ -172,9 +166,6 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
   x-displayName: events
 ```
 
-{% /tab  %}
-{% /tabs  %}
-
 ### prefix-tags-with-filename
 
 If any of the input files contain the `tags` object, tags in the output file are prefixed by the filename of the corresponding input file.
@@ -183,15 +174,13 @@ The output file preserves the original tag names as the value of the `x-displayN
 
 #### Usage
 
-{% tabs %}
-{% tab label="Command" %}
+**Command**
 
 ```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
 
-{% /tab  %}
-{% tab label="Output file example" %}
+**Output file example**
 
 ```yaml
 - name: first-api_endpoints
@@ -202,9 +191,6 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
   description: events tag description
   x-displayName: events
 ```
-
-{% /tab  %}
-{% /tabs  %}
 
 ### without-x-tag-groups
 
@@ -230,12 +216,13 @@ If any of the input files have conflicting component names, this option can be u
 
 #### Usage
 
+**Command**
+
 ```bash
 redocly join museum_v1.yaml museum_v2.json --prefix-components-with-info-prop version
 ```
 
-{% /tab  %}
-{% tab label="Output file example" %}
+**Output file example**
 
 ```yaml
 components:
@@ -286,9 +273,6 @@ components:
         - email
 
 ```
-
-{% /tab  %}
-{% /tabs  %}
 
 ### Custom output file
 

@@ -243,16 +243,3 @@ export type RulesFields =
   | 'oas3_0Decorators'
   | 'oas3_1Decorators'
   | 'async2Decorators';
-
-export enum AuthProviderType {
-  OIDC = 'OIDC',
-  SAML2 = 'SAML2',
-  BASIC = 'BASIC',
-}
-
-export enum ApigeeDevOnboardingIntegrationAuthType {
-  SERVICE_ACCOUNT = 'SERVICE_ACCOUNT',
-  OAUTH2 = 'OAUTH2',
-}
-
-export const DEFAULT_TEAM_CLAIM_NAME = 'https://redocly.com/sso/teams';

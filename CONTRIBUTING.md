@@ -47,7 +47,7 @@ npm install # or npm i
 
 To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
 
-To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than the NPM itself.
+To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run prettier` before committing.
 
@@ -56,6 +56,8 @@ Please check the [Tests section](#tests) for the test commands reference.
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
 ## Local source code usage
+
+There are two options for testing local changes in other local applications: NPM linking and local packing and installing from the `redocly-cli.tgz` file.
 
 ### NPM linking
 
@@ -148,6 +150,9 @@ The application maintains the following exit codes.
 
 ## Tests
 
+When running tests, make sure the code is compiled (`npm run compile` or `npm run watch`).
+Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
+
 ### Unit tests
 
 Run unit tests with this command: `npm run test`.
@@ -212,7 +217,7 @@ After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR. Merging that PR triggers the release process.
 
-## Revert a release
+### Revert a release
 
 There's no possibility to revert a release itself.
 However, you can release a new version with a problematic commit reverted.
