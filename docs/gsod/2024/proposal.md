@@ -125,7 +125,8 @@ The following are the success metrics for our projects:
 
 - December 13
 - Google posts program results
-  {% /table %}
+
+{% /table %}
 
 ## Budget
 
