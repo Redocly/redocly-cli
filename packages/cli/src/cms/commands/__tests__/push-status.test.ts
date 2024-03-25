@@ -236,73 +236,6 @@ describe('handlePushStatus()', () => {
     expect(process.stderr.write).toHaveBeenCalledWith('Files not uploaded. Reason: no changes.\n');
   });
 
-  describe('format: "json"', () => {
-    it('should print preview deployment info', async () => {
-      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-      remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: false });
-
-      await handlePushStatus(
-        {
-          domain: 'test-domain',
-          organization: 'test-org',
-          project: 'test-project',
-          pushId: 'test-push-id',
-          'max-execution-time': 1000,
-          format: 'json',
-        },
-        mockConfig
-      );
-      expect(process.stdout.write).toHaveBeenCalledTimes(1);
-      expect(process.stdout.write).toHaveBeenCalledWith(
-        JSON.stringify({
-          preview: {
-            status: 'success',
-            url: 'https://preview-test-url',
-            scorecard: [],
-            isOutdated: false,
-            noChanges: false,
-          },
-        }) + '\n'
-      );
-    });
-
-    it('should print preview and production deployment info', async () => {
-      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-      remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: true });
-
-      await handlePushStatus(
-        {
-          domain: 'test-domain',
-          organization: 'test-org',
-          project: 'test-project',
-          pushId: 'test-push-id',
-          'max-execution-time': 1000,
-          format: 'json',
-        },
-        mockConfig
-      );
-      expect(process.stdout.write).toHaveBeenCalledTimes(1);
-      expect(process.stdout.write).toHaveBeenCalledWith(
-        JSON.stringify({
-          preview: {
-            status: 'success',
-            url: 'https://preview-test-url',
-            scorecard: [],
-            isOutdated: false,
-            noChanges: false,
-          },
-          production: {
-            status: 'success',
-            url: 'https://production-test-url',
-            scorecard: [],
-            isOutdated: false,
-            noChanges: false,
-          },
-        }) + '\n'
-      );
-    });
-  });
-
   describe('return value', () => {
     it('should print preview deployment info', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
@@ -315,7 +248,6 @@ describe('handlePushStatus()', () => {
           project: 'test-project',
           pushId: 'test-push-id',
           'max-execution-time': 1000,
-          format: 'json',
         },
         mockConfig
       );

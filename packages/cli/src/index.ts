@@ -180,11 +180,6 @@ yargs
             description: 'Maximum execution time in seconds.',
             type: 'number',
           },
-          format: {
-            description: 'Use a specific output format.',
-            choices: ['stylish', 'json'] satisfies ReadonlyArray<OutputFormat>,
-            default: 'stylish' satisfies OutputFormat,
-          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
@@ -345,11 +340,6 @@ yargs
           verbose: {
             type: 'boolean',
             default: false,
-          },
-          format: {
-            description: 'Use a specific output format.',
-            choices: ['stylish', 'json'] satisfies ReadonlyArray<OutputFormat>,
-            default: 'stylish' satisfies OutputFormat,
           },
         }),
     (argv) => {

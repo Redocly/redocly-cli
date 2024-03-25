@@ -30,7 +30,7 @@ export type PushOptions = {
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
   verbose?: boolean;
-  format?: Extract<OutputFormat, 'stylish' | 'json'>;
+  format?: Extract<OutputFormat, 'stylish'>;
 };
 
 type FileToUpload = { name: string; path: string };
@@ -69,11 +69,10 @@ export async function handlePush(
       'default-branch': defaultBranch,
       'wait-for-deployment': waitForDeployment,
       'max-execution-time': maxExecutionTime,
-      format: format,
     } = argv;
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
-    const filesToUpload = collectFilesToPush(argv.files || argv.apis, format);
+    const filesToUpload = collectFilesToPush(argv.files || argv.apis);
 
     if (!filesToUpload.length) {
       return printExecutionTime('push', startedAt, `No files to upload`);
@@ -117,10 +116,8 @@ export async function handlePush(
       process.stderr.write(green(`✓ ${f.name}\n`));
     });
 
-    if (format === 'stylish') {
-      process.stdout.write('\n');
-      process.stdout.write(`Push ID: ${id}\n`);
-    }
+    process.stdout.write('\n');
+    process.stdout.write(`Push ID: ${id}\n`);
 
     if (waitForDeployment) {
       process.stdout.write('\n');
@@ -133,7 +130,6 @@ export async function handlePush(
           wait: true,
           domain,
           'max-execution-time': maxExecutionTime,
-          format,
         },
         config
       );
@@ -174,7 +170,7 @@ function parseCommitAuthor(author: string): { name: string; email: string } {
   };
 }
 
-function collectFilesToPush(files: string[], format: PushOptions['format']): FileToUpload[] {
+function collectFilesToPush(files: string[]): FileToUpload[] {
   const collectedFiles: Record<string, string> = {};
 
   for (const file of files) {
@@ -182,16 +178,16 @@ function collectFilesToPush(files: string[], format: PushOptions['format']): Fil
       const dir = file;
       const fileList = getFilesList(dir, []);
 
-      fileList.forEach((f) => addFile(f, dir, format));
+      fileList.forEach((f) => addFile(f, dir));
     } else {
-      addFile(file, path.dirname(file), format);
+      addFile(file, path.dirname(file));
     }
   }
 
-  function addFile(filePath: string, fileDir: string, format: PushOptions['format']) {
+  function addFile(filePath: string, fileDir: string) {
     const fileName = path.relative(fileDir, filePath);
 
-    if (collectedFiles[fileName] && format === 'stylish') {
+    if (collectedFiles[fileName]) {
       process.stdout.write(
         yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`)
       );
