@@ -432,12 +432,6 @@ yargs
           requiresArg: true,
           choices: outputExtensions,
         },
-        'skip-rule': {
-          description: 'Ignore certain rules.',
-          array: true,
-          type: 'string',
-          hidden: true,
-        },
         'skip-preprocessor': {
           description: 'Ignore certain preprocessors.',
           array: true,
