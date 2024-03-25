@@ -87,4 +87,5 @@ The example includes adding the plugin, partly to remind you that this is also n
 ## Resources
 
 - Learn more about [decorators](../../decorators.md).
+- To build your own decorators, you can use [custom plugins](../../custom-plugins/index.md).
 - The [Redocly CLI cookbook](https://github.com/Redocly/redocly-cli-cookbook) is a great resource for learning and sharing decorators and custom plugins.

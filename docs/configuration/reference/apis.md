@@ -16,7 +16,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 - `{name}@{version}`
 - [API object](#api-object)
-- Required. Each API needs a name and optionally a version.
+- Required. Each API needs a name and optionally a version. Supports alphanumeric characters and underscores.
 
 {% /table %}
 
@@ -46,6 +46,12 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 - [Decorators object](./decorators.md)
 - Additional decorator configuration for this API.
 
+---
+
+- preprocessors
+- [Decorators object](./decorators.md)
+- Preprocessors run before linting, and follow the same structure as decorators. We recommend use of decorators in most cases.
+
 {% /table %}
 
 ## Examples
@@ -54,7 +60,7 @@ The following example shows a simple `redocly.yaml` configuration file with sett
 
 ```yaml
 apis:
-  orders:
+  orders@v3:
     root: orders/openapi.yaml
     rules:
       tags-alphabetical: error
