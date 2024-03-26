@@ -217,6 +217,11 @@ yargs
             description: 'Maximum execution time in seconds.',
             type: 'number',
           },
+          'ignore-deployment-failures': {
+            description: 'Do now fail if deployment fails.',
+            type: 'boolean',
+            default: false,
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
@@ -375,6 +380,11 @@ yargs
             default: false,
           },
           verbose: {
+            type: 'boolean',
+            default: false,
+          },
+          'ignore-deployment-failures': {
+            description: 'Do now fail if deployment fails.',
             type: 'boolean',
             default: false,
           },

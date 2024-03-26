@@ -1,13 +1,10 @@
 import { handlePushStatus } from '../push-status';
 import { PushResponse } from '../../api/types';
-import { exitWithError } from '../../../utils/miscellaneous';
 
 const remotes = {
   getPush: jest.fn(),
   getRemotesList: jest.fn(),
 };
-
-jest.mock('../../../utils/miscellaneous');
 
 jest.mock('colorette', () => ({
   green: (str: string) => str,
@@ -77,21 +74,27 @@ describe('handlePushStatus()', () => {
   });
 
   it('should throw error if organization not provided', async () => {
-    await handlePushStatus(
-      {
-        domain: 'test-domain',
-        organization: '',
-        project: 'test-project',
-        pushId: 'test-push-id',
-        'max-execution-time': 1000,
-        format: 'stylish',
-      },
-      mockConfig
+    let caughtError;
+    try {
+      await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: '',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+    } catch (error) {
+      caughtError = error;
+    }
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `No organization provided, please use --organization option or specify the 'organization' field in the config file.` +
+        '\n\n'
     );
 
-    expect(exitWithError).toHaveBeenCalledWith(
-      "No organization provided, please use --organization option or specify the 'organization' field in the config file."
-    );
+    expect(caughtError).toBeDefined();
   });
 
   it('should print success push status for preview-build', async () => {
@@ -105,7 +108,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
         'max-execution-time': 1000,
-        format: 'stylish',
       },
       mockConfig
     );
@@ -126,7 +128,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
         'max-execution-time': 1000,
-        format: 'stylish',
       },
       mockConfig
     );
@@ -150,20 +151,27 @@ describe('handlePushStatus()', () => {
       },
     });
 
-    await handlePushStatus(
-      {
-        domain: 'test-domain',
-        organization: 'test-org',
-        project: 'test-project',
-        pushId: 'test-push-id',
-        'max-execution-time': 1000,
-        format: 'stylish',
-      },
-      mockConfig
+    let caughtError;
+    try {
+      await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+    } catch (error) {
+      caughtError = error;
+    }
+
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '❌ Preview deploy failed.\nPreview URL: https://preview-test-url' + '\n\n'
     );
-    expect(exitWithError).toHaveBeenCalledWith(
-      '❌ Preview deploy failed.\nPreview URL: https://preview-test-url'
-    );
+
+    expect(caughtError).toBeDefined();
   });
 
   it('should print success push status for preview build and print scorecards', async () => {
@@ -194,7 +202,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
         'max-execution-time': 1000,
-        format: 'stylish',
       },
       mockConfig
     );
@@ -228,7 +235,6 @@ describe('handlePushStatus()', () => {
         pushId: 'test-push-id',
         wait: true,
         'max-execution-time': 1000,
-        format: 'stylish',
       },
       mockConfig
     );
@@ -237,7 +243,7 @@ describe('handlePushStatus()', () => {
   });
 
   describe('return value', () => {
-    it('should print preview deployment info', async () => {
+    it('should return preview deployment info', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
       remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: false });
 
@@ -431,5 +437,73 @@ describe('handlePushStatus()', () => {
         },
       });
     }, 30000);
+  });
+
+  describe('"ignore-deployment-failures" option', () => {
+    it('should throw error if option is false', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'failed', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      let caughtError;
+      try {
+        await handlePushStatus(
+          {
+            domain: 'test-domain',
+            organization: 'test-org',
+            project: 'test-project',
+            pushId: 'test-push-id',
+            'max-execution-time': 1000,
+            'ignore-deployment-failures': false,
+          },
+          mockConfig
+        );
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeDefined();
+    });
+
+    it('should not throw error if option is true', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'failed', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      let caughtError;
+      try {
+        await handlePushStatus(
+          {
+            domain: 'test-domain',
+            organization: 'test-org',
+            project: 'test-project',
+            pushId: 'test-push-id',
+            'max-execution-time': 1000,
+            'ignore-deployment-failures': true,
+          },
+          mockConfig
+        );
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeUndefined();
+    });
   });
 });
