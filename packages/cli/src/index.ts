@@ -47,7 +47,7 @@ yargs
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json', 'markdown'] satisfies ReadonlyArray<OutputFormat>,
+          choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
           default: 'stylish' as OutputFormat,
         },
       }),
