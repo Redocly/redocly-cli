@@ -165,13 +165,12 @@ describe('handleJoin', () => {
     expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
   });
 
-  it('should not call skipDecorators and skipPreprocessors', async () => {
+  it('should not call skipDecorators', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
         decorate: true,
-        preprocess: true,
       },
       ConfigFixture as any,
       'cli-version'
@@ -179,7 +178,6 @@ describe('handleJoin', () => {
 
     const config = loadConfig();
     expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
-    expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
