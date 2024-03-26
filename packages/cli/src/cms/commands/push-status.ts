@@ -21,6 +21,7 @@ export type PushStatusOptions = {
   format?: Extract<OutputFormat, 'stylish'>;
   wait?: boolean;
   'max-execution-time'?: number;
+  'ignore-deployment-failures'?: boolean;
   onRetry?: (lastResult: PushResponse) => void;
 };
 
@@ -58,6 +59,7 @@ export async function handlePushStatus(
   const domain = argv.domain || getDomain();
   const maxExecutionTime = argv['max-execution-time'] || 600;
   const retryTimeout = maxExecutionTime * 1000;
+  const ignoreDeploymentFailures = Boolean(argv['ignore-deployment-failures']);
 
   try {
     const apiKey = getApiKeys(domain);
@@ -77,13 +79,20 @@ export async function handlePushStatus(
           previewUrl: lastResult.status['preview'].deploy.url,
           spinner,
           buildType: 'preview',
+          ignoreDeploymentFailures,
           wait,
         });
         argv?.onRetry?.(lastResult);
       },
     });
 
-    printPushStatus({ buildType: 'preview', spinner, wait, push: previewPushData });
+    printPushStatus({
+      buildType: 'preview',
+      spinner,
+      wait,
+      push: previewPushData,
+      ignoreDeploymentFailures,
+    });
     printScorecard(previewPushData.status.preview.scorecard);
 
     const fetchProdPushDatCondition =
@@ -105,6 +114,7 @@ export async function handlePushStatus(
               previewUrl: lastResult.status['production'].deploy.url,
               spinner,
               buildType: 'production',
+              ignoreDeploymentFailures,
               wait,
             });
             argv?.onRetry?.(lastResult);
@@ -112,7 +122,13 @@ export async function handlePushStatus(
         })
       : null;
 
-    printPushStatus({ buildType: 'production', spinner, wait, push: prodPushData });
+    printPushStatus({
+      buildType: 'production',
+      spinner,
+      wait,
+      push: prodPushData,
+      ignoreDeploymentFailures,
+    });
     printScorecard(prodPushData?.status?.production?.scorecard);
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
 
@@ -207,11 +223,13 @@ function printPushStatus({
   buildType,
   spinner,
   push,
+  ignoreDeploymentFailures,
 }: {
   buildType: 'preview' | 'production';
   spinner: Spinner;
   wait?: boolean;
   push?: PushResponse | null;
+  ignoreDeploymentFailures: boolean;
 }) {
   if (!push) {
     return;
@@ -226,6 +244,7 @@ function printPushStatus({
       previewUrl: push.status[buildType].deploy.url,
       buildType,
       spinner,
+      ignoreDeploymentFailures,
     });
   }
 }
@@ -250,39 +269,66 @@ function displayDeploymentAndBuildStatus({
   previewUrl,
   spinner,
   buildType,
+  ignoreDeploymentFailures,
   wait,
 }: {
   status: DeploymentStatus;
   previewUrl: string | null;
   spinner: Spinner;
   buildType: 'preview' | 'production';
+  ignoreDeploymentFailures: boolean;
   wait?: boolean;
 }) {
+  const message = getMessage({ status, previewUrl, buildType, wait });
+
+  if (status === 'failed' && !ignoreDeploymentFailures) {
+    spinner.stop();
+    throw new DeploymentError(message);
+  }
+
+  if ((status === 'pending' || status === 'running') && wait) {
+    return spinner.start(message);
+  }
+
+  spinner.stop();
+  return process.stdout.write(message);
+}
+
+function getMessage({
+  status,
+  previewUrl,
+  buildType,
+  wait,
+}: {
+  status: DeploymentStatus;
+  previewUrl: string | null;
+  buildType: 'preview' | 'production';
+  wait?: boolean;
+}): string {
   switch (status) {
-    case 'success':
-      spinner.stop();
-      return process.stdout.write(
-        `${colors.green(`🚀 ${capitalize(buildType)} deploy succeed.`)}\n${colors.magenta(
-          `${capitalize(buildType)} URL`
-        )}: ${colors.cyan(previewUrl!)}\n`
-      );
-    case 'failed':
-      spinner.stop();
-      throw new DeploymentError(
-        `${colors.red(`❌ ${capitalize(buildType)} deploy failed.`)}\n${colors.magenta(
-          `${capitalize(buildType)} URL`
-        )}: ${colors.cyan(previewUrl!)}`
-      );
-    case 'pending':
-      return wait
-        ? spinner.start(`${colors.yellow(`Pending ${buildType}`)}`)
-        : process.stdout.write(`Status: ${colors.yellow(`Pending ${buildType}`)}\n`);
     case 'skipped':
-      spinner.stop();
-      return process.stdout.write(`${colors.yellow(`Skipped ${buildType}`)}\n`);
+      return `${colors.yellow(`Skipped ${buildType}`)}\n`;
+
+    case 'pending':
+      if (wait) {
+        return `${colors.yellow(`Pending ${buildType}`)}`;
+      }
+      return `Status: ${colors.yellow(`Pending ${buildType}`)}\n`;
+
     case 'running':
-      return wait
-        ? spinner.start(`${colors.yellow(`Running ${buildType}`)}`)
-        : process.stdout.write(`Status: ${colors.yellow(`Running ${buildType}`)}\n`);
+      if (wait) {
+        return `${colors.yellow(`Running ${buildType}`)}`;
+      }
+      return `Status: ${colors.yellow(`Running ${buildType}`)}\n`;
+
+    case 'success':
+      return `${colors.green(`🚀 ${capitalize(buildType)} deploy succeed.`)}\n${colors.magenta(
+        `${capitalize(buildType)} URL`
+      )}: ${colors.cyan(previewUrl!)}\n`;
+
+    case 'failed':
+      return `${colors.red(`❌ ${capitalize(buildType)} deploy failed.`)}\n${colors.magenta(
+        `${capitalize(buildType)} URL`
+      )}: ${colors.cyan(previewUrl!)}`;
   }
 }
