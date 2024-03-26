@@ -62,7 +62,6 @@ export type JoinOptions = {
   apis: string[];
   lint?: boolean;
   decorate?: boolean;
-  preprocess?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
@@ -120,14 +119,12 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     config.styleguide.skipDecorators(Array.from(decorators));
   }
 
-  if (!argv.preprocess) {
-    const preprocessors = new Set([
-      ...Object.keys(config.styleguide.preprocessors.oas3_0),
-      ...Object.keys(config.styleguide.preprocessors.oas3_1),
-      ...Object.keys(config.styleguide.preprocessors.oas2),
-    ]);
-    config.styleguide.skipPreprocessors(Array.from(preprocessors));
-  }
+  const preprocessors = new Set([
+    ...Object.keys(config.styleguide.preprocessors.oas3_0),
+    ...Object.keys(config.styleguide.preprocessors.oas3_1),
+    ...Object.keys(config.styleguide.preprocessors.oas2),
+  ]);
+  config.styleguide.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>
