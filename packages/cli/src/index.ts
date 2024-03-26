@@ -471,8 +471,46 @@ yargs
           choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
+        format: {
+          hidden: true,
+          deprecated: true,
+        },
+        lint: {
+          hidden: true,
+          deprecated: true,
+        },
+        'skip-rule': {
+          hidden: true,
+          deprecated: true,
+          array: true,
+          type: 'string',
+        },
+        'max-problems': {
+          hidden: true,
+          deprecated: true,
+        },
       }),
     (argv) => {
+      const DEPRECATED_OPTIONS = [
+        'lint',
+        'format',
+        'skip-rule',
+        // 'extends',
+        'max-problems',
+      ];
+      const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
+        'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
+
+      DEPRECATED_OPTIONS.forEach((option) => {
+        if (argv[option]) {
+          process.stdout.write(
+            `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
+          );
+          process.stdout.write('\n');
+          process.exit(1);
+        }
+      });
+
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
       commandWrapper(handleBundle)(argv);
     }
