@@ -46,7 +46,7 @@ yargs
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json', 'markdown'] satisfies ReadonlyArray<OutputFormat>,
+          choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
           default: 'stylish' as OutputFormat,
         },
       }),
@@ -371,7 +371,7 @@ yargs
             'checkstyle',
             'codeclimate',
             'summary',
-          ] satisfies ReadonlyArray<OutputFormat>,
+          ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
         'max-problems': {
