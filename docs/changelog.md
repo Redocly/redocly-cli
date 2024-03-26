@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.10.6 (2024-03-26)
+
+### Patch Changes
+
+- Added `check-config` command to validate a Redocly configuration file.
+- Updated @redocly/openapi-core to v1.10.6.
+
 ## 1.10.5 (2024-03-19)
 
 ### Patch Changes

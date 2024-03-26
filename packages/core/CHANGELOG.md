@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.10.6
+
+### Patch Changes
+
+- Added a type tree for the `metadata-schema` rule.
+
 ## 1.10.5
 
 ### Patch Changes
