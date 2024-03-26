@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.10.6
+
+### Patch Changes
+
+- Added `check-config` command to validate a Redocly configuration file.
+- Updated @redocly/openapi-core to v1.10.6.
+
 ## 1.10.5
 
 ### Patch Changes
