@@ -106,7 +106,6 @@ yargs
         })
         .option({
           lint: { description: 'Lint descriptions', type: 'boolean', default: false, hidden: true }, // todo: remove
-          decorate: { description: 'Run decorators', type: 'boolean', default: false }, // todo: remove
           'prefix-tags-with-info-prop': {
             description: 'Prefix tags with property value from info object.',
             requiresArg: true,

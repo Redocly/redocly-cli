@@ -61,7 +61,6 @@ type JoinDocumentContext = {
 export type JoinOptions = {
   apis: string[];
   lint?: boolean;
-  decorate?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
@@ -110,14 +109,12 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     )
   );
 
-  if (!argv.decorate) {
-    const decorators = new Set([
-      ...Object.keys(config.styleguide.decorators.oas3_0),
-      ...Object.keys(config.styleguide.decorators.oas3_1),
-      ...Object.keys(config.styleguide.decorators.oas2),
-    ]);
-    config.styleguide.skipDecorators(Array.from(decorators));
-  }
+  const decorators = new Set([
+    ...Object.keys(config.styleguide.decorators.oas3_0),
+    ...Object.keys(config.styleguide.decorators.oas3_1),
+    ...Object.keys(config.styleguide.decorators.oas2),
+  ]);
+  config.styleguide.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
     ...Object.keys(config.styleguide.preprocessors.oas3_0),
