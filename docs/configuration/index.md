@@ -213,7 +213,7 @@ Redocly CLI supports one `http` header per URL.
 
 Here is an example for adding header definitions:
 
-```yaml
+```text
 resolve:
   http:
     headers:
