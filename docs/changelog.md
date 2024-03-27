@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.11.0 (2024-03-27)
+
+### Minor Changes
+
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.11.0.
+
 ## 1.10.6 (2024-03-26)
 
 ### Patch Changes

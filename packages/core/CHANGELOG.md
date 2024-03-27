@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.11.0
+
+### Minor Changes
+
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
 ## 1.10.6
 
 ### Patch Changes
