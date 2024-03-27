@@ -11,7 +11,7 @@ import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 
 export function commandWrapper<T extends CommandOptions>(
-  commandHandler: (argv: T, config: Config, version: string) => Promise<void>
+  commandHandler?: (argv: T, config: Config, version: string) => Promise<void>
 ) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
@@ -31,7 +31,9 @@ export function commandWrapper<T extends CommandOptions>(
       telemetry = config.telemetry;
       hasConfig = !config.styleguide.recommendedFallback;
       code = 1;
-      await commandHandler(argv, config, version);
+      if (typeof commandHandler === 'function') {
+        await commandHandler(argv, config, version);
+      }
       code = 0;
     } catch (err) {
       // Do nothing
