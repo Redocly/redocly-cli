@@ -1,0 +1,18 @@
+openapi: 3.1.0
+paths:
+  /football/match:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: ./football/match.yaml
+  /basketball/match:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: ./basketball/match.yaml

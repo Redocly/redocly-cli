@@ -41,6 +41,7 @@ export type BundleOptions = {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  useSchemaTitleAsRef?: boolean;
 };
 
 export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
@@ -149,6 +150,7 @@ export async function bundleDocument(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  useSchemaTitleAsRef?: boolean;
 }): Promise<BundleResult> {
   const {
     document,
@@ -159,6 +161,7 @@ export async function bundleDocument(opts: {
     skipRedoclyRegistryRefs = false,
     removeUnusedComponents = false,
     keepUrlRefs = false,
+    useSchemaTitleAsRef = false,
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
@@ -222,7 +225,8 @@ export async function bundleDocument(opts: {
           skipRedoclyRegistryRefs,
           document,
           resolvedRefMap,
-          keepUrlRefs
+          keepUrlRefs,
+          useSchemaTitleAsRef
         ),
       },
       ...decorators,
@@ -316,7 +320,8 @@ function makeBundleVisitor(
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
   resolvedRefMap: ResolvedRefMap,
-  keepUrlRefs: boolean
+  keepUrlRefs: boolean,
+  useSchemaTitleAsRef: boolean
 ) {
   let components: Record<string, Record<string, any>>;
   let rootLocation: Location;
@@ -351,10 +356,10 @@ function makeBundleVisitor(
           replaceRef(node, resolved, ctx);
         } else {
           if (dereference) {
-            saveComponent(componentType, resolved, ctx);
+            saveComponent(componentType, resolved, ctx, useSchemaTitleAsRef);
             replaceRef(node, resolved, ctx);
           } else {
-            node.$ref = saveComponent(componentType, resolved, ctx);
+            node.$ref = saveComponent(componentType, resolved, ctx, useSchemaTitleAsRef);
             resolveBundledComponent(node, resolved, ctx);
           }
         }
@@ -385,9 +390,9 @@ function makeBundleVisitor(
 
           const componentType = mapTypeToComponent('Schema', version)!;
           if (dereference) {
-            saveComponent(componentType, resolved, ctx);
+            saveComponent(componentType, resolved, ctx, useSchemaTitleAsRef);
           } else {
-            mapping[name] = saveComponent(componentType, resolved, ctx);
+            mapping[name] = saveComponent(componentType, resolved, ctx, useSchemaTitleAsRef);
           }
         }
       },
@@ -408,10 +413,11 @@ function makeBundleVisitor(
   function saveComponent(
     componentType: string,
     target: { node: any; location: Location },
-    ctx: UserContext
+    ctx: UserContext,
+    useSchemaTitleAsRef: boolean
   ) {
     components[componentType] = components[componentType] || {};
-    const name = getComponentName(target, componentType, ctx);
+    const name = getComponentName(target, componentType, ctx, useSchemaTitleAsRef);
     components[componentType][name] = target.node;
     if (version === SpecMajorVersion.OAS3) {
       return `#/components/${componentType}/${name}`;
@@ -439,7 +445,8 @@ function makeBundleVisitor(
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
-    ctx: UserContext
+    ctx: UserContext,
+    useSchemaTitleAsRef: boolean
   ) {
     const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
     const componentsGroup = components[componentType];
@@ -458,7 +465,12 @@ function makeBundleVisitor(
       }
     }
 
-    name = refBaseName(fileRef) + (name ? `_${name}` : '');
+    if (useSchemaTitleAsRef && typeof target.node.title === 'string') {
+      name = target.node.title;
+    } else {
+      name = refBaseName(fileRef) + (name ? `_${name}` : '');
+    }
+
     if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       return name;
     }
