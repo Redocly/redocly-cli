@@ -2,4 +2,4 @@
 "@redocly/cli": minor
 ---
 
-Removed combination operations like `lint`, `decorate` and `preprocess` from the `join` command.
+Removed additional operations from the `join` command; use `lint` and/or `bundle` for operations such as `lint` and `decorate`.
