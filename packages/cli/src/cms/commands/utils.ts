@@ -5,28 +5,31 @@ export async function wait(ms: number): Promise<void> {
 export async function retryUntilConditionMet<T>({
   operation,
   condition,
-  retryTimeout = 600000, // 10 min
-  retryInterval = 5000, // 5 sec
+  startTime = Date.now(),
+  retryTimeoutMs = 600000, // 10 min
+  retryIntervalMs = 5000, // 5 sec
   onRetry,
+  onTimeOutExceeded,
 }: {
   operation: () => Promise<T>;
   condition: (result: T) => boolean;
-  retryTimeout?: number; // 10 min
-  retryInterval?: number; // 5 sec
+  startTime?: number; // = Date.now();
+  retryTimeoutMs?: number; // 10 min
+  retryIntervalMs?: number; // 5 sec
   onRetry?: (lastResult: T) => void;
+  onTimeOutExceeded?: () => void;
 }): Promise<T> {
-  const startTime = Date.now();
-
   async function attempt(): Promise<T> {
     const result = await operation();
 
     if (condition(result)) {
       return result;
-    } else if (Date.now() - startTime > retryTimeout) {
+    } else if (Date.now() - startTime > retryTimeoutMs) {
+      onTimeOutExceeded?.();
       throw new Error('Timeout exceeded');
     } else {
       onRetry?.(result);
-      await wait(retryInterval);
+      await wait(retryIntervalMs);
       return attempt();
     }
   }
