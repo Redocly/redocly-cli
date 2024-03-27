@@ -40,7 +40,9 @@ export async function handlePush(
   argv: PushOptions,
   config: Config
 ): Promise<{ pushId: string } | void> {
-  const startedAt = performance.now();
+  const startedAt = performance.now(); // for printing execution time
+  const startTime = Date.now(); // for push-status command
+
   const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
 
   const orgId = organization || config.organization;
@@ -131,6 +133,7 @@ export async function handlePush(
           wait: true,
           domain,
           'max-execution-time': maxExecutionTime,
+          'start-time': startTime,
           'ignore-deployment-failures': argv['ignore-deployment-failures'],
         },
         config

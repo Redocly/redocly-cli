@@ -10,7 +10,7 @@ import { capitalize } from '../../utils/js-utils';
 import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
 import { retryUntilConditionMet } from './utils';
 
-const RETRY_INTERVAL = 5000; // ms
+const RETRY_INTERVAL_MS = 5000; // 5 sec
 
 export type PushStatusOptions = {
   organization: string;
@@ -21,6 +21,7 @@ export type PushStatusOptions = {
   format?: Extract<OutputFormat, 'stylish'>;
   wait?: boolean;
   'max-execution-time'?: number;
+  'start-time'?: number;
   'ignore-deployment-failures'?: boolean;
   onRetry?: (lastResult: PushResponse) => void;
 };
@@ -58,7 +59,8 @@ export async function handlePushStatus(
 
   const domain = argv.domain || getDomain();
   const maxExecutionTime = argv['max-execution-time'] || 600;
-  const retryTimeout = maxExecutionTime * 1000;
+  const startTime = argv['start-time'] || Date.now();
+  const retryTimeoutMs = maxExecutionTime * 1000;
   const ignoreDeploymentFailures = Boolean(argv['ignore-deployment-failures']);
 
   try {
@@ -72,7 +74,8 @@ export async function handlePushStatus(
       wait,
       client,
       buildType: 'preview',
-      retryTimeout,
+      startTime,
+      retryTimeoutMs,
       onRetry: (lastResult) => {
         displayDeploymentAndBuildStatus({
           status: lastResult.status['preview'].deploy.status,
@@ -83,6 +86,9 @@ export async function handlePushStatus(
           wait,
         });
         argv?.onRetry?.(lastResult);
+      },
+      onTimeOutExceeded: () => {
+        spinner.stop();
       },
     });
 
@@ -107,7 +113,8 @@ export async function handlePushStatus(
           wait,
           client,
           buildType: 'production',
-          retryTimeout,
+          startTime,
+          retryTimeoutMs,
           onRetry: (lastResult) => {
             displayDeploymentAndBuildStatus({
               status: lastResult.status['production'].deploy.status,
@@ -118,6 +125,9 @@ export async function handlePushStatus(
               wait,
             });
             argv?.onRetry?.(lastResult);
+          },
+          onTimeOutExceeded: () => {
+            spinner.stop();
           },
         })
       : null;
@@ -190,8 +200,10 @@ async function getPushData({
   wait,
   client,
   buildType,
-  retryTimeout,
+  startTime,
+  retryTimeoutMs,
   onRetry,
+  onTimeOutExceeded,
 }: {
   orgId: string;
   projectId: string;
@@ -199,8 +211,10 @@ async function getPushData({
   wait?: boolean;
   client: ReuniteApiClient;
   buildType: 'preview' | 'production';
-  retryTimeout: number;
+  startTime: number;
+  retryTimeoutMs: number;
   onRetry?: (lastResult: PushResponse) => void;
+  onTimeOutExceeded?: () => void;
 }): Promise<PushResponse> {
   const pushData = await retryUntilConditionMet<PushResponse>({
     operation: () =>
@@ -212,8 +226,10 @@ async function getPushData({
     condition: (result: PushResponse) =>
       wait ? !['pending', 'running'].includes(result.status[buildType].deploy.status) : true,
     onRetry,
-    retryTimeout: retryTimeout,
-    retryInterval: RETRY_INTERVAL,
+    onTimeOutExceeded,
+    startTime,
+    retryTimeoutMs: retryTimeoutMs,
+    retryIntervalMs: RETRY_INTERVAL_MS,
   });
 
   return pushData;
