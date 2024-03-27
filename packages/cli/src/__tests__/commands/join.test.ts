@@ -14,7 +14,7 @@ describe('handleJoin', () => {
   colloreteYellowMock.mockImplementation((string: string) => string);
 
   it('should call exitWithError because only one entrypoint', async () => {
-    await handleJoin({ apis: ['first.yaml'] }, {} as any, 'cli-version');
+    await handleJoin({ apis: ['first.yaml'] }, {} as any);
     expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided. \n\n`);
   });
 
@@ -26,8 +26,7 @@ describe('handleJoin', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      {} as any,
-      'cli-version'
+      {} as any
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
@@ -42,8 +41,7 @@ describe('handleJoin', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      {} as any,
-      'cli-version'
+      {} as any
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
@@ -56,8 +54,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
     expect(exitWithError).toHaveBeenCalledWith(
       'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n'
@@ -72,8 +69,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
@@ -87,8 +83,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -104,8 +99,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -122,8 +116,7 @@ describe('handleJoin', () => {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -139,8 +132,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.json', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -156,30 +148,12 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     const config = loadConfig();
     expect(config.styleguide.skipDecorators).toHaveBeenCalled();
     expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
-  });
-
-  it('should not call skipDecorators and skipPreprocessors', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
-        apis: ['first.yaml', 'second.yaml'],
-        decorate: true,
-        preprocess: true,
-      },
-      ConfigFixture as any,
-      'cli-version'
-    );
-
-    const config = loadConfig();
-    expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
-    expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
@@ -191,8 +165,7 @@ describe('handleJoin', () => {
         'prefix-components-with-info-prop': 'title',
         output: 'join-result.yaml',
       },
-      ConfigFixture as any,
-      'cli-version'
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(

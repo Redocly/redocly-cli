@@ -104,9 +104,6 @@ yargs
           demandOption: true,
         })
         .option({
-          lint: { description: 'Lint descriptions', type: 'boolean', default: false, hidden: true },
-          decorate: { description: 'Run decorators', type: 'boolean', default: false },
-          preprocess: { description: 'Run preprocessors', type: 'boolean', default: false },
           'prefix-tags-with-info-prop': {
             description: 'Prefix tags with property value from info object.',
             requiresArg: true,

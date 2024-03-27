@@ -10,9 +10,11 @@ import {
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 
-export function commandWrapper<T extends CommandOptions>(
-  commandHandler?: (argv: T, config: Config, version: string) => Promise<void>
-) {
+type CommandHandler<T extends CommandOptions> =
+  | ((argv: T, config: Config, version: string) => Promise<void>)
+  | ((argv: T, config: Config) => Promise<void>);
+
+export function commandWrapper<T extends CommandOptions>(commandHandler?: CommandHandler<T>) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let hasConfig;
@@ -32,7 +34,11 @@ export function commandWrapper<T extends CommandOptions>(
       hasConfig = !config.styleguide.recommendedFallback;
       code = 1;
       if (typeof commandHandler === 'function') {
-        await commandHandler(argv, config, version);
+        if (hasVersionParameter(commandHandler)) {
+          await commandHandler(argv, config, version);
+        } else {
+          await (commandHandler as (argv: T, config: Config) => Promise<void>)(argv, config);
+        }
       }
       code = 0;
     } catch (err) {
@@ -46,4 +52,8 @@ export function commandWrapper<T extends CommandOptions>(
       });
     }
   };
+}
+
+function hasVersionParameter(fn: CommandHandler<never>) {
+  return fn.length === 3;
 }
