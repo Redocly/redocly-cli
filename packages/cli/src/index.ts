@@ -2,6 +2,7 @@
 
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
+import * as colors from 'colorette';
 import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
@@ -16,7 +17,7 @@ import { handlerBuildCommand } from './commands/build-docs';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { version } from './utils/update-version-notifier';
-import type { Arguments } from 'yargs';
+import { Arguments, showHelp } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import { previewProject } from './commands/preview-project';
@@ -504,9 +505,12 @@ yargs
       DEPRECATED_OPTIONS.forEach((option) => {
         if (argv[option]) {
           process.stdout.write(
-            `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
+            `${colors.red(
+              `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
+            )}`
           );
-          process.stdout.write('\n');
+          process.stdout.write('\n\n');
+          showHelp();
           process.exit(1);
         }
       });
