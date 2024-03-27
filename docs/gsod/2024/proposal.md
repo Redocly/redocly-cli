@@ -32,9 +32,11 @@ You also need to be able to meet remotely within the US East Coast and EU time z
 
 ## Volunteers/mentors
 
+<!-- vale off -->
 Heather Cloward - [heather.cloward@redocly.com](mailto:heather.cloward@redocly.com): Heather is a software technical writer with over a decade of experience and currently works as a Staff Technical Writer at Redocly. She also contributed to Redocly’s open-source documentation as part of the 2021 GSOD program.
 
-Lorna Jane Mitchell - [lorna.mitchell@redocly.com](mailto:lorna.mitchell@redocly.com): Lorna is an open source technology leader and developer experience engineer who currently works as the VP of Developer Experience at Redocly. She is the author of “Git Workbook”, “PHP Web Services” and “PHP Master”, a regular conference speaker and writer for a number of outlets, and a member of the OpenAPI project's Technical Steering Committee.
+Lorna Jane Mitchell - [lorna.mitchell@redocly.com](mailto:lorna.mitchell@redocly.com): Lorna is an open source technology leader and developer experience engineer who currently works as the VP of Developer Experience at Redocly. She is the author of "Git Workbook", "PHP Web Services" and "PHP Master", a regular conference speaker and writer for a number of outlets, and a member of the OpenAPI project's Technical Steering Committee.
+<!-- vale on -->
 
 ## Project ideas
 
