@@ -6,10 +6,8 @@ import {
   Config,
   SpecVersion,
   BaseResolver,
-  StyleguideConfig,
   formatProblems,
   getTotals,
-  lintDocument,
   detectSpec,
   bundleDocument,
   isRef,
@@ -17,13 +15,10 @@ import {
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  handleError,
-  printLintTotals,
   exitWithError,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-  checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
 import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
@@ -60,7 +55,6 @@ type JoinDocumentContext = {
 
 export type JoinOptions = {
   apis: string[];
-  lint?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
@@ -70,14 +64,12 @@ export type JoinOptions = {
   'lint-config'?: RuleSeverity;
 };
 
-export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
+export async function handleJoin(argv: JoinOptions, config: Config) {
   const startedAt = performance.now();
 
   if (argv.apis.length < 2) {
     return exitWithError(`At least 2 apis should be provided. \n\n`);
   }
-
-  checkForDeprecatedOptions(argv, ['lint'] as Array<keyof JoinOptions>);
 
   const fileExtension = getAndValidateFileExtension(argv.output || argv.apis[0]);
 
@@ -170,12 +162,6 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       }
     } catch (e) {
       return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
-    }
-  }
-
-  if (argv.lint) {
-    for (const document of documents) {
-      await validateApi(document, config.styleguide, externalRefResolver, packageVersion);
     }
   }
 
@@ -779,22 +765,6 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
       )} argument value length should not exceed 50 characters. \n\n`
     );
   return info[prefixArg].replaceAll(/\s/g, '_');
-}
-
-async function validateApi(
-  document: Document,
-  config: StyleguideConfig,
-  externalRefResolver: BaseResolver,
-  packageVersion: string
-) {
-  try {
-    const results = await lintDocument({ document, config, externalRefResolver });
-    const fileTotals = getTotals(results);
-    formatProblems(results, { format: 'stylish', totals: fileTotals, version: packageVersion });
-    printLintTotals(fileTotals, 2);
-  } catch (err) {
-    handleError(err, document.parsed);
-  }
 }
 
 function replace$Refs(obj: unknown, componentsPrefix: string) {
