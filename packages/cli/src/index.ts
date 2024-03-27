@@ -371,6 +371,7 @@ yargs
             'checkstyle',
             'codeclimate',
             'summary',
+            'github-actions',
           ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
