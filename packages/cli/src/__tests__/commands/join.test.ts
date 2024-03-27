@@ -26,7 +26,7 @@ describe('handleJoin', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      {} as any,
+      {} as any
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
@@ -54,7 +54,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
     expect(exitWithError).toHaveBeenCalledWith(
       'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n'
@@ -69,7 +69,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
@@ -83,7 +83,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -99,7 +99,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -116,7 +116,7 @@ describe('handleJoin', () => {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -132,7 +132,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.json', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
@@ -148,7 +148,7 @@ describe('handleJoin', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     const config = loadConfig();
@@ -165,7 +165,7 @@ describe('handleJoin', () => {
         'prefix-components-with-info-prop': 'title',
         output: 'join-result.yaml',
       },
-      ConfigFixture as any,
+      ConfigFixture as any
     );
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(

@@ -14,9 +14,7 @@ type CommandHandler<T extends CommandOptions> =
   | ((argv: T, config: Config, version: string) => Promise<void>)
   | ((argv: T, config: Config) => Promise<void>);
 
-export function commandWrapper<T extends CommandOptions>(
-  commandHandler?: CommandHandler<T>,
-) {
+export function commandWrapper<T extends CommandOptions>(commandHandler?: CommandHandler<T>) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let hasConfig;
