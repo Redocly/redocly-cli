@@ -1,4 +1,4 @@
-import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
+import { bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
 import { BundleOptions, handleBundle } from '../../commands/bundle';
 import { handleError } from '../../utils/miscellaneous';
@@ -25,21 +25,18 @@ describe('bundle', () => {
   });
 
   afterEach(() => {
-    (lint as jest.Mock).mockClear();
     (bundle as jest.Mock).mockClear();
     (getTotals as jest.Mock).mockReset();
   });
 
-  it('bundles definitions w/o linting', async () => {
+  it('bundles definitions', async () => {
     const apis = ['foo.yaml', 'bar.yaml'];
 
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
-    expect(lint).toBeCalledTimes(0);
     expect(bundle).toBeCalledTimes(apis.length);
   });
 
@@ -49,48 +46,25 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
     } as Arguments<BundleOptions>);
 
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
-  it('bundles definitions w/ linting', async () => {
-    const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
-
-    (getTotals as jest.Mock).mockReturnValue({
-      errors: 0,
-      warnings: 0,
-      ignored: 0,
-    });
-
-    await commandWrapper(handleBundle)({
-      apis,
-      ext: 'yaml',
-      format: 'codeframe',
-      lint: true,
-    } as Arguments<BundleOptions>);
-
-    expect(lint).toBeCalledTimes(apis.length);
-    expect(bundle).toBeCalledTimes(apis.length);
-  });
-
-  it('exits with code 0 when bundles definitions w/linting w/o errors', async () => {
+  it('exits with code 0 when bundles definitions w/o errors', async () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
-      lint: true,
     } as Arguments<BundleOptions>);
 
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
-  it('exits with code 1 when bundles definitions w/linting w/errors', async () => {
+  it('exits with code 1 when bundles definitions w/errors', async () => {
     const apis = ['foo.yaml'];
 
     (getTotals as jest.Mock).mockReturnValue({
@@ -102,11 +76,8 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
-      lint: true,
     } as Arguments<BundleOptions>);
 
-    expect(lint).toBeCalledTimes(apis.length);
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
@@ -121,8 +92,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'json',
-      format: 'codeframe',
-      lint: false,
     } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(1);
@@ -141,8 +110,6 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-      format: 'codeframe',
-      lint: false,
     } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(0);
