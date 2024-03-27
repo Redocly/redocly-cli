@@ -23,7 +23,6 @@ Apart from providing individual API description files as the input, you can also
 ```bash
 redocly join <api> <api>...
 redocly join <api> <api>... -o <outputName>
-redocly join <path-to-folder>/<wildcard-pattern> [--lint]
 redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
 redocly join first-api.yaml second-api.yaml
@@ -35,17 +34,11 @@ redocly join --version
 
 ## Options
 
-{% admonition type="warning" name="Important" %}
-The `--lint` option is deprecated and is marked for removal in future releases.
-Use the [lint command](./lint.md) separately to lint your APIs before joining.
-{% /admonition %}
-
 | Option                             | Type     | Description                                                                                                                                                                                                |
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
 | --config                           | string   | Specify path to the [config file](../configuration/index.md).                                                                                                                                              |
 | --help                             | boolean  | Show help.                                                                                                                                                                                                 |
-| --lint (**Deprecated**)            | boolean  | Lint API description files.                                                                                                                                                                                |
 | --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                         |
 | --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (Depends on the extension of the first input file). **If the file already exists, it's overwritten.**                        |
 | --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                       |
