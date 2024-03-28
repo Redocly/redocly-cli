@@ -181,7 +181,7 @@ yargs
             type: 'number',
           },
           'ignore-deployment-failures': {
-            description: 'Do now fail if deployment fails.',
+            description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,
           },
@@ -347,7 +347,7 @@ yargs
             default: false,
           },
           'ignore-deployment-failures': {
-            description: 'Do now fail if deployment fails.',
+            description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,
           },
