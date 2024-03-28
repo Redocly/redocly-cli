@@ -2,4 +2,4 @@
 "@redocly/cli": minor
 ---
 
-Add return value for "push" and "push-status" commands
+feat: Added return values for the `push` and `push-status` commands.
