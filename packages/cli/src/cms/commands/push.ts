@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, slash } from '@redocly/openapi-core';
+import { Config, OutputFormat, slash } from '@redocly/openapi-core';
 import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { green, yellow } from 'colorette';
 import pluralize = require('pluralize');
@@ -29,13 +29,20 @@ export type PushOptions = {
   config?: string;
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
+  'ignore-deployment-failures'?: boolean;
   verbose?: boolean;
+  format?: Extract<OutputFormat, 'stylish'>;
 };
 
 type FileToUpload = { name: string; path: string };
 
-export async function handlePush(argv: PushOptions, config: Config) {
-  const startedAt = performance.now();
+export async function handlePush(
+  argv: PushOptions,
+  config: Config
+): Promise<{ pushId: string } | void> {
+  const startedAt = performance.now(); // for printing execution time
+  const startTime = Date.now(); // for push-status command
+
   const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
 
   const orgId = organization || config.organization;
@@ -111,8 +118,8 @@ export async function handlePush(argv: PushOptions, config: Config) {
     filesToUpload.forEach((f) => {
       process.stderr.write(green(`✓ ${f.name}\n`));
     });
-    process.stdout.write('\n');
 
+    process.stdout.write('\n');
     process.stdout.write(`Push ID: ${id}\n`);
 
     if (waitForDeployment) {
@@ -126,6 +133,8 @@ export async function handlePush(argv: PushOptions, config: Config) {
           wait: true,
           domain,
           'max-execution-time': maxExecutionTime,
+          'start-time': startTime,
+          'ignore-deployment-failures': argv['ignore-deployment-failures'],
         },
         config
       );
@@ -139,6 +148,10 @@ export async function handlePush(argv: PushOptions, config: Config) {
           filesToUpload.length
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
+
+    return {
+      pushId: id,
+    };
   } catch (err) {
     const message =
       err instanceof HandledError ? '' : `✗ File upload failed. Reason: ${err.message}`;

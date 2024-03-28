@@ -1,13 +1,10 @@
 import { handlePushStatus } from '../push-status';
 import { PushResponse } from '../../api/types';
-import { exitWithError } from '../../../utils/miscellaneous';
 
 const remotes = {
   getPush: jest.fn(),
   getRemotesList: jest.fn(),
 };
-
-jest.mock('../../../utils/miscellaneous');
 
 jest.mock('colorette', () => ({
   green: (str: string) => str,
@@ -28,25 +25,44 @@ jest.mock('../../api', () => ({
 describe('handlePushStatus()', () => {
   const mockConfig = { apis: {} } as any;
 
-  const pushResponseStub = {
+  const pushResponseStub: PushResponse = {
+    id: 'test-push-id',
+    remoteId: 'test-remote-id',
+    commit: {
+      message: 'test-commit-message',
+      branchName: 'test-branch-name',
+      sha: null,
+      url: null,
+      createdAt: null,
+      namespace: null,
+      repository: null,
+      author: {
+        name: 'test-author-name',
+        email: 'test-author-email',
+        image: null,
+      },
+    },
+    remote: { commits: [] },
+    isOutdated: false,
+    isMainBranch: false,
     hasChanges: true,
     status: {
       preview: {
         scorecard: [],
         deploy: {
-          url: 'https://test-url',
+          url: 'https://preview-test-url',
           status: 'success',
         },
       },
       production: {
         scorecard: [],
         deploy: {
-          url: 'https://test-url',
+          url: 'https://production-test-url',
           status: 'success',
         },
       },
     },
-  } as unknown as PushResponse;
+  };
 
   beforeEach(() => {
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -58,23 +74,30 @@ describe('handlePushStatus()', () => {
   });
 
   it('should throw error if organization not provided', async () => {
-    await handlePushStatus(
-      {
-        domain: 'test-domain',
-        organization: '',
-        project: 'test-project',
-        pushId: 'test-push-id',
-        'max-execution-time': 1000,
-      },
-      mockConfig
+    let caughtError;
+    try {
+      await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: '',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+    } catch (error) {
+      caughtError = error;
+    }
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `No organization provided, please use --organization option or specify the 'organization' field in the config file.` +
+        '\n\n'
     );
 
-    expect(exitWithError).toHaveBeenCalledWith(
-      "No organization provided, please use --organization option or specify the 'organization' field in the config file."
-    );
+    expect(caughtError).toBeDefined();
   });
 
-  it('should return success push status for preview-build', async () => {
+  it('should print success push status for preview-build', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     remotes.getPush.mockResolvedValueOnce(pushResponseStub);
 
@@ -90,11 +113,11 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
     );
   });
 
-  it('should return success push status for preview and production builds', async () => {
+  it('should print success push status for preview and production builds', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: true });
 
@@ -110,40 +133,48 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(2);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Production deploy success.\nProduction URL: https://test-url\n'
+      '🚀 Production deploy succeed.\nProduction URL: https://production-test-url\n'
     );
   });
 
-  it('should return failed push status for preview build', async () => {
+  it('should print failed push status for preview build', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValue({
       isOutdated: false,
       hasChanges: true,
       status: {
-        preview: { deploy: { status: 'failed', url: 'https://test-url' }, scorecard: [] },
+        preview: { deploy: { status: 'failed', url: 'https://preview-test-url' }, scorecard: [] },
       },
     });
 
-    await handlePushStatus(
-      {
-        domain: 'test-domain',
-        organization: 'test-org',
-        project: 'test-project',
-        pushId: 'test-push-id',
-        'max-execution-time': 1000,
-      },
-      mockConfig
+    let caughtError;
+    try {
+      await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+    } catch (error) {
+      caughtError = error;
+    }
+
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '❌ Preview deploy failed.\nPreview URL: https://preview-test-url' + '\n\n'
     );
-    expect(exitWithError).toHaveBeenCalledWith(
-      '❌ Preview deploy fail.\nPreview URL: https://test-url'
-    );
+
+    expect(caughtError).toBeDefined();
   });
 
-  it('should return success push status for preview build and print scorecards', async () => {
+  it('should print success push status for preview build and print scorecards', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValue({
@@ -151,7 +182,7 @@ describe('handlePushStatus()', () => {
       hasChanges: true,
       status: {
         preview: {
-          deploy: { status: 'success', url: 'https://test-url' },
+          deploy: { status: 'success', url: 'https://preview-test-url' },
           scorecard: [
             {
               name: 'test-name',
@@ -176,7 +207,7 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy success.\nPreview URL: https://test-url\n'
+      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith('\nScorecard:');
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -185,14 +216,14 @@ describe('handlePushStatus()', () => {
     expect(process.stdout.write).toHaveBeenCalledWith('\n');
   });
 
-  it('should display message if there is no changes', async () => {
+  it('should print message if there is no changes', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValueOnce({
       isOutdated: false,
       hasChanges: false,
       status: {
-        preview: { deploy: { status: 'skipped', url: 'https://test-url' }, scorecard: [] },
+        preview: { deploy: { status: 'skipped', url: 'https://preview-test-url' }, scorecard: [] },
       },
     });
 
@@ -207,6 +238,272 @@ describe('handlePushStatus()', () => {
       },
       mockConfig
     );
+
     expect(process.stderr.write).toHaveBeenCalledWith('Files not uploaded. Reason: no changes.\n');
+  });
+
+  describe('return value', () => {
+    it('should return preview deployment info', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+      remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: false });
+
+      const result = await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+
+      expect(result).toEqual({
+        preview: {
+          status: 'success',
+          url: 'https://preview-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+      });
+    });
+
+    it('should return preview and production deployment info', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+      remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: true });
+
+      const result = await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+        },
+        mockConfig
+      );
+
+      expect(result).toEqual({
+        preview: {
+          status: 'success',
+          url: 'https://preview-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+        production: {
+          status: 'success',
+          url: 'https://production-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+      });
+    });
+  });
+
+  describe('"wait" option', () => {
+    it('should wait for preview "success" deployment status', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'pending', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'running', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'success', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      const result = await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+          wait: true,
+        },
+        mockConfig
+      );
+
+      expect(result).toEqual({
+        preview: {
+          status: 'success',
+          url: 'https://preview-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+      });
+    }, 15000);
+
+    it('should wait for production "success" status after preview "success" status', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        isMainBranch: true,
+        status: {
+          preview: {
+            deploy: { status: 'success', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+          production: {
+            deploy: { status: 'pending', url: 'https://production-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        isMainBranch: true,
+        status: {
+          preview: {
+            deploy: { status: 'success', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+          production: {
+            deploy: { status: 'running', url: 'https://production-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        isMainBranch: true,
+        status: {
+          preview: {
+            deploy: { status: 'success', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+          production: {
+            deploy: { status: 'success', url: 'https://production-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      const result = await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          'max-execution-time': 1000,
+          wait: true,
+        },
+        mockConfig
+      );
+
+      expect(result).toEqual({
+        preview: {
+          status: 'success',
+          url: 'https://preview-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+        production: {
+          status: 'success',
+          url: 'https://production-test-url',
+          scorecard: [],
+          isOutdated: false,
+          noChanges: false,
+        },
+      });
+    }, 30000);
+  });
+
+  describe('"ignore-deployment-failures" option', () => {
+    it('should throw error if option is false', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'failed', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      let caughtError;
+      try {
+        await handlePushStatus(
+          {
+            domain: 'test-domain',
+            organization: 'test-org',
+            project: 'test-project',
+            pushId: 'test-push-id',
+            'max-execution-time': 1000,
+            'ignore-deployment-failures': false,
+          },
+          mockConfig
+        );
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeDefined();
+    });
+
+    it('should not throw error if option is true', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'failed', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      let caughtError;
+      try {
+        await handlePushStatus(
+          {
+            domain: 'test-domain',
+            organization: 'test-org',
+            project: 'test-project',
+            pushId: 'test-push-id',
+            'max-execution-time': 1000,
+            'ignore-deployment-failures': true,
+          },
+          mockConfig
+        );
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeUndefined();
+    });
   });
 });
