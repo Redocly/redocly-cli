@@ -35,6 +35,9 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             location = isMultiple ? resolved.location.child('value') : resolved.location;
             example = resolved.node;
           }
+          if (Object.prototype.hasOwnProperty.call(example, 'externalValue')) {
+            return
+          }
           validateExample(
             isMultiple ? example.value : example,
             mediaType.schema!,
