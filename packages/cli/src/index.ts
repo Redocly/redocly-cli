@@ -492,12 +492,7 @@ yargs
         },
       }),
     (argv) => {
-      const DEPRECATED_OPTIONS = [
-        'lint',
-        'format',
-        'skip-rule',
-        'max-problems',
-      ];
+      const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
       const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
         'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
 
