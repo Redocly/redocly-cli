@@ -17,7 +17,7 @@ import { handlerBuildCommand } from './commands/build-docs';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { version } from './utils/update-version-notifier';
-import { Arguments, showHelp } from 'yargs';
+import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import { previewProject } from './commands/preview-project';
@@ -496,7 +496,6 @@ yargs
         'lint',
         'format',
         'skip-rule',
-        // 'extends',
         'max-problems',
       ];
       const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
@@ -510,7 +509,7 @@ yargs
             )}`
           );
           process.stdout.write('\n\n');
-          showHelp();
+          yargs.showHelp();
           process.exit(1);
         }
       });

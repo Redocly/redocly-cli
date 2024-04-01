@@ -34,7 +34,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-  const deprecatedOptions: Array<keyof BundleOptions> = ['extends'];
+  const deprecatedOptions: Array<keyof BundleOptions> = [];
 
   checkForDeprecatedOptions(argv, deprecatedOptions);
 
