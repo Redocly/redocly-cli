@@ -16,12 +16,7 @@ describe('webpack-bundle test', () => {
   test('bundle check', () => {
     const folderPath = join(__dirname, 'webpack-bundle/bundle');
     const entryPoint = getEntrypoints(folderPath);
-    const args = getParams('../../../dist/bundle.js', 'bundle', [
-      '--max-problems=1',
-      '-o=/tmp/null',
-      '--lint',
-      ...entryPoint,
-    ]);
+    const args = getParams('../../../dist/bundle.js', 'bundle', ['-o=/tmp/null', ...entryPoint]);
     const result = getCommandOutput(args, folderPath);
     (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
   });

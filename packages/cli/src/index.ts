@@ -2,6 +2,7 @@
 
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
+import * as colors from 'colorette';
 import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
@@ -416,27 +417,10 @@ yargs
           description: 'Output file.',
           alias: 'o',
         },
-        format: {
-          description: 'Use a specific output format.',
-          choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
-          hidden: true,
-        },
-        'max-problems': {
-          requiresArg: true,
-          description: 'Reduce output to a maximum of N problems.',
-          type: 'number',
-          hidden: true,
-        },
         ext: {
           description: 'Bundle file extension.',
           requiresArg: true,
           choices: outputExtensions,
-        },
-        'skip-rule': {
-          description: 'Ignore certain rules.',
-          array: true,
-          type: 'string',
-          hidden: true,
         },
         'skip-preprocessor': {
           description: 'Ignore certain preprocessors.',
@@ -461,12 +445,6 @@ yargs
         config: {
           description: 'Path to the config file.',
           type: 'string',
-        },
-        lint: {
-          description: 'Lint API descriptions',
-          type: 'boolean',
-          default: false,
-          hidden: true,
         },
         metafile: {
           description: 'Produce metadata about the bundle',
@@ -494,8 +472,43 @@ yargs
           choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
+        format: {
+          hidden: true,
+          deprecated: true,
+        },
+        lint: {
+          hidden: true,
+          deprecated: true,
+        },
+        'skip-rule': {
+          hidden: true,
+          deprecated: true,
+          array: true,
+          type: 'string',
+        },
+        'max-problems': {
+          hidden: true,
+          deprecated: true,
+        },
       }),
     (argv) => {
+      const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
+      const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
+        'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
+
+      DEPRECATED_OPTIONS.forEach((option) => {
+        if (argv[option]) {
+          process.stdout.write(
+            `${colors.red(
+              `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
+            )}`
+          );
+          process.stdout.write('\n\n');
+          yargs.showHelp();
+          process.exit(1);
+        }
+      });
+
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
       commandWrapper(handleBundle)(argv);
     }
