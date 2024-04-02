@@ -474,4 +474,149 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report if only externalValue is set', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+                      examples:
+                        first:
+                          externalValue: "https://example.com/example.json"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report if value is valid and externalValue is also set', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+                      examples:
+                        first:
+                          externalValue: "https://example.com/example.json"
+                          value:
+                            a: "A"
+                            b: 0
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report invalid value when externalValue is also set', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+                      examples:
+                        first:
+                          externalValue: "https://example.com/example.json"
+                          value:
+                            a: 0
+                            b: "0"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/value/a",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`a\` property type must be string.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/value/b",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`b\` property type must be number.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
