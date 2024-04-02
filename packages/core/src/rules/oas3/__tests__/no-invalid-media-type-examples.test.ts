@@ -250,8 +250,6 @@ describe('no-invalid-media-type-examples', () => {
                           value:
                             a: test
                             b: 35
-                        test3:
-                          externalValue: "https://example.com/example.json"
                       schema:
                         type: object
                         properties:
@@ -460,8 +458,6 @@ describe('no-invalid-media-type-examples', () => {
                       examples:
                         first:
                           value: {}
-                        second:
-                          externalValue: "https://example.com/example.json"
       `,
       'foobar.yaml'
     );
