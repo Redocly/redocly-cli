@@ -36,7 +36,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             example = resolved.node;
           }
           if (isMultiple && typeof example.value === 'undefined') {
-            return
+            return;
           }
           validateExample(
             isMultiple ? example.value : example,
