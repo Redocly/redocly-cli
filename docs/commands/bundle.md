@@ -20,32 +20,23 @@ redocly bundle --version
 
 ## Options
 
-{% admonition type="warning" name="Important" %}
-The `--lint` switch and all related options (`--extends`, `--max-problems`, `--skip-rule`, `--format`) are deprecated and are marked for removal in future releases.
-Use the [lint command](./lint.md) separately to lint your APIs before bundling.
-{% /admonition %}
-
-| Option                          | Type     | Description                                                                                                                                                                                                                                                     |
-| ------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                            | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
-| --config                        | string   | Specify path to the [config file](#custom-configuration-file).                                                                                                                                                                                                  |
-| --dereferenced, -d              | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
-| --ext                           | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
-| --extends (**Deprecated**)      | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                    |
-| --force, -f                     | boolean  | Generate bundle output even when errors occur.                                                                                                                                                                                                                  |
-| --format (**Deprecated**)       | string   | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.                                                                                                                                       |
-| --help                          | boolean  | Show help.                                                                                                                                                                                                                                                      |
-| --keep-url-references, -k       | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
-| --lint (**Deprecated**)         | boolean  | Lint API description files. Default value is `false`.                                                                                                                                                                                                           |
-| --lint-config                   | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                              |
-| --max-problems (**Deprecated**) | integer  | Truncate output to display the specified maximum number of problems. Default value is `100`.                                                                                                                                                                    |
-| --metafile                      | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |
-| --output, -o                    | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** |
-| --remove-unused-components      | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                              |
-| --skip-decorator                | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                       |
-| --skip-preprocessor             | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                    |
-| --skip-rule (**Deprecated**)    | [string] | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                            |
-| --version                       | boolean  | Show version number.                                                                                                                                                                                                                                            |
+| Option                     | Type     | Description                                                                                                                                                                                                                                                     |
+| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
+| --config                   | string   | Specify path to the [config file](#custom-configuration-file).                                                                                                                                                                                                  |
+| --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
+| --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
+| --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                    |
+| --force, -f                | boolean  | Generate bundle output even when errors occur.                                                                                                                                                                                                                  |
+| --help                     | boolean  | Show help.                                                                                                                                                                                                                                                      |
+| --keep-url-references, -k  | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
+| --lint-config              | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                              |
+| --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |
+| --output, -o               | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** |
+| --remove-unused-components | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                              |
+| --skip-decorator           | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                       |
+| --skip-preprocessor        | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                    |
+| --version                  | boolean  | Show version number.                                                                                                                                                                                                                                            |
 
 ## Examples
 
@@ -98,13 +89,6 @@ You may want to skip specific preprocessors, rules, or decorators upon running t
 
 ```bash
 redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
-```
-
-{% /tab  %}
-{% tab label="Skip rules" %}
-
-```bash
-redocly bundle --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
 
 {% /tab  %}

@@ -51,7 +51,8 @@ export type OutputFormat =
   | 'json'
   | 'checkstyle'
   | 'codeclimate'
-  | 'summary';
+  | 'summary'
+  | 'github-actions';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -155,6 +156,8 @@ export function formatProblems(
     case 'summary':
       formatSummary(problems);
       break;
+    case 'github-actions':
+      outputForGithubActions(problems, cwd);
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -372,4 +375,61 @@ function xmlEscape(s: string): string {
         return `&#${char.charCodeAt(0)};`;
     }
   });
+}
+
+function outputForGithubActions(problems: NormalizedProblem[], cwd: string): void {
+  for (const problem of problems) {
+    for (const location of problem.location.map(getLineColLocation)) {
+      let command;
+      switch (problem.severity) {
+        case 'error':
+          command = 'error';
+          break;
+        case 'warn':
+          command = 'warning';
+          break;
+      }
+      const suggest = formatDidYouMean(problem);
+      const message = suggest !== '' ? problem.message + '\n\n' + suggest : problem.message;
+      const properties = {
+        title: problem.ruleId,
+        file: isAbsoluteUrl(location.source.absoluteRef)
+          ? location.source.absoluteRef
+          : path.relative(cwd, location.source.absoluteRef),
+        line: location.start.line,
+        col: location.start.col,
+        endLine: location.end?.line,
+        endColumn: location.end?.col,
+      };
+      output.write(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
+    }
+  }
+
+  function formatProperties(props: Record<string, any>): string {
+    return Object.entries(props)
+      .filter(([, v]) => v !== null && v !== undefined)
+      .map(([k, v]) => `${k}=${escapeProperty(v)}`)
+      .join(',');
+  }
+
+  function toString(v: any): string {
+    if (v === null || v === undefined) {
+      return '';
+    } else if (typeof v === 'string' || v instanceof String) {
+      return v as string;
+    }
+    return JSON.stringify(v);
+  }
+
+  function escapeMessage(v: any): string {
+    return toString(v).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  }
+  function escapeProperty(v: any): string {
+    return toString(v)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A')
+      .replace(/:/g, '%3A')
+      .replace(/,/g, '%2C');
+  }
 }
