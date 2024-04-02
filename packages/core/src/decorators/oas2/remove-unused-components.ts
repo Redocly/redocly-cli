@@ -30,6 +30,8 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
         (location) =>
           !removedPaths.some(
             (removed) =>
+              // Check if the current location's absolute pointer starts with the 'removed' path
+              // and either its length matches exactly with 'removed' or the character after the 'removed' path is a '/'
               location.absolutePointer.startsWith(removed) &&
               (location.absolutePointer.length === removed.length ||
                 location.absolutePointer[removed.length] === '/')
