@@ -2,12 +2,12 @@ import { Location } from '../../ref-utils';
 import { isEmptyObject } from '../../utils';
 
 import type { Oas3Decorator } from '../../visitors';
-import type { Oas3Components } from '../../typings/openapi';
+import type { Oas3Components, Oas3Definition } from '../../typings/openapi';
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
-    { used: boolean; componentType?: keyof Oas3Components; name: string }
+    { usedIn: Location[]; componentType?: keyof Oas3Components; name: string }
   >();
 
   function registerComponent(
@@ -16,15 +16,45 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     name: string
   ): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used || false,
+      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
       componentType,
       name,
     });
   }
 
+  function removeUnusedComponents(root: Oas3Definition, removedPaths: string[]): number {
+    const removedLengthStart = removedPaths.length;
+
+    for (const [path, { usedIn, name, componentType }] of components) {
+      const used = usedIn.some(
+        (location) =>
+          !removedPaths.some(
+            (removed) =>
+              location.absolutePointer.startsWith(removed) &&
+              (location.absolutePointer.length === removed.length ||
+                location.absolutePointer[removed.length] === '/')
+          )
+      );
+
+      if (!used && componentType && root.components) {
+        removedPaths.push(path);
+        const componentChild = root.components[componentType];
+        delete componentChild![name];
+        components.delete(path);
+        if (isEmptyObject(componentChild)) {
+          delete root.components[componentType];
+        }
+      }
+    }
+
+    return removedPaths.length > removedLengthStart
+      ? removeUnusedComponents(root, removedPaths)
+      : removedPaths.length;
+  }
+
   return {
     ref: {
-      leave(ref, { type, resolve, key }) {
+      leave(ref, { location, type, resolve, key }) {
         if (
           ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(
             type.name
@@ -37,29 +67,24 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
           const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
-          components.set(pointer, {
-            used: true,
-            name: key.toString(),
-          });
+          const registered = components.get(pointer);
+
+          if (registered) {
+            registered.usedIn.push(location);
+          } else {
+            components.set(pointer, {
+              usedIn: [location],
+              name: key.toString(),
+            });
+          }
         }
       },
     },
     Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
-        data.removedCount = 0;
+        data.removedCount = removeUnusedComponents(root, []);
 
-        components.forEach((usageInfo) => {
-          const { used, componentType, name } = usageInfo;
-          if (!used && componentType && root.components) {
-            const componentChild = root.components[componentType];
-            delete componentChild![name];
-            data.removedCount++;
-            if (isEmptyObject(componentChild)) {
-              delete root.components[componentType];
-            }
-          }
-        });
         if (isEmptyObject(root.components)) {
           delete root.components;
         }
