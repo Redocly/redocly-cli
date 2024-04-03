@@ -64,7 +64,7 @@ export type JoinOptions = {
   'lint-config'?: RuleSeverity;
 };
 
-export async function handleJoin(argv: JoinOptions, config: Config) {
+export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
   const startedAt = performance.now();
 
   if (argv.apis.length < 2) {
@@ -132,7 +132,7 @@ export async function handleJoin(argv: JoinOptions, config: Config) {
     if (fileTotals.errors) {
       formatProblems(problems, {
         totals: fileTotals,
-        version: document.parsed.version,
+        version: packageVersion,
       });
       exitWithError(
         `❌ Errors encountered while bundling ${blue(

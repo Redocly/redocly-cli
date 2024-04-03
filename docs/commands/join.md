@@ -34,6 +34,14 @@ redocly join --version
 
 ## Options
 
+{% admonition type="warning" name="Important" %}
+The `join` command is run without using decorators and preprocessors.
+If you need to apply decorators or to preprocess the input files before joining them, use separate chained commands.
+{% /admonition %}
+
+{% admonition type="tip" %}
+{% /admonition %}
+
 | Option                             | Type     | Description                                                                                                                                                                                                |
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
