@@ -380,7 +380,7 @@ const AssertionDefinitionSubject: NodeType = {
 
       return {
         enum: definitionTypes,
-      }
+      };
     },
     property: (value: unknown) => {
       if (Array.isArray(value)) {
