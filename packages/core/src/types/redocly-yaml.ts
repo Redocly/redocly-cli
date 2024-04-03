@@ -361,8 +361,8 @@ const Schema: NodeType = {
 
 const AssertionDefinitionSubject: NodeType = {
   properties: {
-    type: {
-      enum: [
+    type: (value: unknown) => {
+      const definitionTypes = [
         ...new Set([
           'any',
           ...oas2NodeTypesList,
@@ -371,7 +371,16 @@ const AssertionDefinitionSubject: NodeType = {
           ...asyncNodeTypesList,
           'SpecExtension',
         ]),
-      ],
+      ];
+
+      // Do not validate if it's a custom type starting with 'X'
+      if (typeof value === 'string' && value.startsWith('X') && !definitionTypes.includes(value)) {
+        return { type: 'string' };
+      }
+
+      return {
+        enum: definitionTypes,
+      }
     },
     property: (value: unknown) => {
       if (Array.isArray(value)) {

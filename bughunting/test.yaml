@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: Food Empire API
+  version: 0.5.1
+  x-metadata:
+    lifecycle: production
+    owner-team: Engineering/Integrations
+paths:
+  /test-api:
+    get:
+      operationId: testApi
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $defs:
+                  main_data:
+                    $anchor: main_data
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                type: object
+                oneOf:
+                  - properties:
+                      wrapper:
+                        $ref: '#main_data'
+                  - $ref: '#main_data'
+              example:
+                foo: TEST
