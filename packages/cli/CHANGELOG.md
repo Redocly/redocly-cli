@@ -1,5 +1,18 @@
 # @redocly/cli
 
+## 1.11.0
+
+### Minor Changes
+
+- Removed additional operations from the `join` command; use `lint` and/or `bundle` for operations such as `lint` and `decorate`.
+- Removed lint support from the bundle command to support a wider range of use cases. Users should update to [run lint and bundle separately](https://redocly.com/docs/cli/guides/lint-and-bundle/).
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
+### Patch Changes
+
+- Fixed [`no-invalid-media-type-examples`](https://redocly.com/docs/cli/rules/no-invalid-media-type-examples/) rule `externalValue` example validation.
+- Updated @redocly/openapi-core to v1.11.0.
+
 ## 1.10.6
 
 ### Patch Changes
