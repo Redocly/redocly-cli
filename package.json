@@ -20,7 +20,7 @@
     "prettier": "npx prettier --write \"**/*.{ts,js,yaml,json,md}\"",
     "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,json,md}\"",
     "eslint": "eslint packages/**",
-    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist",
+    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
     "watch": "tsc -b tsconfig.build.json --watch ",
     "compile": "tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
