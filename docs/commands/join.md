@@ -18,6 +18,11 @@ The `join` command accepts both YAML and JSON files, which you can mix in the re
 
 Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.(yaml/json)`). The `join` command collects all matching files and combines them into one file.
 
+{% admonition type="info" name="Use join with other commands" %}
+We recommend running [`lint`](./lint.md) before joining API descriptions to ensure that they are valid and meet the expected standards.
+You may also want to use [decorators](./../decorators.md) to add any filtering or transformation needed for your API descriptions, either before or after bundling.
+{% /admonition %}
+
 ### Usage
 
 ```bash
@@ -33,14 +38,6 @@ redocly join --version
 ```
 
 ## Options
-
-{% admonition type="warning" name="Important" %}
-The `join` command is run without using decorators and preprocessors.
-If you need to apply decorators or to preprocess the input files before joining them, use separate chained commands.
-{% /admonition %}
-
-{% admonition type="tip" %}
-{% /admonition %}
 
 | Option                             | Type     | Description                                                                                                                                                                                                |
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
