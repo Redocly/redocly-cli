@@ -105,9 +105,6 @@ yargs
           demandOption: true,
         })
         .option({
-          lint: { description: 'Lint descriptions', type: 'boolean', default: false, hidden: true },
-          decorate: { description: 'Run decorators', type: 'boolean', default: false },
-          preprocess: { description: 'Run preprocessors', type: 'boolean', default: false },
           'prefix-tags-with-info-prop': {
             description: 'Prefix tags with property value from info object.',
             requiresArg: true,
@@ -142,8 +139,47 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          lint: {
+            hidden: true,
+            deprecated: true,
+          },
+          decorate: {
+            hidden: true,
+            deprecated: true,
+          },
+          preprocess: {
+            hidden: true,
+            deprecated: true,
+          },
         }),
     (argv) => {
+      const DEPRECATED_OPTIONS = ['lint', 'preprocess', 'decorate'];
+      const DECORATORS_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/decorators/#decorators';
+      const JOIN_COMMAND_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/commands/join/#join';
+
+      DEPRECATED_OPTIONS.forEach((option) => {
+        if (argv[option]) {
+          process.stdout.write(
+            `${colors.red(
+              `Option --${option} is no longer supported. Please review join command documentation ${JOIN_COMMAND_DOCUMENTATION_LINK}.`
+            )}`
+          );
+          process.stdout.write('\n\n');
+
+          if (['preprocess', 'decorate'].includes(option)) {
+            process.stdout.write(
+              `${colors.red(
+                `If you are looking for decorators, please review the decorators documentation ${DECORATORS_DOCUMENTATION_LINK}.`
+              )}`
+            );
+            process.stdout.write('\n\n');
+          }
+
+          yargs.showHelp();
+          process.exit(1);
+        }
+      });
+
       process.env.REDOCLY_CLI_COMMAND = 'join';
       commandWrapper(handleJoin)(argv);
     }
