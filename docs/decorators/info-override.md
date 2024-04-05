@@ -36,4 +36,4 @@ decorators:
 ## Resources
 
 - [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/info-description-override.ts)
-- [Blog post about Overlays](../../../blog/openapi-overlays.md)
+- [Blog post about Overlays](https://redocly.com/blog/openapi-overlays/)

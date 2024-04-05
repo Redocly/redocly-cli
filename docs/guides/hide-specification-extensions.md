@@ -25,7 +25,7 @@ This tutorial is most effective when you follow along and complete the steps.
 
 - [Install @redocly/cli](../installation.md) with version 1.0.0-beta.117 or later (we use 1.0.0-beta.117 in this tutorial).
 - Download the [sample.yaml](https://gist.github.com/bandantonio/e1331ba5afd24485de5e6229c91d25ed) file into a new directory named `hide-openapi-extensions`.
-- Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](../../redocly-openapi/index.md) installed).
+- Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](https://redocly.com/docs/redocly-openapi/) installed).
 
 ## Step 1: Create a custom plugin
 

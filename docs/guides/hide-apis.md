@@ -32,7 +32,7 @@ This tutorial is most effective when you follow along and complete the steps.
 
 - [Install @redocly/cli](../installation.md) with version 1.0.0-beta.90 or later (we use 1.0.0-beta.94 in this tutorial).
 - Download the [sample.yaml](https://gist.github.com/adamaltman/ee07bf94a967926ee0e54bcd56fdcdfb) file into a new directory named `hide-apis-demo`.
-- Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](../../redocly-openapi/index.md) installed).
+- Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](https://redocly.com/docs/redocly-openapi/) installed).
 
 ## Step 1: Add `x-internal` to the API description
 
