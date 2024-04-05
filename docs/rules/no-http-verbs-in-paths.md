@@ -48,6 +48,9 @@ With the `splitIntoWords` option enabled, "posters" is identified as a resource 
 | -------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
 | severity       | string  | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration).                                    |
 | splitIntoWords | boolean | Matches http verbs when the string is split into words based on casing. This can reduce false positives. Default **false**. |
+| excludePaths  | string | List of paths to exclude from evaluation by this rule.             |
+
+
 
 An example configuration:
 
@@ -63,6 +66,16 @@ rules:
   no-http-verbs-in-paths:
     severity: error
     splitIntoWords: true
+```
+
+An example configuration with `splitIntoWords` excluded paths:
+
+```yaml
+rules:
+  no-http-verbs-in-paths:
+    splitIntoWords: true
+    excludedPaths:
+      - /foo/profile-options/
 ```
 
 ## Examples
