@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 1.11.0
+
+### Minor Changes
+
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
+### Patch Changes
+
+- Fixed [`no-invalid-media-type-examples`](https://redocly.com/docs/cli/rules/no-invalid-media-type-examples/) rule `externalValue` example validation.
+- Process remove-unused-components rule transitively; components are now removed if they were previously referenced by a removed component.
+
 ## 1.10.6
 
 ### Patch Changes

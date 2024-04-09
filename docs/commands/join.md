@@ -18,12 +18,16 @@ The `join` command accepts both YAML and JSON files, which you can mix in the re
 
 Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.(yaml/json)`). The `join` command collects all matching files and combines them into one file.
 
+{% admonition type="info" name="Use join with other commands" %}
+We recommend running [`lint`](./lint.md) before joining API descriptions to ensure that they are valid and meet the expected standards.
+You may also want to use [decorators](./../decorators.md) to add any filtering or transformation needed for your API descriptions, either before or after bundling.
+{% /admonition %}
+
 ### Usage
 
 ```bash
 redocly join <api> <api>...
 redocly join <api> <api>... -o <outputName>
-redocly join <path-to-folder>/<wildcard-pattern> [--lint]
 redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
 redocly join first-api.yaml second-api.yaml
@@ -35,24 +39,16 @@ redocly join --version
 
 ## Options
 
-{% admonition type="warning" name="Important" %}
-The `--lint` option is deprecated and is marked for removal in future releases.
-Use the [lint command](./lint.md) separately to lint your APIs before joining.
-{% /admonition %}
-
 | Option                             | Type     | Description                                                                                                                                                                                                |
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
 | --config                           | string   | Specify path to the [config file](../configuration/index.md).                                                                                                                                              |
-| --decorate                         | boolean  | Run decorators.                                                                                                                                                                                            |
 | --help                             | boolean  | Show help.                                                                                                                                                                                                 |
-| --lint (**Deprecated**)            | boolean  | Lint API description files.                                                                                                                                                                                |
 | --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                         |
 | --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (Depends on the extension of the first input file). **If the file already exists, it's overwritten.**                        |
 | --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                       |
 | --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                             |
 | --prefix-tags-with-info-prop       | boolean  | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.                                                                               |
-| --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                         |
 | --version                          | boolean  | Show version number.                                                                                                                                                                                       |
 | --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.                                                                                                      |
 
