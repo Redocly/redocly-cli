@@ -101,11 +101,11 @@ export async function handlePushStatus(
     });
     printScorecard(previewPushData.status.preview.scorecard);
 
-    const fetchProdPushDatCondition =
+    const fetchProdPushDataCondition =
       previewPushData.isMainBranch &&
       (wait ? previewPushData.status.preview.deploy.status === 'success' : true);
 
-    const prodPushData = fetchProdPushDatCondition
+    const prodPushData = fetchProdPushDataCondition
       ? await getPushData({
           orgId,
           projectId,
