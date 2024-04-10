@@ -90,6 +90,30 @@ describe('E2E', () => {
       const result = getCommandOutput(passedArgs, folderPath);
       (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
+
+    test('config type extension in assertions', () => {
+      const dirName = 'config-type-extensions-in-assertions';
+      const folderPath = join(__dirname, `check-config/${dirName}`);
+
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', [
+        '--config=redocly.yaml',
+      ]);
+
+      const result = getCommandOutput(passedArgs, folderPath);
+      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('wrong config type extension in assertions', () => {
+      const dirName = 'wrong-config-type-extensions-in-assertions';
+      const folderPath = join(__dirname, `check-config/${dirName}`);
+
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', [
+        '--config=redocly.yaml',
+      ]);
+
+      const result = getCommandOutput(passedArgs, folderPath);
+      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('lint-config', () => {
