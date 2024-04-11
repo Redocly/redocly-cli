@@ -74,9 +74,8 @@ describe('handlePushStatus()', () => {
   });
 
   it('should throw error if organization not provided', async () => {
-    let caughtError;
-    try {
-      await handlePushStatus(
+    await expect(
+      handlePushStatus(
         {
           domain: 'test-domain',
           organization: '',
@@ -85,16 +84,15 @@ describe('handlePushStatus()', () => {
           'max-execution-time': 1000,
         },
         mockConfig
-      );
-    } catch (error) {
-      caughtError = error;
-    }
+      )
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"No organization provided, please use --organization option or specify the 'organization' field in the config file."`
+    );
+
     expect(process.stderr.write).toHaveBeenCalledWith(
       `No organization provided, please use --organization option or specify the 'organization' field in the config file.` +
         '\n\n'
     );
-
-    expect(caughtError).toBeDefined();
   });
 
   it('should print success push status for preview-build', async () => {
@@ -151,9 +149,8 @@ describe('handlePushStatus()', () => {
       },
     });
 
-    let caughtError;
-    try {
-      await handlePushStatus(
+    await expect(
+      handlePushStatus(
         {
           domain: 'test-domain',
           organization: 'test-org',
@@ -162,16 +159,15 @@ describe('handlePushStatus()', () => {
           'max-execution-time': 1000,
         },
         mockConfig
-      );
-    } catch (error) {
-      caughtError = error;
-    }
+      )
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      "❌ Preview deploy failed.
+      Preview URL: https://preview-test-url"
+    `);
 
     expect(process.stderr.write).toHaveBeenCalledWith(
       '❌ Preview deploy failed.\nPreview URL: https://preview-test-url' + '\n\n'
     );
-
-    expect(caughtError).toBeDefined();
   });
 
   it('should print success push status for preview build and print scorecards', async () => {
@@ -440,7 +436,7 @@ describe('handlePushStatus()', () => {
   });
 
   describe('"ignore-deployment-failures" option', () => {
-    it('should throw error if option is false', async () => {
+    it('should throw error if option value is false', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
       remotes.getPush.mockResolvedValueOnce({
@@ -453,9 +449,8 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      let caughtError;
-      try {
-        await handlePushStatus(
+      await expect(
+        handlePushStatus(
           {
             domain: 'test-domain',
             organization: 'test-org',
@@ -465,15 +460,15 @@ describe('handlePushStatus()', () => {
             'ignore-deployment-failures': false,
           },
           mockConfig
-        );
-      } catch (error) {
-        caughtError = error;
-      }
-
-      expect(caughtError).toBeDefined();
+        )
+        // ).rejects.toThrow('❌ Preview deploy failed.\nPreview URL: https://preview-test-url');
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "❌ Preview deploy failed.
+        Preview URL: https://preview-test-url"
+      `);
     });
 
-    it('should not throw error if option is true', async () => {
+    it('should not throw error if option value is true', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
       remotes.getPush.mockResolvedValueOnce({
@@ -486,9 +481,8 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      let caughtError;
-      try {
-        await handlePushStatus(
+      await expect(
+        handlePushStatus(
           {
             domain: 'test-domain',
             organization: 'test-org',
@@ -498,12 +492,17 @@ describe('handlePushStatus()', () => {
             'ignore-deployment-failures': true,
           },
           mockConfig
-        );
-      } catch (error) {
-        caughtError = error;
-      }
-
-      expect(caughtError).toBeUndefined();
+        )
+      ).resolves.toStrictEqual({
+        preview: {
+          isOutdated: false,
+          noChanges: false,
+          scorecard: [],
+          status: 'failed',
+          url: 'https://preview-test-url',
+        },
+        production: undefined,
+      });
     });
   });
 });
