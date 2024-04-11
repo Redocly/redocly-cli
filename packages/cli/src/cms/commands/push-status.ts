@@ -22,7 +22,7 @@ export type PushStatusOptions = {
   wait?: boolean;
   'max-execution-time'?: number;
   'start-time'?: number;
-  'ignore-deployment-failures'?: boolean;
+  'continue-on-deployment-failures'?: boolean;
   onRetry?: (lastResult: PushResponse) => void;
 };
 
@@ -61,7 +61,7 @@ export async function handlePushStatus(
   const maxExecutionTime = argv['max-execution-time'] || 600;
   const startTime = argv['start-time'] || Date.now();
   const retryTimeoutMs = maxExecutionTime * 1000;
-  const ignoreDeploymentFailures = Boolean(argv['ignore-deployment-failures']);
+  const continueOnDeploymentFailures = Boolean(argv['continue-on-deployment-failures']);
 
   try {
     const apiKey = getApiKeys(domain);
@@ -82,7 +82,7 @@ export async function handlePushStatus(
           previewUrl: lastResult.status['preview'].deploy.url,
           spinner,
           buildType: 'preview',
-          ignoreDeploymentFailures,
+          continueOnDeploymentFailures,
           wait,
         });
         argv?.onRetry?.(lastResult);
@@ -97,7 +97,7 @@ export async function handlePushStatus(
       spinner,
       wait,
       push: previewPushData,
-      ignoreDeploymentFailures,
+      continueOnDeploymentFailures,
     });
     printScorecard(previewPushData.status.preview.scorecard);
 
@@ -121,7 +121,7 @@ export async function handlePushStatus(
               previewUrl: lastResult.status['production'].deploy.url,
               spinner,
               buildType: 'production',
-              ignoreDeploymentFailures,
+              continueOnDeploymentFailures: continueOnDeploymentFailures,
               wait,
             });
             argv?.onRetry?.(lastResult);
@@ -137,7 +137,7 @@ export async function handlePushStatus(
       spinner,
       wait,
       push: prodPushData,
-      ignoreDeploymentFailures,
+      continueOnDeploymentFailures: continueOnDeploymentFailures,
     });
     printScorecard(prodPushData?.status?.production?.scorecard);
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
@@ -239,13 +239,13 @@ function printPushStatus({
   buildType,
   spinner,
   push,
-  ignoreDeploymentFailures,
+  continueOnDeploymentFailures,
 }: {
   buildType: 'preview' | 'production';
   spinner: Spinner;
   wait?: boolean;
   push?: PushResponse | null;
-  ignoreDeploymentFailures: boolean;
+  continueOnDeploymentFailures: boolean;
 }) {
   if (!push) {
     return;
@@ -260,7 +260,7 @@ function printPushStatus({
       previewUrl: push.status[buildType].deploy.url,
       buildType,
       spinner,
-      ignoreDeploymentFailures,
+      continueOnDeploymentFailures,
     });
   }
 }
@@ -285,19 +285,19 @@ function displayDeploymentAndBuildStatus({
   previewUrl,
   spinner,
   buildType,
-  ignoreDeploymentFailures,
+  continueOnDeploymentFailures,
   wait,
 }: {
   status: DeploymentStatus;
   previewUrl: string | null;
   spinner: Spinner;
   buildType: 'preview' | 'production';
-  ignoreDeploymentFailures: boolean;
+  continueOnDeploymentFailures: boolean;
   wait?: boolean;
 }) {
   const message = getMessage({ status, previewUrl, buildType, wait });
 
-  if (status === 'failed' && !ignoreDeploymentFailures) {
+  if (status === 'failed' && !continueOnDeploymentFailures) {
     spinner.stop();
     throw new DeploymentError(message);
   }

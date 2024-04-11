@@ -29,7 +29,7 @@ export type PushOptions = {
   config?: string;
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
-  'ignore-deployment-failures'?: boolean;
+  'continue-on-deployment-failures'?: boolean;
   verbose?: boolean;
   format?: Extract<OutputFormat, 'stylish'>;
 };
@@ -134,7 +134,7 @@ export async function handlePush(
           domain,
           'max-execution-time': maxExecutionTime,
           'start-time': startTime,
-          'ignore-deployment-failures': argv['ignore-deployment-failures'],
+          'continue-on-deployment-failures': argv['continue-on-deployment-failures'],
         },
         config
       );

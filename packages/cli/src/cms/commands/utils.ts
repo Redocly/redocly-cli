@@ -2,6 +2,11 @@ export async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * This function retries an operation until a condition is met or a timeout is exceeded.
+ * If the condition is not met within the timeout, an error is thrown.
+ * @returns
+ */
 export async function retryUntilConditionMet<T>({
   operation,
   condition,

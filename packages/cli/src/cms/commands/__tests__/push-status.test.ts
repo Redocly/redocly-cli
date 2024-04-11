@@ -435,7 +435,7 @@ describe('handlePushStatus()', () => {
     }, 30000);
   });
 
-  describe('"ignore-deployment-failures" option', () => {
+  describe('"continue-on-deployment-failures" option', () => {
     it('should throw error if option value is false', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
@@ -457,7 +457,7 @@ describe('handlePushStatus()', () => {
             project: 'test-project',
             pushId: 'test-push-id',
             'max-execution-time': 1000,
-            'ignore-deployment-failures': false,
+            'continue-on-deployment-failures': false,
           },
           mockConfig
         )
@@ -489,7 +489,7 @@ describe('handlePushStatus()', () => {
             project: 'test-project',
             pushId: 'test-push-id',
             'max-execution-time': 1000,
-            'ignore-deployment-failures': true,
+            'continue-on-deployment-failures': true,
           },
           mockConfig
         )
