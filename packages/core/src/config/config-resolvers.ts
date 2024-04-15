@@ -12,7 +12,7 @@ import {
   transformConfig,
 } from './utils';
 import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
+import { isNotString, isString, isDefined, keysOf } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
