@@ -20,6 +20,7 @@ async function addConfigMetadata({
   tokens,
   files,
   region,
+  externalRefResolver,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
@@ -27,6 +28,7 @@ async function addConfigMetadata({
   tokens?: RegionalTokenWithValidity[];
   files?: string[];
   region?: Region;
+  externalRefResolver?: BaseResolver;
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
@@ -64,10 +66,15 @@ async function addConfigMetadata({
     }
   }
 
-  return resolveConfig(
-    { ...rawConfig, files: files ?? rawConfig.files, region: region ?? rawConfig.region },
-    configPath
-  );
+  return resolveConfig({
+    rawConfig: {
+      ...rawConfig,
+      files: files ?? rawConfig.files,
+      region: region ?? rawConfig.region,
+    },
+    configPath,
+    externalRefResolver,
+  });
 }
 
 export type RawConfigProcessor = (
@@ -105,6 +112,7 @@ export async function loadConfig(
     tokens,
     files,
     region,
+    externalRefResolver,
   });
 }
 
@@ -156,6 +164,7 @@ type CreateConfigOptions = {
   extends?: string[];
   tokens?: RegionalTokenWithValidity[];
   configPath?: string;
+  externalRefResolver?: BaseResolver;
 };
 
 export async function createConfig(
