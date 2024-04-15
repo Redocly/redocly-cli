@@ -23,7 +23,6 @@ export type PushStatusOptions = {
   'max-execution-time'?: number;
   'start-time'?: number;
   'continue-on-deployment-failures'?: boolean;
-  onRetry?: (lastResult: PushResponse) => void;
 };
 
 export interface DeploymentMetadata {
@@ -61,35 +60,34 @@ export async function handlePushStatus(
   const maxExecutionTime = argv['max-execution-time'] || 600;
   const startTime = argv['start-time'] || Date.now();
   const retryTimeoutMs = maxExecutionTime * 1000;
-  const continueOnDeploymentFailures = Boolean(argv['continue-on-deployment-failures']);
+  const continueOnDeploymentFailures = argv['continue-on-deployment-failures'] || false;
 
   try {
     const apiKey = getApiKeys(domain);
     const client = new ReuniteApiClient(domain, apiKey);
 
-    const previewPushData = await getPushData({
-      orgId,
-      projectId,
-      pushId,
-      wait,
-      client,
-      buildType: 'preview',
-      startTime,
-      retryTimeoutMs,
-      onRetry: (lastResult) => {
+    const previewPushData = await retryUntilConditionMet({
+      operation: () =>
+        client.remotes.getPush({
+          organizationId: orgId,
+          projectId,
+          pushId,
+        }),
+      condition: (result) =>
+        wait ? !['pending', 'running'].includes(result.status['preview'].deploy.status) : true,
+      onConditionNotMet: (lastResult) => {
         displayDeploymentAndBuildStatus({
           status: lastResult.status['preview'].deploy.status,
-          previewUrl: lastResult.status['preview'].deploy.url,
+          url: lastResult.status['preview'].deploy.url,
           spinner,
           buildType: 'preview',
           continueOnDeploymentFailures,
           wait,
         });
-        argv?.onRetry?.(lastResult);
       },
-      onTimeOutExceeded: () => {
-        spinner.stop();
-      },
+      startTime,
+      retryTimeoutMs: retryTimeoutMs,
+      retryIntervalMs: RETRY_INTERVAL_MS,
     });
 
     printPushStatus({
@@ -106,29 +104,30 @@ export async function handlePushStatus(
       (wait ? previewPushData.status.preview.deploy.status === 'success' : true);
 
     const prodPushData = fetchProdPushDataCondition
-      ? await getPushData({
-          orgId,
-          projectId,
-          pushId,
-          wait,
-          client,
-          buildType: 'production',
-          startTime,
-          retryTimeoutMs,
-          onRetry: (lastResult) => {
+      ? await retryUntilConditionMet({
+          operation: () =>
+            client.remotes.getPush({
+              organizationId: orgId,
+              projectId,
+              pushId,
+            }),
+          condition: (result: PushResponse) =>
+            wait
+              ? !['pending', 'running'].includes(result.status['production'].deploy.status)
+              : true,
+          onConditionNotMet: (lastResult) => {
             displayDeploymentAndBuildStatus({
               status: lastResult.status['production'].deploy.status,
-              previewUrl: lastResult.status['production'].deploy.url,
+              url: lastResult.status['production'].deploy.url,
               spinner,
               buildType: 'production',
               continueOnDeploymentFailures: continueOnDeploymentFailures,
               wait,
             });
-            argv?.onRetry?.(lastResult);
           },
-          onTimeOutExceeded: () => {
-            spinner.stop();
-          },
+          startTime,
+          retryTimeoutMs: retryTimeoutMs,
+          retryIntervalMs: RETRY_INTERVAL_MS,
         })
       : null;
 
@@ -165,12 +164,16 @@ export async function handlePushStatus(
 
     return summary;
   } catch (err) {
+    spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
+
     const message =
       err instanceof DeploymentError
         ? err.message
         : `✗ Failed to get push status. Reason: ${err.message}\n`;
     exitWithError(message);
     return;
+  } finally {
+    spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
   }
 }
 
@@ -191,48 +194,6 @@ function printPushStatusInfo({
     )} and pushID ${colors.yellow(pushId)}.\n`
   );
   printExecutionTime('push-status', startedAt, 'Finished');
-}
-
-async function getPushData({
-  orgId,
-  projectId,
-  pushId,
-  wait,
-  client,
-  buildType,
-  startTime,
-  retryTimeoutMs,
-  onRetry,
-  onTimeOutExceeded,
-}: {
-  orgId: string;
-  projectId: string;
-  pushId: string;
-  wait?: boolean;
-  client: ReuniteApiClient;
-  buildType: 'preview' | 'production';
-  startTime: number;
-  retryTimeoutMs: number;
-  onRetry?: (lastResult: PushResponse) => void;
-  onTimeOutExceeded?: () => void;
-}): Promise<PushResponse> {
-  const pushData = await retryUntilConditionMet<PushResponse>({
-    operation: () =>
-      client.remotes.getPush({
-        organizationId: orgId!,
-        projectId,
-        pushId,
-      }),
-    condition: (result: PushResponse) =>
-      wait ? !['pending', 'running'].includes(result.status[buildType].deploy.status) : true,
-    onRetry,
-    onTimeOutExceeded,
-    startTime,
-    retryTimeoutMs: retryTimeoutMs,
-    retryIntervalMs: RETRY_INTERVAL_MS,
-  });
-
-  return pushData;
 }
 
 function printPushStatus({
@@ -257,7 +218,7 @@ function printPushStatus({
   } else {
     displayDeploymentAndBuildStatus({
       status: push.status[buildType].deploy.status,
-      previewUrl: push.status[buildType].deploy.url,
+      url: push.status[buildType].deploy.url,
       buildType,
       spinner,
       continueOnDeploymentFailures,
@@ -282,20 +243,20 @@ function printScorecard(scorecard?: ScorecardItem[]) {
 
 function displayDeploymentAndBuildStatus({
   status,
-  previewUrl,
+  url,
   spinner,
   buildType,
   continueOnDeploymentFailures,
   wait,
 }: {
   status: DeploymentStatus;
-  previewUrl: string | null;
+  url: string | null;
   spinner: Spinner;
   buildType: 'preview' | 'production';
   continueOnDeploymentFailures: boolean;
   wait?: boolean;
 }) {
-  const message = getMessage({ status, previewUrl, buildType, wait });
+  const message = getMessage({ status, url, buildType, wait });
 
   if (status === 'failed' && !continueOnDeploymentFailures) {
     spinner.stop();
@@ -312,12 +273,12 @@ function displayDeploymentAndBuildStatus({
 
 function getMessage({
   status,
-  previewUrl,
+  url,
   buildType,
   wait,
 }: {
   status: DeploymentStatus;
-  previewUrl: string | null;
+  url: string | null;
   buildType: 'preview' | 'production';
   wait?: boolean;
 }): string {
@@ -340,11 +301,11 @@ function getMessage({
     case 'success':
       return `${colors.green(`🚀 ${capitalize(buildType)} deploy succeed.`)}\n${colors.magenta(
         `${capitalize(buildType)} URL`
-      )}: ${colors.cyan(previewUrl!)}\n`;
+      )}: ${colors.cyan(url || '')}\n`;
 
     case 'failed':
       return `${colors.red(`❌ ${capitalize(buildType)} deploy failed.`)}\n${colors.magenta(
         `${capitalize(buildType)} URL`
-      )}: ${colors.cyan(previewUrl!)}`;
+      )}: ${colors.cyan(url || '')}`;
   }
 }
