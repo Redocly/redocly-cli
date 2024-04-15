@@ -461,7 +461,6 @@ describe('handlePushStatus()', () => {
           },
           mockConfig
         )
-        // ).rejects.toThrow('❌ Preview deploy failed.\nPreview URL: https://preview-test-url');
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "❌ Preview deploy failed.
         Preview URL: https://preview-test-url"
