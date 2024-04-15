@@ -9,13 +9,15 @@ export async function wait(ms: number): Promise<void> {
  * @condition The condition to check after each operation result.
  * @param onConditionNotMet Will be called with the last result right after checking condition and before timeout and retrying.
  * @param onRetry Will be called right before retrying operation with the last result before retrying.
+ * @param startTime The start time of the operation. Default is the current time.
+ * @param retryTimeoutMs The maximum time to retry the operation. Default is 10 minutes.
+ * @param retryIntervalMs The interval between retries. Default is 5 seconds.
  */
 export async function retryUntilConditionMet<T>({
   operation,
   condition,
   onConditionNotMet,
   onRetry,
-  // onTimeOutExceeded,
   startTime = Date.now(),
   retryTimeoutMs = 600000, // 10 min
   retryIntervalMs = 5000, // 5 sec
@@ -24,9 +26,9 @@ export async function retryUntilConditionMet<T>({
   condition: (result: T) => boolean;
   onConditionNotMet?: (lastResult: T) => void;
   onRetry?: (lastResult: T) => void;
-  startTime?: number; // = Date.now();
-  retryTimeoutMs?: number; // 10 min
-  retryIntervalMs?: number; // 5 sec
+  startTime?: number;
+  retryTimeoutMs?: number;
+  retryIntervalMs?: number;
 }): Promise<T> {
   async function attempt(): Promise<T> {
     const result = await operation();
