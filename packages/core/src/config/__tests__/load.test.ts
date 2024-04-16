@@ -5,6 +5,7 @@ import { lintConfig } from '../../lint';
 import { replaceSourceWithRef } from '../../../__tests__/utils';
 import type { RuleConfig, FlatRawConfig } from './../types';
 import type { NormalizedProblem } from '../../walk';
+import { BaseResolver } from '../../resolve';
 
 const fs = require('fs');
 const path = require('path');
@@ -57,6 +58,19 @@ describe('loadConfig', () => {
       processRawConfig: mockFn,
     });
     expect(mockFn).toHaveBeenCalled();
+  });
+
+  it('should call externalRefResolver if such passed', async () => {
+    const externalRefResolver = new BaseResolver();
+    const resolverSpy = jest.spyOn(externalRefResolver, 'resolveDocument');
+    await loadConfig({
+      configPath: path.join(__dirname, './fixtures/load-external.yaml'),
+      externalRefResolver: externalRefResolver as any,
+    });
+    expect(resolverSpy).toHaveBeenCalledWith(
+      null,
+      'https://raw.githubusercontent.com/Redocly/redocly-cli-cookbook/main/rulesets/spec-compliant/redocly.yaml'
+    );
   });
 });
 
