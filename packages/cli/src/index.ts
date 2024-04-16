@@ -391,7 +391,7 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(commonPushHandler(argv))(argv as PushArguments);
+      commandWrapper(commonPushHandler(argv))(argv as Arguments<PushArguments>);
     }
   )
   .command(
