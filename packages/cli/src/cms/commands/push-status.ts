@@ -227,7 +227,7 @@ function printPushStatus({
 }
 
 function printScorecard(scorecard?: ScorecardItem[]) {
-  if (!scorecard || !scorecard.length) {
+  if (!scorecard || scorecard.length === 0) {
     return;
   }
   process.stdout.write(`\n${colors.magenta('Scorecard')}:`);
