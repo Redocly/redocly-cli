@@ -1,6 +1,4 @@
-export async function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { pause } from '@redocly/openapi-core';
 
 /**
  * This function retries an operation until a condition is met or a timeout is exceeded.
@@ -39,7 +37,7 @@ export async function retryUntilConditionMet<T>({
       throw new Error('Timeout exceeded');
     } else {
       onConditionNotMet?.(result);
-      await wait(retryIntervalMs);
+      await pause(retryIntervalMs);
       onRetry?.(result);
       return attempt();
     }
