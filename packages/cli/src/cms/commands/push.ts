@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, OutputFormat, slash } from '@redocly/openapi-core';
+import type { OutputFormat } from '@redocly/openapi-core';
+import { Config, slash } from '@redocly/openapi-core';
 import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { green, yellow } from 'colorette';
 import pluralize = require('pluralize');
