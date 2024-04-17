@@ -390,7 +390,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis } = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig({ rawConfig, configPath });
     //@ts-ignore
     expect(apis['petstore'].styleguide.plugins.length).toEqual(1);
     //@ts-ignore
@@ -427,7 +427,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis } = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].styleguide.rules).toBeDefined();
     expect(Object.keys(apis['petstore'].styleguide.rules || {}).length).toEqual(7);
     expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn');
@@ -469,7 +469,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis } = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].styleguide.rules).toBeDefined();
     expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn');
     expect(apis['petstore'].styleguide.rules?.['operation-4xx-response']).toEqual('error');
@@ -513,7 +513,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis } = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].styleguide.rules).toBeDefined();
     expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
