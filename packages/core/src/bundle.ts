@@ -232,7 +232,7 @@ export async function bundleDocument(opts: {
 
   walkDocument({
     document,
-    rootType: types.Root as NormalizedNodeType,
+    rootType: types.Root,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,
