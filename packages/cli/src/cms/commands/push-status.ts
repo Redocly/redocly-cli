@@ -1,5 +1,4 @@
 import * as colors from 'colorette';
-import { yellow } from 'colorette';
 import { Config, OutputFormat } from '@redocly/openapi-core';
 
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
@@ -7,7 +6,12 @@ import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
 import { capitalize } from '../../utils/js-utils';
-import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
+import type {
+  DeploymentStatus,
+  DeploymentStatusResponse,
+  PushResponse,
+  ScorecardItem,
+} from '../api/types';
 import { retryUntilConditionMet } from './utils';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
@@ -25,17 +29,10 @@ export type PushStatusOptions = {
   'continue-on-deployment-failures'?: boolean;
 };
 
-export interface DeploymentMetadata {
-  status: DeploymentStatus;
-  url?: string;
-  scorecard: ScorecardItem[];
-  isOutdated: boolean;
-  noChanges: boolean;
-}
-
 export interface PushStatusSummary {
-  preview: DeploymentMetadata;
-  production?: DeploymentMetadata;
+  previewStatus: DeploymentStatusResponse;
+  productionStatus: DeploymentStatusResponse | null;
+  commit: PushResponse['commit'];
 }
 
 export async function handlePushStatus(
@@ -66,15 +63,19 @@ export async function handlePushStatus(
     const apiKey = getApiKeys(domain);
     const client = new ReuniteApiClient(domain, apiKey);
 
-    const previewPushData = await retryUntilConditionMet({
+    let pushResponse: PushResponse;
+
+    pushResponse = await retryUntilConditionMet({
       operation: () =>
         client.remotes.getPush({
           organizationId: orgId,
           projectId,
           pushId,
         }),
-      condition: (result) =>
-        wait ? !['pending', 'running'].includes(result.status['preview'].deploy.status) : true,
+      condition: wait
+        ? // Keep retrying if status is "pending" or "running" (returning false, so the operation will be retried)
+          (result) => !['pending', 'running'].includes(result.status['preview'].deploy.status)
+        : null,
       onConditionNotMet: (lastResult) => {
         displayDeploymentAndBuildStatus({
           status: lastResult.status['preview'].deploy.status,
@@ -94,72 +95,57 @@ export async function handlePushStatus(
       buildType: 'preview',
       spinner,
       wait,
-      push: previewPushData,
+      push: pushResponse,
       continueOnDeploymentFailures,
     });
-    printScorecard(previewPushData.status.preview.scorecard);
+    printScorecard(pushResponse.status.preview.scorecard);
 
-    const fetchProdPushDataCondition =
-      previewPushData.isMainBranch &&
-      (wait ? previewPushData.status.preview.deploy.status === 'success' : true);
+    const shouldWaitForProdDeployment =
+      pushResponse.isMainBranch &&
+      (wait ? pushResponse.status.preview.deploy.status === 'success' : true);
 
-    const prodPushData = fetchProdPushDataCondition
-      ? await retryUntilConditionMet({
-          operation: () =>
-            client.remotes.getPush({
-              organizationId: orgId,
-              projectId,
-              pushId,
-            }),
-          condition: (result: PushResponse) =>
-            wait
-              ? !['pending', 'running'].includes(result.status['production'].deploy.status)
-              : true,
-          onConditionNotMet: (lastResult) => {
-            displayDeploymentAndBuildStatus({
-              status: lastResult.status['production'].deploy.status,
-              url: lastResult.status['production'].deploy.url,
-              spinner,
-              buildType: 'production',
-              continueOnDeploymentFailures: continueOnDeploymentFailures,
-              wait,
-            });
-          },
-          startTime,
-          retryTimeoutMs: retryTimeoutMs,
-          retryIntervalMs: RETRY_INTERVAL_MS,
-        })
-      : null;
+    if (shouldWaitForProdDeployment) {
+      pushResponse = await retryUntilConditionMet({
+        operation: () =>
+          client.remotes.getPush({
+            organizationId: orgId,
+            projectId,
+            pushId,
+          }),
+        condition: wait
+          ? // Keep retrying if status is "pending" or "running" (returning false, so the operation will be retried)
+            (result) => !['pending', 'running'].includes(result.status['production'].deploy.status)
+          : null,
+        onConditionNotMet: (lastResult) => {
+          displayDeploymentAndBuildStatus({
+            status: lastResult.status['production'].deploy.status,
+            url: lastResult.status['production'].deploy.url,
+            spinner,
+            buildType: 'production',
+            continueOnDeploymentFailures,
+            wait,
+          });
+        },
+        startTime,
+        retryTimeoutMs: retryTimeoutMs,
+        retryIntervalMs: RETRY_INTERVAL_MS,
+      });
+    }
 
     printPushStatus({
       buildType: 'production',
       spinner,
       wait,
-      push: prodPushData,
-      continueOnDeploymentFailures: continueOnDeploymentFailures,
+      push: pushResponse,
+      continueOnDeploymentFailures,
     });
-    printScorecard(prodPushData?.status?.production?.scorecard);
+    printScorecard(pushResponse.status.production.scorecard);
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
 
     const summary: PushStatusSummary = {
-      preview: {
-        status: previewPushData.status.preview.deploy.status,
-        url: previewPushData.status.preview.deploy.url || undefined,
-        scorecard: previewPushData.status.preview.scorecard,
-        isOutdated: previewPushData.isOutdated,
-        noChanges: !previewPushData.hasChanges,
-      },
-      production:
-        previewPushData.status.preview.deploy.status !== 'failed' &&
-        prodPushData?.status?.production
-          ? {
-              status: prodPushData.status.production.deploy.status,
-              url: prodPushData.status.production.deploy.url || '',
-              scorecard: prodPushData.status.production.scorecard,
-              isOutdated: prodPushData.isOutdated,
-              noChanges: !prodPushData.hasChanges,
-            }
-          : undefined,
+      previewStatus: pushResponse.status.preview,
+      productionStatus: pushResponse.isMainBranch ? pushResponse.status.production : null,
+      commit: pushResponse.commit,
     };
 
     return summary;
@@ -213,7 +199,9 @@ function printPushStatus({
   }
   if (push.isOutdated || !push.hasChanges) {
     process.stderr.write(
-      yellow(`Files not uploaded. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`)
+      colors.yellow(
+        `Files not added to your project. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`
+      )
     );
   } else {
     displayDeploymentAndBuildStatus({
@@ -263,7 +251,7 @@ function displayDeploymentAndBuildStatus({
     throw new DeploymentError(message);
   }
 
-  if ((status === 'pending' || status === 'running') && wait) {
+  if (wait && (status === 'pending' || status === 'running')) {
     return spinner.start(message);
   }
 
@@ -286,26 +274,28 @@ function getMessage({
     case 'skipped':
       return `${colors.yellow(`Skipped ${buildType}`)}\n`;
 
-    case 'pending':
-      if (wait) {
-        return `${colors.yellow(`Pending ${buildType}`)}`;
-      }
-      return `Status: ${colors.yellow(`Pending ${buildType}`)}\n`;
-
-    case 'running':
-      if (wait) {
-        return `${colors.yellow(`Running ${buildType}`)}`;
-      }
-      return `Status: ${colors.yellow(`Running ${buildType}`)}\n`;
-
+    case 'pending': {
+      const message = `${colors.yellow(`Pending ${buildType}`)}`;
+      return wait ? message : `Status: ${message}\n`;
+    }
+    case 'running': {
+      const message = `${colors.yellow(`Running ${buildType}`)}`;
+      return wait ? message : `Status: ${message}\n`;
+    }
     case 'success':
-      return `${colors.green(`🚀 ${capitalize(buildType)} deploy succeed.`)}\n${colors.magenta(
+      return `${colors.green(`🚀 ${capitalize(buildType)} deploy success.`)}\n${colors.magenta(
         `${capitalize(buildType)} URL`
-      )}: ${colors.cyan(url || '')}\n`;
+      )}: ${colors.cyan(url || 'No URL yet.')}\n`;
 
     case 'failed':
-      return `${colors.red(`❌ ${capitalize(buildType)} deploy failed.`)}\n${colors.magenta(
+      return `${colors.red(`❌ ${capitalize(buildType)} deploy fail.`)}\n${colors.magenta(
         `${capitalize(buildType)} URL`
-      )}: ${colors.cyan(url || '')}`;
+      )}: ${colors.cyan(url || 'No URL yet.')}`;
+
+    default: {
+      const message = `${colors.yellow(`No status yet for ${buildType} deploy`)}`;
+
+      return wait ? message : `Status: ${message}\n`;
+    }
   }
 }

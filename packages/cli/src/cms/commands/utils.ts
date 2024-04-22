@@ -4,7 +4,8 @@ import { pause } from '@redocly/openapi-core';
  * This function retries an operation until a condition is met or a timeout is exceeded.
  * If the condition is not met within the timeout, an error is thrown.
  * @operation The operation to retry.
- * @condition The condition to check after each operation result.
+ * @condition The condition to check after each operation result. Return false to continue retrying. Return true to stop retrying.
+ *            If not provided, the first result will be returned.
  * @param onConditionNotMet Will be called with the last result right after checking condition and before timeout and retrying.
  * @param onRetry Will be called right before retrying operation with the last result before retrying.
  * @param startTime The start time of the operation. Default is the current time.
@@ -21,7 +22,7 @@ export async function retryUntilConditionMet<T>({
   retryIntervalMs = 5000, // 5 sec
 }: {
   operation: () => Promise<T>;
-  condition: (result: T) => boolean;
+  condition?: ((result: T) => boolean) | null;
   onConditionNotMet?: (lastResult: T) => void;
   onRetry?: (lastResult: T) => void;
   startTime?: number;
@@ -30,6 +31,10 @@ export async function retryUntilConditionMet<T>({
 }): Promise<T> {
   async function attempt(): Promise<T> {
     const result = await operation();
+
+    if (!condition) {
+      return result;
+    }
 
     if (condition(result)) {
       return result;

@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Redocly Museum API
+  title: Redocly Museum API UP1
   description: An imaginary, but delightful Museum API for interacting with museum services and information. Built with love by Redocly.
   version: 1.0.0
   contact:
