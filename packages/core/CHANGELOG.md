@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.11.1
+
+### Patch Changes
+
+- Improved caching for external configuration resources.
+
 ## 1.11.0
 
 ### Minor Changes
