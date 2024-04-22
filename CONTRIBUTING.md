@@ -166,6 +166,8 @@ Run unit tests with this command: `npm run test`.
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
+To run tests in watch mode, run: `npm run unit:watch`
+To run single file in watch mode, run: `npm run unit:watch -- <path/to/your/file.test.ts>`
 To update snapshots, run `npm run unit -- -u`.
 
 To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
