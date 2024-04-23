@@ -91,7 +91,6 @@ describe('handlePushStatus()', () => {
           organization: '',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
         },
         mockConfig
       )
@@ -115,7 +114,6 @@ describe('handlePushStatus()', () => {
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
-        'max-execution-time': 1000,
       },
       mockConfig
     );
@@ -135,7 +133,6 @@ describe('handlePushStatus()', () => {
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
-        'max-execution-time': 1000,
       },
       mockConfig
     );
@@ -166,7 +163,6 @@ describe('handlePushStatus()', () => {
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
         },
         mockConfig
       )
@@ -207,7 +203,6 @@ describe('handlePushStatus()', () => {
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
-        'max-execution-time': 1000,
       },
       mockConfig
     );
@@ -244,7 +239,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
         wait: true,
-        'max-execution-time': 1000,
       },
       mockConfig
     );
@@ -265,7 +259,6 @@ describe('handlePushStatus()', () => {
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
         },
         mockConfig
       );
@@ -293,7 +286,6 @@ describe('handlePushStatus()', () => {
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
         },
         mockConfig
       );
@@ -358,7 +350,7 @@ describe('handlePushStatus()', () => {
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
+          'retry-interval': 0.5, // 500 ms
           wait: true,
         },
         mockConfig
@@ -375,7 +367,7 @@ describe('handlePushStatus()', () => {
         production: null,
         commit: commitStub,
       });
-    }, 15000);
+    });
 
     it('should wait for production "success" status after preview "success" status', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
@@ -431,7 +423,7 @@ describe('handlePushStatus()', () => {
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
-          'max-execution-time': 1000,
+          'retry-interval': 0.5, // 500 ms
           wait: true,
         },
         mockConfig
@@ -448,7 +440,7 @@ describe('handlePushStatus()', () => {
         },
         commit: commitStub,
       });
-    }, 30000);
+    });
   });
 
   describe('"continue-on-deployment-failures" option', () => {
@@ -472,7 +464,6 @@ describe('handlePushStatus()', () => {
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
-            'max-execution-time': 1000,
             'continue-on-deployment-failures': false,
           },
           mockConfig
@@ -503,7 +494,6 @@ describe('handlePushStatus()', () => {
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
-            'max-execution-time': 1000,
             'continue-on-deployment-failures': true,
           },
           mockConfig
@@ -516,6 +506,133 @@ describe('handlePushStatus()', () => {
         production: null,
         commit: commitStub,
       });
+    });
+  });
+
+  describe('"onRetry" callback', () => {
+    it('should be called when command retries request to API in wait mode for preview deploy', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'pending', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'running', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      remotes.getPush.mockResolvedValueOnce({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'success', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      const onRetrySpy = jest.fn();
+
+      const result = await handlePushStatus(
+        {
+          domain: 'test-domain',
+          organization: 'test-org',
+          project: 'test-project',
+          pushId: 'test-push-id',
+          wait: true,
+          'retry-interval': 0.5, // 500 ms
+          onRetry: onRetrySpy,
+        },
+        mockConfig
+      );
+
+      expect(onRetrySpy).toBeCalledTimes(2);
+
+      // first retry
+      expect(onRetrySpy).toHaveBeenNthCalledWith(1, {
+        preview: {
+          deploy: {
+            status: 'pending',
+            url: 'https://preview-test-url',
+          },
+          scorecard: [],
+        },
+        production: null,
+        commit: commitStub,
+      });
+
+      // second retry
+      expect(onRetrySpy).toHaveBeenNthCalledWith(2, {
+        preview: {
+          deploy: {
+            status: 'running',
+            url: 'https://preview-test-url',
+          },
+          scorecard: [],
+        },
+        production: null,
+        commit: commitStub,
+      });
+
+      // final result
+      expect(result).toEqual({
+        preview: {
+          deploy: {
+            status: 'success',
+            url: 'https://preview-test-url',
+          },
+          scorecard: [],
+        },
+        production: null,
+        commit: commitStub,
+      });
+    });
+  });
+
+  describe('"max-execution-time" option', () => {
+    it('should throw error in case "max-execution-time" was exceeded', async () => {
+      process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+      // Stuck deployment simulation
+      remotes.getPush.mockResolvedValue({
+        ...pushResponseStub,
+        status: {
+          preview: {
+            deploy: { status: 'pending', url: 'https://preview-test-url' },
+            scorecard: [],
+          },
+        },
+      });
+
+      await expect(
+        handlePushStatus(
+          {
+            domain: 'test-domain',
+            organization: 'test-org',
+            project: 'test-project',
+            pushId: 'test-push-id',
+            'retry-interval': 2, // seconds
+            'max-execution-time': 1, // seconds
+            wait: true,
+          },
+          mockConfig
+        )
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        "✗ Failed to get push status. Reason: Timeout exceeded
+        "
+      `);
     });
   });
 });

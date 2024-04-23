@@ -24,9 +24,11 @@ export type PushStatusOptions = {
   config?: string;
   format?: Extract<OutputFormat, 'stylish'>;
   wait?: boolean;
-  'max-execution-time'?: number;
-  'start-time'?: number;
+  'max-execution-time'?: number; // in seconds
+  'retry-interval'?: number; // in seconds
+  'start-time'?: number; // in milliseconds
   'continue-on-deployment-failures'?: boolean;
+  onRetry?: (lasSummary: PushStatusSummary) => void;
 };
 
 export interface PushStatusSummary {
@@ -55,6 +57,9 @@ export async function handlePushStatus(
 
   const domain = argv.domain || getDomain();
   const maxExecutionTime = argv['max-execution-time'] || 600;
+  const retryIntervalMs = argv['retry-interval']
+    ? argv['retry-interval'] * 1000
+    : RETRY_INTERVAL_MS;
   const startTime = argv['start-time'] || Date.now();
   const retryTimeoutMs = maxExecutionTime * 1000;
   const continueOnDeploymentFailures = argv['continue-on-deployment-failures'] || false;
@@ -86,9 +91,18 @@ export async function handlePushStatus(
           wait,
         });
       },
+      onRetry: (lastResult) => {
+        if (argv.onRetry) {
+          argv.onRetry({
+            preview: lastResult.status.preview,
+            production: lastResult.isMainBranch ? lastResult.status.production : null,
+            commit: lastResult.commit,
+          });
+        }
+      },
       startTime,
-      retryTimeoutMs: retryTimeoutMs,
-      retryIntervalMs: RETRY_INTERVAL_MS,
+      retryTimeoutMs,
+      retryIntervalMs,
     });
 
     printPushStatus({
@@ -126,9 +140,18 @@ export async function handlePushStatus(
             wait,
           });
         },
+        onRetry: (lastResult) => {
+          if (argv.onRetry) {
+            argv.onRetry({
+              preview: lastResult.status.preview,
+              production: lastResult.isMainBranch ? lastResult.status.production : null,
+              commit: lastResult.commit,
+            });
+          }
+        },
         startTime,
-        retryTimeoutMs: retryTimeoutMs,
-        retryIntervalMs: RETRY_INTERVAL_MS,
+        retryTimeoutMs,
+        retryIntervalMs,
       });
     }
 
