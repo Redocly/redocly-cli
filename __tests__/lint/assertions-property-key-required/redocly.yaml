@@ -4,8 +4,8 @@ apis:
 
 rules:
   rule/required-property:
-    subject: 
+    subject:
       type: Schema
       # Missing the 'property' key
-    assertions: 
+    assertions:
       nonEmpty: true
