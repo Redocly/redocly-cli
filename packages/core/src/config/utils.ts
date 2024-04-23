@@ -173,7 +173,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
   for (const rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `'extends' is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
+        `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`
       );
     }
 

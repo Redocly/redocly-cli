@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/required-property:
+    subject: 
+      type: Schema
+      # Missing the 'property' key
+    assertions: 
+      nonEmpty: true

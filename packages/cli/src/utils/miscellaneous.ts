@@ -293,9 +293,9 @@ export function handleError(e: Error, ref: string) {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
     case YamlParseError:
-      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
     case CircularJSONNotSupportedError: {
       return exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
@@ -307,7 +307,7 @@ export function handleError(e: Error, ref: string) {
     case ConfigValidationError:
       return exitWithError(e.message);
     default: {
-      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
+      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
   }
 }
