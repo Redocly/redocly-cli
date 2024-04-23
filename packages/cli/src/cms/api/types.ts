@@ -71,7 +71,7 @@ export type PushResponse = {
       name: string;
       description: string;
       status: 'pending' | 'running' | 'success' | 'failed';
-      url: string;
+      url: string | null;
     }>;
   };
   remote: {
