@@ -22,8 +22,28 @@ jest.mock('../../api', () => ({
   }),
 }));
 
+jest.mock('@redocly/openapi-core', () => ({
+  pause: jest.requireActual('@redocly/openapi-core').pause,
+}));
+
 describe('handlePushStatus()', () => {
   const mockConfig = { apis: {} } as any;
+
+  const commitStub: PushResponse['commit'] = {
+    message: 'test-commit-message',
+    branchName: 'test-branch-name',
+    sha: null,
+    url: null,
+    createdAt: null,
+    namespaceId: null,
+    repositoryId: null,
+    author: {
+      name: 'test-author-name',
+      email: 'test-author-email',
+      image: null,
+    },
+    statuses: [],
+  };
 
   const pushResponseStub: PushResponse = {
     id: 'test-push-id',
@@ -31,21 +51,7 @@ describe('handlePushStatus()', () => {
     replace: false,
     scoutJobId: null,
     uploadedFiles: [],
-    commit: {
-      message: 'test-commit-message',
-      branchName: 'test-branch-name',
-      sha: null,
-      url: null,
-      createdAt: null,
-      namespaceId: null,
-      repositoryId: null,
-      author: {
-        name: 'test-author-name',
-        email: 'test-author-email',
-        image: null,
-      },
-      statuses: [],
-    },
+    commit: commitStub,
     remote: { commits: [] },
     isOutdated: false,
     isMainBranch: false,
@@ -115,7 +121,7 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
     );
   });
 
@@ -135,10 +141,10 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(2);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Production deploy succeed.\nProduction URL: https://production-test-url\n'
+      '🚀 Production deploy success.\nProduction URL: https://production-test-url\n'
     );
   });
 
@@ -165,12 +171,12 @@ describe('handlePushStatus()', () => {
         mockConfig
       )
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "❌ Preview deploy failed.
+      "❌ Preview deploy fail.
       Preview URL: https://preview-test-url"
     `);
 
     expect(process.stderr.write).toHaveBeenCalledWith(
-      '❌ Preview deploy failed.\nPreview URL: https://preview-test-url' + '\n\n'
+      '❌ Preview deploy fail.\nPreview URL: https://preview-test-url' + '\n\n'
     );
   });
 
@@ -207,7 +213,7 @@ describe('handlePushStatus()', () => {
     );
     expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
-      '🚀 Preview deploy succeed.\nPreview URL: https://preview-test-url\n'
+      '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
     );
     expect(process.stdout.write).toHaveBeenCalledWith('\nScorecard:');
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -224,6 +230,10 @@ describe('handlePushStatus()', () => {
       hasChanges: false,
       status: {
         preview: { deploy: { status: 'skipped', url: 'https://preview-test-url' }, scorecard: [] },
+        production: {
+          deploy: { status: 'skipped', url: null },
+          scorecard: [],
+        },
       },
     });
 
@@ -239,7 +249,9 @@ describe('handlePushStatus()', () => {
       mockConfig
     );
 
-    expect(process.stderr.write).toHaveBeenCalledWith('Files not uploaded. Reason: no changes.\n');
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      'Files not added to your project. Reason: no changes.\n'
+    );
   });
 
   describe('return value', () => {
@@ -260,12 +272,14 @@ describe('handlePushStatus()', () => {
 
       expect(result).toEqual({
         preview: {
-          status: 'success',
-          url: 'https://preview-test-url',
+          deploy: {
+            status: 'success',
+            url: 'https://preview-test-url',
+          },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
+        production: null,
+        commit: commitStub,
       });
     });
 
@@ -286,19 +300,20 @@ describe('handlePushStatus()', () => {
 
       expect(result).toEqual({
         preview: {
-          status: 'success',
-          url: 'https://preview-test-url',
+          deploy: {
+            status: 'success',
+            url: 'https://preview-test-url',
+          },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
         production: {
-          status: 'success',
-          url: 'https://production-test-url',
+          deploy: {
+            status: 'success',
+            url: 'https://production-test-url',
+          },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
+        commit: commitStub,
       });
     });
   });
@@ -351,12 +366,14 @@ describe('handlePushStatus()', () => {
 
       expect(result).toEqual({
         preview: {
-          status: 'success',
-          url: 'https://preview-test-url',
+          deploy: {
+            status: 'success',
+            url: 'https://preview-test-url',
+          },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
+        production: null,
+        commit: commitStub,
       });
     }, 15000);
 
@@ -422,19 +439,14 @@ describe('handlePushStatus()', () => {
 
       expect(result).toEqual({
         preview: {
-          status: 'success',
-          url: 'https://preview-test-url',
+          deploy: { status: 'success', url: 'https://preview-test-url' },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
         production: {
-          status: 'success',
-          url: 'https://production-test-url',
+          deploy: { status: 'success', url: 'https://production-test-url' },
           scorecard: [],
-          isOutdated: false,
-          noChanges: false,
         },
+        commit: commitStub,
       });
     }, 30000);
   });
@@ -466,7 +478,7 @@ describe('handlePushStatus()', () => {
           mockConfig
         )
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "❌ Preview deploy failed.
+        "❌ Preview deploy fail.
         Preview URL: https://preview-test-url"
       `);
     });
@@ -498,13 +510,11 @@ describe('handlePushStatus()', () => {
         )
       ).resolves.toStrictEqual({
         preview: {
-          isOutdated: false,
-          noChanges: false,
+          deploy: { status: 'failed', url: 'https://preview-test-url' },
           scorecard: [],
-          status: 'failed',
-          url: 'https://preview-test-url',
         },
-        production: undefined,
+        production: null,
+        commit: commitStub,
       });
     });
   });

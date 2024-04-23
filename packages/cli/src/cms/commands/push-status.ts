@@ -1,5 +1,5 @@
 import * as colors from 'colorette';
-import { Config, OutputFormat } from '@redocly/openapi-core';
+import type { Config, OutputFormat } from '@redocly/openapi-core';
 
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
@@ -30,8 +30,8 @@ export type PushStatusOptions = {
 };
 
 export interface PushStatusSummary {
-  previewStatus: DeploymentStatusResponse;
-  productionStatus: DeploymentStatusResponse | null;
+  preview: DeploymentStatusResponse;
+  production: DeploymentStatusResponse | null;
   commit: PushResponse['commit'];
 }
 
@@ -132,19 +132,21 @@ export async function handlePushStatus(
       });
     }
 
-    printPushStatus({
-      buildType: 'production',
-      spinner,
-      wait,
-      push: pushResponse,
-      continueOnDeploymentFailures,
-    });
-    printScorecard(pushResponse.status.production.scorecard);
+    if (pushResponse.isMainBranch) {
+      printPushStatus({
+        buildType: 'production',
+        spinner,
+        wait,
+        push: pushResponse,
+        continueOnDeploymentFailures,
+      });
+      printScorecard(pushResponse.status.production.scorecard);
+    }
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
 
     const summary: PushStatusSummary = {
-      previewStatus: pushResponse.status.preview,
-      productionStatus: pushResponse.isMainBranch ? pushResponse.status.production : null,
+      preview: pushResponse.status.preview,
+      production: pushResponse.isMainBranch ? pushResponse.status.production : null,
       commit: pushResponse.commit,
     };
 

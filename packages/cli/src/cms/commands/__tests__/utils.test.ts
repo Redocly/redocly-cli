@@ -1,5 +1,9 @@
 import { retryUntilConditionMet } from '../utils';
 
+jest.mock('@redocly/openapi-core', () => ({
+  pause: jest.requireActual('@redocly/openapi-core').pause,
+}));
+
 describe('retryUntilConditionMet()', () => {
   it('should retry until condition meet and return result', async () => {
     const operation = jest
