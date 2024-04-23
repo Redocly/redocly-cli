@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { execSync } from 'child_process';
+import { promisify } from 'util';
 import {
   BundleOutputFormat,
   StyleguideConfig,
@@ -106,7 +107,7 @@ async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
         return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
-          ? (await glob.__promisify__(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
+          ? (await promisify(glob)(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
     )
