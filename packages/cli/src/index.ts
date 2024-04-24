@@ -217,7 +217,7 @@ yargs
             description: 'Maximum execution time in seconds.',
             type: 'number',
           },
-          'continue-on-deployment-failures': {
+          'continue-on-deploy-failures': {
             description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,
@@ -383,7 +383,7 @@ yargs
             type: 'boolean',
             default: false,
           },
-          'continue-on-deployment-failures': {
+          'continue-on-deploy-failures': {
             description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,

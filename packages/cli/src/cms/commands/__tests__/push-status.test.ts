@@ -443,7 +443,7 @@ describe('handlePushStatus()', () => {
     });
   });
 
-  describe('"continue-on-deployment-failures" option', () => {
+  describe('"continue-on-deploy-failures" option', () => {
     it('should throw error if option value is false', async () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
@@ -464,7 +464,7 @@ describe('handlePushStatus()', () => {
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
-            'continue-on-deployment-failures': false,
+            'continue-on-deploy-failures': false,
           },
           mockConfig
         )
@@ -494,7 +494,7 @@ describe('handlePushStatus()', () => {
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
-            'continue-on-deployment-failures': true,
+            'continue-on-deploy-failures': true,
           },
           mockConfig
         )

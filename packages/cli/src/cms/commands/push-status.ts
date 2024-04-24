@@ -27,7 +27,7 @@ export type PushStatusOptions = {
   'max-execution-time'?: number; // in seconds
   'retry-interval'?: number; // in seconds
   'start-time'?: number; // in milliseconds
-  'continue-on-deployment-failures'?: boolean;
+  'continue-on-deploy-failures'?: boolean;
   onRetry?: (lasSummary: PushStatusSummary) => void;
 };
 
@@ -62,7 +62,7 @@ export async function handlePushStatus(
     : RETRY_INTERVAL_MS;
   const startTime = argv['start-time'] || Date.now();
   const retryTimeoutMs = maxExecutionTime * 1000;
-  const continueOnDeploymentFailures = argv['continue-on-deployment-failures'] || false;
+  const continueOnDeployFailures = argv['continue-on-deploy-failures'] || false;
 
   try {
     const apiKey = getApiKeys(domain);
@@ -87,7 +87,7 @@ export async function handlePushStatus(
           url: lastResult.status['preview'].deploy.url,
           spinner,
           buildType: 'preview',
-          continueOnDeploymentFailures,
+          continueOnDeployFailures,
           wait,
         });
       },
@@ -110,7 +110,7 @@ export async function handlePushStatus(
       spinner,
       wait,
       push: pushResponse,
-      continueOnDeploymentFailures,
+      continueOnDeployFailures,
     });
     printScorecard(pushResponse.status.preview.scorecard);
 
@@ -136,7 +136,7 @@ export async function handlePushStatus(
             url: lastResult.status['production'].deploy.url,
             spinner,
             buildType: 'production',
-            continueOnDeploymentFailures,
+            continueOnDeployFailures,
             wait,
           });
         },
@@ -161,7 +161,7 @@ export async function handlePushStatus(
         spinner,
         wait,
         push: pushResponse,
-        continueOnDeploymentFailures,
+        continueOnDeployFailures,
       });
       printScorecard(pushResponse.status.production.scorecard);
     }
@@ -211,13 +211,13 @@ function printPushStatus({
   buildType,
   spinner,
   push,
-  continueOnDeploymentFailures,
+  continueOnDeployFailures,
 }: {
   buildType: 'preview' | 'production';
   spinner: Spinner;
   wait?: boolean;
   push?: PushResponse | null;
-  continueOnDeploymentFailures: boolean;
+  continueOnDeployFailures: boolean;
 }) {
   if (!push) {
     return;
@@ -234,7 +234,7 @@ function printPushStatus({
       url: push.status[buildType].deploy.url,
       buildType,
       spinner,
-      continueOnDeploymentFailures,
+      continueOnDeployFailures,
     });
   }
 }
@@ -259,19 +259,19 @@ function displayDeploymentAndBuildStatus({
   url,
   spinner,
   buildType,
-  continueOnDeploymentFailures,
+  continueOnDeployFailures,
   wait,
 }: {
   status: DeploymentStatus;
   url: string | null;
   spinner: Spinner;
   buildType: 'preview' | 'production';
-  continueOnDeploymentFailures: boolean;
+  continueOnDeployFailures: boolean;
   wait?: boolean;
 }) {
   const message = getMessage({ status, url, buildType, wait });
 
-  if (status === 'failed' && !continueOnDeploymentFailures) {
+  if (status === 'failed' && !continueOnDeployFailures) {
     spinner.stop();
     throw new DeploymentError(message);
   }
