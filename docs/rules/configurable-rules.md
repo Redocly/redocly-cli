@@ -66,7 +66,7 @@ A minimum of one assertion property is required to be defined.
 
 The `where` object is part of a `where` list which must be defined in order from the root node.
 A node cannot be used in the `where` list twice.
-However, the same node could be used in the latest `where` object and in the root `subject` object.
+However, the same node could be used in the last `where` object and in the root `subject` object.
 Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.
 
 | Property   | Type                                  | Description                                                                                                                                                                                                                   |
