@@ -65,6 +65,8 @@ A minimum of one assertion property is required to be defined.
 ## Where object
 
 The `where` object is part of a `where` list which must be defined in order from the root node.
+A node cannot be used in the `wrhere` list twice.
+However, the same node could be used in the latest `where` object and in the root `subject` object.
 Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.
 
 | Property   | Type                                  | Description                                                                                                                                                                                                                   |
@@ -74,10 +76,10 @@ Nodes may be skipped in between the subject node types of the where list and tho
 
 ### `where` example
 
-The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
+The following example asserts that PUT responses with HTTP status `200` or `201` cannot return an `application/pdf`content type.
 Without the `where`, the assertion would evaluate every `MediaTypesMap` property including:
 
-- Responses with all codes, including codes other than 200 or 201.
+- Responses with all codes, including codes other than `200` or `201`.
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
   To restrict the evaluation, use the `where` feature to limit what is evaluated.
 
