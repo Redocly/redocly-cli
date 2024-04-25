@@ -415,7 +415,7 @@ describe('handleErrors', () => {
   });
 
   it('should handle ResolveError', () => {
-    const resolveError = new ResolveError(new Error('File not found'));
+    const resolveError = new ResolveError(new Error('File not found.'));
     expect(() => handleError(resolveError, ref)).toThrowError(HandledError);
     expect(redColoretteMocks).toHaveBeenCalledTimes(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
@@ -424,7 +424,7 @@ describe('handleErrors', () => {
   });
 
   it('should handle YamlParseError', () => {
-    const yamlParseError = new YamlParseError(new Error('Invalid yaml'), {} as any);
+    const yamlParseError = new YamlParseError(new Error('Invalid yaml.'), {} as any);
     expect(() => handleError(yamlParseError, ref)).toThrowError(HandledError);
     expect(redColoretteMocks).toHaveBeenCalledTimes(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
@@ -451,7 +451,7 @@ describe('handleErrors', () => {
   });
 
   it('should throw unknown error', () => {
-    const testError = new Error('Test error');
+    const testError = new Error('Test error.');
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.\n\n`
