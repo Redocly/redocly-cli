@@ -24,7 +24,7 @@ export async function retryUntilConditionMet<T>({
   operation: () => Promise<T>;
   condition?: ((result: T) => boolean) | null;
   onConditionNotMet?: (lastResult: T) => void;
-  onRetry?: (lastResult: T) => void;
+  onRetry?: (lastResult: T) => void | Promise<void>;
   startTime?: number;
   retryTimeoutMs?: number;
   retryIntervalMs?: number;
@@ -43,7 +43,7 @@ export async function retryUntilConditionMet<T>({
     } else {
       onConditionNotMet?.(result);
       await pause(retryIntervalMs);
-      onRetry?.(result);
+      onRetry instanceof Promise ? await onRetry?.(result) : onRetry?.(result);
       return attempt();
     }
   }
