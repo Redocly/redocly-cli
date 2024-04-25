@@ -56,7 +56,7 @@ export async function handlePushStatus(
   }
 
   const domain = argv.domain || getDomain();
-  const maxExecutionTime = argv['max-execution-time'] || 600;
+  const maxExecutionTime = argv['max-execution-time'] || 1200; // 20 min
   const retryIntervalMs = argv['retry-interval']
     ? argv['retry-interval'] * 1000
     : RETRY_INTERVAL_MS;
