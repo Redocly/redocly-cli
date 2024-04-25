@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 1.12.0
+
+### Minor Changes
+
+- Added return values for the `push` and `push-status` commands.
+
+### Patch Changes
+
+- Fixed handling of wildcards on Windows ([#1521](https://github.com/Redocly/redocly-cli/issues/1521)).
+- Updated @redocly/openapi-core to v1.12.0.
+
 ## 1.11.0
 
 ### Minor Changes
