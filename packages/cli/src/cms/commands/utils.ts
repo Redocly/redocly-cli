@@ -43,7 +43,7 @@ export async function retryUntilConditionMet<T>({
     } else {
       onConditionNotMet?.(result);
       await pause(retryIntervalMs);
-      onRetry instanceof Promise ? await onRetry?.(result) : onRetry?.(result);
+      await onRetry?.(result);
       return attempt();
     }
   }
