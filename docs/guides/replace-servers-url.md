@@ -40,26 +40,27 @@ In this step, create an OpenAPI specification file.
 
 2. In `replace-servers-demo`, create an `original.yaml` file with the following content:
 
-    ```yaml
-    openapi: 3.1.0
+```yaml
+openapi: 3.1.0
     info:
-      version: 1.0.0
-      title: Custom decorators demo
-      description: The servers URL is replaced by the decorator during the `bundle` process.
-    servers:
-      - url: 'https://example.com/api/v1'
-    paths:
-      /status:
-        get:
-          summary: Get status
-          operationId: getStatus
-          security: []
-          responses:
-            '204':
-              description: Status OK
-            '400':
-              description: Status not OK
-    ```
+  version: 1.0.0
+  title: Custom decorators demo
+  description: The servers URL is replaced by the decorator during the `bundle` process.
+servers:
+  - url: 'https://example.com/api/v1'
+paths:
+  /status:
+    get:
+      summary: Get status
+      operationId: getStatus
+      security: []
+      responses:
+        '204':
+          description: Status OK
+        '400':
+          description: Status not OK
+```
+
 3. Save the file.
 
 ## Create a custom plugin
@@ -70,22 +71,22 @@ In this step, create a custom plugin and define the decorator dependency.
 
 2. In the `plugins` directory, create a `plugin.js` file with this code:
 
-    ```JavaScript
-    const ReplaceServersURL = require('./decorators/replace-servers-url');
-    const id = 'plugin';
+```JavaScript
+const ReplaceServersURL = require('./decorators/replace-servers-url');
+const id = 'plugin';
 
-    /** @type {import('@redocly/cli').DecoratorsConfig} */
-    const decorators = {
-      oas3: {
-        'replace-servers-url': ReplaceServersURL,
-      },
-    };
+/** @type {import('@redocly/cli').DecoratorsConfig} */
+const decorators = {
+  oas3: {
+    'replace-servers-url': ReplaceServersURL,
+  },
+};
 
-    module.exports = {
-      id,
-      decorators,
-    };
-    ```
+module.exports = {
+  id,
+  decorators,
+};
+```
 
 3. Save the file.
 
@@ -101,25 +102,25 @@ In this step, add a decorator and define the environment variable associated wit
   
 2. In `decorators`, create a `replace-servers-url.js` file with this code:
 
-    ```JavaScript
-    module.exports = ReplaceServersURL;
+```JavaScript
+module.exports = ReplaceServersURL;
 
-    /** @type {import('@redocly/cli').OasDecorator} */
+/** @type {import('@redocly/cli').OasDecorator} */
 
-    function ReplaceServersURL({serverUrl}) {
-      return {
-        Server: {
-          leave(Server) {
+function ReplaceServersURL({serverUrl}) {
+  return {
+    Server: {
+      leave(Server) {
 
-            if (serverUrl) {
-              Server.url = serverUrl;
-            }
-
-          }
+        if (serverUrl) {
+          Server.url = serverUrl;
         }
+
       }
-    };
-    ```
+    }
+  }
+};
+```
 
 3. Save the file.
 
@@ -133,23 +134,23 @@ To use the decorator, register your your `plugins` and `decorators` in the [Redo
 
 - In your Redocly configuration file, add this information:
 
-    ```yaml
-    apis:
-      sample@v1-backend:
-        root: original.yaml
-        decorators:
-          plugin/replace-servers-url:
-            serverUrl: 'https://backend.example.com/v1'
-      sample@v1-proxy:
-        root: original.yaml
-        decorators:
-          plugin/replace-servers-url:
-            serverUrl: 'https://proxy.example.com/v1'
-    plugins:
-      - './plugins/plugin.js'
-    extends:
-      - recommended
-    ```
+```yaml
+apis:
+  sample@v1-backend:
+    root: original.yaml
+    decorators:
+      plugin/replace-servers-url:
+        serverUrl: 'https://backend.example.com/v1'
+  sample@v1-proxy:
+    root: original.yaml
+    decorators:
+      plugin/replace-servers-url:
+        serverUrl: 'https://proxy.example.com/v1'
+plugins:
+  - './plugins/plugin.js'
+extends:
+  - recommended
+```
 
 ## Verify the output
 
@@ -157,41 +158,40 @@ To check the configuration for the "backend" server:
 
 1. Run the following command to bundle the `original.yaml` API with the "backend" server URL.
 
-    ```yaml
-    npx @redocly/cli bundle sample@v1-backend
-    ```
+```yaml
+npx @redocly/cli bundle sample@v1-backend
+```
 
 2. Verify that the output shows the correct server URL.
 
-    ```yaml
-    openapi: 3.1.0
-    info:
-      version: 1.0.0
-      title: Custom decorators demo
-      description: The servers URL is replaced by the decorator during the `bundle` process.
-    servers:
-      - url: https://backend.example.com/v1
-    # ...
-    ```
+```yaml
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Custom decorators demo
+  description: The servers URL is replaced by the decorator during the `bundle` process.
+servers:
+  - url: https://backend.example.com/v1
+# ...
+```
 
 To check the configuration for the "proxy" server:
 
 1. Run the following command bundles the `original.yaml` API with the "proxy" server URL.
 
-    ```yaml
-    npx @redocly/cli bundle sample@v1-proxy
-    ```
+```yaml
+npx @redocly/cli bundle sample@v1-proxy
+```
 
 2. Verify that the output shows the correct server URL.
 
-    ```yaml
-    openapi: 3.1.0
-    info:
-      version: 1.0.0
-      title: Custom decorators demo
-      description: The servers URL is replaced by the decorator during the `bundle` process.
-    servers:
-      - url: https://proxy.example.com/v1
-    # ...
-    ```
-`
+```yaml
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Custom decorators demo
+  description: The servers URL is replaced by the decorator during the `bundle` process.
+servers:
+  - url: https://proxy.example.com/v1
+# ...
+```
