@@ -34,7 +34,7 @@ This page describes how to replace the server URL with a decorator for a given e
 
 ## Create a demo specification file
 
-In this step, create an OpenAPI specification file. You will later use decorators to replace the server defined in this file.
+In this step, create an OpenAPI specification file.
 
 1. Create a new directory and name it `replace-servers-demo`.
 
@@ -153,7 +153,7 @@ To use the decorator, register your your `plugins` and `decorators` in the [Redo
 
 ## Verify the output
 
-### To check the configuration for the "backend" server:
+To check the configuration for the "backend" server:
 
 1. Run the following command to bundle the `original.yaml` API with the "backend" server URL.
 
@@ -174,7 +174,7 @@ To use the decorator, register your your `plugins` and `decorators` in the [Redo
     # ...
     ```
 
-### To check the configuration for the "proxy" server:
+To check the configuration for the "proxy" server:
 
 1. Run the following command bundles the `original.yaml` API with the "proxy" server URL.
 
@@ -194,3 +194,4 @@ To use the decorator, register your your `plugins` and `decorators` in the [Redo
       - url: https://proxy.example.com/v1
     # ...
     ```
+`
