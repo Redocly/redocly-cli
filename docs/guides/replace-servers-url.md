@@ -99,7 +99,7 @@ If you change the names of the plugins directory or the files, make sure to chan
 In this step, add a decorator and define the environment variable associated with it.
 
 1. Inside `plugins`, create a `decorators` directory.
-  
+
 2. In `decorators`, create a `replace-servers-url.js` file with this code:
 
 ```JavaScript
