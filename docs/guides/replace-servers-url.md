@@ -67,7 +67,7 @@ paths:
 
 In this step, create a custom plugin and define the decorator dependency.
 
-1. Inside `replace-servers-demo`, create a directory called `plugins`.
+1. In the `replace-servers-demo` folder, create a directory called `plugins`.
 
 2. In the `plugins` directory, create a `plugin.js` file with this code:
 
@@ -130,7 +130,7 @@ If you change the name of the decorators directory, make sure to also change it 
 
 ## Configure the plugin for use
 
-To use the decorator, register your your `plugins` and `decorators` in the [Redocly configuration file](../configuration/index.md).
+To use the decorator, register your `plugins` and `decorators` in the [Redocly configuration file](../configuration/index.md).
 
 - In your Redocly configuration file, add this information:
 
