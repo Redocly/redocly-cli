@@ -43,9 +43,9 @@ In this step, create an OpenAPI specification file.
 ```yaml
 openapi: 3.1.0
     info:
-  version: 1.0.0
-  title: Custom decorators demo
-  description: The servers URL is replaced by the decorator during the `bundle` process.
+      version: 1.0.0
+      title: Custom decorators demo
+      description: The servers URL is replaced by the decorator during the `bundle` process.
 servers:
   - url: 'https://example.com/api/v1'
 paths:
