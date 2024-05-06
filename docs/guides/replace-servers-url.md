@@ -32,13 +32,13 @@ This page describes how to replace the server URL with a decorator for a given e
   ```
 - Use your favorite IDE for editing files (we use VS Code and have the [Redocly extension](https://redocly.com/docs/redocly-openapi/) installed).
 
-## Create a demo specification file
+## Create a demo folder and description file
 
-In this step, create an OpenAPI specification file.
+Before you start, create a demo folder and a sample OpenAPI description file to later test your plugin and decorators.
 
-1. Create a new directory and name it `replace-servers-demo`.
+1. Create a new folder and name it `replace-servers-demo`.
 
-2. In `replace-servers-demo`, create an `original.yaml` file with the following content:
+2. In the `replace-servers-demo` folder, create an `original.yaml` file with the following content:
 
 ```yaml
 openapi: 3.1.0
@@ -67,9 +67,9 @@ paths:
 
 In this step, create a custom plugin and define the decorator dependency.
 
-1. In the `replace-servers-demo` folder, create a directory called `plugins`.
+1. In the `replace-servers-demo` folder, create a folder called `plugins`.
 
-2. In the `plugins` directory, create a `plugin.js` file with this code:
+2. In the `plugins` folder, create a `plugin.js` file with this code:
 
 ```JavaScript
 const ReplaceServersURL = require('./decorators/replace-servers-url');
@@ -98,9 +98,9 @@ If you change the names of the plugins directory or the files, make sure to chan
 
 In this step, add a decorator and define the environment variable associated with it.
 
-1. Inside `plugins`, create a `decorators` directory.
+1. Inside the `plugins` folder, create a `decorators` folder.
 
-2. In `decorators`, create a `replace-servers-url.js` file with this code:
+2. In the `decorators` folder, create a `replace-servers-url.js` file with this code:
 
 ```JavaScript
 module.exports = ReplaceServersURL;
@@ -130,9 +130,9 @@ If you change the name of the decorators directory, make sure to also change it 
 
 ## Configure the plugin for use
 
-To use the decorator, register your `plugins` and `decorators` in the [Redocly configuration file](../configuration/index.md).
+To use the decorators, register your `plugins` and `decorators` in the [Redocly configuration file](../configuration/index.md).
 
-- In your Redocly configuration file, add this information:
+- In your Redocly configuration file, register your plugins and decorators:
 
 ```yaml
 apis:
