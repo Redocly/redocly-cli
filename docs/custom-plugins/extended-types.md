@@ -3,7 +3,7 @@
 Redocly CLI in its core has a type tree which defines the structure of the API description.
 Redocly CLI then uses it to do a type-aware traversal of an OpenAPI description.
 
-The type tree is built from top level `Types` which can link to child types. For example, here is a [visual reference to the OpenAPI types structure](../../openapi-visual-reference/openapi-node-types.md). You can also check [the code itself](https://github.com/Redocly/redocly-cli/tree/main/packages/core/src/types) for information about specific versions of OpenAPI and other supported document types.
+The type tree is built from top level `Types` which can link to child types. For example, here is a [visual reference to the OpenAPI types structure](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/). You can also check [the code itself](https://github.com/Redocly/redocly-cli/tree/main/packages/core/src/types) for information about specific versions of OpenAPI and other supported document types.
 
 The type tree can be extended by exporting the `typeExtension` function from a custom plugin.
 

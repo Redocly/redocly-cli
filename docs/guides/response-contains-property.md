@@ -39,7 +39,7 @@ Let's get started!
 Make sure that the @redocly/cli has version `1.0.0-beta.99` or later
 {% /admonition %}
 
-- If you're using VS Code as your favorite code editor, we recommend you install the [Redocly OpenAPI VS Code extension](../../redocly-openapi/index.md).
+- If you're using VS Code as your favorite code editor, we recommend you install the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/).
 
 {% admonition type="note" name="We do, You do" %}
 This guide is most effective when you follow along and complete the steps.

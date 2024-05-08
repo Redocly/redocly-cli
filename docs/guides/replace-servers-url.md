@@ -32,7 +32,7 @@ This tutorial is most effective when you follow along and complete the steps.
           '400':
             description: Status not OK
   ```
-- Use your favorite IDE for editing files (we use VS Code and have the [Redocly extension](../../redocly-openapi/index.md) installed).
+- Use your favorite IDE for editing files (we use VS Code and have the [Redocly extension](https://redocly.com/docs/redocly-openapi/) installed).
 
 ## Step 1: Create a custom plugin
 

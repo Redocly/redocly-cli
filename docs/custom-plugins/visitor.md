@@ -31,7 +31,7 @@ function ExampleRule() {
 
 Keys of the object are one of the following:
 
-- document-specific node types, such as the [OpenAPI node types](../../openapi-visual-reference/openapi-node-types.md).
+- document-specific node types, such as the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 - `any` - visitor is called on every node.
 - `ref` - visitor is called on $ref nodes.
 

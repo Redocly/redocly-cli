@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API descriptions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
+Redocly Workflows integrates with [popular version control services](https://redocly.com/docs/workflows/sources/) and uses them as the source of your API descriptions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 
 The Redocly CLI `push` command helps you automate API description updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API descriptions are generated automatically from code annotations in a CI/CD pipeline
 
@@ -34,7 +34,7 @@ Only API descriptions with a CI source can be updated with the `push` command. A
 Before using the `push` command, ensure the following prerequisites are met:
 
 1. Active user account in a Redocly Workflows organization.
-1. Active [personal API key or organization API key](../../settings/personal-api-keys.md).
+1. Active [personal API key or organization API key](https://redocly.com/docs/settings/personal-api-keys/).
 
 ## Authentication
 
@@ -49,7 +49,7 @@ To authenticate to the API registry, you can use several approaches:
 
   Refer to the [`login` command documentation](login.md) for more details.
 
-- set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](../../settings/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
+- set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](https://redocly.com/docs/settings/personal-api-keys/) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
   ```bash
   REDOCLY_AUTHORIZATION=yourPersonalApiKey redocly push ...
@@ -282,7 +282,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 ### Public
 
 The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, API descriptions uploaded with the `push` command are not available to the public.
-For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
+For more information on how to configure access to your APIs, check the [registry access](https://redocly.com/docs/api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
 
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --public
