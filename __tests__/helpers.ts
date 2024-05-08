@@ -56,3 +56,8 @@ export function callSerializer() {
     print: (v: any) => cleanUpVersion(v),
   });
 }
+
+export function cleanupOutput(message: string) {
+  const cwdRegexp = new RegExp(process.cwd(), 'g');
+  return message.replace(cwdRegexp, '.');
+}

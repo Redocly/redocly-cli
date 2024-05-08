@@ -12,6 +12,7 @@
     "test": "npm run typecheck && npm run unit",
     "jest": "REDOCLY_TELEMETRY=off jest ./packages",
     "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
+    "unit:watch": "REDOCLY_TELEMETRY=off jest --watch",
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",

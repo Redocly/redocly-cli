@@ -48,33 +48,42 @@ export type Remote = {
 export type PushResponse = {
   id: string;
   remoteId: string;
+  isMainBranch: boolean;
+  isOutdated: boolean;
+  hasChanges: boolean;
+  replace: boolean;
+  scoutJobId: string | null;
+  uploadedFiles: Array<{ path: string; mimeType: string }>;
   commit: {
-    message: string;
     branchName: string;
-    sha: string | null;
-    url: string | null;
+    message: string;
     createdAt: string | null;
-    namespace: string | null;
-    repository: string | null;
+    namespaceId: string | null;
+    repositoryId: string | null;
+    url: string | null;
+    sha: string | null;
     author: {
       name: string;
       email: string;
       image: string | null;
     };
+    statuses: Array<{
+      name: string;
+      description: string;
+      status: 'pending' | 'running' | 'success' | 'failed';
+      url: string | null;
+    }>;
   };
   remote: {
     commits: {
-      branchName: string;
       sha: string;
+      branchName: string;
     }[];
   };
-  hasChanges: boolean;
-  isOutdated: boolean;
-  isMainBranch: boolean;
   status: PushStatusResponse;
 };
 
-type DeploymentStatusResponse = {
+export type DeploymentStatusResponse = {
   deploy: {
     url: string | null;
     status: DeploymentStatus;
@@ -95,7 +104,5 @@ export type ScorecardItem = {
 };
 
 export type PushStatusBase = 'pending' | 'success' | 'running' | 'failed';
-
-// export type BuildStatus = PushStatusBase | 'NOT_STARTED' | 'QUEUED';
 
 export type DeploymentStatus = 'skipped' | PushStatusBase;

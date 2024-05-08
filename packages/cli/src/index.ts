@@ -204,9 +204,10 @@ yargs
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
+            required: true,
             alias: 'p',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: false },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
@@ -215,6 +216,11 @@ yargs
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
+          },
+          'continue-on-deploy-failures': {
+            description: 'Command does not fail even if the deployment fails.',
+            type: 'boolean',
+            default: false,
           },
         }),
     (argv) => {
@@ -377,10 +383,15 @@ yargs
             type: 'boolean',
             default: false,
           },
+          'continue-on-deploy-failures': {
+            description: 'Command does not fail even if the deployment fails.',
+            type: 'boolean',
+            default: false,
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(commonPushHandler(argv))(argv as PushArguments);
+      commandWrapper(commonPushHandler(argv))(argv as Arguments<PushArguments>);
     }
   )
   .command(

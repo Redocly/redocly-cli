@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { execSync } from 'child_process';
+import { promisify } from 'util';
 import {
   BundleOutputFormat,
   StyleguideConfig,
@@ -106,7 +107,7 @@ async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
         return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
-          ? (await glob.__promisify__(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
+          ? (await promisify(glob)(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
     )
@@ -292,9 +293,9 @@ export function handleError(e: Error, ref: string) {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
     case YamlParseError:
-      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
     case CircularJSONNotSupportedError: {
       return exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
@@ -306,7 +307,7 @@ export function handleError(e: Error, ref: string) {
     case ConfigValidationError:
       return exitWithError(e.message);
     default: {
-      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
+      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
   }
 }

@@ -12,7 +12,7 @@ import {
   transformConfig,
 } from './utils';
 import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
+import { isNotString, isString, isDefined, keysOf } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
@@ -63,14 +63,22 @@ export async function resolveConfigFileAndRefs({
   return { document, resolvedRefMap };
 }
 
-export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
+export async function resolveConfig({
+  rawConfig,
+  configPath,
+  externalRefResolver,
+}: {
+  rawConfig: RawConfig;
+  configPath?: string;
+  externalRefResolver?: BaseResolver;
+}): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
     throw new Error(
       `Error configuration format not detected in extends value must contain strings`
     );
   }
 
-  const resolver = new BaseResolver(getResolveConfig(rawConfig.resolve));
+  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(rawConfig.resolve));
 
   const apis = await resolveApis({
     rawConfig,
@@ -388,10 +396,8 @@ async function loadExtendStyleguideConfig(
   resolver: BaseResolver
 ): Promise<StyleguideRawConfig> {
   try {
-    const fileSource = await resolver.loadExternalRef(filePath);
-    const rawConfig = transformConfig(
-      parseYaml(fileSource.body) as RawConfig & DeprecatedInRawConfig
-    );
+    const { parsed } = (await resolver.resolveDocument(null, filePath)) as Document;
+    const rawConfig = transformConfig(parsed as RawConfig & DeprecatedInRawConfig);
     if (!rawConfig.styleguide) {
       throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
     }

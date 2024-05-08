@@ -271,6 +271,10 @@ export function nextTick() {
   });
 }
 
+export async function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
   return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
 }

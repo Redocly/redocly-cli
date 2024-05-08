@@ -1,4 +1,11 @@
-export { BundleOutputFormat, readFileFromUrl, slash, doesYamlFileExist, isTruthy } from './utils';
+export {
+  BundleOutputFormat,
+  readFileFromUrl,
+  slash,
+  doesYamlFileExist,
+  isTruthy,
+  pause,
+} from './utils';
 export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
