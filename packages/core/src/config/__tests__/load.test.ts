@@ -13,10 +13,9 @@ const path = require('path');
 describe('loadConfig', () => {
   it('should resolve config http header by US region', async () => {
     jest
-      .spyOn(RedoclyClient.prototype, 'getTokens')
-      .mockImplementation(() =>
-        Promise.resolve([{ region: 'us', token: 'accessToken', valid: true }])
-      );
+      .spyOn(RedoclyClient.prototype, 'getAllTokens')
+      .mockImplementation(() => [{ region: 'us', token: 'accessToken' }]);
+    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([
       {
@@ -36,10 +35,9 @@ describe('loadConfig', () => {
 
   it('should resolve config http header by EU region', async () => {
     jest
-      .spyOn(RedoclyClient.prototype, 'getTokens')
-      .mockImplementation(() =>
-        Promise.resolve([{ region: 'eu', token: 'accessToken', valid: true }])
-      );
+      .spyOn(RedoclyClient.prototype, 'getAllTokens')
+      .mockImplementation(() => [{ region: 'eu', token: 'accessToken' }]);
+    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([
       {

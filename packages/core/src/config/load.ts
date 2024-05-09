@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, doesYamlFileExist } from '../utils';
+import { isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
@@ -9,7 +9,7 @@ import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
 
 import type { Document } from '../resolve';
-import type { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
+import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
 import type { BaseResolver, ResolvedRefMap } from '../resolve';
 
@@ -25,7 +25,7 @@ async function addConfigMetadata({
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  tokens?: RegionalTokenWithValidity[];
+  tokens?: RegionalToken[];
   files?: string[];
   region?: Region;
   externalRefResolver?: BaseResolver;
@@ -102,8 +102,8 @@ export async function loadConfig(
   } = options;
   const rawConfig = await getConfig({ configPath, processRawConfig, externalRefResolver });
 
-  const redoclyClient = new RedoclyClient();
-  const tokens = await redoclyClient.getTokens();
+  const redoclyClient = isEmptyObject(fs) ? undefined : new RedoclyClient();
+  const tokens = redoclyClient && redoclyClient.hasTokens() ? redoclyClient.getAllTokens() : [];
 
   return addConfigMetadata({
     rawConfig,
@@ -119,7 +119,7 @@ export async function loadConfig(
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 
 export function findConfig(dir?: string): string | undefined {
-  if (!fs.hasOwnProperty('existsSync')) return;
+  if (!fs?.hasOwnProperty?.('existsSync')) return;
   const existingConfigFiles = CONFIG_FILE_NAMES.map((name) =>
     dir ? path.resolve(dir, name) : name
   ).filter(fs.existsSync);
@@ -141,7 +141,9 @@ export async function getConfig(
   } = {}
 ): Promise<RawConfig> {
   const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
-  if (!configPath || !doesYamlFileExist(configPath)) return {};
+  if (!configPath || !['.yaml', '.yml'].includes(path.extname(configPath))) {
+    return {};
+  }
   try {
     const { document, resolvedRefMap } = await resolveConfigFileAndRefs({
       configPath,
