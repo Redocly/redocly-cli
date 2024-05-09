@@ -2,6 +2,8 @@
 
 Redocly allows you to use [custom decorators](../custom-plugins/custom-decorators.md) to modify content in the API description during the bundling process.
 
+You can use this method to create multiple instances of an API description file from a single source, each with a different server. For example, you can have separate API descriptions configured with your mock server and your production server, or separate API files for each of your customers.
+
 This page describes how to replace the server URL with a decorator for a given environment.
 
 ## Prerequisites
@@ -154,11 +156,11 @@ extends:
 
 ## Verify the output
 
-To check the configuration for the "backend" server:
+### Check the configuration for the "backend" server
 
 1. Run the following command to bundle the `original.yaml` API with the "backend" server URL.
 
-```yaml
+```shell
 npx @redocly/cli bundle sample@v1-backend
 ```
 
@@ -175,11 +177,11 @@ servers:
 # ...
 ```
 
-To check the configuration for the "proxy" server:
+### Check the configuration for the "proxy" server
 
 1. Run the following command bundles the `original.yaml` API with the "proxy" server URL.
 
-```yaml
+```shell
 npx @redocly/cli bundle sample@v1-proxy
 ```
 
@@ -195,3 +197,17 @@ servers:
   - url: https://proxy.example.com/v1
 # ...
 ```
+
+## Summary
+
+In this tutorial you have created a plugin and a decorator that replace the server URL with one of the URLs defined in the Redocly configuration file.
+
+You now have two API description files, each configured to send requests to different servers.
+
+## What's next?
+
+You can reuse the code from your demo files and modify it to fit your API documentation.
+
+For more custom plugins, configuration, and other resources, see the [Redocly CLI Cookbook](https://github.com/Redocly/redocly-cli-cookbook).
+
+For the latest Redocly news and articles, visit our [blog](https://redocly.com/blog/).
