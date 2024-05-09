@@ -125,7 +125,9 @@ This object is optional.
 #### Fixed properties
 
 {% json-schema
-  schema="./mockserver.yaml"
+  schema={
+    "$ref": "./mockserver.yaml"
+  }
    options={
     schemaExpansionLevel: 1,
   }
@@ -203,7 +205,9 @@ Redocly CLI supports one `http` header per URL.
 #### Fixed properties
 
 {% json-schema
-  schema="./resolve.yaml"
+  schema={
+    "$ref": "./resolve.yaml"
+  }
    options={
     schemaExpansionLevel: 2,
   }

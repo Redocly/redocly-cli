@@ -14,7 +14,9 @@ If per-API and root settings modify the same properties, per-API settings overri
 ## Patterned properties
 
 {% json-schema
-  schema="./api.yaml"
+  schema={
+    "$ref": "./api.yaml"
+  }
    options={
     schemaExpansionLevel: 2,
   }
