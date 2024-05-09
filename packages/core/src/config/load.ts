@@ -7,11 +7,12 @@ import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
+import { BaseResolver } from '../resolve';
 
 import type { Document } from '../resolve';
 import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
-import type { BaseResolver, ResolvedRefMap } from '../resolve';
+import type { ResolvedRefMap } from '../resolve';
 
 async function addConfigMetadata({
   rawConfig,
@@ -140,8 +141,16 @@ export async function getConfig(
     externalRefResolver?: BaseResolver;
   } = {}
 ): Promise<RawConfig> {
-  const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
-  if (!configPath || !['.yaml', '.yml'].includes(path.extname(configPath))) {
+  const {
+    configPath = findConfig(),
+    processRawConfig,
+    externalRefResolver = new BaseResolver(),
+  } = options;
+  try {
+    if (!configPath || !(await externalRefResolver.resolveDocument(null, configPath))) {
+      return {};
+    }
+  } catch (e) {
     return {};
   }
   try {
