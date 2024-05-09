@@ -206,7 +206,7 @@ export function isCustomRuleId(id: string) {
 export function doesYamlFileExist(filePath: string): boolean {
   return (
     (extname(filePath) === '.yaml' || extname(filePath) === '.yml') &&
-    fs.hasOwnProperty('existsSync') &&
+    fs?.hasOwnProperty?.('existsSync') &&
     fs.existsSync(filePath)
   );
 }
