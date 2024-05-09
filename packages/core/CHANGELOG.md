@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.12.1
+
+### Patch Changes
+
+- Improved loading of configuration files in environments different from Node.js.
+
 ## 1.12.0
 
 ### Patch Changes
