@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.12.2
+
+### Patch Changes
+
+- Improved the experience when the config file doesn't exist or isn't found.
+
 ## 1.12.1
 
 ### Patch Changes
