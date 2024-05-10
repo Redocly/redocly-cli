@@ -17,9 +17,6 @@ If per-API and root settings modify the same properties, per-API settings overri
   schema={
     "$ref": "./api.yaml"
   }
-   options={
-    schemaExpansionLevel: 2,
-  }
 /%}
 
 ## Example

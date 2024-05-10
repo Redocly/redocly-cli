@@ -128,9 +128,6 @@ This object is optional.
   schema={
     "$ref": "./mockserver.yaml"
   }
-   options={
-    schemaExpansionLevel: 1,
-  }
 /%}
 
 #### openapi object
@@ -207,9 +204,6 @@ Redocly CLI supports one `http` header per URL.
 {% json-schema
   schema={
     "$ref": "./resolve.yaml"
-  }
-   options={
-    schemaExpansionLevel: 2,
   }
 /%}
 
