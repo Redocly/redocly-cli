@@ -6,9 +6,7 @@ Redocly CLI can identify and report on problems found in OpenAPI descriptions. T
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
-{% admonition type="success" name="Tip" %}
 To learn more about choosing and configuring linting rules to meet your needs, visit the [API standards](../api-standards.md) page.
-{% /admonition %}
 
 ## Usage
 
@@ -22,37 +20,43 @@ redocly lint --version
 
 ## Options
 
-| Option                 | Type     | Description                                                                                                                                                                          |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                                                           |
-| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                                |
-| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                                                         |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`. |
-| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                       |
-| --help                 | boolean  | Show help.                                                                                                                                                                           |
-| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                   |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                                                          |
-| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                         |
-| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                 |
-| --version              | boolean  | Show version number.                                                                                                                                                                 |
+| Option                 | Type     | Description                                                                                                                                                                                              |
+| ---------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                   | [string] | Array of API description filenames that need to be linted. Refer to [the API section](#specify-api) for more details.                                                                                    |
+| --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). **Possible values:** `minimal`, `recommended`, `recommended-strict`, `all`. Default value is `recommended`. |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                                 |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                           |
+| --help                 | boolean  | Show help.                                                                                                                                                                                               |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                       |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#limit-the-displayed-problems-count). Default value is `100`.                                                                      |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                             |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                     |
+| --version              | boolean  | Show version number.                                                                                                                                                                                     |
 
 ## Examples
 
-### <a id="apis"></a>Lint APIs
+### Specify API
 
-The `lint` command behaves differently depending on how you pass apis to it and whether the [configuration file](#custom-configuration-file) exists.
+The `lint` command behaves differently depending on how you pass the API(s) to it, and whether the [configuration file](#use-custom-configuration-file) exists.
 
-#### Pass an API directly
+#### Pass API directly
 
-`redocly lint openapi/openapi.yaml`
+```bash
+redocly lint openapi/openapi.yaml
+```
 
-In this case, `lint` validates the API description(s) passed to the command. If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used. If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
+In this case, `lint` validates the API description(s) passed to the command. If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used. If you have `extends` or `rules` defined in `redocly.yaml`, then those are used when linting.
 
-The `apis` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
+The `apis` argument can also use any glob format supported by your file system. For example:
 
-#### An API from the configuration file
+```bash
+redocly lint ./root-documents/*.yaml
+```
 
-Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file. The example `redocly.yaml` file below shows an API alias `core@v1` defined:
+#### Pass API alias
+
+Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file. The example `redocly.yaml` configuration file below shows an API alias `core@v1` defined:
 
 ```yaml
 apis:
@@ -62,13 +66,15 @@ apis:
 
 Use the alias with the lint command as shown:
 
-`redocly lint core@v1`
+```bash
+redocly lint core@v1
+```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` validates the `api-description.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name, `lint` validates the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
-#### All configured APIs
+#### Lint all configured APIs
 
-You can omit apis completely when executing the `lint` command to check all APIs defined in the configuration file. Run `redocly lint` with no arguments to lint all defined APIs; an example `redocly.yaml` file is shown below:
+You can omit the `apis` argument completely when executing the `lint` command to check all APIs defined in the configuration file. Run `redocly lint` with no arguments to lint all defined APIs. An example `redocly.yaml` file is shown below:
 
 ```yaml
 apis:
@@ -84,34 +90,42 @@ apis:
 If you try to execute the `lint` command without apis when your project doesn't have any configuration files, the `lint` command displays an error.
 {% /admonition %}
 
-### Custom configuration file
+### Use custom configuration file
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
-`redocly lint --config=./another/directory/config.yaml`
+```bash
+redocly lint --config=./another/directory/config.yaml
+```
 
 ### Extend configuration
 
-The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `recommended-strict` or `all`. Each of the values is a base set of rules that the lint command uses. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
+The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `recommended-strict` or `all`. Each of the values is a base set of rules that the `lint` command uses. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs. For more details, see [rulesets](../rules.md).
+
+```bash
+redocly lint --extends=recommended-strict
+```
 
 {% admonition type="warning" name="Important" %}
 When you run the `lint` command without a configuration file, it uses the `extends: [recommended]` by default.
-However, if you have a configuration file, but it doesn't include any rules or extends configuration, the `lint` command shows an error.
+However, if you have a configuration file, but it doesn't include any rules or extends configuration, the `lint` command displays an error.
 {% /admonition %}
 
-### Format lint output
+### Specify output format
 
-The standard codeframe output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
+The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
 
-{% admonition type="warning" name="Lint one API at a time" %}
-Some formats, such as CheckStyle or JSON, don't work well when mulitple APIs are linted in a single command. Try linting each API separately when you pass the command output to another tool.
-{% /admonition %}
+Some formats, such as `checkstyle` or `json`, don't work well when multiple APIs are linted in a single command. Try linting each API separately when you pass the command output to another tool.
 
 #### Codeframe (default)
 
-The command `redocly lint --format=codeframe` lints the file and uses the default format of `codeframe`. It produces the same output as below if you omit the `--format` parameter.
-
 ```bash
+redocly lint --format=codeframe
+```
+
+This command lints the file and uses the default output format of `codeframe`. It has the same behavior as omitting the `--format` parameter. Here's an output example:
+
+<pre>
 [1] museum-with-errors.yaml:19:7 at #/paths/~1museum-hours/get/operationIds
 
 Property `operationIds` is not expected here.
@@ -125,7 +139,7 @@ Did you mean: operationId ?
 21 |   -  Operations
 
 Error was generated by the spec rule.
-```
+</pre>
 
 Note that the problems are displayed in the following format: `file:line:column`. For example, `museum-with-errors.yaml:19:7`.
 
@@ -133,22 +147,30 @@ Depending on the terminal emulator you use, it may be possible to directly click
 
 #### Stylish
 
-The command `redocly lint --format=stylish` gives a more condensed output that is useful for summarizing the linting results, as seen below:
-
 ```bash
+redocly lint --format=stylish
+```
+
+This command uses the `stylish` format to get a more condensed output that is useful for summarizing the linting results, as seen in the example below:
+
+<pre>
 museum-with-errors.yaml:
   19:7   error    spec                   Property `operationIds` is not expected here.
   29:11  error    spec                   Property `require` is not expected here.
   16:5   warning  operation-operationId  Operation object should contain `operationId` field.
-```
+</pre>
 
 In this format, `lint` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
 
-##### JSON
-
-It can be useful to get the output in JSON format to be processed by other tools. Use a command like `redocly lint --format=json` to get the following output:
+#### JSON
 
 ```bash
+redocly lint --format=json
+```
+
+It can be useful to get the output in JSON format to be processed by other tools. Using this command gets the following example output:
+
+<pre>
 {
   "totals": {
     "errors": 2,
@@ -206,14 +228,17 @@ It can be useful to get the output in JSON format to be processed by other tools
     }
   ]
 }
-```
+</pre>
 
 #### Checkstyle
 
-The `lint` command also supports the [Checkstyle](https://checkstyle.org/) XML report format
-Use a command like `redocly lint --format=checkstyle` to get this standard format output to use with your other tools.
-
 ```bash
+redocly lint --format=checkstyle
+```
+
+The `lint` command also supports the [Checkstyle](https://checkstyle.org/) XML report format. Use this command to get the following standard format output to use with your other tools:
+
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="4.3">
 <file name="museum-with-errors.yaml">
@@ -230,14 +255,18 @@ omitted.
 
 #### GitHub Actions
 
-The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
-Use `redocly lint --format=github-actions` to have any encountered problem annotated on the affected files.
-
 ```bash
+redocly lint --format=github-actions
+```
+
+The `lint` command also comes with support for a [GitHub Actions](https://docs.github.com/en/actions) specific formatting.
+Specify this output format to have any encountered problem annotated on the affected files.
+
+<pre>
 ::error title=spec,file=museum-with-errors.yaml,line=19,endLine=19,col=7,endColumn=7::Property `operationIds` is not expected here.
 ::error title=spec,file=museum-with-errors.yaml,line=29,endLine=29,col=11,endColumn=11::Property `require` is not expected here.
 ::warning title=operation-operationId,file=museum-with-errors.yaml,line=16,endLine=16,col=5,endColumn=5::Operation object should contain `operationId` field.
-```
+</pre>
 
 #### Markdown
 
@@ -263,15 +292,21 @@ An example is shown in the following screenshot.
 
 ![Output of the lint command, Markdown rendered as HTML](./images/lint-markdown.png)
 
-### <a id="max-problems"></a>Limit the problem count
+### Limit the displayed problems count
 
-With the `--max-problems` option, you can limit the number of problems displayed in the command output. If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
+With the `--max-problems` option, you can limit the number of problems displayed in the command output. Here's an example command:
 
 ```bash
-< ... 2 more problems hidden > increase with `--max-problems N`
+redocly lint --max-problems=20
 ```
 
-The default value is 100.
+If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
+
+<pre>
+< ... 2 more problems hidden > increase with `--max-problems N`
+</pre>
+
+Note that the default value is `100`.
 
 ### Generate ignore file
 
@@ -279,21 +314,29 @@ With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppr
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
-`redocly lint museum-with-errors.yaml --generate-ignore-file` runs the lint command and adds all the errors to an ignore file.
-
-```bash
-Generated ignore file with 3 problems.
-```
-
-The errors in the ignore file `.redocly.lint-ignore.yaml` are ignored when the `lint` command is run.
-
 {% admonition type="warning" %}
 This command overwrites an existing ignore file.
 {% /admonition %}
 
+This runs the `lint` command and adds all the errors to an ignore file:
+
+```bash
+redocly lint museum-with-errors.yaml --generate-ignore-file
+```
+
+Here's the example output:
+
+<pre>
+Generated ignore file with 3 problems.
+</pre>
+
+The errors in the ignore file `.redocly.lint-ignore.yaml` are ignored when the `lint` command is run.
+
 To generate an ignore file for multiple API descriptions, pass them as arguments:
 
-`redocly lint v1.yaml v2.yaml --generate-ignore-file`
+```bash
+redocly lint v1.yaml v2.yaml --generate-ignore-file
+```
 
 Example of an ignore file:
 
@@ -314,14 +357,29 @@ The rule in the example is named `spec`, which indicates compliance with the Ope
 
 You may want to skip specific preprocessors or rules upon running the command. Examples for each option are as follows:
 
-- `redocly lint --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example`
+{% tabs %}
+{% tab label="Skip preprocessors" %}
 
-- `redocly lint --skip-rule=no-sibling-refs --skip-rule=no-parent-tags`
+```bash
+redocly lint --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
+```
 
-{% admonition type="success" name="Tip" %}
+{% /tab  %}
+{% tab label="Skip rules" %}
+
+```bash
+redocly lint --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
+```
+
+{% /tab  %}
+{% /tabs  %}
+
 To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../custom-plugins/index.md) page.
-{% /admonition %}
 
 ### Lint config file
 
 The `lint` command also validates the configuration file. You may want to set severity level by using the `--lint-config` option. This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`.
+
+```bash
+redocly lint --lint-config=off
+```

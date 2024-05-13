@@ -2,7 +2,8 @@
 
 ## Introduction
 
-The `build-docs` command builds Redoc into an HTML file.
+The `build-docs` command builds Redoc into a zero-dependency HTML file that contains your API documentation.
+The standalone HTML file can be easily shared or hosted without any external dependencies.
 
 ## Usage
 
@@ -16,42 +17,39 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 ## Options
 
-| Option              | Type    | Description                                                                                                                                                                                                                         |
-| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.<br/>                                                                        |
-| --config            | string  | Specifies path to the [configuration file](#custom-configuration-file).                                                                                                                                                             |
-| --disableGoogleFont | boolean | Disables Google fonts. The default value is false.                                                                                                                                                                                  |
-| --help              | boolean | Shows help.                                                                                                                                                                                                                         |
-| --lint-config       | string  | Specify the severity level for the configuration file. Possible values: warn, error, off. Default value is warn                                                                                                                     |
-| --output, -o        | string  | Sets the path and name of the output file. The default value is redoc-static.html.                                                                                                                                                  |
-| --template, -t      | string  | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI description.                                                                                                                                   |
-| --templateOptions   | string  | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                        |
-| --theme.openapi     | string  | Customizes your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/). |
-| --title             | string  | Sets the page title.                                                                                                                                                                                                                |
-| --version           | boolean | Shows version number.                                                                                                                                                                                                               |
+| Option              | Type    | Description                                                                                                                                                                                                                        |
+| ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                                                                                  |
+| --config            | string  | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                                          |
+| --disableGoogleFont | boolean | Disable Google fonts. The default value is `false`.                                                                                                                                                                                |
+| --help              | boolean | Show help.                                                                                                                                                                                                                         |
+| --lint-config       | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                                                                                           |
+| --output, -o        | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                                                                                                |
+| --template, -t      | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI description.                                                                                                                                   |
+| --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                        |
+| --theme.openapi     | string  | Customize your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/). |
+| --title             | string  | Set the page title.                                                                                                                                                                                                                |
+| --version           | boolean | Show version number.                                                                                                                                                                                                               |
 
 ## Examples
 
-### API examples
+### Specify API
 
-The command accepts an API positional argument as either a file (no configuration file is required) or an alias (requires a [configuration file](#custom-configuration-file)).
+The `build-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-custom-configuration-file) exists.
 
-#### API path to file example
+#### Pass API directly
 
 ```bash
 redocly build-docs openapi.yaml
 ```
 
-In this case, the `build-docs` command builds the API at the path provided.
+In this case, the `build-docs` command builds the API description that was passed to the command.
 The configuration file is ignored.
 
-#### API alias example
+#### Pass API alias
 
 Instead of a full path, you can use an API name from the `apis` object of your Redocly configuration file.
-
-```bash Command
-redocly build-docs games@v1
-```
+For example, with a `redocly.yaml` configuration file containing the following entry for `games@v1`:
 
 ```yaml Configuration file
 apis:
@@ -59,9 +57,16 @@ apis:
     root: ./openapi/api-description.json
 ```
 
-The `build-docs` command uses any additional configurations provided in the file.
+You can generate a build by giving the API alias name, as shown below:
 
-### Custom configuration file
+```bash Command
+redocly build-docs games@v1
+```
+
+In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
+Any additional configurations provided in the file are used by the command.
+
+### Use custom configuration file
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
@@ -69,23 +74,23 @@ By default, the CLI tool looks for the [Redocly configuration file](../configura
 redocly build-docs --config=./another/directory/config.yaml
 ```
 
-### `theme.openapi` example
+### Use theme.openapi option
 
-Build docs with hidden search box:
+The following command uses the optional `--theme.openapi` argument to build docs with hidden search box:
 
 ```bash
 redocly build-docs openapi.yaml --theme.openapi.disableSearch
 ```
 
-### `templateOptions` example
+### Use templateOptions option
 
-Build docs using a custom Handlebars template and add custom `templateOptions`:
+The following command uses the optional `--templateOptions` argument to build docs using a custom Handlebars template and add a custom `templateOptions` object:
 
 ```bash
 redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
-Sample Handlebars template:
+Sample custom Handlebars template:
 
 ```handlebars
 <html>

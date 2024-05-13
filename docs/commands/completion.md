@@ -14,13 +14,15 @@ The output is a script for you to copy and paste, and add to the configuration f
 
 ## Examples
 
-From a bash prompt:
+### See bash shell example
+
+From a bash prompt, use the `completion` command:
 
 ```bash
 redocly completion
 ```
 
-Outputs something like this:
+Outputs the following script:
 
 ```sh
 ###-begin-redocly-completions-###
@@ -53,9 +55,9 @@ complete -o default -F _redocly_yargs_completions redocly
 ###-end-redocly-completions-###
 ```
 
-The installation instructions are included in the output, showing how to run the command and add it to the correct file:
+The installation instructions are included in the output as comments, showing how to run the command and add it to the correct file:
 
 - `redocly completion >> ~/.bashrc`
-- or on OSX: `redocly completion >> ~/.bash_profile`
+- Or on OSX: `redocly completion >> ~/.bash_profile`
 
-Users of zsh receive similar output appropriate for their system.
+If you use zsh shell, the `completion` command provides a similar output that is appropriate for your system.

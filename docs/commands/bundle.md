@@ -4,7 +4,9 @@
 
 API descriptions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API description by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API description.
 
-Redocly CLI can help you combine separate API description files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API description files (such as if you used the [`split`](./split.md) command) into one. The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
+
+The `bundle` command differs from the [`join`](./join.md) command. The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file. The `join` command can combine multiple OpenAPI files into a single unified API description file.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
@@ -23,7 +25,7 @@ redocly bundle --version
 | Option                     | Type     | Description                                                                                                                                                                                                                                                     |
 | -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
-| --config                   | string   | Specify path to the [config file](#custom-configuration-file).                                                                                                                                                                                                  |
+| --config                   | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                                                                       |
 | --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
 | --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
 | --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                    |
@@ -56,10 +58,12 @@ This command creates one bundled file for each of the specified apis in the `dis
 redocly bundle --output dist --ext json openapi/openapi.yaml openapi/museum.yaml
 ```
 
-```bash Output
+The `dist/` folder contents after the `bundle` command is executed:
+
+<pre>
 dist/openapi.json
 dist/museum.json
-```
+</pre>
 
 ### Create a fully dereferenced bundle
 
@@ -73,7 +77,7 @@ redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 JSON output only works when there are no circular references.
 {% /admonition %}
 
-### Custom configuration file
+### Use custom configuration file
 
 By default, the CLI tool looks for the Redocly configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
