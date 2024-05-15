@@ -75,6 +75,9 @@ Nodes may be skipped in between the subject node types of the where list and tho
 | subject    | [Subject object](#subject-object)     | **REQUIRED.** Narrows the subject further.                                                                                                                                                                                    |
 | assertions | [Assertion object](#assertion-object) | **REQUIRED.** Applies assertions to determine if the subject should continue towards evaluating the main assertions. If an assertion fails, it narrows that from downstream subject evaluation and does not report a problem. |
 
+Using the `where` narrowing changes how `Schema` nodes are evaluated. 
+When it is defined, the linter stops evaluating at the first `Schema` level that matches the narrowing criteria.
+
 ### `where` example
 
 The following example asserts that PUT responses with HTTP status `200` or `201` cannot return an `application/pdf`content type.
