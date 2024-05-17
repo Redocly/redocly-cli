@@ -149,7 +149,7 @@ export function formatProblems(
         }
         output.write('\n');
 
-        if(totals.warnings > 0) {
+        if(totals.errors > 0) {
           output.write(`Validation failed\nErrors: ${totals.errors}\n`);
         } else {
           output.write('Validation successful\n');
