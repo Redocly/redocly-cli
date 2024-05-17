@@ -139,6 +139,8 @@ describe('format', () => {
       |---|---|---|---|
       | error | line 1:2 | [spec](https://redocly.com/docs/cli/rules/spec/) | message |
 
+      Validation successful
+
       "
     `);
   });

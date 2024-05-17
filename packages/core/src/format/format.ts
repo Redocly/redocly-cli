@@ -139,16 +139,27 @@ export function formatProblems(
       for (const [file, { fileProblems }] of Object.entries(
         groupedByFile
       )) {
-        logger.info(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
+        output.write(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
 
-        logger.info(`| Severity | Location | Problem | Message |\n`);
-        logger.info(`|---|---|---|---|\n`);
+        output.write(`| Severity | Location | Problem | Message |\n`);
+        output.write(`|---|---|---|---|\n`);
         for (let i = 0; i < fileProblems.length; i++) {
           const problem = fileProblems[i];
-          logger.info(`${formatMarkdown(problem)}\n`);
+          output.write(`${formatMarkdown(problem)}\n`);
+        }
+        output.write('\n');
+
+        if(totals.warnings > 0) {
+          output.write(`Validation failed\nErrors: ${totals.errors}\n`);
+        } else {
+          output.write('Validation successful\n');
         }
 
-        logger.info('\n');
+        if(totals.warnings > 0) {
+          output.write(`Warnings: ${totals.warnings}\n`);
+        }
+
+        output.write('\n');
       }
       break;
     }
