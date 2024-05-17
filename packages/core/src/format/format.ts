@@ -139,7 +139,7 @@ export function formatProblems(
       for (const [file, { fileProblems }] of Object.entries(
         groupedByFile
       )) {
-        logger.info(`# Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
+        logger.info(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
 
         logger.info(`| Severity | Location | Problem | Message |\n`);
         logger.info(`|---|---|---|---|\n`);
