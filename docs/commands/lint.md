@@ -27,7 +27,7 @@ redocly lint --version
 | apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                                               |
 | --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                    |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                                             |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `summary`. Default value is `codeframe`. |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`. |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                           |
 | --help                 | boolean  | Show help.                                                                                                                                                               |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                       |
@@ -238,6 +238,28 @@ Use `redocly lint --format=github-actions` to have any encountered problem annot
 ::error title=spec,file=museum-with-errors.yaml,line=29,endLine=29,col=11,endColumn=11::Property `require` is not expected here.
 ::warning title=operation-operationId,file=museum-with-errors.yaml,line=16,endLine=16,col=5,endColumn=5::Operation object should contain `operationId` field.
 ```
+
+#### Markdown
+
+Use `markdown` format output with the `lint` command to get a markdown-ready output format.
+This is useful if you want to report the outcomes to a document, or use the information in a GitHub Job Summary.
+
+```bash
+## Lint: ./museum-with-errors.yaml
+
+| Severity | Location | Problem | Message |
+|---|---|---|---|
+| error | line 42:11 | [spec](https://redocly.com/docs/cli/rules/spec/) | Must contain at least one of the following fields: schema, content. |
+| error | line 44:11 | [spec](https://redocly.com/docs/cli/rules/spec/) | Property `type` is not expected here. |
+
+Validation failed
+Errors: 2
+```
+
+The output includes a formatted table, and links to any built-in rules that identified problems.
+An example is shown in the following screenshot.
+
+![Output of the lint command, Markdown rendered as HTML](./images/lint-markdown.png)
 
 ### <a id="max-problems"></a>Limit the problem count
 
