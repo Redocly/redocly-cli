@@ -242,7 +242,9 @@ Use `redocly lint --format=github-actions` to have any encountered problem annot
 #### Markdown
 
 Use `markdown` format output with the `lint` command to get a Markdown-ready output format.
-This is useful if you want to report the outcomes to a document, or use the information in a GitHub Job Summary.
+This output format is useful if you want to report the outcomes to a document, or use the information in a GitHub Job Summary.
+
+Running the `lint` command with `--format=markdown` produces output like the following example:
 
 ```bash
 ## Lint: ./museum-with-errors.yaml
