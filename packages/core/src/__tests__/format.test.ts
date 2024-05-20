@@ -107,4 +107,41 @@ describe('format', () => {
       '::error title=spec,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n'
     );
   });
+
+  it('should format problems using markdown', () => {
+    const problems = [
+      {
+        ruleId: 'spec',
+        message: 'message',
+        severity: 'error' as const,
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 1, col: 2 },
+            end: { line: 3, col: 4 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'markdown',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "## Lint: openapi.yaml
+
+      | Severity | Location | Problem | Message |
+      |---|---|---|---|
+      | error | line 1:2 | [spec](https://redocly.com/docs/cli/rules/spec/) | message |
+
+      Validation failed
+      Errors: 1
+
+      "
+    `);
+  });
 });

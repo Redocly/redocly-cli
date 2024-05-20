@@ -134,6 +134,33 @@ export function formatProblems(
       }
       break;
     }
+    case 'markdown': {
+      const groupedByFile = groupByFiles(problems);
+      for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
+        output.write(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
+
+        output.write(`| Severity | Location | Problem | Message |\n`);
+        output.write(`|---|---|---|---|\n`);
+        for (let i = 0; i < fileProblems.length; i++) {
+          const problem = fileProblems[i];
+          output.write(`${formatMarkdown(problem)}\n`);
+        }
+        output.write('\n');
+
+        if (totals.errors > 0) {
+          output.write(`Validation failed\nErrors: ${totals.errors}\n`);
+        } else {
+          output.write('Validation successful\n');
+        }
+
+        if (totals.warnings > 0) {
+          output.write(`Warnings: ${totals.warnings}\n`);
+        }
+
+        output.write('\n');
+      }
+      break;
+    }
     case 'checkstyle': {
       const groupedByFile = groupByFiles(problems);
 
@@ -268,6 +295,17 @@ export function formatProblems(
     return `  ${`${start.line}:${start.col}`.padEnd(
       locationPad
     )}  ${severityName}  ${problem.ruleId.padEnd(ruleIdPad)}  ${problem.message}`;
+  }
+
+  function formatMarkdown(problem: OnlyLineColProblem) {
+    if (!SEVERITY_NAMES[problem.severity]) {
+      return 'Error not found severity. Please check your config file. Allowed values: `warn,error,off`';
+    }
+    const severityName = SEVERITY_NAMES[problem.severity].toLowerCase();
+    const { start } = problem.location[0];
+    return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${
+      problem.ruleId
+    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
   }
 
   function formatCheckstyle(problem: OnlyLineColProblem) {
