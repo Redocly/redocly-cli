@@ -22,19 +22,19 @@ redocly lint --version
 
 ## Options
 
-| Option                 | Type     | Description                                                                                                                                                              |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                                               |
-| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                    |
-| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                                             |
+| Option                 | Type     | Description                                                                                                                                                                          |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                                                           |
+| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                                |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                                                         |
 | --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`. |
-| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                           |
-| --help                 | boolean  | Show help.                                                                                                                                                               |
-| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                       |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                                              |
-| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                             |
-| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                     |
-| --version              | boolean  | Show version number.                                                                                                                                                     |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                       |
+| --help                 | boolean  | Show help.                                                                                                                                                                           |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                   |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                                                          |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                         |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                 |
+| --version              | boolean  | Show version number.                                                                                                                                                                 |
 
 ## Examples
 

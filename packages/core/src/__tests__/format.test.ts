@@ -106,7 +106,6 @@ describe('format', () => {
     expect(output).toEqual(
       '::error title=spec,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n'
     );
-
   });
 
   it('should format problems using markdown', () => {

@@ -136,9 +136,7 @@ export function formatProblems(
     }
     case 'markdown': {
       const groupedByFile = groupByFiles(problems);
-      for (const [file, { fileProblems }] of Object.entries(
-        groupedByFile
-      )) {
+      for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
         output.write(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
 
         output.write(`| Severity | Location | Problem | Message |\n`);
@@ -149,13 +147,13 @@ export function formatProblems(
         }
         output.write('\n');
 
-        if(totals.errors > 0) {
+        if (totals.errors > 0) {
           output.write(`Validation failed\nErrors: ${totals.errors}\n`);
         } else {
           output.write('Validation successful\n');
         }
 
-        if(totals.warnings > 0) {
+        if (totals.warnings > 0) {
           output.write(`Warnings: ${totals.warnings}\n`);
         }
 
@@ -305,7 +303,9 @@ export function formatProblems(
     }
     const severityName = SEVERITY_NAMES[problem.severity].toLowerCase();
     const { start } = problem.location[0];
-    return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${problem.ruleId}](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
+    return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${
+      problem.ruleId
+    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
   }
 
   function formatCheckstyle(problem: OnlyLineColProblem) {
