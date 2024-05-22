@@ -8,6 +8,7 @@ import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
 import { BaseResolver } from '../resolve';
+import { isBrowser } from '../env';
 
 import type { Document } from '../resolve';
 import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
@@ -103,7 +104,7 @@ export async function loadConfig(
   } = options;
   const rawConfig = await getConfig({ configPath, processRawConfig, externalRefResolver });
 
-  const redoclyClient = isEmptyObject(fs) ? undefined : new RedoclyClient();
+  const redoclyClient = isBrowser ? undefined : new RedoclyClient();
   const tokens = redoclyClient && redoclyClient.hasTokens() ? redoclyClient.getAllTokens() : [];
 
   return addConfigMetadata({
@@ -146,13 +147,8 @@ export async function getConfig(
     processRawConfig,
     externalRefResolver = new BaseResolver(),
   } = options;
-  try {
-    if (!configPath || !(await externalRefResolver.resolveDocument(null, configPath))) {
-      return {};
-    }
-  } catch (e) {
-    return {};
-  }
+  if (!configPath) return {};
+
   try {
     const { document, resolvedRefMap } = await resolveConfigFileAndRefs({
       configPath,
