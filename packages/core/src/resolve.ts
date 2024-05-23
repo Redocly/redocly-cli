@@ -6,7 +6,6 @@ import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
 import { ResolveConfig } from './config/types';
-import { isBrowser } from './env';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
@@ -107,7 +106,7 @@ export class BaseResolver {
       return new URL(ref, base).href;
     }
 
-    return path.resolve(base ? path.dirname(base) : isBrowser ? '' : process.cwd(), ref);
+    return path.resolve(base ? path.dirname(base) : process.cwd(), ref);
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
