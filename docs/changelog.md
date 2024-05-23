@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.13.0 (2024-05-23)
+
+### Minor Changes
+
+- Added support for the linting command to output markdown format.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.13.0.
+
 ## 1.12.2 (2024-05-09)
 
 ### Patch Changes
