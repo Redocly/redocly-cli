@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.13.0
+
+### Minor Changes
+
+- Added support for the linting command to output markdown format.
+
 ## 1.12.2
 
 ### Patch Changes
