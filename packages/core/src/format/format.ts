@@ -6,7 +6,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { env } from '../env';
+import { env, isBrowser } from '../env';
 import { isAbsoluteUrl } from '../ref-utils';
 
 export type Totals = {
@@ -89,7 +89,7 @@ export function formatProblems(
 ) {
   const {
     maxProblems = 100,
-    cwd = process.cwd(),
+    cwd = isBrowser ? '' : process.cwd(),
     format = 'codeframe',
     color = colorOptions.enabled,
     totals = getTotals(problems),
