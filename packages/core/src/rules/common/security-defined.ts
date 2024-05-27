@@ -68,7 +68,6 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
         }
       }
     },
-
     PathItem: {
       enter(pathItem: Oas2PathItem | Oas3PathItem, { key }: UserContext) {
         path = key as string;
