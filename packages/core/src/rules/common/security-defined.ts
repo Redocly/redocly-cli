@@ -1,10 +1,22 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
 import { UserContext } from '../../walk';
-import { Oas2Definition, Oas2Operation, Oas2SecurityScheme } from '../../typings/swagger';
-import { Oas3Definition, Oas3Operation, Oas3SecurityScheme } from '../../typings/openapi';
+import {
+  Oas2Definition,
+  Oas2Operation,
+  Oas2PathItem,
+  Oas2SecurityScheme,
+} from '../../typings/swagger';
+import {
+  Oas3Definition,
+  Oas3Operation,
+  Oas3PathItem,
+  Oas3SecurityScheme,
+} from '../../typings/openapi';
 
-export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
+export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
+  exceptions?: { path: string; methods?: string[] }[];
+}) => {
   const referencedSchemes = new Map<
     string,
     {
@@ -15,6 +27,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
 
   const operationsWithoutSecurity: Location[] = [];
   let eachOperationHasSecurity: boolean = true;
+  let path: string | undefined;
 
   return {
     Root: {
@@ -55,11 +68,22 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
         }
       }
     },
-    Operation(operation: Oas2Operation | Oas3Operation, { location }: UserContext) {
-      if (!operation?.security) {
-        eachOperationHasSecurity = false;
-        operationsWithoutSecurity.push(location);
-      }
+
+    PathItem: {
+      enter(pathItem: Oas2PathItem | Oas3PathItem, { key }: UserContext) {
+        path = key as string;
+      },
+      Operation(operation: Oas2Operation | Oas3Operation, { location, key }: UserContext) {
+        const isException = opts.exceptions?.some(
+          (item) =>
+            item.path === path &&
+            (!item.methods || item.methods?.some((method) => method.toLowerCase() === key))
+        );
+        if (!operation?.security && !isException) {
+          eachOperationHasSecurity = false;
+          operationsWithoutSecurity.push(location);
+        }
+      },
     },
   };
 };
