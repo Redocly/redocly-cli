@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added the ability to exclude some operations from the `security-defined` rule.
+Added the ability to exclude some operations or entire paths from the `security-defined` rule.
