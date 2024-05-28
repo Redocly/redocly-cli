@@ -41,7 +41,7 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
-    exitWithError('No APIs were provided');
+    exitWithError('No APIs were provided.');
   }
 
   if (argv['generate-ignore-file']) {
