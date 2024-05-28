@@ -51,7 +51,7 @@ export async function handlePush(
   const orgId = organization || config.organization;
 
   if (!argv.message || !argv.author || !argv.branch) {
-    exitWithError('Error: message, author and branch are required for push to the CMS');
+    exitWithError('Error: message, author and branch are required for push to the CMS.');
   }
 
   if (!orgId) {

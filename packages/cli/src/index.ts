@@ -726,7 +726,8 @@ yargs
           },
           t: {
             alias: 'template',
-            describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example.',
+            describe:
+              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
             type: 'string',
           },
           templateOptions: {

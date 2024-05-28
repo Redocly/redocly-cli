@@ -2,8 +2,7 @@
 
 exports[`E2E join without options test: fails-if-no-info-section 1`] = `
 
-Info section is not found in specification. 
-
+Info section is not found in specification.
 
 
 `;

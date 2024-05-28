@@ -76,7 +76,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<api-name@api-version>'
-      )}`
+      )}.`
     );
   }
 
@@ -176,7 +176,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
         const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
 
         if (!uploadResponse.ok) {
-          exitWithError(`✗ ${fileCounter}\nFile upload failed\n`);
+          exitWithError(`✗ ${fileCounter}\nFile upload failed.`);
         }
 
         process.stdout.write(green(`✓ ${fileCounter}\n`));
@@ -198,7 +198,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
       });
     } catch (error) {
       if (error.message === 'ORGANIZATION_NOT_FOUND') {
-        exitWithError(`Organization ${blue(organizationId)} not found`);
+        exitWithError(`Organization ${blue(organizationId)} not found.`);
       }
 
       if (error.message === 'API_VERSION_NOT_FOUND') {
@@ -207,7 +207,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
             `${name}@${version}`
           )} does not exist in organization ${blue(organizationId)}!\n${yellow(
             'Suggestion:'
-          )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.\n\n`
+          )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.`
         );
       }
 
@@ -215,7 +215,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     }
 
     process.stdout.write(
-      `Definition: ${blue(api!)} is successfully pushed to Redocly API Registry \n`
+      `Definition: ${blue(api!)} is successfully pushed to Redocly API Registry.\n`
     );
   }
   printExecutionTime('push', startedAt, api || `apis in organization ${organizationId}`);
@@ -254,7 +254,7 @@ async function collectFilesToUpload(api: string, config: Config) {
       `Created a bundle for ${blue(api)} ${fileTotals.warnings > 0 ? 'with warnings' : ''}\n`
     );
   } else {
-    exitWithError(`Failed to create a bundle for ${blue(api)}\n`);
+    exitWithError(`Failed to create a bundle for ${blue(api)}.`);
   }
 
   const fileExt = path.extname(apiPath).split('.').pop();

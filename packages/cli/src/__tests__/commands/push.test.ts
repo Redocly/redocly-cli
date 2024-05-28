@@ -248,7 +248,7 @@ describe('push', () => {
     expect(exitWithError).toHaveBeenCalledWith(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<api-name@api-version>'
-      )}`
+      )}.`
     );
   });
 

@@ -62,7 +62,7 @@ describe('handleLint', () => {
     it('should fail if config file does not exist', async () => {
       await commandWrapper(handleLint)({ ...argvMock, config: 'config.yaml' });
       expect(exitWithError).toHaveBeenCalledWith(
-        'Please, provide valid path to the configuration file'
+        'Please provide a valid path to the configuration file.'
       );
     });
 
@@ -102,7 +102,7 @@ describe('handleLint', () => {
     it('should fail if apis not provided', async () => {
       await commandWrapper(handleLint)({ ...argvMock, apis: [] });
       expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
-      expect(exitWithError).toHaveBeenCalledWith('No APIs were provided');
+      expect(exitWithError).toHaveBeenCalledWith('No APIs were provided.');
     });
   });
 

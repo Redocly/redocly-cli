@@ -19,7 +19,7 @@ export function commandWrapper<T extends CommandOptions>(
     let telemetry;
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
-        exitWithError('Please, provide valid path to the configuration file');
+        exitWithError('Please provide a valid path to the configuration file.');
       }
       const config: Config = (await loadConfigAndHandleErrors({
         configPath: argv.config,
