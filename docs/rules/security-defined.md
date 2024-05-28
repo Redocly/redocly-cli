@@ -34,9 +34,17 @@ security: []
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option     | Type                                    | Description                                                                                |
+| ---------- | --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| severity   | string                                  | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| exceptions | [[Exception object](#exception-object)] | List of exceptions from the rule.                                                          |
+
+### Exception object
+
+| Option  | Type     | Description                                                                                 |
+| ------- | -------- | ------------------------------------------------------------------------------------------- |
+| path    | string   | **REQUIRED.** Excluded path.                                                                |
+| methods | [string] | Optional list of operations to exclude. If not provided, the entire path is being excluded. |
 
 An example configuration:
 
