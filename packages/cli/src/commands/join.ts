@@ -148,9 +148,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       const version = detectSpec(document.parsed);
       if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
         return exitWithError(
-          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
-            document.source.absoluteRef
-          )}.`
+          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
@@ -755,9 +753,7 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
       `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section.`
     );
   if (!isString(info[prefixArg]))
-    exitWithError(
-      `${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`
-    );
+    exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`);
   if (info[prefixArg].length > 50)
     exitWithError(
       `${yellow(
