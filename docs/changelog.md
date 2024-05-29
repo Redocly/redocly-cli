@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.14.0 (2024-05-29)
+
+### Minor Changes
+
+- Added the ability to exclude some operations or entire paths from the `security-defined` rule.
+
+### Patch Changes
+
+- Improved error messages.
+- Updated @redocly/openapi-core to v1.14.0.
+
 ## 1.13.0 (2024-05-23)
 
 ### Minor Changes

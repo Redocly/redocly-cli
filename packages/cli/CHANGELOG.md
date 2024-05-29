@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 1.14.0
+
+### Minor Changes
+
+- Added the ability to exclude some operations or entire paths from the `security-defined` rule.
+
+### Patch Changes
+
+- Improved error messages.
+- Updated @redocly/openapi-core to v1.14.0.
+
 ## 1.13.0
 
 ### Minor Changes
