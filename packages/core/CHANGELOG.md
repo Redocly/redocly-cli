@@ -6,6 +6,7 @@
 
 - Added the ability to exclude some operations or entire paths from the `security-defined` rule.
 
+
 ## 1.13.0
 
 ### Minor Changes
