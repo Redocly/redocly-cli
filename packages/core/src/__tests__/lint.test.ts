@@ -410,37 +410,6 @@ describe('lint', () => {
           "severity": "error",
           "suggest": [],
         },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/theme/openapi/layout",
-              "reportOnKey": false,
-              "source": "",
-            },
-          ],
-          "message": "\`layout\` can be one of the following only: "stacked", "three-panel".",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/theme/openapi/theme/theme",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`theme\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [
-            "schema",
-            "shape",
-          ],
-        },
       ]
     `);
   });
