@@ -1,6 +1,6 @@
 name: Build and Test OS Aplet 
 
-on:
+on: .github/workflows/tests.yaml
   pull_request:
     types: [opened, synchronize, reopened]
   push:
