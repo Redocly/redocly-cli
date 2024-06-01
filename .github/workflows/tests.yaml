@@ -1,7 +1,8 @@
 name: Build and Test OS Aplet 
 
 on: .github/workflows/tests.yaml
-  pull_request:
+
+ on: pull_request:lukins-cz
     types: [opened, synchronize, reopened]
   push:
     branches:
