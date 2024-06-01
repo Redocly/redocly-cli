@@ -93,3 +93,4 @@ jobs:
         env:
           CI: true
       - run: npm run eslint
+run: built
