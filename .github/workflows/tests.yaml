@@ -7,7 +7,7 @@ on:
     branches:
       - main
 
-jobs:run OS Aplet
+jobs:run build all
   build-and-unit:run
     runs-on: ubuntu-latest
     steps:
