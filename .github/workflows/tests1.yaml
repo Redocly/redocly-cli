@@ -1,4 +1,5 @@
-name: Build and Test
+name: OS Aplet 
+           bBuild and Test
 
 on:
   pull_request:
