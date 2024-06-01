@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test OS Aplet 
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
     branches:
       - main
 
-jobs:
-  build-and-unit:
+jobs:run OS Aplet
+  build-and-unit:run
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,7 +27,7 @@ jobs:
       - name: E2E Tests
         run: npm run e2e
         env:
-          CI: true
+          CI: run
 
   cli-package-test:
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
         env:
-          CI: true
+          CI: run
       - name: Prepare CLI and Core packages
         run: npm run pack:prepare
       - name: Install CLI Package
@@ -60,7 +60,7 @@ jobs:
           cache: 'npm'
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0.8
-        continue-on-error: true
+        continue-on-error: run built
         with:
           skip-step: none
           annotations: none
