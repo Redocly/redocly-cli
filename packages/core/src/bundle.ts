@@ -82,6 +82,7 @@ export async function bundle(
   opts: {
     ref?: string;
     doc?: Document;
+    collectSpecVersion?: (version: string) => void;
   } & BundleOptions
 ) {
   const {
@@ -100,6 +101,7 @@ export async function bundle(
   if (document instanceof Error) {
     throw document;
   }
+  opts.collectSpecVersion?.(detectSpec(document.parsed));
 
   return bundleDocument({
     document,

@@ -1,4 +1,7 @@
-import { formatProblems, getTotals, getMergedConfig, bundle, Config } from '@redocly/openapi-core';
+import { performance } from 'perf_hooks';
+import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
+import { formatProblems, getTotals, getMergedConfig, bundle } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -8,12 +11,11 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeysForOas,
+  checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
+
 import type { OutputExtensions, Skips, Totals } from '../types';
-import { performance } from 'perf_hooks';
-import { blue, gray, green, yellow } from 'colorette';
-import { writeFileSync } from 'fs';
-import { checkForDeprecatedOptions } from '../utils/miscellaneous';
+import type { CommandArgs } from '../wrapper';
 
 export type BundleOptions = {
   apis?: string[];
@@ -28,7 +30,12 @@ export type BundleOptions = {
   'keep-url-references'?: boolean;
 } & Skips;
 
-export async function handleBundle(argv: BundleOptions, config: Config, version: string) {
+export async function handleBundle({
+  argv,
+  config,
+  version,
+  collectSpecVersion,
+}: CommandArgs<BundleOptions>) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
@@ -59,6 +66,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
+        collectSpecVersion,
       });
 
       const fileTotals = getTotals(problems);

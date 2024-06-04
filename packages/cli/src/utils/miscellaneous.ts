@@ -541,7 +541,8 @@ export function cleanColors(input: string): string {
 export async function sendTelemetry(
   argv: Arguments | undefined,
   exit_code: ExitCode,
-  has_config: boolean | undefined
+  has_config: boolean | undefined,
+  spec_version: string | undefined
 ): Promise<void> {
   try {
     if (!argv) {
@@ -569,6 +570,7 @@ export async function sendTelemetry(
       environment_ci: process.env.CI,
       raw_input: cleanRawInput(process.argv.slice(2)),
       has_config,
+      spec_version,
     };
     await fetch(`https://api.redocly.com/registry/telemetry/cli`, {
       method: 'POST',
@@ -598,6 +600,7 @@ export type Analytics = {
   environment_ci?: string;
   raw_input: string;
   has_config?: boolean;
+  spec_version?: string;
 };
 
 function isFile(value: string) {

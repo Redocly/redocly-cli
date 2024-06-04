@@ -1,7 +1,6 @@
 import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
-  Config,
   StyleguideConfig,
   normalizeTypes,
   BaseResolver,
@@ -15,7 +14,9 @@ import {
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit } from '../utils/miscellaneous';
 import { printExecutionTime } from '../utils/miscellaneous';
+
 import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
+import type { CommandArgs } from '../wrapper';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -86,12 +87,17 @@ export type StatsOptions = {
   config?: string;
 };
 
-export async function handleStats(argv: StatsOptions, config: Config) {
+export async function handleStats({
+  argv,
+  config,
+  collectSpecVersion,
+}: CommandArgs<StatsOptions>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   const lintConfig: StyleguideConfig = config.styleguide;
   const specVersion = detectSpec(document.parsed);
+  collectSpecVersion?.(specVersion);
   const types = normalizeTypes(
     lintConfig.extendTypes(getTypes(specVersion), specVersion),
     lintConfig

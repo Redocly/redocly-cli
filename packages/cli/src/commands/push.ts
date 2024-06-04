@@ -26,6 +26,8 @@ import {
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
 
+import type { CommandArgs } from '../wrapper';
+
 const DEFAULT_VERSION = 'latest';
 
 export const DESTINATION_REGEX =
@@ -59,7 +61,7 @@ export function commonPushHandler({
   return transformPush(handlePush);
 }
 
-export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
+export async function handlePush({ argv, config }: CommandArgs<PushOptions>): Promise<void> {
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -366,16 +368,11 @@ type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  (
-    {
-      apis,
-      branch,
-      'batch-id': batchId,
-      'job-id': jobId,
-      ...rest
-    }: BarePushArgs & { 'batch-id'?: string },
-    config: Config
-  ) => {
+  ({
+    argv: { apis, branch, 'batch-id': batchId, 'job-id': jobId, ...rest },
+    config,
+    version,
+  }: CommandArgs<BarePushArgs & { 'batch-id'?: string }>) => {
     const [maybeApiOrDestination, maybeDestination, maybeBranchName] = apis || [];
 
     if (batchId) {
@@ -414,16 +411,17 @@ export const transformPush =
       apiFile = maybeApiOrDestination;
     }
 
-    return callback(
-      {
+    return callback({
+      argv: {
         ...rest,
         destination: rest.destination ?? destination,
         api: apiFile,
         branchName: branch ?? maybeBranchName,
         'job-id': jobId || batchId,
       },
-      config
-    );
+      config,
+      version,
+    });
   };
 
 export function getApiRoot({
