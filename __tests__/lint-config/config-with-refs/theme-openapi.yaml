@@ -1,4 +1,4 @@
 content:
   theme: # Not expected here anymore
     logo:
-      maxWidth: 100 
+      maxWidth: 100

@@ -38,7 +38,7 @@ Property \`theme\` is not expected here.
 2 |   theme: # Not expected here anymore
   |   ^^^^^
 3 |     logo:
-4 |       maxWidth: 100 
+4 |       maxWidth: 100
 
 referenced from .redocly.yaml:11:5 at #/theme/openapi 
 
