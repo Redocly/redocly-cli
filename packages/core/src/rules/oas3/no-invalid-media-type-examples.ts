@@ -12,9 +12,9 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
       leave(mediaType, ctx: UserContext) {
         const { location, resolve } = ctx;
         if (!mediaType.schema) return;
-        if (typeof mediaType.example !== 'undefined') {
+        if (mediaType.example !== undefined) {
           resolveAndValidateExample(mediaType.example, location.child('example'));
-        } else if (typeof mediaType.examples !== 'undefined') {
+        } else if (mediaType.examples) {
           for (const exampleName of Object.keys(mediaType.examples)) {
             resolveAndValidateExample(
               mediaType.examples[exampleName],
