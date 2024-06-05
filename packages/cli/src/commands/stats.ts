@@ -87,11 +87,7 @@ export type StatsOptions = {
   config?: string;
 };
 
-export async function handleStats({
-  argv,
-  config,
-  collectSpecVersion,
-}: CommandArgs<StatsOptions>) {
+export async function handleStats({ argv, config, collectSpecVersion }: CommandArgs<StatsOptions>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
