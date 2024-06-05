@@ -369,26 +369,8 @@ describe('lint', () => {
                 min: 3
         theme:
           openapi:
-            showConsole: true
-            layout:
-              scope: section
-            routingStrategy: browser
-            theme:
-              rightPanel:
-                backgroundColor: '#263238'
-              links:
-                color: '#6CC496'
-              theme:
-                openapi:
-                  showConsole: true
-                  layout:
-                    scope: section
-                  routingStrategy: browser
-                  theme:
-                    rightPanel:
-                      backgroundColor: '#263238'
-                    links:
-                      color: '#6CC496'
+            showConsole: true # Not expected anymore
+            layout: wrong-option
       `,
       ''
     );
@@ -406,6 +388,34 @@ describe('lint', () => {
             },
           ],
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/openapi/showConsole",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`showConsole\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/openapi/layout",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`layout\` can be one of the following only: "stacked", "three-panel".",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
@@ -775,12 +785,12 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/theme/openapi",
-              "reportOnKey": false,
+              "pointer": "#/apis/with-theme/theme/not-expected",
+              "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Expected type \`object\` but got \`string\`.",
+          "message": "Property \`not-expected\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
@@ -789,12 +799,12 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/theme/not-expected",
-              "reportOnKey": true,
+              "pointer": "#/apis/with-theme/theme/openapi",
+              "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "Property \`not-expected\` is not expected here.",
+          "message": "Expected type \`rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi\` (object) but got \`string\`",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
