@@ -1,4 +1,4 @@
 content:
-  theme:
+  theme: # Not expected here anymore
     logo:
-      maxWidth: 100 # Fail - should be a string
+      maxWidth: 100

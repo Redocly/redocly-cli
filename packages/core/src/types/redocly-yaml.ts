@@ -256,7 +256,6 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...ConfigStyleguide.properties,
     apis: 'ConfigApis', // Override apis with internal format
-    theme: 'ConfigRootTheme', // Override theme with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
@@ -314,14 +313,6 @@ const ConfigHTTP: NodeType = {
     },
   },
 };
-
-const createConfigRootTheme = (nodeTypes: Record<string, NodeType>): NodeType => ({
-  ...nodeTypes['rootRedoclyConfigSchema.theme'],
-  properties: {
-    ...nodeTypes['rootRedoclyConfigSchema.theme']?.properties,
-    openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
-  },
-});
 
 const Rules: NodeType = {
   properties: {},
@@ -932,10 +923,10 @@ const GenerateCodeSamples: NodeType = {
   required: ['languages'],
 };
 
+// TODO: deprecated
 const ConfigReferenceDocs: NodeType = {
-  // TODO: partially invalid @Viacheslav
   properties: {
-    theme: 'ConfigTheme', // TODO: deprecated @Viacheslav
+    theme: 'ConfigTheme',
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
@@ -1072,9 +1063,8 @@ export const createConfigTypes = (extraSchemas: JSONSchema) => {
 
   return {
     ...CoreConfigTypes,
-    ConfigRoot: createConfigRoot(nodeTypes),
+    ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
-    ConfigRootTheme: createConfigRootTheme(nodeTypes),
     ...nodeTypes,
   };
 };
