@@ -107,8 +107,10 @@ rules:
       function: truthy
 ```
 
-Finally, run the following:
-`redocly lint openapi/openapi.yaml --extends custom-rule.yaml`
+Finally, run the following command:
+```
+redocly lint path/to/openapi.yaml --extends custom-rule.yaml
+```
 
 Example Output
 ```
