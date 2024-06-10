@@ -150,19 +150,6 @@ describe('getConfig', () => {
           "suggest": [],
         },
         {
-          "location": [
-            {
-              "pointer": "#/theme",
-              "reportOnKey": false,
-              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
-            },
-          ],
-          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
-          "ruleId": "configuration no-unresolved-refs",
-          "severity": "warn",
-          "suggest": [],
-        },
-        {
           "from": {
             "pointer": "#/rules",
             "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
@@ -176,6 +163,19 @@ describe('getConfig', () => {
           ],
           "message": "Property \`non-existing-rule\` is not expected here.",
           "ruleId": "configuration spec",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/theme",
+              "reportOnKey": false,
+              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
           "severity": "warn",
           "suggest": [],
         },
