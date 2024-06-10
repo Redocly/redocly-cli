@@ -117,3 +117,4 @@ openapi/openapi.yaml: validated in 38ms
 
 Woohoo! Your API description is valid. 🎉
 ```
+![Screenshot from 2024-06-10 15-18-48](https://github.com/techstacksavvy/redocly-cli/assets/84424434/551b1f84-334f-4560-8825-94303621cb7d)
