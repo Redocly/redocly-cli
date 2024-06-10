@@ -86,10 +86,16 @@ The output shows any aspects where the OpenAPI doesn't meet the standard. If you
 
 Feeling brave and highly API compliant? Try the `recommended` standard instead and see how yours measures up.
 
-Eager to experiment? Give it a go and craft a custom rule set!
+##  Eager to experiment? Give it a go and craft a custom rule set!
 
-Steps:
+Some common first tasks include installation, linting an API definition and creating custom rule sets. As an example, we'll create a custom rule that ensures all operations in the API have a summary field, which explains the purpose of each operation. 
 
+First, create your custom rule YAML file
+```
+touch custom-rule.yaml
+```
+
+Then, configure your custom-rule.yaml
 ```
 rules:
   operation-has-summary:
@@ -101,9 +107,10 @@ rules:
       function: truthy
 ```
 
-run the following:
-`redocly lint openapi/openapi.yaml --extends custom-rules.yaml`
+Finally, run the following:
+`redocly lint openapi/openapi.yaml --extends custom-rule.yaml`
 
+Example Output
 ```
 validating openapi/openapi.yaml...
 openapi/openapi.yaml: validated in 38ms
