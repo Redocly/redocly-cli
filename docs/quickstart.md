@@ -24,6 +24,27 @@ redocly preview-docs openapi.yaml
 
 The output takes a few moments to build, and then lets you know the host and port where the preview server is running - usually `http://localhost:8080`.
 
+```
+Using Redoc community edition.
+Login with redocly login or use an enterprise license key to preview with the premium docs.
+
+
+  🔎  Preview server running at http://127.0.0.1:8080
+
+  👀  Watching openapi-starter/openapi/openapi.yaml and all related resources for changes
+
+
+Bundling...
+
+Created a bundle for openapi-starter/openapi/openapi.yaml successfully
+GET /: 18.123ms
+GET /simplewebsocket.min.js: 4.256ms
+GET /hot.js: 4.765ms
+GET /openapi.json: 1.73ms
+GET /favicon.ico: 1.556ms
+```
+
+
 Open that URL in your browser, and admire your lovely API documentation!
 
 ![Preview of API documentation](./images/preview-docs.png)
