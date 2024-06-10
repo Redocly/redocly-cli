@@ -52,6 +52,8 @@ Open that URL in your browser, and admire your lovely API documentation!
 
 ## Lint an OpenAPI description
 
+Linting helps create consistent API descriptions and helps you avoid bugs, leading to a smoother developer experience. It enhances clarity, optimizes maintainability, facilitates ease of onboarding, and ultimately increases the adoption of the API.
+
 The `lint` command is used to check that the OpenAPI description is compliant with a set of rules. You can define your own rules if you want to be specific, but to get started, try this:
 
 ```bash
