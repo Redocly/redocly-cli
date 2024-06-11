@@ -137,6 +137,58 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
+  it('should report on invalid example with a falsy value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /test:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: false
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'no-invalid-media-type-examples': {
+          severity: 'error',
+          allowAdditionalProperties: false,
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1test/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1test/get/responses/200/content/application~1json/example",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: type must be string.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report on valid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
