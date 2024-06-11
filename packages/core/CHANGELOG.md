@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 1.15.0
+
+### Minor Changes
+
+- Made `redocly.yaml` validation consistent with the general Redocly config.
+
+### Patch Changes
+
+- Fixed `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` rules which allowed falsy example values to pass for any schema.
+
 ## 1.14.0
 
 ### Minor Changes
