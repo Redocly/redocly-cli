@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.15.0 (2024-06-11)
+
+### Minor Changes
+
+- Made `redocly.yaml` validation consistent with the general Redocly config.
+
+### Patch Changes
+
+- Updated Redoc to v2.1.5.
+- Fixed `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` rules which allowed falsy example values to pass for any schema.
+- Updated @redocly/openapi-core to v1.15.0.
+
 ## 1.14.0 (2024-05-29)
 
 ### Minor Changes
