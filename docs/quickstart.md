@@ -5,9 +5,8 @@ Take your first steps with the Redocly CLI by following the steps in this guide.
 Before you start:
 
 - [Install the Redocly CLI](./installation.md) if you haven't already
-- If you have an OpenAPI description to use, have it handy (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 - Create a new project folder and `cd` into the folder
-- Git clone the [openapi-starter](https://github.com/Redocly/openapi-starter) repo in the new project folder
+- If you have an OpenAPI description to use, copy it into your project (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 
 {% admonition type="attention" %}
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
@@ -24,6 +23,8 @@ redocly preview-docs openapi.yaml
 The `redocly preview-docs` command triggers the creation of the doc preview for your API descriptions on your local machine. Once the doc preview has been generated, a url is printed as output to the CLI, as seen in the example below.
 
 The API Doc preview takes a few moments to build. Upon completion, it provides the host and port where the preview server runs - typically `http://localhost:8080`.
+
+<details><summary>Preview-docs command output</summary>
 
 ```
 Using Redoc community edition.
@@ -44,7 +45,7 @@ GET /hot.js: 4.765ms
 GET /openapi.json: 1.73ms
 GET /favicon.ico: 1.556ms
 ```
-
+</details>
 
 Open that URL in your browser, and admire your lovely API documentation!
 
@@ -52,16 +53,17 @@ Open that URL in your browser, and admire your lovely API documentation!
 
 ## Lint an OpenAPI description
 
-Linting helps create consistent API descriptions and helps you avoid bugs, leading to a smoother developer experience. It enhances clarity, optimizes maintainability, facilitates ease of onboarding, and ultimately increases the adoption of the API.
+Linting helps create consistent API descriptions and helps you avoid bugs, leading to a smoother developer experience. Using linting as part of your API workflow optimizes maintainability, facilitates ease of onboarding, and increases the adoption of the API.
 
-The `lint` command is used to check that the OpenAPI description is compliant with a set of rules. You can define your own rules if you want to be specific, but to get started, try this:
+The `lint` command is used to check that the OpenAPI description is compliant with a set of rules. To get started using a default ruleset, try the following command:
 
 ```bash
 redocly lint --extends minimal openapi.yaml
 ```
 
-Example Output
-```
+The command uses a [minimal ruleset](./rules/minimal.md) to lint the API description, and outputs a report of whether the API met the expected standard, as shown in the following example:
+
+```text
 validating openapi-starter/openapi/openapi.yaml...
 [1] openapi-starter/openapi/openapi.yaml:72:10 at #/servers/1/url
 
@@ -86,17 +88,13 @@ The output shows any aspects where the OpenAPI doesn't meet the standard. If you
 
 Feeling brave and highly API compliant? Try the `recommended` standard instead and see how yours measures up.
 
-##  Eager to experiment? Give it a go and craft a custom rule set!
+## Craft a custom ruleset
 
-Some common first tasks include installation, linting an API definition and creating custom rule sets. As an example, we'll create a custom rule that ensures all operations in the API have a summary field, which explains the purpose of each operation. 
+Redocly CLI has some [great built-in rules](./rules/built-in-rules.md), but you may want to craft your own. This example shows a custom rule that ensures all operations in the API have a summary field to explain the purpose of each operation. 
 
-First, create your custom rule YAML file
-```
-touch custom-rule.yaml
-```
+Add the following content to a file named `custom-rule.yaml`:
 
-Then, configure your custom-rule.yaml
-```
+```yaml
 rules:
   operation-has-summary:
     description: "All operations should have a summary."
@@ -108,12 +106,14 @@ rules:
 ```
 
 Finally, run the following command:
-```
+
+```bash
 redocly lint path/to/openapi.yaml --extends custom-rule.yaml
 ```
 
 Example Output
-```
+
+```text
 validating openapi/openapi.yaml...
 openapi/openapi.yaml: validated in 38ms
 
