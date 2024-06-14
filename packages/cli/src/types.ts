@@ -38,7 +38,13 @@ export type CommandOptions =
   | PreviewDocsOptions
   | BuildDocsArgv
   | PushStatusOptions
+  | VerifyConfigOptions
   | PreviewProjectOptions;
+
+export type VerifyConfigOptions = {
+  config?: string;
+  'lint-config'?: 'warning' | 'error' | 'off';
+};
 
 export type Skips = {
   'skip-rule'?: string[];

@@ -14,7 +14,7 @@ Options:
   --help                  Show help.                                   [boolean]
   --format                Use a specific output format.
           [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate",
-                                               "summary"] [default: "codeframe"]
+                 "summary", "markdown", "github-actions"] [default: "codeframe"]
   --max-problems          Reduce output to a maximum of N problems.
                                                          [number] [default: 100]
   --generate-ignore-file  Generate an ignore file.                     [boolean]

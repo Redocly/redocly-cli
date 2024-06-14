@@ -6,10 +6,8 @@ import {
   Config,
   SpecVersion,
   BaseResolver,
-  StyleguideConfig,
   formatProblems,
   getTotals,
-  lintDocument,
   detectSpec,
   bundleDocument,
   isRef,
@@ -17,13 +15,10 @@ import {
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  handleError,
-  printLintTotals,
   exitWithError,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-  checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
 import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
@@ -60,9 +55,6 @@ type JoinDocumentContext = {
 
 export type JoinOptions = {
   apis: string[];
-  lint?: boolean;
-  decorate?: boolean;
-  preprocess?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
@@ -76,10 +68,8 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   const startedAt = performance.now();
 
   if (argv.apis.length < 2) {
-    return exitWithError(`At least 2 apis should be provided. \n\n`);
+    return exitWithError(`At least 2 apis should be provided.`);
   }
-
-  checkForDeprecatedOptions(argv, ['lint'] as Array<keyof JoinOptions>);
 
   const fileExtension = getAndValidateFileExtension(argv.output || argv.apis[0]);
 
@@ -99,7 +89,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
 
   if (usedTagsOptions.length > 1) {
     return exitWithError(
-      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one! \n\n`
+      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one!`
     );
   }
 
@@ -111,23 +101,19 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     )
   );
 
-  if (!argv.decorate) {
-    const decorators = new Set([
-      ...Object.keys(config.styleguide.decorators.oas3_0),
-      ...Object.keys(config.styleguide.decorators.oas3_1),
-      ...Object.keys(config.styleguide.decorators.oas2),
-    ]);
-    config.styleguide.skipDecorators(Array.from(decorators));
-  }
+  const decorators = new Set([
+    ...Object.keys(config.styleguide.decorators.oas3_0),
+    ...Object.keys(config.styleguide.decorators.oas3_1),
+    ...Object.keys(config.styleguide.decorators.oas2),
+  ]);
+  config.styleguide.skipDecorators(Array.from(decorators));
 
-  if (!argv.preprocess) {
-    const preprocessors = new Set([
-      ...Object.keys(config.styleguide.preprocessors.oas3_0),
-      ...Object.keys(config.styleguide.preprocessors.oas3_1),
-      ...Object.keys(config.styleguide.preprocessors.oas2),
-    ]);
-    config.styleguide.skipPreprocessors(Array.from(preprocessors));
-  }
+  const preprocessors = new Set([
+    ...Object.keys(config.styleguide.preprocessors.oas3_0),
+    ...Object.keys(config.styleguide.preprocessors.oas3_1),
+    ...Object.keys(config.styleguide.preprocessors.oas2),
+  ]);
+  config.styleguide.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>
@@ -146,12 +132,12 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     if (fileTotals.errors) {
       formatProblems(problems, {
         totals: fileTotals,
-        version: document.parsed.version,
+        version: packageVersion,
       });
       exitWithError(
         `❌ Errors encountered while bundling ${blue(
           document.source.absoluteRef
-        )}: join will not proceed.\n`
+        )}: join will not proceed.`
       );
     }
   }
@@ -162,26 +148,18 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       const version = detectSpec(document.parsed);
       if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
         return exitWithError(
-          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
-            document.source.absoluteRef
-          )} \n\n`
+          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
       oasVersion = oasVersion ?? version;
       if (oasVersion !== version) {
         return exitWithError(
-          `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)} \n\n`
+          `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)}.`
         );
       }
     } catch (e) {
-      return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
-    }
-  }
-
-  if (argv.lint) {
-    for (const document of documents) {
-      await validateApi(document, config.styleguide, externalRefResolver, packageVersion);
+      return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}.`);
     }
   }
 
@@ -437,7 +415,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
         for (const pathServer of joinedDef.paths[path].servers) {
           if (pathServer.url === server.url) {
             if (!isServersEqual(pathServer, server)) {
-              exitWithError(`Different server values for (${server.url}) in ${path}`);
+              exitWithError(`Different server values for (${server.url}) in ${path}.`);
             }
             isFoundServer = true;
           }
@@ -472,7 +450,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
           if (!isRef(pathParameter) && !isRef(parameter)) {
             if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
               if (!isEqual(pathParameter.schema, parameter.schema)) {
-                exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
+                exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}.`);
               }
               isFoundParameter = true;
             }
@@ -647,8 +625,8 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     const firstApi = documents[0];
     const openapi = firstApi.parsed;
     const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
-    if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
-    if (!openapi.info) exitWithError('Info section is not found in specification. \n');
+    if (!openapi.openapi) exitWithError('Version of specification is not found.');
+    if (!openapi.info) exitWithError('Info section is not found in specification.');
     if (openapi.info?.description) {
       openapi.info.description = addComponentsPrefix(openapi.info.description, componentsPrefix);
     }
@@ -769,38 +747,20 @@ function addSecurityPrefix(security: any, componentsPrefix: string) {
 
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
-  if (!info) exitWithError('Info section is not found in specification. \n');
+  if (!info) exitWithError('Info section is not found in specification.');
   if (!info[prefixArg])
     exitWithError(
-      `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`
+      `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section.`
     );
   if (!isString(info[prefixArg]))
-    exitWithError(
-      `${yellow(`prefix-${type}-with-info-prop`)} argument value should be string. \n\n`
-    );
+    exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`);
   if (info[prefixArg].length > 50)
     exitWithError(
       `${yellow(
         `prefix-${type}-with-info-prop`
-      )} argument value length should not exceed 50 characters. \n\n`
+      )} argument value length should not exceed 50 characters.`
     );
   return info[prefixArg].replaceAll(/\s/g, '_');
-}
-
-async function validateApi(
-  document: Document,
-  config: StyleguideConfig,
-  externalRefResolver: BaseResolver,
-  packageVersion: string
-) {
-  try {
-    const results = await lintDocument({ document, config, externalRefResolver });
-    const fileTotals = getTotals(results);
-    formatProblems(results, { format: 'stylish', totals: fileTotals, version: packageVersion });
-    printLintTotals(fileTotals, 2);
-  } catch (err) {
-    handleError(err, document.parsed);
-  }
 }
 
 function replace$Refs(obj: unknown, componentsPrefix: string) {

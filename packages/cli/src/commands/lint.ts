@@ -24,6 +24,8 @@ import { performance } from 'perf_hooks';
 import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
 import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
 import type { CommandOptions, Skips, Totals } from '../types';
+import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
+import { Arguments } from 'yargs';
 
 export type LintOptions = {
   apis?: string[];
@@ -39,7 +41,7 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
-    exitWithError('No APIs were provided');
+    exitWithError('No APIs were provided.');
   }
 
   if (argv['generate-ignore-file']) {
@@ -144,7 +146,9 @@ export function lintConfigCallback(
       version,
     });
 
-    printConfigLintTotals(fileTotals);
+    const command = argv ? getCommandNameFromArgs(argv as unknown as Arguments) : undefined;
+
+    printConfigLintTotals(fileTotals, command);
 
     if (fileTotals.errors > 0) {
       throw new ConfigValidationError();

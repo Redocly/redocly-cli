@@ -5,6 +5,7 @@ import { lintConfig } from '../../lint';
 import { replaceSourceWithRef } from '../../../__tests__/utils';
 import type { RuleConfig, FlatRawConfig } from './../types';
 import type { NormalizedProblem } from '../../walk';
+import { BaseResolver } from '../../resolve';
 
 const fs = require('fs');
 const path = require('path');
@@ -12,10 +13,9 @@ const path = require('path');
 describe('loadConfig', () => {
   it('should resolve config http header by US region', async () => {
     jest
-      .spyOn(RedoclyClient.prototype, 'getTokens')
-      .mockImplementation(() =>
-        Promise.resolve([{ region: 'us', token: 'accessToken', valid: true }])
-      );
+      .spyOn(RedoclyClient.prototype, 'getAllTokens')
+      .mockImplementation(() => [{ region: 'us', token: 'accessToken' }]);
+    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([
       {
@@ -35,10 +35,9 @@ describe('loadConfig', () => {
 
   it('should resolve config http header by EU region', async () => {
     jest
-      .spyOn(RedoclyClient.prototype, 'getTokens')
-      .mockImplementation(() =>
-        Promise.resolve([{ region: 'eu', token: 'accessToken', valid: true }])
-      );
+      .spyOn(RedoclyClient.prototype, 'getAllTokens')
+      .mockImplementation(() => [{ region: 'eu', token: 'accessToken' }]);
+    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([
       {
@@ -57,6 +56,19 @@ describe('loadConfig', () => {
       processRawConfig: mockFn,
     });
     expect(mockFn).toHaveBeenCalled();
+  });
+
+  it('should call externalRefResolver if such passed', async () => {
+    const externalRefResolver = new BaseResolver();
+    const resolverSpy = jest.spyOn(externalRefResolver, 'resolveDocument');
+    await loadConfig({
+      configPath: path.join(__dirname, './fixtures/load-external.yaml'),
+      externalRefResolver: externalRefResolver as any,
+    });
+    expect(resolverSpy).toHaveBeenCalledWith(
+      null,
+      'https://raw.githubusercontent.com/Redocly/redocly-cli-cookbook/main/rulesets/spec-compliant/redocly.yaml'
+    );
   });
 });
 
@@ -138,19 +150,6 @@ describe('getConfig', () => {
           "suggest": [],
         },
         {
-          "location": [
-            {
-              "pointer": "#/theme",
-              "reportOnKey": false,
-              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
-            },
-          ],
-          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
-          "ruleId": "configuration no-unresolved-refs",
-          "severity": "warn",
-          "suggest": [],
-        },
-        {
           "from": {
             "pointer": "#/rules",
             "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
@@ -164,6 +163,19 @@ describe('getConfig', () => {
           ],
           "message": "Property \`non-existing-rule\` is not expected here.",
           "ruleId": "configuration spec",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/theme",
+              "reportOnKey": false,
+              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
           "severity": "warn",
           "suggest": [],
         },

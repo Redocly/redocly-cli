@@ -2,6 +2,7 @@
 
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
+import * as colors from 'colorette';
 import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
@@ -104,9 +105,6 @@ yargs
           demandOption: true,
         })
         .option({
-          lint: { description: 'Lint descriptions', type: 'boolean', default: false, hidden: true },
-          decorate: { description: 'Run decorators', type: 'boolean', default: false },
-          preprocess: { description: 'Run preprocessors', type: 'boolean', default: false },
           'prefix-tags-with-info-prop': {
             description: 'Prefix tags with property value from info object.',
             requiresArg: true,
@@ -141,8 +139,47 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          lint: {
+            hidden: true,
+            deprecated: true,
+          },
+          decorate: {
+            hidden: true,
+            deprecated: true,
+          },
+          preprocess: {
+            hidden: true,
+            deprecated: true,
+          },
         }),
     (argv) => {
+      const DEPRECATED_OPTIONS = ['lint', 'preprocess', 'decorate'];
+      const DECORATORS_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/decorators/#decorators';
+      const JOIN_COMMAND_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/commands/join/#join';
+
+      DEPRECATED_OPTIONS.forEach((option) => {
+        if (argv[option]) {
+          process.stdout.write(
+            `${colors.red(
+              `Option --${option} is no longer supported. Please review join command documentation ${JOIN_COMMAND_DOCUMENTATION_LINK}.`
+            )}`
+          );
+          process.stdout.write('\n\n');
+
+          if (['preprocess', 'decorate'].includes(option)) {
+            process.stdout.write(
+              `${colors.red(
+                `If you are looking for decorators, please review the decorators documentation ${DECORATORS_DOCUMENTATION_LINK}.`
+              )}`
+            );
+            process.stdout.write('\n\n');
+          }
+
+          yargs.showHelp();
+          process.exit(1);
+        }
+      });
+
       process.env.REDOCLY_CLI_COMMAND = 'join';
       commandWrapper(handleJoin)(argv);
     }
@@ -167,9 +204,10 @@ yargs
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
+            required: true,
             alias: 'p',
           },
-          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string', required: false },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
@@ -178,6 +216,11 @@ yargs
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
+          },
+          'continue-on-deploy-failures': {
+            description: 'Command does not fail even if the deployment fails.',
+            type: 'boolean',
+            default: false,
           },
         }),
     (argv) => {
@@ -340,10 +383,15 @@ yargs
             type: 'boolean',
             default: false,
           },
+          'continue-on-deploy-failures': {
+            description: 'Command does not fail even if the deployment fails.',
+            type: 'boolean',
+            default: false,
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(commonPushHandler(argv))(argv as PushArguments);
+      commandWrapper(commonPushHandler(argv))(argv as Arguments<PushArguments>);
     }
   )
   .command(
@@ -360,6 +408,8 @@ yargs
             'checkstyle',
             'codeclimate',
             'summary',
+            'markdown',
+            'github-actions',
           ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
@@ -415,27 +465,10 @@ yargs
           description: 'Output file.',
           alias: 'o',
         },
-        format: {
-          description: 'Use a specific output format.',
-          choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
-          hidden: true,
-        },
-        'max-problems': {
-          requiresArg: true,
-          description: 'Reduce output to a maximum of N problems.',
-          type: 'number',
-          hidden: true,
-        },
         ext: {
           description: 'Bundle file extension.',
           requiresArg: true,
           choices: outputExtensions,
-        },
-        'skip-rule': {
-          description: 'Ignore certain rules.',
-          array: true,
-          type: 'string',
-          hidden: true,
         },
         'skip-preprocessor': {
           description: 'Ignore certain preprocessors.',
@@ -460,12 +493,6 @@ yargs
         config: {
           description: 'Path to the config file.',
           type: 'string',
-        },
-        lint: {
-          description: 'Lint API descriptions',
-          type: 'boolean',
-          default: false,
-          hidden: true,
         },
         metafile: {
           description: 'Produce metadata about the bundle',
@@ -493,10 +520,65 @@ yargs
           choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
+        format: {
+          hidden: true,
+          deprecated: true,
+        },
+        lint: {
+          hidden: true,
+          deprecated: true,
+        },
+        'skip-rule': {
+          hidden: true,
+          deprecated: true,
+          array: true,
+          type: 'string',
+        },
+        'max-problems': {
+          hidden: true,
+          deprecated: true,
+        },
       }),
     (argv) => {
+      const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
+      const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
+        'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
+
+      DEPRECATED_OPTIONS.forEach((option) => {
+        if (argv[option]) {
+          process.stdout.write(
+            `${colors.red(
+              `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
+            )}`
+          );
+          process.stdout.write('\n\n');
+          yargs.showHelp();
+          process.exit(1);
+        }
+      });
+
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
       commandWrapper(handleBundle)(argv);
+    }
+  )
+  .command(
+    'check-config',
+    'Lint the Redocly configuration file.',
+    async (yargs) =>
+      yargs.option({
+        config: {
+          description: 'Path to the config file.',
+          type: 'string',
+        },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error'] as ReadonlyArray<RuleSeverity>,
+          default: 'error' as RuleSeverity,
+        },
+      }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'check-config';
+      commandWrapper()(argv);
     }
   )
   .command(
@@ -644,7 +726,8 @@ yargs
           },
           t: {
             alias: 'template',
-            describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example.',
+            describe:
+              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
             type: 'string',
           },
           templateOptions: {

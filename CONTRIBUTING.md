@@ -47,7 +47,7 @@ npm install # or npm i
 
 To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
 
-To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than the NPM itself.
+To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run prettier` before committing.
 
@@ -56,6 +56,8 @@ Please check the [Tests section](#tests) for the test commands reference.
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
 ## Local source code usage
+
+There are two options for testing local changes in other local applications: NPM linking and local packing and installing from the `redocly-cli.tgz` file.
 
 ### NPM linking
 
@@ -77,11 +79,17 @@ Don't forget to revert the changes to **package.json** files later.
 
 Additions and updates to our documentation are very welcome. You can find the documentation in the `docs/` folder, and this is published to https://redocly.com/docs/cli/ as part of our main website.
 
-To preview your changes locally, run this command from the `docs/` folder:
+To preview your documentation changes locally:
+
+1. Make sure `redocly` is already installed on your local computer. See [installation](https://redocly.com/docs/cli/installation/).
+
+2. Run this command from the `docs/` folder:
 
 ```bash
-https://redocly.com/docs/cli/
+redocly preview
 ```
+
+By default, you can access the docs preview at http://localhost:4000 or http://127.0.0.1:4000.
 
 > Please note that currently the custom markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform. The pull request workflows generate a full preview, so rest assured that you are able to check everything is in good shape before we review and merge your changes.
 
@@ -148,6 +156,9 @@ The application maintains the following exit codes.
 
 ## Tests
 
+When running tests, make sure the code is compiled (`npm run compile` or `npm run watch`).
+Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
+
 ### Unit tests
 
 Run unit tests with this command: `npm run test`.
@@ -155,6 +166,8 @@ Run unit tests with this command: `npm run test`.
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
+To run tests in watch mode, run: `npm run unit:watch`
+To run single file in watch mode, run: `npm run unit:watch -- <path/to/your/file.test.ts>`
 To update snapshots, run `npm run unit -- -u`.
 
 To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
@@ -212,7 +225,7 @@ After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR. Merging that PR triggers the release process.
 
-## Revert a release
+### Revert a release
 
 There's no possibility to revert a release itself.
 However, you can release a new version with a problematic commit reverted.

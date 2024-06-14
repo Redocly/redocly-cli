@@ -207,7 +207,7 @@ export function isCustomRuleId(id: string) {
 export function doesYamlFileExist(filePath: string): boolean {
   return (
     (extname(filePath) === '.yaml' || extname(filePath) === '.yml') &&
-    fs.hasOwnProperty('existsSync') &&
+    fs?.hasOwnProperty?.('existsSync') &&
     fs.existsSync(filePath)
   );
 }
@@ -270,6 +270,10 @@ export function nextTick() {
   new Promise((resolve) => {
     setTimeout(resolve);
   });
+}
+
+export async function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function getUpdatedFieldName(updatedField: string, updatedObject?: string) {

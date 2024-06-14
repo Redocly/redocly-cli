@@ -7,7 +7,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
-        if (parameter.example) {
+        if (parameter.example !== undefined) {
           validateExample(
             parameter.example,
             parameter.schema!,

@@ -6,7 +6,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { env } from '../env';
+import { env, isBrowser } from '../env';
 import { isAbsoluteUrl } from '../ref-utils';
 
 export type Totals = {
@@ -51,7 +51,9 @@ export type OutputFormat =
   | 'json'
   | 'checkstyle'
   | 'codeclimate'
-  | 'summary';
+  | 'summary'
+  | 'github-actions'
+  | 'markdown';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -87,7 +89,7 @@ export function formatProblems(
 ) {
   const {
     maxProblems = 100,
-    cwd = process.cwd(),
+    cwd = isBrowser ? '' : process.cwd(),
     format = 'codeframe',
     color = colorOptions.enabled,
     totals = getTotals(problems),
@@ -132,6 +134,33 @@ export function formatProblems(
       }
       break;
     }
+    case 'markdown': {
+      const groupedByFile = groupByFiles(problems);
+      for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
+        output.write(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
+
+        output.write(`| Severity | Location | Problem | Message |\n`);
+        output.write(`|---|---|---|---|\n`);
+        for (let i = 0; i < fileProblems.length; i++) {
+          const problem = fileProblems[i];
+          output.write(`${formatMarkdown(problem)}\n`);
+        }
+        output.write('\n');
+
+        if (totals.errors > 0) {
+          output.write(`Validation failed\nErrors: ${totals.errors}\n`);
+        } else {
+          output.write('Validation successful\n');
+        }
+
+        if (totals.warnings > 0) {
+          output.write(`Warnings: ${totals.warnings}\n`);
+        }
+
+        output.write('\n');
+      }
+      break;
+    }
     case 'checkstyle': {
       const groupedByFile = groupByFiles(problems);
 
@@ -155,6 +184,8 @@ export function formatProblems(
     case 'summary':
       formatSummary(problems);
       break;
+    case 'github-actions':
+      outputForGithubActions(problems, cwd);
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -266,6 +297,17 @@ export function formatProblems(
     )}  ${severityName}  ${problem.ruleId.padEnd(ruleIdPad)}  ${problem.message}`;
   }
 
+  function formatMarkdown(problem: OnlyLineColProblem) {
+    if (!SEVERITY_NAMES[problem.severity]) {
+      return 'Error not found severity. Please check your config file. Allowed values: `warn,error,off`';
+    }
+    const severityName = SEVERITY_NAMES[problem.severity].toLowerCase();
+    const { start } = problem.location[0];
+    return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${
+      problem.ruleId
+    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
+  }
+
   function formatCheckstyle(problem: OnlyLineColProblem) {
     const { line, col } = problem.location[0].start;
     const severity = problem.severity == 'warn' ? 'warning' : 'error';
@@ -372,4 +414,61 @@ function xmlEscape(s: string): string {
         return `&#${char.charCodeAt(0)};`;
     }
   });
+}
+
+function outputForGithubActions(problems: NormalizedProblem[], cwd: string): void {
+  for (const problem of problems) {
+    for (const location of problem.location.map(getLineColLocation)) {
+      let command;
+      switch (problem.severity) {
+        case 'error':
+          command = 'error';
+          break;
+        case 'warn':
+          command = 'warning';
+          break;
+      }
+      const suggest = formatDidYouMean(problem);
+      const message = suggest !== '' ? problem.message + '\n\n' + suggest : problem.message;
+      const properties = {
+        title: problem.ruleId,
+        file: isAbsoluteUrl(location.source.absoluteRef)
+          ? location.source.absoluteRef
+          : path.relative(cwd, location.source.absoluteRef),
+        line: location.start.line,
+        col: location.start.col,
+        endLine: location.end?.line,
+        endColumn: location.end?.col,
+      };
+      output.write(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
+    }
+  }
+
+  function formatProperties(props: Record<string, any>): string {
+    return Object.entries(props)
+      .filter(([, v]) => v !== null && v !== undefined)
+      .map(([k, v]) => `${k}=${escapeProperty(v)}`)
+      .join(',');
+  }
+
+  function toString(v: any): string {
+    if (v === null || v === undefined) {
+      return '';
+    } else if (typeof v === 'string' || v instanceof String) {
+      return v as string;
+    }
+    return JSON.stringify(v);
+  }
+
+  function escapeMessage(v: any): string {
+    return toString(v).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  }
+  function escapeProperty(v: any): string {
+    return toString(v)
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A')
+      .replace(/:/g, '%3A')
+      .replace(/,/g, '%2C');
+  }
 }

@@ -1,5 +1,62 @@
 # @redocly/openapi-core
 
+## 1.15.0
+
+### Minor Changes
+
+- Made `redocly.yaml` validation consistent with the general Redocly config.
+
+### Patch Changes
+
+- Fixed `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` rules which allowed falsy example values to pass for any schema.
+
+## 1.14.0
+
+### Minor Changes
+
+- Added the ability to exclude some operations or entire paths from the `security-defined` rule.
+
+## 1.13.0
+
+### Minor Changes
+
+- Added support for the linting command to output markdown format.
+
+## 1.12.2
+
+### Patch Changes
+
+- Improved the experience when the config file doesn't exist or isn't found.
+
+## 1.12.1
+
+### Patch Changes
+
+- Improved loading of configuration files in environments different from Node.js.
+
+## 1.12.0
+
+### Patch Changes
+
+- Improved caching for external configuration resources.
+
+## 1.11.0
+
+### Minor Changes
+
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
+### Patch Changes
+
+- Fixed [`no-invalid-media-type-examples`](https://redocly.com/docs/cli/rules/no-invalid-media-type-examples/) rule `externalValue` example validation.
+- Process remove-unused-components rule transitively; components are now removed if they were previously referenced by a removed component.
+
+## 1.10.6
+
+### Patch Changes
+
+- Added a type tree for the `metadata-schema` rule.
+
 ## 1.10.5
 
 ### Patch Changes

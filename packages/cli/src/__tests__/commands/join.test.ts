@@ -15,7 +15,7 @@ describe('handleJoin', () => {
 
   it('should call exitWithError because only one entrypoint', async () => {
     await handleJoin({ apis: ['first.yaml'] }, {} as any, 'cli-version');
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided. \n\n`);
+    expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided.`);
   });
 
   it('should call exitWithError because passed all 3 options for tags', async () => {
@@ -31,7 +31,7 @@ describe('handleJoin', () => {
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`
+      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
 
@@ -47,7 +47,7 @@ describe('handleJoin', () => {
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`
+      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
 
@@ -60,7 +60,7 @@ describe('handleJoin', () => {
       'cli-version'
     );
     expect(exitWithError).toHaveBeenCalledWith(
-      'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n'
+      'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined.'
     );
   });
 
@@ -77,7 +77,7 @@ describe('handleJoin', () => {
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      'All APIs must use the same OpenAPI version: undefined \n\n'
+      'All APIs must use the same OpenAPI version: undefined.'
     );
   });
 
@@ -163,23 +163,6 @@ describe('handleJoin', () => {
     const config = loadConfig();
     expect(config.styleguide.skipDecorators).toHaveBeenCalled();
     expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
-  });
-
-  it('should not call skipDecorators and skipPreprocessors', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
-        apis: ['first.yaml', 'second.yaml'],
-        decorate: true,
-        preprocess: true,
-      },
-      ConfigFixture as any,
-      'cli-version'
-    );
-
-    const config = loadConfig();
-    expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
-    expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {

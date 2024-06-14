@@ -116,7 +116,7 @@ The `theme` section includes configuration options for the following aspects of 
 You can apply `mockServer` to individual APIs as well as at the root (default) level.
 In case of conflict, API takes priority.
 
-The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
+The API registry supports [the mock server feature](https://redocly.com/docs/api-registry/guides/mock-server-quickstart/) and allows project owners to enable it for all branches per API version.
 When the mock server is enabled for an API, you can send test requests to it from any API client.
 
 The `mockServer` object is a property of the `theme` object and allows additional configuration of the mock server behavior.
@@ -125,9 +125,8 @@ This object is optional.
 #### Fixed properties
 
 {% json-schema
-  schemaFilePath="./mockserver.yaml"
-   options={
-    schemaExpansionLevel: 1,
+  schema={
+    "$ref": "./mockserver.yaml"
   }
 /%}
 
@@ -137,7 +136,7 @@ The `openapi` object is a property of the `theme` object and configures features
 
 If you need to apply different theming and functionality to individual APIs, add the theme `openapi` property to the appropriate API in the `apis` and `theme` object, and use the same options as the global `openapi` object.
 
-Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/functionality.md).
+Find the full list of supported options on the [Reference docs configuration page](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
 
 <a id="apis-object"></a>
 
@@ -203,9 +202,8 @@ Redocly CLI supports one `http` header per URL.
 #### Fixed properties
 
 {% json-schema
-  schemaFilePath="./resolve.yaml"
-   options={
-    schemaExpansionLevel: 2,
+  schema={
+    "$ref": "./resolve.yaml"
   }
 /%}
 
@@ -213,7 +211,7 @@ Redocly CLI supports one `http` header per URL.
 
 Here is an example for adding header definitions:
 
-```yaml
+```text
 resolve:
   http:
     headers:

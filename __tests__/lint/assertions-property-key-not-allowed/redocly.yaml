@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/not-allowed-property:
+    subject:
+      type: Schema
+      property: type # this is not allowed with the `disallowed` assertion
+    assertions:
+      disallowed:
+        - string

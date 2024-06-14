@@ -29,8 +29,8 @@ describe('handlePush()', () => {
 
   beforeEach(() => {
     remotes.getDefaultBranch.mockResolvedValueOnce('test-default-branch');
-    remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id' });
-    remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch' });
+    remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
+    remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
 
     jest.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
 
@@ -116,6 +116,44 @@ describe('handlePush()', () => {
         },
       ]
     );
+  });
+
+  it('should return push id', async () => {
+    const mockConfig = { apis: {} } as any;
+    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+    fsStatSyncSpy.mockReturnValueOnce({
+      isDirectory() {
+        return false;
+      },
+    } as any);
+
+    pathResolveSpy.mockImplementationOnce((p) => p);
+    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathDirnameSpy.mockImplementation((_: string) => '.');
+
+    const result = await handlePush(
+      {
+        domain: 'test-domain',
+        'mount-path': 'test-mount-path',
+        organization: 'test-org',
+        project: 'test-project',
+        branch: 'test-branch',
+        namespace: 'test-namespace',
+        repository: 'test-repository',
+        'commit-sha': 'test-commit-sha',
+        'commit-url': 'test-commit-url',
+        'default-branch': 'test-branch',
+        'created-at': 'test-created-at',
+        author: 'TestAuthor <test-author@mail.com>',
+        message: 'Test message',
+        files: ['test-file'],
+        'max-execution-time': 10,
+      },
+      mockConfig
+    );
+
+    expect(result).toEqual({ pushId: 'test-id' });
   });
 
   it('should collect files from directory and preserve file structure', async () => {

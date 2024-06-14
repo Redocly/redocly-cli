@@ -1,5 +1,81 @@
 # @redocly/cli
 
+## 1.15.0
+
+### Minor Changes
+
+- Made `redocly.yaml` validation consistent with the general Redocly config.
+
+### Patch Changes
+
+- Updated Redoc to v2.1.5.
+- Fixed `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` rules which allowed falsy example values to pass for any schema.
+- Updated @redocly/openapi-core to v1.15.0.
+
+## 1.14.0
+
+### Minor Changes
+
+- Added the ability to exclude some operations or entire paths from the `security-defined` rule.
+
+### Patch Changes
+
+- Improved error messages.
+- Updated @redocly/openapi-core to v1.14.0.
+
+## 1.13.0
+
+### Minor Changes
+
+- Added support for the linting command to output markdown format.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.13.0.
+
+## 1.12.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.12.2.
+
+## 1.12.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.12.1.
+
+## 1.12.0
+
+### Minor Changes
+
+- Added return values for the `push` and `push-status` commands.
+
+### Patch Changes
+
+- Fixed handling of wildcards on Windows ([#1521](https://github.com/Redocly/redocly-cli/issues/1521)).
+- Updated @redocly/openapi-core to v1.12.0.
+
+## 1.11.0
+
+### Minor Changes
+
+- Removed additional operations from the `join` command; use `lint` and/or `bundle` for operations such as `lint` and `decorate`.
+- Removed lint support from the bundle command to support a wider range of use cases. Users should update to [run lint and bundle separately](https://redocly.com/docs/cli/guides/lint-and-bundle/).
+- Added support for a `github-actions` output format for the `lint` command to annotate reported problems on files when used in a GitHub Actions workflow.
+
+### Patch Changes
+
+- Fixed [`no-invalid-media-type-examples`](https://redocly.com/docs/cli/rules/no-invalid-media-type-examples/) rule `externalValue` example validation.
+- Updated @redocly/openapi-core to v1.11.0.
+
+## 1.10.6
+
+### Patch Changes
+
+- Added `check-config` command to validate a Redocly configuration file.
+- Updated @redocly/openapi-core to v1.10.6.
+
 ## 1.10.5
 
 ### Patch Changes

@@ -13,7 +13,7 @@ If you're having issues with the `login` command, use the `--verbose` option to 
 ## Usage
 
 {% admonition type="warning" name="Note" %}
-Go ahead and [generate a personal API key](../../settings/personal-api-keys.md); this key is needed to log in.
+Go ahead and [generate a personal API key](https://redocly.com/docs/settings/personal-api-keys/); this key is needed to log in.
 {% /admonition %}
 
 ```bash

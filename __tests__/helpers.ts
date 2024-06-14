@@ -12,6 +12,7 @@ type CLICommands =
   | 'login'
   | 'logout'
   | 'preview-docs'
+  | 'check-config'
   | 'push'
   | 'split'
   | 'stats'
@@ -54,4 +55,9 @@ export function callSerializer() {
     test: (val: any) => typeof val === 'string',
     print: (v: any) => cleanUpVersion(v),
   });
+}
+
+export function cleanupOutput(message: string) {
+  const cwdRegexp = new RegExp(process.cwd(), 'g');
+  return message.replace(cwdRegexp, '.');
 }

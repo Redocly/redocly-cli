@@ -1,12 +1,4 @@
-import {
-  formatProblems,
-  getTotals,
-  getMergedConfig,
-  lint,
-  bundle,
-  Config,
-  OutputFormat,
-} from '@redocly/openapi-core';
+import { formatProblems, getTotals, getMergedConfig, bundle, Config } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -15,8 +7,6 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  printLintTotals,
-  checkIfRulesetExist,
   sortTopLevelKeysForOas,
 } from '../utils/miscellaneous';
 import type { OutputExtensions, Skips, Totals } from '../types';
@@ -27,15 +17,12 @@ import { checkForDeprecatedOptions } from '../utils/miscellaneous';
 
 export type BundleOptions = {
   apis?: string[];
-  'max-problems'?: number;
   extends?: string[];
   config?: string;
-  format?: OutputFormat;
   output?: string;
   ext: OutputExtensions;
   dereferenced?: boolean;
   force?: boolean;
-  lint?: boolean;
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
@@ -47,14 +34,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-  const maxProblems = argv['max-problems'];
-  const deprecatedOptions: Array<keyof BundleOptions> = [
-    'lint',
-    'format',
-    'skip-rule',
-    'extends',
-    'max-problems',
-  ];
+  const deprecatedOptions: Array<keyof BundleOptions> = [];
 
   checkForDeprecatedOptions(argv, deprecatedOptions);
 
@@ -64,37 +44,8 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       const resolvedConfig = getMergedConfig(config, alias);
       const { styleguide } = resolvedConfig;
 
-      styleguide.skipRules(argv['skip-rule']);
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
-
-      if (argv.lint) {
-        checkIfRulesetExist(styleguide.rules);
-        if (config.styleguide.recommendedFallback) {
-          process.stderr.write(
-            `No configurations were provided -- using built in ${blue(
-              'recommended'
-            )} configuration by default.\n\n`
-          );
-        }
-        const results = await lint({
-          ref: path,
-          config: resolvedConfig,
-        });
-        const fileLintTotals = getTotals(results);
-
-        totals.errors += fileLintTotals.errors;
-        totals.warnings += fileLintTotals.warnings;
-        totals.ignored += fileLintTotals.ignored;
-
-        formatProblems(results, {
-          format: argv.format || 'codeframe',
-          totals: fileLintTotals,
-          version,
-          maxProblems: maxProblems,
-        });
-        printLintTotals(fileLintTotals, 2);
-      }
 
       process.stderr.write(gray(`bundling ${path}...\n`));
 
@@ -132,8 +83,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       totals.ignored += fileTotals.ignored;
 
       formatProblems(problems, {
-        format: argv.format || 'codeframe',
-        maxProblems: maxProblems,
+        format: 'codeframe',
         totals: fileTotals,
         version,
       });

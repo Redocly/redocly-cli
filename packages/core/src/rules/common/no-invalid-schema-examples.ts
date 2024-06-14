@@ -18,7 +18,7 @@ export const NoInvalidSchemaExamples: any = (opts: any) => {
             );
           }
         }
-        if (schema.example) {
+        if (schema.example !== undefined) {
           validateExample(schema.example, schema, ctx.location.child('example'), ctx, true);
         }
       },

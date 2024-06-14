@@ -1,15 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, doesYamlFileExist } from '../utils';
+import { isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
+import { BaseResolver } from '../resolve';
+import { isBrowser } from '../env';
 
 import type { Document } from '../resolve';
-import type { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
+import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
 import type { BaseResolver, ResolvedRefMap } from '../resolve';
 import { DOMAINS } from '../redocly/domains';
@@ -21,13 +23,15 @@ async function addConfigMetadata({
   tokens,
   files,
   region,
+  externalRefResolver,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  tokens?: RegionalTokenWithValidity[];
+  tokens?: RegionalToken[];
   files?: string[];
   region?: Region;
+  externalRefResolver?: BaseResolver;
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
@@ -65,10 +69,15 @@ async function addConfigMetadata({
     }
   }
 
-  return resolveConfig(
-    { ...rawConfig, files: files ?? rawConfig.files, region: region ?? rawConfig.region },
-    configPath
-  );
+  return resolveConfig({
+    rawConfig: {
+      ...rawConfig,
+      files: files ?? rawConfig.files,
+      region: region ?? rawConfig.region,
+    },
+    configPath,
+    externalRefResolver,
+  });
 }
 
 export type RawConfigProcessor = (
@@ -96,8 +105,8 @@ export async function loadConfig(
   } = options;
   const rawConfig = await getConfig({ configPath, processRawConfig, externalRefResolver });
 
-  const redoclyClient = new RedoclyClient();
-  const tokens = await redoclyClient.getTokens();
+  const redoclyClient = isBrowser ? undefined : new RedoclyClient();
+  const tokens = redoclyClient && redoclyClient.hasTokens() ? redoclyClient.getAllTokens() : [];
 
   return addConfigMetadata({
     rawConfig,
@@ -106,13 +115,14 @@ export async function loadConfig(
     tokens,
     files,
     region,
+    externalRefResolver,
   });
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 
 export function findConfig(dir?: string): string | undefined {
-  if (!fs.hasOwnProperty('existsSync')) return;
+  if (!fs?.hasOwnProperty?.('existsSync')) return;
   const existingConfigFiles = CONFIG_FILE_NAMES.map((name) =>
     dir ? path.resolve(dir, name) : name
   ).filter(fs.existsSync);
@@ -133,8 +143,13 @@ export async function getConfig(
     externalRefResolver?: BaseResolver;
   } = {}
 ): Promise<RawConfig> {
-  const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
-  if (!configPath || !doesYamlFileExist(configPath)) return {};
+  const {
+    configPath = findConfig(),
+    processRawConfig,
+    externalRefResolver = new BaseResolver(),
+  } = options;
+  if (!configPath) return {};
+
   try {
     const { document, resolvedRefMap } = await resolveConfigFileAndRefs({
       configPath,
@@ -157,6 +172,7 @@ type CreateConfigOptions = {
   extends?: string[];
   tokens?: RegionalTokenWithValidity[];
   configPath?: string;
+  externalRefResolver?: BaseResolver;
 };
 
 export async function createConfig(

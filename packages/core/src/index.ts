@@ -5,6 +5,7 @@ export {
   doesYamlFileExist,
   isTruthy,
   getProxyAgent,
+  pause,
 } from './utils';
 export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';

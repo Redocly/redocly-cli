@@ -77,13 +77,13 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
 
   if (shouldRunOnValues && !assertion.subject.property) {
     throw new Error(
-      `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property`
+      `The '${shouldRunOnValues.name}' assertion can't be used on all keys. Please provide a single property.`
     );
   }
 
   if (shouldRunOnKeys && assertion.subject.property) {
     throw new Error(
-      `${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`
+      `The '${shouldRunOnKeys.name}' assertion can't be used on properties. Please remove the 'property' key.`
     );
   }
 

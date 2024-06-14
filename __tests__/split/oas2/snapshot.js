@@ -2,7 +2,7 @@
 
 exports[`E2E split swagger 1`] = `
 
-OpenAPI 2 is not supported by this command
+OpenAPI 2 is not supported by this command.
 
 
 `;
