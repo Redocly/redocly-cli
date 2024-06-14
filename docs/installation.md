@@ -91,7 +91,7 @@ Before running the CLI behind a proxy, make sure to set the appropriate proxy en
 export HTTP_PROXY=http://your-http-proxy-server:port
 
 # For HTTPS proxy
-export HTTPS_PROXY=http://your-https-proxy-server:port
+export HTTPS_PROXY=https://your-https-proxy-server:port
 ```
 
 ### Use Environment Variables with CLI Commands
