@@ -13,7 +13,7 @@ import { isBrowser } from '../env';
 import type { Document } from '../resolve';
 import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
-import type { BaseResolver, ResolvedRefMap } from '../resolve';
+import type { ResolvedRefMap } from '../resolve';
 import { DOMAINS } from '../redocly/domains';
 
 async function addConfigMetadata({
