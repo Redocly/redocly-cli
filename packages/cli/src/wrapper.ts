@@ -10,13 +10,24 @@ import {
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 
+export type CommandArgs<T extends CommandOptions> = {
+  argv: T;
+  config: Config;
+  version: string;
+  collectSpecVersion?: (version: string) => void;
+};
+
 export function commandWrapper<T extends CommandOptions>(
-  commandHandler?: (argv: T, config: Config, version: string) => Promise<unknown>
+  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
 ) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let hasConfig;
     let telemetry;
+    let specVersion: string | undefined;
+    const collectSpecVersion = (version: string) => {
+      specVersion = version;
+    };
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please provide a valid path to the configuration file.');
@@ -32,14 +43,14 @@ export function commandWrapper<T extends CommandOptions>(
       hasConfig = !config.styleguide.recommendedFallback;
       code = 1;
       if (typeof commandHandler === 'function') {
-        await commandHandler(argv, config, version);
+        await commandHandler({ argv, config, version, collectSpecVersion });
       }
       code = 0;
     } catch (err) {
       // Do nothing
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendTelemetry(argv, code, hasConfig);
+        await sendTelemetry(argv, code, hasConfig, specVersion);
       }
       process.once('beforeExit', () => {
         process.exit(code);

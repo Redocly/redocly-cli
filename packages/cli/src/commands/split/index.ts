@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef, isTruthy, detectSpec } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -36,6 +36,7 @@ import type {
   Oas3PathItem,
   Referenced,
 } from './types';
+import type { CommandArgs } from '../../wrapper';
 
 export type SplitOptions = {
   api: string;
@@ -44,12 +45,13 @@ export type SplitOptions = {
   config?: string;
 };
 
-export async function handleSplit(argv: SplitOptions) {
+export async function handleSplit({ argv, collectSpecVersion }: CommandArgs<SplitOptions>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);
   const ext = getAndValidateFileExtension(api);
   const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
+  collectSpecVersion?.(detectSpec(openapi));
   splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
     `🪓 Document: ${blue(api!)} ${green('is successfully split')}

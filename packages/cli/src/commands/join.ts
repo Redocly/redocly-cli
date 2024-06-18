@@ -3,7 +3,6 @@ import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 import {
-  Config,
   SpecVersion,
   BaseResolver,
   formatProblems,
@@ -38,6 +37,7 @@ import type {
   Oas3Server,
   Oas3_1Definition,
 } from '@redocly/openapi-core/lib/typings/openapi';
+import type { CommandArgs } from '../wrapper';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
@@ -64,7 +64,11 @@ export type JoinOptions = {
   'lint-config'?: RuleSeverity;
 };
 
-export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
+export async function handleJoin({
+  argv,
+  config,
+  version: packageVersion,
+}: CommandArgs<JoinOptions>) {
   const startedAt = performance.now();
 
   if (argv.apis.length < 2) {

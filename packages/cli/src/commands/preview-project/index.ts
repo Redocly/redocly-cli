@@ -4,12 +4,13 @@ import { spawn } from 'child_process';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
 
 import type { PreviewProjectOptions, Product } from './types';
+import type { CommandArgs } from '../../wrapper';
 
-export const previewProject = async (args: PreviewProjectOptions) => {
-  const { plan, port } = args;
-  const projectDir = args['source-dir'];
+export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
+  const { plan, port } = argv;
+  const projectDir = argv['source-dir'];
 
-  const product = args.product || tryGetProductFromPackageJson(projectDir);
+  const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
     process.stderr.write(`Invalid product ${product}`);

@@ -18,9 +18,11 @@ export async function lint(opts: {
   ref: string;
   config: Config;
   externalRefResolver?: BaseResolver;
+  collectSpecVersion?: (version: string) => void;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
+  opts.collectSpecVersion?.(detectSpec(document.parsed));
 
   return lintDocument({
     document,

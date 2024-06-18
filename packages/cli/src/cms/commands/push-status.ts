@@ -1,18 +1,19 @@
 import * as colors from 'colorette';
-import type { Config, OutputFormat } from '@redocly/openapi-core';
-
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
 import { capitalize } from '../../utils/js-utils';
+import { retryUntilConditionMet } from './utils';
+
+import type { OutputFormat } from '@redocly/openapi-core';
+import type { CommandArgs } from '../../wrapper';
 import type {
   DeploymentStatus,
   DeploymentStatusResponse,
   PushResponse,
   ScorecardItem,
 } from '../api/types';
-import { retryUntilConditionMet } from './utils';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 
@@ -37,10 +38,10 @@ export interface PushStatusSummary {
   commit: PushResponse['commit'];
 }
 
-export async function handlePushStatus(
-  argv: PushStatusOptions,
-  config: Config
-): Promise<PushStatusSummary | undefined> {
+export async function handlePushStatus({
+  argv,
+  config,
+}: CommandArgs<PushStatusOptions>): Promise<PushStatusSummary | undefined> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 

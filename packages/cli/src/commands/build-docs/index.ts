@@ -2,17 +2,21 @@ import { loadAndBundleSpec } from 'redoc';
 import { dirname, resolve } from 'path';
 import { writeFileSync, mkdirSync } from 'fs';
 import { performance } from 'perf_hooks';
-
+import { detectSpec, getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils';
-import type { BuildDocsArgv } from './types';
-import { Config, getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
 import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous';
 
-export const handlerBuildCommand = async (argv: BuildDocsArgv, configFromFile: Config) => {
+import type { BuildDocsArgv } from './types';
+import type { CommandArgs } from '../../wrapper';
+
+export const handlerBuildCommand = async ({
+  argv,
+  config: configFromFile,
+  collectSpecVersion,
+}: CommandArgs<BuildDocsArgv>) => {
   const startedAt = performance.now();
 
   const config = getMergedConfig(configFromFile, argv.api);
-
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const { path: pathToApi } = apis[0];
 
@@ -31,6 +35,7 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv, configFromFile: C
     const elapsed = getExecutionTime(startedAt);
 
     const api = await loadAndBundleSpec(isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi));
+    collectSpecVersion?.(detectSpec(api));
     const pageHTML = await getPageHTML(
       api,
       pathToApi,

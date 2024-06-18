@@ -3,12 +3,12 @@ import * as path from 'path';
 import { slash } from '@redocly/openapi-core';
 import { green, yellow } from 'colorette';
 import pluralize = require('pluralize');
-
-import type { OutputFormat, Config } from '@redocly/openapi-core';
-
 import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { handlePushStatus } from './push-status';
 import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
+
+import type { OutputFormat } from '@redocly/openapi-core';
+import type { CommandArgs } from '../../wrapper';
 
 export type PushOptions = {
   apis?: string[];
@@ -39,10 +39,11 @@ export type PushOptions = {
 
 type FileToUpload = { name: string; path: string };
 
-export async function handlePush(
-  argv: PushOptions,
-  config: Config
-): Promise<{ pushId: string } | void> {
+export async function handlePush({
+  argv,
+  config,
+  version,
+}: CommandArgs<PushOptions>): Promise<{ pushId: string } | void> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
 
@@ -128,8 +129,8 @@ export async function handlePush(
     if (waitForDeployment) {
       process.stdout.write('\n');
 
-      await handlePushStatus(
-        {
+      await handlePushStatus({
+        argv: {
           organization: orgId,
           project: projectId,
           pushId: id,
@@ -139,8 +140,9 @@ export async function handlePush(
           'start-time': startTime,
           'continue-on-deploy-failures': argv['continue-on-deploy-failures'],
         },
-        config
-      );
+        config,
+        version,
+      });
     }
     verbose &&
       printExecutionTime(
