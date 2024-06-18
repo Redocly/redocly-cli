@@ -4,7 +4,7 @@ on:
     types: [labeled]
 
 jobs:
-  test-and-deploy-s3-sandbox:
+  deploy-s3-sandbox:
     if: ${{ github.event.label.name == 'deploy_s3_sandbox' }}
     runs-on: ubuntu-latest
     steps:
@@ -22,8 +22,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-      - name: Run tests
-        run: npm test
 
       - name: Bundle into single file
         run: npm run webpack-bundle

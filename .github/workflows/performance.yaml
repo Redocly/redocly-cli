@@ -64,7 +64,7 @@ jobs:
       - name: Run Benchmark
         run: |
           cd benchmark/
-          npm test
+          npm run unit
           cat benchmark_check.md
         env:
           CI: true
