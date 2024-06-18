@@ -19,7 +19,7 @@ module.exports = {
     },
     'packages/cli/': {
       statements: 60,
-      branches: 50,
+      branches: 52,
       functions: 60,
       lines: 60,
     },
