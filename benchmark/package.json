@@ -6,19 +6,23 @@
     "make-test": "bash make-test-command.sh"
   },
   "dependencies": {
-    "cli-1.0": "npm:@redocly/cli@1.0.2",
-    "cli-1.1": "npm:@redocly/cli@1.1.0",
-    "cli-1.2": "npm:@redocly/cli@1.2.1",
-    "cli-1.3": "npm:@redocly/cli@1.3.0",
-    "cli-1.4": "npm:@redocly/cli@1.4.1",
-    "cli-1.5": "npm:@redocly/cli@1.5.0",
-    "cli-1.6": "npm:@redocly/cli@1.6.0",
-    "cli-1.7": "npm:@redocly/cli@1.7.0",
-    "cli-1.8": "npm:@redocly/cli@1.8.2",
-    "cli-1.9": "npm:@redocly/cli@1.9.1",
+    "cli-1.00": "npm:@redocly/cli@1.0.2",
+    "cli-1.01": "npm:@redocly/cli@1.1.0",
+    "cli-1.02": "npm:@redocly/cli@1.2.1",
+    "cli-1.03": "npm:@redocly/cli@1.3.0",
+    "cli-1.04": "npm:@redocly/cli@1.4.1",
+    "cli-1.05": "npm:@redocly/cli@1.5.0",
+    "cli-1.06": "npm:@redocly/cli@1.6.0",
+    "cli-1.07": "npm:@redocly/cli@1.7.0",
+    "cli-1.08": "npm:@redocly/cli@1.8.2",
+    "cli-1.09": "npm:@redocly/cli@1.9.1",
     "cli-1.10": "npm:@redocly/cli@1.10.6",
     "cli-1.11": "npm:@redocly/cli@1.11.0",
     "cli-1.12": "npm:@redocly/cli@1.12.2",
+    "cli-1.13": "npm:@redocly/cli@1.13.0",
+    "cli-1.14": "npm:@redocly/cli@1.14.0",
+    "cli-1.15": "npm:@redocly/cli@1.15.0",
+    "cli-1.16": "npm:@redocly/cli@1.16.0",
     "cli-next": "file:../redocly-cli.tgz"
   }
 }
