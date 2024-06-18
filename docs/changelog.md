@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.16.0 (2024-06-18)
+
+### Minor Changes
+
+- Users can run the CLI tool behind a proxy by using `HTTP_PROXY` or `HTTPS_PROXY` environment variables to configure the proxy settings.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.16.0.
+
 ## 1.15.0 (2024-06-11)
 
 ### Minor Changes
