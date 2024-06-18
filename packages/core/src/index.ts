@@ -4,6 +4,7 @@ export {
   slash,
   doesYamlFileExist,
   isTruthy,
+  getProxyAgent,
   pause,
 } from './utils';
 export { Oas3_1Types } from './types/oas3_1';
@@ -48,7 +49,9 @@ export {
   ResolvedApi,
 } from './config';
 
-export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
+export { RedoclyClient } from './redocly';
+
+export * from './redocly/domains';
 
 export {
   Source,

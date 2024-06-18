@@ -5,9 +5,10 @@ import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
-import { HttpResolveConfig } from './config';
 import { env } from './env';
 import { logger, colorize } from './logger';
+import { HttpResolveConfig } from './config';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -277,4 +278,9 @@ export async function pause(ms: number): Promise<void> {
 
 function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
   return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
+}
+
+export function getProxyAgent() {
+  const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }

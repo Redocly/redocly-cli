@@ -3,7 +3,7 @@ import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
-import { Config, DOMAINS } from './config';
+import { Config } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
@@ -14,6 +14,7 @@ import type { Document } from '../resolve';
 import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
 import type { ResolvedRefMap } from '../resolve';
+import { DOMAINS } from '../redocly/domains';
 
 async function addConfigMetadata({
   rawConfig,

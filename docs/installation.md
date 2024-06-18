@@ -78,6 +78,30 @@ To give a Docker container access to your OpenAPI description files, you need to
 docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
 ```
 
+## Run CLI behind a proxy
+
+If you need to run the CLI tool behind a proxy, you can use the `HTTP_PROXY` and `HTTPS_PROXY` environment variables to configure the proxy settings. These environment variables are commonly used to specify the proxy server for HTTP and HTTPS traffic, respectively.
+
+### Set up Proxy Environment Variables
+
+Before running the CLI behind a proxy, make sure to set the appropriate proxy environment variables. Open a terminal and use the following commands:
+
+```bash
+# For HTTP proxy
+export HTTP_PROXY=http://your-http-proxy-server:port
+
+# For HTTPS proxy
+export HTTPS_PROXY=https://your-https-proxy-server:port
+```
+
+### Use Environment Variables with CLI Commands
+
+You can also directly include the proxy environment variables in the command itself. For example:
+
+```bash
+HTTPS_PROXY=https://your-https-proxy-server:port redocly lint --extends minimal openapi.yaml
+```
+
 ## Next steps
 
 - Set up [autocomplete for Redocly CLI](./guides/autocomplete.md).
