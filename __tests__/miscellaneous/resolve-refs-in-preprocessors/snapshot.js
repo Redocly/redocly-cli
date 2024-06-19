@@ -91,7 +91,7 @@ Document: openapi.yaml stats:
 📈 Schemas: 1 
 👉 Parameters: 0 
 🔗 Links: 0 
-➡️  Path Items: 2 
+➡️ Path Items: 2 
 👷 Operations: 2 
 🔖 Tags: 0 
 

@@ -9,7 +9,7 @@ Document: museum.yaml stats:
 📈 Schemas: 22 
 👉 Parameters: 6 
 🔗 Links: 0 
-➡️  Path Items: 5 
+➡️ Path Items: 5 
 👷 Operations: 8 
 🔖 Tags: 3 
 
