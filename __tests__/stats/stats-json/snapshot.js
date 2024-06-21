@@ -23,7 +23,7 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
     "total": 0
   },
   "pathItems": {
-    "metric": "➡️  Path Items",
+    "metric": "🔀 Path Items",
     "total": 5
   },
   "operations": {
