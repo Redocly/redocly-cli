@@ -9,7 +9,7 @@
   },
   "engineStrict": true,
   "scripts": {
-    "test": "npm run typecheck && npm run unit",
+    "test": "npm run typecheck && npm run compile && npm run unit && npm run e2e",
     "jest": "REDOCLY_TELEMETRY=off jest ./packages",
     "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
     "unit:watch": "REDOCLY_TELEMETRY=off jest --watch",

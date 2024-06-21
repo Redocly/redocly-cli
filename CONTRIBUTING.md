@@ -161,7 +161,7 @@ Having `redocly.yaml` in the root of the project affects the unit tests, and con
 
 ### Unit tests
 
-Run unit tests with this command: `npm run test`.
+Run unit tests with this command: `npm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
