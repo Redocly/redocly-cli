@@ -93,7 +93,7 @@ Document: museum.yaml stats:
 📈 Schemas: 23
 👉 Parameters: 6
 🔗 Links: 0
-➡️ Path Items: 5
+🔀 Path Items: 5
 👷 Operations: 8
 🔖 Tags: 3
 
@@ -131,7 +131,7 @@ An example of the format is shown in the following example:
     "total": 0
   },
   "pathItems": {
-    "metric": "➡️ Path Items",
+    "metric": "🔀 Path Items",
     "total": 5
   },
   "operations": {
@@ -160,7 +160,7 @@ It uses a table format; there are examples of the source and the formatted outpu
 | 📈 Schemas | 23 |
 | 👉 Parameters | 6 |
 | 🔗 Links | 0 |
-| ➡️ Path Items | 5 |
+| 🔀 Path Items | 5 |
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
 ```
@@ -172,7 +172,7 @@ It uses a table format; there are examples of the source and the formatted outpu
 | 📈 Schemas            | 23    |
 | 👉 Parameters         | 6     |
 | 🔗 Links              | 0     |
-| ➡️ Path Items         | 5     |
+| 🔀 Path Items         | 5     |
 | 👷 Operations         | 8     |
 | 🔖 Tags               | 3     |
 
