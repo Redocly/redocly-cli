@@ -16,13 +16,13 @@ The output is a script for you to copy and paste, and add to the configuration f
 
 ### See bash shell example
 
-From a bash prompt, use the `completion` command:
+To generate an autocompletion script, run the following command from a bash or zsh prompt:
 
 ```bash
 redocly completion
 ```
 
-Outputs the following script:
+If run from a bash prompt, the `completion` command outputs the following autocompletion script:
 
 ```sh
 ###-begin-redocly-completions-###

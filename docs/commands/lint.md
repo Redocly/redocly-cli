@@ -25,7 +25,7 @@ redocly lint --version
 | apis                   | [string] | Array of API description filenames that need to be linted. Refer to [the API section](#specify-api) for more details.                                                                                    |
 | --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). **Possible values:** `minimal`, `recommended`, `recommended-strict`, `all`. Default value is `recommended`. |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                                 |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                     |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                           |
 | --help                 | boolean  | Show help.                                                                                                                                                                                               |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                       |
@@ -275,7 +275,7 @@ This output format is useful if you want to report the outcomes to a document, o
 
 Running the `lint` command with `--format=markdown` produces output like the following example:
 
-```bash
+<pre>
 ## Lint: ./museum-with-errors.yaml
 
 | Severity | Location | Problem | Message |
@@ -285,7 +285,7 @@ Running the `lint` command with `--format=markdown` produces output like the fol
 
 Validation failed
 Errors: 2
-```
+</pre>
 
 The output includes a formatted table, and links to any built-in rules that identified problems.
 An example is shown in the following screenshot.

@@ -29,7 +29,7 @@ redocly stats --version
 | Option        | Type    | Description                                                                                                                                                          |
 | ------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api           | string  | **REQUIRED.** Path to the API description filename or alias that you want to generate the statistics for. Refer to [the API section](#specify-api) for more details. |
-| --config      | string  | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                            |
+| --config      | string  | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                 |
 | --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `markdown`. Default value is `stylish`.                                                          |
 | --help        | boolean | Show help.                                                                                                                                                           |
 | --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                   |
@@ -39,7 +39,7 @@ redocly stats --version
 
 ### Specify API
 
-The `stats` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-custom-configuration-file) exists.
+The `stats` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-filepath) exists.
 
 #### Pass API directly
 
@@ -49,7 +49,7 @@ You can use the `stats` command with an OpenAPI description directly, with a com
 redocly stats openapi/openapi.yaml
 ```
 
-In this case, `stats` shows statistics for the API description that was passed in. The configuration file is ignored.
+In this case, `stats` shows statistics for the API description that was passed in. Even if the configuration file exists, it is ignored.
 
 #### Pass API alias
 
@@ -70,7 +70,7 @@ redocly stats core@v1
 
 In this case, after resolving the path behind the `core@v1` name, `stats` displays statistics for the `openapi/api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
-### Use custom configuration file
+### Use alternative filepath
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
@@ -80,7 +80,7 @@ redocly stats --config=./another/directory/config.yaml
 
 ### Specify output format
 
-#### Stylish (default)
+#### Specify the stylish (default) output format
 
 The default output format for `stats` is called "stylish".
 It outputs a nice format for your terminal, as shown in the following example:
@@ -102,7 +102,7 @@ museum.yaml: stats processed in 4ms
 
 In this format, `stats` shows the statistics in a condensed but readable manner with an icon at the beginning of each line.
 
-#### JSON
+#### Specify the JSON output format
 
 Use `--format=json` to get a machine-readable output format.
 The JSON format output is shown in the following example:
@@ -146,7 +146,7 @@ The JSON format output is shown in the following example:
 
 The JSON format output is suitable when you want to use the stats data in another program.
 
-#### Markdown
+#### Specify the Markdown output format
 
 Use `--format=markdown` to return output that you can use in Markdown files or other Markdown-friendly applications.
 A table format is used.

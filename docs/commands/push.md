@@ -75,17 +75,17 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/api-description.y
 | Option           |   Type   | Description                                                                                                                                                                                                                                                      |
 | ---------------- | :------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api              |  string  | The API description that you want to push to the Redocly API registry. Provide it as a path to the root API description file (or as an alias). See [set options explicitly](#set-options-explicitly) for more information.                                       |
-| --batch-size     |  number  | Number of CI pushes expected within one batch. Must be used only in combination with the `--job-id` option. Must be an integer bigger than 1. See [the batch size section](#specify-batch-size) for more information.                                            |
+| --batch-size     |  number  | Number of CI pushes expected within one batch. Must be used only in combination with the `--job-id` option. Must be an integer bigger than 1. See [the pushes per batch section](#determine-how-many-pushes-are-performed-per-batch) for more information.       |
 | --branch, -b     |  string  | The branch where your API description is pushed or upserted. Default value is `main`.                                                                                                                                                                            |
 | --destination    |  string  | The location in the API registry where you want to push or upsert your API description. Provide it in the following format: `api-name@api-version`.                                                                                                              |
-| --files          | [string] | List of other folders and files to upload. See [the files section](#use-files-option) for more information.                                                                                                                                                      |
+| --files          | [string] | List of other folders and files to upload. See [the files section](#upload-other-folders-and-files) for more information.                                                                                                                                        |
 | --help           | boolean  | Show help.                                                                                                                                                                                                                                                       |
 | --job-id         |  string  | The ID of the CI job that the current push is associated with. Must be used only in combination with the `--batch-size` option. See [the job ID section](#specify-job-id) for more information.                                                                  |
 | --lint-config    |  string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                               |
 | --organization   |  string  | ID of organization that the API description is being pushed to. Overrides the one defined in the configuration file.                                                                                                                                             |
-| --public         | boolean  | Make API descriptions publicly accessible from the API Registry. Read more about [using the public option](#use-public-option).                                                                                                                                  |
+| --public         | boolean  | Make API descriptions publicly accessible from the API Registry. Read more about [using the public option](#make-api-descriptions-publicly-accessible).                                                                                                          |
 | --region,-r      |  string  | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value of the appropriate Redocly API. |
-| --skip-decorator | [string] | Ignore one or more decorators. See the [skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                             |
+| --skip-decorator | [string] | Ignore one or more decorators. See [the skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                             |
 | --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                          |
 | --version        | boolean  | Show version number.                                                                                                                                                                                                                                             |
 
@@ -260,7 +260,7 @@ Below are possible use cases for the `--job-id` option:
 
 Must be used only in combination with the `--batch-size` option.
 
-### Specify batch size
+### Determine how many pushes are performed per batch
 
 The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total are performed within one batch to properly handle parallel pushes.
 
@@ -286,7 +286,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 {% /tab  %}
 {% /tabs  %}
 
-### Use public option
+### Make API descriptions publicly accessible
 
 The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, API descriptions uploaded with the `push` command are not available to the public.
 For more information on how to configure access to your APIs, check the [registry access](https://redocly.com/docs/api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
@@ -295,7 +295,7 @@ For more information on how to configure access to your APIs, check the [registr
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --public
 ```
 
-### Use files option
+### Upload other folders and files
 
 The `--files` option allows you to upload other folders and files.
 
@@ -303,7 +303,7 @@ The `--files` option allows you to upload other folders and files.
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --files ./path/to/folder
 ```
 
-You can also add files and folders by providing them in `redocly.yaml` configuration file:
+You can also add files and folders by providing them in the `redocly.yaml` configuration file:
 
 ```yaml
 apis:
@@ -315,7 +315,7 @@ files:
   - ./file.md
 ```
 
-Note that `--files` has higher priority than `redocly.yaml`.
+Note that the `--files` option has higher priority than the `redocly.yaml` configuration file.
 
 ### Set up CI from Redocly Workflows
 

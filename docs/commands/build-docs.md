@@ -20,7 +20,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | Option              | Type    | Description                                                                                                                                                                                                                        |
 | ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                                                                                  |
-| --config            | string  | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                                          |
+| --config            | string  | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                                                                               |
 | --disableGoogleFont | boolean | Disable Google fonts. The default value is `false`.                                                                                                                                                                                |
 | --help              | boolean | Show help.                                                                                                                                                                                                                         |
 | --lint-config       | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                                                                                           |
@@ -35,7 +35,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 ### Specify API
 
-The `build-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-custom-configuration-file) exists.
+The `build-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-filepath) exists.
 
 #### Pass API directly
 
@@ -44,7 +44,7 @@ redocly build-docs openapi.yaml
 ```
 
 In this case, the `build-docs` command builds the API description that was passed to the command.
-The configuration file is ignored.
+Even if a configuration file exists, the command does not check for APIs listed in it.
 
 #### Pass API alias
 
@@ -57,16 +57,16 @@ apis:
     root: ./openapi/api-description.json
 ```
 
-You can generate a build by giving the API alias name, as shown below:
+You can generate a build by including the API name with the command, as shown in the following example:
 
 ```bash Command
 redocly build-docs games@v1
 ```
 
 In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
-Any additional configurations provided in the file are used by the command.
+Any additional configurations provided in the file are also used by the command.
 
-### Use custom configuration file
+### Use alternative filepath
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
@@ -74,17 +74,17 @@ By default, the CLI tool looks for the [Redocly configuration file](../configura
 redocly build-docs --config=./another/directory/config.yaml
 ```
 
-### Use theme.openapi option
+### Hide search
 
-The following command uses the optional `--theme.openapi` argument to build docs with hidden search box:
+The following command uses the optional `--theme.openapi` argument to build docs with the search box hidden:
 
 ```bash
 redocly build-docs openapi.yaml --theme.openapi.disableSearch
 ```
 
-### Use templateOptions option
+### Use a custom template
 
-The following command uses the optional `--templateOptions` argument to build docs using a custom Handlebars template and add a custom `templateOptions` object:
+The following command builds docs using a custom Handlebars template and adds metadata to the meta tag in the head of the page using `templateOptions`:
 
 ```bash
 redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescription "Page meta description"
