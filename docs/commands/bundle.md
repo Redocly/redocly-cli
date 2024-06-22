@@ -25,7 +25,7 @@ redocly bundle --version
 | Option                     | Type     | Description                                                                                                                                                                                                                                                     |
 | -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
-| --config                   | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                                                                       |
+| --config                   | string   | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                                                                                                            |
 | --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
 | --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
 | --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                    |
@@ -77,7 +77,7 @@ redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 JSON output only works when there are no circular references.
 {% /admonition %}
 
-### Use custom configuration file
+### Use alternative filepath
 
 By default, the CLI tool looks for the Redocly configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 

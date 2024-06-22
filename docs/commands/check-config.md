@@ -17,12 +17,12 @@ redocly check-config [--config=<path>]
 
 | Option        | Type   | Description                                                                                                                  |
 | ------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| --config      | string | Specify path to the [configuration file](#use-custom-configuration-file).                                                    |
+| --config      | string | Specify path to the [configuration file](#use-alternative-filepath).                                                         |
 | --lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`. Default value is `error`. |
 
 ## Examples
 
-### Use default configuration file
+### Use default location for configuration file
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory.
 
@@ -30,7 +30,7 @@ By default, the CLI tool looks for the [Redocly configuration file](../configura
 redocly check-config
 ```
 
-### Use custom configuration file
+### Use alternative filepath
 
 Use the optional `--config` argument to provide an alternative path to a configuration file.
 

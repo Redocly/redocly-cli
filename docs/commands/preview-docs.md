@@ -25,7 +25,7 @@ redocly preview-docs <api> --version
 | Option                  | Type     | Description                                                                                                                                                                |
 | ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api                     | string   | Path to the API description filename or alias that you want to generate the preview for. Refer to [the API section](#specify-api) for more details.                        |
-| --config                | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                  |
+| --config                | string   | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                       |
 | --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                            |
 | --help                  | boolean  | Show help.                                                                                                                                                                 |
 | --host, -h              | string   | The host where the documentation preview can be accessed. The default value is `127.0.0.1`.                                                                                |
@@ -40,7 +40,7 @@ redocly preview-docs <api> --version
 
 ### Specify API
 
-The `preview-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-custom-configuration-file) exists.
+The `preview-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-filepath) exists.
 
 #### Pass API directly
 
@@ -48,7 +48,7 @@ The `preview-docs` command behaves differently depending on how you pass the API
 redocly preview-docs openapi/openapi.yaml
 ```
 
-In this case, `preview-docs` previews the API description that was passed to the command. The configuration file is ignored.
+In this case, `preview-docs` previews the API description that was passed to the command. Even if a configuration file exists, it is ignored.
 
 #### Pass API alias
 
@@ -69,7 +69,7 @@ redocly preview-docs core@v1
 
 In this case, after resolving the path behind the `core@v1` name, `preview-docs` generates a preview of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
-### Use custom configuration file
+### Use alternative filepath
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file:
 

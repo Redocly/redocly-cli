@@ -32,7 +32,7 @@ redocly split --version
 
 ## Examples
 
-### See successful split
+### View successful split message
 
 This `split` command "unbundles" the specified API description, as defined in `pet.yaml`, into the `openapi` output directory:
 

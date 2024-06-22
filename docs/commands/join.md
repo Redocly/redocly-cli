@@ -37,18 +37,18 @@ redocly join --version
 
 ## Options
 
-| Option                             | Type     | Description                                                                                                                                                                                                |
-| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
-| --config                           | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                       |
-| --help                             | boolean  | Show help.                                                                                                                                                                                                 |
-| --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                         |
-| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (depends on the extension of the first input file). **If the file already exists, it's overwritten.**                        |
-| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop](#use-prefix-components-with-info-prop-option) section.                                                  |
-| --prefix-tags-with-filename        | boolean  | Prefix tags with property value from file name. See the [prefix-tags-with-filename](#use-prefix-tags-with-filename-option) section.                                                                        |
-| --prefix-tags-with-info-prop       | string   | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#use-prefix-tags-with-info-prop-option) section.                                                                    |
-| --version                          | boolean  | Show version number.                                                                                                                                                                                       |
-| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#use-without-x-tag-groups-option) section.                                                                                           |
+| Option                             | Type     | Description                                                                                                                                                                                                                                                        |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder.                                                         |
+| --config                           | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                               |
+| --help                             | boolean  | Show help.                                                                                                                                                                                                                                                         |
+| --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                 |
+| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (depends on the extension of the first input file). **If the file already exists, it's overwritten.** See the [specify alternative filepath](#specify-alternative-filepath) section. |
+| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [resolve conflicting component names](#resolve-conflicting-component-names) section.                                                                                                               |
+| --prefix-tags-with-filename        | boolean  | Prefix tags with property value from file name. See the [prefix tags with filename](#prefix-tags-with-filename) section.                                                                                                                                           |
+| --prefix-tags-with-info-prop       | string   | Prefix tags with property value from info object. See the [prefix tags with specified info property](#prefix-tags-with-specified-info-property) section.                                                                                                           |
+| --version                          | boolean  | Show version number.                                                                                                                                                                                                                                               |
+| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [avoid tag duplication](#avoid-tag-duplication) section.                                                                                                                                                            |
 
 {% admonition type="warning" %}
 These options are mutually exclusive: `without-x-tag-groups`, `prefix-tags-with-filename`, and `prefix-tags-with-info-prop`.
@@ -99,7 +99,7 @@ x-tagGroups:
       - partner
 </pre>
 
-Use the [`--without-x-tag-groups`](#use-without-x-tag-groups-option) option to skip the creation and population of `x-tagGroups` in the output file.
+Use the [`--without-x-tag-groups`](#avoid-tag-duplication) option to skip the creation and population of `x-tagGroups` in the output file.
 
 {% admonition type="info" %}
 If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
@@ -132,7 +132,7 @@ Conflict on paths => /tickets/{Id} : get in files: museum.yaml,exhibition.yaml
 Please fix conflicts before running join.
 </pre>
 
-### Use prefix-tags-with-info-prop option
+### Prefix tags with specified `info` property
 
 If any of the input files contain the `tags` object, tags in the output file are prefixed by the selected property from the `info` object of the corresponding input file.
 
@@ -156,7 +156,7 @@ The following is the example output:
   x-displayName: events
 </pre>
 
-### Use prefix-tags-with-filename option
+### Prefix tags with filename
 
 If any of the input files contain the `tags` object, tags in the output file are prefixed by the filename of the corresponding input file.
 
@@ -180,9 +180,9 @@ The following is the example output:
   x-displayName: events
 </pre>
 
-### Use without-x-tag-groups option
+### Avoid tag duplication
 
-If you have the same tags in multiple API descriptions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
+If you have the same tags in multiple API descriptions, you can avoid tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
 
 This command sets the `--without-x-tag-groups` option:
 
@@ -198,7 +198,7 @@ warning: 1 conflict(s) on tags description.
 openapi.yaml: join processed in 69ms
 </pre>
 
-### Use prefix-components-with-info-prop option
+### Resolve conflicting component names
 
 If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
 
@@ -260,7 +260,7 @@ components:
 
 </pre>
 
-### Specify custom output file
+### Specify alternative filepath
 
 By default, the CLI tool writes the joined file as `openapi.yaml` or `openapi.json` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
 

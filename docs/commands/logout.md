@@ -22,7 +22,7 @@ redocly logout --version
 
 ## Examples
 
-### See successful logout
+### View successful logout message
 
 A confirmation message is displayed with a successful logout:
 

@@ -34,7 +34,7 @@ redocly login --verbose
 
 ## Examples
 
-### See successful login
+### View successful login message
 
 A confirmation message is displayed with a successful login:
 
@@ -46,7 +46,7 @@ redocly login
   Authorization confirmed. ✅
 </pre>
 
-### See failed login
+### View failed login message
 
 An error message is displayed with a failed login:
 
