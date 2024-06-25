@@ -3,7 +3,7 @@ import { outdent } from 'outdent';
 
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint';
 import { BaseResolver } from '../resolve';
-import { loadConfig } from '../config/load';
+import { createConfig, loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
 import { detectSpec } from '../oas-types';
 import { rootRedoclyConfigSchema } from '@redocly/config';
@@ -293,7 +293,7 @@ describe('lint', () => {
           - url: http://redocly-example.com
         paths: {}
       `,
-      config: await loadConfig(),
+      config: await loadConfig({ configPath: path.join(__dirname, 'fixtures/redocly.yaml') }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -374,7 +374,8 @@ describe('lint', () => {
       `,
       ''
     );
-    const results = await lintConfig({ document });
+    const config = await createConfig({});
+    const results = await lintConfig({ document, config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -435,7 +436,8 @@ describe('lint', () => {
       `,
       ''
     );
-    const results = await lintConfig({ document });
+    const config = await createConfig({});
+    const results = await lintConfig({ document, config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -475,7 +477,8 @@ describe('lint', () => {
       `,
       ''
     );
-    const results = await lintConfig({ document });
+    const config = await createConfig({});
+    const results = await lintConfig({ document, config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -510,7 +513,8 @@ describe('lint', () => {
       `,
       ''
     );
-    const results = await lintConfig({ document });
+    const config = await createConfig({});
+    const results = await lintConfig({ document, config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -534,7 +538,8 @@ describe('lint', () => {
 
   it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
     const document = testPortalConfig;
-    const results = await lintConfig({ document });
+    const config = await createConfig({});
+    const results = await lintConfig({ document, config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -1165,13 +1170,18 @@ describe('lint', () => {
 
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
     const document = testPortalConfig;
+    const config = await createConfig({});
     const results = await lintConfig({
       document,
-      externalConfigTypes: createConfigTypes({
-        type: 'object',
-        properties: { theme: rootRedoclyConfigSchema.properties.theme },
-        additionalProperties: false,
-      }),
+      externalConfigTypes: createConfigTypes(
+        {
+          type: 'object',
+          properties: { theme: rootRedoclyConfigSchema.properties.theme },
+          additionalProperties: false,
+        },
+        config
+      ),
+      config,
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

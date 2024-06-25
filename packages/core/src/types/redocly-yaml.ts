@@ -5,6 +5,8 @@ import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 
 import type { NodeType } from '.';
 import type { JSONSchema } from 'json-schema-to-ts';
+import { SpecVersion, getTypes } from '../oas-types';
+import { Config } from '../config';
 
 const builtInCommonRules = [
   'spec',
@@ -222,8 +224,6 @@ const oas3_1NodeTypesList = [
 
 export type Oas3_1NodeType = typeof oas3_1NodeTypesList[number];
 
-const asyncNodeTypesList = ['Message'] as const;
-
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
@@ -350,35 +350,28 @@ const Schema: NodeType = {
   additionalProperties: {},
 };
 
-const AssertionDefinitionSubject: NodeType = {
-  properties: {
-    type: {
-      enum: [
-        ...new Set([
-          'any',
-          ...oas2NodeTypesList,
-          ...oas3NodeTypesList,
-          ...oas3_1NodeTypesList,
-          ...asyncNodeTypesList,
-          'SpecExtension',
-        ]),
-      ],
+function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
+  return {
+    properties: {
+      type: {
+        enum: [...new Set(['any', ...nodeNames, 'SpecExtension'])],
+      },
+      property: (value: unknown) => {
+        if (Array.isArray(value)) {
+          return { type: 'array', items: { type: 'string' } };
+        } else if (value === null) {
+          return null;
+        } else {
+          return { type: 'string' };
+        }
+      },
+      filterInParentKeys: { type: 'array', items: { type: 'string' } },
+      filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+      matchParentKeys: { type: 'string' },
     },
-    property: (value: unknown) => {
-      if (Array.isArray(value)) {
-        return { type: 'array', items: { type: 'string' } };
-      } else if (value === null) {
-        return null;
-      } else {
-        return { type: 'string' };
-      }
-    },
-    filterInParentKeys: { type: 'array', items: { type: 'string' } },
-    filterOutParentKeys: { type: 'array', items: { type: 'string' } },
-    matchParentKeys: { type: 'string' },
-  },
-  required: ['type'],
-};
+    required: ['type'],
+  };
+}
 
 const AssertionDefinitionAssertions: NodeType = {
   properties: {
@@ -1057,7 +1050,13 @@ const ConfigMockServer: NodeType = {
   },
 };
 
-export const createConfigTypes = (extraSchemas: JSONSchema) => {
+export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
+  const nodeNames = Object.values(SpecVersion).flatMap((version) => {
+    const types = config?.styleguide
+      ? config.styleguide.extendTypes(getTypes(version), version)
+      : getTypes(version);
+    return Object.keys(types);
+  });
   // Create types based on external schemas
   const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
 
@@ -1065,9 +1064,10 @@ export const createConfigTypes = (extraSchemas: JSONSchema) => {
     ...CoreConfigTypes,
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
+    AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
   };
-};
+}
 
 const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
@@ -1130,7 +1130,6 @@ const CoreConfigTypes: Record<string, NodeType> = {
   Heading,
   Typography,
   AssertionDefinitionAssertions,
-  AssertionDefinitionSubject,
 };
 
 export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);

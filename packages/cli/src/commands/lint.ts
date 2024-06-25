@@ -21,8 +21,8 @@ import {
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
-import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
-import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
+import type { OutputFormat, ProblemSeverity, RuleSeverity } from '@redocly/openapi-core';
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 import type { CommandOptions, Skips, Totals } from '../types';
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
 import { Arguments } from 'yargs';
@@ -120,7 +120,7 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
 export function lintConfigCallback(
   argv: CommandOptions & Record<string, undefined>,
   version: string
-) {
+): RawConfigProcessor | undefined {
   if (argv['lint-config'] === 'off') {
     return;
   }
@@ -130,10 +130,11 @@ export function lintConfigCallback(
     return;
   }
 
-  return async (document: Document, resolvedRefMap: ResolvedRefMap) => {
+  return async ({ document, resolvedRefMap, config }) => {
     const problems = await lintConfig({
       document,
       resolvedRefMap,
+      config,
       severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
     });
 
