@@ -50,6 +50,7 @@ import type {
   Oas2SecurityScheme,
 } from './typings/swagger';
 import type { Async2Definition } from './typings/asyncapi';
+import type { ArazzoDefinition } from './typings/arazzo';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -212,6 +213,10 @@ type Async2FlatVisitor = {
   Root?: VisitFunctionOrObject<Async2Definition>;
 };
 
+type ArazzoFlatVisitor = {
+  Root?: VisitFunctionOrObject<ArazzoDefinition>;
+};
+
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
@@ -244,6 +249,12 @@ type Async2NestedVisitor = {
     : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
 };
 
+type ArazzoNestedVisitor = {
+  [T in keyof ArazzoFlatVisitor]: ArazzoFlatVisitor[T] extends Function
+    ? ArazzoFlatVisitor[T]
+    : ArazzoFlatVisitor[T] & NestedVisitor<ArazzoNestedVisitor>;
+};
+
 export type Oas3Visitor = BaseVisitor &
   Oas3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
@@ -255,6 +266,10 @@ export type Oas2Visitor = BaseVisitor &
 export type Async2Visitor = BaseVisitor &
   Async2NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Async2NestedVisitor>>;
+
+export type ArazzoVisitor = BaseVisitor &
+  ArazzoNestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, ArazzoNestedVisitor>>;
 
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
@@ -278,12 +293,15 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
 export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor | Oas3Visitor[];
 export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor | Oas2Visitor[];
 export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async2Visitor[];
+export type ArazzoRule = (options: Record<string, any>) => ArazzoVisitor | ArazzoVisitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;
+export type ArazzoPreprocessor = (options: Record<string, any>) => ArazzoVisitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Decorator = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Decorator = (options: Record<string, any>) => Async2Visitor;
+export type ArazzoDecorator = (options: Record<string, any>) => ArazzoVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver

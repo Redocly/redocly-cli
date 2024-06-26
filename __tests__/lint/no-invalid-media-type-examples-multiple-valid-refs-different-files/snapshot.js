@@ -5,7 +5,7 @@ exports[`E2E lint no-invalid-media-type-examples-multiple-valid-refs-different-f
 validating /openapi.yaml...
 /openapi.yaml: validated in <test>ms
 
-Woohoo! Your API description is valid. 🎉
+Woohoo! Your description document is valid. 🎉
 
 
 `;

@@ -5,7 +5,7 @@ exports[`E2E lint-config test with option: { dirName: 'invalid-config--lint-conf
 validating ../__fixtures__/valid-openapi.yaml...
 ../__fixtures__/valid-openapi.yaml: validated in <test>ms
 
-Woohoo! Your API description is valid. 🎉
+Woohoo! Your description document is valid. 🎉
 
 [WARNING] Unused rules found in .redocly.yaml: context.
 Check the spelling and verify the added plugin prefix.

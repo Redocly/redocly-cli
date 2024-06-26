@@ -88,8 +88,16 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'array-parameter-serialization': 'off',
   },
   async2Rules: {
+    spec: 'error',
+    'info-contact': 'off',
+    'operation-operationId': 'error',
+    'tag-description': 'error',
+    'tags-alphabetical': 'off',
     'channels-kebab-case': 'off',
     'no-channel-trailing-slash': 'off',
+  },
+  arazzoRules: {
+    spec: 'error',
   },
 };
 

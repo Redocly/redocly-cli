@@ -6,6 +6,7 @@ StyleguideConfig {
   "_usedVersions": Set {},
   "configFile": undefined,
   "decorators": {
+    "arazzo": {},
     "async2": {
       "oas2": {},
       "oas3_0": {},
@@ -44,6 +45,7 @@ StyleguideConfig {
   "pluginPaths": [],
   "plugins": [],
   "preprocessors": {
+    "arazzo": {},
     "async2": {
       "oas2": {},
       "oas3_0": {},
@@ -107,6 +109,7 @@ StyleguideConfig {
   },
   "recommendedFallback": false,
   "rules": {
+    "arazzo": {},
     "async2": {
       "oas2": {
         "no-empty-servers": "error",

@@ -8,17 +8,12 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import { SpecVersion, getTypes } from '../oas-types';
 import { Config } from '../config';
 
-const builtInCommonRules = [
+const builtInCommonOASRules = [
   'spec',
   'info-contact',
   'operation-operationId',
   'tag-description',
   'tags-alphabetical',
-] as const;
-
-export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
-
-const builtInCommonOASRules = [
   'info-license-url',
   'info-license',
   'no-ambiguous-paths',
@@ -87,16 +82,28 @@ const builtInOAS3Rules = [
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
 
-const builtInAsync2Rules = ['channels-kebab-case', 'no-channel-trailing-slash'] as const;
+const builtInAsync2Rules = [
+  'spec',
+  'info-contact',
+  'operation-operationId',
+  'tag-description',
+  'tags-alphabetical',
+  'channels-kebab-case',
+  'no-channel-trailing-slash',
+] as const;
 
 export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
 
+const builtInArazzoRules = ['spec'] as const;
+
+export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];
+
 const builtInRules = [
-  ...builtInCommonRules,
   ...builtInCommonOASRules,
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
   ...builtInAsync2Rules,
+  ...builtInArazzoRules,
 ] as const;
 
 type BuiltInRuleId = typeof builtInRules[number];
@@ -238,16 +245,19 @@ const ConfigStyleguide: NodeType = {
     oas3_0Rules: 'Rules',
     oas3_1Rules: 'Rules',
     async2Rules: 'Rules',
+    arazzoRules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
     oas3_1Preprocessors: { type: 'object' },
     async2Preprocessors: { type: 'object' },
+    arazzoPreprocessors: { type: 'object' },
     decorators: { type: 'object' },
     oas2Decorators: { type: 'object' },
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
     async2Decorators: { type: 'object' },
+    arazzoDecorators: { type: 'object' },
   },
 };
 

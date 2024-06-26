@@ -331,7 +331,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
-      green(`Woohoo! Your API ${pluralize('description is', definitionsCount)} valid. 🎉\n`)
+      green(`Woohoo! Your description ${pluralize('document is', definitionsCount)} valid. 🎉\n`)
     );
     process.stderr.write(
       yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`)
@@ -339,7 +339,10 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   } else {
     process.stderr.write(
       green(
-        `Woohoo! Your API ${pluralize('description is', definitionsCount)} valid. 🎉\n${ignored}`
+        `Woohoo! Your description ${pluralize(
+          'document is',
+          definitionsCount
+        )} valid. 🎉\n${ignored}`
       )
     );
   }
@@ -523,7 +526,9 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,
-    ...rules.oas3_0,
+    ...rules.oas3_1,
+    ...rules.async2,
+    ...rules.arazzo,
   };
 
   if (isEmptyObject(ruleset)) {

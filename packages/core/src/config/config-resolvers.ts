@@ -180,7 +180,9 @@ export function resolvePlugins(
 
       if (pluginModule.rules) {
         if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2 && !pluginModule.rules.async2) {
-          throw new Error(`Plugin rules must have \`oas3\`, \`oas2\` or \`async2\` rules "${p}.`);
+          throw new Error(
+            `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, or \`arazzo\` rules "${p}.`
+          );
         }
         plugin.rules = {};
         if (pluginModule.rules.oas3) {
@@ -192,12 +194,16 @@ export function resolvePlugins(
         if (pluginModule.rules.async2) {
           plugin.rules.async2 = prefixRules(pluginModule.rules.async2, id);
         }
+        if (pluginModule.rules.arazzo) {
+          plugin.rules.arazzo = prefixRules(pluginModule.rules.arazzo, id);
+        }
       }
       if (pluginModule.preprocessors) {
         if (
           !pluginModule.preprocessors.oas3 &&
           !pluginModule.preprocessors.oas2 &&
-          !pluginModule.preprocessors.async2
+          !pluginModule.preprocessors.async2 &&
+          !pluginModule.preprocessors.arazzo
         ) {
           throw new Error(
             `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\` or \`async2\` preprocessors "${p}.`
@@ -213,13 +219,17 @@ export function resolvePlugins(
         if (pluginModule.preprocessors.async2) {
           plugin.preprocessors.async2 = prefixRules(pluginModule.preprocessors.async2, id);
         }
+        if (pluginModule.preprocessors.arazzo) {
+          plugin.preprocessors.arazzo = prefixRules(pluginModule.preprocessors.arazzo, id);
+        }
       }
 
       if (pluginModule.decorators) {
         if (
           !pluginModule.decorators.oas3 &&
           !pluginModule.decorators.oas2 &&
-          !pluginModule.decorators.async2
+          !pluginModule.decorators.async2 &&
+          !pluginModule.decorators.arazzo
         ) {
           throw new Error(
             `Plugin \`decorators\` must have \`oas3\`, \`oas2\` or \`async2\` decorators "${p}.`
@@ -234,6 +244,9 @@ export function resolvePlugins(
         }
         if (pluginModule.decorators.async2) {
           plugin.decorators.async2 = prefixRules(pluginModule.decorators.async2, id);
+        }
+        if (pluginModule.decorators.arazzo) {
+          plugin.decorators.arazzo = prefixRules(pluginModule.decorators.arazzo, id);
         }
       }
 
@@ -419,6 +432,7 @@ function getMergedRawStyleguideConfig(
     oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
     oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },
     oas3_1Rules: { ...rootStyleguideConfig?.oas3_1Rules, ...apiStyleguideConfig?.oas3_1Rules },
+    arazzoRules: { ...rootStyleguideConfig?.arazzoRules, ...apiStyleguideConfig?.arazzoRules },
     preprocessors: {
       ...rootStyleguideConfig?.preprocessors,
       ...apiStyleguideConfig?.preprocessors,

@@ -53,7 +53,7 @@ validating /streetlights-operation-security.yml...
 validating /websocket-gemini.yml...
 /websocket-gemini.yml: validated in <test>ms
 
-Woohoo! Your API descriptions are valid. 🎉
+Woohoo! Your description documents are valid. 🎉
 
 
 `;
