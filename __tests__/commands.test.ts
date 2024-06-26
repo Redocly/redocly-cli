@@ -31,11 +31,35 @@ describe('E2E', () => {
 
       const args = getParams('../../../packages/cli/src/index.ts', 'lint');
 
-      it(file, () => {
+      test(file, () => {
         const result = getCommandOutput(args, testPath);
         (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+
+    test('lint valid Arazzo description', () => {
+      const dirName = 'arazzo-valid-test-description';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
+
+    test('lint not valid Arazzo description', () => {
+      const dirName = 'arazzo-not-valid-test-description';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
   });
 
   describe('zero-config', () => {
