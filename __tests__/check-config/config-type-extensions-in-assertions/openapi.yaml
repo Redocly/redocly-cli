@@ -1,0 +1,7 @@
+openapi: 3.1.0
+info:
+  title: Food Empire API
+  version: 0.5.1
+  x-metadata:
+    lifecycle: production
+    owner-team: Engineering/Integrations

@@ -1,0 +1,13 @@
+extends: []
+
+plugins:
+  - plugins/type-extention.js
+
+rules:
+  spec: warn
+  rule/metadata-lifecycle:
+    subject:
+      type: WrongXMetaData
+      property: 'lifecycle'
+    assertions:
+      enum: ['alpha', 'beta', 'production', 'deprecated']

@@ -1,11 +1,11 @@
 import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve';
 import { normalizeVisitors } from './visitors';
 import { walkDocument } from './walk';
-import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
+import { StyleguideConfig, Config, initRules } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
-import { ConfigTypes } from './types/redocly-yaml';
+import { createConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
 
@@ -13,6 +13,7 @@ import type { Document, ResolvedRefMap } from './resolve';
 import type { ProblemSeverity, WalkContext } from './walk';
 import type { NodeType } from './types';
 import type { NestedVisitObject, Oas3Visitor, RuleInstanceConfig } from './visitors';
+import { rootRedoclyConfigSchema } from '@redocly/config';
 
 export async function lint(opts: {
   ref: string;
@@ -109,25 +110,25 @@ export async function lintDocument(opts: {
 
 export async function lintConfig(opts: {
   document: Document;
+  config: Config;
   resolvedRefMap?: ResolvedRefMap;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
   externalConfigTypes?: Record<string, NodeType>;
 }) {
-  const { document, severity, externalRefResolver = new BaseResolver() } = opts;
+  const { document, severity, externalRefResolver = new BaseResolver(), config } = opts;
 
   const ctx: WalkContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
     visitorsData: {},
   };
-  const plugins = resolvePlugins([defaultPlugin]);
-  const config = new StyleguideConfig({
-    plugins,
-    rules: { spec: 'error' },
-  });
 
-  const types = normalizeTypes(opts.externalConfigTypes || ConfigTypes, config);
+  const types = normalizeTypes(
+    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config),
+    { doNotResolveExamples: config.styleguide.doNotResolveExamples }
+  );
+
   const rules: (RuleInstanceConfig & {
     visitor: NestedVisitObject<unknown, Oas3Visitor | Oas3Visitor[]>;
   })[] = [

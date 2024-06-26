@@ -364,3 +364,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
 }
 
 export class ConfigValidationError extends Error {}
+
+export function deepCloneMapWithJSON<K, V>(originalMap: Map<K, V>): Map<K, V> {
+  return new Map(JSON.parse(JSON.stringify([...originalMap])));
+}
