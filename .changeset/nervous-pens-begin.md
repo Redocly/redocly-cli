@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-The `contentSchema` keyword is now properly parsed as Schema instance, which fixes bundling
+Added support for the `contentSchema` keyword to parse as a schema instance.
