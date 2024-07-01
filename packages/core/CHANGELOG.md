@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 1.17.0
+
+### Minor Changes
+
+- Changed resolution process to include extendedTypes and plugins before linting.
+
+### Patch Changes
+
+- Added support for the `contentSchema` keyword to parse as a schema instance.
+
 ## 1.16.0
 
 ### Minor Changes

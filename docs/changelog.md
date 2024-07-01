@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.17.0 (2024-07-01)
+
+### Minor Changes
+
+- Changed resolution process to include extendedTypes and plugins before linting.
+
+### Patch Changes
+
+- Added support for the `contentSchema` keyword to parse as a schema instance.
+- Replace path items emoji with 🔀 so the width is consistent.
+- Updated @redocly/openapi-core to v1.17.0.
+
 ## 1.16.0 (2024-06-18)
 
 ### Minor Changes
