@@ -64,7 +64,7 @@ jobs:
       - name: Run Benchmark
         run: |
           cd benchmark/
-          npm run unit
+          npm test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
         env:
           CI: true
