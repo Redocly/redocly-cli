@@ -170,7 +170,6 @@ const Schema: NodeType = {
     format: { type: 'string' },
     contentEncoding: { type: 'string' },
     contentMediaType: { type: 'string' },
-    contentSchema: 'Schema',
     default: null,
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
