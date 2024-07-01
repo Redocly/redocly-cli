@@ -134,6 +134,7 @@ const Schema: NodeType = {
     then: 'Schema',
     else: 'Schema',
     dependentSchemas: listOf('Schema'),
+    dependentRequired: 'DependentRequired',
     prefixItems: listOf('Schema'),
     contains: 'Schema',
     minContains: { type: 'integer', minimum: 0 },
@@ -266,6 +267,11 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+const DependentRequired: NodeType = {
+  properties: {},
+  additionalProperties: { type: 'array', items: { type: 'string' } },
+};
+
 export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
   ...Oas3Types,
   Info,
@@ -277,4 +283,5 @@ export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
   NamedPathItems: mapOf('PathItem'),
   SecurityScheme,
   Operation,
+  DependentRequired,
 };
