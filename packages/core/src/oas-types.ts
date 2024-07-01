@@ -10,6 +10,7 @@ import { Oas2Types } from './types/oas2';
 import { Oas3Types } from './types/oas3';
 import { Oas3_1Types } from './types/oas3_1';
 import { AsyncApi2Types } from './types/asyncapi';
+import { ArazzoTypes } from './types/arazzo';
 import {
   BuiltInAsync2RuleId,
   BuiltInCommonOASRuleId,
@@ -25,6 +26,7 @@ export enum SpecVersion {
   OAS3_0 = 'oas3_0',
   OAS3_1 = 'oas3_1',
   Async2 = 'async2', // todo split into 2.x maybe?
+  Arazzo = 'arazzo',
 }
 
 export enum SpecMajorVersion {
@@ -38,6 +40,7 @@ const typesMap = {
   [SpecVersion.OAS3_0]: Oas3Types,
   [SpecVersion.OAS3_1]: Oas3_1Types,
   [SpecVersion.Async2]: AsyncApi2Types,
+  [SpecVersion.Arazzo]: ArazzoTypes,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -98,6 +101,10 @@ export function detectSpec(root: any): SpecVersion {
 
   if (root.asyncapi) {
     throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
+  }
+
+  if (root.arazzo && root.arazzo.startsWith('1.')) {
+    return SpecVersion.Arazzo;
   }
 
   throw new Error(`Unsupported specification`);
