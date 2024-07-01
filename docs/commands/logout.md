@@ -2,7 +2,8 @@
 
 ## Introduction
 
-The `logout` command clears the API key from your device.
+Use the `logout` command to clear the API key from your device.
+You may want to `logout` if you are using a shared work computer or want to [`login`](./login.md) with another API key.
 
 ## Usage
 
@@ -21,7 +22,11 @@ redocly logout --version
 
 ## Examples
 
-```bash
+### View successful logout message
+
+A confirmation message is displayed with a successful logout:
+
+<pre>
 redocly logout
 Logged out from the Redocly account. ✋
-```
+</pre>

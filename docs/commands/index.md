@@ -12,7 +12,7 @@ Documentation commands:
 
 API management commands:
 
-- [`stats`](stats.md) Gathering statistics for a document.
+- [`stats`](stats.md) Gather statistics for a document.
 - [`bundle`](bundle.md) Bundle API description.
 - [`split`](split.md) Split API description into a multi-file structure.
 - [`join`](join.md) Join API descriptions [experimental feature].
@@ -20,6 +20,7 @@ API management commands:
 Linting commands:
 
 - [`lint`](lint.md) Lint API description.
+- [`check-config`](check-config.md) Lint Redocly configuration file.
 
 Redocly platform commands:
 
@@ -35,9 +36,9 @@ Supporting commands:
 
 There are some parameters supported by all commands:
 
-`--version` displays the current version of `redocly`.
+`--version` display the current version of `redocly`.
 
-`--help` displays the command help, or the help for the subcommand if you used one. For example:
+`--help` display the command help, or the help for the subcommand if you used one. For example:
 
 ```bash
 redocly lint --help
