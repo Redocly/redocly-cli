@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.17.1
+
+### Patch Changes
+
+- Added JSON Schema draft 2019-09+ validation keyword - `dependentRequired`.
+- Updated @redocly/openapi-core to v1.17.1.
+
 ## 1.17.0
 
 ### Minor Changes
