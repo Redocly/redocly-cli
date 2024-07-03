@@ -1,5 +1,5 @@
 ---
-"@redocly/openapi-core": minor
+"@redocly/openapi-core": patch
 ---
 
-add JSON Schema draft 2019-09+ validation keyword - dependentRequired
+Added JSON Schema draft 2019-09+ validation keyword - `dependentRequired`.
