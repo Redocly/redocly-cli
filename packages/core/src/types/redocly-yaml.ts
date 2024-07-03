@@ -220,6 +220,7 @@ const oas3_1NodeTypesList = [
   'NamedPathItems',
   'SecurityScheme',
   'Operation',
+  'DependentRequired',
 ] as const;
 
 export type Oas3_1NodeType = typeof oas3_1NodeTypesList[number];

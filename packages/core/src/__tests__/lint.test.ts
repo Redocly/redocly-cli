@@ -1593,4 +1593,128 @@ describe('lint', () => {
     expect(result[0]).toHaveProperty('ignored', true);
     expect(result[0]).toHaveProperty('ruleId', 'operation-operationId');
   });
+
+  it('should throw an error for dependentRequired not expected here - OAS 3.0.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.3
+        info:
+          title: test json schema validation keyword - dependentRequired
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'application/json':
+                      schema:
+                        $ref: '#/components/schemas/test_schema'
+                      examples:
+                        dependentRequired_passing:
+                          summary: an example schema
+                          value: { "name": "bobby", "age": 25}
+                        dependentRequired_failing:
+                          summary: an example schema
+                          value: { "name": "jennie"}
+        components:
+          schemas:
+            test_schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: number
+              dependentRequired:
+                name:
+                - age
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }, undefined, configFilePath),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1thing/get/responses/200/content/application~1json/schema",
+            "source": "",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/test_schema/dependentRequired",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`dependentRequired\` is not expected here.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not throw an error for dependentRequired not expected here - OAS 3.1.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: test json schema validation keyword - dependentRequired
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'application/json':
+                      schema:
+                        $ref: '#/components/schemas/test_schema'
+                      examples:
+                        dependentRequired_passing:
+                          summary: an example schema
+                          value: { "name": "bobby", "age": 25}
+                        dependentRequired_failing:
+                          summary: an example schema
+                          value: { "name": "jennie"}
+        components:
+          schemas:
+            test_schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: number
+              dependentRequired:
+                name:
+                - age
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }, undefined, configFilePath),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
