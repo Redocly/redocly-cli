@@ -346,13 +346,6 @@ const Schema: NodeType = {
         return 'Schema';
       }
     },
-    additionalItems: (value: any) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
-    },
     additionalProperties: (value: any) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
