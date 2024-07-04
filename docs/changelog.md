@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.17.1 (2024-07-03)
+
+### Patch Changes
+
+- Added JSON Schema draft 2019-09+ validation keyword - `dependentRequired`.
+- Updated @redocly/openapi-core to v1.17.1.
+
 ## 1.17.0 (2024-07-01)
 
 ### Minor Changes
