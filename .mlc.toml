@@ -5,3 +5,5 @@ ignore-links=["../../*", "/docs/*",
 ]
 # Path to the root folder used to resolve all relative paths
 root-dir="./docs"
+offline = true
+
