@@ -23,6 +23,7 @@
     "cli-1.14": "npm:@redocly/cli@1.14.0",
     "cli-1.15": "npm:@redocly/cli@1.15.0",
     "cli-1.16": "npm:@redocly/cli@1.16.0",
+    "cli-1.17": "npm:@redocly/cli@1.17.1",
     "cli-next": "file:../redocly-cli.tgz"
   }
 }
