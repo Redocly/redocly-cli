@@ -17,7 +17,7 @@ redocly check-config [--config=<path>]
 
 | Option        | Type   | Description                                                                                                                  |
 | ------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| --config      | string | Specify path to the [configuration file](#use-alternative-filepath).                                                         |
+| --config      | string | Specify path to the [configuration file](#use-alternative-configuration-file).                                               |
 | --lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`. Default value is `error`. |
 
 ## Examples
@@ -30,7 +30,7 @@ By default, the CLI tool looks for the [Redocly configuration file](../configura
 redocly check-config
 ```
 
-### Use alternative filepath
+### Use alternative configuration file
 
 Use the optional `--config` argument to provide an alternative path to a configuration file.
 

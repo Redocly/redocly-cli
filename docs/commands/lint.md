@@ -6,7 +6,9 @@ Redocly CLI can identify and report on problems found in OpenAPI descriptions. T
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
+{% admonition type="success" name="Tip" %}
 To learn more about choosing and configuring linting rules to meet your needs, visit the [API standards](../api-standards.md) page.
+{% /admonition %}
 
 ## Usage
 
@@ -100,7 +102,7 @@ redocly lint --config=./another/directory/config.yaml
 
 ### Extend configuration
 
-The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `recommended-strict` or `all`. Each of the values is a base set of rules that the `lint` command uses. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs. For more details, see [rulesets](../rules.md).
+The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, or `recommended-strict`. Each of the values is a base set of rules that the `lint` command uses. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs. For more details, see [rulesets](../rules.md).
 
 ```bash
 redocly lint --extends=recommended-strict
@@ -115,7 +117,9 @@ However, if you have a configuration file, but it doesn't include any rules or e
 
 The standard `codeframe` output format works well in most situations, but `redocly` can also produce output to integrate with other tools.
 
+{% admonition type="warning" name="Lint one API at a time" %}
 Some formats, such as `checkstyle` or `json`, don't work well when multiple APIs are linted in a single command. Try linting each API separately when you pass the command output to another tool.
+{% /admonition %}
 
 #### Codeframe (default)
 
@@ -318,7 +322,7 @@ This option is useful when you have an API design standard, but have some except
 This command overwrites an existing ignore file.
 {% /admonition %}
 
-This runs the `lint` command and adds all the errors to an ignore file:
+The following command runs `lint` and adds all the errors to an ignore file:
 
 ```bash
 redocly lint museum-with-errors.yaml --generate-ignore-file

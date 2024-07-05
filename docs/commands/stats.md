@@ -29,7 +29,7 @@ redocly stats --version
 | Option        | Type    | Description                                                                                                                                                          |
 | ------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api           | string  | **REQUIRED.** Path to the API description filename or alias that you want to generate the statistics for. Refer to [the API section](#specify-api) for more details. |
-| --config      | string  | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                 |
+| --config      | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                       |
 | --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `markdown`. Default value is `stylish`.                                                          |
 | --help        | boolean | Show help.                                                                                                                                                           |
 | --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                   |
@@ -39,9 +39,9 @@ redocly stats --version
 
 ### Specify API
 
-The `stats` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-filepath) exists.
+The `stats` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-configuration-file) exists.
 
-#### Pass API directly
+#### Pass an API directly
 
 You can use the `stats` command with an OpenAPI description directly, with a command like the following:
 
@@ -49,9 +49,9 @@ You can use the `stats` command with an OpenAPI description directly, with a com
 redocly stats openapi/openapi.yaml
 ```
 
-In this case, `stats` shows statistics for the API description that was passed in. Even if the configuration file exists, it is ignored.
+In this case, `stats` shows statistics for the API description that was passed in.
 
-#### Pass API alias
+#### Pass an API alias
 
 Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
 For example, with a `redocly.yaml` configuration file containing the following entry for `core@v1`:
@@ -70,7 +70,7 @@ redocly stats core@v1
 
 In this case, after resolving the path behind the `core@v1` name, `stats` displays statistics for the `openapi/api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
-### Use alternative filepath
+### Use alternative configuration file
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
@@ -204,6 +204,6 @@ jobs:
 ```
 
 This GitHub action uses the output of the `stats` command in Markdown format as the input value for `$GITHUB_STEP_SUMMARY`.
-When the job is complete, your API stats is added to the summary page, as shown in the following screenshot:
+When the job is complete, your API stats are added to the summary page, as shown in the following screenshot:
 
 ![GitHub job summary showing API stats](./images/stats-github-job-summary.png)

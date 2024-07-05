@@ -2,8 +2,8 @@
 
 ## Introduction
 
-The `build-docs` command builds Redoc into a zero-dependency HTML file that contains your API documentation.
-The standalone HTML file can be easily shared or hosted without any external dependencies.
+The `build-docs` command builds Redoc into an HTML file that contains your API documentation.
+The standalone HTML file can be easily shared or hosted on a platform of your choice.
 
 ## Usage
 
@@ -20,7 +20,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | Option              | Type    | Description                                                                                                                                                                                                                        |
 | ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                                                                                  |
-| --config            | string  | Specify path to the [configuration file](#use-alternative-filepath).                                                                                                                                                               |
+| --config            | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                                                                                          |
 | --disableGoogleFont | boolean | Disable Google fonts. The default value is `false`.                                                                                                                                                                                |
 | --help              | boolean | Show help.                                                                                                                                                                                                                         |
 | --lint-config       | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                                                                                           |
@@ -35,9 +35,9 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 ### Specify API
 
-The `build-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-alternative-filepath) exists.
+The `build-docs` command behaves differently depending on how you pass the API to it, and whether the [configuration file](#use-an-alternative-configuration-file) exists.
 
-#### Pass API directly
+#### Pass an API directly
 
 ```bash
 redocly build-docs openapi.yaml
@@ -46,7 +46,7 @@ redocly build-docs openapi.yaml
 In this case, the `build-docs` command builds the API description that was passed to the command.
 Even if a configuration file exists, the command does not check for APIs listed in it.
 
-#### Pass API alias
+#### Pass an API alias
 
 Instead of a full path, you can use an API name from the `apis` object of your Redocly configuration file.
 For example, with a `redocly.yaml` configuration file containing the following entry for `games@v1`:
@@ -66,7 +66,7 @@ redocly build-docs games@v1
 In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 Any additional configurations provided in the file are also used by the command.
 
-### Use alternative filepath
+### Use an alternative configuration file
 
 By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 

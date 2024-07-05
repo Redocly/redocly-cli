@@ -110,14 +110,14 @@ To properly push your API description to the Redocly API registry, you need the 
 The `push` command uses the following order of precedence:
 
 1. First, it takes the organization ID from command-line arguments (if provided).
-2. If the organization ID is not provided explicitly, it takes it from the configuration file.
+1. If the organization ID is not provided explicitly, it takes it from the configuration file.
 
 To find your organization ID required for the command:
 
 1. Log into Workflows.
-2. Access the **API registry** page.
-3. In your browser's address bar, find the URL of this page.
-4. Inspect the segment after `app.redocly.com/org/`. This part is your organization ID.
+1. Access the **API registry** page.
+1. In your browser's address bar, find the URL of this page.
+1. Inspect the segment after `app.redocly.com/org/`. This part is your organization ID.
 
 For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `--organization=test_docs`.
 
@@ -132,16 +132,16 @@ The name and version of your API should contain only supported characters (`a-z`
 To find your API name required for the command:
 
 1. Log into Workflows.
-2. Access the **API registry** page.
-3. Check the list of APIs displayed on this page.
-4. Inspect the title of each list item to the left of the **New version** and **Edit API** action buttons. This title is an API name.
+1. Access the **API registry** page.
+1. Check the list of APIs displayed on this page.
+1. Inspect the title of each list item to the left of the **New version** and **Edit API** action buttons. This title is an API name.
 
 To find your API version required for the command:
 
 1. Log into Workflows.
-2. Access the **API registry** page.
-3. Check the list of APIs displayed on this page.
-4. The version is displayed in the title after the `@` in format `<name> @ <version>`.
+1. Access the **API registry** page.
+1. Check the list of APIs displayed on this page.
+1. The version is displayed in the title after the `@` in format `<name> @ <version>`.
 
 When using the `push` command, you would provide the API name and version in the format `api-name@api-version`. For example: `--destination=petstore-api@v1`.
 
@@ -322,5 +322,5 @@ Note that the `--files` option has higher priority than the `redocly.yaml` confi
 The Redocly Workflows interface can help you get started with the `push` command.
 
 1. In **API registry**, select **Add API**.
-2. In the **Definition name** step, provide a name for your new API description.
-3. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API description file. Or use the [`redocly push -u` command](#upsert-an-api-with-push) directly from the command-line interface.
+1. In the **Definition name** step, provide a name for your new API description.
+1. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API description file. Or use the [`redocly push -u` command](#upsert-an-api-with-push) directly from the command-line interface.

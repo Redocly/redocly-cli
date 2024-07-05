@@ -37,18 +37,18 @@ redocly join --version
 
 ## Options
 
-| Option                             | Type     | Description                                                                                                                                                                                                                                                        |
-| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder.                                                         |
-| --config                           | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                               |
-| --help                             | boolean  | Show help.                                                                                                                                                                                                                                                         |
-| --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                 |
-| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (depends on the extension of the first input file). **If the file already exists, it's overwritten.** See the [specify alternative filepath](#specify-alternative-filepath) section. |
-| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [resolve conflicting component names](#resolve-conflicting-component-names) section.                                                                                                               |
-| --prefix-tags-with-filename        | boolean  | Prefix tags with property value from file name. See the [prefix tags with filename](#prefix-tags-with-filename) section.                                                                                                                                           |
-| --prefix-tags-with-info-prop       | string   | Prefix tags with property value from info object. See the [prefix tags with specified info property](#prefix-tags-with-specified-info-property) section.                                                                                                           |
-| --version                          | boolean  | Show version number.                                                                                                                                                                                                                                               |
-| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [avoid tag duplication](#avoid-tag-duplication) section.                                                                                                                                                            |
+| Option                             | Type     | Description                                                                                                                                                                                                                                      |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder.                                       |
+| --config                           | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                             |
+| --help                             | boolean  | Show help.                                                                                                                                                                                                                                       |
+| --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                               |
+| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (depends on the extension of the first input file). **If the file already exists, it's overwritten.** See the [specify output file](#specify-output-file) section. |
+| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [resolve conflicting component names](#resolve-conflicting-component-names) section.                                                                                             |
+| --prefix-tags-with-filename        | boolean  | Prefix tags with property value from file name. See the [prefix tags with filename](#prefix-tags-with-filename) section.                                                                                                                         |
+| --prefix-tags-with-info-prop       | string   | Prefix tags with property value from info object. See the [prefix tags with specified info property](#prefix-tags-with-specified-info-property) section.                                                                                         |
+| --version                          | boolean  | Show version number.                                                                                                                                                                                                                             |
+| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [avoid tag duplication](#avoid-tag-duplication) section.                                                                                                                                          |
 
 {% admonition type="warning" %}
 These options are mutually exclusive: `without-x-tag-groups`, `prefix-tags-with-filename`, and `prefix-tags-with-info-prop`.
@@ -56,7 +56,7 @@ These options are mutually exclusive: `without-x-tag-groups`, `prefix-tags-with-
 
 ## Examples
 
-### Specify array of paths
+### Specify an array of paths
 
 This command combines the API description files that are passed in:
 
@@ -65,12 +65,6 @@ redocly join first-api.yaml second-api.json
 ```
 
 The output file `openapi.yaml` is created in the working directory:
-
-<pre>
-redocly join first-api.yaml second-api.json
-
-openapi.yaml: join processed in 56ms
-</pre>
 
 The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API description are always taken only from the first input file:
 
@@ -260,7 +254,7 @@ components:
 
 </pre>
 
-### Specify alternative filepath
+### Specify output file
 
 By default, the CLI tool writes the joined file as `openapi.yaml` or `openapi.json` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
 
