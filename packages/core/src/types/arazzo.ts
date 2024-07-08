@@ -106,7 +106,7 @@ const parameter = {
     },
   },
   additionalProperties: false,
-  required: ['in', 'name', 'value'],
+  required: ['name', 'value'],
 } as const;
 const parameters = {
   type: 'array',
@@ -165,7 +165,25 @@ const criteriaObject = {
   properties: {
     condition: { type: 'string' },
     context: { type: 'string' },
-    type: { type: 'string', enum: ['regex', 'JSONPath'] },
+    type: {
+      oneOf: [
+        { type: 'string', enum: ['regex', 'jsonpath', 'simple', 'xpath'] },
+        {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['jsonpath'] },
+            version: { type: 'string', enum: ['draft-goessner-dispatch-jsonpath-00'] },
+          },
+        },
+        {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['xpath'] },
+            version: { type: 'string', enum: ['xpath-30', 'xpath-20', 'xpath-10'] },
+          },
+        },
+      ],
+    },
   },
   required: ['condition'],
   additionalProperties: false,
@@ -182,7 +200,7 @@ const onSuccessObject = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    type: { type: 'string', enum: ['goto'] },
+    type: { type: 'string', enum: ['goto', 'end'] },
     stepId: { type: 'string' },
     workflowId: { type: 'string' },
     criteria: criteriaObjects,
@@ -198,7 +216,7 @@ const onFailureObject = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    type: { type: 'string', enum: ['goto', 'retry'] },
+    type: { type: 'string', enum: ['goto', 'retry', 'end'] },
     workflowId: { type: 'string' },
     stepId: { type: 'string' },
     retryAfter: { type: 'number' },
