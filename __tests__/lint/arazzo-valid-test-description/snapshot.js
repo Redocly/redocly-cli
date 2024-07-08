@@ -7,7 +7,7 @@ No configurations were provided -- using built in recommended configuration by d
 validating museum.yaml...
 museum.yaml: validated in <test>ms
 
-Woohoo! Your description document is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 
 
 `;

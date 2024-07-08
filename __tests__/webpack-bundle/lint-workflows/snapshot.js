@@ -13,7 +13,7 @@ exports[`webpack-bundle test lint-workflows 1`] = `
 validating ./openapi.yaml...
 ./openapi.yaml: validated in <test>ms
 
-Woohoo! Your description document is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 
 
 `;

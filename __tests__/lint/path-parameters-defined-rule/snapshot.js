@@ -5,7 +5,7 @@ exports[`E2E lint path-parameters-defined-rule 1`] = `
 validating /openapi.yaml...
 /openapi.yaml: validated in <test>ms
 
-Woohoo! Your description document is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 
 
 `;

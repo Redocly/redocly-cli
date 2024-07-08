@@ -17,7 +17,7 @@ exports[`E2E lint-config test with option: {
 validating ../__fixtures__/valid-openapi.yaml...
 ../__fixtures__/valid-openapi.yaml: validated in <test>ms
 
-Woohoo! Your description document is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 
 
 `;
