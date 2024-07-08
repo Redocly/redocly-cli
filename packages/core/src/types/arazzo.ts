@@ -117,7 +117,7 @@ const parameter = {
       },
       required: ['reference'],
       additionalProperties: false,
-    }
+    },
   ],
 } as const;
 const parameters = {
@@ -283,7 +283,7 @@ const JSONSchema = {
   properties: {
     type: {
       type: 'string',
-      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null']
+      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
     },
     properties: {
       type: 'object',
