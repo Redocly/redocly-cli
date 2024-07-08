@@ -5,12 +5,7 @@ info:
   title: Redocly Museum API Tickets
   description: A part of imaginary, but delightful Museum API for interacting with museum services and information. Built with love by Redocly.
   version: 1.0.0
-components:
-  parameters:
-    parameter:
-      in: header
-      name: Authorization
-      value: Basic Og==
+components: {}
 arazzo: 1.0.0
 sourceDescriptions:
   - name: museum-api
@@ -20,7 +15,9 @@ workflows:
   - workflowId: get-museum-tickets
     description: This workflow demonstrates how to buy tickets for the museum.
     parameters:
-      - $ref: '#/parameters/parameter'
+      - in: header
+        name: Authorization
+        value: Basic Og==
     steps:
       - stepId: buy-tickets
         description: Buy museum tickets resolving request details with buyMuseumTickets operationId from museum-api.yaml description.

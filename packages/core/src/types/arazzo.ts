@@ -31,7 +31,7 @@ const openAPISourceDescriptionSchema = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    type: { type: 'string', const: 'openapi' },
+    type: { type: 'string', enum: ['openapi'] },
     url: { type: 'string' },
     'x-serverUrl': { type: 'string' },
   },
@@ -42,7 +42,7 @@ const noneSourceDescriptionSchema = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    type: { type: 'string', const: 'none' },
+    type: { type: 'string', enum: ['none'] },
     'x-serverUrl': { type: 'string' },
   },
   additionalProperties: false,
@@ -52,7 +52,7 @@ const arazzoSourceDescriptionSchema = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    type: { type: 'string', const: 'arazzo' },
+    type: { type: 'string', enum: ['arazzo'] },
     url: { type: 'string' },
   },
   additionalProperties: false,
@@ -83,30 +83,42 @@ const extendedOperation = {
 } as const;
 const parameter = {
   type: 'object',
-  properties: {
-    in: { type: 'string', enum: ['header', 'query', 'path', 'cookie'] },
-    name: { type: 'string' },
-    value: {
-      oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-    },
-    $ref: { type: 'string' },
-    style: { type: 'string' },
-    target: { type: 'string' },
-    required: { type: 'boolean' },
-    schema: {
+  oneOf: [
+    {
       type: 'object',
-      additionalProperties: true,
+      properties: {
+        in: { type: 'string', enum: ['header', 'query', 'path', 'cookie'] },
+        name: { type: 'string' },
+        value: {
+          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        },
+      },
+      required: ['name', 'value'],
+      additionalProperties: false,
     },
-    example: {
+    {
       type: 'object',
-      additionalProperties: true,
+      properties: {
+        $ref: { type: 'string' },
+        value: {
+          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        },
+      },
+      required: ['$ref'],
+      additionalProperties: false,
     },
-    examples: {
-      oneOf: [{ type: 'object' }, { type: 'object', properties: { $ref: { type: 'string' } } }],
-    },
-  },
-  additionalProperties: false,
-  required: ['name', 'value'],
+    {
+      type: 'object',
+      properties: {
+        reference: { type: 'string' },
+        value: {
+          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        },
+      },
+      required: ['reference'],
+      additionalProperties: false,
+    }
+  ],
 } as const;
 const parameters = {
   type: 'array',
@@ -266,6 +278,29 @@ const steps = {
   type: 'array',
   items: step,
 } as const;
+const JSONSchema = {
+  type: 'object',
+  properties: {
+    type: {
+      type: 'string',
+      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null']
+    },
+    properties: {
+      type: 'object',
+      additionalProperties: true,
+    },
+    required: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    items: {
+      type: 'object',
+      additionalProperties: true,
+    },
+  },
+  required: ['type'],
+  additionalProperties: true,
+} as const;
 const workflow = {
   type: 'object',
   properties: {
@@ -274,19 +309,7 @@ const workflow = {
     description: { type: 'string' },
     parameters: parameters,
     dependsOn: { type: 'array', items: { type: 'string' } },
-    inputs: {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-        },
-        properties: {
-          type: 'object',
-          additionalProperties: true,
-        },
-      },
-      required: ['type'],
-    },
+    inputs: JSONSchema,
     outputs: {
       type: 'object',
       additionalProperties: {
