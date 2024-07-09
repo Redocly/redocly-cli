@@ -22,8 +22,10 @@ callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
+    const excludeFolders = ['arazzo-type-extensions-with-plugin'];
     const folderPath = join(__dirname, 'lint');
-    const contents = readdirSync(folderPath);
+    const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
+
     for (const file of contents) {
       const testPath = join(folderPath, file);
       if (statSync(testPath).isFile()) continue;
@@ -54,6 +56,21 @@ describe('E2E', () => {
       const folderPath = join(__dirname, `lint/${dirName}`);
 
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
+
+    test('arazzo-type-extensions-with-plugin', () => {
+      const dirName = 'arazzo-type-extensions-with-plugin';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        'museum.yaml',
+        '--config=redocly.yaml',
+      ]);
 
       const result = getCommandOutput(args, folderPath);
       (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(

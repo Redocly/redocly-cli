@@ -333,7 +333,7 @@ const workflows = {
   type: 'array',
   items: workflow,
 } as const;
-export const workflowSchema = {
+export const arazzoSchema = {
   type: 'object',
   properties: {
     arazzo: { type: 'string', enum: ['1.0.0'] },
@@ -382,5 +382,5 @@ export const workflowSchema = {
 
 export const ArazzoTypes: Record<string, NodeType> = getNodeTypesFromJSONSchema(
   ARAZZO_ROOT_TYPE,
-  workflowSchema
+  arazzoSchema
 );
