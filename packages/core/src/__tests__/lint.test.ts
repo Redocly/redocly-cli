@@ -397,20 +397,6 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/theme/openapi/showConsole",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`showConsole\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
               "pointer": "#/theme/openapi/layout",
               "reportOnKey": false,
               "source": "",

@@ -1,3 +1,5 @@
+import { blue, gray } from 'colorette';
+import { performance } from 'perf_hooks';
 import {
   Config,
   formatProblems,
@@ -13,19 +15,18 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
+  notifyAboutIncompatibleConfigOptions,
   pluralize,
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous';
-import { blue, gray } from 'colorette';
-import { performance } from 'perf_hooks';
+import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
 
 import type { OutputFormat, ProblemSeverity, RuleSeverity } from '@redocly/openapi-core';
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 import type { CommandOptions, Skips, Totals } from '../types';
-import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
-import { Arguments } from 'yargs';
+import type { Arguments } from 'yargs';
 
 export type LintOptions = {
   apis?: string[];
@@ -130,7 +131,9 @@ export function lintConfigCallback(
     return;
   }
 
-  return async ({ document, resolvedRefMap, config }) => {
+  return async ({ document, resolvedRefMap, config, parsed: { theme = {} } }) => {
+    notifyAboutIncompatibleConfigOptions(theme.openapi);
+
     const problems = await lintConfig({
       document,
       resolvedRefMap,
@@ -147,7 +150,7 @@ export function lintConfigCallback(
       version,
     });
 
-    const command = argv ? getCommandNameFromArgs(argv as unknown as Arguments) : undefined;
+    const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
     printConfigLintTotals(fileTotals, command);
 

@@ -2,13 +2,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { slash } from '@redocly/openapi-core';
 import { green, yellow } from 'colorette';
-import pluralize = require('pluralize');
-
-import type { OutputFormat, Config } from '@redocly/openapi-core';
-
-import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
+import {
+  exitWithError,
+  HandledError,
+  pluralize,
+  printExecutionTime,
+} from '../../utils/miscellaneous';
 import { handlePushStatus } from './push-status';
 import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
+
+import type { OutputFormat, Config } from '@redocly/openapi-core';
 
 export type PushOptions = {
   apis?: string[];

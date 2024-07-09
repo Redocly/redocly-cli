@@ -13,3 +13,7 @@ output/
 *.tgz
 redoc-static.html
 packages/cli/README.md
+redocly.yaml
+.redocly.yaml
+redocly.yml
+.redocly.yml
