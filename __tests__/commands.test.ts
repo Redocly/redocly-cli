@@ -22,7 +22,11 @@ callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
-    const excludeFolders = ['arazzo-type-extensions-with-plugin'];
+    const excludeFolders = [
+      'arazzo-type-extensions-with-plugin',
+      'arazzo-not-valid-test-description',
+      'arazzo-valid-test-description',
+    ];
     const folderPath = join(__dirname, 'lint');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
 
