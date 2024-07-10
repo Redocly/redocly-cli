@@ -4,7 +4,7 @@ exports[`E2E lint-config test with option: { dirName: 'invalid-lint-config-sever
 
 index.ts lint [apis...]
 
-Lint an API description.
+Lint an API or Arazzo description.
 
 Positionals:
   apis                                                     [array] [default: []]

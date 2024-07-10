@@ -11,6 +11,9 @@ import type {
   Async2PreprocessorsSet,
   Async2DecoratorsSet,
   Async2RuleSet,
+  ArazzoRuleSet,
+  ArazzoPreprocessorsSet,
+  ArazzoDecoratorsSet,
   RuleMap,
 } from '../oas-types';
 
@@ -20,9 +23,9 @@ import type { SkipFunctionContext } from '../visitors';
 import {
   BuiltInAsync2RuleId,
   BuiltInCommonOASRuleId,
-  BuiltInCommonRuleId,
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
+  BuiltInArazzoRuleId,
 } from '../types/redocly-yaml';
 
 export type RuleSeverity = ProblemSeverity | 'off';
@@ -51,23 +54,26 @@ export type StyleguideRawConfig<T = undefined> = {
   doNotResolveExamples?: boolean;
   recommendedFallback?: boolean;
 
-  rules?: RuleMap<BuiltInCommonRuleId | BuiltInCommonOASRuleId, RuleConfig, T>;
+  rules?: RuleMap<BuiltInCommonOASRuleId, RuleConfig, T>;
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
   oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
   oas3_1Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
+  arazzoRules?: RuleMap<BuiltInArazzoRuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
   async2Preprocessors?: Record<string, PreprocessorConfig>;
+  arazzoPreprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
   oas3_0Decorators?: Record<string, DecoratorConfig>;
   oas3_1Decorators?: Record<string, DecoratorConfig>;
   async2Decorators?: Record<string, DecoratorConfig>;
+  arazzoDecorators?: Record<string, DecoratorConfig>;
 };
 
 export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
@@ -84,12 +90,14 @@ export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;
   oas2?: Oas2PreprocessorsSet;
   async2?: Async2PreprocessorsSet;
+  arazzo?: ArazzoPreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
   oas3?: Oas3DecoratorsSet;
   oas2?: Oas2DecoratorsSet;
   async2?: Async2DecoratorsSet;
+  arazzo?: ArazzoDecoratorsSet;
 };
 
 export type TypesExtensionFn = (
@@ -103,6 +111,7 @@ export type CustomRulesConfig = {
   oas3?: Oas3RuleSet;
   oas2?: Oas2RuleSet;
   async2?: Async2RuleSet;
+  arazzo?: ArazzoRuleSet;
 };
 
 export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };
@@ -227,19 +236,23 @@ export type ThemeRawConfig = {
   mockServer?: Record<string, any>;
 };
 
+// TODO: sync types
 export type RulesFields =
   | 'rules'
   | 'oas2Rules'
   | 'oas3_0Rules'
   | 'oas3_1Rules'
   | 'async2Rules'
+  | 'arazzoRules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
   | 'oas3_1Preprocessors'
   | 'async2Preprocessors'
+  | 'arazzoPreprocessors'
   | 'decorators'
   | 'oas2Decorators'
   | 'oas3_0Decorators'
   | 'oas3_1Decorators'
+  | 'arazzoDecorators'
   | 'async2Decorators';

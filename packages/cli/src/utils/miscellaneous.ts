@@ -523,7 +523,9 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,
-    ...rules.oas3_0,
+    ...rules.oas3_1,
+    ...rules.async2,
+    ...rules.arazzo,
   };
 
   if (isEmptyObject(ruleset)) {

@@ -2,11 +2,21 @@
 
 exports[`resolveConfig should ignore minimal from the root and read local file 1`] = `
 {
+  "arazzoDecorators": {},
+  "arazzoPreprocessors": {},
+  "arazzoRules": {
+    "spec": "error",
+  },
   "async2Decorators": {},
   "async2Preprocessors": {},
   "async2Rules": {
     "channels-kebab-case": "off",
+    "info-contact": "off",
     "no-channel-trailing-slash": "off",
+    "operation-operationId": "warn",
+    "spec": "error",
+    "tag-description": "warn",
+    "tags-alphabetical": "off",
   },
   "decorators": {},
   "doNotResolveExamples": undefined,
@@ -109,11 +119,21 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
 
 exports[`resolveStyleguideConfig should resolve extends with local file config which contains path to nested config 1`] = `
 {
+  "arazzoDecorators": {},
+  "arazzoPreprocessors": {},
+  "arazzoRules": {
+    "spec": "error",
+  },
   "async2Decorators": {},
   "async2Preprocessors": {},
   "async2Rules": {
     "channels-kebab-case": "off",
+    "info-contact": "off",
     "no-channel-trailing-slash": "off",
+    "operation-operationId": "warn",
+    "spec": "error",
+    "tag-description": "warn",
+    "tags-alphabetical": "off",
   },
   "decorators": {},
   "doNotResolveExamples": undefined,

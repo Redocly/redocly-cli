@@ -106,9 +106,15 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'array-parameter-serialization': 'error',
   },
   async2Rules: {
+    spec: 'error',
+    'info-contact': 'error',
+    'operation-operationId': 'error',
+    'tag-description': 'error',
+    'tags-alphabetical': 'error',
     'channels-kebab-case': 'error',
     'no-channel-trailing-slash': 'error',
   },
+  arazzoRules: { spec: 'error' },
 };
 
 export default all;

@@ -22,8 +22,14 @@ callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
+    const excludeFolders = [
+      'arazzo-type-extensions-with-plugin',
+      'arazzo-not-valid-test-description',
+      'arazzo-valid-test-description',
+    ];
     const folderPath = join(__dirname, 'lint');
-    const contents = readdirSync(folderPath);
+    const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
+
     for (const file of contents) {
       const testPath = join(folderPath, file);
       if (statSync(testPath).isFile()) continue;
@@ -31,11 +37,50 @@ describe('E2E', () => {
 
       const args = getParams('../../../packages/cli/src/index.ts', 'lint');
 
-      it(file, () => {
+      test(file, () => {
         const result = getCommandOutput(args, testPath);
         (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+
+    test('lint valid Arazzo description', () => {
+      const dirName = 'arazzo-valid-test-description';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
+
+    test('lint not valid Arazzo description', () => {
+      const dirName = 'arazzo-not-valid-test-description';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
+
+    test('arazzo-type-extensions-with-plugin', () => {
+      const dirName = 'arazzo-type-extensions-with-plugin';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        'museum.yaml',
+        '--config=redocly.yaml',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
   });
 
   describe('zero-config', () => {
@@ -389,6 +434,7 @@ describe('E2E', () => {
     const excludeFolders = [
       'bundle-remove-unused-components',
       'bundle-remove-unused-components-from-config',
+      'bundle-arazzo-valid-test-description',
     ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -403,11 +449,19 @@ describe('E2E', () => {
 
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [...entryPoints]);
 
-      it(file, () => {
+      test(file, () => {
         const result = getCommandOutput(args, testPath);
         (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+
+    test('bundle-arazzo-valid-test-description', () => {
+      const testPath = join(folderPath, 'bundle-arazzo-valid-test-description');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['museum.yaml']);
+
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
   });
 
   describe('bundle with option: remove-unused-components', () => {

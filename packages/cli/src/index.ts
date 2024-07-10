@@ -396,7 +396,7 @@ yargs
   )
   .command(
     'lint [apis...]',
-    'Lint an API description.',
+    'Lint an API or Arazzo description.',
     (yargs) =>
       yargs.positional('apis', { array: true, type: 'string', demandOption: true }).option({
         format: {
