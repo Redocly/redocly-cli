@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.18.0
+
+### Minor Changes
+
+- Added support for Arazzo description linting.
+
 ## 1.17.1
 
 ### Patch Changes

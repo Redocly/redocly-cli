@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.18.0 (2024-07-10)
+
+### Minor Changes
+
+- Added support for Arazzo description linting.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.18.0.
+
 ## 1.17.1 (2024-07-03)
 
 ### Patch Changes
