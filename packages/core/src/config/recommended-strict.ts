@@ -96,6 +96,15 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'channels-kebab-case': 'off',
     'no-channel-trailing-slash': 'off',
   },
+  async3Rules: {
+    spec: 'error',
+    'info-contact': 'off',
+    'operation-operationId': 'error',
+    'tag-description': 'error',
+    'tags-alphabetical': 'off',
+    'channels-kebab-case': 'off',
+    'no-channel-trailing-slash': 'off',
+  },
   arazzoRules: {
     spec: 'error',
   },

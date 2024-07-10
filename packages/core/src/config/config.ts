@@ -9,6 +9,7 @@ import {
   Oas2RuleSet,
   Oas3RuleSet,
   Async2RuleSet,
+  Async3RuleSet,
   ArazzoRuleSet,
 } from '../oas-types';
 import { isBrowser } from '../env';
@@ -72,6 +73,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
       [SpecVersion.OAS3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
       [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
+      [SpecVersion.Async3]: { ...rawConfig.rules, ...rawConfig.async3Rules },
       [SpecVersion.Arazzo]: { ...rawConfig.arazzoRules },
     };
 
@@ -80,6 +82,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
       [SpecVersion.OAS3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
       [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
+      [SpecVersion.Async3]: { ...rawConfig.preprocessors, ...rawConfig.async3Preprocessors },
       [SpecVersion.Arazzo]: { ...rawConfig.arazzoPreprocessors },
     };
 
@@ -88,6 +91,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
       [SpecVersion.OAS3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
       [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
+      [SpecVersion.Async3]: { ...rawConfig.decorators, ...rawConfig.async3Decorators },
       [SpecVersion.Arazzo]: { ...rawConfig.arazzoDecorators },
     };
 
@@ -181,6 +185,10 @@ export class StyleguideConfig {
           case SpecVersion.Async2:
             if (!plugin.typeExtension.async2) continue;
             extendedTypes = plugin.typeExtension.async2(extendedTypes, version);
+            break;
+          case SpecVersion.Async3:
+            if (!plugin.typeExtension.async3) continue;
+            extendedTypes = plugin.typeExtension.async3(extendedTypes, version);
             break;
           case SpecVersion.Arazzo:
             if (!plugin.typeExtension.arazzo) continue;
@@ -276,15 +284,26 @@ export class StyleguideConfig {
         return oas2Rules;
       case SpecMajorVersion.Async2:
         // eslint-disable-next-line no-case-declarations
-        const asyncApiRules: Async2RuleSet[] = []; // default ruleset
+        const asyncApi2Rules: Async2RuleSet[] = []; // default ruleset
         this.plugins.forEach(
-          (p) => p.preprocessors?.async2 && asyncApiRules.push(p.preprocessors.async2)
+          (p) => p.preprocessors?.async2 && asyncApi2Rules.push(p.preprocessors.async2)
         );
-        this.plugins.forEach((p) => p.rules?.async2 && asyncApiRules.push(p.rules.async2));
+        this.plugins.forEach((p) => p.rules?.async2 && asyncApi2Rules.push(p.rules.async2));
         this.plugins.forEach(
-          (p) => p.decorators?.async2 && asyncApiRules.push(p.decorators.async2)
+          (p) => p.decorators?.async2 && asyncApi2Rules.push(p.decorators.async2)
         );
-        return asyncApiRules;
+        return asyncApi2Rules;
+      case SpecMajorVersion.Async3:
+          // eslint-disable-next-line no-case-declarations
+          const asyncApi3Rules: Async3RuleSet[] = []; // default ruleset
+          this.plugins.forEach(
+            (p) => p.preprocessors?.async3 && asyncApi3Rules.push(p.preprocessors.async3)
+          );
+          this.plugins.forEach((p) => p.rules?.async3 && asyncApi3Rules.push(p.rules.async3));
+          this.plugins.forEach(
+            (p) => p.decorators?.async3 && asyncApi3Rules.push(p.decorators.async3)
+          );
+          return asyncApi3Rules;
       case SpecMajorVersion.Arazzo:
         // eslint-disable-next-line no-case-declarations
         const arazzoRules: ArazzoRuleSet[] = []; // default ruleset

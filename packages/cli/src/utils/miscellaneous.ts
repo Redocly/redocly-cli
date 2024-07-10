@@ -525,6 +525,7 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
     ...rules.oas3_0,
     ...rules.oas3_1,
     ...rules.async2,
+    ...rules.async3,
     ...rules.arazzo,
   };
 

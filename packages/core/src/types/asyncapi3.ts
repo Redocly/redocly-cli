@@ -1,35 +1,34 @@
+
 import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
-
+// TODO: add support security
 const Root: NodeType = {
   properties: {
     asyncapi: null, // TODO: validate semver format and supported version
     info: 'Info',
     id: { type: 'string' },
     servers: 'ServerMap',
-    channels: 'ChannelMap',
-    components: 'Components',
-    tags: 'TagList',
-    externalDocs: 'ExternalDocs',
+    channels: 'NamedChannels',
+    components: 'Components', 
+    operations: 'NamedOperations',
     defaultContentType: { type: 'string' },
   },
-  required: ['asyncapi', 'channels', 'info'],
+  required: ['asyncapi', 'info'],
 };
 
 const Channel: NodeType = {
   properties: {
+    address: { type: 'string' },
+    messages: 'NamedMessages',
+    title: { type: 'string' },
+    summary: { type: 'string' },
     description: { type: 'string' },
-    subscribe: 'Operation',
-    publish: 'Operation',
+    servers: 'ServerList',
     parameters: 'ParametersMap',
     bindings: 'ChannelBindings',
-    servers: { type: 'array', items: { type: 'string' } },
+    tags: 'TagList',
+    externalDocs: 'ExternalDocs',
   },
-};
-
-const ChannelMap: NodeType = {
-  properties: {},
-  additionalProperties: 'Channel',
 };
 
 const ChannelBindings: NodeType = {
@@ -78,11 +77,6 @@ const ExternalDocs: NodeType = {
   required: ['url'],
 };
 
-const SecurityRequirement: NodeType = {
-  properties: {},
-  additionalProperties: { type: 'array', items: { type: 'string' } },
-};
-
 const ServerBindings: NodeType = {
   properties: {},
   allowed() {
@@ -114,13 +108,15 @@ const ServerBindings: NodeType = {
 
 const Server: NodeType = {
   properties: {
-    url: { type: 'string' },
+    host: { type: 'string' },
+    pathname: { type: 'string' },
     protocol: { type: 'string' },
     protocolVersion: { type: 'string' },
     description: { type: 'string' },
     variables: 'ServerVariablesMap',
-    security: 'SecurityRequirementList',
+    security: 'SecuritySchemeList',
     bindings: 'ServerBindings',
+    externalDocs: 'ExternalDocs',
     tags: 'TagList',
   },
   required: ['url', 'protocol'],
@@ -156,6 +152,8 @@ const Info: NodeType = {
     termsOfService: { type: 'string' },
     contact: 'Contact',
     license: 'License',
+    tags: 'TagList',
+    externalDocs: 'ExternalDocs',
   },
   required: ['title', 'version'],
 };
@@ -179,7 +177,9 @@ const License: NodeType = {
 const Parameter: NodeType = {
   properties: {
     description: { type: 'string' },
-    schema: 'Schema',
+    enum: { type: 'array', items: { type: 'string' } },
+    default: { type: 'string' },
+    examples: { type: 'array', items: { type: 'string' } },
     location: { type: 'string' },
   },
 };
@@ -194,12 +194,10 @@ const CorrelationId: NodeType = {
 
 const Message: NodeType = {
   properties: {
-    messageId: { type: 'string' },
     headers: 'Schema',
-    payload: 'Schema', // TODO: strictly this does not cover all cases
+    payload: 'Schema',
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' }, // TODO: support official list of schema formats and custom values
     contentType: { type: 'string' },
     name: { type: 'string' },
     title: { type: 'string' },
@@ -208,7 +206,7 @@ const Message: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO: add support for message examples
+    examples: 'MessageExampleList',
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
@@ -275,11 +273,11 @@ const OperationBindings: NodeType = {
 const OperationTrait: NodeType = {
   properties: {
     tags: 'TagList',
+    title: { type: 'string' },
     summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
-    security: 'SecurityRequirementList',
+    security: 'SecuritySchemeList',
 
     bindings: 'OperationBindings',
   },
@@ -288,11 +286,20 @@ const OperationTrait: NodeType = {
 
 const MessageTrait: NodeType = {
   properties: {
-    messageId: { type: 'string' },
-    headers: 'Schema',
+    headers: (value: unknown) => {
+      if (typeof value === 'function' || (typeof value === 'object' && !!value)) {
+        return {
+          properties: {
+            schema: 'Schema',
+            schemaFormat: { type: 'string' },
+          },
+        };
+      } else {
+        return 'Schema';
+      }
+    },
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' },
     contentType: { type: 'string' },
     name: { type: 'string' },
     title: { type: 'string' },
@@ -301,25 +308,44 @@ const MessageTrait: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO: support examples for message traits
+    examples: 'MessageExampleList',
   },
   additionalProperties: {},
 };
 
 const Operation: NodeType = {
   properties: {
+    action: { type: 'string', enum: ['send', 'receive'] },
+    channel: 'Channel',
+    title: { type: 'string' },
     tags: 'TagList',
     summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
-    security: 'SecurityRequirementList',
+    security: 'SecuritySchemeList',
 
     bindings: 'OperationBindings',
     traits: 'OperationTraitList',
-    message: 'Message',
+    messages: 'MessageList',
+    reply: 'OperationReply',
   },
-  required: [],
+  required: ['action', 'channel'],
+};
+
+const OperationReply: NodeType = {
+  properties: {
+    channel: 'Channel',
+    messages: 'MessageList',
+    address: 'OperationReplyAddress',
+  },
+};
+
+const OperationReplyAddress: NodeType = {
+  properties: {
+    location: { type: 'string' },
+    description: { type: 'string' },
+  },
+  required: ['location'],
 };
 
 const MessageExample: NodeType = {
@@ -382,7 +408,9 @@ const Schema: NodeType = {
     contains: 'Schema',
     minContains: { type: 'integer', minimum: 0 },
     maxContains: { type: 'integer', minimum: 0 },
-    patternProperties: { type: 'object' },
+    patternProperties: (value: any) => {
+      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
+    },
     propertyNames: 'Schema',
     unevaluatedItems: (value: unknown) => {
       if (typeof value === 'boolean') {
@@ -398,7 +426,6 @@ const Schema: NodeType = {
         return 'Schema';
       }
     },
-    summary: { type: 'string' },
     properties: 'SchemaProperties',
     items: (value: any) => {
       if (typeof value === 'boolean') {
@@ -410,6 +437,9 @@ const Schema: NodeType = {
     additionalProperties: (value: any) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
+    additionalItems: (value: any) => {
+      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
+    },
     description: { type: 'string' },
     format: { type: 'string' },
     contentEncoding: { type: 'string' },
@@ -417,13 +447,12 @@ const Schema: NodeType = {
     default: null,
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
-    // xml: 'Xml',
     examples: { type: 'array' },
     example: { isExample: true },
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
-    dependencies: { type: 'object' }, // TODO
+    dependencies: 'NamedSchemas',
   },
 };
 
@@ -461,14 +490,18 @@ const Components: NodeType = {
     messages: 'NamedMessages',
     parameters: 'NamedParameters',
     schemas: 'NamedSchemas',
+    replies: 'NamedOperationReplies',
+    replyAddresses: 'NamedOperationRelyAddresses',
     correlationIds: 'NamedCorrelationIds',
     messageTraits: 'NamedMessageTraits',
     operationTraits: 'NamedOperationTraits',
-    streamHeaders: 'NamedStreamHeaders',
+    tags: 'NamedTags',
+    externalDocs: 'NamedExternalDocs',
     securitySchemes: 'NamedSecuritySchemes',
     servers: 'ServerMap',
     serverVariables: 'ServerVariablesMap',
-    channels: 'ChannelMap',
+    channels: 'NamedChannels',
+    operations: 'NamedOperations',
     serverBindings: 'ServerBindings',
     channelBindings: 'ChannelBindings',
     operationBindings: 'OperationBindings',
@@ -548,6 +581,7 @@ const SecurityScheme: NodeType = {
     bearerFormat: { type: 'string' },
     flows: 'SecuritySchemeFlows',
     openIdConnectUrl: { type: 'string' },
+    scopes: { type: 'array', items: { type: 'string' } },
   },
   required(value) {
     switch (value?.type) {
@@ -1010,17 +1044,18 @@ OperationBindings.properties.mercure = MercureOperationBinding;
 
 // --- End per-protocol node types
 
-export const AsyncApi2Types: Record<string, NodeType> = {
+export const AsyncApi3Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
+  NamedTags: mapOf('Tag'),
   ServerMap,
   ExternalDocs,
+  NamedExternalDocs: mapOf('ExternalDocs'),
   Server,
+  ServerList: listOf('Server'),
   ServerVariable,
   ServerVariablesMap: mapOf('ServerVariable'),
-  SecurityRequirement,
-  SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
@@ -1100,11 +1135,16 @@ export const AsyncApi2Types: Record<string, NodeType> = {
 
   ServerBindings,
   ChannelBindings,
-  ChannelMap,
+  NamedChannels: mapOf('Channel'),
   Channel,
   Parameter,
   ParametersMap: mapOf('Parameter'),
   Operation,
+  NamedOperations: mapOf('Operation'),
+  OperationReply,
+  NamedOperationReplies: mapOf('OperationReply'),
+  OperationReplyAddress,
+  NamedOperationRelyAddresses: mapOf('OperationReplyAddress'),
   Schema,
   MessageExample,
   SchemaProperties,
@@ -1118,19 +1158,21 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   NamedParameters: mapOf('Parameter'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   NamedCorrelationIds: mapOf('CorrelationId'),
-  NamedStreamHeaders: mapOf('StreamHeader'),
   ImplicitFlow,
   PasswordFlow,
   ClientCredentials,
   AuthorizationCode,
   SecuritySchemeFlows,
   SecurityScheme,
+  SecuritySchemeList: listOf('SecurityScheme'),
   Message,
   MessageBindings,
   OperationBindings,
   OperationTrait,
+  MessageList: listOf('Message'),
   OperationTraitList: listOf('OperationTrait'),
   MessageTrait,
   MessageTraitList: listOf('MessageTrait'),
+  MessageExampleList: listOf('MessageExample'),
   CorrelationId,
 };

@@ -12,6 +12,11 @@ StyleguideConfig {
       "oas3_0": {},
       "oas3_1": {},
     },
+    "async3": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
+    },
     "oas2": {
       "oas2": {},
       "oas3_0": {},
@@ -47,6 +52,11 @@ StyleguideConfig {
   "preprocessors": {
     "arazzo": {},
     "async2": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
+    },
+    "async3": {
       "oas2": {},
       "oas3_0": {},
       "oas3_1": {},
@@ -111,6 +121,20 @@ StyleguideConfig {
   "rules": {
     "arazzo": {},
     "async2": {
+      "oas2": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+    "async3": {
       "oas2": {
         "no-empty-servers": "error",
         "operation-summary": "error",

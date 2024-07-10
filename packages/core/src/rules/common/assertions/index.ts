@@ -1,6 +1,6 @@
 import { asserts, AssertionFn } from './asserts';
 import { buildSubjectVisitor, buildVisitorObject } from './utils';
-import { Oas2Visitor, Oas3Visitor } from '../../../visitors';
+import { Async2Visitor, Async3Visitor, Oas2Visitor, Oas3Visitor } from '../../../visitors';
 import { RuleSeverity } from '../../../config';
 import { isString } from '../../../utils';
 
@@ -28,7 +28,7 @@ export type RawAssertion = AssertionDefinition & {
 export type Assertion = RawAssertion & { assertionId: string };
 
 export const Assertions = (opts: Record<string, Assertion>) => {
-  const visitors: (Oas2Visitor | Oas3Visitor)[] = [];
+  const visitors: (Oas2Visitor | Oas3Visitor | Async2Visitor | Async3Visitor)[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here

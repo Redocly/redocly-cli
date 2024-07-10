@@ -1,11 +1,11 @@
-import type { Oas3Rule, Oas2Rule, Async2Rule, ArazzoRule } from '../../visitors';
+import type { Oas3Rule, Oas2Rule, Async2Rule, Async3Rule, ArazzoRule } from '../../visitors';
 import { isNamedType, SpecExtension } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils';
 import { isRef } from '../../ref-utils';
 import { isPlainObject } from '../../utils';
 import { UserContext } from '../../walk';
 
-export const Spec: Oas3Rule | Oas2Rule | Async2Rule | ArazzoRule = () => {
+export const Spec: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule | ArazzoRule = () => {
   return {
     any(
       node: any,

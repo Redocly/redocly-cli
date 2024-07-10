@@ -73,6 +73,7 @@ export enum SpecVersion {
   OAS3_0 = 'oas3_0',
   OAS3_1 = 'oas3_1',
   Async2 = 'async2',
+  Async3 = 'async3',
 }
 
 export enum Oas3Operations {

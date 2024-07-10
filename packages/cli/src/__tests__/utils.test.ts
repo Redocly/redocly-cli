@@ -474,6 +474,7 @@ describe('checkIfRulesetExist', () => {
       oas3_0: {},
       oas3_1: {},
       async2: {},
+      async3: {},
       arazzo: {},
     };
     expect(() => checkIfRulesetExist(rules)).toThrowError(

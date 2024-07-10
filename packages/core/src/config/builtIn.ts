@@ -5,6 +5,7 @@ import minimal from './minimal';
 import { rules as oas3Rules } from '../rules/oas3';
 import { rules as oas2Rules } from '../rules/oas2';
 import { rules as async2Rules } from '../rules/async2';
+import { rules as async3Rules } from '../rules/async3';
 import { rules as arazzoRules } from '../rules/arazzo';
 import { preprocessors as oas3Preprocessors } from '../rules/oas3';
 import { preprocessors as oas2Preprocessors } from '../rules/oas2';
@@ -33,18 +34,21 @@ export const defaultPlugin: Plugin = {
     oas3: oas3Rules,
     oas2: oas2Rules,
     async2: async2Rules,
+    async3: async3Rules,
     arazzo: arazzoRules,
   } as CustomRulesConfig,
   preprocessors: {
     oas3: oas3Preprocessors,
     oas2: oas2Preprocessors,
     async2: async2Preprocessors,
+    async3: {},
     arazzo: arazzoPreprocessors,
   },
   decorators: {
     oas3: oas3Decorators,
     oas2: oas2Decorators,
     async2: async2Decorators,
+    async3: {},
     arazzo: arazzoDecorators,
   },
   configs: builtInConfigs,

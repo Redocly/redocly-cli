@@ -135,7 +135,7 @@ servers:
         default: '9092'
 
 channels:
-  smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured:
+  /smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured/:
     x-security:
       $ref: '#/components/securitySchemes/supportedOauthFlows/flows/clientCredentials'
     description: The topic on which measured values may be produced and consumed.
@@ -173,7 +173,7 @@ channels:
                 description: The Id of the company.
             additionalProperties: false
 
-  smartylighting/streetlights/1/0/action/{streetlightId}/turn/on:
+  smartylighting/streetlights/1/0/action/{streetlightId}/turn/on/:
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
