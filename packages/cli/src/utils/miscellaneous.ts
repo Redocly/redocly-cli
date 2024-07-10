@@ -675,7 +675,7 @@ export function notifyAboutIncompatibleConfigOptions(openapi: Record<string, unk
           )} ${pluralize(
             'is',
             intersection.length
-          )} specific to Redoc v1 or Reference Docs and not supported by Redoc v2.\n\n`
+          )} only used in API Reference Docs and Redoc version 2.x or earlier.\n\n`
         )
       );
     }

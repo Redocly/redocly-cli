@@ -3,7 +3,7 @@
 exports[`E2E lint-config test with option: { dirName: 'config-with-refs-extended', option: 'error' } 1`] = `
 
 
-Property 'theme' is specific to Redoc v1 or Reference Docs and not supported by Redoc v2.
+Property 'theme' is only used in API Reference Docs and Redoc version 2.x or earlier.
 
 [1] .redocly.yaml:1:1 at #/unexpected-property
 
