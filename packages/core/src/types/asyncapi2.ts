@@ -456,7 +456,7 @@ const Discriminator: NodeType = {
   required: ['propertyName'],
 };
 
-const Components: NodeType = {//?
+const Components: NodeType = {
   properties: {
     messages: 'NamedMessages',
     parameters: 'NamedParameters',

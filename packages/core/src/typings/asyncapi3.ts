@@ -1,7 +1,7 @@
 export interface Async3Definition {
   asyncapi: string;
   info?: Async3Info;
-  channels:  Record<string, Channel>;
+  channels: Record<string, Channel>;
   // TBD
 }
 
@@ -49,7 +49,7 @@ export interface Channel {
   parameters?: Record<string, any>;
   tags?: Record<string, any>;
   externalDocs?: ExternalDocumentation;
-  bindings?: Record<string, any>
+  bindings?: Record<string, any>;
 }
 
 export interface ExternalDocumentation {

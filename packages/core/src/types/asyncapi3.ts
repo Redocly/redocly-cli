@@ -1,4 +1,3 @@
-
 import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
 // TODO: add support security
@@ -9,7 +8,7 @@ const Root: NodeType = {
     id: { type: 'string' },
     servers: 'ServerMap',
     channels: 'NamedChannels',
-    components: 'Components', 
+    components: 'Components',
     operations: 'NamedOperations',
     defaultContentType: { type: 'string' },
   },
