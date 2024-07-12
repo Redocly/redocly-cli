@@ -257,7 +257,23 @@ const step = {
     outputs: {
       type: 'object',
       additionalProperties: {
-        type: 'string',
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'object',
+          },
+          {
+            type: 'array',
+          },
+          {
+            type: 'boolean',
+          },
+          {
+            type: 'number',
+          },
+        ],
       },
     },
     'x-inherit': inherit,
