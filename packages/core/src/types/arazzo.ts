@@ -87,7 +87,7 @@ const parameter = {
     {
       type: 'object',
       properties: {
-        in: { type: 'string', enum: ['header', 'query', 'path', 'cookie'] },
+        in: { type: 'string', enum: ['header', 'query', 'path', 'cookie', 'body'] },
         name: { type: 'string' },
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
@@ -257,7 +257,23 @@ const step = {
     outputs: {
       type: 'object',
       additionalProperties: {
-        type: 'string',
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'object',
+          },
+          {
+            type: 'array',
+          },
+          {
+            type: 'boolean',
+          },
+          {
+            type: 'number',
+          },
+        ],
       },
     },
     'x-inherit': inherit,
