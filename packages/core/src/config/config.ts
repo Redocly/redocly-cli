@@ -294,16 +294,16 @@ export class StyleguideConfig {
         );
         return asyncApi2Rules;
       case SpecMajorVersion.Async3:
-          // eslint-disable-next-line no-case-declarations
-          const asyncApi3Rules: Async3RuleSet[] = []; // default ruleset
-          this.plugins.forEach(
-            (p) => p.preprocessors?.async3 && asyncApi3Rules.push(p.preprocessors.async3)
-          );
-          this.plugins.forEach((p) => p.rules?.async3 && asyncApi3Rules.push(p.rules.async3));
-          this.plugins.forEach(
-            (p) => p.decorators?.async3 && asyncApi3Rules.push(p.decorators.async3)
-          );
-          return asyncApi3Rules;
+        // eslint-disable-next-line no-case-declarations
+        const asyncApi3Rules: Async3RuleSet[] = []; // default ruleset
+        this.plugins.forEach(
+          (p) => p.preprocessors?.async3 && asyncApi3Rules.push(p.preprocessors.async3)
+        );
+        this.plugins.forEach((p) => p.rules?.async3 && asyncApi3Rules.push(p.rules.async3));
+        this.plugins.forEach(
+          (p) => p.decorators?.async3 && asyncApi3Rules.push(p.decorators.async3)
+        );
+        return asyncApi3Rules;
       case SpecMajorVersion.Arazzo:
         // eslint-disable-next-line no-case-declarations
         const arazzoRules: ArazzoRuleSet[] = []; // default ruleset

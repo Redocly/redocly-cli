@@ -35,7 +35,7 @@ describe('no-channel-trailing-slash', () => {
               "source": "asyncapi.yaml",
             },
           ],
-          "message": "channel.address should not have a trailing slash.",
+          "message": "\`/trailing/\` should not have a trailing slash.",
           "ruleId": "no-channel-trailing-slash",
           "severity": "error",
           "suggest": [],

@@ -4,7 +4,7 @@ import { UserContext } from '../../walk';
 
 export const ChannelsKebabCase: Async3Rule = () => {
   return {
-    Channel(channel: Channel, { report, key }: UserContext) {
+    Channel(channel: Channel, { report }: UserContext) {
       const segments = (channel.address || '')
         .split(/[/.:]/) // split on / or : as likely channel namespacers
         .filter((s) => s !== ''); // filter out empty segments

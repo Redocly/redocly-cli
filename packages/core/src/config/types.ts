@@ -266,6 +266,6 @@ export type RulesFields =
   | 'oas2Decorators'
   | 'oas3_0Decorators'
   | 'oas3_1Decorators'
-  | 'arazzoDecorators'
   | 'async2Decorators'
-  | 'async3Decorators';
+  | 'async3Decorators'
+  | 'arazzoDecorators';

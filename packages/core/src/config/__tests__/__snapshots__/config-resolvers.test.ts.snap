@@ -21,9 +21,9 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "async3Decorators": {},
   "async3Preprocessors": {},
   "async3Rules": {
-    "channels-kebab-case": "warn",
+    "channels-kebab-case": "off",
     "info-contact": "off",
-    "no-channel-trailing-slash": "warn",
+    "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
     "tag-description": "warn",
@@ -149,9 +149,9 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "async3Decorators": {},
   "async3Preprocessors": {},
   "async3Rules": {
-    "channels-kebab-case": "warn",
+    "channels-kebab-case": "off",
     "info-contact": "off",
-    "no-channel-trailing-slash": "warn",
+    "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
     "tag-description": "warn",

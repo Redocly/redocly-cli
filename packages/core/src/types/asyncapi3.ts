@@ -119,7 +119,7 @@ const Server: NodeType = {
     externalDocs: 'ExternalDocs',
     tags: 'TagList',
   },
-  required: ['url', 'protocol'],
+  required: ['host', 'protocol'],
 };
 
 const ServerMap: NodeType = {
@@ -195,7 +195,18 @@ const CorrelationId: NodeType = {
 const Message: NodeType = {
   properties: {
     headers: 'Schema',
-    payload: 'Schema',
+    payload: (value: unknown) => {
+      if (typeof value === 'function' || (typeof value === 'object' && !!value)) {
+        return {
+          properties: {
+            schema: 'Schema',
+            schemaFormat: { type: 'string' },
+          },
+        };
+      } else {
+        return 'Schema';
+      }
+    },
     correlationId: 'CorrelationId',
 
     contentType: { type: 'string' },
@@ -322,6 +333,7 @@ const Operation: NodeType = {
     summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
+    operationId: { type: 'string' },
     security: 'SecuritySchemeList',
 
     bindings: 'OperationBindings',
@@ -512,38 +524,38 @@ const Components: NodeType = {
 const ImplicitFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
+    availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
     authorizationUrl: { type: 'string' },
   },
-  required: ['authorizationUrl', 'scopes'],
+  required: ['authorizationUrl', 'availableScopes'],
 };
 
 const PasswordFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
+    availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
     tokenUrl: { type: 'string' },
   },
-  required: ['tokenUrl', 'scopes'],
+  required: ['tokenUrl', 'availableScopes'],
 };
 
 const ClientCredentials: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
+    availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
     tokenUrl: { type: 'string' },
   },
-  required: ['tokenUrl', 'scopes'],
+  required: ['tokenUrl', 'availableScopes'],
 };
 
 const AuthorizationCode: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
-    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
+    availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
     tokenUrl: { type: 'string' },
   },
-  required: ['authorizationUrl', 'tokenUrl', 'scopes'],
+  required: ['authorizationUrl', 'tokenUrl', 'availableScopes'],
 };
 
 const SecuritySchemeFlows: NodeType = {
@@ -608,9 +620,9 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme', 'bearerFormat', 'description'];
       case 'oauth2':
-        return ['type', 'flows', 'description'];
+        return ['type', 'flows', 'description', 'scopes'];
       case 'openIdConnect':
-        return ['type', 'openIdConnectUrl', 'description'];
+        return ['type', 'openIdConnectUrl', 'description', 'scopes'];
       default:
         return ['type', 'description'];
     }

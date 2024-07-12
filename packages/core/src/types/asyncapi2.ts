@@ -410,9 +410,6 @@ const Schema: NodeType = {
     additionalProperties: (value: any) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
-    additionalItems: (value: any) => {
-      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
-    },
     description: { type: 'string' },
     format: { type: 'string' },
     contentEncoding: { type: 'string' },

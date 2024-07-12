@@ -102,8 +102,8 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'channels-kebab-case': 'warn',
-    'no-channel-trailing-slash': 'warn',
+    'channels-kebab-case': 'off',
+    'no-channel-trailing-slash': 'off',
   },
   arazzoRules: {
     spec: 'error',
