@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 1.18.0
+
+### Minor Changes
+
+- Added support for Arazzo description linting.
+
+### Patch Changes
+
+- Removed `additionalItems` from OAS 3.0.x typings. This keyword is not supported by the specification.
+- Updated @redocly/openapi-core to v1.18.0.
+
 ## 1.17.1
 
 ### Patch Changes
