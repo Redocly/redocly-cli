@@ -2,9 +2,6 @@
 
 exports[`E2E lint-config test with option: { dirName: 'config-with-refs', option: 'warn' } 1`] = `
 
-
-Property 'theme' is only used in API Reference Docs and Redoc version 2.x or earlier.
-
 [1] .redocly.yaml:7:1 at #/non-existing-root-property
 
 Property \`non-existing-root-property\` is not expected here.

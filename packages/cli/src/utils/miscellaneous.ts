@@ -17,9 +17,8 @@ import {
   loadConfig,
   RedoclyClient,
 } from '@redocly/openapi-core';
-import { isEmptyObject, isPlainObject } from '@redocly/openapi-core/lib/utils';
+import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
 import { outputExtensions } from '../types';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from '../commands/push';
@@ -656,26 +655,6 @@ export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<k
           `[WARNING] "${String(
             option
           )}" option is deprecated and will be removed in a future release. \n\n`
-        )
-      );
-    }
-  }
-}
-
-export function notifyAboutIncompatibleConfigOptions(openapi: Record<string, unknown> | undefined) {
-  if (isPlainObject(openapi)) {
-    const propertiesSet = Object.keys(openapi);
-    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties);
-    const intersection = propertiesSet.filter((prop) => deprecatedSet.includes(prop));
-    if (intersection.length > 0) {
-      process.stderr.write(
-        yellow(
-          `\n${pluralize('Property', intersection.length)} ${gray(
-            intersection.map((prop) => `'${prop}'`).join(', ')
-          )} ${pluralize(
-            'is',
-            intersection.length
-          )} only used in API Reference Docs and Redoc version 2.x or earlier.\n\n`
         )
       );
     }

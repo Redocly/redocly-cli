@@ -15,7 +15,6 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  notifyAboutIncompatibleConfigOptions,
   pluralize,
   printConfigLintTotals,
   printLintTotals,
@@ -131,9 +130,7 @@ export function lintConfigCallback(
     return;
   }
 
-  return async ({ document, resolvedRefMap, config, parsed: { theme = {} } }) => {
-    notifyAboutIncompatibleConfigOptions(theme.openapi);
-
+  return async ({ document, resolvedRefMap, config }) => {
     const problems = await lintConfig({
       document,
       resolvedRefMap,
