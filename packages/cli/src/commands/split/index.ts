@@ -1,9 +1,9 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
 import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
+import { dequal } from '@redocly/openapi-core/lib/utils';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
-const isEqual = require('lodash.isequal');
 import {
   printExecutionTime,
   pathToFilename,
@@ -232,7 +232,7 @@ function findComponentTypes(components: any) {
 }
 
 function doesFileDiffer(filename: string, componentData: any) {
-  return fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
+  return fs.existsSync(filename) && !dequal(readYaml(filename), componentData);
 }
 
 function removeEmptyComponents(

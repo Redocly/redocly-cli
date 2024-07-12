@@ -1,7 +1,6 @@
 import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'perf_hooks';
-const isEqual = require('lodash.isequal');
 import {
   Config,
   SpecVersion,
@@ -12,6 +11,7 @@ import {
   bundleDocument,
   isRef,
 } from '@redocly/openapi-core';
+import { dequal } from '@redocly/openapi-core/lib/utils';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -449,7 +449,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
           // Compare properties only if both are reference objects
           if (!isRef(pathParameter) && !isRef(parameter)) {
             if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
-              if (!isEqual(pathParameter.schema, parameter.schema)) {
+              if (!dequal(pathParameter.schema, parameter.schema)) {
                 exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}.`);
               }
               isFoundParameter = true;
@@ -535,7 +535,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
 
   function isServersEqual(serverOne: Oas3Server, serverTwo: Oas3Server) {
     if (serverOne.description === serverTwo.description) {
-      return isEqual(serverOne.variables, serverTwo.variables);
+      return dequal(serverOne.variables, serverTwo.variables);
     }
 
     return false;
@@ -636,7 +636,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
 }
 
 function doesComponentsDiffer(curr: object, next: object) {
-  return !isEqual(Object.values(curr)[0], Object.values(next)[0]);
+  return !dequal(Object.values(curr)[0], Object.values(next)[0]);
 }
 
 function validateComponentsDifference(files: any) {
