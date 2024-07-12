@@ -285,7 +285,11 @@ export function getProxyAgent() {
   return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }
 
-export function dequal(foo: any, bar: any) {
+/**
+ * Checks if two objects are deeply equal.
+ * Borrowed the source code from https://github.com/lukeed/dequal.
+ */
+export function dequal(foo: any, bar: any): boolean {
   let ctor, len;
   if (foo === bar) return true;
 
