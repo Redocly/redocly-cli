@@ -92,47 +92,8 @@ export const parameter = {
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
         },
-        style: { type: 'string' },
-        target: { type: 'string' },
-        required: { type: 'boolean' },
-        schema: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        example: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        examples: {
-          oneOf: [{ type: 'object' }, { type: 'object', properties: { $ref: { type: 'string' } } }],
-        },
       },
       required: ['name', 'value'],
-      additionalProperties: false,
-    },
-    {
-      type: 'object',
-      properties: {
-        $ref: { type: 'string' },
-        value: {
-          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        },
-        style: { type: 'string' },
-        target: { type: 'string' },
-        required: { type: 'boolean' },
-        schema: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        example: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        examples: {
-          oneOf: [{ type: 'object' }, { type: 'object', properties: { $ref: { type: 'string' } } }],
-        },
-      },
-      required: ['$ref'],
       additionalProperties: false,
     },
     {
@@ -141,20 +102,6 @@ export const parameter = {
         reference: { type: 'string' },
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        },
-        style: { type: 'string' },
-        target: { type: 'string' },
-        required: { type: 'boolean' },
-        schema: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        example: {
-          type: 'object',
-          additionalProperties: true,
-        },
-        examples: {
-          oneOf: [{ type: 'object' }, { type: 'object', properties: { $ref: { type: 'string' } } }],
         },
       },
       required: ['reference'],
