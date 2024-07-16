@@ -1,0 +1,11 @@
+title: Saved Report
+description: Saved report settings to export a report.
+type: object
+additionalProperties: false
+required:
+  - report_schedule
+properties:
+  report_schedule:
+    description: The report schedule of the saved report.
+    type: object
+    $ref: ./report_schedule.yaml

@@ -1,0 +1,114 @@
+title: Campaign
+type: object
+additionalProperties: false
+properties:
+  ad_account_id:
+    $ref: ad_account.yaml#/properties/id
+  configured_status:
+    type: string
+    description: >-
+      The status that the user has configured this entity to have. Can differ from
+      the effective status depending on the context such as pending billing information."
+    enum:
+      - ACTIVE
+      - ARCHIVED
+      - DELETED
+      - PAUSED
+    examples:
+      - ACTIVE
+    default: ACTIVE
+  created_at:
+    $ref: created_at.yaml
+  effective_status:
+    type: string
+    description: The calculated status determining the real status of this entity.
+    enum:
+      - ACTIVE
+      - AD_GROUP_PAUSED
+      - ARCHIVED
+      - CAMPAIGN_PAUSED
+      - COMPLETED
+      - DELETED
+      - PAUSED
+      - PENDING_APPROVAL
+      - PENDING_BILLING_INFO
+      - PENDING_ID_VERIFICATION
+      - REJECTED
+    examples:
+      - ACTIVE
+    default: PENDING_APPROVAL
+    readOnly: true
+  funding_instrument_id:
+    type:
+      - string
+      - "null"
+    description: Campaign level funding instrument id
+    examples:
+      - "123"
+  goal_type:
+    type:
+      - string
+      - "null"
+    description: The campaign goal type. This cannot be changed after publishing the campaign. Only works for CBO campaigns.  Will not be accepted when is_campaign_budget_optimization is False.
+    enum:
+      - LIFETIME_SPEND
+      - DAILY_SPEND
+    examples:
+      - LIFETIME_SPEND
+  goal_value:
+    type:
+      - integer
+      - "null"
+    description: Campaign level goal value in micros. This field only works for CBO campaigns.  Will not be accepted when is_campaign_budget_optimization is False.
+    examples:
+      - 100000000
+  id:
+    type: string
+    description: The ID of the campaign.
+    examples:
+      - "579922433862993631"
+    readOnly: true
+  modified_at:
+    $ref: modified_at.yaml
+  name:
+    type:
+      - string
+      - "null"
+    description: The campaign name.
+    examples:
+      - My Campaign
+    minLength: 3
+    maxLength: 200
+  objective:
+    type: string
+    description: The objective type of a campaign.
+    enum:
+      - APP_INSTALLS
+      - CATALOG_SALES
+      - CLICKS
+      - CONVERSIONS
+      - IMPRESSIONS
+      - LEAD_GENERATION
+      - VIDEO_VIEWABLE_IMPRESSIONS
+    examples:
+      - IMPRESSIONS
+  special_ad_categories:
+    type:
+      - array
+      - "null"
+    description: List of special ad categories (advertising content that require compliance with regulations and policies) related to the campaign.
+    items:
+      type: string
+      examples:
+        - NONE
+      enum:
+        - HOUSING_EMPLOYMENT_CREDIT
+        - NONE
+    readOnly: true
+  spend_cap:
+    type:
+      - integer
+      - "null"
+    description: Campaign lifetime spend cap in microcurrency. This field works for both CBO(campaign-budget-optimization) and non-CBO(campaign-budget-optimization) campaigns
+    examples:
+      - 100000000

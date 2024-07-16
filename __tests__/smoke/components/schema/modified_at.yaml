@@ -1,0 +1,5 @@
+description: The last time that this entity was modified represented in ISO 8601.
+example: 2023-03-27T21:18:39Z
+type: string
+format: date-time
+readOnly: true

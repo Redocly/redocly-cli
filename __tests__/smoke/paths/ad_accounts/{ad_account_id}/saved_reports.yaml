@@ -1,0 +1,84 @@
+get:
+  x-ads-api-route-name: list_saved_reports
+  description: Get a list of saved reports for the ads account. This endpoint is paginated.
+  operationId: List Saved Reports
+  parameters:
+    - description: The ID of the ad account to get saved reports for.
+      in: path
+      name: ad_account_id
+      required: true
+      schema:
+        type: string
+  responses:
+    "200":
+      description: A list of paginated saved reports.
+      content:
+        application/json:
+          schema:
+            type: object
+            title: GetSavedReportsResponse
+            additionalProperties: false
+            required:
+              - data
+            properties:
+              data:
+                type: array
+                title: SavedReportsList
+                additionalProperties: false
+                items:
+                  $ref: ../../../components/schema/saved_report.yaml
+  security:
+    - CompanyAPIKey:
+        - "adsread"
+  tags:
+    - Report Center
+
+post:
+  x-ads-api-route-name: create_saved_report
+  description: Create a saved report for the ads account.
+  operationId: Create Saved Report
+  parameters:
+    - description: The ID of the ad account to create a saved report for.
+      in: path
+      name: ad_account_id
+      required: true
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          title: CreateSavedReportRequestBody
+          additionalProperties: false
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              additionalProperties: false
+              required:
+                - saved_report
+              properties:
+                saved_report:
+                  $ref: ../../../components/schema/saved_report.yaml
+  responses:
+    "201":
+      description: The saved report was created successfully.
+      content:
+        application/json:
+          schema:
+            type: object
+            title: CreateSavedReportResponse
+            additionalProperties: false
+            required:
+              - data
+            properties:
+              data:
+                $ref: ../../../components/schema/saved_report.yaml
+  security:
+    - CompanyAPIKey:
+        - "adsedit"
+  tags:
+    - Report Center

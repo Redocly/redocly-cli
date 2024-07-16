@@ -1,0 +1,9 @@
+title: Business
+type: object
+additionalProperties: false
+description: A business is the parent entity that owns all other entities for the organization.
+properties:
+  id:
+    allOf:
+      - $ref: ./business_id.yaml
+      - readOnly: true

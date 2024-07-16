@@ -1,0 +1,4 @@
+description: The unique identifier of a business.
+example: 1e200a0b-4e98-32cc-dd47-3006e4c85bb2
+type: string
+format: uuid

@@ -1,0 +1,119 @@
+title: Ad Account
+type: object
+additionalProperties: false
+properties:
+  admin_approval:
+    description: Describes an employee set state for the account.
+    examples:
+      - VALID
+    type: string
+    enum:
+      - ADMIN
+      - BANNED
+      - NEEDS_ID_VERIFICATION
+      - PENDING
+      - SUSPENDED
+      - SUSPICIOUS
+      - TRUSTED
+      - VALID
+    readOnly: true
+  attribution_type:
+    description: Configures the attribution type to query when calculating ECPA fields.
+    examples:
+      - CLICK_THROUGH_CONVERSION
+    type: string
+    enum:
+      - ALL_CONVERSION
+      - CLICK_THROUGH_CONVERSION
+      - VIEW_THROUGH_CONVERSION
+  business_id:
+    allOf:
+      - $ref: ./business.yaml#/properties/id
+      - description: The ID of the business that this account belongs to.
+  click_attribution_window:
+    description: Configures the window to use when querying reporting for click attributions.
+    examples:
+      - DAY
+    type: string
+    enum:
+      - DAY
+      - MONTH
+      - WEEK
+  created_at:
+    $ref: ./created_at.yaml
+  currency:
+    $ref: ../enums/currency.yaml
+    readOnly: true
+  id:
+    description: The ID of the ad account.
+    examples:
+      - t2_123456
+    type: string
+    pattern: ^(t2|a2)_.*
+    readOnly: true
+  modified_at:
+    $ref: ./modified_at.yaml
+  name:
+    description: The ad account name.
+    examples:
+      - company-advertiser
+    type: string
+  pixel_partner_preferences:
+    description: A list of pixel partners allowed by the advertiser.
+    examples:
+      - - MODE
+        - IAS
+    type:
+      - array
+      - "null"
+    readOnly: true
+    items:
+      type: string
+      enum:
+        - DV
+        - IAS
+        - MODE
+  primary_contact_member_id:
+    description: The ID of the primary contact member.
+    examples:
+      - t2_123456
+    type: string
+  suspension_reason:
+    description: The reason why this ad account was suspended.
+    examples:
+      - FRAUD
+    type:
+      - string
+      - "null"
+    readOnly: true
+    enum:
+      - ADVERTISING_POLICY
+      - BEHAVIOR
+      - FRAUD
+      - OTHER
+      - KYC_CHECK_FAILED
+      - null
+  time_zone_id:
+    $ref: "../enums/time_zones.yaml"
+    type:
+      - string
+      - "null"
+    readOnly: true
+  type:
+    description: The type of the ad account.
+    examples:
+      - SELF_SERVE
+    type: string
+    readOnly: true
+    enum:
+      - MANAGED
+      - SELF_SERVE
+  view_attribution_window:
+    description: Configures the window to use when querying reporting for view attributions.
+    examples:
+      - MONTH
+    type: string
+    enum:
+      - DAY
+      - MONTH
+      - WEEK

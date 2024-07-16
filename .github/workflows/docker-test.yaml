@@ -1,0 +1,34 @@
+name: Smoke tests
+
+on:
+  push:
+    branches:
+      - test/*
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+jobs:
+  run-smoke--docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check & Set docker builder
+        run: |
+          # Lists the builders you currently have, ensure default is an option
+          docker context list
+
+          # Check your current builder and write it down somewhere incase you need to swap back
+          docker context inspect
+
+          # Swap to default
+          docker context use default # TODO: play with it
+
+      - name: Build docker image
+        run: docker build --no-cache --platform linux/amd64 -t redocly/cli:latest .
+      - name: Run docker image
+        run: |
+          cd __tests__/smoke/
+          docker run --rm redocly/cli:latest --version
+          docker run --rm -v $PWD:/spec redocly/cli:latest bundle --remove-unused-components --dereferenced example.yaml -o dist/bundled.yaml

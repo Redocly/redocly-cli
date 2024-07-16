@@ -1,0 +1,132 @@
+title: Report Schedule
+description: Report schedule settings to export a report.
+type: object
+additionalProperties: false
+properties:
+  id:
+    type: string
+    description: The ID of the report_schedule.
+    examples:
+      - c32c1514-802a-4f9f-91b6-868845d7896d
+  name:
+    type:
+      - string
+      - "null"
+    description: The name of the the report schedule
+    examples:
+      - My Report Schedule
+  modifier_id:
+    type:
+      - string
+      - "null"
+    description: The user ID of the modifier.
+    examples:
+      - c32c1514-802a-4f9f-91b6-868845d7896d
+  ad_account_id:
+    description: The account ID of the report schedule.
+    examples:
+      - a2_123456
+    type: string
+  report_view_id:
+    description: The report view ID of the report schedule.
+    examples:
+      - c32c1514-802a-4f9f-91b6-868845d7896d
+    type: string
+  lookback_period:
+    description: The lookback period of the report schedule.
+    examples:
+      - DAY
+    type: string
+    enum:
+      - DAY
+      - WEEK
+      - MONTH
+  cadence:
+    description: The cadence of the report schedule.
+    examples:
+      - DAILY
+    type: string
+    enum:
+      - DAILY
+      - WEEKLY
+      - MONTHLY
+      - ONE_TIME
+      - CUSTOM
+  day:
+    description: The day of the month to run the report schedule.
+    examples:
+      - 23
+    type:
+      - integer
+      - "null"
+    minimum: -1
+    maximum: 31
+  recipients:
+    description: A list of recipients to send the report to.
+    examples:
+      - - t2_adsapi
+        - t2_123456
+    type:
+      - array
+      - "null"
+    items:
+      type: string
+  status:
+    description: The status of the report schedule.
+    examples:
+      - ACTIVE
+    type: string
+    enum:
+      - ACTIVE
+      - PAUSED
+      - DELETED
+  weekdays:
+    description: A list of weekdays to run the report schedule.
+    examples:
+      - - MONDAY
+        - TUESDAY
+    type:
+      - array
+      - "null"
+    items:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+  created_at:
+    $ref: ./created_at.yaml
+  modified_at:
+    $ref: ./modified_at.yaml
+  start_date:
+    description: The time that report metric starts. Used for one-time schedule.
+    examples:
+      - "2023-03-27T21:18:39Z"
+    type:
+      - string
+      - "null"
+    format: date-time
+  end_date:
+    description: The time that report metric ends. Used for one-time schedule.
+    examples:
+      - "2023-03-27T21:18:39Z"
+    type:
+      - string
+      - "null"
+    format: date-time
+  time_zone_id:
+    description: The timezone of the report schedule.
+    example: "America/Los_Angeles"
+    type:
+      - string
+      - "null"
+  scheduled_run_time:
+    description: The time of day to run the report schedule.
+    example: "10:00:00"
+    type:
+      - string
+      - "null"

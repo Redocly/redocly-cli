@@ -1,0 +1,58 @@
+openapi: 3.1.0
+paths:
+  /example:
+    get:
+      summary: Example endpoint
+      description: This is an example endpoint
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hello, world!
+  /ad_accounts/{ad_account_id}/saved_reports:
+    $ref: paths/ad_accounts/{ad_account_id}/saved_reports.yaml
+components:
+  schemas:
+    AdAccount:
+      $ref: components/schema/ad_account.yaml
+    Campaign:
+      $ref: components/schema/campaign.yaml
+  securitySchemes:
+    CompanyAPIKey:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://www.company.com/api/v1/authorize
+          refreshUrl: https://www.company.com/api/v1/access_token
+          tokenUrl: https://www.company.com/api/v1/access_token
+          scopes:
+            adsconversions: Post conversion events through the API
+            adsread: Read advertising data through my account.
+            adsedit: Write advertising data through my account.
+            history: Access submission history.
+            read: Read content data through my account such as posts.
+            adsleadgendownloader: Read Lead Gen Forms and retrieve leads.
+          x-ads-api-scope-access-type:
+            adsconversions: write
+            adsread: read
+            adsedit: write
+            history: read
+            read: read
+            adsleadgendownloader: read
+      description: >-
+        company OAuth2 Security Key
+
+servers:
+  - url: https://ads-api.company.com/api/v3
+    description: company AdsAPI Production
+info:
+  title: company Advertising API
+  version: "3"
+  x-logo:
+    url: /common/snoo.png
