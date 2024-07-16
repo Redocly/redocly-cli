@@ -4,11 +4,11 @@ import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 
 export const ARAZZO_ROOT_TYPE = 'Root';
 
-const operationMethod = {
+export const operationMethod = {
   type: 'string',
   enum: ['get', 'post', 'put', 'delete', 'patch'],
 } as const;
-const expectSchema = {
+export const expectSchema = {
   type: 'object',
   properties: {
     statusCode: { type: 'number' },
@@ -58,7 +58,7 @@ const arazzoSourceDescriptionSchema = {
   additionalProperties: false,
   required: ['name', 'type', 'url'],
 } as const;
-const sourceDescriptionSchema = {
+export const sourceDescriptionSchema = {
   type: 'object',
   oneOf: [
     openAPISourceDescriptionSchema,
@@ -81,7 +81,7 @@ const extendedOperation = {
   additionalProperties: false,
   required: ['path', 'method'],
 } as const;
-const parameter = {
+export const parameter = {
   type: 'object',
   oneOf: [
     {
@@ -124,7 +124,7 @@ const parameters = {
   type: 'array',
   items: parameter,
 } as const;
-const infoObject = {
+export const infoObject = {
   type: 'object',
   properties: {
     title: { type: 'string' },
@@ -135,7 +135,7 @@ const infoObject = {
   additionalProperties: false,
   required: ['title', 'version'],
 } as const;
-const replacement = {
+export const replacement = {
   type: 'object',
   properties: {
     target: { type: 'string' },
@@ -150,7 +150,7 @@ const replacement = {
     },
   },
 } as const;
-const requestBody = {
+export const requestBody = {
   type: 'object',
   properties: {
     contentType: { type: 'string' },
@@ -172,7 +172,7 @@ const requestBody = {
   additionalProperties: false,
   required: ['payload'],
 } as const;
-const criteriaObject = {
+export const criteriaObject = {
   type: 'object',
   properties: {
     condition: { type: 'string' },
@@ -204,7 +204,7 @@ const criteriaObjects = {
   type: 'array',
   items: criteriaObject,
 } as const;
-const inherit = {
+export const inherit = {
   type: 'string',
   enum: ['auto', 'none'],
 } as const;
@@ -242,7 +242,7 @@ const onFailureList = {
   type: 'array',
   items: onFailureObject,
 } as const;
-const step = {
+export const step = {
   type: 'object',
   properties: {
     stepId: { type: 'string' },
@@ -317,7 +317,7 @@ const JSONSchema = {
   required: ['type'],
   additionalProperties: true,
 } as const;
-const workflow = {
+export const workflow = {
   type: 'object',
   properties: {
     workflowId: { type: 'string' },
