@@ -274,3 +274,145 @@ describe('bundleFromString', () => {
     expect(rest.source.body).toEqual(stringDocument);
   });
 });
+
+describe('bundle async', () => {
+  it('should bundle async of version 2.x', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Account Service
+          version: 1.0.0
+          description: This service is in charge of processing user signups
+        channels:
+          user/signedup:
+            subscribe:
+              message:
+                $ref: '#/components/messages/UserSignedUp'
+        components:
+          schemas:
+            UserSignedUp:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: Name of the user
+          messages:
+            UserSignedUp:
+              payload:
+                $ref: '#/components/schemas/UserSignedUp'
+      `,
+      ''
+    );
+
+    const config = await makeConfig({});
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchInlineSnapshot(`
+      asyncapi: 2.6.0
+      info:
+        title: Account Service
+        version: 1.0.0
+        description: This service is in charge of processing user signups
+      channels:
+        user/signedup:
+          subscribe:
+            message:
+              payload: &ref_1
+                type: object
+                properties: &ref_0
+                  displayName:
+                    type: string
+                    description: Name of the user
+      components:
+        schemas:
+          UserSignedUp:
+            type: object
+            properties: *ref_0
+        messages:
+          UserSignedUp:
+            payload: *ref_1
+
+    `);
+  });
+
+  it('should bundle async of version 3.0', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Account Service
+          version: 1.0.0
+          description: This service is in charge of processing user signups
+        operations:
+          sendUserSignedup:
+            action: send
+            messages:
+              - $ref: '#/components/messages/UserSignedUp'
+        components:
+          schemas:
+            UserSignedUp:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: Name of the user
+          messages:
+            UserSignedUp:
+              payload:
+                $ref: '#/components/schemas/UserSignedUp'
+      `,
+      ''
+    );
+
+    const config = await makeConfig({});
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchInlineSnapshot(`
+      asyncapi: 3.0.0
+      info:
+        title: Account Service
+        version: 1.0.0
+        description: This service is in charge of processing user signups
+      operations:
+        sendUserSignedup:
+          action: send
+          messages:
+            - payload: &ref_1
+                type: object
+                properties: &ref_0
+                  displayName:
+                    type: string
+                    description: Name of the user
+      components:
+        schemas:
+          UserSignedUp:
+            type: object
+            properties: *ref_0
+        messages:
+          UserSignedUp:
+            payload: *ref_1
+
+    `);
+  });
+});
