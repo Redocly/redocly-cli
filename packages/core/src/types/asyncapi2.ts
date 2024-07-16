@@ -331,7 +331,7 @@ const MessageExample: NodeType = {
   },
 };
 
-const Schema: NodeType = {
+export const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
     id: { type: 'string' },
@@ -403,6 +403,8 @@ const Schema: NodeType = {
     items: (value: any) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
+      } else if (Array.isArray(value)) {
+        return 'SchemaList';
       } else {
         return 'Schema';
       }
@@ -1008,22 +1010,7 @@ OperationBindings.properties.mercure = MercureOperationBinding;
 // pulsar
 
 // --- End per-protocol node types
-
-export const AsyncApi2Types: Record<string, NodeType> = {
-  Root,
-  Tag,
-  TagList: listOf('Tag'),
-  ServerMap,
-  ExternalDocs,
-  Server,
-  ServerVariable,
-  ServerVariablesMap: mapOf('ServerVariable'),
-  SecurityRequirement,
-  SecurityRequirementList: listOf('SecurityRequirement'),
-  Info,
-  Contact,
-  License,
-
+export const AsyncApi2Bindings: Record<string, NodeType> = {
   HttpServerBinding,
   HttpChannelBinding,
   HttpMessageBinding,
@@ -1099,12 +1086,32 @@ export const AsyncApi2Types: Record<string, NodeType> = {
 
   ServerBindings,
   ChannelBindings,
+  MessageBindings,
+  OperationBindings,
+};
+
+export const AsyncApi2Types: Record<string, NodeType> = {
+  ...AsyncApi2Bindings,
+  Root,
+  Tag,
+  TagList: listOf('Tag'),
+  ServerMap,
+  ExternalDocs,
+  Server,
+  ServerVariable,
+  ServerVariablesMap: mapOf('ServerVariable'),
+  SecurityRequirement,
+  SecurityRequirementList: listOf('SecurityRequirement'),
+  Info,
+  Contact,
+  License,
   ChannelMap,
   Channel,
   Parameter,
   ParametersMap: mapOf('Parameter'),
   Operation,
   Schema,
+  SchemaList: listOf('Schema'),
   MessageExample,
   SchemaProperties,
   DiscriminatorMapping,

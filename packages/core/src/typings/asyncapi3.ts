@@ -1,8 +1,11 @@
 export interface Async3Definition {
   asyncapi: string;
-  info?: Async3Info;
-  channels: Record<string, Channel>;
-  // TBD
+  servers?: Record<string, any>;
+  info: Async3Info;
+  channels?: Record<string, Channel>;
+  components?: Record<string, any>;
+  operations?: Record<string, any>;
+  defaultContentType?: string;
 }
 
 export interface Async3Info {
