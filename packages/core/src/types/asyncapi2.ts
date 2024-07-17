@@ -61,7 +61,7 @@ const ChannelBindings: NodeType = {
   additionalProperties: { type: 'object' },
 };
 
-const Tag: NodeType = {
+export const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
     description: { type: 'string' },
@@ -70,7 +70,7 @@ const Tag: NodeType = {
   required: ['name'],
 };
 
-const ExternalDocs: NodeType = {
+export const ExternalDocs: NodeType = {
   properties: {
     description: { type: 'string' },
     url: { type: 'string' },
@@ -126,13 +126,13 @@ const Server: NodeType = {
   required: ['url', 'protocol'],
 };
 
-const ServerMap: NodeType = {
+export const ServerMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
 };
 
-const ServerVariable: NodeType = {
+export const ServerVariable: NodeType = {
   properties: {
     enum: {
       type: 'array',
@@ -160,7 +160,7 @@ const Info: NodeType = {
   required: ['title', 'version'],
 };
 
-const Contact: NodeType = {
+export const Contact: NodeType = {
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -168,7 +168,7 @@ const Contact: NodeType = {
   },
 };
 
-const License: NodeType = {
+export const License: NodeType = {
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -184,7 +184,7 @@ const Parameter: NodeType = {
   },
 };
 
-const CorrelationId: NodeType = {
+export const CorrelationId: NodeType = {
   properties: {
     description: { type: 'string' },
     location: { type: 'string' },
@@ -322,7 +322,7 @@ const Operation: NodeType = {
   required: [],
 };
 
-const MessageExample: NodeType = {
+export const MessageExample: NodeType = {
   properties: {
     payload: { isExample: true },
     summary: { type: 'string' },
@@ -483,7 +483,7 @@ const AuthorizationCode: NodeType = {
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
 
-const SecuritySchemeFlows: NodeType = {
+export const SecuritySchemeFlows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',

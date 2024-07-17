@@ -6,11 +6,20 @@ import {
   Discriminator,
   DiscriminatorMapping,
   SchemaProperties,
+  CorrelationId,
+  Tag,
+  ServerMap,
+  ExternalDocs,
+  SecuritySchemeFlows,
+  ServerVariable,
+  Contact,
+  License,
+  MessageExample,
 } from './asyncapi2';
 
 const Root: NodeType = {
   properties: {
-    asyncapi: null, // TODO: validate semver format and supported version
+    asyncapi: { type: 'string', enum: ['3.0.0'] },
     info: 'Info',
     id: { type: 'string' },
     servers: 'ServerMap',
@@ -37,23 +46,6 @@ const Channel: NodeType = {
   },
 };
 
-const Tag: NodeType = {
-  properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    externalDocs: 'ExternalDocs',
-  },
-  required: ['name'],
-};
-
-const ExternalDocs: NodeType = {
-  properties: {
-    description: { type: 'string' },
-    url: { type: 'string' },
-  },
-  required: ['url'],
-};
-
 const Server: NodeType = {
   properties: {
     host: { type: 'string' },
@@ -70,28 +62,6 @@ const Server: NodeType = {
   required: ['host', 'protocol'],
 };
 
-const ServerMap: NodeType = {
-  properties: {},
-  additionalProperties: (_value: any, key: string) =>
-    key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
-};
-
-const ServerVariable: NodeType = {
-  properties: {
-    enum: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    default: { type: 'string' },
-    description: { type: 'string' },
-    examples: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-  },
-  required: [],
-};
-
 const Info: NodeType = {
   properties: {
     title: { type: 'string' },
@@ -106,22 +76,6 @@ const Info: NodeType = {
   required: ['title', 'version'],
 };
 
-const Contact: NodeType = {
-  properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
-    email: { type: 'string' },
-  },
-};
-
-const License: NodeType = {
-  properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
-  },
-  required: ['name'],
-};
-
 const Parameter: NodeType = {
   properties: {
     description: { type: 'string' },
@@ -130,14 +84,6 @@ const Parameter: NodeType = {
     examples: { type: 'array', items: { type: 'string' } },
     location: { type: 'string' },
   },
-};
-
-const CorrelationId: NodeType = {
-  properties: {
-    description: { type: 'string' },
-    location: { type: 'string' },
-  },
-  required: ['location'],
 };
 
 const Message: NodeType = {
@@ -251,15 +197,6 @@ const OperationReplyAddress: NodeType = {
   required: ['location'],
 };
 
-const MessageExample: NodeType = {
-  properties: {
-    payload: { isExample: true },
-    summary: { type: 'string' },
-    name: { type: 'string' },
-    headers: { type: 'object' },
-  },
-};
-
 const Components: NodeType = {
   properties: {
     messages: 'NamedMessages',
@@ -319,15 +256,6 @@ const AuthorizationCode: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'tokenUrl', 'availableScopes'],
-};
-
-const SecuritySchemeFlows: NodeType = {
-  properties: {
-    implicit: 'ImplicitFlow',
-    password: 'PasswordFlow',
-    clientCredentials: 'ClientCredentials',
-    authorizationCode: 'AuthorizationCode',
-  },
 };
 
 const SecurityScheme: NodeType = {
@@ -394,37 +322,48 @@ const SecurityScheme: NodeType = {
 };
 
 export const AsyncApi3Types: Record<string, NodeType> = {
+  // from asyncapi2
   ...AsyncApi2Bindings,
-  Root,
-  Tag,
-  TagList: listOf('Tag'),
-  NamedTags: mapOf('Tag'),
-  ServerMap,
-  ExternalDocs,
-  NamedExternalDocs: mapOf('ExternalDocs'),
-  Server,
-  ServerList: listOf('Server'),
+  CorrelationId,
+  SecuritySchemeFlows,
   ServerVariable,
-  ServerVariablesMap: mapOf('ServerVariable'),
-  Info,
   Contact,
   License,
-  NamedChannels: mapOf('Channel'),
+  MessageExample,
+  Tag,
+  Dependencies,
+  Schema,
+  Discriminator,
+  DiscriminatorMapping,
+  SchemaProperties,
+  ServerMap,
+  ExternalDocs,
+  Root,
+
   Channel,
   Parameter,
-  ParametersMap: mapOf('Parameter'),
+  Info,
+  Server,
+  MessageTrait,
   Operation,
-  NamedOperations: mapOf('Operation'),
   OperationReply,
-  NamedOperationReplies: mapOf('OperationReply'),
   OperationReplyAddress,
-  NamedOperationRelyAddresses: mapOf('OperationReplyAddress'),
-  Schema,
-  MessageExample,
-  SchemaProperties,
-  DiscriminatorMapping,
-  Discriminator,
   Components,
+  ImplicitFlow,
+  PasswordFlow,
+  ClientCredentials,
+  AuthorizationCode,
+  SecurityScheme,
+  Message,
+  OperationTrait,
+  ServerVariablesMap: mapOf('ServerVariable'),
+  NamedTags: mapOf('Tag'),
+  NamedExternalDocs: mapOf('ExternalDocs'),
+  NamedChannels: mapOf('Channel'),
+  ParametersMap: mapOf('Parameter'),
+  NamedOperations: mapOf('Operation'),
+  NamedOperationReplies: mapOf('OperationReply'),
+  NamedOperationRelyAddresses: mapOf('OperationReplyAddress'),
   NamedSchemas: mapOf('Schema'),
   NamedMessages: mapOf('Message'),
   NamedMessageTraits: mapOf('MessageTrait'),
@@ -432,20 +371,11 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   NamedParameters: mapOf('Parameter'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   NamedCorrelationIds: mapOf('CorrelationId'),
-  ImplicitFlow,
-  PasswordFlow,
-  ClientCredentials,
-  AuthorizationCode,
-  SecuritySchemeFlows,
-  SecurityScheme,
+  ServerList: listOf('Server'),
   SecuritySchemeList: listOf('SecurityScheme'),
-  Message,
-  OperationTrait,
   MessageList: listOf('Message'),
   OperationTraitList: listOf('OperationTrait'),
-  MessageTrait,
   MessageTraitList: listOf('MessageTrait'),
   MessageExampleList: listOf('MessageExample'),
-  CorrelationId,
-  Dependencies,
+  TagList: listOf('Tag'),
 };
