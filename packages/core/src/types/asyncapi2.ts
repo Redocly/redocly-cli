@@ -401,14 +401,14 @@ export const Schema: NodeType = {
   },
 };
 
-const SchemaProperties: NodeType = {
+export const SchemaProperties: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
   },
 };
 
-const DiscriminatorMapping: NodeType = {
+export const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     if (isMappingRef(value)) {
@@ -419,7 +419,7 @@ const DiscriminatorMapping: NodeType = {
   },
 };
 
-const Discriminator: NodeType = {
+export const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
     mapping: 'DiscriminatorMapping',
@@ -554,7 +554,7 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const Dependencies: NodeType = {
+export const Dependencies: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     return Array.isArray(value) ? { type: 'array', items: { type: 'string' } } : 'Schema';

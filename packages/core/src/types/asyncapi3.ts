@@ -1,6 +1,12 @@
 import { NodeType, listOf, mapOf } from '.';
-import { isMappingRef } from '../ref-utils';
-import { AsyncApi2Bindings, Schema } from './asyncapi2';
+import {
+  AsyncApi2Bindings,
+  Schema,
+  Dependencies,
+  Discriminator,
+  DiscriminatorMapping,
+  SchemaProperties,
+} from './asyncapi2';
 
 const Root: NodeType = {
   properties: {
@@ -254,35 +260,6 @@ const MessageExample: NodeType = {
   },
 };
 
-const SchemaProperties: NodeType = {
-  properties: {},
-  additionalProperties: (value: any) => {
-    if (typeof value === 'boolean') {
-      return { type: 'boolean' };
-    }
-    return 'Schema';
-  },
-};
-
-const DiscriminatorMapping: NodeType = {
-  properties: {},
-  additionalProperties: (value: any) => {
-    if (isMappingRef(value)) {
-      return { type: 'string', directResolveAs: 'Schema' };
-    } else {
-      return { type: 'string' };
-    }
-  },
-};
-
-const Discriminator: NodeType = {
-  properties: {
-    propertyName: { type: 'string' },
-    mapping: 'DiscriminatorMapping',
-  },
-  required: ['propertyName'],
-};
-
 const Components: NodeType = {
   properties: {
     messages: 'NamedMessages',
@@ -470,4 +447,5 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   MessageTraitList: listOf('MessageTrait'),
   MessageExampleList: listOf('MessageExample'),
   CorrelationId,
+  Dependencies,
 };
