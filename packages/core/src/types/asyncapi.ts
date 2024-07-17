@@ -334,11 +334,8 @@ const MessageExample: NodeType = {
 const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
-    id: { type: 'string' },
     $schema: { type: 'string' },
     definitions: 'NamedSchemas',
-    $defs: 'NamedSchemas',
-    $vocabulary: { type: 'string' },
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
     myArbitraryKeyword: { type: 'boolean' },
@@ -359,16 +356,14 @@ const Schema: NodeType = {
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
     type: (value: any) => {
-      if (Array.isArray(value)) {
-        return {
-          type: 'array',
-          items: { enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'] },
-        };
-      } else {
-        return {
-          enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
-        };
-      }
+      return Array.isArray(value)
+        ? {
+            type: 'array',
+            items: { enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'] },
+          }
+        : {
+            enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
+          };
     },
     allOf: listOf('Schema'),
     anyOf: listOf('Schema'),
@@ -377,35 +372,12 @@ const Schema: NodeType = {
     if: 'Schema',
     then: 'Schema',
     else: 'Schema',
-    dependentSchemas: listOf('Schema'),
-    prefixItems: listOf('Schema'),
     contains: 'Schema',
-    minContains: { type: 'integer', minimum: 0 },
-    maxContains: { type: 'integer', minimum: 0 },
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
-    unevaluatedItems: (value: unknown) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
-    },
-    unevaluatedProperties: (value: unknown) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
-    },
-    summary: { type: 'string' },
     properties: 'SchemaProperties',
     items: (value: any) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
+      return Array.isArray(value) ? listOf('Schema') : 'Schema';
     },
     additionalProperties: (value: any) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
@@ -417,23 +389,22 @@ const Schema: NodeType = {
     default: null,
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
-    // xml: 'Xml',
     examples: { type: 'array' },
     example: { isExample: true },
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
-    dependencies: { type: 'object' }, // TODO
+    additionalItems: (value: any) => {
+      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
+    },
+    dependencies: 'Dependencies',
   },
 };
 
 const SchemaProperties: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
-    if (typeof value === 'boolean') {
-      return { type: 'boolean' };
-    }
-    return 'Schema';
+    return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
   },
 };
 
@@ -582,6 +553,13 @@ const SecurityScheme: NodeType = {
     }
   },
   extensionsPrefix: 'x-',
+};
+
+const Dependencies: NodeType = {
+  properties: {},
+  additionalProperties: (value: any) => {
+    return Array.isArray(value) ? { type: 'array', items: { type: 'string' } } : 'Schema';
+  },
 };
 
 // --- Per-protocol node types
@@ -1133,4 +1111,5 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   MessageTrait,
   MessageTraitList: listOf('MessageTrait'),
   CorrelationId,
+  Dependencies,
 };
