@@ -91,14 +91,6 @@ ssoOnPrem:
     # configurationUrl: Must be reported as a missing required prop
     clientSecret: '{{ process.env.secret }}'
 
-  basic:
-    type: BASIC
-    credentials:
-      - teams:
-          - 789 # Must be a string
-          - correct
-        # username: Must be reported as a missing required prop
-
 sso:
   - WRONG # Does not match allowed options
 
