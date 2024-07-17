@@ -1,6 +1,7 @@
-import { UserContext } from '../../walk';
-import { Oas3_1Schema } from '../../typings/openapi';
 import { getAdditionalPropertiesOption, validateExample } from '../utils';
+
+import type { UserContext } from '../../walk';
+import type { Oas3_1Schema } from '../../typings/openapi';
 
 export const NoInvalidSchemaExamples: any = (opts: any) => {
   const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;

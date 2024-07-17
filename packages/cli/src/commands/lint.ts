@@ -15,6 +15,7 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
+  notifyAboutIncompatibleConfigOptions,
   pluralize,
   printConfigLintTotals,
   printLintTotals,
@@ -130,7 +131,13 @@ export function lintConfigCallback(
     return;
   }
 
-  return async ({ document, resolvedRefMap, config }) => {
+  return async ({ document, resolvedRefMap, config, parsed: { theme = {} } }) => {
+    const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
+
+    if (command === 'check-config') {
+      notifyAboutIncompatibleConfigOptions(theme.openapi);
+    }
+
     const problems = await lintConfig({
       document,
       resolvedRefMap,
@@ -146,8 +153,6 @@ export function lintConfigCallback(
       totals: fileTotals,
       version,
     });
-
-    const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
     printConfigLintTotals(fileTotals, command);
 
