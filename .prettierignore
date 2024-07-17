@@ -5,4 +5,5 @@ output/
 *snapshot.js
 packages/core/src/rules/__tests__/fixtures/invalid-yaml.yaml
 __tests__/webpack-bundle/bundle-workflows/metafile.json
+benchmark/api-definitions/
 LICENSE.md
