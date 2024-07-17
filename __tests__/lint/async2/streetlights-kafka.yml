@@ -22,12 +22,12 @@ servers:
     security:
       - saslScram: []
     tags:
-      - name: "env:test-scram"
-        description: "This environment is meant for running internal tests through scramSha256"
-      - name: "kind:remote"
-        description: "This server is a remote server. Not exposed by the application"
-      - name: "visibility:private"
-        description: "This resource is private and only available to certain users"  
+      - name: 'env:test-scram'
+        description: 'This environment is meant for running internal tests through scramSha256'
+      - name: 'kind:remote'
+        description: 'This server is a remote server. Not exposed by the application'
+      - name: 'visibility:private'
+        description: 'This resource is private and only available to certain users'
   mtls-connections:
     url: test.mykafkacluster.org:28092
     protocol: kafka-secure
@@ -35,12 +35,12 @@ servers:
     security:
       - certs: []
     tags:
-      - name: "env:test-mtls"
-        description: "This environment is meant for running internal tests through mtls"
-      - name: "kind:remote"
-        description: "This server is a remote server. Not exposed by the application"
-      - name: "visibility:private"
-        description: "This resource is private and only available to certain users"
+      - name: 'env:test-mtls'
+        description: 'This environment is meant for running internal tests through mtls'
+      - name: 'kind:remote'
+        description: 'This server is a remote server. Not exposed by the application'
+      - name: 'visibility:private'
+        description: 'This resource is private and only available to certain users'
 
 defaultContentType: application/json
 
@@ -101,7 +101,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
     turnOnOff:
       name: turnOnOff
       title: Turn on/off
@@ -109,7 +109,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/turnOnOffPayload"
+        $ref: '#/components/schemas/turnOnOffPayload'
     dimLight:
       name: dimLight
       title: Dim light
@@ -117,7 +117,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/dimLightPayload"
+        $ref: '#/components/schemas/dimLightPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -128,7 +128,7 @@ components:
           minimum: 0
           description: Light intensity measured in lumens.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     turnOnOffPayload:
       type: object
       properties:
@@ -139,7 +139,7 @@ components:
             - off
           description: Whether to turn on or off the light.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     dimLightPayload:
       type: object
       properties:
@@ -149,7 +149,7 @@ components:
           minimum: 0
           maximum: 100
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     sentAt:
       type: string
       format: date-time

@@ -24,20 +24,19 @@ servers:
   test_oauth:
     url: test.mykafkacluster.org:8093
     protocol: kafka-secure
-    description: Test port for oauth 
+    description: Test port for oauth
     security:
       - streetlights_auth:
-         - streetlights:write
-         - streetlights:read
-    
- 
+          - streetlights:write
+          - streetlights:read
+
 defaultContentType: application/json
 
 channels:
   smartylighting.streetlights.1.0.event.{streetlightId}.lighting.measured:
     description: The topic on which measured values may be produced and consumed.
     servers:
-     - test  
+      - test
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
@@ -48,10 +47,10 @@ channels:
         - $ref: '#/components/operationTraits/kafka'
       message:
         $ref: '#/components/messages/lightMeasured'
-       
+
   smartylighting.streetlights.1.0.action.{streetlightId}.turn.on:
     servers:
-     - test_oauth  
+      - test_oauth
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
@@ -62,16 +61,16 @@ channels:
       message:
         $ref: '#/components/messages/turnOnOff'
       security:
-      # This operation level security implies the ability to subscribe to messages from
-      # `smartylighting.streetlights.1.0.action.{streetlightId}.turn.on` channel with Authorization headers 
-      # that have `streetlights:read` scope. Note that an operation level security must still satisfy 
-      # security requirements specified at the server level.
+        # This operation level security implies the ability to subscribe to messages from
+        # `smartylighting.streetlights.1.0.action.{streetlightId}.turn.on` channel with Authorization headers
+        # that have `streetlights:read` scope. Note that an operation level security must still satisfy
+        # security requirements specified at the server level.
         - streetlights_auth:
-          - streetlights:read  
+            - streetlights:read
 
   smartylighting.streetlights.1.0.action.{streetlightId}.turn.off:
     servers:
-     - test_oauth  
+      - test_oauth
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
@@ -82,15 +81,15 @@ channels:
       message:
         $ref: '#/components/messages/turnOnOff'
       security:
-      # This operation level security implies the ability to subscribe to messages from
-      # `smartylighting.streetlights.1.0.action.{streetlightId}.turn.off` channel with Authorization headers 
-      # that have `streetlights:read` scope. Note that an operation level security must still satisfy 
-      # security options specified at the server level.
+        # This operation level security implies the ability to subscribe to messages from
+        # `smartylighting.streetlights.1.0.action.{streetlightId}.turn.off` channel with Authorization headers
+        # that have `streetlights:read` scope. Note that an operation level security must still satisfy
+        # security options specified at the server level.
         - streetlights_auth:
-          - streetlights:read    
+            - streetlights:read
   smartylighting.streetlights.1.0.action.{streetlightId}.dim:
     servers:
-     - test_oauth  
+      - test_oauth
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
@@ -101,13 +100,12 @@ channels:
       message:
         $ref: '#/components/messages/dimLight'
       security:
-      # This operation level security implies the ability to subscribe to messages from
-      # `smartylighting.streetlights.1.0.action.{streetlightId}.dim` channel with Authorization headers 
-      # that have `streetlights:read` scope. Note that an operation level security must still satisfy 
-      # security options specified at the server level.
+        # This operation level security implies the ability to subscribe to messages from
+        # `smartylighting.streetlights.1.0.action.{streetlightId}.dim` channel with Authorization headers
+        # that have `streetlights:read` scope. Note that an operation level security must still satisfy
+        # security options specified at the server level.
         - streetlights_auth:
-          - streetlights:read  
-  
+            - streetlights:read
 
 components:
   messages:
@@ -119,7 +117,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
     turnOnOff:
       name: turnOnOff
       title: Turn on/off
@@ -127,7 +125,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/turnOnOffPayload"
+        $ref: '#/components/schemas/turnOnOffPayload'
     dimLight:
       name: dimLight
       title: Dim light
@@ -135,7 +133,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/dimLightPayload"
+        $ref: '#/components/schemas/dimLightPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -146,7 +144,7 @@ components:
           minimum: 0
           description: Light intensity measured in lumens.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     turnOnOffPayload:
       type: object
       properties:
@@ -157,7 +155,7 @@ components:
             - off
           description: Whether to turn on or off the light.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     dimLightPayload:
       type: object
       properties:
@@ -167,7 +165,7 @@ components:
           minimum: 0
           maximum: 100
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     sentAt:
       type: string
       format: date-time
@@ -181,11 +179,11 @@ components:
       type: oauth2
       description: The oauth security descriptions
       flows:
-       clientCredentials:
-        tokenUrl: 'https://example.com/api/oauth/dialog'
-        scopes:
-          streetlights:read: Scope required for subscribing to channel
-          streetlights:write: Scope required for publishing to channel
+        clientCredentials:
+          tokenUrl: 'https://example.com/api/oauth/dialog'
+          scopes:
+            streetlights:read: Scope required for subscribing to channel
+            streetlights:write: Scope required for publishing to channel
 
   parameters:
     streetlightId:

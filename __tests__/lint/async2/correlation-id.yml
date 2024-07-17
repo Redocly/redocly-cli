@@ -22,9 +22,9 @@ servers:
     security:
       - apiKey: []
       - supportedOauthFlows:
-        - streetlights:on
-        - streetlights:off
-        - streetlights:dim
+          - streetlights:on
+          - streetlights:off
+          - streetlights:dim
       - openIdConnectWellKnown: []
 
 defaultContentType: application/json
@@ -56,18 +56,18 @@ components:
       title: Light measured
       summary: Inform about environmental lighting conditions of a particular streetlight.
       correlationId:
-        location: "$message.header#/MQMD/CorrelId"
+        location: '$message.header#/MQMD/CorrelId'
       contentType: application/json
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
     dimLight:
       name: dimLight
       title: Dim light
       summary: Command a particular streetlight to dim the lights.
       correlationId:
-        $ref: "#/components/correlationIds/sentAtCorrelator"
+        $ref: '#/components/correlationIds/sentAtCorrelator'
       payload:
-        $ref: "#/components/schemas/dimLightPayload"
+        $ref: '#/components/schemas/dimLightPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -78,7 +78,7 @@ components:
           minimum: 0
           description: Light intensity measured in lumens.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     dimLightPayload:
       type: object
       properties:
@@ -88,7 +88,7 @@ components:
           minimum: 0
           maximum: 100
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     sentAt:
       type: string
       format: date-time

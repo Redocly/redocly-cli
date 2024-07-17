@@ -14,8 +14,8 @@ components:
     testMessages:
       payload:
         anyOf: # anyOf in payload schema
-          - $ref: "#/components/schemas/objectWithKey"
-          - $ref: "#/components/schemas/objectWithKey2"
+          - $ref: '#/components/schemas/objectWithKey'
+          - $ref: '#/components/schemas/objectWithKey2'
 
   schemas:
     objectWithKey:

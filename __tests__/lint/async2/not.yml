@@ -13,7 +13,7 @@ components:
   messages:
     testMessages:
       payload:
-        $ref: "#/components/schemas/testSchema"
+        $ref: '#/components/schemas/testSchema'
 
   schemas:
     testSchema:

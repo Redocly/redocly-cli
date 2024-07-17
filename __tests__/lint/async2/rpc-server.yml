@@ -63,4 +63,4 @@ channels:
               items:
                 type: number
               examples:
-                - [4,3]
+                - [4, 3]

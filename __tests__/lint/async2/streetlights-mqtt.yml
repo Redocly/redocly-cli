@@ -29,17 +29,17 @@ servers:
     security:
       - apiKey: []
       - supportedOauthFlows:
-        - streetlights:on
-        - streetlights:off
-        - streetlights:dim
+          - streetlights:on
+          - streetlights:off
+          - streetlights:dim
       - openIdConnectWellKnown: []
     tags:
-      - name: "env:production"
-        description: "This environment is meant for production use case"
-      - name: "kind:remote"
-        description: "This server is a remote server. Not exposed by the application"
-      - name: "visibility:public"
-        description: "This resource is public and available to everyone"
+      - name: 'env:production'
+        description: 'This environment is meant for production use case'
+      - name: 'kind:remote'
+        description: 'This server is a remote server. Not exposed by the application'
+      - name: 'visibility:public'
+        description: 'This resource is public and available to everyone'
 
 defaultContentType: application/json
 
@@ -100,7 +100,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
     turnOnOff:
       name: turnOnOff
       title: Turn on/off
@@ -108,7 +108,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/turnOnOffPayload"
+        $ref: '#/components/schemas/turnOnOffPayload'
     dimLight:
       name: dimLight
       title: Dim light
@@ -116,7 +116,7 @@ components:
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/dimLightPayload"
+        $ref: '#/components/schemas/dimLightPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -127,7 +127,7 @@ components:
           minimum: 0
           description: Light intensity measured in lumens.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     turnOnOffPayload:
       type: object
       properties:
@@ -138,7 +138,7 @@ components:
             - off
           description: Whether to turn on or off the light.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     dimLightPayload:
       type: object
       properties:
@@ -148,7 +148,7 @@ components:
           minimum: 0
           maximum: 100
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     sentAt:
       type: string
       format: date-time

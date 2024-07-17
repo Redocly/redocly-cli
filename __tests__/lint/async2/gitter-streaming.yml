@@ -155,7 +155,7 @@ components:
       bindings:
         http:
           $ref: '#/components/messageBindings/streamingHeaders'
-  
+
   messageBindings:
     streamingHeaders:
       http:

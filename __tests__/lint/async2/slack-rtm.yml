@@ -248,7 +248,7 @@ components:
           channel:
             type: string
     channelHistoryChanged:
-      summary: 'Bulk updates were made to a channel''s history.'
+      summary: "Bulk updates were made to a channel's history."
       payload:
         type: object
         properties:
@@ -623,7 +623,7 @@ components:
           channel:
             type: string
     groupHistoryChanged:
-      summary: 'Bulk updates were made to a private channel''s history.'
+      summary: "Bulk updates were made to a private channel's history."
       payload:
         type: object
         properties:
