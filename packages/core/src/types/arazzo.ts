@@ -99,17 +99,6 @@ export const parameter = {
     {
       type: 'object',
       properties: {
-        $ref: { type: 'string' },
-        value: {
-          oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        },
-      },
-      required: ['$ref'],
-      additionalProperties: false,
-    },
-    {
-      type: 'object',
-      properties: {
         reference: { type: 'string' },
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
