@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fix bundling `$refs` inside `patternProperties`.
+Fixed bundling of `$refs` inside `patternProperties`.
