@@ -438,6 +438,8 @@ function makeBundleVisitor(
     components[componentType][name] = target.node;
     if (version === SpecMajorVersion.OAS3) {
       return `#/components/${componentType}/${name}`;
+    } else if (version === SpecMajorVersion.Async2 || version === SpecMajorVersion.Async3) {
+      return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;
     }
