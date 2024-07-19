@@ -90,32 +90,26 @@ Feeling brave and highly API compliant? Try the `recommended` standard instead a
 
 ## Craft a custom ruleset
 
-Redocly CLI has some [great built-in rules](./rules/built-in-rules.md), but you may want to craft your own. This example shows a custom rule that ensures all operations in the API have a summary field to explain the purpose of each operation. 
+Redocly CLI has some [great built-in rules](./rules/built-in-rules.md), and you can use these to build up a ruleset that works for you.
 
-Add the following content to a file named `custom-rule.yaml`:
+For example, let's build a lightweight ruleset using the [minimal ruleset](./rules/minimal.md) and adding some built-in rules to create a custom ruleset. You can see an example in the following snippet:
 
 ```yaml
+extends:
+ - minimal
+
 rules:
-  operation-has-summary:
-    description: "All operations should have a summary."
-    severity: error
-    given: "$.paths[*][*]"
-    then:
-      field: "summary"
-      function: truthy
+  path-parameters-defined: error
+  operation-operationId: error
+  paths-kebab-case: warn
 ```
 
-Finally, run the following command:
+By taking the existing ruleset and adding some rule configuration, we can alter the rules and make a ruleset that suits our use case. Use this example as a starting point and then iterate to create a configuration that fits your needs.
 
-```bash
-redocly lint path/to/openapi.yaml --extends custom-rule.yaml
-```
+## Next steps
 
-Example Output
+After this quick tour of Redocly CLI, you can spend more time in the areas that interest you. Try one of the following:
 
-```text
-validating openapi/openapi.yaml...
-openapi/openapi.yaml: validated in 38ms
-
-Woohoo! Your API description is valid. 🎉
-```
+- Check the [list of CLI commands](./commands/index.md) to find out what else you can do and get more information about each command.
+- Add some [configurable rules](./rules/configurable-rules.md) to your setup for anything you need that doesn't have a built-in rule.
+- [Use Redocly CLI with GitHub Actions](https://redocly.com/blog/consistent-apis-redocly-github-actions) for repeatably awesome API governance.
