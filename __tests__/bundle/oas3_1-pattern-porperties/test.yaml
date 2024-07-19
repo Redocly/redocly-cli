@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: Test
+  version: 1.0.0
+paths:
+  /asset/{assetId}:
+    get:
+      operationId: assetGetAsset
+      summary: Fetch an asset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              patternProperties:
+                .*:
+                  $ref: object.yaml
