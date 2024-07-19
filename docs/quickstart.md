@@ -26,7 +26,7 @@ The API Doc preview takes a few moments to build. Upon completion, it provides t
 
 <details><summary>Preview-docs command output</summary>
 
-```
+```text
 Using Redoc community edition.
 Login with redocly login or use an enterprise license key to preview with the premium docs.
 
