@@ -20,6 +20,7 @@ Run the command:
 ```bash
 redocly preview-docs openapi.yaml
 ```
+
 The `redocly preview-docs` command triggers the creation of the doc preview for your API descriptions on your local machine. Once the doc preview has been generated, a url is printed as output to the CLI, as seen in the example below.
 
 The API Doc preview takes a few moments to build. Upon completion, it provides the host and port where the preview server runs - typically `http://localhost:8080`.
@@ -45,6 +46,7 @@ GET /hot.js: 4.765ms
 GET /openapi.json: 1.73ms
 GET /favicon.ico: 1.556ms
 ```
+
 </details>
 
 Open that URL in your browser, and admire your lovely API documentation!
