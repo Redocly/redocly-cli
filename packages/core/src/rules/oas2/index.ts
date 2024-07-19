@@ -86,10 +86,10 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'path-segment-plural': PathSegmentPlural as Oas2Rule,
   'response-contains-header': ResponseContainsHeader as Oas2Rule,
   'response-contains-property': ResponseContainsProperty as Oas2Rule,
-  'scalar-property-missing-example': ScalarPropertyMissingExample,
-  'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
-  'spec-strict-refs': SpecStrictRefs,
-  'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined,
+  'scalar-property-missing-example': ScalarPropertyMissingExample as Oas2Rule,
+  'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength as Oas2Rule,
+  'spec-strict-refs': SpecStrictRefs as Oas2Rule,
+  'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas2Rule,
 };
 
 export const preprocessors = {};

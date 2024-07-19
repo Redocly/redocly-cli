@@ -6,7 +6,7 @@ import { isRef } from '../../ref-utils';
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 
 export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagProperty }) => {
-  const hiddenTag = internalFlagProperty || DEFAULT_INTERNAL_PROPERTY_NAME;
+  const hiddenTag: string = internalFlagProperty || DEFAULT_INTERNAL_PROPERTY_NAME;
 
   function removeInternal(node: any, ctx: UserContext) {
     const { parent, key } = ctx;
@@ -31,7 +31,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
       for (const key of Object.keys(node)) {
         node = node as any;
         if (isRef(node[key])) {
-          const resolved = ctx.resolve(node[key]);
+          const resolved = ctx.resolve<any>(node[key]);
           if (resolved.node?.[hiddenTag]) {
             delete node[key];
             didDelete = true;

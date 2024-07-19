@@ -25,8 +25,6 @@ import {
   BuiltInOAS3RuleId,
 } from './types/redocly-yaml';
 
-export type RuleSet<T> = Record<string, T>;
-
 export enum SpecVersion {
   OAS2 = 'oas2',
   OAS3_0 = 'oas3_0',

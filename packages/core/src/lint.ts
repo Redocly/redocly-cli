@@ -1,3 +1,4 @@
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve';
 import { normalizeVisitors } from './visitors';
 import { walkDocument } from './walk';
@@ -12,8 +13,14 @@ import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
 import type { Document, ResolvedRefMap } from './resolve';
 import type { ProblemSeverity, WalkContext } from './walk';
 import type { NodeType } from './types';
-import type { NestedVisitObject, Oas3Visitor, RuleInstanceConfig } from './visitors';
-import { rootRedoclyConfigSchema } from '@redocly/config';
+import type {
+  ArazzoVisitor,
+  Async2Visitor,
+  NestedVisitObject,
+  Oas2Visitor,
+  Oas3Visitor,
+  RuleInstanceConfig,
+} from './visitors';
 
 export async function lint(opts: {
   ref: string;
@@ -130,7 +137,17 @@ export async function lintConfig(opts: {
   );
 
   const rules: (RuleInstanceConfig & {
-    visitor: NestedVisitObject<unknown, Oas3Visitor | Oas3Visitor[]>;
+    visitor: NestedVisitObject<
+      unknown,
+      | Oas3Visitor
+      | Oas3Visitor[]
+      | Oas2Visitor
+      | Oas2Visitor[]
+      | Async2Visitor
+      | Async2Visitor[]
+      | ArazzoVisitor
+      | ArazzoVisitor[]
+    >;
   })[] = [
     {
       severity: severity || 'error',
