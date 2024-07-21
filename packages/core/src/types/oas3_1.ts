@@ -133,7 +133,7 @@ const Schema: NodeType = {
     if: 'Schema',
     then: 'Schema',
     else: 'Schema',
-    dependentSchemas: listOf('Schema'),
+    dependentSchemas: mapOf('Schema'),
     dependentRequired: 'DependentRequired',
     prefixItems: listOf('Schema'),
     contains: 'Schema',
