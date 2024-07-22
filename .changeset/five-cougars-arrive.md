@@ -3,4 +3,5 @@
 "@redocly/cli": patch
 ---
 
-Spec rule properly parses `dependentSchemas` as map, not array.
+Fixed an issue in the OpenAPI `spec` rule where `dependentSchemas` was parsed as an array.
+`dependentSchemas` is now correctly parsed as a map.
