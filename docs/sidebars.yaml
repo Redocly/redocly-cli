@@ -49,6 +49,7 @@
         - label: Enforce response contents
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
+        - page: guides/lint-arazzo.md
         - label: Change the OAuth2 token URL
           page: guides/change-token-url.md
         - label: Hide OpenAPI specification extensions
