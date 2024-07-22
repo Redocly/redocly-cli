@@ -1,6 +1,6 @@
 ---
-"@redocly/openapi-core": minor
-"@redocly/cli": minor
+"@redocly/openapi-core": patch
+"@redocly/cli": patch
 ---
 
-Spec rule properly parses dependentSchemas as map, not array.
+Spec rule properly parses `dependentSchemas` as map, not array.
