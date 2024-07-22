@@ -40,7 +40,7 @@ components:
       title: Light measured
       summary: Inform about environmental lighting conditions of a particular streetlight.
       correlationId:
-        location: "$message.header#/MQMD/CorrelId"
+        location: '$message.header#/MQMD/CorrelId'
       contentType: application/json
       headers:
         type: object
@@ -54,9 +54,9 @@ components:
                 maxLength: 24
                 format: binary
           applicationInstanceId:
-            $ref: "#/components/schemas/applicationInstanceId"
+            $ref: '#/components/schemas/applicationInstanceId'
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -67,7 +67,7 @@ components:
           minimum: 0
           description: Light intensity measured in lumens.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
     sentAt:
       type: string
       format: date-time
