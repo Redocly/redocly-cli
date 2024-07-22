@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 1.18.1
+
+### Patch Changes
+
+- Allowed the `theme.openapi` configuration option to accept settings specific to Redoc 2.x and earlier.
+- Fixed an issue in the OpenAPI `spec` rule where `dependentSchemas` was parsed as an array.
+  It is now correctly parsed as a map.
+- Fixed bundling of `$refs` inside `patternProperties`.
+- Updated AsyncAPI v2 typings to abide by JSON Schema draft-07 specification.
+
 ## 1.18.0
 
 ### Minor Changes
