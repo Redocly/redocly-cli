@@ -3,8 +3,6 @@ info: {}
 paths:
   /test:
     get:
-      summary: sdf
-      operationId: sdf
       responses:
         default:
           description: test
