@@ -38,14 +38,14 @@ redocly lint --format=markdown arazzo/museum-api.arazzo.yaml
 ```
 
 Choose your preferred output format from `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, or `summary`.
-The [lint command  page](../commands/lint.md) has full details of the command's options.
+The [lint command page](../commands/lint.md) has full details of the command's options.
 
 ## Add Arazzo linting to GitHub Actions
 
 To make sure that your Arazzo description is valid and stays that way, add linting to your CI (Continuous Integration) setup.
 The following snippet shows an example of configuring a GitHub action to use Redocly CLI with the `github-actions` output format to get annotations directly in your pull request if any validation problems are found:
 
-```
+```yaml
 name: Validate museum Arazzo descriptions
 
 on: [pull_request]
