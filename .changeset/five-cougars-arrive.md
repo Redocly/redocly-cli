@@ -4,4 +4,4 @@
 ---
 
 Fixed an issue in the OpenAPI `spec` rule where `dependentSchemas` was parsed as an array.
-`dependentSchemas` is now correctly parsed as a map.
+It is now correctly parsed as a map. 
