@@ -20,8 +20,8 @@ import {
   exitWithError,
   printExecutionTime,
   getFallbackApisOrExit,
-  pluralize,
   dumpBundle,
+  pluralize,
 } from '../utils/miscellaneous';
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';

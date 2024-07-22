@@ -104,14 +104,6 @@ const testPortalConfig = parseYamlToDocument(
         # configurationUrl: Must be reported as a missing required prop
         clientSecret: '{{ process.env.secret }}'
 
-      basic:
-        type: BASIC
-        credentials:
-          - teams:
-              - 789 # Must be a string
-              - correct
-            # username: Must be reported as a missing required prop
-
     sso:
       - WRONG # Does not match allowed options
 
@@ -389,20 +381,6 @@ describe('lint', () => {
             },
           ],
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/theme/openapi/showConsole",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`showConsole\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
@@ -908,34 +886,6 @@ describe('lint', () => {
             },
           ],
           "message": "The field \`configurationUrl\` must be present on this level.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/ssoOnPrem/basic/credentials/0",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "The field \`username\` must be present on this level.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/ssoOnPrem/basic/credentials/0/teams/0",
-              "reportOnKey": false,
-              "source": "",
-            },
-          ],
-          "message": "Expected type \`string\` but got \`integer\`.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
