@@ -1,6 +1,6 @@
 # Lint Arazzo with Redocly CLI
 
-Arazzo is a open standard for describing multi-step API calls in sequence.
+Arazzo is an open standard for describing multi-step API calls in sequence.
 While under development, this standard was also known as "OpenAPI Workflows".
 Redocly CLI offers support for checking that your Arazzo files are valid.
 
