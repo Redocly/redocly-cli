@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Allowed the theme.openapi to accept config options specific to Redoc 2.x and earlier.
+Allowed the `theme.openapi` configuration option to accept settings specific to Redoc 2.x and earlier.
