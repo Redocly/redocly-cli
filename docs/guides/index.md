@@ -22,6 +22,12 @@ content:
     - header: Replace the server URL
       link: docs/cli/guides/replace-servers-url
       text: How to replace the server URL in different environments.
+    - header: Lint AsyncAPI descriptions
+      link: docs/cli/guides/lint-asyncapi
+      text: API governance for async and streaming API applications.
+    - header: Lint Arazzo descriptions
+      link: docs/cli/guides/lint-arazzo
+      text: Check the validity of Arazzo descriptions for workflows.
     - header: Change the OAuth2 token URL
       link: docs/cli/guides/change-token-url
       text: How to change the OAuth2 token URL.
