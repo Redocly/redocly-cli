@@ -1,6 +1,6 @@
 # Lint Arazzo with Redocly CLI
 
-Arazzo is an open standard for describing multi-step API calls in sequence.
+[Arazzo](https://spec.openapis.org/arazzo/latest.html#arazzo-specification) is an open standard for describing multi-step API calls in sequence.
 While under development, this standard was also known as "OpenAPI Workflows".
 Redocly CLI offers support for checking that your Arazzo files are valid.
 
@@ -42,7 +42,7 @@ The [lint command page](../commands/lint.md) has full details of the command's o
 
 ## Add Arazzo linting to GitHub Actions
 
-To make sure that your Arazzo description is valid and stays that way, add linting to your CI (Continuous Integration) setup.
+To make sure that your Arazzo description remains valid, add linting to your CI (Continuous Integration) setup.
 The following snippet shows an example of configuring a GitHub action to use Redocly CLI with the `github-actions` output format to get annotations directly in your pull request if any validation problems are found:
 
 ```yaml
