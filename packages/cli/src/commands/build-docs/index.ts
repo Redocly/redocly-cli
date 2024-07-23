@@ -2,7 +2,7 @@ import { loadAndBundleSpec } from 'redoc';
 import { dirname, resolve } from 'path';
 import { writeFileSync, mkdirSync } from 'fs';
 import { performance } from 'perf_hooks';
-import { detectSpec, getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
+import { getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils';
 import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous';
 
@@ -12,7 +12,7 @@ import type { CommandArgs } from '../../wrapper';
 export const handlerBuildCommand = async ({
   argv,
   config: configFromFile,
-  collectSpecVersion,
+  collectSpecData,
 }: CommandArgs<BuildDocsArgv>) => {
   const startedAt = performance.now();
 
@@ -35,7 +35,7 @@ export const handlerBuildCommand = async ({
     const elapsed = getExecutionTime(startedAt);
 
     const api = await loadAndBundleSpec(isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi));
-    collectSpecVersion?.(detectSpec(api));
+    collectSpecData?.(api);
     const pageHTML = await getPageHTML(
       api,
       pathToApi,

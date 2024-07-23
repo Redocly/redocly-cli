@@ -22,16 +22,17 @@ import type {
   Oas3Visitor,
   RuleInstanceConfig,
 } from './visitors';
+import type { CollectFn } from './utils';
 
 export async function lint(opts: {
   ref: string;
   config: Config;
   externalRefResolver?: BaseResolver;
-  collectSpecVersion?: (version: string) => void;
+  collectSpecData?: CollectFn;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
-  opts.collectSpecVersion?.(detectSpec(document.parsed));
+  opts.collectSpecData?.(document.parsed);
 
   return lintDocument({
     document,

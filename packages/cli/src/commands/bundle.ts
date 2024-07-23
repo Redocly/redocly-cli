@@ -34,7 +34,7 @@ export async function handleBundle({
   argv,
   config,
   version,
-  collectSpecVersion,
+  collectSpecData,
 }: CommandArgs<BundleOptions>) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
@@ -66,7 +66,7 @@ export async function handleBundle({
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
-        collectSpecVersion,
+        collectSpecData,
       });
 
       const fileTotals = getTotals(problems);

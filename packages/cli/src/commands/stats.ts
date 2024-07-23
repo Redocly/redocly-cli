@@ -87,13 +87,13 @@ export type StatsOptions = {
   config?: string;
 };
 
-export async function handleStats({ argv, config, collectSpecVersion }: CommandArgs<StatsOptions>) {
+export async function handleStats({ argv, config, collectSpecData }: CommandArgs<StatsOptions>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
+  collectSpecData?.(document.parsed);
   const lintConfig: StyleguideConfig = config.styleguide;
   const specVersion = detectSpec(document.parsed);
-  collectSpecVersion?.(specVersion);
   const types = normalizeTypes(
     lintConfig.extendTypes(getTypes(specVersion), specVersion),
     lintConfig

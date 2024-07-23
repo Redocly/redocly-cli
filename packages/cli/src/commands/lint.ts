@@ -42,7 +42,7 @@ export async function handleLint({
   argv,
   config,
   version,
-  collectSpecVersion,
+  collectSpecData,
 }: CommandArgs<LintOptions>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
@@ -79,7 +79,7 @@ export async function handleLint({
       const results = await lint({
         ref: path,
         config: resolvedConfig,
-        collectSpecVersion,
+        collectSpecData,
       });
 
       const fileTotals = getTotals(results);

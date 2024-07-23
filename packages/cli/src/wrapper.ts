@@ -1,20 +1,20 @@
-import { Config, Region, doesYamlFileExist } from '@redocly/openapi-core';
-import type { Arguments } from 'yargs';
+import { detectSpec, doesYamlFileExist } from '@redocly/openapi-core';
+import { isPlainObject } from '@redocly/openapi-core/lib/utils';
 import { version } from './utils/update-version-notifier';
-import {
-  ExitCode,
-  exitWithError,
-  loadConfigAndHandleErrors,
-  sendTelemetry,
-} from './utils/miscellaneous';
+import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous';
 import { lintConfigCallback } from './commands/lint';
+
+import type { Arguments } from 'yargs';
+import type { Config, Region } from '@redocly/openapi-core';
+import type { CollectFn } from '@redocly/openapi-core/lib/utils';
+import type { ExitCode } from './utils/miscellaneous';
 import type { CommandOptions } from './types';
 
 export type CommandArgs<T extends CommandOptions> = {
   argv: T;
   config: Config;
   version: string;
-  collectSpecVersion?: (version: string) => void;
+  collectSpecData?: CollectFn;
 };
 
 export function commandWrapper<T extends CommandOptions>(
@@ -25,8 +25,23 @@ export function commandWrapper<T extends CommandOptions>(
     let hasConfig;
     let telemetry;
     let specVersion: string | undefined;
-    const collectSpecVersion = (version: string) => {
-      specVersion = version;
+    let specKeyword: string | undefined;
+    let specFullVersion: string | undefined;
+    const collectSpecData: CollectFn = (document) => {
+      specVersion = detectSpec(document);
+      if (!isPlainObject(document)) return;
+      specKeyword = document?.openapi
+        ? 'openapi'
+        : document?.swagger
+        ? 'swagger'
+        : document?.asyncapi
+        ? 'asyncapi'
+        : document?.arazzo
+        ? 'arazzo'
+        : undefined;
+      if (specKeyword) {
+        specFullVersion = document[specKeyword] as string;
+      }
     };
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
@@ -43,14 +58,14 @@ export function commandWrapper<T extends CommandOptions>(
       hasConfig = !config.styleguide.recommendedFallback;
       code = 1;
       if (typeof commandHandler === 'function') {
-        await commandHandler({ argv, config, version, collectSpecVersion });
+        await commandHandler({ argv, config, version, collectSpecData });
       }
       code = 0;
     } catch (err) {
       // Do nothing
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendTelemetry(argv, code, hasConfig, specVersion);
+        await sendTelemetry(argv, code, hasConfig, specVersion, specKeyword, specFullVersion);
       }
       process.once('beforeExit', () => {
         process.exit(code);
