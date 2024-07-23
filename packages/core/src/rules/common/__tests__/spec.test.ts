@@ -607,4 +607,51 @@ describe('Oas3.1 spec', () => {
       ]
     `);
   });
+
+  it('should flag invalid dependentSchemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        version: 1.0.0
+        title: Example.com
+        description: info,
+        license:
+          name: Apache 2.0
+          url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+      components:
+        schemas:
+          withInvalidDependentSchemas:
+            dependentSchemas:
+              - invalid1
+              - invalid2
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/components/schemas/withInvalidDependentSchemas/dependentSchemas",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Expected type \`SchemaMap\` (object) but got \`array\`",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

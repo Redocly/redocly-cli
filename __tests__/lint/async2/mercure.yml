@@ -21,7 +21,7 @@ channels:
           type: integer
     subscribe:
       message:
-        $ref: '#/components/messages/book'      
+        $ref: '#/components/messages/book'
     publish:
       message:
         $ref: '#/components/messages/book'

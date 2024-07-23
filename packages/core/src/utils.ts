@@ -2,13 +2,13 @@ import * as fs from 'fs';
 import { extname } from 'path';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
-import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
-import { UserContext } from './walk';
 import { env } from './env';
 import { logger, colorize } from './logger';
-import { HttpResolveConfig } from './config';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+
+import type { HttpResolveConfig } from './config';
+import type { UserContext } from './walk';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -146,10 +146,6 @@ export function validateMimeTypeOAS3(
   }
 }
 
-export function isSingular(path: string) {
-  return pluralize.isSingular(path);
-}
-
 export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
 }
@@ -267,7 +263,7 @@ export function pickDefined<T extends Record<string, unknown>>(
 }
 
 export function nextTick() {
-  new Promise((resolve) => {
+  return new Promise((resolve) => {
     setTimeout(resolve);
   });
 }

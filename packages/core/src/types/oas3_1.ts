@@ -133,13 +133,13 @@ const Schema: NodeType = {
     if: 'Schema',
     then: 'Schema',
     else: 'Schema',
-    dependentSchemas: listOf('Schema'),
+    dependentSchemas: mapOf('Schema'),
     dependentRequired: 'DependentRequired',
     prefixItems: listOf('Schema'),
     contains: 'Schema',
     minContains: { type: 'integer', minimum: 0 },
     maxContains: { type: 'integer', minimum: 0 },
-    patternProperties: { type: 'object' },
+    patternProperties: 'SchemaProperties',
     propertyNames: 'Schema',
     unevaluatedItems: (value: unknown) => {
       if (typeof value === 'boolean') {
