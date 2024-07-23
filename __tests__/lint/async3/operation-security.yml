@@ -41,9 +41,9 @@ components:
             description: ECC message signature
             type: string
           Content-Type:
-              type: string
-              enum:
-                - application/json
+            type: string
+            enum:
+              - application/json
       payload:
         type: object
         properties:

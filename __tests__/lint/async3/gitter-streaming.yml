@@ -151,10 +151,10 @@ components:
           headers:
             type: object
             properties:
-              Transfer-Encoding: 
+              Transfer-Encoding:
                 type: string
                 const: chunked
-              Trailer: 
+              Trailer:
                 type: string
                 const: \r\n
     heartbeat:
@@ -170,9 +170,9 @@ components:
           headers:
             type: object
             properties:
-              Transfer-Encoding: 
+              Transfer-Encoding:
                 type: string
                 const: chunked
-              Trailer: 
+              Trailer:
                 type: string
                 const: \r\n
