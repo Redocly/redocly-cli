@@ -114,6 +114,15 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'channels-kebab-case': 'error',
     'no-channel-trailing-slash': 'error',
   },
+  async3Rules: {
+    spec: 'error',
+    'info-contact': 'error',
+    'operation-operationId': 'error',
+    'tag-description': 'error',
+    'tags-alphabetical': 'error',
+    'channels-kebab-case': 'error',
+    'no-channel-trailing-slash': 'error',
+  },
   arazzoRules: { spec: 'error' },
 };
 

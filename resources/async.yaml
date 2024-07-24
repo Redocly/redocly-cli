@@ -173,7 +173,7 @@ channels:
                 description: The Id of the company.
             additionalProperties: false
 
-  smartylighting/streetlights/1/0/action/{streetlightId}/turn/on:
+  smartylighting/streetlights/1/0/action/{streetlightId}/turn/on/:
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'

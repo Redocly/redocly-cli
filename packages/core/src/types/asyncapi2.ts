@@ -61,7 +61,7 @@ const ChannelBindings: NodeType = {
   additionalProperties: { type: 'object' },
 };
 
-const Tag: NodeType = {
+export const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
     description: { type: 'string' },
@@ -70,7 +70,7 @@ const Tag: NodeType = {
   required: ['name'],
 };
 
-const ExternalDocs: NodeType = {
+export const ExternalDocs: NodeType = {
   properties: {
     description: { type: 'string' },
     url: { type: 'string' },
@@ -126,13 +126,13 @@ const Server: NodeType = {
   required: ['url', 'protocol'],
 };
 
-const ServerMap: NodeType = {
+export const ServerMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
 };
 
-const ServerVariable: NodeType = {
+export const ServerVariable: NodeType = {
   properties: {
     enum: {
       type: 'array',
@@ -160,7 +160,7 @@ const Info: NodeType = {
   required: ['title', 'version'],
 };
 
-const Contact: NodeType = {
+export const Contact: NodeType = {
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -168,7 +168,7 @@ const Contact: NodeType = {
   },
 };
 
-const License: NodeType = {
+export const License: NodeType = {
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -184,7 +184,7 @@ const Parameter: NodeType = {
   },
 };
 
-const CorrelationId: NodeType = {
+export const CorrelationId: NodeType = {
   properties: {
     description: { type: 'string' },
     location: { type: 'string' },
@@ -208,7 +208,7 @@ const Message: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO: add support for message examples
+    examples: 'MessageExampleList',
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
@@ -301,7 +301,7 @@ const MessageTrait: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO: support examples for message traits
+    examples: 'MessageExampleList',
   },
   additionalProperties: {},
 };
@@ -322,7 +322,7 @@ const Operation: NodeType = {
   required: [],
 };
 
-const MessageExample: NodeType = {
+export const MessageExample: NodeType = {
   properties: {
     payload: { isExample: true },
     summary: { type: 'string' },
@@ -331,7 +331,7 @@ const MessageExample: NodeType = {
   },
 };
 
-const Schema: NodeType = {
+export const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
     $schema: { type: 'string' },
@@ -401,14 +401,14 @@ const Schema: NodeType = {
   },
 };
 
-const SchemaProperties: NodeType = {
+export const SchemaProperties: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
   },
 };
 
-const DiscriminatorMapping: NodeType = {
+export const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     if (isMappingRef(value)) {
@@ -419,7 +419,7 @@ const DiscriminatorMapping: NodeType = {
   },
 };
 
-const Discriminator: NodeType = {
+export const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
     mapping: 'DiscriminatorMapping',
@@ -435,7 +435,6 @@ const Components: NodeType = {
     correlationIds: 'NamedCorrelationIds',
     messageTraits: 'NamedMessageTraits',
     operationTraits: 'NamedOperationTraits',
-    streamHeaders: 'NamedStreamHeaders',
     securitySchemes: 'NamedSecuritySchemes',
     servers: 'ServerMap',
     serverVariables: 'ServerVariablesMap',
@@ -484,7 +483,7 @@ const AuthorizationCode: NodeType = {
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
 
-const SecuritySchemeFlows: NodeType = {
+export const SecuritySchemeFlows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',
@@ -555,7 +554,7 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const Dependencies: NodeType = {
+export const Dependencies: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     return Array.isArray(value) ? { type: 'array', items: { type: 'string' } } : 'Schema';
@@ -987,22 +986,7 @@ OperationBindings.properties.mercure = MercureOperationBinding;
 // pulsar
 
 // --- End per-protocol node types
-
-export const AsyncApi2Types: Record<string, NodeType> = {
-  Root,
-  Tag,
-  TagList: listOf('Tag'),
-  ServerMap,
-  ExternalDocs,
-  Server,
-  ServerVariable,
-  ServerVariablesMap: mapOf('ServerVariable'),
-  SecurityRequirement,
-  SecurityRequirementList: listOf('SecurityRequirement'),
-  Info,
-  Contact,
-  License,
-
+export const AsyncApi2Bindings: Record<string, NodeType> = {
   HttpServerBinding,
   HttpChannelBinding,
   HttpMessageBinding,
@@ -1078,6 +1062,25 @@ export const AsyncApi2Types: Record<string, NodeType> = {
 
   ServerBindings,
   ChannelBindings,
+  MessageBindings,
+  OperationBindings,
+};
+
+export const AsyncApi2Types: Record<string, NodeType> = {
+  ...AsyncApi2Bindings,
+  Root,
+  Tag,
+  TagList: listOf('Tag'),
+  ServerMap,
+  ExternalDocs,
+  Server,
+  ServerVariable,
+  ServerVariablesMap: mapOf('ServerVariable'),
+  SecurityRequirement,
+  SecurityRequirementList: listOf('SecurityRequirement'),
+  Info,
+  Contact,
+  License,
   ChannelMap,
   Channel,
   Parameter,
@@ -1096,7 +1099,6 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   NamedParameters: mapOf('Parameter'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   NamedCorrelationIds: mapOf('CorrelationId'),
-  NamedStreamHeaders: mapOf('StreamHeader'),
   ImplicitFlow,
   PasswordFlow,
   ClientCredentials,
@@ -1110,6 +1112,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   OperationTraitList: listOf('OperationTrait'),
   MessageTrait,
   MessageTraitList: listOf('MessageTrait'),
+  MessageExampleList: listOf('MessageExample'),
   CorrelationId,
   Dependencies,
 };

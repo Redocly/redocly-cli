@@ -119,6 +119,7 @@ describe('getMergedConfig', () => {
           "decorators": {
             "arazzo": {},
             "async2": {},
+            "async3": {},
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
@@ -131,6 +132,7 @@ describe('getMergedConfig', () => {
           "preprocessors": {
             "arazzo": {},
             "async2": {},
+            "async3": {},
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
@@ -146,6 +148,9 @@ describe('getMergedConfig', () => {
           "rules": {
             "arazzo": {},
             "async2": {
+              "operation-summary": "warn",
+            },
+            "async3": {
               "operation-summary": "warn",
             },
             "oas2": {
@@ -227,6 +232,7 @@ describe('getMergedConfig', () => {
           "decorators": {
             "arazzo": {},
             "async2": {},
+            "async3": {},
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
@@ -239,6 +245,7 @@ describe('getMergedConfig', () => {
           "preprocessors": {
             "arazzo": {},
             "async2": {},
+            "async3": {},
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
@@ -256,6 +263,10 @@ describe('getMergedConfig', () => {
           "rules": {
             "arazzo": {},
             "async2": {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
+            "async3": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },

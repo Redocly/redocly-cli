@@ -92,7 +92,19 @@ const builtInAsync2Rules = [
   'no-channel-trailing-slash',
 ] as const;
 
+const builtInAsync3Rules = [
+  'spec',
+  'info-contact',
+  'operation-operationId',
+  'tag-description',
+  'tags-alphabetical',
+  'channels-kebab-case',
+  'no-channel-trailing-slash',
+] as const;
+
 export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
+
+export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
 
 const builtInArazzoRules = ['spec'] as const;
 
@@ -103,6 +115,7 @@ const builtInRules = [
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
   ...builtInAsync2Rules,
+  ...builtInAsync3Rules,
   ...builtInArazzoRules,
 ] as const;
 

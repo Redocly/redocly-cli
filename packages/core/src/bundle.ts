@@ -292,6 +292,15 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case SpecMajorVersion.Async3:
+      switch (typeName) {
+        case 'Schema':
+          return 'schemas';
+        case 'Parameter':
+          return 'parameters';
+        default:
+          return null;
+      }
     case SpecMajorVersion.Arazzo:
       switch (typeName) {
         case 'Root.x-parameters_items':
@@ -377,6 +386,8 @@ function makeBundleVisitor(
           components = root;
         } else if (version === SpecMajorVersion.Async2) {
           components = root.components = root.components || {};
+        } else if (version === SpecMajorVersion.Async3) {
+          components = root.components = root.components || {};
         } else if (version === SpecMajorVersion.Arazzo) {
           components = root.components = root.components || {};
         }
@@ -426,6 +437,8 @@ function makeBundleVisitor(
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
     if (version === SpecMajorVersion.OAS3) {
+      return `#/components/${componentType}/${name}`;
+    } else if (version === SpecMajorVersion.Async2 || version === SpecMajorVersion.Async3) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;

@@ -5,16 +5,20 @@ import {
   Oas2Preprocessor,
   Async2Preprocessor,
   Async2Rule,
+  Async3Preprocessor,
+  Async3Rule,
   ArazzoPreprocessor,
   ArazzoRule,
 } from './visitors';
 import { Oas2Types } from './types/oas2';
 import { Oas3Types } from './types/oas3';
 import { Oas3_1Types } from './types/oas3_1';
-import { AsyncApi2Types } from './types/asyncapi';
+import { AsyncApi2Types } from './types/asyncapi2';
+import { AsyncApi3Types } from './types/asyncapi3';
 import { ArazzoTypes } from './types/arazzo';
 import {
   BuiltInAsync2RuleId,
+  BuiltInAsync3RuleId,
   BuiltInCommonOASRuleId,
   BuiltInArazzoRuleId,
   BuiltInOAS2RuleId,
@@ -27,7 +31,8 @@ export enum SpecVersion {
   OAS2 = 'oas2',
   OAS3_0 = 'oas3_0',
   OAS3_1 = 'oas3_1',
-  Async2 = 'async2', // todo split into 2.x maybe?
+  Async2 = 'async2',
+  Async3 = 'async3',
   Arazzo = 'arazzo',
 }
 
@@ -35,6 +40,7 @@ export enum SpecMajorVersion {
   OAS2 = 'oas2',
   OAS3 = 'oas3',
   Async2 = 'async2',
+  Async3 = 'async3',
   Arazzo = 'arazzo',
 }
 
@@ -43,6 +49,7 @@ const typesMap = {
   [SpecVersion.OAS3_0]: Oas3Types,
   [SpecVersion.OAS3_1]: Oas3_1Types,
   [SpecVersion.Async2]: AsyncApi2Types,
+  [SpecVersion.Async3]: AsyncApi3Types,
   [SpecVersion.Arazzo]: ArazzoTypes,
 };
 
@@ -65,6 +72,11 @@ export type Async2RuleSet<T = undefined> = RuleMap<
   Async2Rule,
   T
 >;
+export type Async3RuleSet<T = undefined> = RuleMap<
+  BuiltInAsync3RuleId | 'assertions',
+  Async3Rule,
+  T
+>;
 export type ArazzoRuleSet<T = undefined> = RuleMap<
   BuiltInArazzoRuleId | 'assertions',
   ArazzoRule,
@@ -74,11 +86,13 @@ export type ArazzoRuleSet<T = undefined> = RuleMap<
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
+export type Async3PreprocessorsSet = Record<string, Async3Preprocessor>;
 export type ArazzoPreprocessorsSet = Record<string, ArazzoPreprocessor>;
 
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
 export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
+export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
 export type ArazzoDecoratorsSet = Record<string, ArazzoPreprocessor>;
 
 export function detectSpec(root: any): SpecVersion {
@@ -111,6 +125,10 @@ export function detectSpec(root: any): SpecVersion {
     return SpecVersion.Async2;
   }
 
+  if (root.asyncapi && root.asyncapi.startsWith('3.')) {
+    return SpecVersion.Async3;
+  }
+
   if (root.asyncapi) {
     throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
   }
@@ -127,6 +145,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return SpecMajorVersion.OAS2;
   } else if (version === SpecVersion.Async2) {
     return SpecMajorVersion.Async2;
+  } else if (version === SpecVersion.Async3) {
+    return SpecMajorVersion.Async3;
   } else if (version === SpecVersion.Arazzo) {
     return SpecMajorVersion.Arazzo;
   } else {
