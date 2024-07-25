@@ -16,6 +16,7 @@ import type { NodeType } from './types';
 import type {
   ArazzoVisitor,
   Async2Visitor,
+  Async3Visitor,
   NestedVisitObject,
   Oas2Visitor,
   Oas3Visitor,
@@ -145,6 +146,8 @@ export async function lintConfig(opts: {
       | Oas2Visitor[]
       | Async2Visitor
       | Async2Visitor[]
+      | Async3Visitor
+      | Async3Visitor[]
       | ArazzoVisitor
       | ArazzoVisitor[]
     >;
