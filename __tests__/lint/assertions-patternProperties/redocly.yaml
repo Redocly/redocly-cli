@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/response-in-snake_case:
+    subject:
+      type: SchemaProperties
+    assertions:
+      casing: snake_case
