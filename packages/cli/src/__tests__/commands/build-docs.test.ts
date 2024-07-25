@@ -39,8 +39,8 @@ describe('build-docs', () => {
 
   it('should work correctly when calling handlerBuildCommand', async () => {
     const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
-    await handlerBuildCommand(
-      {
+    await handlerBuildCommand({
+      argv: {
         o: '',
         title: 'test',
         disableGoogleFont: false,
@@ -49,8 +49,9 @@ describe('build-docs', () => {
         theme: { openapi: {} },
         api: '../some-path/openapi.yaml',
       } as BuildDocsArgv,
-      {} as any
-    );
+      config: {} as any,
+      version: 'cli-version',
+    });
     expect(loadAndBundleSpec).toBeCalledTimes(1);
     expect(getFallbackApisOrExit).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);

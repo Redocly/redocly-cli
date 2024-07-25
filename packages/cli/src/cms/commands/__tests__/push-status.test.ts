@@ -85,15 +85,16 @@ describe('handlePushStatus()', () => {
 
   it('should throw error if organization not provided', async () => {
     await expect(
-      handlePushStatus(
-        {
+      handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: '',
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        mockConfig
-      )
+        config: mockConfig,
+        version: 'cli-version',
+      })
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `"No organization provided, please use --organization option or specify the 'organization' field in the config file."`
     );
@@ -108,15 +109,16 @@ describe('handlePushStatus()', () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     remotes.getPush.mockResolvedValueOnce(pushResponseStub);
 
-    await handlePushStatus(
-      {
+    await handlePushStatus({
+      argv: {
         domain: 'test-domain',
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
       '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
@@ -127,15 +129,16 @@ describe('handlePushStatus()', () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: true });
 
-    await handlePushStatus(
-      {
+    await handlePushStatus({
+      argv: {
         domain: 'test-domain',
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
     expect(process.stdout.write).toHaveBeenCalledTimes(2);
     expect(process.stdout.write).toHaveBeenCalledWith(
       '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
@@ -157,15 +160,16 @@ describe('handlePushStatus()', () => {
     });
 
     await expect(
-      handlePushStatus(
-        {
+      handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        mockConfig
-      )
+        config: mockConfig,
+        version: 'cli-version',
+      })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       "❌ Preview deploy fail.
       Preview URL: https://preview-test-url"
@@ -197,15 +201,16 @@ describe('handlePushStatus()', () => {
       },
     });
 
-    await handlePushStatus(
-      {
+    await handlePushStatus({
+      argv: {
         domain: 'test-domain',
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
     expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
       '🚀 Preview deploy success.\nPreview URL: https://preview-test-url\n'
@@ -232,16 +237,17 @@ describe('handlePushStatus()', () => {
       },
     });
 
-    await handlePushStatus(
-      {
+    await handlePushStatus({
+      argv: {
         domain: 'test-domain',
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
         wait: true,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(process.stderr.write).toHaveBeenCalledWith(
       'Files not added to your project. Reason: no changes.\n'
@@ -253,15 +259,16 @@ describe('handlePushStatus()', () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
       remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: false });
 
-      const result = await handlePushStatus(
-        {
+      const result = await handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        mockConfig
-      );
+        config: mockConfig,
+        version: 'cli-version',
+      });
 
       expect(result).toEqual({
         preview: {
@@ -280,15 +287,16 @@ describe('handlePushStatus()', () => {
       process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
       remotes.getPush.mockResolvedValue({ ...pushResponseStub, isMainBranch: true });
 
-      const result = await handlePushStatus(
-        {
+      const result = await handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        mockConfig
-      );
+        config: mockConfig,
+        version: 'cli-version',
+      });
 
       expect(result).toEqual({
         preview: {
@@ -344,8 +352,8 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      const result = await handlePushStatus(
-        {
+      const result = await handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
@@ -353,8 +361,9 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           wait: true,
         },
-        mockConfig
-      );
+        config: mockConfig,
+        version: 'cli-version',
+      });
 
       expect(result).toEqual({
         preview: {
@@ -417,8 +426,8 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      const result = await handlePushStatus(
-        {
+      const result = await handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
@@ -426,8 +435,9 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           wait: true,
         },
-        mockConfig
-      );
+        config: mockConfig,
+        version: 'cli-version',
+      });
 
       expect(result).toEqual({
         preview: {
@@ -458,16 +468,17 @@ describe('handlePushStatus()', () => {
       });
 
       await expect(
-        handlePushStatus(
-          {
+        handlePushStatus({
+          argv: {
             domain: 'test-domain',
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
             'continue-on-deploy-failures': false,
           },
-          mockConfig
-        )
+          config: mockConfig,
+          version: 'cli-version',
+        })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "❌ Preview deploy fail.
         Preview URL: https://preview-test-url"
@@ -488,16 +499,17 @@ describe('handlePushStatus()', () => {
       });
 
       await expect(
-        handlePushStatus(
-          {
+        handlePushStatus({
+          argv: {
             domain: 'test-domain',
             organization: 'test-org',
             project: 'test-project',
             pushId: 'test-push-id',
             'continue-on-deploy-failures': true,
           },
-          mockConfig
-        )
+          config: mockConfig,
+          version: 'cli-version',
+        })
       ).resolves.toStrictEqual({
         preview: {
           deploy: { status: 'failed', url: 'https://preview-test-url' },
@@ -545,8 +557,8 @@ describe('handlePushStatus()', () => {
 
       const onRetrySpy = jest.fn();
 
-      const result = await handlePushStatus(
-        {
+      const result = await handlePushStatus({
+        argv: {
           domain: 'test-domain',
           organization: 'test-org',
           project: 'test-project',
@@ -555,8 +567,9 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           onRetry: onRetrySpy,
         },
-        mockConfig
-      );
+        config: mockConfig,
+        version: 'cli-version',
+      });
 
       expect(onRetrySpy).toBeCalledTimes(2);
 
@@ -617,8 +630,8 @@ describe('handlePushStatus()', () => {
       });
 
       await expect(
-        handlePushStatus(
-          {
+        handlePushStatus({
+          argv: {
             domain: 'test-domain',
             organization: 'test-org',
             project: 'test-project',
@@ -627,8 +640,9 @@ describe('handlePushStatus()', () => {
             'max-execution-time': 1, // seconds
             wait: true,
           },
-          mockConfig
-        )
+          config: mockConfig,
+          version: 'cli-version',
+        })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         "✗ Failed to get push status. Reason: Timeout exceeded
         "
