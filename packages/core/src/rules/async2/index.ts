@@ -11,13 +11,13 @@ import type { Async2RuleSet } from '../../oas-types';
 
 export const rules: Async2RuleSet<'built-in'> = {
   spec: Spec as Async2Rule,
-  assertions: Assertions,
-  'info-contact': InfoContact,
-  'operation-operationId': OperationOperationId,
+  assertions: Assertions as Async2Rule,
+  'info-contact': InfoContact as Async2Rule,
+  'operation-operationId': OperationOperationId as Async2Rule,
   'channels-kebab-case': ChannelsKebabCase,
   'no-channel-trailing-slash': NoChannelTrailingSlash,
-  'tag-description': TagDescription,
-  'tags-alphabetical': TagsAlphabetical,
+  'tag-description': TagDescription as Async2Rule,
+  'tags-alphabetical': TagsAlphabetical as Async2Rule,
 };
 
 export const preprocessors = {};

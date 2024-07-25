@@ -1,6 +1,14 @@
-import { RuleSet, SpecVersion } from '../oas-types';
-import { StyleguideConfig } from './config';
 import { isDefined } from '../utils';
+
+import type {
+  ArazzoRuleSet,
+  Async2RuleSet,
+  Async3RuleSet,
+  Oas2RuleSet,
+  Oas3RuleSet,
+  SpecVersion,
+} from '../oas-types';
+import type { StyleguideConfig } from './config';
 import type { ProblemSeverity } from '../walk';
 
 type InitializedRule = {
@@ -9,8 +17,8 @@ type InitializedRule = {
   visitor: any;
 };
 
-export function initRules<T extends Function, P extends RuleSet<T>>(
-  rules: P[],
+export function initRules(
+  rules: (Oas3RuleSet | Oas2RuleSet | Async2RuleSet | Async3RuleSet | ArazzoRuleSet)[],
   config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: SpecVersion
