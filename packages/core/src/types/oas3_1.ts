@@ -139,7 +139,7 @@ const Schema: NodeType = {
     contains: 'Schema',
     minContains: { type: 'integer', minimum: 0 },
     maxContains: { type: 'integer', minimum: 0 },
-    patternProperties: 'SchemaProperties',
+    patternProperties: 'PatternProperties',
     propertyNames: 'Schema',
     unevaluatedItems: (value: unknown) => {
       if (typeof value === 'boolean') {
@@ -278,6 +278,7 @@ export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
   Root,
   Schema,
   SchemaProperties,
+  PatternProperties: SchemaProperties,
   License,
   Components,
   NamedPathItems: mapOf('PathItem'),

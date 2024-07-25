@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "incorrectlyNamedProperty": {
+      "type": "string"
+    },
+    "a_property_in_snake_case": {
+      "type": "string"
+    }
+  },
+  "patternProperties": {
+    "^.+$": {
+      "type": "string"
+    }
+  }
+}

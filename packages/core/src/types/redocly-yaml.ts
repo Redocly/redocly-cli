@@ -234,6 +234,7 @@ const oas3_1NodeTypesList = [
   'Root',
   'Schema',
   'SchemaProperties',
+  'PatternProperties',
   'Info',
   'License',
   'Components',

@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info: {}
+paths:
+  /test:
+    get:
+      responses:
+        default:
+          description: test
+          content:
+            application/json:
+              schema:
+                $ref: schema.json
