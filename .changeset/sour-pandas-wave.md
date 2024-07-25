@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Added `PatternProperties` node type to target `patternProperties` separately from regular `properties`.
+Fixed an issue where `patternProperties` incorrectly caused linting errors due to a missing `PatternProperties` node.
