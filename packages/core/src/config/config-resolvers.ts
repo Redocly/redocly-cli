@@ -130,6 +130,7 @@ export function resolvePlugins(
         if (e instanceof SyntaxError) {
           throw e;
         }
+        console.warn(e);
         throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
       }
     }
