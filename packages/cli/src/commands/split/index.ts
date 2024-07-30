@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash, isRef, isTruthy, detectSpec } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
 import { dequal } from '@redocly/openapi-core/lib/utils';
 import * as path from 'path';
 import { performance } from 'perf_hooks';

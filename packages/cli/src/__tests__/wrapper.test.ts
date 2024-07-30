@@ -23,7 +23,9 @@ describe('commandWrapper', () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
       return { telemetry: 'on', styleguide: { recommendedFallback: true } };
     });
-    (detectSpec as jest.Mock).mockRestore();
+    (detectSpec as jest.Mock).mockImplementationOnce(() => {
+      return 'oas3_1';
+    });
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
@@ -31,6 +33,22 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, 'oas3_1', 'openapi', '3.1.0');
+  });
+
+  it('should not collect spec version if the file is not parsed to json', async () => {
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      return { telemetry: 'on', styleguide: { recommendedFallback: true } };
+    });
+    (handleLint as jest.Mock).mockImplementation(({ collectSpecData }) => {
+      collectSpecData();
+    });
+    process.env.REDOCLY_TELEMETRY = 'on';
+
+    const wrappedHandler = commandWrapper(handleLint);
+    await wrappedHandler({} as any);
+    expect(handleLint).toHaveBeenCalledTimes(1);
+    expect(sendTelemetry).toHaveBeenCalledTimes(1);
+    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, undefined, undefined, undefined);
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {

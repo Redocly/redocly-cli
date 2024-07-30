@@ -123,7 +123,7 @@ export function detectSpec(root: unknown): SpecVersion {
     return SpecVersion.Async2;
   }
 
-  if (root.asyncapi && root.asyncapi.startsWith('3.')) {
+  if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('3.')) {
     return SpecVersion.Async3;
   }
 
