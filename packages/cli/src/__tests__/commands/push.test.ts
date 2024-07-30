@@ -299,13 +299,14 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         api: 'openapi.yaml',
         destination: '@testing_org/main@v1',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
   it('should adapt the existing syntax (including branchName)', () => {
     const cb = jest.fn();
@@ -316,14 +317,15 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         api: 'openapi.yaml',
         destination: '@testing_org/main@v1',
         branchName: 'other',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
   it('should use --branch option firstly', () => {
     const cb = jest.fn();
@@ -335,14 +337,15 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         api: 'openapi.yaml',
         destination: '@testing_org/main@v1',
         branchName: 'priority-branch',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
   it('should work for a destination only', () => {
     const cb = jest.fn();
@@ -353,12 +356,13 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         destination: 'main@v1',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
   it('should work for a api only', () => {
     const cb = jest.fn();
@@ -369,12 +373,13 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         api: 'test.yaml',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
 
   it('should use destination from option', () => {
@@ -387,13 +392,14 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         destination: 'main@v1',
         api: 'test.yaml',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
 
   it('should use --job-id option firstly', () => {
@@ -409,20 +415,21 @@ describe('transformPush', () => {
       config: {} as any,
       version: 'cli-version',
     });
-    expect(cb).toBeCalledWith(
-      {
+    expect(cb).toBeCalledWith({
+      argv: {
         'job-id': 'j-123',
         api: 'test',
         branchName: 'test',
         destination: 'main@v1',
       },
-      {}
-    );
+      config: {},
+      version: 'cli-version',
+    });
   });
   it('should accept no arguments at all', () => {
     const cb = jest.fn();
-    transformPush(cb)({ argv: {}, config: {} as any, version: '1.0.0' });
-    expect(cb).toBeCalledWith({}, {});
+    transformPush(cb)({ argv: {}, config: {} as any, version: 'cli-version' });
+    expect(cb).toBeCalledWith({ argv: {}, config: {}, version: 'cli-version' });
   });
 });
 

@@ -4,6 +4,7 @@ import { commandWrapper } from '../wrapper';
 import { handleLint } from '../commands/lint';
 import { Arguments } from 'yargs';
 import { handlePush, PushOptions } from '../commands/push';
+import { detectSpec } from '@redocly/openapi-core';
 
 jest.mock('node-fetch');
 jest.mock('../utils/miscellaneous', () => ({
@@ -11,7 +12,9 @@ jest.mock('../utils/miscellaneous', () => ({
   loadConfigAndHandleErrors: jest.fn(),
 }));
 jest.mock('../commands/lint', () => ({
-  handleLint: jest.fn(),
+  handleLint: jest.fn().mockImplementation(({ collectSpecData }) => {
+    collectSpecData({ openapi: '3.1.0' });
+  }),
   lintConfigCallback: jest.fn(),
 }));
 
@@ -20,13 +23,14 @@ describe('commandWrapper', () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
       return { telemetry: 'on', styleguide: { recommendedFallback: true } };
     });
+    (detectSpec as jest.Mock).mockRestore();
     process.env.REDOCLY_TELEMETRY = 'on';
 
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false);
+    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, 'oas3_1', 'openapi', '3.1.0');
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
