@@ -15,6 +15,7 @@ const builtInCommonOASRules = [
   'tag-description',
   'tags-alphabetical',
   'info-license-url',
+  'info-license-strict',
   'info-license',
   'no-ambiguous-paths',
   'no-enum-type-mismatch',
@@ -85,6 +86,7 @@ export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
 const builtInAsync2Rules = [
   'spec',
   'info-contact',
+  'info-license-strict',
   'operation-operationId',
   'tag-description',
   'tags-alphabetical',
@@ -95,6 +97,7 @@ const builtInAsync2Rules = [
 const builtInAsync3Rules = [
   'spec',
   'info-contact',
+  'info-license-strict',
   'operation-operationId',
   'tag-description',
   'tags-alphabetical',
