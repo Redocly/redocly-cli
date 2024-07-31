@@ -27,6 +27,7 @@ Redocly platform commands:
 - [`login`](login.md) Login to the Redocly API registry with an access token.
 - [`logout`](logout.md) Clear your stored credentials for the Redocly API registry.
 - [`push`](push.md) Push an API description to the Redocly API registry.
+- [`push`](push-status.md) Track an in-progress push operation.
 
 Supporting commands:
 
