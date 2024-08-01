@@ -1,22 +1,23 @@
 # `push-status`
 
 This command is used with Reunite products only.
-It provides details about files, deployments, and API scorecards, using `<pushId>` returned by an earlier `push` command.
+It provides details about files, deployments, and API scorecards, using a `<pushId>` that is returned by an earlier `push` command.
 
 The `push-status` command can be used whenever the application or process executing a `push` command (without `--wait-for-deployment` option) returns the `pushId`.
 This identifier can be used by subsequent systems to perform custom logic when the deployment is completed.
 
 ## Prerequisites
 
-Have the following values ready to use with the `push-status` command.
+Have the following before you use the `push-status` command:
 
-1. A user account in a [Reunite project](https://auth.cloud.redocly.com/).
-1. An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys)
-1. [Redocly CLI](../installation.md) v1.10.x or later.
+- A user account in a [Reunite project](https://auth.cloud.redocly.com/).
+- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys)
+- [Redocly CLI](../installation.md) v1.10.x or later.
 
 ## Authentication
 
-Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page for details.
+Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
+See [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page for details on how to get your API key in Reunite.
 
 ## Usage
 
@@ -41,22 +42,23 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 
 ## Examples
 
+When `push` is performed from the repository's default branch, a preview build is automatically followed by a production build; this command can send only the completed builds or wait for uncompleted builds to complete.
+
 ### Get the build status of a specific push
 
-The following command prints the status of preview and production build as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project.
+The following example command prints the status of completed preview and production builds as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project:
 
 ```bash
 REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=redocly -p=awesome-api-docs
 ```
 
-Use this command to get the status of a previous deployment.
+If there are preview or production builds that haven't completed yet for the push ID, they are not included in the output of this command.
 
 ### Get build status for a specific push and wait until it is completed
 
-The following command checks the deployment statuses of the preview build (and subsequent production build if applicable), and waits for the builds to complete.
+You can configure the `push-status` command to check the deployment statuses of the preview build (and subsequent production build if applicable), and if the builds are not complete, check every 5 seconds until the builds are complete.
+The following example command prints the status for the preview and production builds as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project:
 
 ```bash
 REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=redocly -p=awesome-api-docs --wait
 ```
-
-The checks are run for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project every 5 seconds until the build is completed, and prints scorecard information. When `push` is performed from the repository's default branch, a preview build is automatically followed by a production build; this command waits for both to complete.
