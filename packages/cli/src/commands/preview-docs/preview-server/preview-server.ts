@@ -60,7 +60,8 @@ export default async function startPreviewServer(
     getBundle,
     getOptions,
     useRedocPro,
-  }: { getBundle: Function; getOptions: Function; useRedocPro: boolean }
+  }: // eslint-disable-next-line @typescript-eslint/ban-types
+  { getBundle: Function; getOptions: Function; useRedocPro: boolean }
 ) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request: IncomingMessage, response: any) => {

@@ -156,6 +156,7 @@ export async function previewDocs({
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function debounce(func: Function, wait: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout | null;
 
