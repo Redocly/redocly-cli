@@ -3,7 +3,7 @@
 This command is used with Reunite products only.
 It provides details about files, deployments, and API scorecards, using `<pushId>` returned by an earlier `push` command.
 
-The `push-status` command can be used whenever the application or process executing a `push` command (without `--wait-for-deployment` option) returns the `pushId`
+The `push-status` command can be used whenever the application or process executing a `push` command (without `--wait-for-deployment` option) returns the `pushId`.
 This identifier can be used by subsequent systems to perform custom logic when the deployment is completed.
 
 ## Prerequisites
