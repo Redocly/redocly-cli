@@ -1,4 +1,8 @@
-import fetch, { RequestInit, HeadersInit } from 'node-fetch';
+import fetch from 'node-fetch';
+import { getProxyAgent, isNotEmptyObject } from '../utils';
+import { getRedoclyDomain } from './domains';
+
+import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
   NotFoundProblemResponse,
   PrepareFileuploadOKResponse,
@@ -6,8 +10,6 @@ import type {
   PushApiParams,
 } from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
-import { getProxyAgent, isNotEmptyObject } from '../utils';
-import { getRedoclyDomain } from './domains';
 
 const version = require('../../package.json').version;
 

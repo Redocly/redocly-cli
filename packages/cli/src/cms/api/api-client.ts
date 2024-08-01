@@ -1,7 +1,8 @@
-import fetchWithTimeout from '../../utils/fetch-with-timeout';
 import fetch from 'node-fetch';
 import * as FormData from 'form-data';
 import { getProxyAgent } from '@redocly/openapi-core';
+import fetchWithTimeout from '../../utils/fetch-with-timeout';
+
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
 import type {

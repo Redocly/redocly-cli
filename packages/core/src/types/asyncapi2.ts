@@ -1,5 +1,7 @@
-import { NodeType, listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
+
+import type { NodeType } from '.';
 
 const Root: NodeType = {
   properties: {
@@ -129,6 +131,7 @@ const Server: NodeType = {
 export const ServerMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
+    // eslint-disable-next-line no-useless-escape
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
 };
 

@@ -1,8 +1,9 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { Oas2PathItem } from '../../typings/swagger';
-import { Oas3PathItem } from '../../typings/openapi';
-import { UserContext } from '../../walk';
 import { isPathParameter, splitCamelCaseIntoWords } from '../../utils';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { Oas2PathItem } from '../../typings/swagger';
+import type { Oas3PathItem } from '../../typings/openapi';
+import type { UserContext } from '../../walk';
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 

@@ -1,4 +1,4 @@
-import { Oas3Decorator, Oas2Decorator } from '../../visitors';
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
 export const InfoOverride: Oas3Decorator | Oas2Decorator = (newInfo) => {
   return {

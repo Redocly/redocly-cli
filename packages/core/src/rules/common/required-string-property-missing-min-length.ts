@@ -1,7 +1,7 @@
-import { UserContext } from '../../walk';
-import { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
-import { Oas2Schema } from 'core/src/typings/swagger';
-import { Oas3Rule } from 'core/src/visitors';
+import type { UserContext } from '../../walk';
+import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
+import type { Oas2Schema } from 'core/src/typings/swagger';
+import type { Oas3Rule } from 'core/src/visitors';
 
 export const RequiredStringPropertyMissingMinLength: Oas3Rule = () => {
   let skipSchemaProperties: boolean;

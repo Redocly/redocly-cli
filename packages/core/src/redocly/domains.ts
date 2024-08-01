@@ -1,4 +1,4 @@
-import { Region } from '../config/types';
+import type { Region } from '../config/types';
 
 let redoclyDomain = 'redocly.com';
 

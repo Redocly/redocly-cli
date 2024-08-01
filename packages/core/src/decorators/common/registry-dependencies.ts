@@ -1,7 +1,7 @@
-import { UserContext } from '../../walk';
 import { isRedoclyRegistryURL } from '../../redocly/domains';
 
-import { Oas3Decorator, Oas2Decorator } from '../../visitors';
+import type { UserContext } from '../../walk';
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
 export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
   const registryDependencies = new Set<string>();

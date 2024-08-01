@@ -1,9 +1,10 @@
 import { Location, isRef } from './ref-utils';
 import { pushStack, popStack } from './utils';
-import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
-import { SpecVersion } from './oas-types';
+import { YamlParseError, makeRefId } from './resolve';
 import { isNamedType, SpecExtension } from './types';
 
+import type { SpecVersion } from './oas-types';
+import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve';
 import type { Referenced } from './typings/openapi';
 import type {
   VisitorLevelContext,
@@ -14,7 +15,6 @@ import type {
   NormalizeVisitor,
   VisitorNode,
 } from './visitors';
-import type { ResolvedRefMap, Document } from './resolve';
 import type { NormalizedNodeType } from './types';
 import type { RuleSeverity } from './config';
 

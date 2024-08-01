@@ -1,4 +1,4 @@
-import { Oas3Rule } from '../../visitors';
+import type { Oas3Rule } from '../../visitors';
 
 export const NoServerTrailingSlash: Oas3Rule = () => {
   return {

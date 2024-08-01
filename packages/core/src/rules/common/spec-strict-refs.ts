@@ -1,5 +1,6 @@
-import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { isRef } from '../../ref-utils';
+
+import type { Oas2Rule, Oas3Rule } from '../../visitors';
 
 export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
   const nodesToSkip = [

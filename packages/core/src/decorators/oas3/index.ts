@@ -1,4 +1,3 @@
-import { Oas3Decorator } from '../../visitors';
 import { RegistryDependencies } from '../common/registry-dependencies';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
@@ -8,6 +7,8 @@ import { RemoveXInternal } from '../common/remove-x-internal';
 import { FilterIn } from '../common/filters/filter-in';
 import { FilterOut } from '../common/filters/filter-out';
 import { MediaTypeExamplesOverride } from '../common/media-type-examples-override';
+
+import type { Oas3Decorator } from '../../visitors';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,

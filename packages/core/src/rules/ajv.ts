@@ -1,6 +1,7 @@
 import Ajv from '@redocly/ajv/dist/2020';
-import { Location, escapePointer } from '../ref-utils';
+import { escapePointer } from '../ref-utils';
 
+import type { Location } from '../ref-utils';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020';
 import type { ResolveFn } from '../walk';
 

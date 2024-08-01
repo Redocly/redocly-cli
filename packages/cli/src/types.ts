@@ -9,9 +9,8 @@ import type { StatsOptions } from './commands/stats';
 import type { SplitOptions } from './commands/split';
 import type { PreviewDocsOptions } from './commands/preview-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushOptions as PushBhOptions } from './cms/commands/push';
-import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PushOptions as CMSPushOptions } from './cms/commands/push';
+import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PreviewProjectOptions } from './commands/preview-project/types';
 
 export type Totals = {
@@ -31,7 +30,7 @@ export type CommandOptions =
   | SplitOptions
   | JoinOptions
   | PushOptions
-  | PushBhOptions
+  | CMSPushOptions
   | LintOptions
   | BundleOptions
   | LoginOptions

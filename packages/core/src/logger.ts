@@ -1,8 +1,8 @@
 import * as colorette from 'colorette';
-export { options as colorOptions } from 'colorette';
-
 import { isBrowser } from './env';
 import { identity } from './utils';
+
+export { options as colorOptions } from 'colorette';
 
 export const colorize = new Proxy(colorette, {
   get(target: typeof colorette, prop: string): typeof identity {

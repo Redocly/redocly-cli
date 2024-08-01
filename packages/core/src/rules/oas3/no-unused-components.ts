@@ -1,5 +1,5 @@
-import { Oas3Rule } from '../../visitors';
-import { Location } from '../../ref-utils';
+import type { Oas3Rule } from '../../visitors';
+import type { Location } from '../../ref-utils';
 
 export const NoUnusedComponents: Oas3Rule = () => {
   const components = new Map<string, { used: boolean; location: Location; name: string }>();

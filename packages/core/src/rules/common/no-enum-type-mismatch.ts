@@ -1,8 +1,9 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { matchesJsonSchemaType, oasTypeOf } from '../utils';
-import { Oas2Schema } from '../../typings/swagger';
-import { Oas3Schema } from '../../typings/openapi';
-import { UserContext } from '../../walk';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { Oas2Schema } from '../../typings/swagger';
+import type { Oas3Schema } from '../../typings/openapi';
+import type { UserContext } from '../../walk';
 
 export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
   return {

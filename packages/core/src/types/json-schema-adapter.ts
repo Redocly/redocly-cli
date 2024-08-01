@@ -3,9 +3,9 @@
 import Ajv from '@redocly/ajv/dist/2020';
 import { isPlainObject } from '../utils';
 
-import type { NodeType, PropType, ResolveTypeFn } from '.';
 import type { JSONSchema } from 'json-schema-to-ts';
-import { Oas3Schema } from '../typings/openapi';
+import type { NodeType, PropType, ResolveTypeFn } from '.';
+import type { Oas3Schema } from '../typings/openapi';
 
 const ajv = new Ajv({
   strictSchema: false,

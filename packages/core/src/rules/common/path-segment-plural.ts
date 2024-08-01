@@ -1,7 +1,8 @@
 import * as pluralize from 'pluralize';
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { UserContext } from '../../walk';
 import { isPathParameter } from '../../utils';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
   const { ignoreLastPathSegment, exceptions } = opts;

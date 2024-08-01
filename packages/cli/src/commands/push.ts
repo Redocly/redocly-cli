@@ -6,13 +6,10 @@ import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
 import {
   bundle,
-  Config,
   RedoclyClient,
   IGNORE_FILE,
-  BundleOutputFormat,
   getTotals,
   slash,
-  Region,
   getMergedConfig,
   getProxyAgent,
 } from '@redocly/openapi-core';
@@ -26,11 +23,13 @@ import {
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
 
+import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper';
 
 const DEFAULT_VERSION = 'latest';
 
 export const DESTINATION_REGEX =
+  // eslint-disable-next-line no-useless-escape
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
 export type PushOptions = {

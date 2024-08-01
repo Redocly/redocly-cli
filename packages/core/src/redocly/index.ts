@@ -3,11 +3,8 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { RegistryApi } from './registry-api';
 import { env } from '../env';
-import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
-
-import type { AccessTokens, Region } from '../config/types';
 import {
   AVAILABLE_REGIONS,
   DEFAULT_REGION,
@@ -15,6 +12,9 @@ import {
   getRedoclyDomain,
   setRedoclyDomain,
 } from './domains';
+
+import type { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
+import type { AccessTokens, Region } from '../config/types';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 

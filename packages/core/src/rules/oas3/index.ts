@@ -1,4 +1,3 @@
-import { Oas3RuleSet } from '../../oas-types';
 import { Spec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
@@ -55,6 +54,7 @@ import { ComponentNameUnique } from './component-name-unique';
 import { ArrayParameterSerialization } from './array-parameter-serialization';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
 
+import type { Oas3RuleSet } from '../../oas-types';
 import type { Oas3Rule } from '../../visitors';
 
 export const rules: Oas3RuleSet<'built-in'> = {

@@ -1,6 +1,6 @@
-import { Location } from '../../ref-utils';
 import { isEmptyObject } from '../../utils';
 
+import type { Location } from '../../ref-utils';
 import type { Oas3Decorator } from '../../visitors';
 import type { Oas3Components, Oas3Definition } from '../../typings/openapi';
 

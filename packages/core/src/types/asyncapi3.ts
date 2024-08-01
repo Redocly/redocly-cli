@@ -1,4 +1,4 @@
-import { NodeType, listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import {
   AsyncApi2Bindings,
   Schema,
@@ -16,6 +16,8 @@ import {
   License,
   MessageExample,
 } from './asyncapi2';
+
+import type { NodeType } from '.';
 
 const Root: NodeType = {
   properties: {

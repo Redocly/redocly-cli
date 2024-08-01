@@ -1,3 +1,19 @@
+import { Oas2Types } from './types/oas2';
+import { Oas3Types } from './types/oas3';
+import { Oas3_1Types } from './types/oas3_1';
+import { AsyncApi2Types } from './types/asyncapi2';
+import { AsyncApi3Types } from './types/asyncapi3';
+import { ArazzoTypes } from './types/arazzo';
+import { isPlainObject } from './utils';
+
+import type {
+  BuiltInAsync2RuleId,
+  BuiltInAsync3RuleId,
+  BuiltInCommonOASRuleId,
+  BuiltInArazzoRuleId,
+  BuiltInOAS2RuleId,
+  BuiltInOAS3RuleId,
+} from './types/redocly-yaml';
 import type {
   Oas3Rule,
   Oas3Preprocessor,
@@ -10,21 +26,6 @@ import type {
   ArazzoPreprocessor,
   ArazzoRule,
 } from './visitors';
-import { Oas2Types } from './types/oas2';
-import { Oas3Types } from './types/oas3';
-import { Oas3_1Types } from './types/oas3_1';
-import { AsyncApi2Types } from './types/asyncapi2';
-import { AsyncApi3Types } from './types/asyncapi3';
-import { ArazzoTypes } from './types/arazzo';
-import type {
-  BuiltInAsync2RuleId,
-  BuiltInAsync3RuleId,
-  BuiltInCommonOASRuleId,
-  BuiltInArazzoRuleId,
-  BuiltInOAS2RuleId,
-  BuiltInOAS3RuleId,
-} from './types/redocly-yaml';
-import { isPlainObject } from './utils';
 
 export enum SpecVersion {
   OAS2 = 'oas2',

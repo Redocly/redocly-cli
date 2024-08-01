@@ -1,6 +1,7 @@
-import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 import { readFileAsStringSync } from '../../utils';
-import { UserContext } from '../../walk';
+
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePath }) => {
   return {

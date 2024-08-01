@@ -1,8 +1,9 @@
-import { Oas3Decorator, Oas2Decorator } from '../../visitors';
-import { Oas2Operation } from '../../typings/swagger';
-import { Oas3Operation } from '../../typings/openapi';
 import { readFileAsStringSync } from '../../utils';
-import { UserContext } from '../../walk';
+
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
+import type { Oas2Operation } from '../../typings/swagger';
+import type { Oas3Operation } from '../../typings/openapi';
+import type { UserContext } from '../../walk';
 
 export const OperationDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ operationIds }) => {
   return {

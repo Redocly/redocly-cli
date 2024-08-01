@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { isAbsoluteUrl } from '../ref-utils';
-import { pickDefined } from '../utils';
+import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
 import { resolveDocument, BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
 import {
@@ -12,7 +12,6 @@ import {
   transformConfig,
 } from './utils';
 import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, keysOf } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';

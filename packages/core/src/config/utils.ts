@@ -6,6 +6,8 @@ import {
   showWarningForDeprecatedField,
 } from '../utils';
 import { Config } from './config';
+import { logger, colorize } from '../logger';
+
 import type {
   Api,
   DeprecatedInApi,
@@ -21,7 +23,6 @@ import type {
   StyleguideRawConfig,
   ThemeConfig,
 } from './types';
-import { logger, colorize } from '../logger';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {

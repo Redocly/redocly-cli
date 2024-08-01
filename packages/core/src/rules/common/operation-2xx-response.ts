@@ -1,6 +1,7 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { UserContext } from '../../walk';
 import { validateResponseCodes } from '../utils';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) => {
   return {

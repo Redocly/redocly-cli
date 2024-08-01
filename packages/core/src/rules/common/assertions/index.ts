@@ -1,8 +1,7 @@
-import { asserts } from './asserts';
 import { buildSubjectVisitor, buildVisitorObject } from './utils';
 import { isString } from '../../../utils';
 
-import type { AssertionFn } from './asserts';
+import type { asserts, AssertionFn } from './asserts';
 import type {
   ArazzoVisitor,
   Async2Visitor,

@@ -3,10 +3,10 @@ import * as colorette from 'colorette';
 import { getPort } from 'get-port-please';
 import { readFileSync, promises as fsPromises } from 'fs';
 import * as path from 'path';
-
 import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server';
-import type { IncomingMessage } from 'http';
 import { isSubdir } from '../../../utils/miscellaneous';
+
+import type { IncomingMessage } from 'http';
 
 function getPageHTML(
   htmlTemplate: string,
@@ -60,7 +60,8 @@ export default async function startPreviewServer(
     getBundle,
     getOptions,
     useRedocPro,
-  }: { getBundle: Function; getOptions: Function; useRedocPro: boolean }
+  }: // eslint-disable-next-line @typescript-eslint/ban-types
+  { getBundle: Function; getOptions: Function; useRedocPro: boolean }
 ) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request: IncomingMessage, response: any) => {
