@@ -364,8 +364,8 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | Option                |   Type   | Required | Default value                                                  | Description                                                                    |
 | --------------------- | :------: | -------- | ---------------------------------------------------------------|------------------------------------------------------------------------------- |
 | files                 | [string] | true     | -                                                              | List of folders and/or files to upload.                                        |
-| --organization, -o    |  string  | true     | -                                                              | [Organization slug](#where-to-find-the-redocly-organization-or-project-slugs). |
-| --project, -p         |  string  | true     | -                                                              | [Project slug](#where-to-find-the-redocly-organization-or-project-slugs).      |
+| --organization, -o    |  string  | true     | -                                                              | [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug). |
+| --project, -p         |  string  | true     | -                                                              | [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).      |
 | --mount-path, -mp     |  string  | true     | -                                                              | The path where the files are mounted in the project.                          |
 | --branch, -b          |  string  | true     | -                                                              | The branch files are pushed from.                                              |
 | --author, -a          |  string  | true     | -                                                              | The author of the push in the format: `'Author Name <author-email@example.com>'`.    |
@@ -382,10 +382,6 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --wait-for-deployment | boolean  | false    | false                                                          | Waits until the build is completed if it is in progress. Behaves the same as push-status command when passed. See [push-status](./push-status.md) command. |
 | --verbose             | boolean  | false    | false                                                          | Verbose output.                                                                |
 | --help                | boolean  | false    | -                                                              | Help output for the command.                                                   |
-
-### Where to find the Redocly organization or project slugs
-
-{% partial file="../../../_partials/get-organization-and-project-slugs.md" /%}
 
 ## Constraints
 
