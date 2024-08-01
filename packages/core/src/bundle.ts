@@ -9,7 +9,7 @@ import {
   SpecMajorVersion,
   SpecVersion,
 } from './oas-types';
-import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
+import { isAbsoluteUrl, isRef, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { dequal, isPlainObject, isTruthy } from './utils';
@@ -18,6 +18,7 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorato
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 import { ConfigTypes } from './types/redocly-yaml';
 
+import type { Location } from './ref-utils';
 import type { Oas3Visitor, Oas2Visitor } from './visitors';
 import type { NormalizedNodeType, NodeType } from './types';
 import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk';

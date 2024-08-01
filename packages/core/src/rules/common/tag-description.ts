@@ -1,5 +1,6 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { validateDefinedAndNonEmpty } from '../utils';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
 
 export const TagDescription: Oas3Rule | Oas2Rule = () => {
   return {

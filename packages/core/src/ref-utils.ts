@@ -1,6 +1,7 @@
-import { Source } from './resolve';
-import { OasRef } from './typings/openapi';
 import { isTruthy } from './utils';
+
+import type { Source } from './resolve';
+import type { OasRef } from './typings/openapi';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';
@@ -60,6 +61,7 @@ export function pointerBaseName(pointer: string) {
 }
 
 export function refBaseName(ref: string) {
+  // eslint-disable-next-line no-useless-escape
   const parts = ref.split(/[\/\\]/); // split by '\' and '/'
   return parts[parts.length - 1].replace(/\.[^.]+$/, ''); // replace extension with empty string
 }

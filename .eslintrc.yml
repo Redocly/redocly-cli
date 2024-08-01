@@ -12,6 +12,7 @@ parserOptions:
   sourceType: module
 plugins:
   - '@typescript-eslint'
+  - import
 rules:
   '@typescript-eslint/no-unused-vars':
     - error
@@ -24,6 +25,16 @@ rules:
   '@typescript-eslint/no-explicit-any': warn # TODO: make it error!
   no-prototype-builtins: off
   no-useless-escape: warn
+  '@typescript-eslint/consistent-type-imports':
+    - error
+    - prefer: type-imports
+  import/order:
+    - error
+    - groups:
+        - ['builtin', 'external', 'parent', 'sibling', 'index', 'object']
+        - [type]
+      'newlines-between': 'always'
+  import/no-duplicates: error
 ignorePatterns:
   - '**/__tests__/'
   - 'packages/*/lib/'

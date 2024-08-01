@@ -3,10 +3,10 @@ import * as colorette from 'colorette';
 import { getPort } from 'get-port-please';
 import { readFileSync, promises as fsPromises } from 'fs';
 import * as path from 'path';
-
 import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server';
-import type { IncomingMessage } from 'http';
 import { isSubdir } from '../../../utils/miscellaneous';
+
+import type { IncomingMessage } from 'http';
 
 function getPageHTML(
   htmlTemplate: string,

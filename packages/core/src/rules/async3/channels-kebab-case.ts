@@ -1,6 +1,6 @@
-import { Channel } from '../../typings/asyncapi3';
-import { Async3Rule } from '../../visitors';
-import { UserContext } from '../../walk';
+import type { Channel } from '../../typings/asyncapi3';
+import type { Async3Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const ChannelsKebabCase: Async3Rule = () => {
   return {

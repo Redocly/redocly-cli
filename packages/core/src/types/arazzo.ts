@@ -1,6 +1,6 @@
-import type { NodeType } from '.';
-
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
+
+import type { NodeType } from '.';
 
 export const ARAZZO_ROOT_TYPE = 'Root';
 

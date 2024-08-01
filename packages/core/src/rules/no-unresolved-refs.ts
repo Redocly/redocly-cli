@@ -1,7 +1,8 @@
-import { Oas3Rule } from '../visitors';
 import { YamlParseError } from '../resolve';
-import { ResolveResult, Problem } from '../walk';
-import { Location } from '../ref-utils';
+
+import type { Oas3Rule } from '../visitors';
+import type { ResolveResult, Problem } from '../walk';
+import type { Location } from '../ref-utils';
 
 export const NoUnresolvedRefs: Oas3Rule = () => {
   return {

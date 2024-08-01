@@ -1,6 +1,7 @@
-import { UserContext } from '../../../walk';
 import { isRef } from '../../../ref-utils';
 import { isEmptyArray, isEmptyObject, isPlainObject } from '../../../utils';
+
+import type { UserContext } from '../../../walk';
 
 export function filter(node: any, ctx: UserContext, criteria: (item: any) => boolean) {
   const { parent, key } = ctx;

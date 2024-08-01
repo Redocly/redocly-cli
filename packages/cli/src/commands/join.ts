@@ -29,6 +29,7 @@ import type {
   Oas3Tag,
   Referenced,
   RuleSeverity,
+  Config,
 } from '@redocly/openapi-core';
 import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {

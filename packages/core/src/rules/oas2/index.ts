@@ -1,4 +1,3 @@
-import { Oas2Rule } from '../../visitors';
 import { Spec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
@@ -43,7 +42,8 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
 
-import type { Oas2RuleSet } from 'core/src/oas-types';
+import type { Oas2Rule } from '../../visitors';
+import type { Oas2RuleSet } from '../../oas-types';
 
 export const rules: Oas2RuleSet<'built-in'> = {
   spec: Spec as Oas2Rule,
