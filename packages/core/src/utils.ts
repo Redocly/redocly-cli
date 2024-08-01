@@ -38,15 +38,15 @@ export function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export function isPlainObject(value: any): value is Record<string, unknown> {
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-export function isEmptyObject(value: any): value is Record<string, unknown> {
+export function isEmptyObject(value: unknown): value is Record<string, unknown> {
   return isPlainObject(value) && Object.keys(value).length === 0;
 }
 
-export function isEmptyArray(value: any) {
+export function isEmptyArray(value: unknown) {
   return Array.isArray(value) && value.length === 0;
 }
 
@@ -317,3 +317,5 @@ export function dequal(foo: any, bar: any): boolean {
 
   return foo !== foo && bar !== bar;
 }
+
+export type CollectFn = (value: unknown) => void;

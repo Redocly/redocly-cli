@@ -63,8 +63,8 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         domain: 'test-domain',
         'mount-path': 'test-mount-path',
         organization: 'test-org',
@@ -81,8 +81,9 @@ describe('handlePush()', () => {
         files: ['test-file'],
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(remotes.getDefaultBranch).toHaveBeenCalledWith('test-org', 'test-project');
     expect(remotes.upsert).toHaveBeenCalledWith('test-org', 'test-project', {
@@ -132,8 +133,8 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    const result = await handlePush(
-      {
+    const result = await handlePush({
+      argv: {
         domain: 'test-domain',
         'mount-path': 'test-mount-path',
         organization: 'test-org',
@@ -150,8 +151,9 @@ describe('handlePush()', () => {
         files: ['test-file'],
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(result).toEqual({ pushId: 'test-id' });
   });
@@ -188,8 +190,8 @@ describe('handlePush()', () => {
       throw new Error('Not a directory');
     });
 
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         domain: 'test-domain',
         'mount-path': 'test-mount-path',
         organization: 'test-org',
@@ -201,8 +203,9 @@ describe('handlePush()', () => {
         files: ['test-folder'],
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(remotes.push).toHaveBeenCalledWith(
       expect.anything(),
@@ -230,8 +233,8 @@ describe('handlePush()', () => {
     const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         domain: 'test-domain',
         'mount-path': 'test-mount-path',
         organization: 'test-org',
@@ -243,8 +246,9 @@ describe('handlePush()', () => {
         files: [],
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
     expect(remotes.upsert).not.toHaveBeenCalled();
@@ -265,8 +269,8 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         domain: 'test-domain',
         'mount-path': 'test-mount-path',
         project: 'test-project',
@@ -277,8 +281,9 @@ describe('handlePush()', () => {
         'default-branch': 'main',
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(remotes.getDefaultBranch).toHaveBeenCalledWith(
       'test-org-from-config',
@@ -312,8 +317,8 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         'mount-path': 'test-mount-path',
         project: 'test-project',
         branch: 'test-branch',
@@ -323,8 +328,9 @@ describe('handlePush()', () => {
         files: ['test-file'],
         'max-execution-time': 10,
       },
-      mockConfig
-    );
+      config: mockConfig,
+      version: 'cli-version',
+    });
 
     expect(ReuniteApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
   });

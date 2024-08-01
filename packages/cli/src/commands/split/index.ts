@@ -36,6 +36,7 @@ import type {
   Oas3PathItem,
   Referenced,
 } from './types';
+import type { CommandArgs } from '../../wrapper';
 
 export type SplitOptions = {
   api: string;
@@ -44,12 +45,13 @@ export type SplitOptions = {
   config?: string;
 };
 
-export async function handleSplit(argv: SplitOptions) {
+export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOptions>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);
   const ext = getAndValidateFileExtension(api);
   const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
+  collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
     `🪓 Document: ${blue(api!)} ${green('is successfully split')}
@@ -292,7 +294,7 @@ function iteratePathItems(
 
   for (const pathName of Object.keys(pathItems)) {
     const pathFile = `${path.join(outDir, pathToFilename(pathName, pathSeparator))}.${ext}`;
-    const pathData = pathItems[pathName] as Oas3PathItem;
+    const pathData = pathItems[pathName];
 
     if (isRef(pathData)) continue;
 

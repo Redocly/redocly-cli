@@ -3,6 +3,9 @@ import * as path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
 import { ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
+import { loadConfigAndHandleErrors } from '../../../utils/__mocks__/miscellaneous';
+
+import type { Config } from '@redocly/openapi-core';
 
 const utils = require('../../../utils/miscellaneous');
 
@@ -25,9 +28,13 @@ describe('#split', () => {
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit({
-      api: filePath,
-      outDir: openapiDir,
-      separator: '_',
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: loadConfigAndHandleErrors() as any as Config,
+      version: 'cli-version',
     });
 
     expect(process.stderr.write).toBeCalledTimes(2);
@@ -46,9 +53,13 @@ describe('#split', () => {
     jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
 
     await handleSplit({
-      api: filePath,
-      outDir: openapiDir,
-      separator: '_',
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: loadConfigAndHandleErrors() as any as Config,
+      version: 'cli-version',
     });
 
     expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');

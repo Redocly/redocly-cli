@@ -24,6 +24,7 @@ import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from 
 import type { Config, StyleguideConfig } from './config';
 import type { OasRef } from './typings/openapi';
 import type { Document, ResolvedRefMap } from './resolve';
+import type { CollectFn } from './utils';
 
 export enum OasVersion {
   Version2 = 'oas2',
@@ -82,6 +83,7 @@ export async function bundle(
   opts: {
     ref?: string;
     doc?: Document;
+    collectSpecData?: CollectFn;
   } & BundleOptions
 ) {
   const {
@@ -100,6 +102,7 @@ export async function bundle(
   if (document instanceof Error) {
     throw document;
   }
+  opts.collectSpecData?.(document.parsed);
 
   return bundleDocument({
     document,
