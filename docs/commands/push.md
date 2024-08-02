@@ -453,11 +453,10 @@ The `docs/museum.yaml` file from the repository the action is running on is adde
 
 Whenever a `push` is peformed from the default branch (`--branch "${{ github.ref_name }}"` equals to `--default-branch "${{ github.event.repository.default_branch || github.event.repository.master_branch }}"`) - production deployment starts automatically after a successful preview deployment. In this case the command waits for both deployments to finish.
 
-{% /tab %}
-
 ## Resources
 
 - Use the [push-status command](./push-status.md) to check on an in-progress deploy.
 - For use in a CI context, the [GitHub Action](https://redocly.com/docs/realm/setup/reference/reunite-push-action)
 
+{% /tab %}
 {% /tabs %}
