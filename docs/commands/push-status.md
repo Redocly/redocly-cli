@@ -27,14 +27,14 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 
 ## Options
 
-| Option               | Type    | Required | Default value                                                  | Description                                                                                                   |
-| -------------------- | ------- | -------- |----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| pushId               | string  | true     | -                                                              | Identifier of the push whose state should be displayed. Returned as result of the [`push`](./push.md) command. |
-| --organization, -o   | string  | true     | -                                                              | [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                 |
-| --project, -p        | string  | true     | -                                                              | [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                      |
-| --domain, -d         | string  | false    | [https://app.cloud.redocly.com](https://app.cloud.redocly.com) | The domain that the `push` command pushed to.                                                                  |
-| --wait               | boolean | false    | false                                                          | Waits until the build is completed if it is in progress.                                                       |
-| --max-execution-time | number  | false    | 600                                                            | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option).              |
+| Option               | Type    | Required | Default value                                                  | Description                                                                                                       |
+| -------------------- | ------- | -------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| pushId               | string  | true     | -                                                              | Identifier of the push whose state should be displayed. Returned as result of the [`push`](./push.md) command.    |
+| --organization, -o   | string  | true     | -                                                              | [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug). |
+| --project, -p        | string  | true     | -                                                              | [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).      |
+| --domain, -d         | string  | false    | [https://app.cloud.redocly.com](https://app.cloud.redocly.com) | The domain that the `push` command pushed to.                                                                     |
+| --wait               | boolean | false    | false                                                          | Waits until the build is completed if it is in progress.                                                          |
+| --max-execution-time | number  | false    | 600                                                            | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option).                 |
 
 ## Examples
 
