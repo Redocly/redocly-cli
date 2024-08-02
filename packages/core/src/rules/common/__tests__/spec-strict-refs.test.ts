@@ -33,7 +33,7 @@ describe('Oas3 spec-strict-refs', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'spec-strict-refs': 'error' }),
+      config: await makeConfig({ rules: { 'spec-strict-refs': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [

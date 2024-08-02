@@ -24,7 +24,7 @@ describe('Oas3 operation-singular-tag', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-singular-tag': 'error' }),
+      config: await makeConfig({ rules: { 'operation-singular-tag': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -64,7 +64,7 @@ describe('Oas3 operation-singular-tag', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-singular-tag': 'error' }),
+      config: await makeConfig({ rules: { 'operation-singular-tag': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

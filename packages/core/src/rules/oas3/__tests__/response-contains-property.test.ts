@@ -27,9 +27,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { 201: ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { 201: ['id'] },
+          },
         },
       }),
     });
@@ -103,9 +105,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '2xx': ['id'], '400': ['error'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '2xx': ['id'], '400': ['error'] },
+          },
         },
       }),
     });
@@ -231,9 +235,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '2xx': ['id'], '400': ['error'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '2xx': ['id'], '400': ['error'] },
+          },
         },
       }),
     });
@@ -259,9 +265,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { 201: ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { 201: ['id'] },
+          },
         },
       }),
     });
@@ -300,8 +308,10 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+          },
         },
       }),
     });
@@ -331,9 +341,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '2xx': ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '2xx': ['id'] },
+          },
         },
       }),
     });
@@ -360,9 +372,11 @@ describe('Oas3 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '2xx': ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '2xx': ['id'] },
+          },
         },
       }),
     });

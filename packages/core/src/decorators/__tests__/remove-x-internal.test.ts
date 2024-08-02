@@ -25,7 +25,10 @@ describe('oas3 remove-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'remove-x-internal': { internalFlagProperty: 'removeit' } }),
+      config: await makeConfig({
+        rules: {},
+        decorators: { 'remove-x-internal': { internalFlagProperty: 'removeit' } },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
@@ -92,7 +95,7 @@ describe('oas3 remove-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'remove-x-internal': 'on' }),
+      config: await makeConfig({ rules: {}, decorators: { 'remove-x-internal': 'on' } }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.1.0
@@ -165,7 +168,7 @@ describe('oas3 remove-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'remove-x-internal': 'on' }),
+      config: await makeConfig({ rules: {}, decorators: { 'remove-x-internal': 'on' } }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -239,7 +242,7 @@ describe('oas3 remove-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'remove-x-internal': 'on' }),
+      config: await makeConfig({ rules: {}, decorators: { 'remove-x-internal': 'on' } }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.1
@@ -302,7 +305,7 @@ describe('oas2 remove-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'remove-x-internal': 'on' }),
+      config: await makeConfig({ rules: {}, decorators: { 'remove-x-internal': 'on' } }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           swagger: '2.0'
