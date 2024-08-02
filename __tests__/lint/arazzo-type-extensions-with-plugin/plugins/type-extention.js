@@ -13,7 +13,7 @@ module.exports = {
       newTypes = {
         ...types,
         XMetaData: XMetaData,
-        'Info': {
+        Info: {
           ...types['Info'],
           properties: {
             ...types['Info'].properties,
