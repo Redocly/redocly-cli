@@ -340,26 +340,24 @@ This command is used to push files from another location to a Reunite project.
 The content of the destination folder (e.g. `--mount-path`) is overwritten every time changes are detected in comparison to the current content.
 {% /admonition %}
 
-## Prerequisites
+## Before you begin
 
 Have the following values ready to use with the `push` command.
 
 1. A user account in a [Reunite project](https://auth.cloud.redocly.com/).
-1. An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys)
-1. [Redocly CLI](../installation.md) v1.10.x or later.
-
-## Authentication
+1. An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+1. [Redocly CLI](../installation.md) installed.
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm//setup/how-to/api-keys) page for details.
 
-## Usage
+## Command usage
 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizationSlug> --project <projectSlug> --mount-path <mountPath> --branch <branch> --message <message> --author <'Author Name <author-email@example.com>'> [--commit-sha <sha>] [--commit-url <url>] [--created-at <commitCreationDate>] [--repository <repositoryId> ] [--namespace <repositoryOrg>] [--default-branch <repositoryDefaultBranch>] [--domain <domain>] [--wait-for-deployment] [--max-execution-time <timeInSeconds>] [--lint-config <warn | error | off>] [--verbose]
 
 ```
 
-## Options
+## Command options
 
 | Option                |   Type   | Required | Default value                                                  | Description                                                                    |
 | --------------------- | :------: | -------- | ---------------------------------------------------------------|------------------------------------------------------------------------------- |
@@ -388,7 +386,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 - Maximum file size: 10 MB per file
 - Maximum number of files: 100
 
-## Examples
+## Example usage
 
 ### Push files to the `push-docs` project in the default organization
 
@@ -456,5 +454,10 @@ The `docs/museum.yaml` file from the repository the action is running on is adde
 Whenever a `push` is peformed from the default branch (`--branch "${{ github.ref_name }}"` equals to `--default-branch "${{ github.event.repository.default_branch || github.event.repository.master_branch }}"`) - production deployment starts automatically after a successful preview deployment. In this case the command waits for both deployments to finish.
 
 {% /tab %}
+
+## Resources
+
+- Use the [push-status command](./push-status.md) to check on an in-progress deploy.
+- For use in a CI context, the [GitHub Action](https://redocly.com/docs/realm/setup/reference/reunite-push-action)
 
 {% /tabs %}
