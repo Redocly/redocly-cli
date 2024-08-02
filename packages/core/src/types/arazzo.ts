@@ -583,7 +583,9 @@ const CriterionObject: NodeType = {
     condition: { type: 'string' },
     context: { type: 'string' },
     type: (value: any) => {
-      if (typeof value === 'string') {
+      if (!value) {
+        return undefined;
+      } else if (typeof value === 'string') {
         return { enum: ['regex', 'jsonpath', 'simple', 'xpath'] };
       } else if (value.type === 'jsonpath') {
         return 'JSONPathCriterion';
