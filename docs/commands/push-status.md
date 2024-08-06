@@ -11,13 +11,13 @@ This identifier can be used by subsequent systems to perform custom logic when t
 Have the following before you use the `push-status` command:
 
 - A user account in a [Reunite project](https://auth.cloud.redocly.com/).
-- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys)
+- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) v1.10.x or later.
 
 ## Authentication
 
 Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
-See [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page for details on how to get your API key in Reunite.
+See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
 
 ## Usage
 
@@ -29,7 +29,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 
 | Option               | Type    | Required | Default value                                                  | Description                                                                                                       |
 | -------------------- | ------- | -------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| pushId               | string  | true     | -                                                              | Identifier of the push whose state should be displayed. Returned as result of the [`push`](./push.md) command.    |
+| pushId               | string  | true     | -                                                              | Identifier of the push you are tracking. Returned as result of the [`push`](./push.md) command.    |
 | --organization, -o   | string  | true     | -                                                              | [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug). |
 | --project, -p        | string  | true     | -                                                              | [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).      |
 | --domain, -d         | string  | false    | [https://app.cloud.redocly.com](https://app.cloud.redocly.com) | The domain that the `push` command pushed to.                                                                     |
@@ -53,6 +53,7 @@ If there are preview or production builds that haven't completed yet for the pus
 ### Get build status for a specific push and wait until it is completed
 
 You can configure the `push-status` command to check the deployment statuses of the preview build (and subsequent production build if applicable), and if the builds are not complete, check every 5 seconds until the builds are complete.
+
 The following example command prints the status for the preview and production builds as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project:
 
 ```bash

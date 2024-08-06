@@ -9,9 +9,9 @@ Pick the section that relates to the product you use.
 
 Redocly Workflows integrates with [popular version control services](https://redocly.com/docs/workflows/sources/) and uses them as the source of your API descriptions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 
-The Redocly CLI `push` command helps you automate API description updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API descriptions are generated automatically from code annotations in a CI/CD pipeline
+The Redocly CLI `push` command helps you automate API description updates without granting Redocly Workflows access to your repositories. This approach is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API descriptions are generated automatically from code annotations in a CI/CD pipeline
 
-This allows you to:
+This method allows you to:
 
 - Use Redocly Workflows to preview documentation and portal builds.
 - Manage versions in the API registry.
@@ -337,18 +337,18 @@ The Redocly Workflows interface can help you get started with the `push` command
 This command is used to push files from another location to a Reunite project.
 
 {% admonition type="warning" name="The content is overwritten" %}
-The content of the destination folder (e.g. `--mount-path`) is overwritten every time changes are detected in comparison to the current content.
+The content of the destination folder (in other words the `--mount-path`) is overwritten every time changes are detected in comparison to the current content.
 {% /admonition %}
 
 ## Before you begin
 
-Have the following values ready to use with the `push` command.
+Have the following values ready to use with the `push` command:
 
-1. A user account in a [Reunite project](https://auth.cloud.redocly.com/).
-1. An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
-1. [Redocly CLI](../installation.md) installed.
+- A user account in a [Reunite project](https://auth.cloud.redocly.com/).
+- An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+- [Redocly CLI](../installation.md) installed.
 
-Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm//setup/how-to/api-keys) page for details.
+Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm//setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
 
 ## Command usage
 
@@ -370,14 +370,14 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --message, -m         |  string  | true     | -                                                              | The commit message for the push.                                                                                                                           |
 | --commit-sha, -sha    |  string  | false    | -                                                              | Commit SHA.                                                                                                                                                |
 | --commit-url, -url    |  string  | false    | -                                                              | Commit URL.                                                                                                                                                |
-| --repository          |  string  | false    | -                                                              | Repository id. Example: `redocly-cli`.                                                                                                                     |
+| --repository          |  string  | false    | -                                                              | Repository ID. Example: `redocly-cli`.                                                                                                                     |
 | --namespace           |  string  | false    | -                                                              | Repository owner/organization/workspace. Example: `Redocly`.                                                                                               |
 | --created-at          |  string  | false    | -                                                              | Commit creation date. Format: `yyyy-mm-ddThh:mm:ss+offset value`. Example: `2024-02-20T14:26:26+02:00`                                                     |
 | --domain              |  string  | false    | [https://app.cloud.redocly.com](https://app.cloud.redocly.com) | The domain to which the files are pushed.                                                                                                                  |
-| --default-branch      |  string  | false    | main                                                           | The default branch of the repository pushed from.                                                                                                          |
+| --default-branch      |  string  | false    | main                                                           | The default branch of the repository the push originates from.                                                                                                          |
 | --lint-config         |  string  | false    | warn                                                           | Severity level for configuration file linting. <br/> **Possible values:** `warn`, `error`, `off`.                                                          |
 | --max-execution-time  |  number  | false    | 600                                                            | Maximum wait time for deployment completion in seconds (used in conjunction with the `--wait-for-deployment` option).                                      |
-| --wait-for-deployment | boolean  | false    | false                                                          | Waits until the build is completed if it is in progress. Behaves the same as push-status command when passed. See [push-status](./push-status.md) command. |
+| --wait-for-deployment | boolean  | false    | false                                                          | Waits until the build is completed if it is in progress. Behaves the same as `push-status` command when passed. See [push-status](./push-status.md) command. |
 | --verbose             | boolean  | false    | false                                                          | Verbose output.                                                                                                                                            |
 | --help                | boolean  | false    | -                                                              | Help output for the command.                                                                                                                               |
 
@@ -390,7 +390,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 
 ### Push files to the `push-docs` project in the default organization
 
-The following command pushes the `index.md` and `docs/push.yaml` files to the project with `push-docs` slug belonging to organization with `redocly` slug.
+The following command pushes the `index.md` and `docs/push.yaml` files to the project with `push-docs` slug belonging to organization with `redocly` slug:
 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
@@ -405,11 +405,11 @@ redocly push index.md docs/push.yaml \
 
 Pushed files are added to an auto-generated preview branch with a `-docs/push-info` suffix.
 The committer is `User <user@example.com>`, and the commit message is `Add new docs`.
-The files are added inside the `docs/push` folder in the project (the folder is created if doesn't exist yet, if it does then the contents are overwritten).
+The files are added inside the `docs/push` folder in the project (the folder is created if it doesn't exist yet, if the folder does exist then the contents are overwritten).
 
 ### Push file to the `push-docs` project in the `default` organization and wait until it is deployed
 
-This command example does the same as the [one above](#push-files-to-the-push-docs-project-in-the-default-organization), but waits until the preview deployment finishes due to passed `--wait-for-deployment` option.
+This command example does the same as the [previous example](#push-files-to-the-push-docs-project-in-the-default-organization), but waits until the preview deployment finishes due to passed `--wait-for-deployment` option:
 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
@@ -449,14 +449,16 @@ npx @redocly/cli push docs/museum.yaml \
 
 The `docs/museum.yaml` file from the repository the action is running on is added to the `/docs/remotes/cicd` folder. The change is made on behalf of the latest commit author and uses the most recent commit message.
 
-`--commit-sha`, `--commit-url`, `--namespace`, `--repository` are used to attach the details of the push to the deployment and shown on the Reunite "Deployments" page. This information is useful in case you have multiple sources for the pushes.
+The `--commit-sha`, `--commit-url`, `--namespace`, `--repository` options are used to attach the details of the push to the deployment and are also shown on the Reunite "Deployments" page.
+This information is useful in case you have multiple sources for the pushes.
 
-Whenever a `push` is peformed from the default branch (`--branch "${{ github.ref_name }}"` equals to `--default-branch "${{ github.event.repository.default_branch || github.event.repository.master_branch }}"`) - production deployment starts automatically after a successful preview deployment. In this case the command waits for both deployments to finish.
+Whenever a `push` is performed from the default branch (`--branch "${{ github.ref_name }}"` and equals to `--default-branch "${{ github.event.repository.default_branch || github.event.repository.master_branch }}"`) - a production deployment starts automatically after a successful preview deployment.
+In this case the command waits for both deployments to finish.
 
 ## Resources
 
 - Use the [push-status command](./push-status.md) to check on an in-progress deploy.
-- For use in a CI context, the [GitHub Action](https://redocly.com/docs/realm/setup/reference/reunite-push-action)
+- For use in a CI context, check out the [GitHub Action](https://redocly.com/docs/realm/setup/reference/reunite-push-action).
 
 {% /tab %}
 {% /tabs %}
