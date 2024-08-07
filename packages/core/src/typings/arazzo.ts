@@ -64,13 +64,19 @@ interface RequestBody {
 interface CriteriaObject {
   condition: string;
   context?: string;
-  type?: 'regex' | 'jsonpath' | 'simple' | 'xpath' | {
-    type: 'jsonpath';
-    version: 'draft-goessner-dispatch-jsonpath-00';
-  } | {
-    type: 'xpath';
-    version: 'xpath-30' | 'xpath-20' | 'xpath-10';
-  };
+  type?:
+    | 'regex'
+    | 'jsonpath'
+    | 'simple'
+    | 'xpath'
+    | {
+        type: 'jsonpath';
+        version: 'draft-goessner-dispatch-jsonpath-00';
+      }
+    | {
+        type: 'xpath';
+        version: 'xpath-30' | 'xpath-20' | 'xpath-10';
+      };
 }
 
 interface OnSuccessObject {
