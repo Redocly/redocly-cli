@@ -19,7 +19,7 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tags-alphabetical': 'error' }),
+      config: await makeConfig({ rules: { 'tags-alphabetical': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -56,7 +56,7 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tags-alphabetical': 'error' }),
+      config: await makeConfig({ rules: { 'tags-alphabetical': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -77,7 +77,7 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tags-alphabetical': 'error' }),
+      config: await makeConfig({ rules: { 'tags-alphabetical': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -114,7 +114,9 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tags-alphabetical': { severity: 'error', ignoreCase: true } }),
+      config: await makeConfig({
+        rules: { 'tags-alphabetical': { severity: 'error', ignoreCase: true } },
+      }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

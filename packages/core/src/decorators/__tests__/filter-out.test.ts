@@ -52,7 +52,10 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-out': { property: 'x-access', value: 'private' } }),
+      config: await makeConfig({
+        rules: {},
+        decorators: { 'filter-out': { property: 'x-access', value: 'private' } },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
@@ -68,16 +71,16 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-out': {
             property: 'x-audience',
             value: ['Private', 'Protected'],
             matchStrategy: 'all',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -99,16 +102,16 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-out': {
             property: 'x-audience',
             value: ['Private', 'Protected'],
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
         openapi: 3.0.0
@@ -138,16 +141,16 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-out': {
             property: 'x-access',
             value: 'private',
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -192,7 +195,10 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-out': { property: 'x-prop', value: false } }),
+      config: await makeConfig({
+        rules: {},
+        decorators: { 'filter-out': { property: 'x-prop', value: false } },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -244,7 +250,10 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-out': { property: 'x-prop', value: null } }),
+      config: await makeConfig({
+        rules: {},
+        decorators: { 'filter-out': { property: 'x-prop', value: null } },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -305,16 +314,16 @@ describe('oas2 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-out': {
             property: 'x-access',
             value: ['private', 'protected'],
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       swagger: '2.0'

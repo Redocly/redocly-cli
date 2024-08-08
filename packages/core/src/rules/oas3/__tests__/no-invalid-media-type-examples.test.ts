@@ -33,7 +33,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -107,9 +107,11 @@ describe('no-invalid-media-type-examples', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-invalid-media-type-examples': {
-          severity: 'error',
-          allowAdditionalProperties: false,
+        rules: {
+          'no-invalid-media-type-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
         },
       }),
     });
@@ -159,9 +161,11 @@ describe('no-invalid-media-type-examples', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-invalid-media-type-examples': {
-          severity: 'error',
-          allowAdditionalProperties: false,
+        rules: {
+          'no-invalid-media-type-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
         },
       }),
     });
@@ -219,9 +223,11 @@ describe('no-invalid-media-type-examples', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-invalid-media-type-examples': {
-          severity: 'error',
-          allowAdditionalProperties: false,
+        rules: {
+          'no-invalid-media-type-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
         },
       }),
     });
@@ -268,9 +274,11 @@ describe('no-invalid-media-type-examples', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-invalid-media-type-examples': {
-          severity: 'error',
-          allowAdditionalProperties: false,
+        rules: {
+          'no-invalid-media-type-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
         },
       }),
     });
@@ -318,9 +326,11 @@ describe('no-invalid-media-type-examples', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-invalid-media-type-examples': {
-          severity: 'error',
-          allowAdditionalProperties: false,
+        rules: {
+          'no-invalid-media-type-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
         },
       }),
     });
@@ -370,7 +380,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -402,7 +412,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -437,7 +447,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -465,7 +475,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -517,7 +527,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -551,7 +561,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -588,7 +598,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -625,7 +635,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

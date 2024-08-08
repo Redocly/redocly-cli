@@ -18,6 +18,6 @@ export async function lintDocumentForTest(
   return await lintDocument({
     externalRefResolver: baseResolver,
     document,
-    config: await makeConfig(rules),
+    config: await makeConfig({ rules }),
   });
 }

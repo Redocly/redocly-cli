@@ -19,7 +19,7 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': 'error' }),
+      config: await makeConfig({ rules: { 'security-defined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -53,7 +53,7 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': 'error' }),
+      config: await makeConfig({ rules: { 'security-defined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -73,7 +73,7 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': 'error' }),
+      config: await makeConfig({ rules: { 'security-defined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -112,7 +112,7 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': 'error' }),
+      config: await makeConfig({ rules: { 'security-defined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -167,7 +167,7 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': 'error' }),
+      config: await makeConfig({ rules: { 'security-defined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -190,7 +190,9 @@ describe('Oas3 security-defined', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'security-defined': { exceptions: [{ path: '/excluded' }] },
+        rules: {
+          'security-defined': { exceptions: [{ path: '/excluded' }] },
+        },
       }),
     });
 
@@ -217,7 +219,9 @@ describe('Oas3 security-defined', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'security-defined': { exceptions: [{ path: '/partially-excluded', methods: ['GET'] }] },
+        rules: {
+          'security-defined': { exceptions: [{ path: '/partially-excluded', methods: ['GET'] }] },
+        },
       }),
     });
 
@@ -254,7 +258,9 @@ describe('Oas3 security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'security-defined': { exceptions: [{ path: '/excluded' }] } }),
+      config: await makeConfig({
+        rules: { 'security-defined': { exceptions: [{ path: '/excluded' }] } },
+      }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

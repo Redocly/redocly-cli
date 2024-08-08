@@ -32,7 +32,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+      config: await makeConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -79,7 +79,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+      config: await makeConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -122,7 +122,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+      config: await makeConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [

@@ -31,7 +31,9 @@ describe('Oas3 spec-components-invalid-map-name', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'spec-components-invalid-map-name': 'error',
+        rules: {
+          'spec-components-invalid-map-name': 'error',
+        },
       }),
     });
 
@@ -208,7 +210,9 @@ describe('Oas3 spec-components-invalid-map-name', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'spec-components-invalid-map-name': 'error',
+        rules: {
+          'spec-components-invalid-map-name': 'error',
+        },
       }),
     });
 
@@ -235,7 +239,9 @@ describe('Oas3 spec-components-invalid-map-name', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'spec-components-invalid-map-name': 'error',
+        rules: {
+          'spec-components-invalid-map-name': 'error',
+        },
       }),
     });
 

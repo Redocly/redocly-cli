@@ -22,7 +22,7 @@ describe('Oas3 paths-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'paths-kebab-case': 'error' }),
+      config: await makeConfig({ rules: { 'paths-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -61,7 +61,7 @@ describe('Oas3 paths-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'paths-kebab-case': 'error' }),
+      config: await makeConfig({ rules: { 'paths-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -99,8 +99,10 @@ describe('Oas3 paths-kebab-case', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'paths-kebab-case': 'error',
-        'no-path-trailing-slash': 'off',
+        rules: {
+          'paths-kebab-case': 'error',
+          'no-path-trailing-slash': 'off',
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

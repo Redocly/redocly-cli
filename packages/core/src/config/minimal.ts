@@ -107,6 +107,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   },
   arazzoRules: {
     spec: 'error',
+    'parameters-no-body-inside-in': 'off',
   },
 };
 

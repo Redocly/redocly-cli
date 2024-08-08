@@ -17,7 +17,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -52,7 +52,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -71,7 +71,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

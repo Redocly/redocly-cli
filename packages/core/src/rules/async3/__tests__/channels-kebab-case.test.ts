@@ -23,7 +23,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'channels-kebab-case': 'error' }),
+      config: await makeConfig({ rules: { 'channels-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -64,7 +64,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'channels-kebab-case': 'error' }),
+      config: await makeConfig({ rules: { 'channels-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -106,8 +106,10 @@ describe('Async2 channels-kebab-case', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'paths-kebab-case': 'error',
-        'no-path-trailing-slash': 'off',
+        rules: {
+          'paths-kebab-case': 'error',
+          'no-path-trailing-slash': 'off',
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -133,7 +135,9 @@ describe('Async2 channels-kebab-case', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'paths-kebab-case': 'error',
+        rules: {
+          'paths-kebab-case': 'error',
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
