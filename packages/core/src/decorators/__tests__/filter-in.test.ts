@@ -56,7 +56,10 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-in': { value: 'public', property: 'x-access' } }),
+      config: await makeConfig({
+        rules: {},
+        decorators: { 'filter-in': { value: 'public', property: 'x-access' } },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -76,16 +79,16 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-in': {
             property: 'x-audience',
             value: ['Public', 'Protected'],
             matchStrategy: 'all',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -130,16 +133,16 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-in': {
             property: 'x-audience',
             value: ['Public', 'Global'],
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -171,16 +174,16 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-in': {
             property: 'x-audience',
             value: 'non-existing-audience',
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -220,16 +223,16 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-in': {
             property: 'x-audience',
             value: ['Public', 'Global'],
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -279,16 +282,16 @@ describe('oas2 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'filter-in': {
             property: 'x-access',
             value: ['public', 'global'],
             matchStrategy: 'any',
           },
-        }
-      ),
+        },
+      }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       swagger: '2.0'

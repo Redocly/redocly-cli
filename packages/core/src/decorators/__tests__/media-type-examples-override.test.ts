@@ -28,9 +28,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -43,8 +43,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -88,9 +88,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -101,8 +101,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -153,9 +153,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -176,8 +176,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -245,9 +245,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -264,8 +264,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -345,9 +345,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -364,8 +364,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -417,9 +417,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -436,8 +436,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -489,9 +489,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -504,8 +504,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -550,9 +550,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -565,8 +565,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -618,9 +618,9 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig(
-        {},
-        {
+      config: await makeConfig({
+        rules: {},
+        decorators: {
           'media-type-examples-override': {
             operationIds: {
               getUserById: {
@@ -633,8 +633,8 @@ describe('oas3 media-type-examples-override', () => {
               },
             },
           },
-        }
-      ),
+        },
+      }),
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`

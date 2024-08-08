@@ -1413,7 +1413,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ spec: 'error' }),
+      config: await makeConfig({ rules: { spec: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1492,7 +1492,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ spec: 'error' }),
+      config: await makeConfig({ rules: { spec: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1528,7 +1528,11 @@ describe('lint', () => {
     const result = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-operationId': 'error' }, undefined, configFilePath),
+      config: await makeConfig({
+        rules: { 'operation-operationId': 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
     });
     expect(result).toHaveLength(1);
     expect(result).toMatchObject([
@@ -1590,7 +1594,11 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ spec: 'error' }, undefined, configFilePath),
+      config: await makeConfig({
+        rules: { spec: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1662,7 +1670,11 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ spec: 'error' }, undefined, configFilePath),
+      config: await makeConfig({
+        rules: { spec: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

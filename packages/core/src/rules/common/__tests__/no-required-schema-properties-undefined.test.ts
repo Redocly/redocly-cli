@@ -30,7 +30,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -79,7 +79,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -134,7 +134,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -190,7 +190,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -223,7 +223,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -286,7 +286,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -329,7 +329,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -378,7 +378,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -447,7 +447,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -486,7 +486,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -542,7 +542,7 @@ describe('no-required-schema-properties-undefined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+      config: await makeConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

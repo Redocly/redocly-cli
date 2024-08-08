@@ -1,3 +1,9 @@
+---
+seo:
+  title: Lint Arazzo with Redocly CLI
+  description: Unlock powerful linting capabilities for Arazzo documents. Use the Redocly CLI to enforce basic validation, configure rules, or even build custom plugins for Arazzo.
+---
+
 # Lint Arazzo with Redocly CLI
 
 [Arazzo](https://spec.openapis.org/arazzo/latest.html#arazzo-specification) is an open standard from the OpenAPI Initiative for describing a sequence API calls, defining success criteria, and adding response content to subsequent API calls.
@@ -107,6 +113,13 @@ jobs:
 With this action in place, the intentional errors I added to the Arazzo description are shown as annotations on the pull request:
 
 ![Screenshot of annotation flagging "workfloo" as an unexpected value and suggesting "workflow"](images/museum-arazzo-lint.png)
+
+## Arazzo rules
+
+To expand the linting checks for an Arazzo description, start by enabling
+some of the built-in rules. The currently-supported rules are:
+
+- `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
 
 ## Participate in Redocly CLI
 

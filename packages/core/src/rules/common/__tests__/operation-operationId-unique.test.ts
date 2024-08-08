@@ -26,7 +26,7 @@ describe('Oas3 operation-operationId-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-operationId-unique': 'error' }),
+      config: await makeConfig({ rules: { 'operation-operationId-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -68,7 +68,7 @@ describe('Oas3 operation-operationId-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'peration-operationId-unique': 'error' }),
+      config: await makeConfig({ rules: { 'peration-operationId-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

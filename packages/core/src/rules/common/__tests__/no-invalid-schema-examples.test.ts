@@ -23,7 +23,7 @@ describe('no-invalid-schema-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-schema-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

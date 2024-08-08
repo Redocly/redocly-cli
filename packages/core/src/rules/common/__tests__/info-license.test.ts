@@ -17,7 +17,7 @@ describe('Oas3 info-license', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license': 'error' }),
+      config: await makeConfig({ rules: { 'info-license': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -54,7 +54,7 @@ describe('Oas3 info-license', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license': 'error' }),
+      config: await makeConfig({ rules: { 'info-license': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

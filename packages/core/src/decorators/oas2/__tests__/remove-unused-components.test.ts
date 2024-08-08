@@ -38,7 +38,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({}),
+      config: await makeConfig({ rules: {} }),
       removeUnusedComponents: true,
     });
 
@@ -111,7 +111,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({}),
+      config: await makeConfig({ rules: {} }),
       removeUnusedComponents: true,
     });
 
@@ -192,7 +192,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({}),
+      config: await makeConfig({ rules: {} }),
       removeUnusedComponents: true,
     });
 

@@ -24,7 +24,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -78,7 +78,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -117,7 +117,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -141,7 +141,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -168,7 +168,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -197,7 +197,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
+      config: await makeConfig({ rules: { 'no-server-variables-empty-enum': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

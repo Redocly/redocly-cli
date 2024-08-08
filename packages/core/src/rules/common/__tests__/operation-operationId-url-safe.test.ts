@@ -21,7 +21,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-operationId-url-safe': 'error' }),
+      config: await makeConfig({ rules: { 'operation-operationId-url-safe': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
