@@ -26,6 +26,8 @@
           page: commands/preview-docs.md
         - label: push
           page: commands/push.md
+        - label: push-status
+          page: commands/push-status.md
         - label: split
           page: commands/split.md
         - label: stats
