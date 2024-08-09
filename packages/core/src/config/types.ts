@@ -144,6 +144,22 @@ export type Plugin = {
   assertions?: AssertionsConfig;
 };
 
+type PluginCreatorOptions = {
+  contentDir: string;
+};
+
+export type PluginCreator = (options: PluginCreatorOptions) => Plugin;
+
+export type ImportedPlugin =
+  // ES Modules
+  | {
+      default?: PluginCreator;
+    }
+  // CommonJS
+  | PluginCreator
+  // Deprecated format
+  | Plugin;
+
 export type PluginStyleguideConfig<T = undefined> = Omit<
   StyleguideRawConfig<T>,
   'plugins' | 'extends'

@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { existsSync } from 'fs';
 import { isAbsoluteUrl } from '../ref-utils';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
 import { resolveDocument, BaseResolver } from '../resolve';
@@ -6,6 +7,8 @@ import { defaultPlugin } from './builtIn';
 import {
   getResolveConfig,
   getUniquePlugins,
+  isCommonJsPlugin,
+  isDeprecatedPluginFormat,
   mergeExtends,
   parsePresetName,
   prefixRules,
@@ -27,11 +30,21 @@ import type {
   ResolvedStyleguideConfig,
   RuleConfig,
   DeprecatedInRawConfig,
+  ImportedPlugin,
 } from './types';
 import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
 import type { BundleOptions } from '../bundle';
 import type { Document, ResolvedRefMap } from '../resolve';
+
+// Known plugins that should be ignored because then do not expose anything relevant and use ESM
+const KNOWN_IGNORED_PLUGINS = [
+  '@redocly/portal-plugin-async-api/plugin.js',
+  '@redocly/portal-plugin-mock-server/plugin.js',
+  '@redocly/theme-experimental/plugin.js',
+];
+
+const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs'];
 
 export async function resolveConfigFileAndRefs({
   configPath,
@@ -101,6 +114,16 @@ export async function resolveConfig({
   );
 }
 
+function getDefaultPluginPath(configPath: string): string | undefined {
+  for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
+    const absolutePluginPath = path.resolve(path.dirname(configPath), pluginPath);
+    if (existsSync(absolutePluginPath)) {
+      return pluginPath;
+    }
+  }
+  return undefined;
+}
+
 export function resolvePlugins(
   plugins: (string | Plugin)[] | null,
   configPath: string = ''
@@ -108,7 +131,7 @@ export function resolvePlugins(
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
-  const requireFunc = (plugin: string | Plugin): Plugin | undefined => {
+  const requireFunc = (plugin: string | Plugin): ImportedPlugin | undefined => {
     if (isBrowser && isString(plugin)) {
       logger.error(`Cannot load ${plugin}. Plugins aren't supported in browser yet.`);
 
@@ -117,14 +140,24 @@ export function resolvePlugins(
 
     if (isString(plugin)) {
       try {
-        const absoltePluginPath = path.resolve(path.dirname(configPath), plugin);
+        let absolutePluginPath: string;
+
+        const maybeAbsolutePluginPath = path.resolve(path.dirname(configPath), plugin);
+
+        if (existsSync(maybeAbsolutePluginPath)) {
+          absolutePluginPath = maybeAbsolutePluginPath;
+        } else {
+          // For plugins imported from packages specifically
+          absolutePluginPath = require.resolve(plugin);
+        }
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         return typeof __webpack_require__ === 'function'
           ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            __non_webpack_require__(absoltePluginPath)
-          : require(absoltePluginPath);
+            __non_webpack_require__(absolutePluginPath)
+          : require(absolutePluginPath);
       } catch (e) {
         if (e instanceof SyntaxError) {
           throw e;
@@ -138,14 +171,40 @@ export function resolvePlugins(
 
   const seenPluginIds = new Map<string, string>();
 
-  return plugins
+  const filteredPlugins = plugins.filter((p) => !isString(p) || !KNOWN_IGNORED_PLUGINS.includes(p));
+  const defaultPluginIsIncluded = filteredPlugins.some(
+    (p) => isString(p) && DEFAULT_PROJECT_PLUGIN_PATHS.includes(path.normalize(p))
+  );
+
+  /**
+   * Include the default plugin automatically if it's not in configuration
+   */
+  if (!defaultPluginIsIncluded) {
+    const defaultPluginPath = getDefaultPluginPath(configPath);
+    if (defaultPluginPath) {
+      filteredPlugins.push(defaultPluginPath);
+    }
+  }
+
+  return filteredPlugins
     .map((p) => {
+      if (isString(p) && KNOWN_IGNORED_PLUGINS.includes(p)) {
+        return;
+      }
+
       if (isString(p) && isAbsoluteUrl(p)) {
         throw new Error(colorize.red(`We don't support remote plugins yet.`));
       }
 
-      // TODO: resolve npm packages similar to eslint
-      const pluginModule = requireFunc(p);
+      const requiredPlugin: ImportedPlugin | undefined = requireFunc(p);
+
+      const pluginCreatorOptions = { contentDir: path.dirname(configPath) };
+
+      const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
+        ? requiredPlugin
+        : isCommonJsPlugin(requiredPlugin)
+        ? requiredPlugin(pluginCreatorOptions)
+        : requiredPlugin?.default?.(pluginCreatorOptions);
 
       if (!pluginModule) {
         return;
