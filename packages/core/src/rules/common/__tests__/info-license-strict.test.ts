@@ -31,7 +31,7 @@ describe('license-strict', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "License object should contain on of the fields: \`url\`, \`license\`.",
+          "message": "License object should contain one of the fields: \`url\`, \`identifier\`.",
           "ruleId": "info-license-strict",
           "severity": "error",
           "suggest": [],
@@ -55,7 +55,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license-url': 'error' }),
+      config: await makeConfig({ 'info-license-strict': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -76,7 +76,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license-url': 'error' }),
+      config: await makeConfig({ 'info-license-strict': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -85,7 +85,7 @@ describe('license-strict', () => {
   it('should report on info.license with no url for AsyncAPI 3.0', async () => {
     const document = parseYamlToDocument(
       outdent`
-            async: 3.0.0
+            asyncapi: 3.0.0
             info:
               license:
                 name: MIT
@@ -96,32 +96,32 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license-url': 'error' }),
+      config: await makeConfig({ 'info-license-strict': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/info/license/url",
-                "reportOnKey": true,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "License object should contain \`url\` field.",
-            "ruleId": "info-license-url",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/info/license/url",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "License object should contain \`url\` field.",
+          "ruleId": "info-license-strict",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should not report on info.license with url for AsyncAPI 3.0', async () => {
     const document = parseYamlToDocument(
       outdent`
-            async: 3.0.0
+            asyncapi: 3.0.0
             info:
               license:
                 name: MIT
@@ -133,7 +133,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'info-license-url': 'error' }),
+      config: await makeConfig({ 'info-license-strict': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
