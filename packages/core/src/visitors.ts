@@ -51,7 +51,7 @@ import type {
 } from './typings/swagger';
 import type { Async2Definition } from './typings/asyncapi';
 import type { Async3Definition } from './typings/asyncapi3';
-import {
+import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
   CriteriaObject,
