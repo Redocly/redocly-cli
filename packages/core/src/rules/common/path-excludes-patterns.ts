@@ -1,7 +1,7 @@
-import { Oas2Rule, Oas3Rule } from '../../visitors';
-import { Oas2PathItem } from '../../typings/swagger';
-import { Oas3PathItem } from '../../typings/openapi';
-import { UserContext } from '../../walk';
+import type { Oas2Rule, Oas3Rule } from '../../visitors';
+import type { Oas2PathItem } from '../../typings/swagger';
+import type { Oas3PathItem } from '../../typings/openapi';
+import type { UserContext } from '../../walk';
 
 export const PathExcludesPatterns: Oas3Rule | Oas2Rule = ({ patterns }) => {
   return {

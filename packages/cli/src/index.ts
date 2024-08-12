@@ -3,26 +3,32 @@
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
-import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
+import { outputExtensions, regionChoices } from './types';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
-import { handlePushStatus, PushStatusOptions } from './cms/commands/push-status';
+import { handlePushStatus } from './cms/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier';
+import {
+  cacheLatestVersion,
+  notifyUpdateCliVersion,
+  version,
+} from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
-import { version } from './utils/update-version-notifier';
-import type { Arguments } from 'yargs';
-import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { BuildDocsArgv } from './commands/build-docs/types';
 import { previewProject } from './commands/preview-project';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
+
+import type { Arguments } from 'yargs';
+import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import type { BuildDocsArgv } from './commands/build-docs/types';
+import type { PushStatusOptions } from './cms/commands/push-status';
+import type { PushArguments } from './types';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');

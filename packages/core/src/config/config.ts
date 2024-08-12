@@ -2,18 +2,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist } from '../utils';
-import { NormalizedProblem } from '../walk';
-import {
-  SpecVersion,
-  SpecMajorVersion,
+import { SpecVersion, SpecMajorVersion } from '../oas-types';
+import { isBrowser } from '../env';
+import { getResolveConfig } from './utils';
+import { isAbsoluteUrl } from '../ref-utils';
+
+import type { NormalizedProblem } from '../walk';
+import type {
   Oas2RuleSet,
   Oas3RuleSet,
   Async2RuleSet,
   Async3RuleSet,
   ArazzoRuleSet,
 } from '../oas-types';
-import { isBrowser } from '../env';
-
 import type { NodeType } from '../types';
 import type {
   DecoratorConfig,
@@ -29,8 +30,6 @@ import type {
   Telemetry,
   ThemeRawConfig,
 } from './types';
-import { getResolveConfig } from './utils';
-import { isAbsoluteUrl } from '../ref-utils';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =

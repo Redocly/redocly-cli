@@ -1,6 +1,7 @@
-import { Oas3Rule, Oas3Visitor } from '../../visitors';
 import { isRef } from '../../ref-utils';
-import { Oas3_1Schema, Oas3Parameter } from '../../typings/openapi';
+
+import type { Oas3Rule, Oas3Visitor } from '../../visitors';
+import type { Oas3_1Schema, Oas3Parameter } from '../../typings/openapi';
 
 export type ArrayParameterSerializationOptions = {
   in?: string[];

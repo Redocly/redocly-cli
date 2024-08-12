@@ -1,4 +1,3 @@
-import { Oas2Decorator } from '../../visitors';
 import { RegistryDependencies } from '../common/registry-dependencies';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
@@ -7,6 +6,8 @@ import { InfoOverride } from '../common/info-override';
 import { RemoveXInternal } from '../common/remove-x-internal';
 import { FilterIn } from '../common/filters/filter-in';
 import { FilterOut } from '../common/filters/filter-out';
+
+import type { Oas2Decorator } from '../../visitors';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,

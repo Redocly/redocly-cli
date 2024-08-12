@@ -1,5 +1,5 @@
-import { Async2Rule } from '../../visitors';
-import { UserContext } from '../../walk';
+import type { Async2Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const NoChannelTrailingSlash: Async2Rule = () => {
   return {

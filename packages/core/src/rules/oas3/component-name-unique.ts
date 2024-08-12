@@ -1,6 +1,6 @@
-import { Problem, UserContext } from '../../walk';
-import { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
-import {
+import type { Problem, UserContext } from '../../walk';
+import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
+import type {
   Oas3Definition,
   Oas3Parameter,
   Oas3RequestBody,

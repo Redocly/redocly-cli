@@ -1,13 +1,13 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { Location } from '../../ref-utils';
-import { UserContext } from '../../walk';
-import {
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { Location } from '../../ref-utils';
+import type { UserContext } from '../../walk';
+import type {
   Oas2Definition,
   Oas2Operation,
   Oas2PathItem,
   Oas2SecurityScheme,
 } from '../../typings/swagger';
-import {
+import type {
   Oas3Definition,
   Oas3Operation,
   Oas3PathItem,

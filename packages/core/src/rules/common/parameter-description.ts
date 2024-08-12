@@ -1,7 +1,7 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { Oas2Parameter } from '../../typings/swagger';
-import { Oas3Parameter } from '../../typings/openapi';
-import { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { Oas2Parameter } from '../../typings/swagger';
+import type { Oas3Parameter } from '../../typings/openapi';
+import type { UserContext } from '../../walk';
 
 export const ParameterDescription: Oas3Rule | Oas2Rule = () => {
   return {

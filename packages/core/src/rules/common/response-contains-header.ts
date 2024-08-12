@@ -1,8 +1,9 @@
-import { Oas2Rule, Oas3Rule } from '../../visitors';
-import { UserContext } from '../../walk';
-import { Oas3Response } from '../../typings/openapi';
-import { Oas2Response } from '../../typings/swagger';
 import { getMatchingStatusCodeRange } from '../../utils';
+
+import type { Oas2Rule, Oas3Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
+import type { Oas3Response } from '../../typings/openapi';
+import type { Oas2Response } from '../../typings/swagger';
 
 export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
   const names: Record<string, string[]> = options.names || {};
