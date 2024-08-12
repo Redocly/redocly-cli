@@ -1,5 +1,4 @@
-import { mapOf, NodeType, listOf } from '.';
-
+import { mapOf, type NodeType, listOf } from '.';
 import { DependentRequired, Schema, SchemaProperties } from './oas3_1';
 import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3';
 
