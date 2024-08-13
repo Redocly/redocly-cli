@@ -3,6 +3,7 @@ import { join as pathJoin, resolve as pathResolve } from 'path';
 import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
+import { StyleguideConfig } from '../../config';
 
 export const name = 'Validate with 50 top-level rules';
 export const count = 10;
@@ -25,7 +26,11 @@ for (let i = 0; i < 50; i++) {
   };
 }
 
-const config = makeConfigForRuleset(ruleset);
+let config: StyleguideConfig;
+export async function setupAsync() {
+  config = await makeConfigForRuleset(ruleset);
+}
+
 export function measureAsync() {
   return lintDocument({
     externalRefResolver: new BaseResolver(),

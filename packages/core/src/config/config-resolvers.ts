@@ -124,10 +124,10 @@ function getDefaultPluginPath(configPath: string): string | undefined {
   return undefined;
 }
 
-export function resolvePlugins(
+export async function resolvePlugins(
   plugins: (string | Plugin)[] | null,
   configPath: string = ''
-): Plugin[] {
+): Promise<Plugin[]> {
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
@@ -376,7 +376,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
   const plugins = getUniquePlugins(
-    resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
+    await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
   );
   const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)

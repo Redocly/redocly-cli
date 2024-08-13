@@ -13,20 +13,20 @@ export function parseYamlToDocument(body: string, absoluteRef: string = ''): Doc
   };
 }
 
-export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>) {
+export async function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
   Object.keys(rules).forEach((name) => {
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
   const extendConfigs = [
-    resolvePlugins([
+    (await resolvePlugins([
       {
         ...plugin,
         id: ruleId,
         rules: { oas3: rules },
       },
-    ]) as ResolvedStyleguideConfig,
+    ])) as ResolvedStyleguideConfig,
   ];
   if (rules) {
     extendConfigs.push({ rules });
