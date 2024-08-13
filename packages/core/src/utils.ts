@@ -1,16 +1,18 @@
 import * as fs from 'fs';
 import { extname } from 'path';
-import * as minimatch from 'minimatch';
-import fetch from 'node-fetch';
-import { parseYaml } from './js-yaml';
-import { env } from './env';
-import { logger, colorize } from './logger';
+import minimatch from 'minimatch';
+import _fetch from 'node-fetch';
+import { parseYaml } from './js-yaml/index.js';
+import { env } from './env.js';
+import { logger, colorize } from './logger.js';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-import type { HttpResolveConfig } from './config';
-import type { UserContext } from './walk';
+import type { HttpResolveConfig } from './config/index.js';
+import type { UserContext } from './walk.js';
 
-export { parseYaml, stringifyYaml } from './js-yaml';
+const fetch = _fetch.default;
+
+export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;

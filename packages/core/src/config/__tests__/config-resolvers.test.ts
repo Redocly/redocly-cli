@@ -1,11 +1,11 @@
-import { colorize } from '../../logger';
-import { Asserts, asserts } from '../../rules/common/assertions/asserts';
-import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
-import recommended from '../recommended';
+import { colorize } from '../../logger.js';
+import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
+import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
+import recommended from '../recommended.js';
 
 const path = require('path');
 
-import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types';
+import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types.js';
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
 const baseStyleguideConfig: StyleguideRawConfig = {

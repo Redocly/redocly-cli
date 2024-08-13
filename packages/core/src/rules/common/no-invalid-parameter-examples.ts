@@ -1,7 +1,7 @@
-import { getAdditionalPropertiesOption, validateExample } from '../utils';
+import { getAdditionalPropertiesOption, validateExample } from '../utils.js';
 
-import type { UserContext } from '../../walk';
-import type { Oas3Parameter } from '../../typings/openapi';
+import type { UserContext } from '../../walk.js';
+import type { Oas3Parameter } from '../../typings/openapi.js';
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
   const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;

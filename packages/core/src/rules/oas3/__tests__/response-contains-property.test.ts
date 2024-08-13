@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 response-contains-property', () => {
   it('should report a response object not containing the property', async () => {

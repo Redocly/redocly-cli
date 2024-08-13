@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
-//@ts-ignore
-import { addSerializer } from './specific-snapshot';
+import { parseYaml } from '../packages/core/src/utils.js'; // not able to import from @redocly/openapi-core
+// @ts-ignore
+import { addSerializer } from './specific-snapshot.cjs';
 import { spawnSync } from 'child_process';
 
 type CLICommands =

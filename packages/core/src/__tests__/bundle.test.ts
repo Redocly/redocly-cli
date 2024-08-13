@@ -1,10 +1,16 @@
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import * as path from 'path';
 
-import { bundleDocument, bundle, bundleFromString } from '../bundle';
-import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { StyleguideConfig, Config, ResolvedConfig, createConfig, loadConfig } from '../config';
-import { BaseResolver } from '../resolve';
+import { bundleDocument, bundle, bundleFromString } from '../bundle.js';
+import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils.js';
+import {
+  StyleguideConfig,
+  Config,
+  ResolvedConfig,
+  createConfig,
+  loadConfig,
+} from '../config/index.js';
+import { BaseResolver } from '../resolve.js';
 
 const stringDocument = outdent`
   openapi: 3.0.0

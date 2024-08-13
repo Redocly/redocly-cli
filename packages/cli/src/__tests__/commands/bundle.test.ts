@@ -1,8 +1,8 @@
 import { bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
-import { BundleOptions, handleBundle } from '../../commands/bundle';
-import { handleError } from '../../utils/miscellaneous';
-import { commandWrapper } from '../../wrapper';
+import { BundleOptions, handleBundle } from '../../commands/bundle.js';
+import { handleError } from '../../utils/miscellaneous.js';
+import { commandWrapper } from '../../wrapper.js';
 import SpyInstance = jest.SpyInstance;
 import { Arguments } from 'yargs';
 

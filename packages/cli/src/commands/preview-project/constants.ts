@@ -1,4 +1,4 @@
-import type { Product } from './types';
+import type { Product } from './types.js';
 
 export const PRODUCT_PACKAGES = {
   realm: '@redocly/realm',

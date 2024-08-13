@@ -1,7 +1,7 @@
-import { readFileAsStringSync } from '../../utils';
+import { readFileAsStringSync } from '../../utils.js';
 
-import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames }) => {
   return {

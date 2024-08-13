@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { Config, getMergedConfig } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/miscellaneous';
-import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
-import { ConfigFixture } from '../fixtures/config';
+import { exitWithError } from '../../utils/miscellaneous.js';
+import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push.js';
+import { ConfigFixture } from '../fixtures/config.js';
 import { yellow } from 'colorette';
 
 jest.mock('fs');

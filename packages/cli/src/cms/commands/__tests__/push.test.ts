@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { handlePush } from '../push';
-import { ReuniteApiClient } from '../../api';
+import { handlePush } from '../push.js';
+import { ReuniteApiClient } from '../../api/index.js';
 
 const remotes = {
   push: jest.fn(),

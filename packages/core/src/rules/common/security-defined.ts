@@ -1,18 +1,18 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import type { Location } from '../../ref-utils';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { Location } from '../../ref-utils.js';
+import type { UserContext } from '../../walk.js';
 import type {
   Oas2Definition,
   Oas2Operation,
   Oas2PathItem,
   Oas2SecurityScheme,
-} from '../../typings/swagger';
+} from '../../typings/swagger.js';
 import type {
   Oas3Definition,
   Oas3Operation,
   Oas3PathItem,
   Oas3SecurityScheme,
-} from '../../typings/openapi';
+} from '../../typings/openapi.js';
 
 export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
   exceptions?: { path: string; methods?: string[] }[];

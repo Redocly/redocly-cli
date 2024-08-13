@@ -1,4 +1,4 @@
-import { Spinner } from '../utils/spinner';
+import { Spinner } from '../utils/spinner.js';
 import * as process from 'process';
 
 jest.useFakeTimers();

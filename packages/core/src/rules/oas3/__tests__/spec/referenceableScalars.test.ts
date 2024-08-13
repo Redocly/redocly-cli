@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
-import { lintDocument } from '../../../../lint';
-import { StyleguideConfig } from '../../../..';
-import { BaseResolver } from '../../../../resolve';
-import { resolveStyleguideConfig } from '../../../../config';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
+import { lintDocument } from '../../../../lint.js';
+import { StyleguideConfig } from '../../../../index.js';
+import { BaseResolver } from '../../../../resolve.js';
+import { resolveStyleguideConfig } from '../../../../config/index.js';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {

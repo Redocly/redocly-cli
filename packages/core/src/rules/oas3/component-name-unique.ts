@@ -1,5 +1,5 @@
-import type { Problem, UserContext } from '../../walk';
-import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
+import type { Problem, UserContext } from '../../walk.js';
+import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3Parameter,
@@ -7,7 +7,7 @@ import type {
   Oas3Response,
   Oas3Schema,
   OasRef,
-} from '../../typings/openapi';
+} from '../../typings/openapi.js';
 
 const TYPE_NAME_SCHEMA = 'Schema';
 const TYPE_NAME_PARAMETER = 'Parameter';

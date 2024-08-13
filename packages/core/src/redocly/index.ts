@@ -1,20 +1,20 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { RegistryApi } from './registry-api';
-import { env } from '../env';
-import { isNotEmptyObject } from '../utils';
-import { colorize } from '../logger';
+import { RegistryApi } from './registry-api.js';
+import { env } from '../env.js';
+import { isNotEmptyObject } from '../utils.js';
+import { colorize } from '../logger.js';
 import {
   AVAILABLE_REGIONS,
   DEFAULT_REGION,
   DOMAINS,
   getRedoclyDomain,
   setRedoclyDomain,
-} from './domains';
+} from './domains.js';
 
-import type { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
-import type { AccessTokens, Region } from '../config/types';
+import type { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types.js';
+import type { AccessTokens, Region } from '../config/types.js';
 
 export const TOKEN_FILENAME = '.redocly-config.json';
 

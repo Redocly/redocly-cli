@@ -1,9 +1,9 @@
 import { yellow } from 'colorette';
 import { detectSpec } from '@redocly/openapi-core';
-import { handleJoin } from '../../commands/join';
-import { exitWithError, writeToFileByExtension } from '../../utils/miscellaneous';
-import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
-import { ConfigFixture } from '../fixtures/config';
+import { handleJoin } from '../../commands/join.js';
+import { exitWithError, writeToFileByExtension } from '../../utils/miscellaneous.js';
+import { loadConfig } from '../../__mocks__/@redocly/openapi-core.js';
+import { ConfigFixture } from '../fixtures/config.js';
 
 jest.mock('../../utils/miscellaneous');
 

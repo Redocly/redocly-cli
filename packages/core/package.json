@@ -1,11 +1,12 @@
 {
   "name": "@redocly/openapi-core",
   "version": "1.19.0",
+  "type": "module",
   "description": "",
-  "main": "lib/index.js",
+  "exports": "./lib/index.js",
   "engines": {
-    "node": ">=14.19.0",
-    "npm": ">=7.0.0"
+    "node": ">=18",
+    "npm": ">=10"
   },
   "engineStrict": true,
   "license": "MIT",

@@ -1,31 +1,31 @@
-import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve';
-import { normalizeVisitors } from './visitors';
-import { normalizeTypes } from './types';
-import { walkDocument } from './walk';
+import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve.js';
+import { normalizeVisitors } from './visitors.js';
+import { normalizeTypes } from './types/index.js';
+import { walkDocument } from './walk.js';
 import {
   detectSpec,
   getTypes,
   getMajorSpecVersion,
   SpecMajorVersion,
   SpecVersion,
-} from './oas-types';
-import { isAbsoluteUrl, isRef, refBaseName } from './ref-utils';
-import { initRules } from './config/rules';
-import { reportUnresolvedRef } from './rules/no-unresolved-refs';
-import { dequal, isPlainObject, isTruthy } from './utils';
-import { isRedoclyRegistryURL } from './redocly/domains';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
-import { ConfigTypes } from './types/redocly-yaml';
+} from './oas-types.js';
+import { isAbsoluteUrl, isRef, refBaseName } from './ref-utils.js';
+import { initRules } from './config/rules.js';
+import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
+import { dequal, isPlainObject, isTruthy } from './utils.js';
+import { isRedoclyRegistryURL } from './redocly/domains.js';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
+import { ConfigTypes } from './types/redocly-yaml.js';
 
-import type { Location } from './ref-utils';
-import type { Oas3Visitor, Oas2Visitor } from './visitors';
-import type { NormalizedNodeType, NodeType } from './types';
-import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk';
-import type { Config, StyleguideConfig } from './config';
-import type { OasRef } from './typings/openapi';
-import type { Document, ResolvedRefMap } from './resolve';
-import type { CollectFn } from './utils';
+import type { Location } from './ref-utils.js';
+import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
+import type { NormalizedNodeType, NodeType } from './types/index.js';
+import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk.js';
+import type { Config, StyleguideConfig } from './config/index.js';
+import type { OasRef } from './typings/openapi.js';
+import type { Document, ResolvedRefMap } from './resolve.js';
+import type { CollectFn } from './utils.js';
 
 export enum OasVersion {
   Version2 = 'oas2',

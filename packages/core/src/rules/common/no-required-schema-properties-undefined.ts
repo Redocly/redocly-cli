@@ -1,9 +1,9 @@
-import { isRef } from '../../ref-utils';
+import { isRef } from '../../ref-utils.js';
 
-import type { Oas2Rule, Oas3Rule } from '../../visitors';
-import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
-import type { Oas2Schema } from 'core/src/typings/swagger';
-import type { UserContext } from 'core/src/walk';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
+import type { UserContext } from '../../walk.js';
 
 export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
   return {

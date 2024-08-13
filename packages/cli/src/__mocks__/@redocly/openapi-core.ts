@@ -1,5 +1,5 @@
-import { ConfigFixture } from './../../__tests__/fixtures/config';
-import { firstDocument, secondDocument, thirdDocument } from '../documents';
+import { ConfigFixture } from './../../__tests__/fixtures/config.js';
+import { firstDocument, secondDocument, thirdDocument } from '../documents.js';
 
 import type { Document } from '@redocly/openapi-core';
 

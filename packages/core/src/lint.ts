@@ -1,19 +1,19 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve';
-import { normalizeVisitors } from './visitors';
-import { walkDocument } from './walk';
-import { initRules } from './config';
-import { normalizeTypes } from './types';
-import { releaseAjvInstance } from './rules/ajv';
-import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
-import { createConfigTypes } from './types/redocly-yaml';
-import { Spec } from './rules/common/spec';
-import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
+import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
+import { normalizeVisitors } from './visitors.js';
+import { walkDocument } from './walk.js';
+import { initRules } from './config/index.js';
+import { normalizeTypes } from './types/index.js';
+import { releaseAjvInstance } from './rules/ajv.js';
+import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types.js';
+import { createConfigTypes } from './types/redocly-yaml.js';
+import { Spec } from './rules/common/spec.js';
+import { NoUnresolvedRefs } from './rules/no-unresolved-refs.js';
 
-import type { StyleguideConfig, Config } from './config';
-import type { Document, ResolvedRefMap } from './resolve';
-import type { ProblemSeverity, WalkContext } from './walk';
-import type { NodeType } from './types';
+import type { StyleguideConfig, Config } from './config/index.js';
+import type { Document, ResolvedRefMap } from './resolve.js';
+import type { ProblemSeverity, WalkContext } from './walk.js';
+import type { NodeType } from './types/index.js';
 import type {
   ArazzoVisitor,
   Async2Visitor,
@@ -22,8 +22,8 @@ import type {
   Oas2Visitor,
   Oas3Visitor,
   RuleInstanceConfig,
-} from './visitors';
-import type { CollectFn } from './utils';
+} from './visitors.js';
+import type { CollectFn } from './utils.js';
 
 export async function lint(opts: {
   ref: string;

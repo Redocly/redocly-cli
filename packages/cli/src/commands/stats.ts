@@ -11,9 +11,9 @@ import {
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous';
+import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
-import type { CommandArgs } from '../wrapper';
+import type { CommandArgs } from '../wrapper.js';
 import type {
   StatsAccumulator,
   StatsName,

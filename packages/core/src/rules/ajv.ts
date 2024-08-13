@@ -1,11 +1,13 @@
-import Ajv from '@redocly/ajv/dist/2020';
-import { escapePointer } from '../ref-utils';
+import _Ajv from '@redocly/ajv/dist/2020.js';
+import { escapePointer } from '../ref-utils.js';
 
-import type { Location } from '../ref-utils';
-import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020';
-import type { ResolveFn } from '../walk';
+import type { Location } from '../ref-utils.js';
+import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
+import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: Ajv | null = null;
+const Ajv = _Ajv.default;
+
+let ajvInstance: _Ajv.default | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;

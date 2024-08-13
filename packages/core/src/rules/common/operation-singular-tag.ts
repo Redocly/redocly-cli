@@ -1,7 +1,7 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import type { Oas2Operation } from '../../typings/swagger';
-import type { Oas3Operation } from '../../typings/openapi';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { Oas2Operation } from '../../typings/swagger.js';
+import type { Oas3Operation } from '../../typings/openapi.js';
+import type { UserContext } from '../../walk.js';
 
 export const OperationSingularTag: Oas3Rule | Oas2Rule = () => {
   return {

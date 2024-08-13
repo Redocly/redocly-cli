@@ -1,13 +1,13 @@
-import { RegistryDependencies } from '../common/registry-dependencies';
-import { OperationDescriptionOverride } from '../common/operation-description-override';
-import { TagDescriptionOverride } from '../common/tag-description-override';
-import { InfoDescriptionOverride } from '../common/info-description-override';
-import { InfoOverride } from '../common/info-override';
-import { RemoveXInternal } from '../common/remove-x-internal';
-import { FilterIn } from '../common/filters/filter-in';
-import { FilterOut } from '../common/filters/filter-out';
+import { RegistryDependencies } from '../common/registry-dependencies.js';
+import { OperationDescriptionOverride } from '../common/operation-description-override.js';
+import { TagDescriptionOverride } from '../common/tag-description-override.js';
+import { InfoDescriptionOverride } from '../common/info-description-override.js';
+import { InfoOverride } from '../common/info-override.js';
+import { RemoveXInternal } from '../common/remove-x-internal.js';
+import { FilterIn } from '../common/filters/filter-in.js';
+import { FilterOut } from '../common/filters/filter-out.js';
 
-import type { Oas2Decorator } from '../../visitors';
+import type { Oas2Decorator } from '../../visitors.js';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,

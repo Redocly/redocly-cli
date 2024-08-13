@@ -1,10 +1,10 @@
-import { isRef } from '../../ref-utils';
-import { getAdditionalPropertiesOption, validateExample } from '../utils';
+import { isRef } from '../../ref-utils.js';
+import { getAdditionalPropertiesOption, validateExample } from '../utils.js';
 
-import type { Oas3Rule } from '../../visitors';
-import type { Location } from '../../ref-utils';
-import type { Oas3Example } from '../../typings/openapi';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule } from '../../visitors.js';
+import type { Location } from '../../ref-utils.js';
+import type { Oas3Example } from '../../typings/openapi.js';
+import type { UserContext } from '../../walk.js';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
   const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;

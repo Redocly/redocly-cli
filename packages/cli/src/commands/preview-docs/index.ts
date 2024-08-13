@@ -5,11 +5,11 @@ import {
   getFallbackApisOrExit,
   handleError,
   loadConfigAndHandleErrors,
-} from '../../utils/miscellaneous';
-import startPreviewServer from './preview-server/preview-server';
+} from '../../utils/miscellaneous.js';
+import startPreviewServer from './preview-server/preview-server.js';
 
-import type { Skips } from '../../types';
-import type { CommandArgs } from '../../wrapper';
+import type { Skips } from '../../types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 export type PreviewDocsOptions = {
   port: number;

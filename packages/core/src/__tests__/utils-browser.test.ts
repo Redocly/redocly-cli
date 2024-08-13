@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { isBrowser } from '../env';
+import { isBrowser } from '../env.js';
 
 describe('isBrowser', () => {
   it('should be browser', () => {

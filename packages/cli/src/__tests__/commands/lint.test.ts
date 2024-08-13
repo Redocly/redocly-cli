@@ -1,4 +1,4 @@
-import { handleLint, LintOptions } from '../../commands/lint';
+import { handleLint, LintOptions } from '../../commands/lint.js';
 import {
   getMergedConfig,
   lint,
@@ -14,10 +14,10 @@ import {
   exitWithError,
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
-} from '../../utils/miscellaneous';
-import { ConfigFixture } from '../fixtures/config';
+} from '../../utils/miscellaneous.js';
+import { ConfigFixture } from '../fixtures/config.js';
 import { performance } from 'perf_hooks';
-import { commandWrapper } from '../../wrapper';
+import { commandWrapper } from '../../wrapper.js';
 import { Arguments } from 'yargs';
 import { blue } from 'colorette';
 

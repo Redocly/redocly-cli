@@ -1,7 +1,10 @@
-module.exports = {
+import type { JestConfigWithTsJest } from 'ts-jest';
+
+const jestConfig: JestConfigWithTsJest = {
   clearMocks: true,
   restoreMocks: true,
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
+  extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
@@ -23,11 +26,14 @@ module.exports = {
       functions: 60,
       lines: 60,
     },
-  },
-  testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
-  globals: {
-    'ts-jest': {
-      diagnostics: false,
+    global: {
+      statements: 70,
+      branches: 70,
+      functions: 70,
+      lines: 70,
     },
   },
+  testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
 };
+
+export default jestConfig;

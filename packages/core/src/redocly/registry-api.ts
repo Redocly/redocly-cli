@@ -1,6 +1,7 @@
-import fetch from 'node-fetch';
-import { getProxyAgent, isNotEmptyObject } from '../utils';
-import { getRedoclyDomain } from './domains';
+import _fetch from 'node-fetch';
+import { getProxyAgent, isNotEmptyObject } from '../utils.js';
+import { getRedoclyDomain } from './domains.js';
+import packageJson from '../../package.json' with { type: 'json' };
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
@@ -8,10 +9,12 @@ import type {
   PrepareFileuploadOKResponse,
   PrepareFileuploadParams,
   PushApiParams,
-} from './registry-api-types';
-import type { AccessTokens, Region } from '../config/types';
+} from './registry-api-types.js';
+import type { AccessTokens, Region } from '../config/types.js';
 
-const version = require('../../package.json').version;
+const fetch = _fetch.default
+
+const version = packageJson?.version;
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
@@ -42,6 +45,7 @@ export class RegistryApi {
     if (!headers.hasOwnProperty('authorization')) {
       throw new Error('Unauthorized');
     }
+
 
     const response = await fetch(
       `${this.getBaseUrl()}${path}`,

@@ -1,10 +1,10 @@
 import path = require('path');
 import { existsSync, readFileSync } from 'fs';
 import { spawn } from 'child_process';
-import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
+import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 
-import type { PreviewProjectOptions, Product } from './types';
-import type { CommandArgs } from '../../wrapper';
+import type { PreviewProjectOptions, Product } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
   const { plan, port } = argv;

@@ -1,15 +1,16 @@
 {
   "name": "@redocly/cli",
   "version": "1.19.0",
+  "type": "module",
   "description": "",
   "license": "MIT",
   "bin": {
-    "openapi": "bin/cli.js",
-    "redocly": "bin/cli.js"
+    "openapi": "./bin/cli.js",
+    "redocly": "./bin/cli.js"
   },
   "engines": {
-    "node": ">=14.19.0",
-    "npm": ">=7.0.0"
+    "node": ">=18",
+    "npm": ">=10"
   },
   "engineStrict": true,
   "scripts": {

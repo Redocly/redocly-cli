@@ -1,5 +1,5 @@
 import * as colorette from 'colorette';
-import { logger, colorize } from '../logger';
+import { logger, colorize } from '../logger.js';
 
 describe('Logger in nodejs', () => {
   let spyingStderr: jest.SpyInstance;

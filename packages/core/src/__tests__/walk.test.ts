@@ -1,17 +1,15 @@
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import each from 'jest-each';
 import * as path from 'path';
-
-import { lintDocument } from '../lint';
-
+import { lintDocument } from '../lint.js';
 import {
   parseYamlToDocument,
   replaceSourceWithRef,
   makeConfigForRuleset,
-} from '../../__tests__/utils';
-import { BaseResolver, Document } from '../resolve';
-import { listOf } from '../types';
-import { Oas3RuleSet } from '../oas-types';
+} from '../../__tests__/utils.js';
+import { BaseResolver, Document } from '../resolve.js';
+import { listOf } from '../types/index.js';
+import { Oas3RuleSet } from '../oas-types.js';
 
 describe('walk order', () => {
   it('should run visitors', async () => {
@@ -1391,9 +1389,11 @@ describe('context.resolve', () => {
 });
 
 describe('type extensions', () => {
+  // @ts-ignore FIXME: fix types
   each([
     ['3.0.0', 'oas3_0'],
     ['3.1.0', 'oas3_1'],
+    // @ts-ignore FIXME: fix types
   ]).it('should correctly visit OpenAPI %s extended types', async (openapi, oas) => {
     const calls: string[] = [];
 

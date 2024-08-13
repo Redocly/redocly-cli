@@ -1,11 +1,11 @@
-import { loadConfig, findConfig, getConfig, createConfig } from '../load';
-import { RedoclyClient } from '../../redocly';
-import { Config } from '../config';
-import { lintConfig } from '../../lint';
-import { replaceSourceWithRef } from '../../../__tests__/utils';
-import type { RuleConfig, FlatRawConfig } from './../types';
-import type { NormalizedProblem } from '../../walk';
-import { BaseResolver } from '../../resolve';
+import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
+import { RedoclyClient } from '../../redocly/index.js';
+import { Config } from '../config.js';
+import { lintConfig } from '../../lint.js';
+import { replaceSourceWithRef } from '../../../__tests__/utils.js';
+import type { RuleConfig, FlatRawConfig } from './../types.js';
+import type { NormalizedProblem } from '../../walk.js';
+import { BaseResolver } from '../../resolve.js';
 
 const fs = require('fs');
 const path = require('path');

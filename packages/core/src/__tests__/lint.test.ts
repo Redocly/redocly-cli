@@ -1,13 +1,13 @@
 import * as path from 'path';
 import { outdent } from 'outdent';
 
-import { lintFromString, lintConfig, lintDocument, lint } from '../lint';
-import { BaseResolver } from '../resolve';
-import { createConfig, loadConfig } from '../config/load';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
-import { detectSpec } from '../oas-types';
+import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
+import { BaseResolver } from '../resolve.js';
+import { createConfig, loadConfig } from '../config/load.js';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils.js';
+import { detectSpec } from '../oas-types.js';
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { createConfigTypes } from '../types/redocly-yaml';
+import { createConfigTypes } from '../types/redocly-yaml.js';
 
 const testPortalConfig = parseYamlToDocument(
   outdent`

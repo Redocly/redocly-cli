@@ -1,7 +1,7 @@
 import { getMergedConfig } from '@redocly/openapi-core';
-import { handlePush } from '../../commands/push';
-import { promptClientToken } from '../../commands/login';
-import { ConfigFixture } from '../fixtures/config';
+import { handlePush } from '../../commands/push.js';
+import { promptClientToken } from '../../commands/login.js';
+import { ConfigFixture } from '../fixtures/config.js';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({

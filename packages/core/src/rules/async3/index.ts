@@ -1,14 +1,14 @@
-import { Assertions } from '../common/assertions';
-import { Spec } from '../common/spec';
-import { InfoContact } from '../common/info-contact';
-import { OperationOperationId } from '../common/operation-operationId';
-import { TagDescription } from '../common/tag-description';
-import { TagsAlphabetical } from '../common/tags-alphabetical';
-import { ChannelsKebabCase } from './channels-kebab-case';
-import { NoChannelTrailingSlash } from './no-channel-trailing-slash';
+import { Assertions } from '../common/assertions/index.js';
+import { Spec } from '../common/spec.js';
+import { InfoContact } from '../common/info-contact.js';
+import { OperationOperationId } from '../common/operation-operationId.js';
+import { TagDescription } from '../common/tag-description.js';
+import { TagsAlphabetical } from '../common/tags-alphabetical.js';
+import { ChannelsKebabCase } from './channels-kebab-case.js';
+import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 
-import type { Async3Rule } from '../../visitors';
-import type { Async3RuleSet } from '../../oas-types';
+import type { Async3Rule } from '../../visitors.js';
+import type { Async3RuleSet } from '../../oas-types.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
   spec: Spec as Async3Rule,

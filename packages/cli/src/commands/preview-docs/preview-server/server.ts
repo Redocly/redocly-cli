@@ -1,9 +1,9 @@
 import * as http from 'http';
 import * as zlib from 'zlib';
+// @ts-ignore FIXME: fix types
+import SocketServer from 'simple-websocket/server.js';
 
 import type { ReadStream } from 'fs';
-
-const SocketServer = require('simple-websocket/server.js');
 
 export const mimeTypes = {
   '.html': 'text/html',

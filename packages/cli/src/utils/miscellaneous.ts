@@ -1,8 +1,8 @@
-import * as pluralizeOne from 'pluralize';
+import pluralizeOne from 'pluralize';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
-import * as glob from 'glob';
+import glob from 'glob';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
@@ -16,14 +16,15 @@ import {
   isAbsoluteUrl,
   loadConfig,
   RedoclyClient,
+  isEmptyObject,
+  isPlainObject,
+  ConfigValidationError,
 } from '@redocly/openapi-core';
-import { isEmptyObject, isPlainObject } from '@redocly/openapi-core/lib/utils';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
-import { outputExtensions } from '../types';
-import { version } from './update-version-notifier';
-import { DESTINATION_REGEX } from '../commands/push';
-import fetch from './fetch-with-timeout';
+import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
+import { outputExtensions } from '../types.js';
+import { version } from './update-version-notifier.js';
+import { DESTINATION_REGEX } from '../commands/push.js';
+import fetch from './fetch-with-timeout.js';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -34,9 +35,9 @@ import type {
   Config,
   Oas3Definition,
   Oas2Definition,
+  RawConfigProcessor,
 } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types';
+import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types.js';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,

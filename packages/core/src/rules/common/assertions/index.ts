@@ -1,15 +1,15 @@
-import { buildSubjectVisitor, buildVisitorObject } from './utils';
-import { isString } from '../../../utils';
+import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
+import { isString } from '../../../utils.js';
 
-import type { asserts, AssertionFn } from './asserts';
+import type { asserts, AssertionFn } from './asserts.js';
 import type {
   ArazzoVisitor,
   Async2Visitor,
   Async3Visitor,
   Oas2Visitor,
   Oas3Visitor,
-} from '../../../visitors';
-import type { RuleSeverity } from '../../../config';
+} from '../../../visitors.js';
+import type { RuleSeverity } from '../../../config/index.js';
 
 export type AssertionLocators = {
   filterInParentKeys?: (string | number)[];

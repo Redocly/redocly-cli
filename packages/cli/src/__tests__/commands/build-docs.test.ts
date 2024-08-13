@@ -1,9 +1,9 @@
 import { createStore, loadAndBundleSpec } from 'redoc';
 import { renderToString } from 'react-dom/server';
-import { handlerBuildCommand } from '../../commands/build-docs';
-import { BuildDocsArgv } from '../../commands/build-docs/types';
-import { getPageHTML } from '../../commands/build-docs/utils';
-import { getFallbackApisOrExit } from '../../utils/miscellaneous';
+import { handlerBuildCommand } from '../../commands/build-docs/index.js';
+import { BuildDocsArgv } from '../../commands/build-docs/types.js';
+import { getPageHTML } from '../../commands/build-docs/utils.js';
+import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
 jest.mock('redoc');
 jest.mock('fs');

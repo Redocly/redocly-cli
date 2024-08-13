@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { lintDoc } from './utils';
+import { lintDoc } from './utils.js';
 
 describe('OpenAPI Schema 2.0', () => {
   it('should report if the title of the API is empty ', async () => {

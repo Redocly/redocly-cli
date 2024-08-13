@@ -1,4 +1,4 @@
-import { retryUntilConditionMet } from '../utils';
+import { retryUntilConditionMet } from '../utils.js';
 
 jest.mock('@redocly/openapi-core', () => ({
   pause: jest.requireActual('@redocly/openapi-core').pause,

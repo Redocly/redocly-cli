@@ -1,7 +1,7 @@
-import { makeConfig, parseYamlToDocument } from '../../../../__tests__/utils';
+import { makeConfig, parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 spec-components-invalid-map-name', () => {
   it('should report about invalid keys inside components', async () => {

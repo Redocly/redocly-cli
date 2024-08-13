@@ -1,5 +1,5 @@
-import { RedoclyClient } from '../../index';
-import { setRedoclyDomain, getRedoclyDomain, getDomains, AVAILABLE_REGIONS } from '../domains';
+import { RedoclyClient } from '../../index.js';
+import { setRedoclyDomain, getRedoclyDomain, getDomains, AVAILABLE_REGIONS } from '../domains.js';
 
 describe('domains', () => {
   const REDOCLY_DOMAIN_US = 'redocly.com';

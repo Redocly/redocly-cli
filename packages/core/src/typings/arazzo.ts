@@ -12,7 +12,7 @@ import type {
   criteriaObject,
   step,
   workflow,
-} from '../types/arazzo';
+} from '../types/arazzo.js';
 
 export type ArazzoDefinition = FromSchema<typeof arazzoSchema>;
 export type OperationMethod = FromSchema<typeof operationMethod>;

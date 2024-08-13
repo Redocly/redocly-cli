@@ -1,9 +1,14 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
-import { StyleguideConfig, defaultPlugin, resolvePlugins, resolvePreset } from '../../../../config';
+import { lintDocument } from '../../../../lint.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
+import {
+  StyleguideConfig,
+  defaultPlugin,
+  resolvePlugins,
+  resolvePreset,
+} from '../../../../config/index.js';
 
-import { BaseResolver } from '../../../../resolve';
+import { BaseResolver } from '../../../../resolve.js';
 
 const plugins = resolvePlugins([defaultPlugin]);
 const pressets = resolvePreset('all', plugins);

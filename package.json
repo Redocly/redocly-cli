@@ -1,11 +1,12 @@
 {
   "name": "@redocly/cli",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "private": true,
   "engines": {
-    "node": ">=15.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18",
+    "npm": ">=10"
   },
   "engineStrict": true,
   "scripts": {
@@ -17,6 +18,7 @@
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "npm run webpack-bundle -- --mode=none && REDOCLY_TELEMETRY=off jest --roots=./__tests__/",
+    "e2e2": "node --experimental-vm-modules node_modules/jest/bin/jest.js --roots=./__tests__/",
     "prettier": "      npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
     "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
     "eslint": "eslint packages/**",
@@ -25,6 +27,7 @@
     "compile": "tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
+    "cli2": "ts-node packages/cli/lib/index.js",
     "lint": "npm run cli lint resources/pets.yaml -- --format stylish",
     "bundle": "npm run cli bundle resources/pets.yaml",
     "stats": "npm run cli stats resources/pets.yaml",

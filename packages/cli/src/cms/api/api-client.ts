@@ -1,7 +1,7 @@
-import fetch from 'node-fetch';
-import * as FormData from 'form-data';
+import _fetch from 'node-fetch';
+import FormData from 'form-data';
 import { getProxyAgent } from '@redocly/openapi-core';
-import fetchWithTimeout from '../../utils/fetch-with-timeout';
+import fetchWithTimeout from '../../utils/fetch-with-timeout.js';
 
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
@@ -10,7 +10,9 @@ import type {
   ProjectSourceResponse,
   PushResponse,
   UpsertRemoteResponse,
-} from './types';
+} from './types.js';
+
+const fetch = _fetch.default;
 
 class RemotesApiClient {
   constructor(private readonly domain: string, private readonly apiKey: string) {}

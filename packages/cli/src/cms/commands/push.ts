@@ -7,12 +7,12 @@ import {
   HandledError,
   pluralize,
   printExecutionTime,
-} from '../../utils/miscellaneous';
-import { handlePushStatus } from './push-status';
-import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
+} from '../../utils/miscellaneous.js';
+import { handlePushStatus } from './push-status.js';
+import { ReuniteApiClient, getDomain, getApiKeys } from '../api/index.js';
 
 import type { OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgs } from '../../wrapper';
+import type { CommandArgs } from '../../wrapper.js';
 
 export type PushOptions = {
   apis?: string[];

@@ -1,11 +1,13 @@
 // For internal usage only
 
-import Ajv from '@redocly/ajv/dist/2020';
-import { isPlainObject } from '../utils';
+import _Ajv from '@redocly/ajv/dist/2020.js';
+import { isPlainObject } from '../utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType, PropType, ResolveTypeFn } from '.';
-import type { Oas3Schema } from '../typings/openapi';
+import type { NodeType, PropType, ResolveTypeFn } from './index.js';
+import type { Oas3Schema } from '../typings/openapi.js';
+
+const Ajv = _Ajv.default;
 
 const ajv = new Ajv({
   strictSchema: false,

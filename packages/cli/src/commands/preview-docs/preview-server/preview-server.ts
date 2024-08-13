@@ -1,10 +1,10 @@
-import { compile } from 'handlebars';
+import handlebars from 'handlebars';
 import * as colorette from 'colorette';
 import { getPort } from 'get-port-please';
 import { readFileSync, promises as fsPromises } from 'fs';
 import * as path from 'path';
-import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server';
-import { isSubdir } from '../../../utils/miscellaneous';
+import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server.js';
+import { isSubdir } from '../../../utils/miscellaneous.js';
 
 import type { IncomingMessage } from 'http';
 
@@ -22,7 +22,7 @@ function getPageHTML(
     .replace(/{?{{redocHead}}}?/, '{{{redocHead}}}')
     .replace('{{redocBody}}', '{{{redocHTML}}}');
 
-  const template = compile(templateSrc);
+  const template = handlebars.compile(templateSrc);
 
   return template({
     redocHead: `

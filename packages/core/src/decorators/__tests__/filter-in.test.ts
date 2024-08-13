@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle';
-import { BaseResolver } from '../../resolve';
-import { makeConfig, parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
+import { bundleDocument } from '../../bundle.js';
+import { BaseResolver } from '../../resolve.js';
+import { makeConfig, parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 
 describe('oas3 filter-in', () => {
   expect.addSnapshotSerializer(yamlSerializer);

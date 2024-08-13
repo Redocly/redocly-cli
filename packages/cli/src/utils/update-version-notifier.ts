@@ -2,11 +2,15 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { existsSync, writeFileSync, readFileSync, statSync } from 'fs';
 import { compare } from 'semver';
-import fetch from './fetch-with-timeout';
+import fetch from './fetch-with-timeout.js';
 import { cyan, green, yellow } from 'colorette';
-import { cleanColors } from './miscellaneous';
+import { cleanColors } from './miscellaneous.js';
 
-export const { version, name } = require('../../package.json');
+const __dirname = import.meta.dirname;
+
+const pkg = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf-8'));
+export const version = pkg?.version;
+export const name = pkg?.name;
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;

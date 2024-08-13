@@ -1,9 +1,9 @@
-import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous';
+import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous.js';
 import * as process from 'process';
-import { commandWrapper } from '../wrapper';
-import { handleLint } from '../commands/lint';
+import { commandWrapper } from '../wrapper.js';
+import { handleLint } from '../commands/lint.js';
 import { Arguments } from 'yargs';
-import { handlePush, PushOptions } from '../commands/push';
+import { handlePush, PushOptions } from '../commands/push.js';
 import { detectSpec } from '@redocly/openapi-core';
 
 jest.mock('node-fetch');

@@ -5,8 +5,8 @@ import {
   getMatchingStatusCodeRange,
   doesYamlFileExist,
   pickDefined,
-} from '../utils';
-import { isBrowser } from '../env';
+} from '../utils.js';
+import { isBrowser } from '../env.js';
 import * as fs from 'fs';
 import * as path from 'path';
 

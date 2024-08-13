@@ -2,10 +2,13 @@ import * as semver from 'semver';
 import * as path from 'path';
 import * as process from 'process';
 import { yellow } from 'colorette';
+import fs from 'fs';
+
+const __dirname = import.meta.dirname;
 
 try {
-  const { engines } = require(path.join(__dirname, '../package.json'));
-  const version = engines.node;
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
+  const version = pkg.engines.node;
 
   if (!semver.satisfies(process.version, version)) {
     process.stderr.write(

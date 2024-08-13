@@ -1,7 +1,7 @@
-import { isTruthy } from './utils';
+import { isTruthy } from './utils.js';
 
-import type { Source } from './resolve';
-import type { OasRef } from './typings/openapi';
+import type { Source } from './resolve.js';
+import type { OasRef } from './typings/openapi.js';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';

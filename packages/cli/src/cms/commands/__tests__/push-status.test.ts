@@ -1,5 +1,5 @@
-import { handlePushStatus } from '../push-status';
-import { PushResponse } from '../../api/types';
+import { handlePushStatus } from '../push-status.js';
+import { PushResponse } from '../../api/types.js';
 
 const remotes = {
   getPush: jest.fn(),

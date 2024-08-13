@@ -1,5 +1,5 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const PathDeclarationMustExist: Oas3Rule | Oas2Rule = () => {
   return {

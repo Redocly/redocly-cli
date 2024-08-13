@@ -12,10 +12,10 @@ import {
   saveBundle,
   sortTopLevelKeysForOas,
   checkForDeprecatedOptions,
-} from '../utils/miscellaneous';
+} from '../utils/miscellaneous.js';
 
-import type { OutputExtensions, Skips, Totals } from '../types';
-import type { CommandArgs } from '../wrapper';
+import type { OutputExtensions, Skips, Totals } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type BundleOptions = {
   apis?: string[];

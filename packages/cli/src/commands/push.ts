@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch from 'node-fetch';
+import _fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -19,12 +19,14 @@ import {
   getFallbackApisOrExit,
   dumpBundle,
   pluralize,
-} from '../utils/miscellaneous';
-import { promptClientToken } from './login';
-import { handlePush as handleCMSPush } from '../cms/commands/push';
+} from '../utils/miscellaneous.js';
+import { promptClientToken } from './login.js';
+import { handlePush as handleCMSPush } from '../cms/commands/push.js';
 
 import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
-import type { CommandArgs } from '../wrapper';
+import type { CommandArgs } from '../wrapper.js';
+
+const fetch = _fetch.default;
 
 const DEFAULT_VERSION = 'latest';
 

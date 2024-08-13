@@ -1,6 +1,6 @@
 import * as colorette from 'colorette';
-import { isBrowser } from './env';
-import { identity } from './utils';
+import { isBrowser } from './env.js';
+import { identity } from './utils.js';
 
 export { options as colorOptions } from 'colorette';
 

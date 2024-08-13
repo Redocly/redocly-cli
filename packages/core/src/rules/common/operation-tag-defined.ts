@@ -1,7 +1,7 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import type { Oas2Definition, Oas2Operation } from '../../typings/swagger';
-import type { Oas3Definition, Oas3Operation } from '../../typings/openapi';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { Oas2Definition, Oas2Operation } from '../../typings/swagger.js';
+import type { Oas3Definition, Oas3Operation } from '../../typings/openapi.js';
+import type { UserContext } from '../../walk.js';
 
 export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
   let definedTags: Set<string>;

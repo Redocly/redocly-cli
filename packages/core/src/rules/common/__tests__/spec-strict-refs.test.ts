@@ -1,7 +1,11 @@
-import { makeConfig, parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import {
+  makeConfig,
+  parseYamlToDocument,
+  replaceSourceWithRef,
+} from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 spec-strict-refs', () => {
   it('should report about invalid usage of $ref', async () => {

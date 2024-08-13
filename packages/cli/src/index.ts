@@ -1,40 +1,38 @@
 #!/usr/bin/env node
 
-import './utils/assert-node-version';
-import * as yargs from 'yargs';
+import './utils/assert-node-version.js';
+import makeYargs from 'yargs';
 import * as colors from 'colorette';
 import { RedoclyClient } from '@redocly/openapi-core';
-import { outputExtensions, regionChoices } from './types';
-import { previewDocs } from './commands/preview-docs';
-import { handleStats } from './commands/stats';
-import { handleSplit } from './commands/split';
-import { handleJoin } from './commands/join';
-import { handlePushStatus } from './cms/commands/push-status';
-import { handleLint } from './commands/lint';
-import { handleBundle } from './commands/bundle';
-import { handleLogin } from './commands/login';
-import { handlerBuildCommand } from './commands/build-docs';
+import { outputExtensions, regionChoices } from './types.js';
+import { previewDocs } from './commands/preview-docs/index.js';
+import { handleStats } from './commands/stats.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleJoin } from './commands/join.js';
+import { handlePushStatus } from './cms/commands/push-status.js';
+import { handleLint } from './commands/lint.js';
+import { handleBundle } from './commands/bundle.js';
+import { handleLogin } from './commands/login.js';
+import { handlerBuildCommand } from './commands/build-docs/index.js';
 import {
   cacheLatestVersion,
   notifyUpdateCliVersion,
   version,
-} from './utils/update-version-notifier';
-import { commandWrapper } from './wrapper';
-import { previewProject } from './commands/preview-project';
-import { PRODUCT_PLANS } from './commands/preview-project/constants';
-import { commonPushHandler } from './commands/push';
+} from './utils/update-version-notifier.js';
+import { commandWrapper } from './wrapper.js';
+import { previewProject } from './commands/preview-project/index.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { commonPushHandler } from './commands/push.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushStatusOptions } from './cms/commands/push-status';
-import type { PushArguments } from './types';
-
-if (!('replaceAll' in String.prototype)) {
-  require('core-js/actual/string/replace-all');
-}
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { PushStatusOptions } from './cms/commands/push-status.js';
+import type { PushArguments } from './types.js';
 
 cacheLatestVersion();
+
+const yargs = makeYargs(process.argv.slice(2));
 
 yargs
   .version('version', 'Show version number.', version)
@@ -761,7 +759,8 @@ yargs
         }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
-      commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
+      // FIXME: this fails. use local redoc?
+      // commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

@@ -1,9 +1,9 @@
-import outdent from 'outdent';
-import { parseYamlToDocument } from '../../__tests__/utils';
-import { parseRef, refBaseName } from '../ref-utils';
-import { lintDocument } from '../lint';
-import { StyleguideConfig } from '../config';
-import { BaseResolver } from '../resolve';
+import { outdent } from 'outdent';
+import { parseYamlToDocument } from '../../__tests__/utils.js';
+import { parseRef, refBaseName } from '../ref-utils.js';
+import { lintDocument } from '../lint.js';
+import { StyleguideConfig } from '../config/index.js';
+import { BaseResolver } from '../resolve.js';
 
 describe('ref-utils', () => {
   it(`should unescape refs with '/'`, () => {

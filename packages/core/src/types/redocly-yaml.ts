@@ -1,12 +1,12 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf } from '.';
-import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
-import { SpecVersion, getTypes } from '../oas-types';
+import { listOf } from './index.js';
+import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils.js';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { SpecVersion, getTypes } from '../oas-types.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from '.';
-import type { Config } from '../config';
+import type { NodeType } from './index.js';
+import type { Config } from '../config/index.js';
 
 const builtInCommonOASRules = [
   'spec',

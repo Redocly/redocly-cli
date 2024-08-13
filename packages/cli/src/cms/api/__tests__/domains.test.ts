@@ -1,4 +1,4 @@
-import { getDomain } from '../domains';
+import { getDomain } from '../domains.js';
 
 describe('getDomain()', () => {
   it('should return the domain from environment variable', () => {

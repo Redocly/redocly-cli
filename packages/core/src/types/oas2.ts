@@ -1,7 +1,7 @@
-import { listOf, mapOf } from '.';
+import { listOf, mapOf } from './index.js';
 
-import type { NodeType } from '.';
-import type { Oas2NodeType } from './redocly-yaml';
+import type { NodeType } from './index.js';
+import type { Oas2NodeType } from './redocly-yaml.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 

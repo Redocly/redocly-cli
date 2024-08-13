@@ -9,8 +9,8 @@ import {
   detectSpec,
   bundleDocument,
   isRef,
+  dequal,
 } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -18,10 +18,10 @@ import {
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { isObject, isString, keysOf } from '../utils/js-utils';
-import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
-import { crawl, startsWithComponents } from './split';
+} from '../utils/miscellaneous.js';
+import { isObject, isString, keysOf } from '../utils/js-utils.js';
+import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
+import { crawl, startsWithComponents } from './split/index.js';
 
 import type {
   Oas3Definition,
@@ -29,15 +29,13 @@ import type {
   Oas3Tag,
   Referenced,
   RuleSeverity,
-} from '@redocly/openapi-core';
-import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
-import type {
+  BundleResult,
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3_1Definition,
-} from '@redocly/openapi-core/lib/typings/openapi';
-import type { CommandArgs } from '../wrapper';
+} from '@redocly/openapi-core';
+import type { CommandArgs } from '../wrapper.js';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';

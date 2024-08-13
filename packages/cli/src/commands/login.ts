@@ -1,8 +1,8 @@
 import { blue, green, gray } from 'colorette';
 import { RedoclyClient } from '@redocly/openapi-core';
-import { promptUser } from '../utils/miscellaneous';
+import { promptUser } from '../utils/miscellaneous.js';
 
-import type { CommandArgs } from '../wrapper';
+import type { CommandArgs } from '../wrapper.js';
 import type { Region } from '@redocly/openapi-core';
 
 export function promptClientToken(domain: string) {

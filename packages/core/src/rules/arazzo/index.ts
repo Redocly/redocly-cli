@@ -1,8 +1,8 @@
-import { Spec } from '../common/spec';
-import { Assertions } from '../common/assertions';
+import { Spec } from '../common/spec.js';
+import { Assertions } from '../common/assertions/index.js';
 
-import type { ArazzoRule } from '../../visitors';
-import type { ArazzoRuleSet } from '../../oas-types';
+import type { ArazzoRule } from '../../visitors.js';
+import type { ArazzoRuleSet } from '../../oas-types.js';
 
 export const rules: ArazzoRuleSet<'built-in'> = {
   spec: Spec as ArazzoRule,

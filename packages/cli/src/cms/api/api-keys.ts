@@ -1,8 +1,7 @@
 import { resolve } from 'path';
 import { homedir } from 'os';
 import { existsSync, readFileSync } from 'fs';
-import { isNotEmptyObject } from '@redocly/openapi-core/lib/utils';
-import { TOKEN_FILENAME } from '@redocly/openapi-core/lib/redocly';
+import { isNotEmptyObject, TOKEN_FILENAME } from '@redocly/openapi-core';
 
 function readCredentialsFile(credentialsPath: string) {
   return existsSync(credentialsPath) ? JSON.parse(readFileSync(credentialsPath, 'utf-8')) : {};

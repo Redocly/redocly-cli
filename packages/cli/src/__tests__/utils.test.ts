@@ -14,7 +14,7 @@ import {
   cleanRawInput,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
+} from '../utils/miscellaneous.js';
 import {
   ResolvedApi,
   Totals,

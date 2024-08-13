@@ -1,5 +1,5 @@
-import type { Location } from '../ref-utils';
-import type { ProblemSeverity, UserContext } from '../walk';
+import type { Location } from '../ref-utils.js';
+import type { ProblemSeverity, UserContext } from '../walk.js';
 import type {
   Oas3PreprocessorsSet,
   SpecMajorVersion,
@@ -19,9 +19,9 @@ import type {
   ArazzoPreprocessorsSet,
   ArazzoDecoratorsSet,
   RuleMap,
-} from '../oas-types';
-import type { NodeType } from '../types';
-import type { SkipFunctionContext } from '../visitors';
+} from '../oas-types.js';
+import type { NodeType } from '../types/index.js';
+import type { SkipFunctionContext } from '../visitors.js';
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,
@@ -29,7 +29,7 @@ import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
   BuiltInArazzoRuleId,
-} from '../types/redocly-yaml';
+} from '../types/redocly-yaml.js';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 

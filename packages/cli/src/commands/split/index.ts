@@ -1,7 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils';
+import { parseYaml, slash, isRef, isTruthy, dequal } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 import {
@@ -13,14 +12,14 @@ import {
   langToExt,
   writeToFileByExtension,
   getAndValidateFileExtension,
-} from '../../utils/miscellaneous';
-import { isObject, isEmptyObject } from '../../utils/js-utils';
+} from '../../utils/miscellaneous.js';
+import { isObject, isEmptyObject } from '../../utils/js-utils.js';
 import {
   OPENAPI3_COMPONENT,
   COMPONENTS,
   OPENAPI3_METHOD_NAMES,
   OPENAPI3_COMPONENT_NAMES,
-} from './types';
+} from './types.js';
 
 import type { OasRef } from '@redocly/openapi-core';
 import type {
@@ -35,8 +34,8 @@ import type {
   RefObject,
   Oas3PathItem,
   Referenced,
-} from './types';
-import type { CommandArgs } from '../../wrapper';
+} from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 export type SplitOptions = {
   api: string;

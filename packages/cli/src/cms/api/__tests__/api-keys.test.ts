@@ -1,4 +1,4 @@
-import { getApiKeys } from '../api-keys';
+import { getApiKeys } from '../api-keys.js';
 import * as fs from 'fs';
 
 describe('getApiKeys()', () => {

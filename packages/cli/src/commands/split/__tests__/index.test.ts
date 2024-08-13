@@ -1,9 +1,9 @@
-import { iteratePathItems, handleSplit } from '../index';
+import { iteratePathItems, handleSplit } from '../index.js';
 import * as path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
-import { ComponentsFiles } from '../types';
+import { ComponentsFiles } from '../types.js';
 import { blue, green } from 'colorette';
-import { loadConfigAndHandleErrors } from '../../../utils/__mocks__/miscellaneous';
+import { loadConfigAndHandleErrors } from '../../../utils/__mocks__/miscellaneous.js';
 
 import type { Config } from '@redocly/openapi-core';
 

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { output } from '../output';
+import { output } from '../output.js';
 
 describe('output', () => {
   it('should ignore all parsable data in browser', () => {

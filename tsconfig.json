@@ -2,8 +2,10 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "module": "commonjs",
-    "target": "ES2020",
+    "module": "nodenext",
+    "target": "ES2023",
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -14,7 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "lib": ["es2020", "es2020.string", "dom"],
-    "baseUrl": "./packages",
+    "sourceMap": true,
     "skipLibCheck": true
   }
 }

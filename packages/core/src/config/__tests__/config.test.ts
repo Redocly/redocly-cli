@@ -1,13 +1,11 @@
-import { SpecVersion } from '../../oas-types';
-import { Config, StyleguideConfig } from '../config';
-import { getMergedConfig } from '../utils';
-import { doesYamlFileExist } from '../../utils';
-import { parseYaml } from '../../js-yaml';
+import { SpecVersion } from '../../oas-types.js';
+import { Config, StyleguideConfig } from '../config.js';
+import { getMergedConfig } from '../utils.js';
+import { doesYamlFileExist } from '../../utils.js';
+import { parseYaml } from '../../js-yaml/index.js';
 import { readFileSync } from 'fs';
-import { ignoredFileStub } from './fixtures/ingore-file';
+import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'path';
-import { NormalizedProblem } from '../../walk';
-import { Source } from '../../resolve';
 
 jest.mock('../../utils');
 jest.mock('../../js-yaml');

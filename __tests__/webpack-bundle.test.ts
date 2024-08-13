@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { getCommandOutput, getEntrypoints, callSerializer, getParams } from './helpers';
-//@ts-ignore
-import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
+import { getCommandOutput, getEntrypoints, callSerializer, getParams } from './helpers.js';
+// @ts-ignore
+import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot.cjs';
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {

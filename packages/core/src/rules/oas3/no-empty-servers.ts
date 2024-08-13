@@ -1,4 +1,4 @@
-import type { Oas3Rule } from '../../visitors';
+import type { Oas3Rule } from '../../visitors.js';
 
 export const NoEmptyServers: Oas3Rule = () => {
   return {

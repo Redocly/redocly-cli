@@ -1,19 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { RedoclyClient } from '../redocly';
-import { isEmptyObject } from '../utils';
-import { parseYaml } from '../js-yaml';
-import { ConfigValidationError, transformConfig, deepCloneMapWithJSON } from './utils';
-import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
-import { bundleConfig } from '../bundle';
-import { BaseResolver } from '../resolve';
-import { isBrowser } from '../env';
-import { DOMAINS } from '../redocly/domains';
+import { RedoclyClient } from '../redocly/index.js';
+import { isEmptyObject } from '../utils.js';
+import { parseYaml } from '../js-yaml/index.js';
+import { ConfigValidationError, transformConfig, deepCloneMapWithJSON } from './utils.js';
+import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers.js';
+import { bundleConfig } from '../bundle.js';
+import { BaseResolver } from '../resolve.js';
+import { isBrowser } from '../env.js';
+import { DOMAINS } from '../redocly/domains.js';
 
-import type { Config } from './config';
-import type { Document, ResolvedRefMap } from '../resolve';
-import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
-import type { RawConfig, RawUniversalConfig, Region } from './types';
+import type { Config } from './config.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
+import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types.js';
+import type { RawConfig, RawUniversalConfig, Region } from './types.js';
 
 async function addConfigMetadata({
   rawConfig,

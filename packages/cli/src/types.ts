@@ -1,17 +1,17 @@
 import type { BundleOutputFormat, Region, Config } from '@redocly/openapi-core';
 import type { ArgumentsCamelCase } from 'yargs';
-import type { LintOptions } from './commands/lint';
-import type { BundleOptions } from './commands/bundle';
-import type { JoinOptions } from './commands/join';
-import type { LoginOptions } from './commands/login';
-import type { PushOptions } from './commands/push';
-import type { StatsOptions } from './commands/stats';
-import type { SplitOptions } from './commands/split';
-import type { PreviewDocsOptions } from './commands/preview-docs';
-import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushOptions as CMSPushOptions } from './cms/commands/push';
-import type { PushStatusOptions } from './cms/commands/push-status';
-import type { PreviewProjectOptions } from './commands/preview-project/types';
+import type { LintOptions } from './commands/lint.js';
+import type { BundleOptions } from './commands/bundle.js';
+import type { JoinOptions } from './commands/join.js';
+import type { LoginOptions } from './commands/login.js';
+import type { PushOptions } from './commands/push.js';
+import type { StatsOptions } from './commands/stats.js';
+import type { SplitOptions } from './commands/split/index.js';
+import type { PreviewDocsOptions } from './commands/preview-docs/index.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { PushOptions as CMSPushOptions } from './cms/commands/push.js';
+import type { PushStatusOptions } from './cms/commands/push-status.js';
+import type { PreviewProjectOptions } from './commands/preview-project/types.js';
 
 export type Totals = {
   errors: number;

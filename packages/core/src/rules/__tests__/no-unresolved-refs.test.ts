@@ -1,8 +1,8 @@
-import path = require('path');
+import * as path from 'path';
 import { outdent } from 'outdent';
-import { lintDocument } from '../../lint';
-import { BaseResolver } from '../../resolve';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../__tests__/utils';
+import { lintDocument } from '../../lint.js';
+import { BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../__tests__/utils.js';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on unresolved $ref', async () => {
