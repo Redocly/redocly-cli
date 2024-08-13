@@ -131,7 +131,7 @@ export async function resolvePlugins(
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
-  const requireFunc = (plugin: string | Plugin): ImportedPlugin | undefined => {
+  const requireFunc = async (plugin: string | Plugin): Promise<ImportedPlugin | undefined> => {
     if (isBrowser && isString(plugin)) {
       logger.error(`Cannot load ${plugin}. Plugins aren't supported in browser yet.`);
 
@@ -153,11 +153,15 @@ export async function resolvePlugins(
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        return typeof __webpack_require__ === 'function'
-          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            __non_webpack_require__(absolutePluginPath)
-          : require(absolutePluginPath);
+        if (typeof __webpack_require__ === 'function') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return __non_webpack_require__(absolutePluginPath);
+        } else {
+          // you can import both cjs and mjs
+          const mod = await import(absolutePluginPath);
+          return mod.default || mod; // interop
+        }
       } catch (e) {
         if (e instanceof SyntaxError) {
           throw e;
@@ -186,8 +190,8 @@ export async function resolvePlugins(
     }
   }
 
-  return filteredPlugins
-    .map((p) => {
+  const instances = await Promise.all(
+    filteredPlugins.map(async (p) => {
       if (isString(p) && KNOWN_IGNORED_PLUGINS.includes(p)) {
         return;
       }
@@ -196,7 +200,7 @@ export async function resolvePlugins(
         throw new Error(colorize.red(`We don't support remote plugins yet.`));
       }
 
-      const requiredPlugin: ImportedPlugin | undefined = requireFunc(p);
+      const requiredPlugin: ImportedPlugin | undefined = await requireFunc(p);
 
       const pluginCreatorOptions = { contentDir: path.dirname(configPath) };
 
@@ -325,7 +329,9 @@ export async function resolvePlugins(
 
       return plugin;
     })
-    .filter(isDefined);
+  );
+
+  return instances.filter(isDefined);
 }
 
 export async function resolveApis({
