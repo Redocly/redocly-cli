@@ -46,6 +46,9 @@ const KNOWN_IGNORED_PLUGINS = [
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs'];
 
+// Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
+const _importDynamic = new Function('modulePath', 'return import(modulePath)');
+
 export async function resolveConfigFileAndRefs({
   configPath,
   externalRefResolver = new BaseResolver(),
@@ -159,7 +162,7 @@ export async function resolvePlugins(
           return __non_webpack_require__(absolutePluginPath);
         } else {
           // you can import both cjs and mjs
-          const mod = await import(absolutePluginPath);
+          const mod = await _importDynamic(absolutePluginPath);
           return mod.default || mod; // interop
         }
       } catch (e) {
