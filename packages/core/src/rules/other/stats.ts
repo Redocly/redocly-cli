@@ -35,9 +35,11 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
     WebhooksMap: {
       Operation: {
         leave(operation: any) {
-          operation.tags.forEach((tag: string) => {
-            statsAccumulator.tags.items!.add(tag);
-          });
+          statsAccumulator.webhooks.total++;
+          operation.tags &&
+            operation.tags.forEach((tag: string) => {
+              statsAccumulator.tags.items!.add(tag);
+            });
         },
       },
     },

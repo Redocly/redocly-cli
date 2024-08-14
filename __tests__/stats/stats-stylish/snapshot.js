@@ -10,6 +10,7 @@ Document: museum.yaml stats:
 👉 Parameters: 6 
 🔗 Links: 0 
 🔀 Path Items: 5 
+🎣 Webhooks: 0 
 👷 Operations: 8 
 🔖 Tags: 3 
 
