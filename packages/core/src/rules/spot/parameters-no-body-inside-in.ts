@@ -3,7 +3,7 @@ import type { UserContext } from '../../walk';
 
 export const ParametersNoBodyInsideIn: ArazzoRule = () => {
   return {
-    ParameterObject: {
+    Parameter: {
       enter(parameter, { report, location }: UserContext) {
         if (parameter.in === 'body') {
           report({

@@ -251,9 +251,9 @@ type ArazzoFlatVisitor = {
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
   Step?: VisitFunctionOrObject<Step>;
-  Steps?: VisitFunctionOrObject<Record<string, Step>>;
+  Steps?: VisitFunctionOrObject<Step[]>;
   Workflow?: VisitFunctionOrObject<Workflow>;
-  Workflows?: VisitFunctionOrObject<Record<string, Workflow>>;
+  Workflows?: VisitFunctionOrObject<Workflow[]>;
 };
 
 const legacyTypesMap = {

@@ -14,21 +14,24 @@ const Root: NodeType = {
   required: ['arazzo', 'info', 'sourceDescriptions', 'workflows'],
   extensionsPrefix: 'x-',
 };
+const NamedParameters: NodeType = {
+  properties: {},
+  additionalProperties: 'Parameter',
+};
+const NamedSuccessActions: NodeType = {
+  properties: {},
+  additionalProperties: 'SuccessActionObject',
+};
+const NamedFailureActions: NodeType = {
+  properties: {},
+  additionalProperties: 'FailureActionObject',
+};
 const Components: NodeType = {
   properties: {
     inputs: 'NamedInputs',
-    parameters: {
-      type: 'object',
-      additionalProperties: 'ParameterObject',
-    },
-    successActions: {
-      type: 'object',
-      additionalProperties: 'SuccessActionObject',
-    },
-    failureActions: {
-      type: 'object',
-      additionalProperties: 'FailureActionObject',
-    },
+    parameters: 'NamedParameters',
+    successActions: 'NamedSuccessActions',
+    failureActions: 'NamedFailureActions',
   },
   extensionsPrefix: 'x-',
 };
@@ -93,7 +96,7 @@ const ReusableObject: NodeType = {
   required: ['reference'],
   extensionsPrefix: 'x-',
 };
-const ParameterObject: NodeType = {
+const Parameter: NodeType = {
   properties: {
     in: { type: 'string', enum: ['header', 'query', 'path', 'cookie', 'body'] },
     name: { type: 'string' },
@@ -106,7 +109,7 @@ const Parameters: NodeType = {
   properties: {},
   items: (value: any) => {
     if (value?.in) {
-      return 'ParameterObject';
+      return 'Parameter';
     } else {
       return 'ReusableObject';
     }
@@ -172,7 +175,7 @@ const Replacement: NodeType = {
     target: { type: 'string' },
     value: {},
   },
-  required: ['target', 'replacement'],
+  required: ['target', 'value'],
   extensionsPrefix: 'x-',
 };
 const ExtendedOperation: NodeType = {
@@ -276,7 +279,7 @@ export const ArazzoTypes: Record<string, NodeType> = {
   NoneSourceDescription,
   ArazzoSourceDescription,
   Parameters,
-  ParameterObject,
+  Parameter,
   ReusableObject,
   Workflows,
   Workflow,
@@ -304,5 +307,8 @@ export const ArazzoTypes: Record<string, NodeType> = {
   PatternProperties: SchemaProperties,
   Components,
   NamedInputs,
+  NamedParameters,
+  NamedSuccessActions,
+  NamedFailureActions,
   Xml,
 };
