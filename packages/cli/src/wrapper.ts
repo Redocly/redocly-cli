@@ -62,6 +62,7 @@ export function commandWrapper<T extends CommandOptions>(
       }
       code = 0;
     } catch (err) {
+      console.log(err);
       // Do nothing
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {

@@ -29,6 +29,7 @@ const statsAccumulator: StatsAccumulator = {
   parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
   links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
   pathItems: { metric: '🔀 Path Items', total: 0, color: 'green' },
+  webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
 };
