@@ -14,7 +14,6 @@ const rebillyDocument = parseYamlToDocument(
   rebillyDefinitionRef
 );
 
-
 let config: StyleguideConfig;
 export async function setupAsync() {
   config = await makeConfigForRuleset({});
