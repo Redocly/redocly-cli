@@ -148,7 +148,7 @@ type PluginCreatorOptions = {
   contentDir: string;
 };
 
-export type PluginCreator = (options: PluginCreatorOptions) => Plugin;
+export type PluginCreator = (options: PluginCreatorOptions) => Plugin | Promise<Plugin>;
 
 export type ImportedPlugin =
   // ES Modules

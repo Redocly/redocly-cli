@@ -91,6 +91,88 @@ describe('resolveStyleguideConfig', () => {
     });
   });
 
+  it('should resolve local file config with esm plugin', async () => {
+    const config = {
+      ...baseStyleguideConfig,
+      extends: ['local-config-with-esm.yaml'],
+    };
+
+    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+      styleguideConfig: config,
+      configPath,
+    });
+
+    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(plugins).toBeDefined();
+    expect(plugins?.length).toBe(2);
+
+    const localPlugin = plugins?.find((p) => p.id === 'test-plugin');
+    expect(localPlugin).toBeDefined();
+
+    expect(localPlugin).toMatchObject({
+      id: 'test-plugin',
+      rules: {
+        oas3: {
+          'test-plugin/operation-3xx-response': 'warn',
+        },
+      },
+    });
+
+    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/redocly.yaml',
+      'resolve-config/local-config-with-esm.yaml',
+      'resolve-config/redocly.yaml',
+    ]);
+    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin-esm.mjs',
+    ]);
+
+    expect(styleguide.rules).toEqual({
+      'operation-2xx-response': 'warn',
+    });
+  });
+
+  it('should resolve local file config with commonjs plugin with a default export function', async () => {
+    const config = {
+      ...baseStyleguideConfig,
+      extends: ['local-config-with-commonjs-export-function.yaml'],
+    };
+
+    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+      styleguideConfig: config,
+      configPath,
+    });
+
+    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(plugins).toBeDefined();
+    expect(plugins?.length).toBe(2);
+
+    const localPlugin = plugins?.find((p) => p.id === 'test-plugin');
+    expect(localPlugin).toBeDefined();
+
+    expect(localPlugin).toMatchObject({
+      id: 'test-plugin',
+      rules: {
+        oas3: {
+          'test-plugin/operation-3xx-response': 'warn',
+        },
+      },
+    });
+
+    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/redocly.yaml',
+      'resolve-config/local-config-with-commonjs-export-function.yaml',
+      'resolve-config/redocly.yaml',
+    ]);
+    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin-with-export-function.cjs',
+    ]);
+
+    expect(styleguide.rules).toEqual({
+      'operation-2xx-response': 'warn',
+    });
+  });
+
   // TODO: fix circular test
   it.skip('should throw circular error', () => {
     const config = {
