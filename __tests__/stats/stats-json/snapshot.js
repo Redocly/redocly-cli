@@ -26,6 +26,10 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
     "metric": "🔀 Path Items",
     "total": 5
   },
+  "webhooks": {
+    "metric": "🎣 Webhooks",
+    "total": 0
+  },
   "operations": {
     "metric": "👷 Operations",
     "total": 8
