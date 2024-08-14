@@ -37,14 +37,7 @@ import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
 import type { BundleOptions } from '../bundle';
 import type { Document, ResolvedRefMap } from '../resolve';
 
-// Known plugins that should be ignored because then do not expose anything relevant and use ESM
-const KNOWN_IGNORED_PLUGINS = [
-  '@redocly/portal-plugin-async-api/plugin.js',
-  '@redocly/portal-plugin-mock-server/plugin.js',
-  '@redocly/theme-experimental/plugin.js',
-];
-
-const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs'];
+const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
 // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
 const _importDynamic = new Function('modulePath', 'return import(modulePath)');
@@ -162,8 +155,7 @@ export async function resolvePlugins(
           return __non_webpack_require__(absolutePluginPath);
         } else {
           // you can import both cjs and mjs
-          const mod = await _importDynamic(absolutePluginPath);
-          return mod.default || mod; // interop
+          return _importDynamic(absolutePluginPath);
         }
       } catch (e) {
         if (e instanceof SyntaxError) {
@@ -178,29 +170,27 @@ export async function resolvePlugins(
 
   const seenPluginIds = new Map<string, string>();
 
-  const filteredPlugins = plugins.filter((p) => !isString(p) || !KNOWN_IGNORED_PLUGINS.includes(p));
-  const defaultPluginIsIncluded = filteredPlugins.some(
-    (p) => isString(p) && DEFAULT_PROJECT_PLUGIN_PATHS.includes(path.normalize(p))
-  );
-
   /**
    * Include the default plugin automatically if it's not in configuration
    */
-  if (!defaultPluginIsIncluded) {
-    const defaultPluginPath = getDefaultPluginPath(configPath);
-    if (defaultPluginPath) {
-      filteredPlugins.push(defaultPluginPath);
-    }
+  const defaultPluginPath = getDefaultPluginPath(configPath);
+  if (defaultPluginPath) {
+    plugins.push(defaultPluginPath);
   }
 
-  const instances = await Promise.all(
-    filteredPlugins.map(async (p) => {
-      if (isString(p) && KNOWN_IGNORED_PLUGINS.includes(p)) {
-        return;
-      }
+  const resolvedPlugins: Set<string> = new Set();
 
-      if (isString(p) && isAbsoluteUrl(p)) {
-        throw new Error(colorize.red(`We don't support remote plugins yet.`));
+  const instances = await Promise.all(
+    plugins.map(async (p) => {
+      if (isString(p)) {
+        if (isAbsoluteUrl(p)) {
+          throw new Error(colorize.red(`We don't support remote plugins yet.`));
+        }
+        if (resolvedPlugins.has(p)) {
+          return;
+        }
+
+        resolvedPlugins.add(p);
       }
 
       const requiredPlugin: ImportedPlugin | undefined = await requireFunc(p);
@@ -210,11 +200,15 @@ export async function resolvePlugins(
       const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
         ? requiredPlugin
         : isCommonJsPlugin(requiredPlugin)
-        ? requiredPlugin(pluginCreatorOptions)
-        : requiredPlugin?.default?.(pluginCreatorOptions);
+        ? await requiredPlugin(pluginCreatorOptions)
+        : await requiredPlugin?.default?.(pluginCreatorOptions);
 
       if (!pluginModule) {
         return;
+      }
+
+      if (pluginModule.id && isDeprecatedPluginFormat(requiredPlugin)) {
+        logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
       }
 
       const id = pluginModule.id;

@@ -5,10 +5,19 @@ import { StyleguideConfig, defaultPlugin, resolvePlugins, resolvePreset } from '
 
 import { BaseResolver } from '../../../../resolve';
 
-const plugins = resolvePlugins([defaultPlugin]);
-const pressets = resolvePreset('all', plugins);
-const allConfig = new StyleguideConfig({ ...pressets, plugins });
+import type { Plugin, ResolvedStyleguideConfig } from '../../../../config';
+
 describe('Oas3 Structural visitor basic', () => {
+  let plugins: Plugin[];
+  let presets: ResolvedStyleguideConfig;
+  let allConfig: StyleguideConfig;
+
+  beforeAll(async () => {
+    plugins = await resolvePlugins([defaultPlugin]);
+    presets = resolvePreset('all', plugins);
+    allConfig = new StyleguideConfig({ ...presets, plugins });
+  });
+
   it('should report wrong types', async () => {
     const document = parseYamlToDocument(
       outdent`
