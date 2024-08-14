@@ -155,7 +155,8 @@ export async function resolvePlugins(
           return __non_webpack_require__(absolutePluginPath);
         } else {
           // you can import both cjs and mjs
-          return _importDynamic(absolutePluginPath);
+          const mod = await _importDynamic(absolutePluginPath);
+          return mod.default || mod;
         }
       } catch (e) {
         if (e instanceof SyntaxError) {
@@ -207,7 +208,7 @@ export async function resolvePlugins(
         return;
       }
 
-      if (pluginModule.id && isDeprecatedPluginFormat(requiredPlugin)) {
+      if (isString(p) && pluginModule.id && isDeprecatedPluginFormat(requiredPlugin)) {
         logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
       }
 
