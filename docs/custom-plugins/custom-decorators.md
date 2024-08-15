@@ -16,23 +16,26 @@ Decorators and preprocessors are the same in structure, but preprocessors are ru
 To create a preprocessor or decorator, the object that is exported from your module has to conform to an interface such as the following example:
 
 ```js
-module.exports = {
-  id: 'my-local-plugin',
-  preprocessors: {
-    oas3: {
-      "processor-id": () => {
-        // ...
-      }
-    }
-  },
-  decorators: {
-    oas3: {
-      "decorator-id": () => {
-        // ...
-      }
-    }
-  }
-}
+module.exports = function myLocalPlugin() {
+  return {
+    id: 'my-local-plugin',
+    preprocessors: {
+      oas3: {
+        'processor-id': () => {
+          // ...
+        },
+      },
+    },
+    decorators: {
+      oas3: {
+        'decorator-id': () => {
+          // ...
+        },
+      },
+    },
+  };
+};
+
 ```
 
 Each decorator or preprocessor is a function that returns an object. The object's keys are the node types in the document, and each of those can contain any or all of the `enter()`, `leave()` and `skip()` functions for that node type. Find more information and examples on the [visitor pattern page](./visitor.md).
@@ -44,20 +47,18 @@ To give a small (but fun) example, here is a decorator that adds a sparkle emoji
 To help keep the plugin code organized, this example uses one file per decorator. In this example, this is the file `plugins/decorators/operation-sparkle.js`:
 
 ```js
-module.exports = OperationSparkle;
-
-function OperationSparkle() {
+export function OperationSparkle() {
   console.log("adding sparkles ... ");
   return {
     Operation: {
       leave(target) {
-        if(target.description) {
+        if (target.description) {
           target.description = "✨ " + String(target.description);
         }
-      }
+      },
     },
-  }
-};
+  };
+}
 ```
 
 Decorators use the [visitor pattern](./visitor.md) to run an operation on every node in the document. In this example, when the code executes the `leave()` function on the `Operation` node, it checks if the node (passed as `target` in this example) has a description, and updates it if it does.
@@ -65,16 +66,18 @@ Decorators use the [visitor pattern](./visitor.md) to run an operation on every 
 To use this decorator, add it to a plugin. In this example the main decorator file is `plugins/sparkle.js`:
 
 ```js
-const OperationSparkle = require('./decorators/operation-sparkle.js');
+import { OperationSparkle } from './decorators/operation-sparkle.js';
 
-module.exports = {
-  id: 'sparkle',
-  decorators: {
-    oas3: {
-      'operation-sparkle': OperationSparkle,
-    }
-  }
-};
+export default function sparklePlugin() {
+  return {
+    id: "sparkle",
+    decorators: {
+      oas3: {
+        "operation-sparkle": OperationSparkle,
+      },
+    },
+  };
+}
 ```
 
 The plugin is good to go. For a user to include it in their Redocly configuration, edit the configuration file to look something like this:
@@ -94,9 +97,7 @@ A common use case is a decorator that can accept input values to be used during 
 Here's the decorator code, in a file named `plugins/decorations/add-suffix.js` and it expects a configuration option named `suffix`:
 
 ```js
-module.exports = OpIdSuffix;
-
-function OpIdSuffix({suffix}) {
+export function OpIdSuffix({suffix}) {
   console.log("updating OperationIds ... ");
   return {
     Operation: {
@@ -115,18 +116,20 @@ The `suffix` configuration option is automatically passed in, and it can be used
 Now extend the decorator from the previous example to add this to the existing plugin in `plugins/sparkle.js`:
 
 ```js
-const OperationSparkle = require('./decorators/operation-sparkle.js');
-const OpIdSuffix = require('./decorators/add-suffix.js');
+import { OperationSparkle } from './decorators/operation-sparkle.js';
+import { OpIdSuffix } from './decorators/add-suffix.js';
 
-module.exports = {
-  id: 'sparkle',
-  decorators: {
-    oas3: {
-      'operation-sparkle': OperationSparkle,
-      'add-opid-suffix': OpIdSuffix,
-    }
-  }
-};
+export default function sparklePlugin() {
+  return {
+    id: "sparkle",
+    decorators: {
+      oas3: {
+        "operation-sparkle": OperationSparkle,
+        "add-opid-suffix": OpIdSuffix,
+      },
+    },
+  };
+}
 ```
 
 All that remains is for a user to configure this decorator in their `redocly.yaml` configuration file to take advantage of the new decorator functionality. Here's an example of the configuration file:

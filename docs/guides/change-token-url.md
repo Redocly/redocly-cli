@@ -34,9 +34,11 @@ Estimated time: 15 minutes
      },
    };
 
-   module.exports = {
-     id,
-     decorators,
+   module.exports = function changeTokenPlugin() {
+     return {
+       id,
+       decorators,
+     };
    };
    ```
 

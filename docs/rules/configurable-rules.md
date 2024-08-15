@@ -242,34 +242,36 @@ rule/operation-summary-check:
 `plugin.js`
 
 ```js
-module.exports = {
-  id: 'local',
-  assertions: {
-    checkWordsStarts: (value, options, ctx) => {
-      const regexp = new RegExp(`^${options.words.join('|')}`);
-      if (regexp.test(value)) {
-        return [];
-      }
-      return [
-        {
-          message: 'Operation summary should start with an active verb',
-          location: ctx.baseLocation,
-        },
-      ];
+module.exports = function localPlugin() {
+  return {
+    id: 'local',
+    assertions: {
+      checkWordsStarts: (value, options, ctx) => {
+        const regexp = new RegExp(`^${options.words.join('|')}`);
+        if (regexp.test(value)) {
+          return [];
+        }
+        return [
+          {
+            message: 'Operation summary should start with an active verb',
+            location: ctx.baseLocation,
+          },
+        ];
+      },
+      checkWordsCount: (value, options, ctx) => {
+        const words = value.split(' ');
+        if (words.length >= options.min) {
+          return [];
+        }
+        return [
+          {
+            message: `Operation summary should contain at least ${options.min} words`,
+            location: ctx.baseLocation,
+          },
+        ];
+      },
     },
-    checkWordsCount: (value, options, ctx) => {
-      const words = value.split(' ');
-      if (words.length >= options.min) {
-        return [];
-      }
-      return [
-        {
-          message: `Operation summary should contain at least ${options.min} words`,
-          location: ctx.baseLocation,
-        },
-      ];
-    },
-  },
+  };
 };
 ```
 

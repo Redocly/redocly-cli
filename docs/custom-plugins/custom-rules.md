@@ -40,13 +40,15 @@ Adding this as part of a plugin requires you to add it to the `rules` part of th
 ```js
 const OperationIdNotTest = require('./rules/opid-not-test.js');
 
-module.exports = {
-  id: 'my-rules',
-  rules: {
-    oas3: {
-      'opid-not-test': OperationIdNotTest,
-    }
-  },
+module.exports = function myRulesPlugin() {
+  return {
+    id: 'my-rules',
+    rules: {
+      oas3: {
+        'opid-not-test': OperationIdNotTest,
+      },
+    },
+  };
 };
 ```
 
