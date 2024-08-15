@@ -525,7 +525,7 @@ describe('E2E', () => {
     });
 
     it('discriminator mapping should be replaced with correct references to components', () => {
-      const folderPath = join(__dirname, `bundle/dereferenced-discriminator-mapping`);
+      const folderPath = join(__dirname, `bundle/discriminator-mapping`);
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'main.yaml',
         '--dereferenced',

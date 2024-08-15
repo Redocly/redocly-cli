@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E bundle dereferenced-discriminator-mapping 1`] = `
+exports[`E2E bundle discriminator-mapping 1`] = `
 openapi: 3.1.0
 info: {}
 paths:
