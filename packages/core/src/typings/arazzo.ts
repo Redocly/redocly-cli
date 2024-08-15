@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 export interface InfoObject {
   title: string;
   description?: string;
