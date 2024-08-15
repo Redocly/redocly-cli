@@ -523,6 +523,17 @@ describe('E2E', () => {
       const result = getCommandOutput(args, folderPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
+
+    it('discriminator mapping should be replaced with correct references to components', () => {
+      const folderPath = join(__dirname, `bundle/dereferenced-discriminator-mapping`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'main.yaml',
+        '--dereferenced',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('bundle with long description', () => {
