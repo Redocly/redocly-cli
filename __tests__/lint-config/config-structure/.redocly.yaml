@@ -114,7 +114,7 @@ developerOnboarding:
         # serviceAccountPrivateKey: Must be reported as a missing required prop
         serviceAccountEmail: 789 # Must be a string
 
-i18n:
+l10n:
   defaultLocale: en-US
   locales:
     - code: 123 # Must be a string

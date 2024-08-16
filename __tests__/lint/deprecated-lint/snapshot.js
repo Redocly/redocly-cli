@@ -7,7 +7,9 @@ The 'lint' field is deprecated. Read more about this change: https://redocly.com
 
 Property \`lint\` is not expected here.
 
-Did you mean: env ?
+Did you mean:
+  - l10n
+  - env
 
  6 |         operation-4xx-response: error
  7 |
