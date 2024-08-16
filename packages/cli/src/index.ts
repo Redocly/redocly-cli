@@ -21,6 +21,7 @@ import {
 } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { previewProject } from './commands/preview-project';
+import { translateProject } from './commands/translations';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
 
@@ -227,6 +228,11 @@ yargs
             description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
         }),
     (argv) => {
@@ -652,6 +658,11 @@ yargs
           description: 'Project directory.',
           default: '.',
         },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
       }),
     (argv) => {
       commandWrapper(previewProject)(argv);
@@ -762,6 +773,34 @@ yargs
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
+    }
+  )
+  .command(
+    'translations',
+    'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
+    (yargs) =>
+      yargs.options({
+        contentDir: {
+          alias: 'd',
+          type: 'string',
+          description: 'Project content directory.',
+          default: '.',
+        },
+        locale: {
+          alias: 'l',
+          type: 'string',
+          array: true,
+          description: 'Locale or a list of locales to generate translations for.',
+          required: true,
+        },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
+      }),
+    (argv) => {
+      commandWrapper(translateProject)(argv);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

@@ -25,6 +25,7 @@ import { handlePush as handleCMSPush } from '../cms/commands/push';
 
 import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper';
+import type { VerifyConfigOptions } from '../types';
 
 const DEFAULT_VERSION = 'latest';
 
@@ -44,8 +45,7 @@ export type PushOptions = {
   public?: boolean;
   files?: string[];
   organization?: string;
-  config?: string;
-};
+} & VerifyConfigOptions;
 
 export function commonPushHandler({
   project,

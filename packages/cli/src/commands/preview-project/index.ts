@@ -13,14 +13,14 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
-    process.stderr.write(`Invalid product ${product}`);
-    throw new Error(`Project preview launch failed`);
+    process.stderr.write(`Invalid product ${product}.`);
+    throw new Error(`Project preview launch failed.`);
   }
 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX\n\n`);
+  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
 
   const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 

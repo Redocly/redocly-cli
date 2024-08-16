@@ -13,6 +13,7 @@ import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
 
 import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper';
+import type { VerifyConfigOptions } from '../../types';
 
 export type PushOptions = {
   apis?: string[];
@@ -33,13 +34,12 @@ export type PushOptions = {
 
   'default-branch': string;
   domain?: string;
-  config?: string;
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
   'continue-on-deploy-failures'?: boolean;
   verbose?: boolean;
   format?: Extract<OutputFormat, 'stylish'>;
-};
+} & VerifyConfigOptions;
 
 type FileToUpload = { name: string; path: string };
 

@@ -1,3 +1,4 @@
+import type { VerifyConfigOptions } from '../../types';
 import type { PRODUCT_PACKAGES, PRODUCT_PLANS } from './constants';
 
 export type Product = keyof typeof PRODUCT_PACKAGES;
@@ -8,5 +9,4 @@ export type PreviewProjectOptions = {
   plan: ProductPlan | string;
   port?: number;
   'source-dir': string;
-  config?: string;
-};
+} & VerifyConfigOptions;
