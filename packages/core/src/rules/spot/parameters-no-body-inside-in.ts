@@ -7,7 +7,7 @@ export const ParametersNoBodyInsideIn: ArazzoRule = () => {
       enter(parameter, { report, location }: UserContext) {
         if (parameter.in === 'body') {
           report({
-            message: 'Parameters `in` property not allowed to have `body` value.',
+            message: 'The `body` value of the `in` property is not supported by Spot.',
             location: location.child(['in']),
           });
         }

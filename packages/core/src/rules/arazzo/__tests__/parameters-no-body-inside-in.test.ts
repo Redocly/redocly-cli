@@ -65,7 +65,7 @@ describe('Arazzo parameters-no-body-inside-in', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Parameters \`in\` property not allowed to have \`body\` value.",
+          "message": "The \`body\` value of the \`in\` property is not supported by Spot.",
           "ruleId": "parameters-no-body-inside-in",
           "severity": "error",
           "suggest": [],
