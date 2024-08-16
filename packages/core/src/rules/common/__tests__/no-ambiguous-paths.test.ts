@@ -46,7 +46,7 @@ describe('no-ambiguous-paths', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-ambiguous-paths': 'error' }),
+      config: await makeConfig({ rules: { 'no-ambiguous-paths': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

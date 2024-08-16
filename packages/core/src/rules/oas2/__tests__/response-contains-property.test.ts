@@ -35,9 +35,11 @@ describe('Oas2 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '2xx': ['id'], '4xx': ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '2xx': ['id'], '4xx': ['id'] },
+          },
         },
       }),
     });
@@ -117,9 +119,11 @@ describe('Oas2 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
-          names: { '200': ['id'], '4xx': ['id'] },
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+            names: { '200': ['id'], '4xx': ['id'] },
+          },
         },
       }),
     });
@@ -145,8 +149,10 @@ describe('Oas2 response-contains-property', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-property': {
-          severity: 'error',
+        rules: {
+          'response-contains-property': {
+            severity: 'error',
+          },
         },
       }),
     });

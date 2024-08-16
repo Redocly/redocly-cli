@@ -23,7 +23,7 @@ describe('Common path-http-verbs-order', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'path-http-verbs-order': 'error' }),
+      config: await makeConfig({ rules: { 'path-http-verbs-order': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -87,7 +87,7 @@ describe('Common path-http-verbs-order', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'path-http-verbs-order': 'error' }),
+      config: await makeConfig({ rules: { 'path-http-verbs-order': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

@@ -26,7 +26,9 @@ describe('Referenceable scalars', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        spec: 'error',
+        rules: {
+          spec: 'error',
+        },
       }),
     });
 

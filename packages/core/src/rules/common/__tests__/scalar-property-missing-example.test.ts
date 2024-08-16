@@ -24,7 +24,7 @@ describe('Oas3 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -68,7 +68,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -111,7 +111,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -140,7 +140,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -174,7 +174,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -199,7 +199,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -230,7 +230,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -256,7 +256,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+      config: await makeConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

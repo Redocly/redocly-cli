@@ -1,44 +1,172 @@
-import type { FromSchema } from 'json-schema-to-ts';
-import type {
-  arazzoSchema,
-  parameter,
-  operationMethod,
-  expectSchema,
-  sourceDescriptionSchema,
-  infoObject,
-  requestBody,
-  replacement,
-  inherit,
-  criteriaObject,
-  step,
-  workflow,
-} from '../types/arazzo';
+export interface InfoObject {
+  title: string;
+  description?: string;
+  summary?: string;
+  version: string;
+}
 
-export type ArazzoDefinition = FromSchema<typeof arazzoSchema>;
-export type OperationMethod = FromSchema<typeof operationMethod>;
-export type ResponseContext = {
-  statusCode: number;
-  body: any;
-  headers: Headers;
-  mimeType: string;
-} & Record<string, any>;
-export type Expect = FromSchema<typeof expectSchema>;
-export type SourceDescription = FromSchema<typeof sourceDescriptionSchema>;
-export type Parameter = FromSchema<typeof parameter>;
-export type InfoObject = FromSchema<typeof infoObject>;
-export type RequestBody = FromSchema<typeof requestBody>;
-export type Replacement = FromSchema<typeof replacement>;
-export type Inherit = FromSchema<typeof inherit>;
-export type CriteriaObject = FromSchema<typeof criteriaObject>;
-export type VerboseLog = {
-  method: OperationMethod;
+export interface OpenAPISourceDescription {
+  name: string;
+  type: 'openapi';
+  url: string;
+  'x-serverUrl'?: string;
+}
+
+export interface NoneSourceDescription {
+  name: string;
+  type: 'none';
+  'x-serverUrl': string;
+}
+
+export interface ArazzoSourceDescription {
+  name: string;
+  type: 'arazzo';
+  url: string;
+}
+
+export type SourceDescription =
+  | OpenAPISourceDescription
+  | NoneSourceDescription
+  | ArazzoSourceDescription;
+
+export interface Parameter {
+  in?: 'header' | 'query' | 'path' | 'cookie' | 'body';
+  name: string;
+  value: string | number | boolean;
+  reference?: string;
+}
+
+export interface ExtendedOperation {
   path: string;
-  host: string;
-  body?: any;
-  headerParams?: Record<string, string>;
+  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
+  sourceDescriptionName?: string;
+  serverUrl?: string;
+}
+
+export interface ExpectSchema {
   statusCode?: number;
-};
-export type Step = FromSchema<typeof step>;
-export type Workflow = FromSchema<typeof workflow> & {
+  mimeType?: string;
+  body?: any;
+  schema?: {
+    [key: string]: any;
+  };
+}
+
+export interface Replacement {
+  target: string;
+  value: string | object | any[];
+}
+
+export interface RequestBody {
+  contentType?: string;
+  payload: string | object | any[];
+  encoding?: string;
+  replacements?: Replacement[];
+}
+
+export interface CriteriaObject {
+  condition: string;
+  context?: string;
+  type?:
+    | 'regex'
+    | 'jsonpath'
+    | 'simple'
+    | 'xpath'
+    | {
+        type: 'jsonpath';
+        version: 'draft-goessner-dispatch-jsonpath-00';
+      }
+    | {
+        type: 'xpath';
+        version: 'xpath-30' | 'xpath-20' | 'xpath-10';
+      };
+}
+
+export interface OnSuccessObject {
+  name: string;
+  type: 'goto' | 'end';
+  stepId?: string;
+  workflowId?: string;
+  criteria?: CriteriaObject[];
+}
+
+export interface OnFailureObject {
+  name: string;
+  type: 'goto' | 'retry' | 'end';
+  workflowId?: string;
+  stepId?: string;
+  retryAfter?: number;
+  retryLimit?: number;
+  criteria?: CriteriaObject[];
+}
+
+export interface Step {
+  stepId: string;
+  description?: string;
+  operationId?: string;
+  operationPath?: string;
+  workflowId?: string;
+  parameters?: Parameter[];
+  successCriteria?: CriteriaObject[];
+  onSuccess?: OnSuccessObject[];
+  onFailure?: OnFailureObject[];
+  outputs?: {
+    [key: string]: string | object | any[] | boolean | number;
+  };
+  'x-inherit'?: 'auto' | 'none';
+  'x-expect'?: ExpectSchema;
+  'x-assert'?: string;
+  'x-operation'?: ExtendedOperation;
+  requestBody?: RequestBody;
+}
+
+export interface Workflow {
+  workflowId: string;
+  summary?: string;
+  description?: string;
+  parameters?: Parameter[];
+  dependsOn?: string[];
+  inputs?: {
+    type: 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'null';
+    properties?: {
+      [key: string]: any;
+    };
+    required?: string[];
+    items?: {
+      [key: string]: any;
+    };
+  };
+  outputs?: {
+    [key: string]: string;
+  };
   steps: Step[];
-};
+  successActions?: OnSuccessObject[];
+  failureActions?: OnFailureObject[];
+}
+
+export interface ArazzoDefinition {
+  arazzo: '1.0.0';
+  info: InfoObject;
+  sourceDescriptions: SourceDescription[];
+  'x-parameters'?: Parameter[];
+  workflows: Workflow[];
+  components?: {
+    inputs?: {
+      [key: string]: {
+        type: string;
+        properties?: {
+          [key: string]: any;
+        };
+      };
+    };
+    parameters?: {
+      [key: string]: Parameter;
+    };
+    successActions?: {
+      [key: string]: OnSuccessObject;
+    };
+    failureActions?: {
+      [key: string]: OnFailureObject;
+    };
+  };
+}

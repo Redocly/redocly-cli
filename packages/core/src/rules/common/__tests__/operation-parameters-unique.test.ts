@@ -22,7 +22,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-parameters-unique': 'error' }),
+      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -65,7 +65,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-parameters-unique': 'error' }),
+      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -95,7 +95,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-parameters-unique': 'error' }),
+      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -143,7 +143,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'operation-parameters-unique': 'error' }),
+      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

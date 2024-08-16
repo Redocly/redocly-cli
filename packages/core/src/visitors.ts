@@ -51,7 +51,24 @@ import type {
 } from './typings/swagger';
 import type { Async2Definition } from './typings/asyncapi';
 import type { Async3Definition } from './typings/asyncapi3';
-import type { ArazzoDefinition } from './typings/arazzo';
+import type {
+  ArazzoDefinition,
+  ArazzoSourceDescription,
+  CriteriaObject,
+  ExpectSchema,
+  ExtendedOperation,
+  InfoObject,
+  NoneSourceDescription,
+  OnFailureObject,
+  OnSuccessObject,
+  OpenAPISourceDescription,
+  Parameter,
+  Replacement,
+  RequestBody,
+  SourceDescription,
+  Step,
+  Workflow,
+} from './typings/arazzo';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -220,6 +237,23 @@ type Async3FlatVisitor = {
 
 type ArazzoFlatVisitor = {
   Root?: VisitFunctionOrObject<ArazzoDefinition>;
+  ParameterObject?: VisitFunctionOrObject<Parameter>;
+  InfoObject?: VisitFunctionOrObject<InfoObject>;
+  OpenAPISourceDescription?: VisitFunctionOrObject<OpenAPISourceDescription>;
+  NoneSourceDescription?: VisitFunctionOrObject<NoneSourceDescription>;
+  ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
+  SourceDescription?: VisitFunctionOrObject<SourceDescription>;
+  ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
+  ExpectSchema?: VisitFunctionOrObject<ExpectSchema>;
+  Replacement?: VisitFunctionOrObject<Replacement>;
+  RequestBody?: VisitFunctionOrObject<RequestBody>;
+  CriteriaObject?: VisitFunctionOrObject<CriteriaObject>;
+  OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
+  OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
+  Step?: VisitFunctionOrObject<Step>;
+  Steps?: VisitFunctionOrObject<Step[]>;
+  Workflow?: VisitFunctionOrObject<Workflow>;
+  Workflows?: VisitFunctionOrObject<Workflow[]>;
 };
 
 const legacyTypesMap = {

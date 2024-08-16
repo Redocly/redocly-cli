@@ -34,7 +34,7 @@ describe('no-identical-paths', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-identical-paths': 'error' }),
+      config: await makeConfig({ rules: { 'no-identical-paths': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

@@ -20,7 +20,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-example-value-and-externalValue': 'error' }),
+      config: await makeConfig({ rules: { 'no-example-value-and-externalValue': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -57,7 +57,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-example-value-and-externalValue': 'error' }),
+      config: await makeConfig({ rules: { 'no-example-value-and-externalValue': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

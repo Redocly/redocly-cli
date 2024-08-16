@@ -107,6 +107,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   },
   arazzoRules: {
     spec: 'error',
+    'parameters-no-body-inside-in': 'off',
   },
 };
 

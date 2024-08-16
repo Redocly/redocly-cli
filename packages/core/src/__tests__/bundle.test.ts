@@ -164,7 +164,7 @@ describe('bundle', () => {
       ''
     );
 
-    const config = await makeConfig({}, { 'registry-dependencies': 'on' });
+    const config = await makeConfig({ rules: {}, decorators: { 'registry-dependencies': 'on' } });
 
     const {
       bundle: result,
@@ -205,7 +205,7 @@ describe('bundle', () => {
       ''
     );
 
-    const config = await makeConfig({});
+    const config = await makeConfig({ rules: {} });
 
     const {
       bundle: { parsed },
@@ -305,7 +305,7 @@ describe('bundle async', () => {
       ''
     );
 
-    const config = await makeConfig({});
+    const config = await makeConfig({ rules: {} });
 
     const {
       bundle: { parsed },
@@ -375,7 +375,7 @@ describe('bundle async', () => {
       ''
     );
 
-    const config = await makeConfig({});
+    const config = await makeConfig({ rules: {} });
 
     const {
       bundle: { parsed },

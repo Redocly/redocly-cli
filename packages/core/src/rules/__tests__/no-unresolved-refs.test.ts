@@ -22,7 +22,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -62,7 +64,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -119,7 +123,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -143,7 +149,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -190,7 +198,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -219,7 +229,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
@@ -248,7 +260,9 @@ describe('oas3 boolean-parameter-prefixes', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'no-unresolved-refs': 'error',
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
       }),
     });
 
