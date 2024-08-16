@@ -201,18 +201,14 @@ const testPortalConfig = parseYamlToDocument(
       graphql:
         pagination: section
         menu:
-          {
-            initialLoadState: 'default',
-            requireExactGroups: false,
-            groups:
-              [
-                {
-                  name: 'GraphQL custom group',
-                  directives: { includeByName: ['cacheControl', 'typeDirective'] },
-                },
-              ],
-            otherItemsGroupName: 'Other',
-          }
+          requireExactGroups: false
+          groups:
+            - name: 'GraphQL custom group'
+              directives:
+                includeByName:
+                  - cacheControl
+                  - typeDirective
+          otherItemsGroupName: 'Other'
       sidebar:
         separatorLine: true
         linePosition: top
