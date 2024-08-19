@@ -147,6 +147,7 @@ With this configuration, an `operationId` called `GetAllItems` would be rewritte
 
 See some more examples of decorators:
 
+- There's a [Redocly CLI cookbook](https://github.com/Redocly/redocly-cli-cookbook) containing many more examples and ready-to-use scripts from our community.
 - Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
 - Change your [OAuth2 token URL](../guides/change-token-url.md).
 
