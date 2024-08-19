@@ -120,6 +120,7 @@ To expand the linting checks for an Arazzo description, start by enabling
 some of the built-in rules. The currently-supported rules are:
 
 - `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
+- `strict-source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
 
 ## Participate in Redocly CLI
 
