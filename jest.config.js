@@ -2,7 +2,6 @@ module.exports = {
   clearMocks: true,
   restoreMocks: true,
   preset: 'ts-jest',
-  verbose: true,
   testEnvironment: 'node',
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
@@ -14,8 +13,8 @@ module.exports = {
   coverageThreshold: {
     'packages/core/': {
       statements: 80,
-      branches: 70,
-      functions: 73,
+      branches: 71,
+      functions: 74,
       lines: 80,
     },
     'packages/cli/': {
