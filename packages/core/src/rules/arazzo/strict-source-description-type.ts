@@ -6,9 +6,10 @@ export const StrictSourceDescriptionType: ArazzoRule = () => {
     SourceDescriptions: {
       enter(SourceDescriptions, { report, location }: UserContext) {
         SourceDescriptions.forEach((sourceDescription: any) => {
-          if(!['openapi', 'arazzo'].includes(sourceDescription?.type)) {
+          if (!['openapi', 'arazzo'].includes(sourceDescription?.type)) {
             report({
-              message: 'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.',
+              message:
+                'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.',
               location: location.key(),
             });
           }
