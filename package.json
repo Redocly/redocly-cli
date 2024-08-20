@@ -10,9 +10,9 @@
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run compile && npm run unit && npm run e2e",
-    "jest": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" REDOCLY_TELEMETRY=off jest ./packages",
+    "jest": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" REDOCLY_TELEMETRY=off jest ./packages --runInBand ",
     "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
-    "unit:watch": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" REDOCLY_TELEMETRY=off jest --watch",
+    "unit:watch": "REDOCLY_TELEMETRY=off jest --watch",
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
