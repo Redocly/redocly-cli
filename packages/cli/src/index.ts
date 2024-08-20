@@ -785,14 +785,15 @@ yargs
         contentDir: {
           alias: 'd',
           type: 'string',
-          description: 'Project content directory.',
+          description: 'A directory where to put the translations content.',
           default: '.',
         },
         locale: {
           alias: 'l',
           type: 'string',
           array: true,
-          description: 'Locale code to generate translations for, or `all` for all current project locales.',
+          description:
+            'Locale code to generate translations for, or `all` for all current project locales.',
           required: true,
         },
         'lint-config': {
@@ -807,12 +808,21 @@ yargs
     }
   )
   .command(
-    'eject <type> <name>',
+    'eject <type> <path>',
     'Helper function to eject project elements for customization.',
     (yargs) =>
       yargs
-        .positional('type', { required: true, choices: ['component'] })
-        .positional('name', { type: 'string', required: true })
+        .positional('type', {
+          description:
+            'Specifies what type of project element to eject. Currently, it could be only `component`.',
+          required: true,
+          choices: ['component'],
+        })
+        .positional('path', {
+          description: 'Filepath to a component or filepath with glob pattern.',
+          type: 'string',
+          required: true,
+        })
         .options({
           contentDir: {
             alias: 'd',
