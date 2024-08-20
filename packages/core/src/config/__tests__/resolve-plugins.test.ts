@@ -1,6 +1,8 @@
 import * as path from 'path';
 import { loadConfig } from '../load';
 
+jest.useFakeTimers();
+
 describe('resolving a plugin', () => {
   const configPath = path.join(__dirname, 'fixtures/plugin-config.yaml');
 
