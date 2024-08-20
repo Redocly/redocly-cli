@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Spot parameters-no-body-inside-in', () => {
+describe('Arazzo strict-source-description-type', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -15,11 +15,14 @@ describe('Spot parameters-no-body-inside-in', () => {
         - name: museum-api
           type: openapi
           url: openapi.yaml
+        - name: api
+          type: none
+          x-serverUrl: 'http://localhost/api'
       workflows:
         - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
           parameters:
-            - in: body
+            - in: header
               name: Authorization
               value: Basic Og==
           steps:
@@ -33,23 +36,13 @@ describe('Spot parameters-no-body-inside-in', () => {
     'arazzo.yaml'
   );
 
-  it('should not report on `body` inside parameter `in` field', async () => {
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await makeConfig({ rules: {} }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
-  });
-
-  it('should report on `body` inside parameter `in` field', async () => {
+  it('should report on sourceDescription with type `none`', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'parameters-no-body-inside-in': 'error' },
+        arazzoRules: { 'strict-source-description-type': 'error' },
       }),
     });
 
@@ -58,17 +51,30 @@ describe('Spot parameters-no-body-inside-in', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/parameters/0/in",
-              "reportOnKey": false,
+              "pointer": "#/sourceDescriptions",
+              "reportOnKey": true,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`body\` value of the \`in\` property is not supported by Spot.",
-          "ruleId": "parameters-no-body-inside-in",
+          "message": "The \`type\` property of the \`sourceDescription\` object must be either \`openapi\` or \`arazzo\`.",
+          "ruleId": "strict-source-description-type",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not report on sourceDescription with type `none`', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: {},
+        arazzoRules: { 'strict-source-description-type': 'off' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
