@@ -114,6 +114,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'strict-source-description-type': 'error',
     'arazzo-version-enum': 'off',
     'workflow-workflowId-unique': 'error',
+    'step-stepId-unique': 'error',
   },
 };
 

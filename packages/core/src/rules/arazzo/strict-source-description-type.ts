@@ -10,7 +10,7 @@ export const StrictSourceDescriptionType: ArazzoRule = () => {
             report({
               message:
                 'The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.',
-              location: location.key(),
+              location: location.child([SourceDescriptions.indexOf(sourceDescription)]),
             });
           }
         });

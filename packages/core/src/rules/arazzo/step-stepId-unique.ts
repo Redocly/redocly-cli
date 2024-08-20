@@ -1,0 +1,22 @@
+import type { ArazzoRule } from '../../visitors';
+import type { UserContext } from '../../walk';
+
+export const StepStepIdUnique: ArazzoRule = () => {
+  return {
+    Workflow(workflow, { report, location }: UserContext) {
+      if (!workflow.steps) return;
+      const seenSteps = new Set();
+
+      workflow.steps.forEach((step) => {
+        if (!step.stepId) return;
+        if (seenSteps.has(step.stepId)) {
+          report({
+            message: 'The `stepId` MUST be unique amongst all steps described in the workflow.',
+            location: location.child(['steps', workflow.steps.indexOf(step)]),
+          });
+        }
+        seenSteps.add(step.stepId);
+      });
+    },
+  };
+};

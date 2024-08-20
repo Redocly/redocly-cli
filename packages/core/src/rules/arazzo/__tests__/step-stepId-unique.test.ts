@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo strict-source-description-type', () => {
+describe('Arazzo step-stepId-unique', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -15,9 +15,6 @@ describe('Arazzo strict-source-description-type', () => {
         - name: museum-api
           type: openapi
           url: openapi.yaml
-        - name: api
-          type: none
-          x-serverUrl: 'http://localhost/api'
       workflows:
         - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
@@ -32,17 +29,36 @@ describe('Arazzo strict-source-description-type', () => {
               operationId: museum-api.getMuseumHours
               successCriteria:
                 - condition: $statusCode == 200
+        - workflowId: get-museum-hours-2
+          description: This workflow demonstrates how to get the museum opening hours and buy tickets.
+          parameters:
+            - in: header
+              name: Authorization
+              value: Basic Og==
+          steps:
+            - stepId: get-museum-hours
+              description: >-
+                Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+              operationId: museum-api.getMuseumHours
+              successCriteria:
+                - condition: $statusCode == 200
+            - stepId: get-museum-hours
+              description: >-
+                Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+              operationId: museum-api.getMuseumHours
+              successCriteria:
+                - condition: $statusCode == 200
     `,
     'arazzo.yaml'
   );
 
-  it('should report on sourceDescription with type `none`', async () => {
+  it('should report when the `stepId` is not unique amongst all steps described in the workflow', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'strict-source-description-type': 'error' },
+        arazzoRules: { 'step-stepId-unique': 'error' },
       }),
     });
 
@@ -51,13 +67,13 @@ describe('Arazzo strict-source-description-type', () => {
         {
           "location": [
             {
-              "pointer": "#/sourceDescriptions/1",
+              "pointer": "#/workflows/1/steps/1",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`type\` property of the \`sourceDescription\` object must be either \`openapi\` or \`arazzo\`.",
-          "ruleId": "strict-source-description-type",
+          "message": "The \`stepId\` MUST be unique amongst all steps described in the workflow.",
+          "ruleId": "step-stepId-unique",
           "severity": "error",
           "suggest": [],
         },
@@ -65,13 +81,12 @@ describe('Arazzo strict-source-description-type', () => {
     `);
   });
 
-  it('should not report on sourceDescription with type `none`', async () => {
+  it('should not report when the `stepId` is not unique amongst all steps described in the workflow', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'strict-source-description-type': 'off' },
       }),
     });
 
