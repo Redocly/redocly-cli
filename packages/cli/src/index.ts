@@ -808,7 +808,7 @@ yargs
   )
   .command(
     'eject <type> <name>',
-    'Ejects components.',
+    'Helper function to eject project elements for customization.',
     (yargs) =>
       yargs
         .positional('type', { required: true, choices: ['component'] })
