@@ -792,7 +792,7 @@ yargs
           alias: 'l',
           type: 'string',
           array: true,
-          description: 'Locale or a list of locales to generate translations for.',
+          description: 'Locale code to generate translations for, or `all` for all current project locales.',
           required: true,
         },
         'lint-config': {
