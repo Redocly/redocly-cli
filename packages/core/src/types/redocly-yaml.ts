@@ -113,6 +113,7 @@ const builtInArazzoRules = [
   'spec',
   'parameters-no-body-inside-in',
   'strict-source-description-type',
+  'arazzo-version-enum',
 ] as const;
 
 export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];

@@ -5,6 +5,7 @@ import { AsyncApi2Types } from './types/asyncapi2';
 import { AsyncApi3Types } from './types/asyncapi3';
 import { ArazzoTypes } from './types/arazzo';
 import { isPlainObject } from './utils';
+import { VERSION_PATTERN } from './typings/arazzo';
 
 import type {
   BuiltInAsync2RuleId,
@@ -132,7 +133,7 @@ export function detectSpec(root: unknown): SpecVersion {
     throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
   }
 
-  if (typeof root.arazzo === 'string' && root.arazzo.startsWith('1.')) {
+  if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
     return SpecVersion.Arazzo;
   }
 

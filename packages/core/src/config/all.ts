@@ -130,6 +130,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     spec: 'error',
     'parameters-no-body-inside-in': 'off',
     'strict-source-description-type': 'error',
+    'arazzo-version-enum': 'off',
   },
 };
 

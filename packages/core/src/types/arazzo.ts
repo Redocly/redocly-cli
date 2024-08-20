@@ -4,7 +4,7 @@ import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3';
 
 const Root: NodeType = {
   properties: {
-    arazzo: { type: 'string', enum: ['1.0.0'] },
+    arazzo: { type: 'string' },
     info: 'Info',
     sourceDescriptions: 'SourceDescriptions',
     'x-parameters': 'Parameters',
