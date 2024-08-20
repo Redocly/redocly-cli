@@ -162,7 +162,6 @@ export async function resolvePlugins(
         if (e instanceof SyntaxError) {
           throw e;
         }
-        console.log(e);
         throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
       }
     }
