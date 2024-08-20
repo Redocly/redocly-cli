@@ -1,8 +1,7 @@
 import * as path from 'path';
 import { loadConfig } from '../load';
 
-// TODO: unskip before merge
-describe.skip('resolving a plugin', () => {
+describe('resolving a plugin', () => {
   const configPath = path.join(__dirname, 'fixtures/plugin-config.yaml');
 
   it('should prefix rule names with the plugin id', async () => {
