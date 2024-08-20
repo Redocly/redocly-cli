@@ -113,6 +113,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'parameters-no-body-inside-in': 'off',
     'strict-source-description-type': 'error',
     'arazzo-version-enum': 'off',
+    'workflow-workflowId-unique': 'error',
   },
 };
 

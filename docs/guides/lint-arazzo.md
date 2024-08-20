@@ -122,6 +122,7 @@ some of the built-in rules. The currently-supported rules are:
 - `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
 - `strict-source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
 - `arazzo-version-enum`: the `version` property must be one of the allowed values: [`1.0.0`].
+- `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
 
 ## Participate in Redocly CLI
 

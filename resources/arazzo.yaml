@@ -37,6 +37,28 @@ workflows:
         workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
         outputs:
           ticketId: $outputs.ticketId
+  - workflowId: get-museum-hours
+    description: >-
+      This workflow demonstrates how to get the museum opening hours and buy tickets.
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    steps:
+      - stepId: get-museum-hours
+        description: >-
+          Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+        operationId: museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          schedule: $response.body
+      - stepId: buy-ticket
+        description: >-
+          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
+        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+        outputs:
+          ticketId: $outputs.ticketId
   - workflowId: events-crud
     description: >-
       This workflow demonstrates how to list, create, update, and delete special events at the museum.
