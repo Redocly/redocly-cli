@@ -12,7 +12,8 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushOptions as CMSPushOptions } from './cms/commands/push';
 import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PreviewProjectOptions } from './commands/preview-project/types';
-import type { TranslateProjectOptions } from './commands/translations';
+import type { TranslationsOptions } from './commands/translations';
+import type { EjectOptions } from './commands/eject';
 
 export type Totals = {
   errors: number;
@@ -39,7 +40,8 @@ export type CommandOptions =
   | BuildDocsArgv
   | PushStatusOptions
   | PreviewProjectOptions
-  | TranslateProjectOptions;
+  | TranslationsOptions
+  | EjectOptions;
 
 export type VerifyConfigOptions = {
   config?: string;

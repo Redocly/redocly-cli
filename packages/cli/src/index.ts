@@ -21,7 +21,8 @@ import {
 } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { previewProject } from './commands/preview-project';
-import { translateProject } from './commands/translations';
+import { handleTranslations } from './commands/translations';
+import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
 
@@ -30,6 +31,7 @@ import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PushArguments } from './types';
+import type { EjectOptions } from './commands/eject';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -800,7 +802,39 @@ yargs
         },
       }),
     (argv) => {
-      commandWrapper(translateProject)(argv);
+      process.env.REDOCLY_CLI_COMMAND = 'translations';
+      commandWrapper(handleTranslations)(argv);
+    }
+  )
+  .command(
+    'eject <type> <name>',
+    'Ejects components.',
+    (yargs) =>
+      yargs
+        .positional('type', { required: true, choices: ['component'] })
+        .positional('name', { type: 'string', required: true })
+        .options({
+          contentDir: {
+            alias: 'd',
+            type: 'string',
+            description: 'A destination folder to eject components into.',
+            default: '.',
+          },
+          force: {
+            alias: 'f',
+            type: 'boolean',
+            description:
+              'Skips the "overwrite existing" confirmation when ejecting a component that is already ejected in the destination.',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'eject';
+      commandWrapper(handleEject)(argv as Arguments<EjectOptions>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
