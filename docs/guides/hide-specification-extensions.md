@@ -44,9 +44,11 @@ In this step, create a custom plugin and define the decorator dependency.
      },
    };
 
-   module.exports = {
-     id,
-     decorators,
+   module.exports = function hideExtensionsPlugin() {
+     return {
+       id,
+       decorators,
+     };
    };
    ```
 

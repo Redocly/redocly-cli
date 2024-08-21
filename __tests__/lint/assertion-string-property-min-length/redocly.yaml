@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 plugins:
-  - ./plugin.js
+  - ./plugin.mjs
 rules:
   rule/minLength:
     subject:

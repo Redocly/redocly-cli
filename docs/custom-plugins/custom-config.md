@@ -9,22 +9,24 @@ configuration file.
 The following is an example plugin, defining two configuration bundles:
 
 ```js
-module.exports = {
-  id: 'my-local-plugin'
-  configs: {
-    all: {
-      rules: {
-        'operation-id-not-test': 'error',
-        'boolean-parameter-prefixes': 'error',
+module.exports = function myLocalPlugin() {
+  return {
+    id: 'my-local-plugin',
+    configs: {
+      all: {
+        rules: {
+          'operation-id-not-test': 'error',
+          'boolean-parameter-prefixes': 'error',
+        },
+      },
+      minimal: {
+        rules: {
+          'operation-id-not-test': 'off',
+          'boolean-parameter-prefixes': 'error',
+        },
       },
     },
-    minimal: {
-      rules: {
-        'operation-id-not-test': 'off',
-        'boolean-parameter-prefixes': 'error',
-      },
-    }
-  }
+  };
 };
 ```
 

@@ -2,6 +2,7 @@
 
 exports[`E2E lint arazzo-type-extensions-with-plugin 1`] = `
 
+Deprecated plugin format detected: type-extension
 validating museum.yaml...
 [1] museum.yaml:8:3 at #/info/wrong-key
 

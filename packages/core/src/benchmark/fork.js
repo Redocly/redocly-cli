@@ -26,6 +26,10 @@ if (require.main === module) {
   assert(process.send);
   const module = require(modulePath);
 
+  if (module.setupAsync) {
+    await module.setupAsync();
+  }
+
   if (module.measureAsync) {
     async function run() {
       await clockAsync(7, module.measureAsync); // warm up

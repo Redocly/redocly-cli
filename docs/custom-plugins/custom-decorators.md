@@ -13,26 +13,29 @@ Decorators and preprocessors are the same in structure, but preprocessors are ru
 
 ## Plugin structure
 
-To create a preprocessor or decorator, the object that is exported from your module has to conform to an interface such as the following example:
+To create a preprocessor or decorator, the function that is exported from your module has to conform to an interface such as the following example:
 
 ```js
-module.exports = {
-  id: 'my-local-plugin',
-  preprocessors: {
-    oas3: {
-      "processor-id": () => {
-        // ...
-      }
-    }
-  },
-  decorators: {
-    oas3: {
-      "decorator-id": () => {
-        // ...
-      }
-    }
-  }
-}
+module.exports = function myLocalPlugin() {
+  return {
+    id: 'my-local-plugin',
+    preprocessors: {
+      oas3: {
+        'processor-id': () => {
+          // ...
+        },
+      },
+    },
+    decorators: {
+      oas3: {
+        'decorator-id': () => {
+          // ...
+        },
+      },
+    },
+  };
+};
+
 ```
 
 Each decorator or preprocessor is a function that returns an object. The object's keys are the node types in the document, and each of those can contain any or all of the `enter()`, `leave()` and `skip()` functions for that node type. Find more information and examples on the [visitor pattern page](./visitor.md).
@@ -67,14 +70,16 @@ To use this decorator, add it to a plugin. In this example the main decorator fi
 ```js
 const OperationSparkle = require('./decorators/operation-sparkle.js');
 
-module.exports = {
-  id: 'sparkle',
-  decorators: {
-    oas3: {
-      'operation-sparkle': OperationSparkle,
-    }
-  }
-};
+module.exports =  function sparklePlugin() {
+  return {
+    id: "sparkle",
+    decorators: {
+      oas3: {
+        "operation-sparkle": OperationSparkle,
+      },
+    },
+  };
+}
 ```
 
 The plugin is good to go. For a user to include it in their Redocly configuration, edit the configuration file to look something like this:
@@ -118,15 +123,17 @@ Now extend the decorator from the previous example to add this to the existing p
 const OperationSparkle = require('./decorators/operation-sparkle.js');
 const OpIdSuffix = require('./decorators/add-suffix.js');
 
-module.exports = {
-  id: 'sparkle',
-  decorators: {
-    oas3: {
-      'operation-sparkle': OperationSparkle,
-      'add-opid-suffix': OpIdSuffix,
-    }
-  }
-};
+module.exports = function sparklePlugin() {
+  return {
+    id: "sparkle",
+    decorators: {
+      oas3: {
+        "operation-sparkle": OperationSparkle,
+        "add-opid-suffix": OpIdSuffix,
+      },
+    },
+  };
+}
 ```
 
 All that remains is for a user to configure this decorator in their `redocly.yaml` configuration file to take advantage of the new decorator functionality. Here's an example of the configuration file:

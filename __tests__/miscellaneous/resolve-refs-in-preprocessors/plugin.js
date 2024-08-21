@@ -17,7 +17,9 @@ const preprocessors = {
   },
 };
 
-module.exports = {
-  id: 'plugin',
-  preprocessors,
+module.exports = function plugin() {
+  return {
+    id: 'plugin',
+    preprocessors,
+  };
 };
