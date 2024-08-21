@@ -13,6 +13,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "async2Rules": {
     "channels-kebab-case": "off",
     "info-contact": "off",
+    "info-license-strict": "warn",
     "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
@@ -24,6 +25,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "async3Rules": {
     "channels-kebab-case": "off",
     "info-contact": "off",
+    "info-license-strict": "warn",
     "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
@@ -86,7 +88,8 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
     "boolean-parameter-prefixes": "error",
     "info-contact": "off",
     "info-license": "warn",
-    "info-license-url": "warn",
+    "info-license-strict": "warn",
+    "info-license-url": "off",
     "local/operation-id-not-test": "error",
     "no-ambiguous-paths": "warn",
     "no-enum-type-mismatch": "error",
@@ -142,6 +145,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "async2Rules": {
     "channels-kebab-case": "off",
     "info-contact": "off",
+    "info-license-strict": "warn",
     "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
@@ -153,6 +157,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "async3Rules": {
     "channels-kebab-case": "off",
     "info-contact": "off",
+    "info-license-strict": "warn",
     "no-channel-trailing-slash": "off",
     "operation-operationId": "warn",
     "spec": "error",
@@ -233,7 +238,8 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
     "boolean-parameter-prefixes": "error",
     "info-contact": "off",
     "info-license": "warn",
-    "info-license-url": "warn",
+    "info-license-strict": "warn",
+    "info-license-url": "off",
     "local/operation-id-not-test": "error",
     "no-ambiguous-paths": "warn",
     "no-enum-type-mismatch": "error",
