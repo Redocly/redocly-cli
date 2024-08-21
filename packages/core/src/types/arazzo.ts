@@ -89,9 +89,7 @@ const ArazzoSourceDescription: NodeType = {
 const ReusableObject: NodeType = {
   properties: {
     reference: { type: 'string' },
-    value: {
-      type: 'string',
-    },
+    value: {}, // any
   },
   required: ['reference'],
   extensionsPrefix: 'x-',
@@ -108,10 +106,10 @@ const Parameter: NodeType = {
 const Parameters: NodeType = {
   properties: {},
   items: (value: any) => {
-    if (value?.in) {
-      return 'Parameter';
-    } else {
+    if (value?.reference) {
       return 'ReusableObject';
+    } else {
+      return 'Parameter';
     }
   },
 };
