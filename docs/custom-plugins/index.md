@@ -43,7 +43,7 @@ The paths are relative to the configuration file location. Where there are multi
 
 ### Plugin structure
 
-The minimal plugin should export an `id` string that is used to refer to the contents of the plugin in the `redocly.yaml` configuration file:
+The minimal plugin should export a function that returns an object with a single property `id` that is used to refer to the contents of the plugin in the `redocly.yaml` configuration file:
 
 ```js
 module.exports = function myPlugin() {
