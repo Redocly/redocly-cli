@@ -113,7 +113,7 @@ describe('resolveStyleguideConfig', () => {
       id: 'test-plugin',
       rules: {
         oas3: {
-          'test-plugin/operation-3xx-response': 'warn',
+          'test-plugin/oas3-rule-name': 'oas3-rule-stub',
         },
       },
     });
@@ -154,7 +154,7 @@ describe('resolveStyleguideConfig', () => {
       id: 'test-plugin',
       rules: {
         oas3: {
-          'test-plugin/operation-3xx-response': 'warn',
+          'test-plugin/oas3-rule-name': 'oas3-rule-stub',
         },
       },
     });

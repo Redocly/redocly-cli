@@ -3,7 +3,7 @@ export default async function () {
     id: 'test-plugin',
     rules: {
       oas3: {
-        'operation-3xx-response': 'warn',
+        'oas3-rule-name': 'oas3-rule-stub',
       },
     },
   };
