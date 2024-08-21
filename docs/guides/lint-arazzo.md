@@ -125,6 +125,7 @@ some of the built-in rules. The currently-supported rules are:
 - `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
 - `step-stepId-unique`: the `stepId` MUST be unique amongst all steps described in the workflow.
 - `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
+- `workflow-dependsOn-unique`: the items in the `workflow` `dependsOn` property must be unique.
 
 ## Participate in Redocly CLI
 

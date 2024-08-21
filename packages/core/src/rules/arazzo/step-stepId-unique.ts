@@ -7,7 +7,7 @@ export const StepStepIdUnique: ArazzoRule = () => {
       if (!workflow.steps) return;
       const seenSteps = new Set();
 
-      workflow.steps.forEach((step) => {
+      for (const step of workflow.steps) {
         if (!step.stepId) return;
         if (seenSteps.has(step.stepId)) {
           report({
@@ -16,7 +16,7 @@ export const StepStepIdUnique: ArazzoRule = () => {
           });
         }
         seenSteps.add(step.stepId);
-      });
+      }
     },
   };
 };

@@ -116,6 +116,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'workflow-workflowId-unique': 'error',
     'step-stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
+    'workflow-dependsOn-unique': 'error',
   },
 };
 

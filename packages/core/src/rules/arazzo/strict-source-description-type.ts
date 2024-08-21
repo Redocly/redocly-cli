@@ -5,7 +5,7 @@ export const StrictSourceDescriptionType: ArazzoRule = () => {
   return {
     SourceDescriptions: {
       enter(SourceDescriptions, { report, location }: UserContext) {
-        SourceDescriptions.forEach((sourceDescription: any) => {
+        for (const sourceDescription of SourceDescriptions) {
           if (!['openapi', 'arazzo'].includes(sourceDescription?.type)) {
             report({
               message:
@@ -13,7 +13,7 @@ export const StrictSourceDescriptionType: ArazzoRule = () => {
               location: location.child([SourceDescriptions.indexOf(sourceDescription)]),
             });
           }
-        });
+        }
       },
     },
   };
