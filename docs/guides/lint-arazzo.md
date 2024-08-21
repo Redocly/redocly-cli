@@ -124,6 +124,7 @@ some of the built-in rules. The currently-supported rules are:
 - `arazzo-version-enum`: the `version` property must be one of the allowed values: [`1.0.0`].
 - `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
 - `step-stepId-unique`: the `stepId` MUST be unique amongst all steps described in the workflow.
+- `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
 
 ## Participate in Redocly CLI
 

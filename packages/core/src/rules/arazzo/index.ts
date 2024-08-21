@@ -5,6 +5,7 @@ import { StrictSourceDescriptionType } from '../arazzo/strict-source-description
 import { ArazzoVersionEnum } from '../spot/arazzo-version-enum';
 import { WorkflowWorkflowIdUnique } from './workflow-workflowId-unique';
 import { StepStepIdUnique } from './step-stepId-unique';
+import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique';
 
 import type { ArazzoRule } from '../../visitors';
 import type { ArazzoRuleSet } from '../../oas-types';
@@ -17,6 +18,7 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   'arazzo-version-enum': ArazzoVersionEnum as ArazzoRule,
   'workflow-workflowId-unique': WorkflowWorkflowIdUnique as ArazzoRule,
   'step-stepId-unique': StepStepIdUnique as ArazzoRule,
+  'sourceDescription-name-unique': SourceDescriptionsNameUnique as ArazzoRule,
 };
 
 export const preprocessors = {};

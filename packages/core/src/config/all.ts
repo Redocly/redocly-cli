@@ -133,6 +133,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'arazzo-version-enum': 'off',
     'workflow-workflowId-unique': 'error',
     'step-stepId-unique': 'error',
+    'sourceDescription-name-unique': 'error',
   },
 };
 
