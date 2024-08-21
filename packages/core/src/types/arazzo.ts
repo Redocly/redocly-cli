@@ -122,7 +122,7 @@ const Workflow: NodeType = {
     description: { type: 'string' },
     parameters: 'Parameters',
     dependsOn: { type: 'array', items: { type: 'string' } },
-    inputs: 'NamedInputs',
+    inputs: 'Schema',
     outputs: 'Outputs',
     steps: 'Steps',
     successActions: 'OnSuccessActionList',
