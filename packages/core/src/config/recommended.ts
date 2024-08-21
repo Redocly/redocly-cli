@@ -117,6 +117,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'step-stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
     'workflow-dependsOn-unique': 'error',
+    'parameters-unique': 'error',
   },
 };
 

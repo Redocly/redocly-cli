@@ -7,6 +7,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "arazzoRules": {
     "arazzo-version-enum": "off",
     "parameters-no-body-inside-in": "off",
+    "parameters-unique": "error",
     "sourceDescription-name-unique": "error",
     "spec": "error",
     "step-stepId-unique": "error",
@@ -145,6 +146,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "arazzoRules": {
     "arazzo-version-enum": "off",
     "parameters-no-body-inside-in": "off",
+    "parameters-unique": "error",
     "sourceDescription-name-unique": "error",
     "spec": "error",
     "step-stepId-unique": "error",
