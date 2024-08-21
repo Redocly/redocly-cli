@@ -136,16 +136,12 @@ export async function resolvePlugins(
 
     if (isString(plugin)) {
       try {
-        let absolutePluginPath: string;
-
         const maybeAbsolutePluginPath = path.resolve(path.dirname(configPath), plugin);
 
-        if (existsSync(maybeAbsolutePluginPath)) {
-          absolutePluginPath = maybeAbsolutePluginPath;
-        } else {
-          // For plugins imported from packages specifically
-          absolutePluginPath = require.resolve(plugin);
-        }
+        const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
+          ? maybeAbsolutePluginPath
+          : // For plugins imported from packages specifically
+            require.resolve(plugin);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
