@@ -650,6 +650,7 @@ yargs
           default: 'enterprise',
         },
         port: {
+          alias: 'p',
           type: 'number',
           description: 'Preview port.',
           default: 4000,
@@ -827,7 +828,7 @@ yargs
           contentDir: {
             alias: 'd',
             type: 'string',
-            description: 'A destination folder to eject components into.',
+            description: 'A path to the folder with the content.',
             default: '.',
           },
           force: {
