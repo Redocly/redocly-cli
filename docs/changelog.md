@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.20.0 (2024-08-21)
+
+### Minor Changes
+
+- Added support for ESM plugins and importing of plugins directly from npm package: `@vendor/package/plugin.js` instead of `./node_modules/@vendor/package/plugin.js`.
+- Added `info-license-strict` rule as a replacement of the `info-license-url` to support the OpenAPI 3.1 changes to allow identifier or URL license details.
+- Changed plugins format to export a function instead of an object for compatibility with other Redocly products. The backwards compatibility with an old format of plugins is maintained.
+
+### Patch Changes
+
+- Added support for webhooks in stats and fixed a crash that occurred when tags were not included in webhooks.
+- Updated @redocly/openapi-core to v1.20.0.
+
 ## 1.19.0 (2024-08-01)
 
 ### Minor Changes
