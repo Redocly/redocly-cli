@@ -1,7 +1,7 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
 
-import { ReuniteApiClient, PushPayload } from '../api-client';
+import { ReuniteApiClient, PushPayload, ReuniteApiError } from '../api-client';
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),
@@ -16,12 +16,15 @@ describe('ApiClient', () => {
   const testDomain = 'test-domain.com';
   const testOrg = 'test-org';
   const testProject = 'test-project';
+  const version = '1.0.0';
+  const command = 'push';
+  const expectedUserAgent = `redocly-cli / ${version} ${command}`;
 
   describe('getDefaultBranch()', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
     });
 
     it('should get default project branch', async () => {
@@ -41,6 +44,7 @@ describe('ApiClient', () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${testToken}`,
+            'user-agent': expectedUserAgent,
           },
           signal: expect.any(Object),
         }
@@ -62,7 +66,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new Error('Failed to fetch default branch: Project source not found')
+        new ReuniteApiError('Failed to fetch default branch. Project source not found', 404)
       );
     });
 
@@ -76,7 +80,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new Error('Failed to fetch default branch: Not found')
+        new ReuniteApiError('Failed to fetch default branch. Not found', 404)
       );
     });
   });
@@ -89,7 +93,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
     });
 
     it('should upsert remote', async () => {
@@ -116,6 +120,7 @@ describe('ApiClient', () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${testToken}`,
+            'user-agent': expectedUserAgent,
           },
           body: JSON.stringify({
             mountPath: remotePayload.mountPath,
@@ -144,8 +149,9 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
-        new Error(
-          'Failed to upsert remote: Not allowed to mount remote outside of project content path: /docs'
+        new ReuniteApiError(
+          'Failed to upsert remote. Not allowed to mount remote outside of project content path: /docs',
+          403
         )
       );
     });
@@ -153,6 +159,7 @@ describe('ApiClient', () => {
     it('should throw statusText error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
+        status: 404,
         statusText: 'Not found',
         json: jest.fn().mockResolvedValue({
           unknownField: 'unknown-error',
@@ -160,7 +167,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
-        new Error('Failed to upsert remote: Not found')
+        new ReuniteApiError('Failed to upsert remote. Not found', 404)
       );
     });
   });
@@ -200,7 +207,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
     });
 
     it('should push to remote', async () => {
@@ -234,6 +241,7 @@ describe('ApiClient', () => {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${testToken}`,
+            'user-agent': expectedUserAgent,
           },
         })
       );
@@ -258,12 +266,13 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new Error('Failed to push: Cannot push to remote'));
+      ).rejects.toThrow(new ReuniteApiError('Failed to push. Cannot push to remote', 403));
     });
 
     it('should throw statusText error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
+        status: 404,
         statusText: 'Not found',
         json: jest.fn().mockResolvedValue({
           unknownField: 'unknown-error',
@@ -272,7 +281,7 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new Error('Failed to push: Not found'));
+      ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found', 404));
     });
   });
 });
