@@ -29,10 +29,7 @@ class ReuniteBaseApiClient {
       return responseBody as T;
     }
 
-    throw new ReuniteApiError(
-      responseBody.title || response.statusText,
-      response.status,
-    );
+    throw new ReuniteApiError(responseBody.title || response.statusText, response.status);
   }
 
   protected request(url: string, options: FetchWithTimeoutOptions) {
