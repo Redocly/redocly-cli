@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.20.1
+
+### Patch Changes
+
+- Get more helpful error messages when there's a problem importing a plugin.
+- Updated @redocly/openapi-core to v1.20.1.
+
 ## 1.20.0
 
 ### Minor Changes
