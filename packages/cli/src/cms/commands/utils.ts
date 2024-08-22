@@ -1,4 +1,8 @@
 import { pause } from '@redocly/openapi-core';
+import { DeploymentError } from '../utils';
+import { exitWithError } from '../../utils/miscellaneous';
+
+import type { ReuniteApiError } from '../api';
 
 /**
  * This function retries an operation until a condition is met or a timeout is exceeded.
@@ -49,4 +53,14 @@ export async function retryUntilConditionMet<T>({
   }
 
   return attempt();
+}
+
+export function handleReuniteError(
+  message: string,
+  error: ReuniteApiError | DeploymentError | Error
+) {
+  const errorMessage =
+    error instanceof DeploymentError ? error.message : `${message}. Reason: ${error.message}\n`;
+
+  return exitWithError(errorMessage);
 }

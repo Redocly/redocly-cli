@@ -23,7 +23,7 @@ import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-conf
 import { outputExtensions } from '../types';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from '../commands/push';
-import fetch from './fetch-with-timeout';
+import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -577,6 +577,7 @@ export async function sendTelemetry(
       spec_full_version,
     };
     await fetch(`https://api.redocly.com/registry/telemetry/cli`, {
+      timeout: DEFAULT_FETCH_TIMEOUT,
       method: 'POST',
       headers: {
         'content-type': 'application/json',

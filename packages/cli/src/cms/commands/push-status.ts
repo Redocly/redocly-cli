@@ -4,7 +4,7 @@ import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
 import { capitalize } from '../../utils/js-utils';
-import { retryUntilConditionMet } from './utils';
+import { handleReuniteError, retryUntilConditionMet } from './utils';
 
 import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper';
@@ -41,7 +41,8 @@ export interface PushStatusSummary {
 export async function handlePushStatus({
   argv,
   config,
-}: CommandArgs<PushStatusOptions>): Promise<PushStatusSummary | undefined> {
+  version,
+}: CommandArgs<PushStatusOptions>): Promise<PushStatusSummary | void> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 
@@ -67,7 +68,7 @@ export async function handlePushStatus({
 
   try {
     const apiKey = getApiKeys(domain);
-    const client = new ReuniteApiClient(domain, apiKey);
+    const client = new ReuniteApiClient(domain, apiKey, version, 'push-status');
 
     let pushResponse: PushResponse;
 
@@ -178,12 +179,7 @@ export async function handlePushStatus({
   } catch (err) {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
 
-    const message =
-      err instanceof DeploymentError
-        ? err.message
-        : `✗ Failed to get push status. Reason: ${err.message}\n`;
-    exitWithError(message);
-    return;
+    handleReuniteError('✗ Failed to get push status', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
   }
