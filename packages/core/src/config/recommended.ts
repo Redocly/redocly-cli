@@ -4,7 +4,8 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   rules: {
     'info-contact': 'off',
     'info-license': 'warn',
-    'info-license-url': 'warn',
+    'info-license-url': 'off',
+    'info-license-strict': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'parameter-description': 'off',
@@ -90,6 +91,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   async2Rules: {
     spec: 'error',
     'info-contact': 'off',
+    'info-license-strict': 'warn',
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -99,6 +101,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   async3Rules: {
     spec: 'error',
     'info-contact': 'off',
+    'info-license-strict': 'warn',
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',

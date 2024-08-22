@@ -127,7 +127,7 @@ const testPortalConfig = parseYamlToDocument(
             # serviceAccountPrivateKey: Must be reported as a missing required prop
             serviceAccountEmail: 789 # Must be a string
 
-    i18n:
+    l10n:
       defaultLocale: en-US
       locales:
         - code: 123 # Must be a string
@@ -201,18 +201,14 @@ const testPortalConfig = parseYamlToDocument(
       graphql:
         pagination: section
         menu:
-          {
-            initialLoadState: 'default',
-            requireExactGroups: false,
-            groups:
-              [
-                {
-                  name: 'GraphQL custom group',
-                  directives: { includeByName: ['cacheControl', 'typeDirective'] },
-                },
-              ],
-            otherItemsGroupName: 'Other',
-          }
+          requireExactGroups: false
+          groups:
+            - name: 'GraphQL custom group'
+              directives:
+                includeByName:
+                  - cacheControl
+                  - typeDirective
+          otherItemsGroupName: 'Other'
       sidebar:
         separatorLine: true
         linePosition: top
@@ -1048,7 +1044,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/i18n/locales/0/code",
+              "pointer": "#/l10n/locales/0/code",
               "reportOnKey": false,
               "source": "",
             },
@@ -1252,12 +1248,12 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/i18n",
+              "pointer": "#/l10n",
               "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Property \`i18n\` is not expected here.",
+          "message": "Property \`l10n\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],

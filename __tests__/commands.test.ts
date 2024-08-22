@@ -558,6 +558,26 @@ describe('E2E', () => {
       const result = getCommandOutput(args, testPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
+
+    test('lint with a rule from a plugin', () => {
+      const testPath = join(folderPath, 'resolve-plugins');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        'openapi.yaml',
+        '--config=plugin-config.yaml',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('decorate with a decorator from a plugin', () => {
+      const testPath = join(folderPath, 'resolve-plugins');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'openapi.yaml',
+        '--config=plugin-config.yaml',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
   });
 
   describe('build-docs', () => {

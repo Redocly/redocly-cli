@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { existsSync } from 'fs';
 import { isAbsoluteUrl } from '../ref-utils';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
 import { resolveDocument, BaseResolver } from '../resolve';
@@ -6,6 +7,8 @@ import { defaultPlugin } from './builtIn';
 import {
   getResolveConfig,
   getUniquePlugins,
+  isCommonJsPlugin,
+  isDeprecatedPluginFormat,
   mergeExtends,
   parsePresetName,
   prefixRules,
@@ -27,11 +30,17 @@ import type {
   ResolvedStyleguideConfig,
   RuleConfig,
   DeprecatedInRawConfig,
+  ImportedPlugin,
 } from './types';
 import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
 import type { BundleOptions } from '../bundle';
 import type { Document, ResolvedRefMap } from '../resolve';
+
+const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
+
+// Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
+const _importDynamic = new Function('modulePath', 'return import(modulePath)');
 
 export async function resolveConfigFileAndRefs({
   configPath,
@@ -101,14 +110,24 @@ export async function resolveConfig({
   );
 }
 
-export function resolvePlugins(
+function getDefaultPluginPath(configPath: string): string | undefined {
+  for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
+    const absolutePluginPath = path.resolve(path.dirname(configPath), pluginPath);
+    if (existsSync(absolutePluginPath)) {
+      return pluginPath;
+    }
+  }
+  return undefined;
+}
+
+export async function resolvePlugins(
   plugins: (string | Plugin)[] | null,
   configPath: string = ''
-): Plugin[] {
+): Promise<Plugin[]> {
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
-  const requireFunc = (plugin: string | Plugin): Plugin | undefined => {
+  const requireFunc = async (plugin: string | Plugin): Promise<ImportedPlugin | undefined> => {
     if (isBrowser && isString(plugin)) {
       logger.error(`Cannot load ${plugin}. Plugins aren't supported in browser yet.`);
 
@@ -117,19 +136,26 @@ export function resolvePlugins(
 
     if (isString(plugin)) {
       try {
-        const absoltePluginPath = path.resolve(path.dirname(configPath), plugin);
+        const maybeAbsolutePluginPath = path.resolve(path.dirname(configPath), plugin);
+
+        const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
+          ? maybeAbsolutePluginPath
+          : // For plugins imported from packages specifically
+            require.resolve(plugin);
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        return typeof __webpack_require__ === 'function'
-          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            __non_webpack_require__(absoltePluginPath)
-          : require(absoltePluginPath);
-      } catch (e) {
-        if (e instanceof SyntaxError) {
-          throw e;
+        if (typeof __webpack_require__ === 'function') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return __non_webpack_require__(absolutePluginPath);
+        } else {
+          // you can import both cjs and mjs
+          const mod = await _importDynamic(absolutePluginPath);
+          return mod.default || mod;
         }
-        throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
+      } catch (e) {
+        throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
       }
     }
 
@@ -138,17 +164,45 @@ export function resolvePlugins(
 
   const seenPluginIds = new Map<string, string>();
 
-  return plugins
-    .map((p) => {
-      if (isString(p) && isAbsoluteUrl(p)) {
-        throw new Error(colorize.red(`We don't support remote plugins yet.`));
+  /**
+   * Include the default plugin automatically if it's not in configuration
+   */
+  const defaultPluginPath = getDefaultPluginPath(configPath);
+  if (defaultPluginPath) {
+    plugins.push(defaultPluginPath);
+  }
+
+  const resolvedPlugins: Set<string> = new Set();
+
+  const instances = await Promise.all(
+    plugins.map(async (p) => {
+      if (isString(p)) {
+        if (isAbsoluteUrl(p)) {
+          throw new Error(colorize.red(`We don't support remote plugins yet.`));
+        }
+        if (resolvedPlugins.has(p)) {
+          return;
+        }
+
+        resolvedPlugins.add(p);
       }
 
-      // TODO: resolve npm packages similar to eslint
-      const pluginModule = requireFunc(p);
+      const requiredPlugin: ImportedPlugin | undefined = await requireFunc(p);
+
+      const pluginCreatorOptions = { contentDir: path.dirname(configPath) };
+
+      const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
+        ? requiredPlugin
+        : isCommonJsPlugin(requiredPlugin)
+        ? await requiredPlugin(pluginCreatorOptions)
+        : await requiredPlugin?.default?.(pluginCreatorOptions);
 
       if (!pluginModule) {
         return;
+      }
+
+      if (isString(p) && pluginModule.id && isDeprecatedPluginFormat(requiredPlugin)) {
+        logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
       }
 
       const id = pluginModule.id;
@@ -266,7 +320,9 @@ export function resolvePlugins(
 
       return plugin;
     })
-    .filter(isDefined);
+  );
+
+  return instances.filter(isDefined);
 }
 
 export async function resolveApis({
@@ -317,7 +373,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
   const plugins = getUniquePlugins(
-    resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
+    await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
   );
   const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)

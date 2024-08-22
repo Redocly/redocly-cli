@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 plugins:
-  - ./plugin.js
+  - ./plugin.mjs
 rules:
   rule/operation-summary-length-custom:
     subject:

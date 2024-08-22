@@ -84,9 +84,11 @@ const decorators = {
   },
 };
 
-module.exports = {
-  id,
-  decorators,
+module.exports = function replaceServersUrlPlugin() {
+  return {
+    id,
+    decorators,
+  };
 };
 ```
 

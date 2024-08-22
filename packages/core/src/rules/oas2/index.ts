@@ -4,6 +4,7 @@ import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examp
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
 import { InfoLicenseUrl } from '../common/info-license-url';
+import { InfoLicenseStrict } from '../common/info-license-strict';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
@@ -52,6 +53,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
   'info-license-url': InfoLicenseUrl as Oas2Rule,
+  'info-license-strict': InfoLicenseStrict as Oas2Rule,
   'tag-description': TagDescription as Oas2Rule,
   'tags-alphabetical': TagsAlphabetical as Oas2Rule,
   'paths-kebab-case': PathsKebabCase as Oas2Rule,

@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info:
+  title: Test
+paths: {}
+components:
+  securitySchemes:
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/missing-well-known-configuration
