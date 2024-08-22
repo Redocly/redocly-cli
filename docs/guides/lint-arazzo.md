@@ -123,10 +123,10 @@ some of the built-in rules. The currently-supported rules are:
 - `strict-source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
 - `arazzo-version-enum`: the `version` property must be one of the allowed values: [`1.0.0`].
 - `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
-- `step-stepId-unique`: the `stepId` MUST be unique amongst all steps described in the workflow.
+- `step-stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
 - `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
 - `workflow-dependsOn-unique`: the items in the `workflow` `dependsOn` property must be unique.
-- `parameters-unique`: the `parameters` list MUST NOT include duplicate parameters.
+- `parameters-unique`: the `parameters` list must not include duplicate parameters.
 - `step-onSuccess-unique`: the `onSuccess` actions of the `step` object must be unique.
 - `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
 - `requestBody-replacements-unique`: the `replacements` of the `requestBody` object must be unique.
