@@ -155,10 +155,7 @@ export async function resolvePlugins(
           return mod.default || mod;
         }
       } catch (e) {
-        if (e instanceof SyntaxError) {
-          throw e;
-        }
-        throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
+        throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
       }
     }
 
