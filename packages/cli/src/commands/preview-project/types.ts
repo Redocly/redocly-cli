@@ -8,5 +8,5 @@ export type PreviewProjectOptions = {
   product?: Product | string;
   plan: ProductPlan | string;
   port?: number;
-  'source-dir': string;
+  'project-dir': string;
 } & VerifyConfigOptions;

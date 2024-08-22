@@ -6,7 +6,7 @@ import type { VerifyConfigOptions } from '../types';
 export type EjectOptions = {
   type: 'component';
   path: string;
-  contentDir?: string;
+  'project-dir'?: string;
   force: boolean;
 } & VerifyConfigOptions;
 
@@ -21,7 +21,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
       'eject',
       `${argv.type}`,
       `${argv.path}`,
-      `--contentDir=${argv.contentDir}`,
+      `-d=${argv['project-dir']}`,
       argv.force ? `--force=${argv.force}` : '',
     ],
     { stdio: 'inherit' }

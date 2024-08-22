@@ -8,7 +8,7 @@ import type { CommandArgs } from '../../wrapper';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
   const { plan, port } = argv;
-  const projectDir = argv['source-dir'];
+  const projectDir = argv['project-dir'];
 
   const product = argv.product || tryGetProductFromPackageJson(projectDir);
 

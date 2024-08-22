@@ -655,10 +655,11 @@ yargs
           description: 'Preview port.',
           default: 4000,
         },
-        'source-dir': {
+        'project-dir': {
           alias: 'd',
           type: 'string',
-          description: 'Project directory.',
+          description:
+            'Specifies the project content directory. The default value is the directory where the command is executed.',
           default: '.',
         },
         'lint-config': {
@@ -779,30 +780,31 @@ yargs
     }
   )
   .command(
-    'translations',
+    'translations <locales...>',
     'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
     (yargs) =>
-      yargs.options({
-        contentDir: {
-          alias: 'd',
-          type: 'string',
-          description: 'A directory where to put the translations content.',
-          default: '.',
-        },
-        locale: {
-          alias: 'l',
-          type: 'string',
-          array: true,
+      yargs
+        .positional('locales', {
           description:
             'Locale code to generate translations for, or `all` for all current project locales.',
-          required: true,
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-      }),
+          type: 'string',
+          array: true,
+          demandOption: true,
+        })
+        .options({
+          'project-dir': {
+            alias: 'd',
+            type: 'string',
+            description:
+              'Specifies the project content directory. The default value is the directory where the command is executed.',
+            default: '.',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'translations';
       commandWrapper(handleTranslations)(argv);
@@ -816,19 +818,20 @@ yargs
         .positional('type', {
           description:
             'Specifies what type of project element to eject. Currently, it could be only `component`.',
-          required: true,
+          demandOption: true,
           choices: ['component'],
         })
         .positional('path', {
           description: 'Filepath to a component or filepath with glob pattern.',
           type: 'string',
-          required: true,
+          demandOption: true,
         })
         .options({
-          contentDir: {
+          'project-dir': {
             alias: 'd',
             type: 'string',
-            description: 'A path to the folder with the content.',
+            description:
+              'Specifies the project content directory. The default value is the directory where the command is executed.',
             default: '.',
           },
           force: {
