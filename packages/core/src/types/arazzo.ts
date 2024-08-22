@@ -232,7 +232,7 @@ const SuccessActionObject: NodeType = {
     type: { type: 'string', enum: ['goto', 'end'] },
     stepId: { type: 'string' },
     workflowId: { type: 'string' },
-    criteria: 'CriterionObject',
+    criteria: listOf('CriterionObject'),
   },
   required: ['type', 'name'],
 };
@@ -254,7 +254,7 @@ const FailureActionObject: NodeType = {
     stepId: { type: 'string' },
     retryAfter: { type: 'number' },
     retryLimit: { type: 'number' },
-    criteria: 'CriterionObject',
+    criteria: listOf('CriterionObject'),
   },
   required: ['type', 'name'],
 };
