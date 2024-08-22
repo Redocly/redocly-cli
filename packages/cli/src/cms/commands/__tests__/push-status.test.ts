@@ -52,6 +52,7 @@ describe('handlePushStatus()', () => {
     scoutJobId: null,
     uploadedFiles: [],
     commit: commitStub,
+    remote: { commits: [] },
     isOutdated: false,
     isMainBranch: false,
     hasChanges: true,
