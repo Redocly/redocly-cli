@@ -13,12 +13,8 @@ import type {
   UpsertRemoteResponse,
 } from './types';
 
-export enum ReuniteErrorCodes {
-  AGENT_NOT_SUPPORTED = 'AGENT_NOT_SUPPORTED',
-}
-
 export class ReuniteApiError extends Error {
-  constructor(message: string, public status: number, public code?: ReuniteErrorCodes) {
+  constructor(message: string, public status: number) {
     super(message);
   }
 }
@@ -36,7 +32,6 @@ class ReuniteBaseApiClient {
     throw new ReuniteApiError(
       responseBody.title || response.statusText,
       response.status,
-      responseBody.code
     );
   }
 
@@ -86,7 +81,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
       const message = `Failed to fetch default branch. ${err.message || 'Unknown error'}`;
 
       if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status, err.code);
+        throw new ReuniteApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -125,7 +120,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
       const message = `Failed to upsert remote. ${err.message || 'Unknown error'}`;
 
       if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status, err.code);
+        throw new ReuniteApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -173,7 +168,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
       const message = `Failed to push. ${err.message || 'Unknown error'}`;
 
       if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status, err.code);
+        throw new ReuniteApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -199,7 +194,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
       const message = `Failed to get remote list. ${err.message || 'Unknown error'}`;
 
       if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status, err.code);
+        throw new ReuniteApiError(message, err.status);
       }
 
       throw new Error(message);
@@ -233,7 +228,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
       const message = `Failed to get push status. ${err.message || 'Unknown error'}`;
 
       if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status, err.code);
+        throw new ReuniteApiError(message, err.status);
       }
 
       throw new Error(message);
