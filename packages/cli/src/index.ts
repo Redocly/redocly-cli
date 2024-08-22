@@ -656,7 +656,7 @@ yargs
           default: 4000,
         },
         'project-dir': {
-          alias: 'd',
+          alias: ['d', 'source-dir'],
           type: 'string',
           description:
             'Specifies the project content directory. The default value is the directory where the command is executed.',
@@ -780,15 +780,14 @@ yargs
     }
   )
   .command(
-    'translations <locales...>',
+    'translations <locale>',
     'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
     (yargs) =>
       yargs
-        .positional('locales', {
+        .positional('locale', {
           description:
             'Locale code to generate translations for, or `all` for all current project locales.',
           type: 'string',
-          array: true,
           demandOption: true,
         })
         .options({

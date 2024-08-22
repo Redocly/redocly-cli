@@ -4,7 +4,7 @@ import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
 
 export type TranslationsOptions = {
-  locales: string[];
+  locale: string;
   'project-dir'?: string;
 } & VerifyConfigOptions;
 
@@ -13,7 +13,7 @@ export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptio
   const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   spawn(
     npxExecutableName,
-    ['-y', '@redocly/realm', 'translations', ...argv.locales, `-d=${argv['project-dir']}`],
+    ['-y', '@redocly/realm', 'translations', argv.locale, `--project-dir=${argv['project-dir']}`],
     { stdio: 'inherit' }
   );
 };
