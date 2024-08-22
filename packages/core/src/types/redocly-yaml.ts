@@ -119,6 +119,8 @@ const builtInArazzoRules = [
   'sourceDescription-name-unique',
   'workflow-dependsOn-unique',
   'parameters-unique',
+  'step-onSuccess-unique',
+  'step-onFailure-unique',
 ] as const;
 
 export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];

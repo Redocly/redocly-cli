@@ -118,6 +118,8 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'sourceDescription-name-unique': 'error',
     'workflow-dependsOn-unique': 'error',
     'parameters-unique': 'error',
+    'step-onSuccess-unique': 'error',
+    'step-onFailure-unique': 'error',
   },
 };
 

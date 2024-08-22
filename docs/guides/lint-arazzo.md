@@ -127,6 +127,8 @@ some of the built-in rules. The currently-supported rules are:
 - `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
 - `workflow-dependsOn-unique`: the items in the `workflow` `dependsOn` property must be unique.
 - `parameters-unique`: the `parameters` list MUST NOT include duplicate parameters.
+- `step-onSuccess-unique`: the `onSuccess` actions of the `step` object must be unique.
+- `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
 
 ## Participate in Redocly CLI
 

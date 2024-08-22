@@ -8,6 +8,8 @@ import { StepStepIdUnique } from './step-stepId-unique';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique';
 import { WorkflowDependsOnUnique } from './workflow-dependsOn-unique';
 import { ParametersUnique } from './parameters-unique';
+import { StepOnSuccessUnique } from './step-onSuccess-unique';
+import { StepOnFailureUnique } from './step-onFailure-unique';
 
 import type { ArazzoRule } from '../../visitors';
 import type { ArazzoRuleSet } from '../../oas-types';
@@ -23,6 +25,8 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   'sourceDescription-name-unique': SourceDescriptionsNameUnique as ArazzoRule,
   'workflow-dependsOn-unique': WorkflowDependsOnUnique as ArazzoRule,
   'parameters-unique': ParametersUnique as ArazzoRule,
+  'step-onSuccess-unique': StepOnSuccessUnique as ArazzoRule,
+  'step-onFailure-unique': StepOnFailureUnique as ArazzoRule,
 };
 
 export const preprocessors = {};
