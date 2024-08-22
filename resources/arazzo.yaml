@@ -56,6 +56,11 @@ workflows:
           Create a new special event.
         operationPath: $sourceDescriptions.museum-api#/paths/~1special-events/post
         requestBody:
+          replacements:
+            - target: $randomString
+              value: $randomString
+            - target: $randomString
+              value: $randomString
           payload:
             name: 'Mermaid Treasure Identification and Analysis'
             location: 'Under the seaaa 🦀 🎶 🌊.'

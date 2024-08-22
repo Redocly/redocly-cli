@@ -138,6 +138,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'parameters-unique': 'error',
     'step-onSuccess-unique': 'error',
     'step-onFailure-unique': 'error',
+    'requestBody-replacements-unique': 'error',
   },
 };
 

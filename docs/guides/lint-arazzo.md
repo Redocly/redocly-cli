@@ -129,6 +129,7 @@ some of the built-in rules. The currently-supported rules are:
 - `parameters-unique`: the `parameters` list MUST NOT include duplicate parameters.
 - `step-onSuccess-unique`: the `onSuccess` actions of the `step` object must be unique.
 - `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
+- `requestBody-replacements-unique`: the `replacements` of the `requestBody` object must be unique.
 
 ## Participate in Redocly CLI
 
