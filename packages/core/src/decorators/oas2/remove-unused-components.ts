@@ -1,6 +1,6 @@
-import { Location } from '../../ref-utils';
 import { isEmptyObject } from '../../utils';
 
+import type { Location } from '../../ref-utils';
 import type { Oas2Decorator } from '../../visitors';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger';
 

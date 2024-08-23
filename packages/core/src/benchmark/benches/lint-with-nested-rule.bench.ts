@@ -4,6 +4,8 @@ import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
 
+import type { StyleguideConfig } from '../../config';
+
 export const name = 'Validate with single nested rule';
 export const count = 10;
 const rebillyDefinitionRef = pathResolve(pathJoin(__dirname, 'rebilly.yaml'));
@@ -29,7 +31,11 @@ const visitor = {
     };
   },
 };
-const config = makeConfigForRuleset(visitor);
+let config: StyleguideConfig;
+export async function setupAsync() {
+  config = await makeConfigForRuleset(visitor);
+}
+
 export function measureAsync() {
   return lintDocument({
     externalRefResolver: new BaseResolver(),

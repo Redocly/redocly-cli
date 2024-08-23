@@ -28,30 +28,32 @@ describe('push-with-region', () => {
 
   it('should call login with default domain when region is US', async () => {
     redoclyClient.domain = 'redoc.ly';
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         upsert: true,
         api: 'spec.json',
         destination: '@org/my-api@1.0.0',
         branchName: 'test',
       },
-      ConfigFixture as any
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
   });
 
   it('should call login with EU domain when region is EU', async () => {
     redoclyClient.domain = 'eu.redocly.com';
-    await handlePush(
-      {
+    await handlePush({
+      argv: {
         upsert: true,
         api: 'spec.json',
         destination: '@org/my-api@1.0.0',
         branchName: 'test',
       },
-      ConfigFixture as any
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
   });

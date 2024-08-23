@@ -1,6 +1,7 @@
-import { Oas3Rule } from '../../visitors';
-import { UserContext } from '../../walk';
 import { getMatchingStatusCodeRange } from '../../utils';
+
+import type { Oas3Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const ResponseContainsProperty: Oas3Rule = (options) => {
   const names: Record<string, string[]> = options.names || {};

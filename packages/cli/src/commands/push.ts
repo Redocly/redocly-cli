@@ -6,13 +6,10 @@ import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
 import {
   bundle,
-  Config,
   RedoclyClient,
   IGNORE_FILE,
-  BundleOutputFormat,
   getTotals,
   slash,
-  Region,
   getMergedConfig,
   getProxyAgent,
 } from '@redocly/openapi-core';
@@ -26,9 +23,14 @@ import {
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
 
+import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
+import type { CommandArgs } from '../wrapper';
+import type { VerifyConfigOptions } from '../types';
+
 const DEFAULT_VERSION = 'latest';
 
 export const DESTINATION_REGEX =
+  // eslint-disable-next-line no-useless-escape
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
 export type PushOptions = {
@@ -43,8 +45,7 @@ export type PushOptions = {
   public?: boolean;
   files?: string[];
   organization?: string;
-  config?: string;
-};
+} & VerifyConfigOptions;
 
 export function commonPushHandler({
   project,
@@ -59,7 +60,7 @@ export function commonPushHandler({
   return transformPush(handlePush);
 }
 
-export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
+export async function handlePush({ argv, config }: CommandArgs<PushOptions>): Promise<void> {
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -366,16 +367,11 @@ type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  (
-    {
-      apis,
-      branch,
-      'batch-id': batchId,
-      'job-id': jobId,
-      ...rest
-    }: BarePushArgs & { 'batch-id'?: string },
-    config: Config
-  ) => {
+  ({
+    argv: { apis, branch, 'batch-id': batchId, 'job-id': jobId, ...rest },
+    config,
+    version,
+  }: CommandArgs<BarePushArgs & { 'batch-id'?: string }>) => {
     const [maybeApiOrDestination, maybeDestination, maybeBranchName] = apis || [];
 
     if (batchId) {
@@ -414,16 +410,17 @@ export const transformPush =
       apiFile = maybeApiOrDestination;
     }
 
-    return callback(
-      {
+    return callback({
+      argv: {
         ...rest,
         destination: rest.destination ?? destination,
         api: apiFile,
         branchName: branch ?? maybeBranchName,
         'job-id': jobId || batchId,
       },
-      config
-    );
+      config,
+      version,
+    });
   };
 
 export function getApiRoot({

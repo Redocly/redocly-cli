@@ -4,7 +4,7 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
 {
   "refs": {
     "metric": "🚗 References",
-    "total": 39
+    "total": 43
   },
   "externalDocs": {
     "metric": "📦 External Documents",
@@ -12,7 +12,7 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
   },
   "schemas": {
     "metric": "📈 Schemas",
-    "total": 22
+    "total": 23
   },
   "parameters": {
     "metric": "👉 Parameters",
@@ -25,6 +25,10 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
   "pathItems": {
     "metric": "🔀 Path Items",
     "total": 5
+  },
+  "webhooks": {
+    "metric": "🎣 Webhooks",
+    "total": 0
   },
   "operations": {
     "metric": "👷 Operations",

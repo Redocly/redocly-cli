@@ -1,6 +1,7 @@
+import { validateMimeType } from '../../utils';
+
 import type { Oas2Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
-import { validateMimeType } from '../../utils';
 
 export const RequestMimeType: Oas2Rule = ({ allowedValues }) => {
   return {

@@ -1,13 +1,18 @@
 import * as path from 'path';
 import { colorOptions, colorize, logger } from '../logger';
 import { output } from '../output';
-
-const coreVersion = require('../../package.json').version;
-
-import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
 import { env, isBrowser } from '../env';
 import { isAbsoluteUrl } from '../ref-utils';
+
+import type {
+  NormalizedProblem,
+  ProblemSeverity,
+  LineColLocationObject,
+  LocationObject,
+} from '../walk';
+
+const coreVersion = require('../../package.json').version;
 
 export type Totals = {
   errors: number;

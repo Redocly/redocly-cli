@@ -1,6 +1,6 @@
-import { Oas3Parameter, OasRef, Oas3Tag } from '../../typings/openapi';
-import { Oas2Parameter } from '../../typings/swagger';
-import { StatsAccumulator } from '../../typings/common';
+import type { Oas3Parameter, OasRef, Oas3Tag } from '../../typings/openapi';
+import type { Oas2Parameter } from '../../typings/swagger';
+import type { StatsAccumulator } from '../../typings/common';
 
 export const Stats = (statsAccumulator: StatsAccumulator) => {
   return {
@@ -35,9 +35,11 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
     WebhooksMap: {
       Operation: {
         leave(operation: any) {
-          operation.tags.forEach((tag: string) => {
-            statsAccumulator.tags.items!.add(tag);
-          });
+          statsAccumulator.webhooks.total++;
+          operation.tags &&
+            operation.tags.forEach((tag: string) => {
+              statsAccumulator.tags.items!.add(tag);
+            });
         },
       },
     },

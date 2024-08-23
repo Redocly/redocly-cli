@@ -1,13 +1,9 @@
-import { AssertionContext, AssertResult, CustomFunction } from 'core/src/config/types';
-import { Location } from '../../../ref-utils';
 import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils';
-import {
-  OrderOptions,
-  OrderDirection,
-  isOrdered,
-  getIntersectionLength,
-  regexFromString,
-} from './utils';
+import { isOrdered, getIntersectionLength, regexFromString } from './utils';
+
+import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types';
+import type { Location } from '../../../ref-utils';
+import type { OrderOptions, OrderDirection } from './utils';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 

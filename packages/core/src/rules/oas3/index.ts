@@ -1,4 +1,3 @@
-import { Oas3RuleSet } from '../../oas-types';
 import { Spec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
@@ -19,6 +18,7 @@ import { TagDescription } from '../common/tag-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
 import { InfoLicenseUrl } from '../common/info-license-url';
+import { InfoLicenseStrict } from '../common/info-license-strict';
 import { OperationDescription } from '../common/operation-description';
 import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
@@ -55,6 +55,7 @@ import { ComponentNameUnique } from './component-name-unique';
 import { ArrayParameterSerialization } from './array-parameter-serialization';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
 
+import type { Oas3RuleSet } from '../../oas-types';
 import type { Oas3Rule } from '../../visitors';
 
 export const rules: Oas3RuleSet<'built-in'> = {
@@ -62,6 +63,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'info-contact': InfoContact as Oas3Rule,
   'info-license': InfoLicense as Oas3Rule,
   'info-license-url': InfoLicenseUrl as Oas3Rule,
+  'info-license-strict': InfoLicenseStrict as Oas3Rule,
   'operation-2xx-response': Operation2xxResponse as Oas3Rule,
   'operation-4xx-response': Operation4xxResponse as Oas3Rule,
   'operation-4xx-problem-details-rfc7807': Operation4xxProblemDetailsRfc7807,

@@ -25,7 +25,7 @@ describe('no-invalid-parameter-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-invalid-parameter-examples': 'error' }),
+      config: await makeConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

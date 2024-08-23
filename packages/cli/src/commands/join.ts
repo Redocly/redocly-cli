@@ -2,7 +2,6 @@ import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
-  Config,
   SpecVersion,
   BaseResolver,
   formatProblems,
@@ -24,13 +23,7 @@ import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
 import { crawl, startsWithComponents } from './split';
 
-import type {
-  Oas3Definition,
-  Document,
-  Oas3Tag,
-  Referenced,
-  RuleSeverity,
-} from '@redocly/openapi-core';
+import type { Oas3Definition, Document, Oas3Tag, Referenced } from '@redocly/openapi-core';
 import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {
   Oas3Parameter,
@@ -38,6 +31,8 @@ import type {
   Oas3Server,
   Oas3_1Definition,
 } from '@redocly/openapi-core/lib/typings/openapi';
+import type { CommandArgs } from '../wrapper';
+import type { VerifyConfigOptions } from '../types';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
@@ -60,11 +55,13 @@ export type JoinOptions = {
   'prefix-components-with-info-prop'?: string;
   'without-x-tag-groups'?: boolean;
   output?: string;
-  config?: string;
-  'lint-config'?: RuleSeverity;
-};
+} & VerifyConfigOptions;
 
-export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
+export async function handleJoin({
+  argv,
+  config,
+  version: packageVersion,
+}: CommandArgs<JoinOptions>) {
   const startedAt = performance.now();
 
   if (argv.apis.length < 2) {

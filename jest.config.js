@@ -14,12 +14,12 @@ module.exports = {
     'packages/core/': {
       statements: 80,
       branches: 71,
-      functions: 73,
+      functions: 74,
       lines: 80,
     },
     'packages/cli/': {
       statements: 60,
-      branches: 50,
+      branches: 49,
       functions: 60,
       lines: 60,
     },

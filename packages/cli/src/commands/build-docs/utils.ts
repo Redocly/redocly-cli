@@ -1,16 +1,16 @@
 import { createElement } from 'react';
 import { createStore, Redoc } from 'redoc';
-import { Config, isAbsoluteUrl } from '@redocly/openapi-core';
-
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { compile } from 'handlebars';
 import { dirname, join, resolve } from 'path';
 import { existsSync, lstatSync, readFileSync } from 'fs';
-
-import type { BuildDocsOptions } from './types';
 import { red } from 'colorette';
+import { isAbsoluteUrl } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/miscellaneous';
+
+import type { Config } from '@redocly/openapi-core';
+import type { BuildDocsOptions } from './types';
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,

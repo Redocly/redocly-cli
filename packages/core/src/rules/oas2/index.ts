@@ -1,10 +1,10 @@
-import { Oas2Rule } from '../../visitors';
 import { Spec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
 import { InfoLicenseUrl } from '../common/info-license-url';
+import { InfoLicenseStrict } from '../common/info-license-strict';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
@@ -43,7 +43,8 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
 
-import type { Oas2RuleSet } from 'core/src/oas-types';
+import type { Oas2Rule } from '../../visitors';
+import type { Oas2RuleSet } from '../../oas-types';
 
 export const rules: Oas2RuleSet<'built-in'> = {
   spec: Spec as Oas2Rule,
@@ -52,6 +53,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
   'info-license-url': InfoLicenseUrl as Oas2Rule,
+  'info-license-strict': InfoLicenseStrict as Oas2Rule,
   'tag-description': TagDescription as Oas2Rule,
   'tags-alphabetical': TagsAlphabetical as Oas2Rule,
   'paths-kebab-case': PathsKebabCase as Oas2Rule,

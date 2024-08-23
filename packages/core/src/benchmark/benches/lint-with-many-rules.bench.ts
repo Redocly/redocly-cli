@@ -4,6 +4,8 @@ import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
 
+import type { StyleguideConfig } from '../../config';
+
 export const name = 'Validate with 50 top-level rules';
 export const count = 10;
 const rebillyDefinitionRef = pathResolve(pathJoin(__dirname, 'rebilly.yaml'));
@@ -25,7 +27,11 @@ for (let i = 0; i < 50; i++) {
   };
 }
 
-const config = makeConfigForRuleset(ruleset);
+let config: StyleguideConfig;
+export async function setupAsync() {
+  config = await makeConfigForRuleset(ruleset);
+}
+
 export function measureAsync() {
   return lintDocument({
     externalRefResolver: new BaseResolver(),

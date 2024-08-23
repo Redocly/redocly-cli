@@ -1,6 +1,9 @@
-import { Region, RedoclyClient, Config } from '@redocly/openapi-core';
 import { blue, green, gray } from 'colorette';
+import { RedoclyClient } from '@redocly/openapi-core';
 import { promptUser } from '../utils/miscellaneous';
+
+import type { CommandArgs } from '../wrapper';
+import type { Region } from '@redocly/openapi-core';
 
 export function promptClientToken(domain: string) {
   return promptUser(
@@ -17,7 +20,7 @@ export type LoginOptions = {
   config?: string;
 };
 
-export async function handleLogin(argv: LoginOptions, config: Config) {
+export async function handleLogin({ argv, config }: CommandArgs<LoginOptions>) {
   const region = argv.region || config.region;
   const client = new RedoclyClient(region);
   const clientToken = await promptClientToken(client.domain);

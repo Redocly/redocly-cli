@@ -23,7 +23,7 @@ describe('no-channel-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-channel-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-channel-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -64,7 +64,7 @@ describe('no-channel-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-channel-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-channel-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -89,7 +89,7 @@ describe('no-channel-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-channel-trailing-slash': 'error' }),
+      config: await makeConfig({ rules: { 'no-channel-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

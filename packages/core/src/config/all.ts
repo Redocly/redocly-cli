@@ -5,6 +5,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'info-contact': 'error',
     'info-license': 'error',
     'info-license-url': 'error',
+    'info-license-strict': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'parameter-description': 'error',
@@ -108,6 +109,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
   async2Rules: {
     spec: 'error',
     'info-contact': 'error',
+    'info-license-strict': 'error',
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
@@ -117,13 +119,14 @@ const all: PluginStyleguideConfig<'built-in'> = {
   async3Rules: {
     spec: 'error',
     'info-contact': 'error',
+    'info-license-strict': 'error',
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'channels-kebab-case': 'error',
     'no-channel-trailing-slash': 'error',
   },
-  arazzoRules: { spec: 'error' },
+  arazzoRules: { spec: 'error', 'parameters-no-body-inside-in': 'off' },
 };
 
 export default all;

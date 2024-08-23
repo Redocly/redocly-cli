@@ -13,5 +13,6 @@ export type StatsName =
   | 'pathItems'
   | 'links'
   | 'schemas'
+  | 'webhooks'
   | 'parameters';
 export type StatsAccumulator = Record<StatsName, StatsRow>;

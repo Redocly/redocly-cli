@@ -1,3 +1,4 @@
+import type { Location } from '../ref-utils';
 import type { ProblemSeverity, UserContext } from '../walk';
 import type {
   Oas3PreprocessorsSet,
@@ -19,11 +20,9 @@ import type {
   ArazzoDecoratorsSet,
   RuleMap,
 } from '../oas-types';
-
 import type { NodeType } from '../types';
-import { Location } from '../ref-utils';
 import type { SkipFunctionContext } from '../visitors';
-import {
+import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,
   BuiltInCommonOASRuleId,
@@ -145,6 +144,22 @@ export type Plugin = {
   assertions?: AssertionsConfig;
 };
 
+type PluginCreatorOptions = {
+  contentDir: string;
+};
+
+export type PluginCreator = (options: PluginCreatorOptions) => Plugin | Promise<Plugin>;
+
+export type ImportedPlugin =
+  // ES Modules
+  | {
+      default?: PluginCreator;
+    }
+  // CommonJS
+  | PluginCreator
+  // Deprecated format
+  | Plugin;
+
 export type PluginStyleguideConfig<T = undefined> = Omit<
   StyleguideRawConfig<T>,
   'plugins' | 'extends'
@@ -171,6 +186,7 @@ export type RawResolveConfig = {
 
 export type HttpResolveConfig = {
   headers: ResolveHeader[];
+  // eslint-disable-next-line @typescript-eslint/ban-types
   customFetch?: Function;
 };
 

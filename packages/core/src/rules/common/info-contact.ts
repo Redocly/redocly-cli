@@ -1,5 +1,6 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { missingRequiredField } from '../utils';
+
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
 
 export const InfoContact: Oas3Rule | Oas2Rule = () => {
   return {

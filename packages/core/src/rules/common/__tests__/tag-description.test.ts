@@ -19,7 +19,7 @@ describe('Oas3 tag-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tag-description': 'error' }),
+      config: await makeConfig({ rules: { 'tag-description': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -57,7 +57,7 @@ describe('Oas3 tag-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'tag-description': 'error' }),
+      config: await makeConfig({ rules: { 'tag-description': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

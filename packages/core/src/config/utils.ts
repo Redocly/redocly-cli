@@ -6,13 +6,15 @@ import {
   showWarningForDeprecatedField,
 } from '../utils';
 import { Config } from './config';
+import { logger, colorize } from '../logger';
+
 import type {
   Api,
   DeprecatedInApi,
   DeprecatedInRawConfig,
+  ImportedPlugin,
   FlatApi,
   FlatRawConfig,
-  Plugin,
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
@@ -20,8 +22,9 @@ import type {
   RulesFields,
   StyleguideRawConfig,
   ThemeConfig,
+  Plugin,
+  PluginCreator,
 } from './types';
-import { logger, colorize } from '../logger';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -397,4 +400,12 @@ export class ConfigValidationError extends Error {}
 
 export function deepCloneMapWithJSON<K, V>(originalMap: Map<K, V>): Map<K, V> {
   return new Map(JSON.parse(JSON.stringify([...originalMap])));
+}
+
+export function isDeprecatedPluginFormat(plugin: ImportedPlugin | undefined): plugin is Plugin {
+  return plugin !== undefined && typeof plugin === 'object' && 'id' in plugin;
+}
+
+export function isCommonJsPlugin(plugin: ImportedPlugin | undefined): plugin is PluginCreator {
+  return typeof plugin === 'function';
 }

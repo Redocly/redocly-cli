@@ -1,7 +1,10 @@
-import { asserts, runOnKeysSet, runOnValuesSet, Asserts } from './asserts';
+import { asserts, runOnKeysSet, runOnValuesSet } from './asserts';
 import { colorize } from '../../../logger';
 import { isRef } from '../../../ref-utils';
 import { isTruthy, keysOf, isString } from '../../../utils';
+
+import type { UserContext } from 'core/src/walk';
+import type { Asserts } from './asserts';
 import type { AssertionContext, AssertResult } from '../../../config';
 import type { Assertion, AssertionDefinition, AssertionLocators } from '.';
 import type {
@@ -10,7 +13,6 @@ import type {
   SkipFunctionContext,
   VisitFunction,
 } from '../../../visitors';
-import { UserContext } from 'core/src/walk';
 
 export type OrderDirection = 'asc' | 'desc';
 

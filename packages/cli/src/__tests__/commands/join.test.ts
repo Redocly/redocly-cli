@@ -14,21 +14,21 @@ describe('handleJoin', () => {
   colloreteYellowMock.mockImplementation((string: string) => string);
 
   it('should call exitWithError because only one entrypoint', async () => {
-    await handleJoin({ apis: ['first.yaml'] }, {} as any, 'cli-version');
+    await handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' });
     expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided.`);
   });
 
   it('should call exitWithError because passed all 3 options for tags', async () => {
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
         'prefix-tags-with-info-prop': 'something',
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      {} as any,
-      'cli-version'
-    );
+      config: {} as any,
+      version: 'cli-version',
+    });
 
     expect(exitWithError).toHaveBeenCalledWith(
       `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one!`
@@ -36,15 +36,15 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError because passed all 2 options for tags', async () => {
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      {} as any,
-      'cli-version'
-    );
+      config: {} as any,
+      version: 'cli-version',
+    });
 
     expect(exitWithError).toHaveBeenCalledWith(
       `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one!`
@@ -52,13 +52,13 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
     expect(exitWithError).toHaveBeenCalledWith(
       'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined.'
     );
@@ -68,13 +68,13 @@ describe('handleJoin', () => {
     (detectSpec as jest.Mock)
       .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(exitWithError).toHaveBeenCalledWith(
       'All APIs must use the same OpenAPI version: undefined.'
@@ -83,13 +83,13 @@ describe('handleJoin', () => {
 
   it('should call writeToFileByExtension function', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
       expect.any(Object),
@@ -100,13 +100,13 @@ describe('handleJoin', () => {
 
   it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_1');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
       expect.any(Object),
@@ -117,14 +117,14 @@ describe('handleJoin', () => {
 
   it('should call writeToFileByExtension function with custom output file', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
       expect.any(Object),
@@ -135,13 +135,13 @@ describe('handleJoin', () => {
 
   it('should call writeToFileByExtension function with json file extension', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.json', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
       expect.any(Object),
@@ -152,13 +152,13 @@ describe('handleJoin', () => {
 
   it('should call skipDecorators and skipPreprocessors', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     const config = loadConfig();
     expect(config.styleguide.skipDecorators).toHaveBeenCalled();
@@ -168,15 +168,15 @@ describe('handleJoin', () => {
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
 
-    await handleJoin(
-      {
+    await handleJoin({
+      argv: {
         apis: ['first.yaml', 'second.yaml', 'third.yaml'],
         'prefix-components-with-info-prop': 'title',
         output: 'join-result.yaml',
       },
-      ConfigFixture as any,
-      'cli-version'
-    );
+      config: ConfigFixture as any,
+      version: 'cli-version',
+    });
 
     expect(writeToFileByExtension).toHaveBeenCalledWith(
       {

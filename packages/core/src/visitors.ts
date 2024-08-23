@@ -51,7 +51,24 @@ import type {
 } from './typings/swagger';
 import type { Async2Definition } from './typings/asyncapi';
 import type { Async3Definition } from './typings/asyncapi3';
-import type { ArazzoDefinition } from './typings/arazzo';
+import type {
+  ArazzoDefinition,
+  ArazzoSourceDescription,
+  CriteriaObject,
+  ExpectSchema,
+  ExtendedOperation,
+  InfoObject,
+  NoneSourceDescription,
+  OnFailureObject,
+  OnSuccessObject,
+  OpenAPISourceDescription,
+  Parameter,
+  Replacement,
+  RequestBody,
+  SourceDescription,
+  Step,
+  Workflow,
+} from './typings/arazzo';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -220,6 +237,23 @@ type Async3FlatVisitor = {
 
 type ArazzoFlatVisitor = {
   Root?: VisitFunctionOrObject<ArazzoDefinition>;
+  ParameterObject?: VisitFunctionOrObject<Parameter>;
+  InfoObject?: VisitFunctionOrObject<InfoObject>;
+  OpenAPISourceDescription?: VisitFunctionOrObject<OpenAPISourceDescription>;
+  NoneSourceDescription?: VisitFunctionOrObject<NoneSourceDescription>;
+  ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
+  SourceDescription?: VisitFunctionOrObject<SourceDescription>;
+  ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
+  ExpectSchema?: VisitFunctionOrObject<ExpectSchema>;
+  Replacement?: VisitFunctionOrObject<Replacement>;
+  RequestBody?: VisitFunctionOrObject<RequestBody>;
+  CriteriaObject?: VisitFunctionOrObject<CriteriaObject>;
+  OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
+  OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
+  Step?: VisitFunctionOrObject<Step>;
+  Steps?: VisitFunctionOrObject<Step[]>;
+  Workflow?: VisitFunctionOrObject<Workflow>;
+  Workflows?: VisitFunctionOrObject<Workflow[]>;
 };
 
 const legacyTypesMap = {
@@ -237,30 +271,35 @@ const legacyTypesMap = {
 };
 
 type Oas3NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [T in keyof Oas3FlatVisitor]: Oas3FlatVisitor[T] extends Function
     ? Oas3FlatVisitor[T]
     : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
 };
 
 type Oas2NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [T in keyof Oas2FlatVisitor]: Oas2FlatVisitor[T] extends Function
     ? Oas2FlatVisitor[T]
     : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
 };
 
 type Async2NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [T in keyof Async2FlatVisitor]: Async2FlatVisitor[T] extends Function
     ? Async2FlatVisitor[T]
     : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
 };
 
 type Async3NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [T in keyof Async3FlatVisitor]: Async3FlatVisitor[T] extends Function
     ? Async3FlatVisitor[T]
     : Async3FlatVisitor[T] & NestedVisitor<Async3NestedVisitor>;
 };
 
 type ArazzoNestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [T in keyof ArazzoFlatVisitor]: ArazzoFlatVisitor[T] extends Function
     ? ArazzoFlatVisitor[T]
     : ArazzoFlatVisitor[T] & NestedVisitor<ArazzoNestedVisitor>;

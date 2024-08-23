@@ -11,7 +11,9 @@ import {
 import { handlePushStatus } from './push-status';
 import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
 
-import type { OutputFormat, Config } from '@redocly/openapi-core';
+import type { OutputFormat } from '@redocly/openapi-core';
+import type { CommandArgs } from '../../wrapper';
+import type { VerifyConfigOptions } from '../../types';
 
 export type PushOptions = {
   apis?: string[];
@@ -32,20 +34,20 @@ export type PushOptions = {
 
   'default-branch': string;
   domain?: string;
-  config?: string;
   'wait-for-deployment'?: boolean;
   'max-execution-time': number;
   'continue-on-deploy-failures'?: boolean;
   verbose?: boolean;
   format?: Extract<OutputFormat, 'stylish'>;
-};
+} & VerifyConfigOptions;
 
 type FileToUpload = { name: string; path: string };
 
-export async function handlePush(
-  argv: PushOptions,
-  config: Config
-): Promise<{ pushId: string } | void> {
+export async function handlePush({
+  argv,
+  config,
+  version,
+}: CommandArgs<PushOptions>): Promise<{ pushId: string } | void> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
 
@@ -131,8 +133,8 @@ export async function handlePush(
     if (waitForDeployment) {
       process.stdout.write('\n');
 
-      await handlePushStatus(
-        {
+      await handlePushStatus({
+        argv: {
           organization: orgId,
           project: projectId,
           pushId: id,
@@ -142,8 +144,9 @@ export async function handlePush(
           'start-time': startTime,
           'continue-on-deploy-failures': argv['continue-on-deploy-failures'],
         },
-        config
-      );
+        config,
+        version,
+      });
     }
     verbose &&
       printExecutionTime(

@@ -1,7 +1,6 @@
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
-  Config,
   formatProblems,
   getMergedConfig,
   getTotals,
@@ -23,22 +22,27 @@ import {
 } from '../utils/miscellaneous';
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
 
-import type { OutputFormat, ProblemSeverity, RuleSeverity } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { CommandOptions, Skips, Totals } from '../types';
 import type { Arguments } from 'yargs';
+import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
+import type { CommandOptions, Skips, Totals, VerifyConfigOptions } from '../types';
+import type { CommandArgs } from '../wrapper';
 
 export type LintOptions = {
   apis?: string[];
   'max-problems': number;
   extends?: string[];
-  config?: string;
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
-  'lint-config'?: RuleSeverity;
-} & Omit<Skips, 'skip-decorator'>;
+} & Omit<Skips, 'skip-decorator'> &
+  VerifyConfigOptions;
 
-export async function handleLint(argv: LintOptions, config: Config, version: string) {
+export async function handleLint({
+  argv,
+  config,
+  version,
+  collectSpecData,
+}: CommandArgs<LintOptions>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
@@ -74,6 +78,7 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
       const results = await lint({
         ref: path,
         config: resolvedConfig,
+        collectSpecData,
       });
 
       const fileTotals = getTotals(results);

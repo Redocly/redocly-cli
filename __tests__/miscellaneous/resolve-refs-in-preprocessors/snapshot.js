@@ -92,6 +92,7 @@ Document: openapi.yaml stats:
 👉 Parameters: 0 
 🔗 Links: 0 
 🔀 Path Items: 2 
+🎣 Webhooks: 0 
 👷 Operations: 2 
 🔖 Tags: 0 
 

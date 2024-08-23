@@ -27,9 +27,11 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: { '200': ['Content-Length'] },
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '200': ['Content-Length'] },
+          },
         },
       }),
     });
@@ -107,11 +109,13 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: {
-            '2XX': ['x-request-id'],
-            '400': ['Content-Length'],
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: {
+              '2XX': ['x-request-id'],
+              '400': ['Content-Length'],
+            },
           },
         },
       }),
@@ -259,11 +263,13 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: {
-            '2xx': ['x-request-id'],
-            '400': ['Content-Length'],
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: {
+              '2xx': ['x-request-id'],
+              '400': ['Content-Length'],
+            },
           },
         },
       }),
@@ -294,9 +300,11 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: { '2XX': ['x-test-header'] },
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['x-test-header'] },
+          },
         },
       }),
     });
@@ -326,9 +334,11 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: { '2XX': ['X-Test-Header'] },
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['X-Test-Header'] },
+          },
         },
       }),
     });
@@ -352,9 +362,11 @@ describe('Oas3 response-contains-header', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'response-contains-header': {
-          severity: 'error',
-          names: { '2XX': ['X-Test-Header'] },
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['X-Test-Header'] },
+          },
         },
       }),
     });

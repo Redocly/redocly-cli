@@ -38,23 +38,25 @@ Note the quotes around the `owner-team` key since it contains a hyphen `-`. Thes
 To include the new type in the type tree, the plugin must add the type and modify the parent type, which in this example is `info`. This is done by returning a `typeExtension` structure, as shown in the example below (this example is in `plugins/example-type-extension.js`, this filename is used again in the configuration example later):
 
 ```js
-module.exports = {
-  id: 'example-type-extension',
-  typeExtension: {
-    oas3(types) {
-      return {
-        ...types,
-        XMetaData: XMetaData,
-        Info: {
-          ...types.Info,
-          properties: {
-            ...types.Info.properties,
-            'x-metadata': 'XMetaData',
-          }
-        }
-      };
-    }
-  }
+module.exports = function typeExtensionsPlugin() {
+  return {
+    id: 'example-type-extension',
+    typeExtension: {
+      oas3(types) {
+        return {
+          ...types,
+          XMetaData: XMetaData,
+          Info: {
+            ...types.Info,
+            properties: {
+              ...types.Info.properties,
+              'x-metadata': 'XMetaData',
+            },
+          },
+        };
+      },
+    },
+  };
 };
 ```
 

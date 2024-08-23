@@ -53,7 +53,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(testRuleSet.test).toBeCalledTimes(1);
@@ -100,12 +100,12 @@ describe('walk order', () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
-        servers: 
+        servers:
         - url: http://{test}.url
           variables:
             test: test
-        paths: 
-          /test-path: 
+        paths:
+          /test-path:
             get:
               responses:
                 200:
@@ -121,7 +121,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(testRuleSet.test).toBeCalledTimes(1);
@@ -184,7 +184,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -264,7 +264,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet, undefined, 'oas2'),
+      config: await makeConfigForRuleset(testRuleSet, undefined, 'oas2'),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -345,7 +345,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -417,7 +417,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -489,7 +489,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -556,7 +556,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -610,7 +610,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -666,7 +666,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -708,7 +708,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -763,7 +763,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -849,7 +849,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -928,7 +928,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -1000,7 +1000,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -1044,7 +1044,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -1109,7 +1109,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`
@@ -1197,7 +1197,7 @@ describe('context.report', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(results).toHaveLength(3);
@@ -1277,7 +1277,7 @@ describe('context.report', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(results).toHaveLength(4);
@@ -1385,7 +1385,7 @@ describe('context.resolve', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
   });
 });
@@ -1434,7 +1434,7 @@ describe('type extensions', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet, {
+      config: await makeConfigForRuleset(testRuleSet, {
         typeExtension: {
           oas3(types, version) {
             expect(version).toEqual(oas);
@@ -1528,7 +1528,7 @@ describe('ignoreNextRules', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfigForRuleset(testRuleSet),
+      config: await makeConfigForRuleset(testRuleSet),
     });
 
     expect(calls).toMatchInlineSnapshot(`

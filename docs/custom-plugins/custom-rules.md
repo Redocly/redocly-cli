@@ -35,18 +35,21 @@ function OperationIdNotTest() {
 
 The `ctx` object here holds all the context, which can be used to give more situation-aware functionality to the rules you build. This is one of the main use cases for custom rules. The `report()` method is used to give information to return to the user if the node being visited doesn't comply with the rule. You can read the [context](#the-context-object) and [location](#location-object) sections for more information.
 
-Adding this as part of a plugin requires you to add it to the `rules` part of the plugin object, under the relevant document type. The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
+Adding this as part of a plugin requires you to add it to the `rules` part of the plugin object returned by the exported function, under the relevant document type.
+The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
 
 ```js
 const OperationIdNotTest = require('./rules/opid-not-test.js');
 
-module.exports = {
-  id: 'my-rules',
-  rules: {
-    oas3: {
-      'opid-not-test': OperationIdNotTest,
-    }
-  },
+module.exports = function myRulesPlugin() {
+  return {
+    id: 'my-rules',
+    rules: {
+      oas3: {
+        'opid-not-test': OperationIdNotTest,
+      },
+    },
+  };
 };
 ```
 

@@ -30,7 +30,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        rules: {
+          'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -73,7 +75,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        rules: {
+          'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -126,7 +130,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        rules: {
+          'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -170,7 +176,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        rules: {
+          'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -194,7 +202,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        rules: {
+          'array-parameter-serialization': { severity: 'error', in: ['query'] },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -226,7 +236,9 @@ describe('oas3 array-parameter-serialization', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        'array-parameter-serialization': { severity: 'error' },
+        rules: {
+          'array-parameter-serialization': { severity: 'error' },
+        },
       }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

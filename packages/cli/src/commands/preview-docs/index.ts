@@ -7,7 +7,9 @@ import {
   loadConfigAndHandleErrors,
 } from '../../utils/miscellaneous';
 import startPreviewServer from './preview-server/preview-server';
-import type { Skips } from '../../types';
+
+import type { Skips, VerifyConfigOptions } from '../../types';
+import type { CommandArgs } from '../../wrapper';
 
 export type PreviewDocsOptions = {
   port: number;
@@ -16,9 +18,13 @@ export type PreviewDocsOptions = {
   config?: string;
   api?: string;
   force?: boolean;
-} & Omit<Skips, 'skip-rule'>;
+} & Omit<Skips, 'skip-rule'> &
+  VerifyConfigOptions;
 
-export async function previewDocs(argv: PreviewDocsOptions, configFromFile: Config) {
+export async function previewDocs({
+  argv,
+  config: configFromFile,
+}: CommandArgs<PreviewDocsOptions>) {
   let isAuthorizedWithRedocly = false;
   let redocOptions: any = {};
   let config = await reloadConfig(configFromFile);
@@ -151,6 +157,7 @@ export async function previewDocs(argv: PreviewDocsOptions, configFromFile: Conf
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function debounce(func: Function, wait: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout | null;
 

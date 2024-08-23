@@ -1,5 +1,6 @@
-import { Oas2Decorator, Oas3Decorator } from '../../../visitors';
 import { checkIfMatchByStrategy, filter } from './filter-helper';
+
+import type { Oas2Decorator, Oas3Decorator } from '../../../visitors';
 
 const DEFAULT_STRATEGY = 'any';
 

@@ -2,11 +2,11 @@ import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
-
-import type { NodeType } from '.';
-import type { JSONSchema } from 'json-schema-to-ts';
 import { SpecVersion, getTypes } from '../oas-types';
-import { Config } from '../config';
+
+import type { JSONSchema } from 'json-schema-to-ts';
+import type { NodeType } from '.';
+import type { Config } from '../config';
 
 const builtInCommonOASRules = [
   'spec',
@@ -15,6 +15,7 @@ const builtInCommonOASRules = [
   'tag-description',
   'tags-alphabetical',
   'info-license-url',
+  'info-license-strict',
   'info-license',
   'no-ambiguous-paths',
   'no-enum-type-mismatch',
@@ -85,6 +86,7 @@ export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
 const builtInAsync2Rules = [
   'spec',
   'info-contact',
+  'info-license-strict',
   'operation-operationId',
   'tag-description',
   'tags-alphabetical',
@@ -95,6 +97,7 @@ const builtInAsync2Rules = [
 const builtInAsync3Rules = [
   'spec',
   'info-contact',
+  'info-license-strict',
   'operation-operationId',
   'tag-description',
   'tags-alphabetical',
@@ -106,7 +109,7 @@ export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
 
 export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
 
-const builtInArazzoRules = ['spec'] as const;
+const builtInArazzoRules = ['spec', 'parameters-no-body-inside-in'] as const;
 
 export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];
 

@@ -87,7 +87,7 @@ const Operation: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const Schema: NodeType = {
+export const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
     $anchor: { type: 'string' },
@@ -186,7 +186,7 @@ const Schema: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const SchemaProperties: NodeType = {
+export const SchemaProperties: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     if (typeof value === 'boolean') {
@@ -267,7 +267,7 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const DependentRequired: NodeType = {
+export const DependentRequired: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };

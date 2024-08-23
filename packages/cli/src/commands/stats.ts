@@ -1,8 +1,6 @@
 import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
-  Config,
-  StyleguideConfig,
   normalizeTypes,
   BaseResolver,
   resolveDocument,
@@ -13,9 +11,17 @@ import {
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit } from '../utils/miscellaneous';
-import { printExecutionTime } from '../utils/miscellaneous';
-import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
+import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous';
+
+import type {
+  StatsAccumulator,
+  StatsName,
+  WalkContext,
+  OutputFormat,
+  StyleguideConfig,
+} from '@redocly/openapi-core';
+import type { CommandArgs } from '../wrapper';
+import type { VerifyConfigOptions } from '../types';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -24,6 +30,7 @@ const statsAccumulator: StatsAccumulator = {
   parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
   links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
   pathItems: { metric: '🔀 Path Items', total: 0, color: 'green' },
+  webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
 };
@@ -83,13 +90,13 @@ function printStats(
 export type StatsOptions = {
   api?: string;
   format: OutputFormat;
-  config?: string;
-};
+} & VerifyConfigOptions;
 
-export async function handleStats(argv: StatsOptions, config: Config) {
+export async function handleStats({ argv, config, collectSpecData }: CommandArgs<StatsOptions>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
+  collectSpecData?.(document.parsed);
   const lintConfig: StyleguideConfig = config.styleguide;
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(

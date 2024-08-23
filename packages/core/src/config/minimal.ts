@@ -5,6 +5,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'info-contact': 'off',
     'info-license': 'off',
     'info-license-url': 'off',
+    'info-license-strict': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'parameter-description': 'off',
@@ -90,6 +91,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   async2Rules: {
     spec: 'error',
     'info-contact': 'off',
+    'info-license-strict': 'off',
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -99,6 +101,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   async3Rules: {
     spec: 'error',
     'info-contact': 'off',
+    'info-license-strict': 'off',
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
@@ -107,6 +110,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   },
   arazzoRules: {
     spec: 'error',
+    'parameters-no-body-inside-in': 'off',
   },
 };
 

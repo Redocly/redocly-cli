@@ -1,5 +1,31 @@
 # @redocly/openapi-core
 
+## 1.21.0
+
+## 1.20.1
+
+## 1.20.0
+
+### Minor Changes
+
+- Added support for ESM plugins and importing of plugins directly from npm package: `@vendor/package/plugin.js` instead of `./node_modules/@vendor/package/plugin.js`.
+- Added `info-license-strict` rule as a replacement of the `info-license-url` to support the OpenAPI 3.1 changes to allow identifier or URL license details.
+- Changed plugins format to export a function instead of an object for compatibility with other Redocly products. The backwards compatibility with an old format of plugins is maintained.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.9.0.
+
+## 1.19.0
+
+### Minor Changes
+
+- Added support for AsyncAPI 3.0 description linting.
+
+### Patch Changes
+
+- Fixed an issue where `patternProperties` incorrectly caused linting errors due to a missing `PatternProperties` node.
+
 ## 1.18.1
 
 ### Patch Changes

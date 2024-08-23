@@ -1,9 +1,14 @@
 import levenshtein = require('js-levenshtein');
-import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
-import { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi';
-import { showErrorForDeprecatedField, showWarningForDeprecatedField } from '../utils';
+import {
+  isPlainObject,
+  showErrorForDeprecatedField,
+  showWarningForDeprecatedField,
+} from '../utils';
+
+import type { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi';
+import type { UserContext } from '../walk';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -47,12 +52,18 @@ export function missingRequiredField(type: string, field: string): string {
   return `${type} object should contain \`${field}\` field.`;
 }
 
+export function missingRequiredOneOfFields(type: string, fields: string[]): string {
+  return `${type} object should contain one of the fields: ${fields
+    .map((field) => `\`${field}\``)
+    .join(', ')}.`;
+}
+
 export function fieldNonEmpty(type: string, field: string): string {
   return `${type} object \`${field}\` must be non-empty string.`;
 }
 
 export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: UserContext) {
-  if (typeof value !== 'object') {
+  if (!isPlainObject(value)) {
     return;
   }
 
@@ -66,6 +77,32 @@ export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: U
       message: fieldNonEmpty(ctx.type.name, fieldName),
       location: ctx.location.child([fieldName]).key(),
     });
+  }
+}
+
+export function validateOneOfDefinedAndNonEmpty(
+  fieldNames: string[],
+  value: any,
+  ctx: UserContext
+) {
+  if (!isPlainObject(value)) {
+    return;
+  }
+
+  if (!fieldNames.some((fieldName) => value.hasOwnProperty(fieldName))) {
+    ctx.report({
+      message: missingRequiredOneOfFields(ctx.type.name, fieldNames),
+      location: ctx.location.key(),
+    });
+  }
+
+  for (const fieldName of fieldNames) {
+    if (value.hasOwnProperty(fieldName) && !value[fieldName]) {
+      ctx.report({
+        message: fieldNonEmpty(ctx.type.name, fieldName),
+        location: ctx.location.child([fieldName]).key(),
+      });
+    }
   }
 }
 

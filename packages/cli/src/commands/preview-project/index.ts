@@ -4,22 +4,23 @@ import { spawn } from 'child_process';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
 
 import type { PreviewProjectOptions, Product } from './types';
+import type { CommandArgs } from '../../wrapper';
 
-export const previewProject = async (args: PreviewProjectOptions) => {
-  const { plan, port } = args;
-  const projectDir = args['source-dir'];
+export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
+  const { plan, port } = argv;
+  const projectDir = argv['project-dir'];
 
-  const product = args.product || tryGetProductFromPackageJson(projectDir);
+  const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
-    process.stderr.write(`Invalid product ${product}`);
-    throw new Error(`Project preview launch failed`);
+    process.stderr.write(`Invalid product ${product}.`);
+    throw new Error(`Project preview launch failed.`);
   }
 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX\n\n`);
+  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
 
   const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 

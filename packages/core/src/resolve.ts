@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
-import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
-import { NormalizedNodeType, isNamedType, SpecExtension } from './types';
+import { isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
-import { ResolveConfig } from './config/types';
+
+import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
+import type { NormalizedNodeType } from './types';
+import type { ResolveConfig } from './config/types';
+import type { OasRef } from './typings/openapi';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 

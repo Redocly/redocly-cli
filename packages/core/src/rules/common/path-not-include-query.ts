@@ -1,5 +1,5 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
+import type { UserContext } from '../../walk';
 
 export const PathNotIncludeQuery: Oas3Rule | Oas2Rule = () => {
   return {
