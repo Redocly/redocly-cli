@@ -669,6 +669,13 @@ yargs
         },
       }),
     (argv) => {
+      if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
+        process.stderr.write(
+          colors.red(
+            'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
+          )
+        );
+      }
       commandWrapper(previewProject)(argv);
     }
   )
@@ -780,7 +787,7 @@ yargs
     }
   )
   .command(
-    'translations <locale>',
+    'translate <locale>',
     'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
     (yargs) =>
       yargs
@@ -805,7 +812,7 @@ yargs
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'translations';
+      process.env.REDOCLY_CLI_COMMAND = 'translate';
       commandWrapper(handleTranslations)(argv);
     }
   )

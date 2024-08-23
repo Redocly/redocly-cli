@@ -21,7 +21,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
       'eject',
       `${argv.type}`,
       `${argv.path}`,
-      `--project-dir=${argv['project-dir']}`,
+      `-d=${argv['project-dir']}`,
       argv.force ? `--force=${argv.force}` : '',
     ],
     { stdio: 'inherit' }
