@@ -14,13 +14,12 @@ import {
   checkForDeprecatedOptions,
 } from '../utils/miscellaneous';
 
-import type { OutputExtensions, Skips, Totals } from '../types';
+import type { OutputExtensions, Skips, Totals, VerifyConfigOptions } from '../types';
 import type { CommandArgs } from '../wrapper';
 
 export type BundleOptions = {
   apis?: string[];
   extends?: string[];
-  config?: string;
   output?: string;
   ext: OutputExtensions;
   dereferenced?: boolean;
@@ -28,7 +27,8 @@ export type BundleOptions = {
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
-} & Skips;
+} & Skips &
+  VerifyConfigOptions;
 
 export async function handleBundle({
   argv,

@@ -37,13 +37,13 @@ import type {
   Referenced,
 } from './types';
 import type { CommandArgs } from '../../wrapper';
+import type { VerifyConfigOptions } from '../../types';
 
 export type SplitOptions = {
   api: string;
   outDir: string;
   separator: string;
-  config?: string;
-};
+} & VerifyConfigOptions;
 
 export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOptions>) {
   const startedAt = performance.now();

@@ -21,6 +21,8 @@ import {
 } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { previewProject } from './commands/preview-project';
+import { handleTranslations } from './commands/translations';
+import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
 
@@ -29,6 +31,7 @@ import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PushArguments } from './types';
+import type { EjectOptions } from './commands/eject';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -227,6 +230,11 @@ yargs
             description: 'Command does not fail even if the deployment fails.',
             type: 'boolean',
             default: false,
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
         }),
     (argv) => {
@@ -642,18 +650,32 @@ yargs
           default: 'enterprise',
         },
         port: {
+          alias: 'p',
           type: 'number',
           description: 'Preview port.',
           default: 4000,
         },
-        'source-dir': {
-          alias: 'd',
+        'project-dir': {
+          alias: ['d', 'source-dir'],
           type: 'string',
-          description: 'Project directory.',
+          description:
+            'Specifies the project content directory. The default value is the directory where the command is executed.',
           default: '.',
+        },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
         },
       }),
     (argv) => {
+      if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
+        process.stderr.write(
+          colors.red(
+            'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
+          )
+        );
+      }
       commandWrapper(previewProject)(argv);
     }
   )
@@ -762,6 +784,77 @@ yargs
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
+    }
+  )
+  .command(
+    'translate <locale>',
+    'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
+    (yargs) =>
+      yargs
+        .positional('locale', {
+          description:
+            'Locale code to generate translations for, or `all` for all current project locales.',
+          type: 'string',
+          demandOption: true,
+        })
+        .options({
+          'project-dir': {
+            alias: 'd',
+            type: 'string',
+            description:
+              'Specifies the project content directory. The default value is the directory where the command is executed.',
+            default: '.',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'translate';
+      commandWrapper(handleTranslations)(argv);
+    }
+  )
+  .command(
+    'eject <type> <path>',
+    'Helper function to eject project elements for customization.',
+    (yargs) =>
+      yargs
+        .positional('type', {
+          description:
+            'Specifies what type of project element to eject. Currently, it could be only `component`.',
+          demandOption: true,
+          choices: ['component'],
+        })
+        .positional('path', {
+          description: 'Filepath to a component or filepath with glob pattern.',
+          type: 'string',
+          demandOption: true,
+        })
+        .options({
+          'project-dir': {
+            alias: 'd',
+            type: 'string',
+            description:
+              'Specifies the project content directory. The default value is the directory where the command is executed.',
+            default: '.',
+          },
+          force: {
+            alias: 'f',
+            type: 'boolean',
+            description:
+              'Skips the "overwrite existing" confirmation when ejecting a component that is already ejected in the destination.',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+        }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'eject';
+      commandWrapper(handleEject)(argv as Arguments<EjectOptions>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

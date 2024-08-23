@@ -8,19 +8,19 @@ import type { CommandArgs } from '../../wrapper';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
   const { plan, port } = argv;
-  const projectDir = argv['source-dir'];
+  const projectDir = argv['project-dir'];
 
   const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
-    process.stderr.write(`Invalid product ${product}`);
-    throw new Error(`Project preview launch failed`);
+    process.stderr.write(`Invalid product ${product}.`);
+    throw new Error(`Project preview launch failed.`);
   }
 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX\n\n`);
+  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
 
   const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 

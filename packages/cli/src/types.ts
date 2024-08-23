@@ -1,4 +1,4 @@
-import type { BundleOutputFormat, Region, Config } from '@redocly/openapi-core';
+import type { BundleOutputFormat, Region, Config, RuleSeverity } from '@redocly/openapi-core';
 import type { ArgumentsCamelCase } from 'yargs';
 import type { LintOptions } from './commands/lint';
 import type { BundleOptions } from './commands/bundle';
@@ -12,6 +12,8 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushOptions as CMSPushOptions } from './cms/commands/push';
 import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PreviewProjectOptions } from './commands/preview-project/types';
+import type { TranslationsOptions } from './commands/translations';
+import type { EjectOptions } from './commands/eject';
 
 export type Totals = {
   errors: number;
@@ -37,12 +39,13 @@ export type CommandOptions =
   | PreviewDocsOptions
   | BuildDocsArgv
   | PushStatusOptions
-  | VerifyConfigOptions
-  | PreviewProjectOptions;
+  | PreviewProjectOptions
+  | TranslationsOptions
+  | EjectOptions;
 
 export type VerifyConfigOptions = {
   config?: string;
-  'lint-config'?: 'warning' | 'error' | 'off';
+  'lint-config'?: RuleSeverity;
 };
 
 export type Skips = {

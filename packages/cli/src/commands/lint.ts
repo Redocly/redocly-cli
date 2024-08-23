@@ -23,20 +23,19 @@ import {
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
 
 import type { Arguments } from 'yargs';
-import type { OutputFormat, ProblemSeverity, RuleSeverity } from '@redocly/openapi-core';
+import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { CommandOptions, Skips, Totals } from '../types';
+import type { CommandOptions, Skips, Totals, VerifyConfigOptions } from '../types';
 import type { CommandArgs } from '../wrapper';
 
 export type LintOptions = {
   apis?: string[];
   'max-problems': number;
   extends?: string[];
-  config?: string;
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
-  'lint-config'?: RuleSeverity;
-} & Omit<Skips, 'skip-decorator'>;
+} & Omit<Skips, 'skip-decorator'> &
+  VerifyConfigOptions;
 
 export async function handleLint({
   argv,
