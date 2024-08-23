@@ -14,14 +14,13 @@ const constructBarForChart = (x) => {
   return '▓' + '▓'.repeat(length);
 };
 
-const bars = arr.map(
-  ([cliVersion, mean]) => `| ${cliVersion} | ${constructBarForChart((mean - min) / (max - min))} |`
-);
-
 const output = [
   '| CLI Version | Performance benchmark (test duration) |',
   '|---|---|',
-  ...bars,
+  ...arr.map(
+    ([cliVersion, mean]) =>
+      `| ${cliVersion} | ${constructBarForChart((mean - min) / (max - min))} |`
+  ),
 ].join('\n');
 
 process.stdout.write(output);
