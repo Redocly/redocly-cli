@@ -42,7 +42,7 @@ jobs:
 
   historical-versions:
     # Run only on release branch (changeset-release/main):
-    if: github.head_ref == 'changeset-release/main'
+    # if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -66,7 +66,7 @@ jobs:
           cd benchmark/
           npm test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
-          npm run chart # Creates benchmark_chart.md with a bar chart.
+          npm run chart # Creates benchmark_chart.md with the performance bar chart.
         env:
           CI: true
           REDOCLY_TELEMETRY: off
