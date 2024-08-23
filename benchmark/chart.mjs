@@ -6,8 +6,8 @@ const arr = json.results.map((r) => [
   r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, cliVersion) => cliVersion),
   r.mean,
 ]);
-const min = arr.reduce(($, [_, mean]) => Math.min($, mean), Infinity);
-const max = arr.reduce(($, [_, mean]) => Math.max($, mean), -Infinity);
+const min = Math.min(...arr.map(([_, mean]) => mean));
+const max = Math.max(...arr.map(([_, mean]) => mean));
 
 const constructBarForChart = (x) => {
   const MAX_BAR_LENGTH = 30;
