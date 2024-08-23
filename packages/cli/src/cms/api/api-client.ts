@@ -36,7 +36,7 @@ class ReuniteBaseApiClient {
     const headers = Object.assign(
       { ...options.headers },
       {
-        'user-agent': `redocly-cli / ${this.version} ${this.command}`,
+        'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
       }
     );
 
