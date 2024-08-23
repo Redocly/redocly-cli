@@ -10,9 +10,8 @@ const min = Math.min(...arr.map(([_, mean]) => mean));
 const max = Math.max(...arr.map(([_, mean]) => mean));
 
 const constructBarForChart = (x) => {
-  const MAX_BAR_LENGTH = 30;
-  const length = Math.floor(x * MAX_BAR_LENGTH);
-  return '▓' + '▓'.repeat(length) + ' '.repeat(MAX_BAR_LENGTH - length);
+  const length = Math.floor(x * 30);
+  return '▓' + '▓'.repeat(length);
 };
 
 const bars = arr.map(
