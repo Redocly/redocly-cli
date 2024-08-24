@@ -32,27 +32,27 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 
 ## Command options
 
-| Option                |   Type   | Description      |
-| --------------------- | :------: | ------------------------- |
-| files                 | [string] | **REQUIRED.** List of folders and/or files to upload.                                                                                                                      |
-| --organization, -o    |  string  | **REQUIRED.** [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                            |
-| --project, -p         |  string  | **REQUIRED.** [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                                 |
-| --mount-path, -mp     |  string  | **REQUIRED.** The path where the files are mounted in the project.                                                                                                         |
-| --branch, -b          |  string  | **REQUIRED.** The branch files are pushed from.                                                                                                                            |
-| --author, -a          |  string  | **REQUIRED.** The author of the push in the format: `'Author Name <author-email@example.com>'`.                                                                            |
-| --message, -m         |  string  | **REQUIRED.** The commit message for the push.                                                                                                                             |
-| --commit-sha, -sha    |  string  | Commit SHA.                                                                                                                                                  |
-| --commit-url, -url    |  string  | Commit URL.                                                                                                                                                  |
-| --repository          |  string  | Repository ID. Example: `redocly-cli`.                                                                                                                       |
-| --namespace           |  string  | Repository owner/organization/workspace. Example: `Redocly`.                                                                                                 |
-| --created-at          |  string  | Commit creation date. Format: `yyyy-mm-ddThh:mm:ss+offset value`. Example: `2024-02-20T14:26:26+02:00`                                                       |
-| --domain              |  string  | The domain to which the files are pushed. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com). |
-| --default-branch      |  string  | The default branch of the repository the push originates from. Default value is `main`.      |
-| --lint-config         |  string  | Severity level for configuration file linting. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --max-execution-time  |  number  | Maximum wait time for deployment completion in seconds (used in conjunction with the `--wait-for-deployment` option). Default value is `600`. |
-| --wait-for-deployment | boolean  | Waits until the build is completed if it is in progress. Behaves the same as `push-status` command when passed. See [push-status](./push-status.md) command. Default value is `false`.|
-| --verbose             | boolean  | Verbose output. Default value is `false`.                                                                                                                  |
-| --help                | boolean  | Help output for the command.  |
+| Option                |   Type   | Description                                                                                                                                                                            |
+| --------------------- | :------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| files                 | [string] | **REQUIRED.** List of folders and/or files to upload.                                                                                                                                  |
+| --organization, -o    |  string  | **REQUIRED.** [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                                        |
+| --project, -p         |  string  | **REQUIRED.** [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).                                                             |
+| --mount-path, -mp     |  string  | **REQUIRED.** The path where the files are mounted in the project.                                                                                                                     |
+| --branch, -b          |  string  | **REQUIRED.** The branch files are pushed from.                                                                                                                                        |
+| --author, -a          |  string  | **REQUIRED.** The author of the push in the format: `'Author Name <author-email@example.com>'`.                                                                                        |
+| --message, -m         |  string  | **REQUIRED.** The commit message for the push.                                                                                                                                         |
+| --commit-sha, -sha    |  string  | Commit SHA.                                                                                                                                                                            |
+| --commit-url, -url    |  string  | Commit URL.                                                                                                                                                                            |
+| --repository          |  string  | Repository ID. Example: `redocly-cli`.                                                                                                                                                 |
+| --namespace           |  string  | Repository owner/organization/workspace. Example: `Redocly`.                                                                                                                           |
+| --created-at          |  string  | Commit creation date. Format: `yyyy-mm-ddThh:mm:ss+offset value`. Example: `2024-02-20T14:26:26+02:00`                                                                                 |
+| --domain              |  string  | The domain to which the files are pushed. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com).                                                             |
+| --default-branch      |  string  | The default branch of the repository the push originates from. Default value is `main`.                                                                                                |
+| --lint-config         |  string  | Severity level for configuration file linting. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                             |
+| --max-execution-time  |  number  | Maximum wait time for deployment completion in seconds (used in conjunction with the `--wait-for-deployment` option). Default value is `600`.                                          |
+| --wait-for-deployment | boolean  | Waits until the build is completed if it is in progress. Behaves the same as `push-status` command when passed. See [push-status](./push-status.md) command. Default value is `false`. |
+| --verbose             | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
+| --help                | boolean  | Help output for the command.                                                                                                                                                           |
 
 ## Constraints
 
