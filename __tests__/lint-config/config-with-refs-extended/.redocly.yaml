@@ -6,9 +6,8 @@ apis:
 rules:
   $ref: ./rules.yaml
 
-theme:
-  openapi:
-    $ref: theme-openapi.yaml
+openapi:
+  $ref: theme-openapi.yaml
 
 organization: false # wrong, expected string
 
