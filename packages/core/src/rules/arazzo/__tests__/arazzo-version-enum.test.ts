@@ -53,7 +53,7 @@ describe('Arazzo arazzo-version-enum', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Only \`1.0.0\` Arazzo version is supported by Spot.",
+          "message": "Only 1.0.0 Arazzo version is supported by Spot.",
           "ruleId": "arazzo-version-enum",
           "severity": "error",
           "suggest": [],

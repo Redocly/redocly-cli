@@ -63,6 +63,69 @@ describe('Arazzo workflow-dependsOn-unique', () => {
     'arazzo.yaml'
   );
 
+  const documentWithNotExistingWorkflows = parseYamlToDocument(
+    outdent`
+    arazzo: 1.0.0
+    info:
+      title: Redocly Museum API Test Workflow
+      description: >-
+        Use the Museum API with Arazzo as an example of describing multi-step workflows.
+        Built with love by Redocly.
+      version: 1.0.0
+
+    sourceDescriptions:
+      - name: museum-api
+        type: openapi
+        url: ../openapi.yaml
+      - name: tickets-from-museum-api
+        type: arazzo
+        url: museum-tickets.arazzo.yaml
+
+    workflows:
+      - workflowId: get-museum-hours
+        dependsOn:
+          - events-crud
+          - events-crus
+          - $sourceDescriptions.tickets-from-museum-apis.workflows.get-museum-tickets
+        description: >-
+          This workflow demonstrates how to get the museum opening hours and buy tickets.
+        parameters:
+          - in: header
+            name: Authorization
+            value: Basic Og==
+        steps:
+          - stepId: get-museum-hours
+            description: >-
+              Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+            operationId: museum-api.getMuseumHours
+            successCriteria:
+              - condition: $statusCode == 200
+            outputs:
+              schedule: $response.body
+          - stepId: buy-ticket
+            description: >-
+              Buy a ticket for the museum by calling an external workflow from another Arazzo file.
+            workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+            outputs:
+              ticketId: $outputs.ticketId
+      - workflowId: events-crud
+        description: >-
+          This workflow demonstrates how to list, create, update, and delete special events at the museum.
+        parameters:
+          - in: header
+            name: Authorization
+            value: Basic Og==
+        steps:
+          - stepId: list-events
+            description: >-
+              Request the list of events.
+            operationPath: $sourceDescriptions.museum-api#/paths/~1special-events/get
+            outputs:
+              events: $response.body
+    `,
+    'arazzo.yaml'
+  );
+
   it('should report on dependsOn unique violation', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
@@ -103,5 +166,47 @@ describe('Arazzo workflow-dependsOn-unique', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report on not existing workflows in dependsOn', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithNotExistingWorkflows,
+      config: await makeConfig({
+        rules: {},
+        arazzoRules: { 'workflow-dependsOn-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/dependsOn/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "Workflow events-crus must be defined in workflows.",
+          "ruleId": "workflow-dependsOn-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/dependsOn/2",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "SourceDescription tickets-from-museum-apis must be defined in sourceDescriptions.",
+          "ruleId": "workflow-dependsOn-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
