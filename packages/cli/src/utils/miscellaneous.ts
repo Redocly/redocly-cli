@@ -1,4 +1,3 @@
-import * as pluralizeOne from 'pluralize';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
@@ -17,7 +16,7 @@ import {
   loadConfig,
   RedoclyClient,
 } from '@redocly/openapi-core';
-import { isEmptyObject, isPlainObject } from '@redocly/openapi-core/lib/utils';
+import { isEmptyObject, isPlainObject, pluralize } from '@redocly/openapi-core/lib/utils';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
 import { outputExtensions } from '../types';
@@ -275,13 +274,6 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
   }
   process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
   return 'yaml';
-}
-
-export function pluralize(sentence: string, count?: number, inclusive?: boolean) {
-  return sentence
-    .split(' ')
-    .map((word) => pluralizeOne(word, count, inclusive))
-    .join(' ');
 }
 
 export function handleError(e: Error, ref: string) {

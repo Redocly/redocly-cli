@@ -1,13 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { slash } from '@redocly/openapi-core';
+import { pluralize } from '@redocly/openapi-core/lib/utils';
 import { green, yellow } from 'colorette';
-import {
-  exitWithError,
-  HandledError,
-  pluralize,
-  printExecutionTime,
-} from '../../utils/miscellaneous';
+import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { handlePushStatus } from './push-status';
 import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
 
