@@ -1,5 +1,4 @@
 extends:
   - minimal
-theme:
-  openapi:
-    htmlTemplate: ../index.hbs
+openapi:
+  htmlTemplate: ../index.hbs

@@ -122,7 +122,7 @@ It only checks links within the local docs (it can't check links to other docs s
 
 ## Built-in rules changes
 
-After adding a new rule, make sure it is added to the `minimal`, `recommended` and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error) and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the `builtInRulesList` in [the config types tree](../packages/core/src/types/redocly-yaml.ts).
 
 Separately, open a merge request with the corresponding documentation changes.
@@ -149,11 +149,11 @@ The **redocly.yaml** file is the most flexible way of providing arguments. Pleas
 
 The application maintains the following exit codes.
 
-| Exit code | Description              |
-| --------- | ------------------------ |
-| 0         | Success                  |
-| 1         | Command execution error  |
-| 2         | Config resolving failure |
+| Exit code | Description               |
+| --------- | ------------------------- |
+| 0         | Success                   |
+| 1         | Command execution error   |
+| 2         | Config resolution failure |
 
 ## Tests
 

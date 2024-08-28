@@ -39,6 +39,10 @@ At a minimum, please state the specification version(s) you're using (e.g. 2.0, 
 
 <!-- What version of `node.js` are you using? -->
 
+**OS, environment**
+
+<!-- What OS are you using? -->
+
 **Additional context**
 
 <!-- Add any other context about the problem here. -->

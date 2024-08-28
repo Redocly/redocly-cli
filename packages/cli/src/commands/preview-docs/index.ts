@@ -8,7 +8,7 @@ import {
 } from '../../utils/miscellaneous';
 import startPreviewServer from './preview-server/preview-server';
 
-import type { Skips } from '../../types';
+import type { Skips, VerifyConfigOptions } from '../../types';
 import type { CommandArgs } from '../../wrapper';
 
 export type PreviewDocsOptions = {
@@ -18,7 +18,8 @@ export type PreviewDocsOptions = {
   config?: string;
   api?: string;
   force?: boolean;
-} & Omit<Skips, 'skip-rule'>;
+} & Omit<Skips, 'skip-rule'> &
+  VerifyConfigOptions;
 
 export async function previewDocs({
   argv,

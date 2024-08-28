@@ -1,5 +1,21 @@
 # @redocly/cli
 
+## 1.21.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.21.1.
+
+## 1.21.0
+
+### Minor Changes
+
+- Added the `eject` and `translate` commands for use with the new Reunite-hosted product family.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.21.0.
+
 ## 1.20.1
 
 ### Patch Changes

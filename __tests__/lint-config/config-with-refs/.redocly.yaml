@@ -6,6 +6,5 @@ apis:
 
 non-existing-root-property: Fail
 
-theme:
-  openapi:
-    $ref: ./theme-openapi.yaml#/content
+openapi:
+  $ref: ./theme-openapi.yaml#/content

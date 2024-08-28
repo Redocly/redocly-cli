@@ -8,9 +8,8 @@ apis:
     root: 456 # Must be a string
   with-theme:
     root: ./openapi.yaml
-    theme:
-      openapi: wrong, must be an object
-      not-expected: Must fail
+    openapi: wrong, must be an object
+    not-expected: Must fail
 
 seo:
   keywords: 789 # Must be an array
@@ -142,111 +141,110 @@ env:
   referenced-env:
     $ref: ./env.yaml
 
-theme:
-  breadcrumbs:
-    hide: false
-    prefixItems:
-      - label: Home
-        page: '/'
-  imports:
-    - '@redocly/test-theme'
+breadcrumbs:
+  hide: false
+  prefixItems:
+    - label: Home
+      page: '/'
+imports:
+  - '@redocly/test-theme'
 
-  logo:
-    srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
-    altText: Test
-    link: /
-  asyncapi:
-    hideInfo: false
-    expandSchemas:
-      root: true
-      elements: true
-  navbar:
-    items:
-      - label: Markdown
-        page: /markdown/
+logo:
+  srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
+  altText: Test
+  link: /
+asyncapi:
+  hideInfo: false
+  expandSchemas:
+    root: true
+    elements: true
+navbar:
+  items:
+    - label: Markdown
+      page: /markdown/
 
-  search:
-    shortcuts:
-      - ctrl+f
-      - cmd+k
-      - /
-    suggestedPages:
-      - label: TSX page
-        page: tsx.page.tsx
-      - page: /my-catalog/
+search:
+  shortcuts:
+    - ctrl+f
+    - cmd+k
+    - /
+  suggestedPages:
+    - label: TSX page
+      page: tsx.page.tsx
+    - page: /my-catalog/
 
-  footer:
-    copyrightText: Copyright © Test 2019-2020.
-    items:
-      - group: Legal
-        items:
-          - label: Terms of Use
-            href: 'https://test.com/' # Not expected
-
-  markdown:
-    lastUpdatedBlock:
-      format: 'long'
-    editPage:
-      baseUrl: https://test.com
-  graphql:
-    pagination: section
-    menu:
-      requireExactGroups: false
-      groups:
-        - name: 'GraphQL custom group'
-          directives:
-            includeByName:
-              - cacheControl
-              - typeDirective
-      otherItemsGroupName: 'Other'
-  sidebar:
-    separatorLine: true
-    linePosition: top
-  catalog:
-    main:
-      title: API Catalog
-      description: 'This is a description of the API Catalog'
-      slug: /my-catalog/
-      filters:
-        - title: Domain
-          property: domain
-          missingCategoryName: Other
-        - title: API Category
-          property: category
-          missingCategoryName: Other
-      groupByFirstFilter: false
+footer:
+  copyrightText: Copyright © Test 2019-2020.
+  items:
+    - group: Legal
       items:
-        - directory: ./
-          flatten: true
-          includeByMetadata:
-            type: [openapi]
-  scorecard:
-    ignoreNonCompliant: true
-    levels:
-      - name: Baseline
-        extends:
-          - minimal
-      - name: Silver
-        extends:
-          - recommended
-        rules:
-          info-description: off
+        - label: Terms of Use
+          href: 'https://test.com/' # Not expected
 
-      - name: Gold
-        rules:
-          rule/path-item-get-required:
-            severity: warn
-            subject:
-              type: PathItem
-            message: Every path item must have a GET operation.
-            assertions:
-              required:
-                - get
+markdown:
+  lastUpdatedBlock:
+    format: 'long'
+  editPage:
+    baseUrl: https://test.com
+graphql:
+  pagination: section
+  menu:
+    requireExactGroups: false
+    groups:
+      - name: 'GraphQL custom group'
+        directives:
+          includeByName:
+            - cacheControl
+            - typeDirective
+    otherItemsGroupName: 'Other'
+sidebar:
+  separatorLine: true
+  linePosition: top
+catalog:
+  main:
+    title: API Catalog
+    description: 'This is a description of the API Catalog'
+    slug: /my-catalog/
+    filters:
+      - title: Domain
+        property: domain
+        missingCategoryName: Other
+      - title: API Category
+        property: category
+        missingCategoryName: Other
+    groupByFirstFilter: false
+    items:
+      - directory: ./
+        flatten: true
+        includeByMetadata:
+          type: [openapi]
+scorecard:
+  ignoreNonCompliant: true
+  levels:
+    - name: Baseline
+      extends:
+        - minimal
+    - name: Silver
+      extends:
+        - recommended
+      rules:
+        info-description: off
 
-          operation-4xx-response: warn
-    targets:
-      - where:
-          metadata:
-            l0: Distribution
-            publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
-        minimumLevel: Silver
+    - name: Gold
+      rules:
+        rule/path-item-get-required:
+          severity: warn
+          subject:
+            type: PathItem
+          message: Every path item must have a GET operation.
+          assertions:
+            required:
+              - get
+
+        operation-4xx-response: warn
+  targets:
+    - where:
+        metadata:
+          l0: Distribution
+          publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
+      minimumLevel: Silver
