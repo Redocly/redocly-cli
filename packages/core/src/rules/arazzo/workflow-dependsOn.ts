@@ -26,8 +26,8 @@ export const WorkflowDependsOn: ArazzoRule = () => {
         if (!workflow.dependsOn) return;
 
         for (const item of workflow.dependsOn) {
-          // $sourceDescriptions.<name>.<workflowId>
-          if (item.startsWith('$sourceDescriptions')) {
+          // Possible dependsOn workflow pattern: $sourceDescriptions.<name>.<workflowId>
+          if (item.startsWith('$sourceDescriptions.')) {
             const sourceDescriptionName = item.split('.')[1];
             if (!existingSourceDescriptions.has(sourceDescriptionName)) {
               report({
