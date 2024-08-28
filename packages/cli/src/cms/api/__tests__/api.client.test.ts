@@ -18,7 +18,7 @@ describe('ApiClient', () => {
   const testProject = 'test-project';
   const version = '1.0.0';
   const command = 'push';
-  const expectedUserAgent = `redocly-cli / ${version} ${command}`;
+  const expectedUserAgent = `redocly-cli/${version} ${command}`;
 
   describe('getDefaultBranch()', () => {
     let apiClient: ReuniteApiClient;
