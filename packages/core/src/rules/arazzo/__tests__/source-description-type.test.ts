@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo strict-source-description-type', () => {
+describe('Arazzo source-description-type', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -42,7 +42,7 @@ describe('Arazzo strict-source-description-type', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'strict-source-description-type': 'error' },
+        arazzoRules: { 'source-description-type': 'error' },
       }),
     });
 
@@ -57,7 +57,7 @@ describe('Arazzo strict-source-description-type', () => {
             },
           ],
           "message": "The \`type\` property of the \`sourceDescription\` object must be either \`openapi\` or \`arazzo\`.",
-          "ruleId": "strict-source-description-type",
+          "ruleId": "source-description-type",
           "severity": "error",
           "suggest": [],
         },
@@ -71,7 +71,7 @@ describe('Arazzo strict-source-description-type', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'strict-source-description-type': 'off' },
+        arazzoRules: { 'source-description-type': 'off' },
       }),
     });
 

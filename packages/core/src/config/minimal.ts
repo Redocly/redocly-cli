@@ -111,7 +111,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   arazzoRules: {
     spec: 'error',
     'parameters-no-body-inside-in': 'off',
-    'strict-source-description-type': 'error',
+    'source-description-type': 'error',
     'arazzo-version-enum': 'off',
     'workflow-workflowId-unique': 'error',
     'step-stepId-unique': 'error',
