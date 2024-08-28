@@ -11,14 +11,14 @@ export const StepOnSuccessUnique: ArazzoRule = () => {
         for (const onSuccessAction of onSuccessActionList) {
           if (seenSuccessActions.has(onSuccessAction?.name)) {
             report({
-              message: 'The action `name` MUST be unique amongst listed `onSuccess` actions.',
+              message: 'The action `name` must be unique amongst listed `onSuccess` actions.',
               location: location.child([onSuccessActionList.indexOf(onSuccessAction)]),
             });
           }
 
           if (seenSuccessActions.has(onSuccessAction?.reference)) {
             report({
-              message: 'The action `reference` MUST be unique amongst listed `onSuccess` actions.',
+              message: 'The action `reference` must be unique amongst listed `onSuccess` actions.',
               location: location.child([onSuccessActionList.indexOf(onSuccessAction)]),
             });
           }

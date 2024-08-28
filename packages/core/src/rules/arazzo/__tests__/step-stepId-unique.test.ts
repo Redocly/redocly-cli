@@ -72,7 +72,7 @@ describe('Arazzo step-stepId-unique', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`stepId\` MUST be unique amongst all steps described in the workflow.",
+          "message": "The \`stepId\` must be unique amongst all steps described in the workflow.",
           "ruleId": "step-stepId-unique",
           "severity": "error",
           "suggest": [],

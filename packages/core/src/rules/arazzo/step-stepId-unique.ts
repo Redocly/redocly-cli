@@ -12,7 +12,7 @@ export const StepStepIdUnique: ArazzoRule = () => {
           if (!step.stepId) return;
           if (seenSteps.has(step.stepId)) {
             report({
-              message: 'The `stepId` MUST be unique amongst all steps described in the workflow.',
+              message: 'The `stepId` must be unique amongst all steps described in the workflow.',
               location: location.child(['steps', workflow.steps.indexOf(step)]),
             });
           }

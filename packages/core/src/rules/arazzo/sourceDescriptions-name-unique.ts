@@ -11,7 +11,7 @@ export const SourceDescriptionsNameUnique: ArazzoRule = () => {
         for (const sourceDescription of sourceDescriptions) {
           if (seenSourceDescriptions.has(sourceDescription.name)) {
             report({
-              message: 'The `name` MUST be unique amongst all SourceDescriptions.',
+              message: 'The `name` must be unique amongst all SourceDescriptions.',
               location: location.child([sourceDescriptions.indexOf(sourceDescription)]),
             });
           }

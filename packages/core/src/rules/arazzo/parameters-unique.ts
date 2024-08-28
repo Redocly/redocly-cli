@@ -11,14 +11,14 @@ export const ParametersUnique: ArazzoRule = () => {
         for (const parameter of parameters) {
           if (seenParameters.has(parameter?.name)) {
             report({
-              message: 'The parameter `name` MUST be unique amongst listed parameters.',
+              message: 'The parameter `name` must be unique amongst listed parameters.',
               location: location.child([parameters.indexOf(parameter)]),
             });
           }
 
           if (seenParameters.has(parameter?.reference)) {
             report({
-              message: 'The parameter `reference` MUST be unique amongst listed parameters.',
+              message: 'The parameter `reference` must be unique amongst listed parameters.',
               location: location.child([parameters.indexOf(parameter)]),
             });
           }

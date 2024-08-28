@@ -11,14 +11,14 @@ export const StepOnFailureUnique: ArazzoRule = () => {
         for (const onFailureAction of onFailureActionList) {
           if (seenFailureActions.has(onFailureAction?.name)) {
             report({
-              message: 'The action `name` MUST be unique amongst listed `onFailure` actions.',
+              message: 'The action `name` must be unique amongst listed `onFailure` actions.',
               location: location.child([onFailureActionList.indexOf(onFailureAction)]),
             });
           }
 
           if (seenFailureActions.has(onFailureAction?.reference)) {
             report({
-              message: 'The action `reference` MUST be unique amongst listed `onFailure` actions.',
+              message: 'The action `reference` must be unique amongst listed `onFailure` actions.',
               location: location.child([onFailureActionList.indexOf(onFailureAction)]),
             });
           }

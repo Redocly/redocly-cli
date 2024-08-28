@@ -56,7 +56,7 @@ describe('Arazzo sourceDescription-name-unique', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`name\` MUST be unique amongst all SourceDescriptions.",
+          "message": "The \`name\` must be unique amongst all SourceDescriptions.",
           "ruleId": "sourceDescription-name-unique",
           "severity": "error",
           "suggest": [],
