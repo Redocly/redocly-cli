@@ -7,6 +7,7 @@ import { SpecVersion, getTypes } from '../oas-types';
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
 import type { Config } from '../config';
+import { output } from '../output';
 
 const builtInCommonOASRules = [
   'spec',
@@ -313,6 +314,8 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
+    root: { type: 'string' },
+    output: { type: 'string' },
     labels: {
       type: 'array',
       items: {
