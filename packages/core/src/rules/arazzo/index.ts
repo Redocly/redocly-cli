@@ -2,7 +2,7 @@ import { Spec } from '../common/spec';
 import { Assertions } from '../common/assertions';
 import { ParametersNoBodyInsideIn } from '../spot/parameters-no-body-inside-in';
 import { SourceDescriptionType } from '../arazzo/source-description-type';
-import { ArazzoVersionEnum } from '../spot/arazzo-version-enum';
+import { VersionEnum } from '../spot/version-enum';
 import { WorkflowWorkflowIdUnique } from './workflow-workflowId-unique';
 import { StepStepIdUnique } from './step-stepId-unique';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique';
@@ -20,7 +20,7 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   assertions: Assertions as ArazzoRule,
   'parameters-no-body-inside-in': ParametersNoBodyInsideIn as ArazzoRule,
   'source-description-type': SourceDescriptionType as ArazzoRule,
-  'arazzo-version-enum': ArazzoVersionEnum as ArazzoRule,
+  'version-enum': VersionEnum as ArazzoRule,
   'workflow-workflowId-unique': WorkflowWorkflowIdUnique as ArazzoRule,
   'step-stepId-unique': StepStepIdUnique as ArazzoRule,
   'sourceDescription-name-unique': SourceDescriptionsNameUnique as ArazzoRule,

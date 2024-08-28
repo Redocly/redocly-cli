@@ -121,7 +121,7 @@ some of the built-in rules. The currently-supported rules are:
 
 - `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
 - `source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
-- `arazzo-version-enum`: the `version` property must be one of the allowed values: [`1.0.0`].
+- `version-enum`: the `version` property must be one of the supported values.
 - `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
 - `step-stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
 - `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.

@@ -112,7 +112,7 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     spec: 'error',
     'parameters-no-body-inside-in': 'error',
     'source-description-type': 'error',
-    'arazzo-version-enum': 'error',
+    'version-enum': 'error',
     'workflow-workflowId-unique': 'error',
     'step-stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',

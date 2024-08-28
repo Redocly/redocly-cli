@@ -113,7 +113,7 @@ const builtInArazzoRules = [
   'spec',
   'parameters-no-body-inside-in',
   'source-description-type',
-  'arazzo-version-enum',
+  'version-enum',
   'workflow-workflowId-unique',
   'step-stepId-unique',
   'sourceDescription-name-unique',

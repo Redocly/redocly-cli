@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo arazzo-version-enum', () => {
+describe('Arazzo version-enum', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.1'
@@ -39,7 +39,7 @@ describe('Arazzo arazzo-version-enum', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'arazzo-version-enum': 'error' },
+        arazzoRules: { 'version-enum': 'error' },
       }),
     });
 
@@ -54,7 +54,7 @@ describe('Arazzo arazzo-version-enum', () => {
             },
           ],
           "message": "Only 1.0.0 Arazzo version is supported by Spot.",
-          "ruleId": "arazzo-version-enum",
+          "ruleId": "version-enum",
           "severity": "error",
           "suggest": [],
         },
