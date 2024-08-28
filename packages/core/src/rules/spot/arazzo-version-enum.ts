@@ -10,7 +10,9 @@ export const ArazzoVersionEnum: ArazzoRule = () => {
       enter(root, { report, location }: UserContext) {
         if (!ARAZZO_VERSIONS_SUPPORTED_BY_SPOT.includes(root.arazzo)) {
           report({
-            message: `Only ${ALOOWED_ARAZZO_VERSIONS_STRING} Arazzo version ${ARAZZO_VERSIONS_SUPPORTED_BY_SPOT.length > 1 ? 'are' : 'is'} supported by Spot.`,
+            message: `Only ${ALOOWED_ARAZZO_VERSIONS_STRING} Arazzo version ${
+              ARAZZO_VERSIONS_SUPPORTED_BY_SPOT.length > 1 ? 'are' : 'is'
+            } supported by Spot.`,
             location: location.child('arazzo'),
           });
         }
