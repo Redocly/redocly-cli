@@ -66,6 +66,7 @@ jobs:
           cd benchmark/
           npm test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
+          npm run chart # Creates benchmark_chart.md with the performance bar chart.
         env:
           CI: true
           REDOCLY_TELEMETRY: off
@@ -74,5 +75,5 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: benchmark/benchmark_check.md
+          filePath: benchmark/benchmark_chart.md
           comment_tag: historical-versions-comparison
