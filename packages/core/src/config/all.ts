@@ -134,7 +134,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'workflow-workflowId-unique': 'error',
     'step-stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
-    'workflow-dependsOn-unique': 'error',
+    'workflow-dependsOn': 'error',
     'parameters-unique': 'error',
     'step-onSuccess-unique': 'error',
     'step-onFailure-unique': 'error',

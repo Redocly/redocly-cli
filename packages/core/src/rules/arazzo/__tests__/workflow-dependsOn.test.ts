@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo workflow-dependsOn-unique', () => {
+describe('Arazzo workflow-dependsOn', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -132,7 +132,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'workflow-dependsOn-unique': 'error' },
+        arazzoRules: { 'workflow-dependsOn': 'error' },
       }),
     });
 
@@ -147,7 +147,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
             },
           ],
           "message": "Every workflow in dependsOn must be unique.",
-          "ruleId": "workflow-dependsOn-unique",
+          "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
         },
@@ -161,7 +161,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'workflow-dependsOn-unique': 'off' },
+        arazzoRules: { 'workflow-dependsOn': 'off' },
       }),
     });
 
@@ -174,7 +174,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
       document: documentWithNotExistingWorkflows,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'workflow-dependsOn-unique': 'error' },
+        arazzoRules: { 'workflow-dependsOn': 'error' },
       }),
     });
 
@@ -189,7 +189,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
             },
           ],
           "message": "Workflow events-crus must be defined in workflows.",
-          "ruleId": "workflow-dependsOn-unique",
+          "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
         },
@@ -202,7 +202,7 @@ describe('Arazzo workflow-dependsOn-unique', () => {
             },
           ],
           "message": "SourceDescription tickets-from-museum-apis must be defined in sourceDescriptions.",
-          "ruleId": "workflow-dependsOn-unique",
+          "ruleId": "workflow-dependsOn",
           "severity": "error",
           "suggest": [],
         },

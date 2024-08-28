@@ -117,7 +117,7 @@ const builtInArazzoRules = [
   'workflow-workflowId-unique',
   'step-stepId-unique',
   'sourceDescription-name-unique',
-  'workflow-dependsOn-unique',
+  'workflow-dependsOn',
   'parameters-unique',
   'step-onSuccess-unique',
   'step-onFailure-unique',

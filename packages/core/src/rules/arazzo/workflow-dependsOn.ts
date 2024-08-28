@@ -1,7 +1,7 @@
 import type { ArazzoRule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const WorkflowDependsOnUnique: ArazzoRule = () => {
+export const WorkflowDependsOn: ArazzoRule = () => {
   const seenWorkflow = new Set();
   const existingSourceDescriptions = new Set();
   const existingWorkflowIds = new Set();
