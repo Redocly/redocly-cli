@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Spot parameters-no-body-inside-in', () => {
+describe('Spot parameters-not-in-body', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -49,7 +49,7 @@ describe('Spot parameters-no-body-inside-in', () => {
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'parameters-no-body-inside-in': 'error' },
+        arazzoRules: { 'parameters-not-in-body': 'error' },
       }),
     });
 
@@ -64,7 +64,7 @@ describe('Spot parameters-no-body-inside-in', () => {
             },
           ],
           "message": "The \`body\` value of the \`in\` property is not supported by Spot.",
-          "ruleId": "parameters-no-body-inside-in",
+          "ruleId": "parameters-not-in-body",
           "severity": "error",
           "suggest": [],
         },

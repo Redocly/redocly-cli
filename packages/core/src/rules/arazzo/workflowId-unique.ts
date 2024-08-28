@@ -1,7 +1,7 @@
 import type { ArazzoRule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const WorkflowWorkflowIdUnique: ArazzoRule = () => {
+export const WorkflowIdUnique: ArazzoRule = () => {
   const seenWorkflow = new Set();
 
   return {

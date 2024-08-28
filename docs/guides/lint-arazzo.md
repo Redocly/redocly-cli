@@ -119,11 +119,11 @@ With this action in place, the intentional errors I added to the Arazzo descript
 To expand the linting checks for an Arazzo description, start by enabling
 some of the built-in rules. The currently-supported rules are:
 
-- `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
+- `parameters-not-in-body`: the `in` section inside `parameters` must not contain a `body`.
 - `source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
 - `version-enum`: the `version` property must be one of the supported values.
-- `workflow-workflowId-unique`: the `workflowId` property must be unique across all workflows.
-- `step-stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
+- `workflowId-unique`: the `workflowId` property must be unique across all workflows.
+- `stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
 - `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
 - `workflow-dependsOn`: the items in the `workflow` `dependsOn` property must exist and be unique.
 - `parameters-unique`: the `parameters` list must not include duplicate parameters.

@@ -1,7 +1,7 @@
 import type { ArazzoRule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const StepStepIdUnique: ArazzoRule = () => {
+export const StepIdUnique: ArazzoRule = () => {
   return {
     Workflow: {
       enter(workflow, { report, location }: UserContext) {

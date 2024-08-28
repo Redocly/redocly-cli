@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo step-stepId-unique', () => {
+describe('Arazzo workflowId-unique', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -29,7 +29,7 @@ describe('Arazzo step-stepId-unique', () => {
               operationId: museum-api.getMuseumHours
               successCriteria:
                 - condition: $statusCode == 200
-        - workflowId: get-museum-hours-2
+        - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
           parameters:
             - in: header
@@ -42,23 +42,17 @@ describe('Arazzo step-stepId-unique', () => {
               operationId: museum-api.getMuseumHours
               successCriteria:
                 - condition: $statusCode == 200
-            - stepId: get-museum-hours
-              description: >-
-                Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
-              operationId: museum-api.getMuseumHours
-              successCriteria:
-                - condition: $statusCode == 200
     `,
     'arazzo.yaml'
   );
 
-  it('should report when the `stepId` is not unique amongst all steps described in the workflow', async () => {
+  it('should report on workflowId unique violation', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'step-stepId-unique': 'error' },
+        arazzoRules: { 'workflowId-unique': 'error' },
       }),
     });
 
@@ -67,13 +61,13 @@ describe('Arazzo step-stepId-unique', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/1/steps/1",
+              "pointer": "#/workflows/1/get-museum-hours",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`stepId\` must be unique amongst all steps described in the workflow.",
-          "ruleId": "step-stepId-unique",
+          "message": "Every workflow must have a unique \`workflowId\`.",
+          "ruleId": "workflowId-unique",
           "severity": "error",
           "suggest": [],
         },
@@ -81,12 +75,13 @@ describe('Arazzo step-stepId-unique', () => {
     `);
   });
 
-  it('should not report when the `stepId` is not unique amongst all steps described in the workflow', async () => {
+  it('should not report on workflowId unique violation', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
+        arazzoRules: { 'workflowId-unique': 'off' },
       }),
     });
 

@@ -1,7 +1,7 @@
 import type { ArazzoRule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const ParametersNoBodyInsideIn: ArazzoRule = () => {
+export const ParametersNotInBody: ArazzoRule = () => {
   return {
     Parameter: {
       enter(parameter, { report, location }: UserContext) {

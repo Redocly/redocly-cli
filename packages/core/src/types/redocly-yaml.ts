@@ -111,11 +111,11 @@ export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
 
 const builtInArazzoRules = [
   'spec',
-  'parameters-no-body-inside-in',
+  'parameters-not-in-body',
   'source-description-type',
   'version-enum',
-  'workflow-workflowId-unique',
-  'step-stepId-unique',
+  'workflowId-unique',
+  'stepId-unique',
   'sourceDescription-name-unique',
   'workflow-dependsOn',
   'parameters-unique',
