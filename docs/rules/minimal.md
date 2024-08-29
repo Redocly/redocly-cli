@@ -38,3 +38,4 @@ Warnings:
 - [security-defined](./security-defined.md)
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [tag-description](./tag-description.md)
+- [version-enum](./spot/version-enum.md)

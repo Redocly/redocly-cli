@@ -41,6 +41,8 @@ Warnings:
 - [operation-4xx-response](./operation-4xx-response.md)
 - [operation-operationId](./operation-operationId.md)
 - [tag-description](./tag-description.md)
+- [version-enum](./spot/version-enum.md)
+- [parameters-not-in-body](./spot/parameters-not-in-body.md)
 
 ## Recommended strict ruleset
 
