@@ -74,7 +74,7 @@ Choose from the ready-made rulesets (`minimal`, `recommended` or `recommended-st
 The rules available for linting Arazzo are:
 
 - `parameters-not-in-body`: the `in` section inside `parameters` must not contain a `body`.
-- `source-description-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
+- `sourceDescription-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
 - `version-enum`: the `version` property must be one of the supported values.
 - `workflowId-unique`: the `workflowId` property must be unique across all workflows.
 - `stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.

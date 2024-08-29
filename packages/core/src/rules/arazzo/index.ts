@@ -19,7 +19,7 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   spec: Spec as ArazzoRule,
   assertions: Assertions as ArazzoRule,
   'parameters-not-in-body': ParametersNotInBody as ArazzoRule,
-  'source-description-type': SourceDescriptionType as ArazzoRule,
+  'sourceDescription-type': SourceDescriptionType as ArazzoRule,
   'version-enum': VersionEnum as ArazzoRule,
   'workflowId-unique': WorkflowIdUnique as ArazzoRule,
   'stepId-unique': StepIdUnique as ArazzoRule,

@@ -111,7 +111,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   arazzoRules: {
     spec: 'error',
     'parameters-not-in-body': 'warn',
-    'source-description-type': 'error',
+    'sourceDescription-type': 'error',
     'version-enum': 'warn',
     'workflowId-unique': 'error',
     'stepId-unique': 'error',
