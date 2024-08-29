@@ -44,6 +44,7 @@ Warnings:
 - [tag-description](./tag-description.md)
 - [version-enum](./spot/version-enum.md)
 - [parameters-not-in-body](./spot/parameters-not-in-body.md)
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
 
 ## Recommended strict ruleset
 

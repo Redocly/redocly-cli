@@ -36,7 +36,7 @@ style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-A list of `parameters` that are applicable for step or all steps described under workflow should not be duplicated to avoid shallow parameter override.
+A list of `parameters` that are applicable to step or all steps described under workflow should not be duplicated to avoid shadow parameter override.
 
 ## Configuration
 
@@ -87,8 +87,6 @@ workflows:
         name: Auth
         value: Main Og==
 ```
-
-## Related rules
 
 ## Resources
 
