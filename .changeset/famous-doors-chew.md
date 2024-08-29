@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Fixed Arazzo schema mismatch.
+Updated the Arazzo validation types for workflows input, parameter objects, and criteria to match the specification.
