@@ -27,6 +27,7 @@ Errors:
 - [security-defined](./security-defined.md)
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [spec](./spec.md)
+- [parameters-unique](./arazzo/parameters-unique.md)
 
 Warnings:
 

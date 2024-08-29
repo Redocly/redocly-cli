@@ -1,10 +1,10 @@
 ---
-slug: /docs/cli/rules/spot/parameters-not-in-body
+slug: /docs/cli/rules/arazzo/parameters-unique
 ---
 
-# parameters-not-in-body
+# parameters-unique
 
-Requires the `in` section inside `parameters` must not contain a `body`.
+Requires the `parameters` list not to include duplicate parameters.
 
 | ARAZZO | Compatibility |
 | ------ | ------------- |
@@ -36,8 +36,7 @@ style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-This is `Spot` specific rule.
-`body` is not supported in the `in` section inside `parameters`.
+A list of `parameters` that are applicable for step or all steps described under workflow should not be duplicated to avoid shallow parameter override.
 
 ## Configuration
 
@@ -49,7 +48,7 @@ An example configuration:
 
 ```yaml
 arazzoRules:
-  parameters-not-in-body: error
+  parameters-unique: error
 ```
 
 ## Examples
@@ -58,7 +57,7 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  parameters-not-in-body: error
+  parameters-unique: error
 ```
 
 Example of an **incorrect** license:
@@ -67,7 +66,10 @@ Example of an **incorrect** license:
 workflows:
   - workflowId: get-museum-hours
     parameters:
-      - in: body
+      - in: header
+        name: Authorization
+        value: Main Og==
+      - in: header
         name: Authorization
         value: Basic Og==
 ```
@@ -81,12 +83,13 @@ workflows:
       - in: header
         name: Authorization
         value: Basic Og==
+      - in: header
+        name: Auth
+        value: Main Og==
 ```
 
 ## Related rules
 
-- [version-enum](./version-enum.md)
-
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/parameters-not-in-body.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/arazzo/parameters-unique.ts)

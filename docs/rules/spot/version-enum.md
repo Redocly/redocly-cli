@@ -7,7 +7,7 @@ slug: /docs/cli/rules/spot/version-enum
 Requires the `version` property must be one of the supported values.
 
 | ARAZZO | Compatibility |
-|--------| ------------- |
+| ------ | ------------- |
 | 1.0.0  | ✅            |
 
 ```mermaid
@@ -21,7 +21,7 @@ style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ## API design principles
 
 This is `Spot` specific rule.
-The `version` property must be one of the supported values witch is might be different to the `Arazzo` latest versions. 
+The `version` property must be one of the supported values witch is might be different to the `Arazzo` latest versions.
 
 ## Configuration
 
@@ -64,4 +64,3 @@ arazzo: 1.0.0
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/version-enum.ts)
-
