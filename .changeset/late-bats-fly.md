@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added Arazzo ruleset.
+Added Arazzo rulesets so that users can customize their linting rules for this format.
