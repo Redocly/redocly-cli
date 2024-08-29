@@ -4,7 +4,7 @@ import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3';
 
 const Root: NodeType = {
   properties: {
-    arazzo: { type: 'string', enum: ['1.0.0'] },
+    arazzo: { type: 'string' },
     info: 'Info',
     sourceDescriptions: 'SourceDescriptions',
     'x-parameters': 'Parameters',
@@ -89,9 +89,7 @@ const ArazzoSourceDescription: NodeType = {
 const ReusableObject: NodeType = {
   properties: {
     reference: { type: 'string' },
-    value: {
-      type: 'string',
-    },
+    value: {}, // any
   },
   required: ['reference'],
   extensionsPrefix: 'x-',
@@ -108,10 +106,10 @@ const Parameter: NodeType = {
 const Parameters: NodeType = {
   properties: {},
   items: (value: any) => {
-    if (value?.in) {
-      return 'Parameter';
-    } else {
+    if (value?.reference) {
       return 'ReusableObject';
+    } else {
+      return 'Parameter';
     }
   },
 };
@@ -122,7 +120,7 @@ const Workflow: NodeType = {
     description: { type: 'string' },
     parameters: 'Parameters',
     dependsOn: { type: 'array', items: { type: 'string' } },
-    inputs: 'NamedInputs',
+    inputs: 'Schema',
     outputs: 'Outputs',
     steps: 'Steps',
     successActions: 'OnSuccessActionList',
@@ -234,7 +232,7 @@ const SuccessActionObject: NodeType = {
     type: { type: 'string', enum: ['goto', 'end'] },
     stepId: { type: 'string' },
     workflowId: { type: 'string' },
-    criteria: 'CriterionObject',
+    criteria: listOf('CriterionObject'),
   },
   required: ['type', 'name'],
 };
@@ -256,7 +254,7 @@ const FailureActionObject: NodeType = {
     stepId: { type: 'string' },
     retryAfter: { type: 'number' },
     retryLimit: { type: 'number' },
-    criteria: 'CriterionObject',
+    criteria: listOf('CriterionObject'),
   },
   required: ['type', 'name'],
 };

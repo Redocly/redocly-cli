@@ -8,6 +8,7 @@ import {
   lintConfig,
 } from '@redocly/openapi-core';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
+import { pluralize } from '@redocly/openapi-core/lib/utils';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -15,7 +16,6 @@ import {
   getFallbackApisOrExit,
   handleError,
   notifyAboutIncompatibleConfigOptions,
-  pluralize,
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,

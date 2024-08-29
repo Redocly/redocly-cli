@@ -78,7 +78,7 @@ workflows:
         operationPath: $sourceDescriptions.museum-api#/paths/~1special-events~1{eventId}/get
         parameters:
           - name: eventId
-            in: body
+            in: path
             value: $steps.create-event.outputs.createdEventId
         successCriteria:
           - context: $statusCode

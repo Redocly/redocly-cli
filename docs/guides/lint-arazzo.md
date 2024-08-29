@@ -68,9 +68,36 @@ arazzo/museum-api.arazzo.yaml: validated in 14ms
 run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-{% admonition type="info" name="Validation only" %}
-No additional rules or configuration are available for Arazzo in the current version of Redocly CLI; the tool merely checks that the file meets the specification.
-{% /admonition %}
+## Configure the linting rules
+
+Choose from the ready-made rulesets (`minimal`, `recommended` or `recommended-strict`), or go one better and configure the rules that suit your use case.
+The rules available for linting Arazzo are:
+
+- `parameters-not-in-body`: the `in` section inside `parameters` must not contain a `body`.
+- `sourceDescription-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
+- `version-enum`: the `version` property must be one of the supported values.
+- `workflowId-unique`: the `workflowId` property must be unique across all workflows.
+- `stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
+- `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
+- `workflow-dependsOn`: the items in the `workflow` `dependsOn` property must exist and be unique.
+- `parameters-unique`: the `parameters` list must not include duplicate parameters.
+- `step-onSuccess-unique`: the `onSuccess` actions of the `step` object must be unique.
+- `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
+- `requestBody-replacements-unique`: the `replacements` of the `requestBody` object must be unique.
+
+Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzoRules`.
+The following example shows configuration for the minimal ruleset with some additional rules configuration:
+
+```yaml
+extends:
+ - minimal
+
+arazzoRules:
+  sourceDescription-name-unique: warn
+  version-enum: error
+```
+
+The configuration shown here gives some good entry-level linting using the `minimal` standard, and adds checks that we're using a supported version of Arazzo, and warns if each source description doesn't have a unique name.
 
 ## Choose output format
 
@@ -113,13 +140,6 @@ jobs:
 With this action in place, the intentional errors I added to the Arazzo description are shown as annotations on the pull request:
 
 ![Screenshot of annotation flagging "workfloo" as an unexpected value and suggesting "workflow"](images/museum-arazzo-lint.png)
-
-## Arazzo rules
-
-To expand the linting checks for an Arazzo description, start by enabling
-some of the built-in rules. The currently-supported rules are:
-
-- `parameters-no-body-inside-in`: the `in` section inside `parameters` must not contain a `body`.
 
 ## Participate in Redocly CLI
 

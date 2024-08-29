@@ -6,6 +6,7 @@ import { parseYaml } from './js-yaml';
 import { env } from './env';
 import { logger, colorize } from './logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import * as pluralizeOne from 'pluralize';
 
 import type { HttpResolveConfig } from './config';
 import type { UserContext } from './walk';
@@ -21,6 +22,13 @@ export type Stack<T> = StackFrame<T> | null;
 export type StackNonEmpty<T> = StackFrame<T>;
 export function pushStack<T, P extends Stack<T> = Stack<T>>(head: P, value: T) {
   return { prev: head, value };
+}
+
+export function pluralize(sentence: string, count?: number, inclusive?: boolean) {
+  return sentence
+    .split(' ')
+    .map((word) => pluralizeOne(word, count, inclusive))
+    .join(' ');
 }
 
 export function popStack<T, P extends Stack<T>>(head: P) {
