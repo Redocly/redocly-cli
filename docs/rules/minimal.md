@@ -12,6 +12,8 @@ Errors:
 - [no-server-variables-empty-enum](./no-server-variables-empty-enum.md)
 - [no-unresolved-refs](./no-unresolved-refs.md)
 - [spec](./spec.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
 
 Warnings:
 

@@ -28,6 +28,11 @@ Errors:
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [spec](./spec.md)
 - [parameters-unique](./arazzo/parameters-unique.md)
+- [sourceDescription-type](./arazzo/sourceDescriptions-type)
+- [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
 
 Warnings:
 
@@ -45,6 +50,8 @@ Warnings:
 - [version-enum](./spot/version-enum.md)
 - [parameters-not-in-body](./spot/parameters-not-in-body.md)
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
 
 ## Recommended strict ruleset
 
