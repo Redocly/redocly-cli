@@ -111,13 +111,17 @@ export async function resolveConfig({
 }
 
 function getDefaultPluginPath(configPath: string): string | undefined {
+  if (isBrowser) {
+    return;
+  }
+
   for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
     const absolutePluginPath = path.resolve(path.dirname(configPath), pluginPath);
     if (existsSync(absolutePluginPath)) {
       return pluginPath;
     }
   }
-  return undefined;
+  return;
 }
 
 export async function resolvePlugins(
