@@ -28,7 +28,7 @@ Errors:
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [spec](./spec.md)
 - [parameters-unique](./arazzo/parameters-unique.md)
-- [sourceDescription-type](./arazzo/sourceDescriptions-type)
+- [sourceDescription-type](./arazzo/sourceDescriptions-type.md)
 - [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
 - [workflow-dependsOn](./arazzo/workflow-dependsOn.md)

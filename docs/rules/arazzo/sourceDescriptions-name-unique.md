@@ -70,7 +70,7 @@ sourceDescriptions:
 
 ## Related rules
 
-- [sourceDescription-type](./sourceDescriptions-type)
+- [sourceDescription-type](./sourceDescriptions-type.md)
 
 ## Resources
 
