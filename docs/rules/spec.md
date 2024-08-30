@@ -12,6 +12,15 @@ Ensures that your API document conforms to the [OpenAPI specification](https://s
 | 3.0 | ✅            |
 | 3.1 | ✅            |
 
+| ARAZZO | Compatibility |
+| ------ | ------------- |
+| 1.0.0  | ✅            |
+
+| ASYNC | Compatibility |
+| ----- | ------------- |
+| 2.0   | ✅            |
+| 3.0   | ✅            |
+
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 
 This is an essential rule that should not be turned off except in rare and special cases.
