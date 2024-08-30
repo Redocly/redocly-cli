@@ -823,7 +823,7 @@ yargs
       yargs
         .positional('type', {
           description:
-            'Specifies what type of project element to eject. Currently, it could be only `component`.',
+            'Specifies what type of project element to eject. Currently limited to `component`.',
           demandOption: true,
           choices: ['component'],
         })
@@ -836,7 +836,7 @@ yargs
             alias: 'd',
             type: 'string',
             description:
-              'Specifies the project content directory. The default value is the directory where the command is executed.',
+              'Specifies the destination folder to eject components into.',
             default: '.',
           },
           force: {
