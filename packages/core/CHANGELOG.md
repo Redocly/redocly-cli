@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.22.1
+
+### Patch Changes
+
+- Fixed an issue where resolving config in the browser always threw an error.
+
 ## 1.22.0
 
 ### Minor Changes
