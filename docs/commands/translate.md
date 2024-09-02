@@ -13,7 +13,6 @@ This command serves two purposes:
 ```bash
 redocly translate <locale>
 redocly translate all
-redocly translate <locale> [--project-dir=<path>]
 redocly translate --help
 redocly translate --version
 ```
@@ -23,7 +22,6 @@ redocly translate --version
 | Option | Type | Description |
 |--------|------|-------------|
 | `locale` | string | **REQUIRED**. Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
-| `--project-dir`, `-d` | string | Specifies the destination of translated files. |
 | `--lint-config` | string | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`. |
 | `--help` | boolean | Show help. |
 | `--version` | boolean | Show version number. |
