@@ -5,7 +5,7 @@
 The `eject` command allows you to customize components by creating a local copy of their source code in your Redocly project.
 Use this feature when you need to modify a component's styles, structure, or behavior beyond what's possible through configuration.
 
-{% partial file="../_snippets/new-product-alert-commands.md" %}
+Works with Redocly [Revel](https://redocly.com/revel), [Reef](https://redocly.com/reef), or [Realm](https://redocly.com/realm).
 
 ## Usage
 
@@ -33,7 +33,8 @@ If no component is found when running the `eject` command, then it prints a list
 
 ### Eject a single component
 
-Eject an individual component by passing it's filepath.
+Eject an individual component by passing its filepath.
+Components are ejected to the `@theme` folder in the root of your project.
 
 The following command ejects the `Filter` component:
 
@@ -41,15 +42,31 @@ The following command ejects the `Filter` component:
 redocly eject component 'Filter/Filter.tsx'
 ```
 
-### Eject multiple components using a glob pattern
+When ejected, the filepath to the ejected component prints to terminal.
+In this example, the `Filter` component is ejected to `@theme/components/Filter/Filter.tsx`.
 
-Eject multiple components by selecting them in the ejecton prompt, which is triggered by passing `<folder-name>/**` wrapped in single quotes.
+### Eject multiple components
 
-The following command triggers an ejection prompt for all components inside the `Footer` folder:
+Eject multiple components using the ejection prompt, which is triggered by passing `<folder-name>/**` wrapped in single quotes.
+
+The following command starts an ejection prompt for the `Footer` folder:
 
 ```bash
 redocly eject component 'Footer/**'
 ```
+
+Use the ejection prompt to select and eject any components inside the `Footer` folder.
+
+#### Use ejection prompt
+
+Use your keyboard to navigate the ejection prompt.
+
+- Arrows move the cursor.
+- Spacebar selects an item (file or folder).
+- Enter to eject selected items.
+
+Selecting an item adds a check mark.
+Selecting a folder selects all its children items.
 
 #### Eject all components
 
