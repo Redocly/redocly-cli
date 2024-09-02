@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: eject
+          page: commands/eject.md
         - label: join
           page: commands/join.md
         - label: lint
