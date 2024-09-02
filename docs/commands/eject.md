@@ -97,6 +97,14 @@ redocly eject component 'components/Search/SearchDialog.tsx' --project-dir='play
 
 This example ejects the `SearchDialog` component to `playground/@theme/components/Search/SearchDialog.tsx`.
 
+## Tips on using `eject`
+
+- Use `eject` when your customization needs outgrow [styling](https://redocly.com/docs/realm/style/how-to/customize-styles) or [configuration](https://redocly.com/docs/realm/config) capabilities.
+
+- A list of ejectable components is printed when no component is found by the `eject` command.
+
+- Ejected components only [override standard components](https://redocly.com/docs/realm/extend/how-to/eject-components#override-core-components) when the new component is located in your `@theme` folder with a matching path and filename.
+
 ## Resources
 
 - Learn to [eject components](https://redocly.com/docs/realm/extend/how-to/eject-components) and unlock deeper project customization.
