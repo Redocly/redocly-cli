@@ -79,19 +79,6 @@ redocly eject component 'layouts/**'
 redocly eject component 'markdoc/**'
 ```
 
-### Eject all components
-
-Eject all available components using the ejection prompt triggered by  multiple components by selecting them in the ejecton prompt, which is triggered by passing `<folder-name>/**` wrapped in single quotes.
-
-The following command triggers an ejection prompt for all components inside the `Footer` folder:
-
-```bash
-redocly eject component 'Footer/**'
-```
-
-You can eject  are the top level folders that can be ejected:
-- 'components'
-
 ### Skip ejection override confirmation
 
 Use the `--force` option to skip the confirmation prompt when ejecting a component that already exists in the destination:
@@ -107,3 +94,10 @@ Use the `--project-dir` option to eject components into a specific folder:
 ```bash
 redocly eject component 'components/Search/SearchDialog.tsx' --project-dir='playground'
 ```
+
+This example ejects the `SearchDialog` component to `playground/@theme/components/Search/SearchDialog.tsx`.
+
+## Resources
+
+- Learn to [eject components](https://redocly.com/docs/realm/extend/how-to/eject-components) and unlock deeper project customization.
+- See how component ejection is used to [add a new color mode](https://redocly.com/docs/realm/extend/how-to/add-color-mode).
