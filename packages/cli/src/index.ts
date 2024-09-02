@@ -823,7 +823,7 @@ yargs
       yargs
         .positional('type', {
           description:
-            'Specifies what type of project element to eject. Currently limited to `component`.',
+            'Specifies what type of project element to eject. Currently this value must be `component`.',
           demandOption: true,
           choices: ['component'],
         })
