@@ -146,7 +146,11 @@ describe('bundle', () => {
       },
     } as unknown as Config;
     // @ts-ignore
-    getFallbackApisOrExit = jest.fn().mockResolvedValueOnce(Object.values(apis));
+    getFallbackApisOrExit = jest
+      .fn()
+      .mockResolvedValueOnce(
+        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+      );
     (getTotals as jest.Mock).mockReturnValue({
       errors: 0,
       warnings: 0,
@@ -182,7 +186,11 @@ describe('bundle', () => {
       },
     } as unknown as Config;
     // @ts-ignore
-    getFallbackApisOrExit = jest.fn().mockResolvedValueOnce(Object.values(apis));
+    getFallbackApisOrExit = jest
+      .fn()
+      .mockResolvedValueOnce(
+        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+      );
     (getTotals as jest.Mock).mockReturnValue({
       errors: 0,
       warnings: 0,
@@ -198,5 +206,39 @@ describe('bundle', () => {
     expect(saveBundle).toBeCalledTimes(1);
     expect(saveBundle).toHaveBeenCalledWith('output/foo.yaml', expect.any(String));
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
+  });
+
+  describe('per api output', () => {
+    it('should NOT store bundled API descriptions in the output files described in the apis section of config IF no there is a positional api provided', async () => {
+      const apis = {
+        foo: {
+          root: 'foo.yaml',
+          output: 'output/foo.yaml',
+        },
+      };
+      const config = {
+        apis,
+        styleguide: {
+          skipPreprocessors: jest.fn(),
+          skipDecorators: jest.fn(),
+        },
+      } as unknown as Config;
+      // @ts-ignore
+      getFallbackApisOrExit = jest.fn().mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
+      (getTotals as jest.Mock).mockReturnValue({
+        errors: 0,
+        warnings: 0,
+        ignored: 0,
+      });
+
+      await handleBundle({
+        argv: { apis: ['openapi.yaml'] }, // positional
+        version: 'test',
+        config,
+      });
+
+      expect(saveBundle).toBeCalledTimes(0);
+      expect(process.stdout.write).toHaveBeenCalledTimes(1);
+    });
   });
 });
