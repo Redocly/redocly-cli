@@ -54,8 +54,16 @@ export function isEmptyObject(value: unknown): value is Record<string, unknown> 
   return isPlainObject(value) && Object.keys(value).length === 0;
 }
 
+export function isNotEmptyObject(obj: unknown): boolean {
+  return isPlainObject(obj) && !isEmptyObject(obj);
+}
+
 export function isEmptyArray(value: unknown) {
   return Array.isArray(value) && value.length === 0;
+}
+
+export function isNotEmptyArray<T>(args?: T[]): boolean {
+  return Array.isArray(args) && !!args.length;
 }
 
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
@@ -177,10 +185,6 @@ export function slash(path: string): string {
   }
 
   return path.replace(/\\/g, '/');
-}
-
-export function isNotEmptyObject(obj: any) {
-  return !!obj && Object.keys(obj).length > 0;
 }
 
 // TODO: use it everywhere

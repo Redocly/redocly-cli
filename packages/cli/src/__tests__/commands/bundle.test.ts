@@ -1,13 +1,16 @@
 import { bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
 import { BundleOptions, handleBundle } from '../../commands/bundle';
-import { handleError } from '../../utils/miscellaneous';
+import { getOutputFileName, handleError } from '../../utils/miscellaneous';
 import { commandWrapper } from '../../wrapper';
 import SpyInstance = jest.SpyInstance;
 import { Arguments } from 'yargs';
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils/miscellaneous');
+
+// @ts-ignore
+getOutputFileName = jest.requireActual('../../utils/miscellaneous').getOutputFileName;
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 

@@ -21,7 +21,7 @@ export type BundleOptions = {
   apis?: string[];
   extends?: string[];
   output?: string;
-  ext: OutputExtensions;
+  ext?: OutputExtensions;
   dereferenced?: boolean;
   force?: boolean;
   metafile?: string;
@@ -45,7 +45,7 @@ export async function handleBundle({
 
   checkForDeprecatedOptions(argv, deprecatedOptions);
 
-  for (const { path, alias } of apis) {
+  for (const { path, alias, output } of apis) {
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
@@ -70,16 +70,16 @@ export async function handleBundle({
       });
 
       const fileTotals = getTotals(problems);
-      const { outputFile, ext } = getOutputFileName(path, apis.length, argv.output, argv.ext);
+      const { outputFile, ext } = getOutputFileName(path, output || argv.output, argv.ext);
 
       if (fileTotals.errors === 0 || argv.force) {
-        if (!argv.output) {
-          const output = dumpBundle(
+        if (!outputFile) {
+          const bundledOutput = dumpBundle(
             sortTopLevelKeysForOas(result.parsed),
             argv.ext || 'yaml',
             argv.dereferenced
           );
-          process.stdout.write(output);
+          process.stdout.write(bundledOutput);
         } else {
           const output = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
           saveBundle(outputFile, output);
@@ -111,9 +111,9 @@ export async function handleBundle({
       if (fileTotals.errors > 0) {
         if (argv.force) {
           process.stderr.write(
-            `❓ Created a bundle for ${blue(path)} at ${blue(outputFile)} with errors ${green(
-              elapsed
-            )}.\n${yellow('Errors ignored because of --force')}.\n`
+            `❓ Created a bundle for ${blue(path)} at ${blue(
+              outputFile || 'stdout'
+            )} with errors ${green(elapsed)}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
           process.stderr.write(
@@ -124,7 +124,9 @@ export async function handleBundle({
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`
+          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile || 'stdout')} ${green(
+            elapsed
+          )}.\n`
         );
       }
 

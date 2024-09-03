@@ -16,7 +16,14 @@ import {
   loadConfig,
   RedoclyClient,
 } from '@redocly/openapi-core';
-import { isEmptyObject, isPlainObject, pluralize } from '@redocly/openapi-core/lib/utils';
+import {
+  isEmptyArray,
+  isEmptyObject,
+  isNotEmptyArray,
+  isNotEmptyObject,
+  isPlainObject,
+  pluralize,
+} from '@redocly/openapi-core/lib/utils';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
 import { outputExtensions } from '../types';
@@ -43,7 +50,7 @@ export async function getFallbackApisOrExit(
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
-    !isNotEmptyArray(argsApis) && apis && Object.keys(apis).length > 0;
+    (!argsApis || isEmptyArray(argsApis)) && isNotEmptyObject(apis);
   const res = shouldFallbackToAllDefinitions
     ? fallbackToAllDefinitions(apis, config)
     : await expandGlobsInEntrypoints(argsApis!, config);
@@ -64,10 +71,6 @@ function getConfigDirectory(config: ConfigApis) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-function isNotEmptyArray<T>(args?: T[]): boolean {
-  return Array.isArray(args) && !!args.length;
-}
-
 function isApiPathValid(apiPath: string): string | void {
   if (!apiPath.trim()) {
     exitWithError('Path cannot be empty.');
@@ -80,9 +83,10 @@ function fallbackToAllDefinitions(
   apis: Record<string, ResolvedApi>,
   config: ConfigApis
 ): Entrypoint[] {
-  return Object.entries(apis).map(([alias, { root }]) => ({
+  return Object.entries(apis).map(([alias, { root, output }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
+    output,
   }));
 }
 
@@ -356,33 +360,20 @@ export function printConfigLintTotals(totals: Totals, command?: string | number)
   }
 }
 
-export function getOutputFileName(
-  entrypoint: string,
-  entries: number,
-  output?: string,
-  ext?: BundleOutputFormat
-) {
+export function getOutputFileName(entrypoint: string, output?: string, ext?: BundleOutputFormat) {
   if (!output) {
-    return { outputFile: 'stdout', ext: ext || 'yaml' };
+    return { ext: ext || 'yaml' };
   }
 
   let outputFile = output;
-  if (entries > 1) {
-    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
-    if (!outputExtensions.includes(ext as any)) {
-      throw new Error(`Invalid file extension: ${ext}.`);
-    }
-    outputFile = join(output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
-  } else {
-    if (output) {
-      ext = ext || (extname(output).substring(1) as BundleOutputFormat);
-    }
-    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
-    if (!outputExtensions.includes(ext as any)) {
-      throw new Error(`Invalid file extension: ${ext}.`);
-    }
-    outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
+  if (output) {
+    ext = ext || (extname(output).substring(1) as BundleOutputFormat);
   }
+  ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+  if (!outputExtensions.includes(ext)) {
+    throw new Error(`Invalid file extension: ${ext}.`);
+  }
+  outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
   return { outputFile, ext };
 }
 

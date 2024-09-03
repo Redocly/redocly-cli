@@ -209,6 +209,7 @@ export type DeprecatedInRawConfig = {
 
 export type Api = {
   root: string;
+  output?: string;
   styleguide?: ApiStyleguideRawConfig;
 } & ThemeConfig;
 
