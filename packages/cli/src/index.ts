@@ -817,7 +817,7 @@ yargs
     }
   )
   .command(
-    'eject <type> <path>',
+    'eject <type> [path]',
     'Helper function to eject project elements for customization.',
     (yargs) =>
       yargs
@@ -830,7 +830,6 @@ yargs
         .positional('path', {
           description: 'Filepath to a component or filepath with glob pattern.',
           type: 'string',
-          demandOption: true,
         })
         .options({
           'project-dir': {
