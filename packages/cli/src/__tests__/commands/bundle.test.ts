@@ -168,7 +168,7 @@ describe('bundle', () => {
     expect(saveBundle).toHaveBeenNthCalledWith(2, 'output/bar.json', expect.any(String));
   });
 
-  it('should store bundled API descriptions in the output files described in the apis section of config IF no positional apis provided AND output is specified for one api', async () => {
+  it('should store bundled API descriptions in the output files described in the apis section of config AND print the bundled api without the output specified to the terminal IF no positional apis provided AND output is specified for one api', async () => {
     const apis = {
       foo: {
         root: 'foo.yaml',
