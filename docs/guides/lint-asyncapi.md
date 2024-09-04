@@ -99,13 +99,12 @@ opportunities to make sure that your AsyncAPI spec conforms with expectations
 (we'd also love to see what you're building, it helps us know how things are
 going!).
 
-:::info Custom plugins
-
+{% admonition type="info" name="Custom plugins" %}
 For those users with advanced requirements and JavaScript skills, the [custom
 plugins](../custom-plugins/index.md) feature offers some extension points if you need
 them.
 
-:::
+{% /admonition %}
 
 ## Supported protocols
 
