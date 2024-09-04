@@ -85,7 +85,7 @@ export async function handlePush({
       return printExecutionTime('push', startedAt, `No files to upload`);
     }
 
-    const client = new ReuniteApiClient(domain, apiKey, version, 'push');
+    const client = new ReuniteApiClient({ domain, apiKey, version, command: 'push' });
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,

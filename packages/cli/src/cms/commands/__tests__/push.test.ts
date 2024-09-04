@@ -332,12 +332,12 @@ describe('handlePush()', () => {
       version: 'cli-version',
     });
 
-    expect(ReuniteApiClient).toBeCalledWith(
-      'test-domain-from-env',
-      'test-api-key',
-      'cli-version',
-      'push'
-    );
+    expect(ReuniteApiClient).toBeCalledWith({
+      domain: 'test-domain-from-env',
+      apiKey: 'test-api-key',
+      version: 'cli-version',
+      command: 'push',
+    });
   });
 
   it('should print error message', async () => {
@@ -345,7 +345,7 @@ describe('handlePush()', () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.push.mockRestore();
-    remotes.push.mockRejectedValueOnce(new ReuniteApiError('Deprecated', 412));
+    remotes.push.mockRejectedValueOnce(new ReuniteApiError('Deprecated.', 412));
 
     fsStatSyncSpy.mockReturnValueOnce({
       isDirectory() {
@@ -379,6 +379,6 @@ describe('handlePush()', () => {
         config: mockConfig,
         version: 'cli-version',
       })
-    ).rejects.toThrow('✗ File upload failed. Reason: Deprecated');
+    ).rejects.toThrow('✗ File upload failed. Reason: Deprecated.');
   });
 });

@@ -24,7 +24,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
+      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should get default project branch', async () => {
@@ -93,7 +93,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
+      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should upsert remote', async () => {
@@ -207,7 +207,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient(testDomain, testToken, version, command);
+      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should push to remote', async () => {
@@ -266,7 +266,7 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new ReuniteApiError('Failed to push. Cannot push to remote', 403));
+      ).rejects.toThrow(new ReuniteApiError('Failed to push. Cannot push to remote.', 403));
     });
 
     it('should throw statusText error if response is not ok', async () => {

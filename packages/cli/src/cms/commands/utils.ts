@@ -1,6 +1,7 @@
 import { pause } from '@redocly/openapi-core';
 import { DeploymentError } from '../utils';
 import { exitWithError } from '../../utils/miscellaneous';
+import { noTrailingDot } from '../../utils/string';
 
 import type { ReuniteApiError } from '../api';
 
@@ -60,7 +61,9 @@ export function handleReuniteError(
   error: ReuniteApiError | DeploymentError | Error
 ) {
   const errorMessage =
-    error instanceof DeploymentError ? error.message : `${message}. Reason: ${error.message}\n`;
+    error instanceof DeploymentError
+      ? error.message
+      : `${noTrailingDot(message)}. Reason: ${noTrailingDot(error.message)}.\n`;
 
   return exitWithError(errorMessage);
 }

@@ -68,7 +68,7 @@ export async function handlePushStatus({
 
   try {
     const apiKey = getApiKeys(domain);
-    const client = new ReuniteApiClient(domain, apiKey, version, 'push-status');
+    const client = new ReuniteApiClient({ domain, apiKey, version, command: 'push-status' });
 
     let pushResponse: PushResponse;
 
@@ -179,7 +179,7 @@ export async function handlePushStatus({
   } catch (err) {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
 
-    handleReuniteError('✗ Failed to get push status', err);
+    handleReuniteError('✗ Failed to get push status.', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
   }

@@ -3,6 +3,7 @@ import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
+import { noTrailingDot } from '../../utils/string';
 
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
@@ -29,16 +30,17 @@ class ReuniteBaseApiClient {
       return responseBody as T;
     }
 
-    throw new ReuniteApiError(responseBody.title || response.statusText, response.status);
+    throw new ReuniteApiError(
+      `${noTrailingDot(responseBody.title || response.statusText || 'Unknown error')}.`,
+      response.status
+    );
   }
 
   protected request(url: string, options: FetchWithTimeoutOptions) {
-    const headers = Object.assign(
-      { ...options.headers },
-      {
-        'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
-      }
-    );
+    const headers = {
+      ...options.headers,
+      'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
+    };
 
     return fetchWithTimeout(url, {
       ...options,
@@ -75,7 +77,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
       return source.branchName;
     } catch (err) {
-      const message = `Failed to fetch default branch. ${err.message || 'Unknown error'}`;
+      const message = `Failed to fetch default branch. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -114,7 +116,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
       return await this.getParsedResponse<UpsertRemoteResponse>(response);
     } catch (err) {
-      const message = `Failed to upsert remote. ${err.message || 'Unknown error'}`;
+      const message = `Failed to upsert remote. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -162,7 +164,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      const message = `Failed to push. ${err.message || 'Unknown error'}`;
+      const message = `Failed to push. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -172,7 +174,15 @@ class RemotesApiClient extends ReuniteBaseApiClient {
     }
   }
 
-  async getRemotesList(organizationId: string, projectId: string, mountPath: string) {
+  async getRemotesList({
+    organizationId,
+    projectId,
+    mountPath,
+  }: {
+    organizationId: string;
+    projectId: string;
+    mountPath: string;
+  }) {
     try {
       const response = await this.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
@@ -188,7 +198,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
       return await this.getParsedResponse<ListRemotesResponse>(response);
     } catch (err) {
-      const message = `Failed to get remote list. ${err.message || 'Unknown error'}`;
+      const message = `Failed to get remote list. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -222,7 +232,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      const message = `Failed to get push status. ${err.message || 'Unknown error'}`;
+      const message = `Failed to get push status. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -236,13 +246,18 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 export class ReuniteApiClient {
   remotes: RemotesApiClient;
 
-  constructor(
-    public domain: string,
-    private readonly apiKey: string,
-    version: string,
-    command: string
-  ) {
-    this.remotes = new RemotesApiClient(this.domain, this.apiKey, version, command);
+  constructor({
+    domain,
+    apiKey,
+    version,
+    command,
+  }: {
+    domain: string;
+    apiKey: string;
+    version: string;
+    command: 'push' | 'push-status';
+  }) {
+    this.remotes = new RemotesApiClient(domain, apiKey, version, command);
   }
 }
 
