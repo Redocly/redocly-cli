@@ -281,7 +281,7 @@ describe('ApiClient', () => {
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
-      ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found', 404));
+      ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found.', 404));
     });
   });
 });
