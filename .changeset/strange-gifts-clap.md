@@ -2,4 +2,4 @@
 "@redocly/cli": major
 ---
 
-Fix absolute path for import plugin in Windows
+Fixed the absolute path for importing plugins in Windows.
