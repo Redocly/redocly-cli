@@ -80,7 +80,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new ReuniteApiError('Failed to fetch default branch. Not found', 404)
+        new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
       );
     });
   });
