@@ -1,5 +1,22 @@
 # @redocly/cli
 
+## 1.22.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.22.1.
+
+## 1.22.0
+
+### Minor Changes
+
+- Updated the Arazzo validation types for workflows input, parameter objects, and criteria to match the specification.
+- Added Arazzo rulesets so that users can customize their linting rules for this format.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.22.0.
+
 ## 1.21.1
 
 ### Patch Changes

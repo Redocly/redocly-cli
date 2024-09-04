@@ -2,10 +2,8 @@ import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
-import { StyleguideConfig } from '../../../config';
-import { ArazzoRule } from '../../../visitors';
 
-describe('Arazzo parameters-no-body-inside-in', () => {
+describe('Arazzo parameters-unique', () => {
   const document = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -21,7 +19,10 @@ describe('Arazzo parameters-no-body-inside-in', () => {
         - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
           parameters:
-            - in: body
+            - in: header
+              name: Authorization
+              value: Basic Og==
+            - in: header
               name: Authorization
               value: Basic Og==
           steps:
@@ -29,13 +30,24 @@ describe('Arazzo parameters-no-body-inside-in', () => {
               description: >-
                 Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
               operationId: museum-api.getMuseumHours
+              parameters:
+                - in: header
+                  name: Secret
+                  value: Basic Og==
+                - in: header
+                  name: Secret
+                  value: Basic Og==
+                - reference: $components.parameters.notify
+                  value: 12
+                - reference: $components.parameters.notify
+                  value: 12
               successCriteria:
                 - condition: $statusCode == 200
     `,
     'arazzo.yaml'
   );
 
-  it('should not report on `body` inside parameter `in` field', async () => {
+  it('should not report on `parameters` duplication', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
@@ -45,13 +57,13 @@ describe('Arazzo parameters-no-body-inside-in', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report on `body` inside parameter `in` field', async () => {
+  it('should report on `parameters` duplication', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'parameters-no-body-inside-in': 'error' },
+        arazzoRules: { 'parameters-unique': 'error' },
       }),
     });
 
@@ -60,13 +72,39 @@ describe('Arazzo parameters-no-body-inside-in', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/parameters/0/in",
+              "pointer": "#/workflows/0/parameters/1",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`body\` value of the \`in\` property is not supported by Spot.",
-          "ruleId": "parameters-no-body-inside-in",
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/parameters/3",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`reference\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
           "severity": "error",
           "suggest": [],
         },

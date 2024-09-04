@@ -126,7 +126,20 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'channels-kebab-case': 'error',
     'no-channel-trailing-slash': 'error',
   },
-  arazzoRules: { spec: 'error', 'parameters-no-body-inside-in': 'off' },
+  arazzoRules: {
+    spec: 'error',
+    'parameters-not-in-body': 'error',
+    'sourceDescription-type': 'error',
+    'version-enum': 'error',
+    'workflowId-unique': 'error',
+    'stepId-unique': 'error',
+    'sourceDescription-name-unique': 'error',
+    'workflow-dependsOn': 'error',
+    'parameters-unique': 'error',
+    'step-onSuccess-unique': 'error',
+    'step-onFailure-unique': 'error',
+    'requestBody-replacements-unique': 'error',
+  },
 };
 
 export default all;

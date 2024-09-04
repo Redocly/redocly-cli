@@ -13,12 +13,12 @@ import {
   getMergedConfig,
   getProxyAgent,
 } from '@redocly/openapi-core';
+import { pluralize } from '@redocly/openapi-core/lib/utils';
 import {
   exitWithError,
   printExecutionTime,
   getFallbackApisOrExit,
   dumpBundle,
-  pluralize,
 } from '../utils/miscellaneous';
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';

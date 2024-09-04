@@ -117,7 +117,7 @@ function getDefaultPluginPath(configPath: string): string | undefined {
       return pluginPath;
     }
   }
-  return undefined;
+  return;
 }
 
 export async function resolvePlugins(
@@ -128,12 +128,6 @@ export async function resolvePlugins(
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<ImportedPlugin | undefined> => {
-    if (isBrowser && isString(plugin)) {
-      logger.error(`Cannot load ${plugin}. Plugins aren't supported in browser yet.`);
-
-      return undefined;
-    }
-
     if (isString(plugin)) {
       try {
         const maybeAbsolutePluginPath = path.resolve(path.dirname(configPath), plugin);
@@ -372,9 +366,12 @@ async function resolveAndMergeNestedStyleguideConfig(
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
-  const plugins = getUniquePlugins(
-    await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
-  );
+  const plugins = isBrowser
+    ? // In browser, we don't support plugins from config file yet
+      [defaultPlugin]
+    : getUniquePlugins(
+        await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
+      );
   const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)
     .map((p) => path.resolve(path.dirname(configPath), p));
