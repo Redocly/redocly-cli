@@ -150,7 +150,7 @@ describe('ApiClient', () => {
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
         new ReuniteApiError(
-          'Failed to upsert remote. Not allowed to mount remote outside of project content path: /docs',
+          'Failed to upsert remote. Not allowed to mount remote outside of project content path: /docs.',
           403
         )
       );
