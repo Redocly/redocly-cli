@@ -66,7 +66,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
-        new ReuniteApiError('Failed to fetch default branch. Project source not found', 404)
+        new ReuniteApiError('Failed to fetch default branch. Project source not found.', 404)
       );
     });
 
