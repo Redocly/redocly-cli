@@ -167,7 +167,7 @@ describe('ApiClient', () => {
       });
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
-        new ReuniteApiError('Failed to upsert remote. Not found', 404)
+        new ReuniteApiError('Failed to upsert remote. Not found.', 404)
       );
     });
   });
