@@ -92,7 +92,11 @@ function fallbackToAllDefinitions(
 
 function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
   return config.apis[aliasOrPath]
-    ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
+    ? {
+        path: config.apis[aliasOrPath]?.root,
+        alias: aliasOrPath,
+        output: config.apis[aliasOrPath]?.output,
+      }
     : {
         path: aliasOrPath,
         // find alias by path, take the first match
@@ -103,10 +107,10 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
       };
 }
 
-async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
+async function expandGlobsInEntrypoints(argApis: string[], config: ConfigApis) {
   return (
     await Promise.all(
-      (args as string[]).map(async (aliasOrPath) => {
+      argApis.map(async (aliasOrPath) => {
         return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
           ? (await promisify(glob)(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
