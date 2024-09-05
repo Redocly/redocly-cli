@@ -26,7 +26,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
 
   spawn(
     npxExecutableName,
-    ['-y', packageName, 'develop', `--plan=${plan}`, `--port=${port || 4000}`],
+    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
     {
       stdio: 'inherit',
       cwd: projectDir,
