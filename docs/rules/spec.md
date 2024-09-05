@@ -12,7 +12,7 @@ Ensures that your API document conforms to the [OpenAPI specification](https://s
 | 3.0 | ✅            |
 | 3.1 | ✅            |
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 

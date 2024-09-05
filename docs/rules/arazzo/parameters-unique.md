@@ -6,7 +6,7 @@ slug: /docs/cli/rules/arazzo/parameters-unique
 
 Requires the `parameters` list not to include duplicate parameters.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
