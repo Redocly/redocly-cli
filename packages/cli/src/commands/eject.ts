@@ -5,7 +5,7 @@ import type { VerifyConfigOptions } from '../types';
 
 export type EjectOptions = {
   type: 'component';
-  path: string;
+  path?: string;
   'project-dir'?: string;
   force: boolean;
 } & VerifyConfigOptions;
@@ -20,7 +20,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
       '@redocly/realm',
       'eject',
       `${argv.type}`,
-      `${argv.path}`,
+      `${argv.path ?? ''}`,
       `-d=${argv['project-dir']}`,
       argv.force ? `--force=${argv.force}` : '',
     ],
