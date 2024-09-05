@@ -1,6 +1,6 @@
 # `translate`
 
-The `translate` command helps manage multiple translations in your Redocly project.
+The `translate` command helps you to manage multiple translations in your Redocly project (Reef, Revel, or Realm only).
 It creates or updates `translations.yaml` files, populating them with "translation keys" that map to elements in your documentation's UI.
 
 This command serves two purposes:
@@ -28,6 +28,8 @@ redocly translate --version
 
 ## Examples
 
+The following sections show some common use cases for the `translate` command.
+
 ### Populate translation keys for specific locale
 
 The following command generates or updates translations for the Dutch locale:
@@ -36,12 +38,12 @@ The following command generates or updates translations for the Dutch locale:
 redocly translate nl-NL
 ```
 
-This example updates the file `@l10n/nl-NL/translations.yaml`.
+The translations are placed in the file `@l10n/nl-NL/translations.yaml`.
 If the file (or folder) doesn't exist, they're created and populated with translation keys.
 
 ### Populate translation keys for all locales
 
-Use the `all` keyword to generate translations for all locale folders inside the `@l10n` directory:
+Use the `all` keyword to generate translations for all the locale folders inside the `@l10n` directory:
 
 ```bash {% title="Translate all locales" %}
 redocly translate all
@@ -72,7 +74,7 @@ your-awesome-project
 - The command is additive; it doesn't overwrite existing translation keys.
 
 - Custom translation keys used in React components **must be manually added** to the `translation.yaml` file.
-They are not populated by the command.
+  They are not populated by the command.
 
 - After using the command, review a translation file to ensure new translation keys are present.
 
