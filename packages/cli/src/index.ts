@@ -836,7 +836,7 @@ yargs
             alias: 'd',
             type: 'string',
             description:
-              'Specifies the destination folder to eject components into.',
+              'Specifies the project content directory. The default value is the directory where the command is executed.',
             default: '.',
           },
           force: {

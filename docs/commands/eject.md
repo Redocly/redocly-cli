@@ -1,4 +1,4 @@
-# eject
+# `eject`
 
 ## Introduction
 
@@ -19,13 +19,13 @@ redocly eject --version
 
 ## Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `component-path` | string | Path to the component or a glob pattern for multiple components. |
-| `--force`, `-f` | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
-| `--project-dir`, `-d` | string | Specifies the destination folder to eject components into. |
-| `--help` | boolean | Show help. |
-| `--version` | boolean | Show version number. |
+| Option                | Type    | Description                                                                                                  |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `component-path`      | string  | Path to the component or a glob pattern for multiple components.                                             |
+| `--force`, `-f`       | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
+| `--project-dir`, `-d` | string  | Specifies the project folder to execute the command in. Used for managing multiple projects.                 |
+| `--help`              | boolean | Show help.                                                                                                   |
+| `--version`           | boolean | Show version number.                                                                                         |
 
 ## Examples
 
@@ -63,7 +63,7 @@ Use your keyboard to navigate the ejection prompt.
 
 - Arrows move the cursor.
 - Spacebar selects an item (file or folder).
-- Enter to eject selected items.
+- Enter ejects the selected items.
 
 Selecting an item adds a check mark.
 Selecting a folder selects all its children items.
@@ -79,6 +79,8 @@ redocly eject component 'layouts/**'
 redocly eject component 'markdoc/**'
 ```
 
+You may need to scroll using the arrow keys to see all the components inside a folder.
+
 ### Skip ejection override confirmation
 
 Use the `--force` option to skip the confirmation prompt when ejecting a component that already exists in the destination:
@@ -87,15 +89,33 @@ Use the `--force` option to skip the confirmation prompt when ejecting a compone
 redocly eject component 'components/Menu/MenuContainer.tsx' --force
 ```
 
-### Specify a destination folder
+By including `--force`, this example ejects the `MenuContainer` component to `@theme/components/Menu/MenuContainer.tsx` and replaces any existing file at that location _without a warning_.
 
-Use the `--project-dir` option to eject components into a specific folder:
+### Specify a project folder
+
+Use the `--project-dir` to run the command from a parent folder and eject components inside a specific project:
 
 ```bash
-redocly eject component 'components/Search/SearchDialog.tsx' --project-dir='playground'
+redocly eject component 'components/Search/SearchDialog.tsx' --project-dir='museum-docs'
 ```
 
-This example ejects the `SearchDialog` component to `playground/@theme/components/Search/SearchDialog.tsx`.
+The following example shows a project structure after the example command runs from the `projects` folder:
+
+```treeview
+projects/
+├── museum-docs/
+│   ├── @theme/
+│   │   └── components/
+│   │       └── Search/
+│   │           └── SearchDialog.tsx
+│   ├── museum-api.json
+│   ├── redocly.yaml
+│   └── ...
+├── storage-docs/
+└── authentication-docs/
+```
+
+The `--project-dir` option is designed to help manage multiple projects by reducing the need for traversal.
 
 ## Tips on using `eject`
 

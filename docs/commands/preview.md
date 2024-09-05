@@ -4,8 +4,6 @@
 
 The `preview` command starts a local preview server for a Redocly project. Use the preview server to develop your project locally before deployment.
 
-{% partial file="../_snippets/new-product-alert-commands.md" %}
-
 ## Usage
 
 ```bash
