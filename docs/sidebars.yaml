@@ -12,6 +12,8 @@
           page: commands/build-docs.md
         - label: bundle
           page: commands/bundle.md
+        - label: check-config
+          page: commands/check-config.md
         - label: join
           page: commands/join.md
         - label: lint
@@ -32,8 +34,8 @@
           page: commands/split.md
         - label: stats
           page: commands/stats.md
-        - label: check-config
-          page: commands/check-config.md
+        - label: translate
+          page: commands/translate.md
     - group: Guides
       page: guides/index.md
       items:
