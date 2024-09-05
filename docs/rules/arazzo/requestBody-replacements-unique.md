@@ -1,26 +1,14 @@
----
-slug: /docs/cli/rules/arazzo/requestBody-replacements-unique
----
-
 # requestBody-replacements-unique
 
-Requires the `replacements` of the `requestBody` object to be unique.
+Requires the `replacements` in the `step.requestBody` object to be unique.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> requestBody --> replacements
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-A list of locations and values to set within a payload must not have duplicates that might result in content override.
+The list of locations and values to set within a payload must not have duplicates that might result in content override.
 
 ## Configuration
 
@@ -44,7 +32,7 @@ arazzoRules:
   requestBody-replacements-unique: error
 ```
 
-Example of an **incorrect** license:
+Example of an **incorrect** replacements array:
 
 ```yaml Object example
 workflows:
@@ -63,7 +51,7 @@ workflows:
               value: 'another name'
 ```
 
-Example of a **correct** license:
+Example of a **correct** replacements array:
 
 ```yaml Object example
 workflows:

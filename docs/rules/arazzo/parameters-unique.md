@@ -1,42 +1,21 @@
----
-slug: /docs/cli/rules/arazzo/parameters-unique
----
-
 # parameters-unique
 
-Requires the `parameters` list not to include duplicate parameters.
+Requires unique values in the `parameters` lists.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
-```mermaid
-flowchart TD
-
-Root ==> x-parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-A list of `parameters` that are applicable to step or all steps described under workflow should not be duplicated to avoid shadow parameter override.
+A list of `parameters` that are applicable to a step or all the steps described in a workflow should not contain duplicates.
+If duplicates are present, unexpected parameter overrides could cause problems. 
+
+Checks parameter lists in the following locations:
+
+- `workflows.[workflow].parameters`
+- `workflows.[workflow[.steps.[step].parameters`
+- `x-parameters`
 
 ## Configuration
 
@@ -60,7 +39,7 @@ arazzoRules:
   parameters-unique: error
 ```
 
-Example of an **incorrect** license:
+Example of an **incorrect** parameters array:
 
 ```yaml Object example
 workflows:
@@ -74,7 +53,7 @@ workflows:
         value: Basic Og==
 ```
 
-Example of a **correct** license:
+Example of a **correct** parameters array:
 
 ```yaml Object example
 workflows:

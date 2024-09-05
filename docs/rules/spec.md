@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/spec
----
-
 # spec
 
 Ensures that your API document conforms to the [OpenAPI specification](https://spec.openapis.org/oas/v3.1.0.html).
@@ -16,10 +12,10 @@ Ensures that your API document conforms to the [OpenAPI specification](https://s
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-| ASYNC | Compatibility |
-| ----- | ------------- |
-| 2.0   | ✅            |
-| 3.0   | ✅            |
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.0      | ✅            |
+| 3.0      | ✅            |
 
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 

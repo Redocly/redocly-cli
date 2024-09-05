@@ -1,27 +1,15 @@
----
-slug: /docs/cli/rules/arazzo/step-onFailure-unique
----
-
 # step-onFailure-unique
 
-Requires the `onFailure` actions of the `step` object to be unique.
+Requires all of the `onFailure` actions of the `step` object to be unique.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
-
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> onFailure
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
 
 ## API design principles
 
 An array of failure action objects that specify what to do upon step failure.
-Each `onFailure` action should be unique to avoid confusion.
+Each `onFailure` action should be unique to avoid confusion or unexpected results.
 
 ## Configuration
 

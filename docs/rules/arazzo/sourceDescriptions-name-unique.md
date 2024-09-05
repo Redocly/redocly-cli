@@ -1,26 +1,14 @@
----
-slug: /docs/cli/rules/arazzo/sourceDescription-name-unique
----
-
 # sourceDescription-name-unique
 
 Requires the `name` property of the `sourceDescription` object must be unique across all source descriptions.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> sourceDescriptions --> sourceDescription --> name
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-To avoid confusion, each `sourceDescription` object should have a unique `name` property.
+To avoid confusion or unexpected outputs, each `sourceDescription` object should have a unique `name` property.
 
 ## Configuration
 
@@ -44,7 +32,7 @@ arazzoRules:
   sourceDescription-name-unique: error
 ```
 
-Example of an **incorrect** sourceDescription:
+Example of an **incorrect** sourceDescriptions array:
 
 ```yaml Object example
 sourceDescriptions:
@@ -56,7 +44,7 @@ sourceDescriptions:
     url: ../petstore.yaml
 ```
 
-Example of a **correct** license:
+Example of a **correct** sourceDescriptions array:
 
 ```yaml Object example
 sourceDescriptions:

@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/async/no-channel-trailing-slash
----
-
 # no-channel-trailing-slash
 
 Channel names must not have trailing slashes in their address.
@@ -10,14 +6,6 @@ Channel names must not have trailing slashes in their address.
 | -------- | ------------- |
 | 2.0      | ✅            |
 | 3.0      | ✅            |
-
-```mermaid
-flowchart TD
-
-root ==> channels --> channel --> address
-
-style url fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
 
 ## API design principles
 

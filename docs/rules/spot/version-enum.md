@@ -1,27 +1,15 @@
----
-slug: /docs/cli/rules/spot/version-enum
----
-
 # version-enum
 
 Requires the `version` property must be one of the supported values.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> arazzo
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-This is `Spot` specific rule.
-The `version` property must be one of the supported values witch is might be different to the `Arazzo` latest versions.
+This rule is used with Spot.
+The `version` property must be one of the Spot-supported values which may be different to the latest `Arazzo` version.
 
 ## Configuration
 
@@ -45,13 +33,13 @@ arazzoRules:
   version-enum: error
 ```
 
-Example of an **incorrect** license:
+Example of an **incorrect** entry:
 
 ```yaml Object example
-arazzo: 1.0.1
+arazzo: 4.2.0
 ```
 
-Example of a **correct** license:
+Example of a **correct** entry:
 
 ```yaml Object example
 arazzo: 1.0.0

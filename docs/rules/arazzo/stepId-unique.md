@@ -1,27 +1,16 @@
----
-slug: /docs/cli/rules/arazzo/stepId-unique
----
-
 # stepId-unique
 
 Requires the `stepId` to be unique amongst all steps described in the workflow.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> stepId
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-Unique string to represent the step. The `stepId` must be unique amongst all steps described in the workflow.
-The stepId value is case-sensitive.
+Unique string to represent the step.
+The `stepId` must be unique amongst all steps described in the workflow.
+The `stepId` value is case-sensitive.
 
 ## Configuration
 

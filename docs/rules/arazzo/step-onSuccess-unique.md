@@ -1,27 +1,15 @@
----
-slug: /docs/cli/rules/arazzo/step-onSuccess-unique
----
-
 # step-onSuccess-unique
 
 Requires the `onSuccess` actions of the `step` object to be unique.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
-
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> onSuccess
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
 
 ## API design principles
 
 An array of success action objects that specify what to do upon step success.
-Each `onSuccess` action should be unique to avoid confusion.
+Each `onSuccess` action should be unique to avoid confusion or unexpected outcomes.
 
 ## Configuration
 

@@ -1,26 +1,15 @@
----
-slug: /docs/cli/rules/arazzo/workflowId-unique
----
-
 # workflowId-unique
 
 Requires the `workflowId` property to be unique across all workflows.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> workflowId
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-Unique string to represent the workflow. The `workflowId` must be unique across all workflows described in the API definition.
+Unique string to represent the workflow.
+The `workflowId` must be unique across all workflows described in the API definition.
 
 ## Configuration
 
@@ -44,7 +33,7 @@ arazzoRules:
   workflowId-unique: error
 ```
 
-Example of an **incorrect** step:
+Example of an **incorrect** `workflows` array:
 
 ```yaml Object example
 workflows:
@@ -62,7 +51,7 @@ workflows:
           - condition: $statusCode == 200
 ```
 
-Example of a **correct** step:
+Example of a **correct** `workflows` array:
 
 ```yaml Object example
 workflows:

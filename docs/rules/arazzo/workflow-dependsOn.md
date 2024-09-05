@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/arazzo/workflow-dependsOn
----
-
 # workflow-dependsOn
 
 Requires the items in the `workflow` `dependsOn` property to exist and to be unique.
@@ -9,14 +5,6 @@ Requires the items in the `workflow` `dependsOn` property to exist and to be uni
 | ARAZZO | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
-
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> dependsOn
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
 
 ## API design principles
 
@@ -45,7 +33,7 @@ arazzoRules:
   stepId-unique: error
 ```
 
-Example of an **incorrect** step:
+Example of an **incorrect** `dependsOn` array:
 
 ```yaml Object example
 workflows:
@@ -57,7 +45,7 @@ workflows:
         - get-museum-hours-2
 ```
 
-Example of a **correct** step:
+Example of a **correct** `dependsOn` array:
 
 ```yaml Object example
 workflows:

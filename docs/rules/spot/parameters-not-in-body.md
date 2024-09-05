@@ -1,43 +1,20 @@
----
-slug: /docs/cli/rules/spot/parameters-not-in-body
----
-
 # parameters-not-in-body
 
 Requires the `in` section inside `parameters` must not contain a `body`.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
-```mermaid
-flowchart TD
-
-Root ==> x-parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
-```mermaid
-flowchart TD
-
-Root ==> workflows --> workflow --> steps --> step --> parameters
-
-style Contact fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
-
 ## API design principles
 
-This is `Spot` specific rule.
+This is rule is specific to the Spot tool.
 `body` is not supported in the `in` section inside `parameters`.
+This affects parameter lists in: 
+
+- `workflows.[workflow].parameters`
+- `workflows.[workflow[.steps.[step].parameters`
+- `x-parameters`
 
 ## Configuration
 
@@ -61,7 +38,7 @@ arazzoRules:
   parameters-not-in-body: error
 ```
 
-Example of an **incorrect** license:
+Example of an **incorrect** list of `parameters`:
 
 ```yaml Object example
 workflows:
@@ -72,7 +49,7 @@ workflows:
         value: Basic Og==
 ```
 
-Example of a **correct** license:
+Example of a **correct** list of `parameters`:
 
 ```yaml Object example
 workflows:

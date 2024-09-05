@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/async/channels-kebab-case
----
-
 # channels-kebab-case
 
 Channel address should be `kebab-case` (lowercase with hyphens).
@@ -10,14 +6,6 @@ Channel address should be `kebab-case` (lowercase with hyphens).
 | -------- | ------------- |
 | 2.0      | ✅            |
 | 3.0      | ✅            |
-
-```mermaid
-flowchart TD
-
-root ==> channels --> channel --> address
-
-style url fill:#codaf9,stroke:#0044d4,stroke-width:5px
-```
 
 ## API design principles
 
