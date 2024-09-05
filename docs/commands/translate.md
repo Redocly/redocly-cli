@@ -21,7 +21,7 @@ redocly translate --version
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `locale` | string | **REQUIRED**. Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
+| `locale` | string | **REQUIRED** Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
 | `--lint-config` | string | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`. |
 | `--help` | boolean | Show help. |
 | `--version` | boolean | Show version number. |
