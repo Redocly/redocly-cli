@@ -32,7 +32,7 @@ describe('retryUntilConditionMet()', () => {
         retryIntervalMs: 100,
         retryTimeoutMs: 1000,
       })
-    ).rejects.toThrow('Timeout exceeded');
+    ).rejects.toThrow('Timeout exceeded.');
   });
 
   it('should call "onConditionNotMet" and "onRetry" callbacks', async () => {

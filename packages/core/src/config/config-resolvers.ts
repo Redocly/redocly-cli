@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import { existsSync } from 'fs';
 import { isAbsoluteUrl } from '../ref-utils';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
@@ -145,7 +146,7 @@ export async function resolvePlugins(
           return __non_webpack_require__(absolutePluginPath);
         } else {
           // you can import both cjs and mjs
-          const mod = await _importDynamic(absolutePluginPath);
+          const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
           return mod.default || mod;
         }
       } catch (e) {

@@ -3,9 +3,10 @@ import * as path from 'path';
 import { slash } from '@redocly/openapi-core';
 import { pluralize } from '@redocly/openapi-core/lib/utils';
 import { green, yellow } from 'colorette';
-import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
+import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { handlePushStatus } from './push-status';
 import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
+import { handleReuniteError } from './utils';
 
 import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper';
@@ -52,7 +53,7 @@ export async function handlePush({
   const orgId = organization || config.organization;
 
   if (!argv.message || !argv.author || !argv.branch) {
-    exitWithError('Error: message, author and branch are required for push to the CMS.');
+    exitWithError('Error: message, author and branch are required for push to the Reunite.');
   }
 
   if (!orgId) {
@@ -85,7 +86,7 @@ export async function handlePush({
       return printExecutionTime('push', startedAt, `No files to upload`);
     }
 
-    const client = new ReuniteApiClient(domain, apiKey);
+    const client = new ReuniteApiClient({ domain, apiKey, version, command: 'push' });
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,
@@ -158,9 +159,7 @@ export async function handlePush({
       pushId: id,
     };
   } catch (err) {
-    const message =
-      err instanceof HandledError ? '' : `✗ File upload failed. Reason: ${err.message}`;
-    exitWithError(message);
+    handleReuniteError('✗ File upload failed.', err);
   }
 }
 

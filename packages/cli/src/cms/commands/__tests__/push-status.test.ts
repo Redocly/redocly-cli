@@ -644,7 +644,7 @@ describe('handlePushStatus()', () => {
           version: 'cli-version',
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "✗ Failed to get push status. Reason: Timeout exceeded
+        "✗ Failed to get push status. Reason: Timeout exceeded.
         "
       `);
     });

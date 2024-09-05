@@ -46,13 +46,7 @@ redocly lint openapi.yml
 
 You can add more [built-in rules](../rules/built-in-rules.md) by adding them in the configuration file, and adjust the level of the messages by using `warn` rather than `error`.
 
-<!-- :::info Redocly configuration -->
-
-<!-- :::info Redocly configuration -->
-
 Learn more about [configuring Redocly CLI](../configuration/index.md) in the documentation.
-
-<!-- ::: -->
 
 ## Bundle OpenAPI/Swagger into a single file
 
