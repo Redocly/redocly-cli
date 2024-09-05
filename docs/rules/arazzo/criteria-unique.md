@@ -4,7 +4,7 @@ slug: /docs/cli/rules/arazzo/criteria-unique
 
 # criteria-unique
 
-The criteria list should not contain duplicated assertions.
+The criteria list must not contain duplicated assertions.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -12,7 +12,7 @@ The criteria list should not contain duplicated assertions.
 
 ## API design principles
 
-The criteria list should not contain duplicated assertions.
+The criteria list must not contain duplicated assertions.
 
 ## Configuration
 
