@@ -123,6 +123,7 @@ const builtInArazzoRules = [
   'step-onFailure-unique',
   'requestBody-replacements-unique',
   'no-criteria-xpath',
+  'no-actions-type-end',
 ] as const;
 
 export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];

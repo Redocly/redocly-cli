@@ -12,6 +12,7 @@ import { StepOnSuccessUnique } from './step-onSuccess-unique';
 import { StepOnFailureUnique } from './step-onFailure-unique';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique';
 import { NoCriteriaXpath } from '../spot/no-criteria-xpath';
+import { NoActionsTypeEnd } from '../spot/no-actions-type-end';
 
 import type { ArazzoRule } from '../../visitors';
 import type { ArazzoRuleSet } from '../../oas-types';
@@ -31,6 +32,7 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   'step-onFailure-unique': StepOnFailureUnique as ArazzoRule,
   'requestBody-replacements-unique': RequestBodyReplacementsUnique as ArazzoRule,
   'no-criteria-xpath': NoCriteriaXpath as ArazzoRule,
+  'no-actions-type-end': NoActionsTypeEnd as ArazzoRule,
 };
 
 export const preprocessors = {};

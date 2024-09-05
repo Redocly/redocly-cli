@@ -5,6 +5,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "arazzoDecorators": {},
   "arazzoPreprocessors": {},
   "arazzoRules": {
+    "no-actions-type-end": "error",
     "no-criteria-xpath": "error",
     "parameters-not-in-body": "warn",
     "parameters-unique": "error",
@@ -148,6 +149,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "arazzoDecorators": {},
   "arazzoPreprocessors": {},
   "arazzoRules": {
+    "no-actions-type-end": "error",
     "no-criteria-xpath": "error",
     "parameters-not-in-body": "warn",
     "parameters-unique": "error",

@@ -122,6 +122,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'step-onFailure-unique': 'warn',
     'requestBody-replacements-unique': 'warn',
     'no-criteria-xpath': 'error',
+    'no-actions-type-end': 'error',
   },
 };
 
