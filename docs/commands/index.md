@@ -10,6 +10,7 @@ Documentation commands:
 - [`build-docs`](build-docs.md) Build API description into an HTML file.
 - [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
 - [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
+- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
 
 API management commands:
 
