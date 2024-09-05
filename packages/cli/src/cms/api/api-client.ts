@@ -3,7 +3,6 @@ import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
-import { noTrailingDot } from '../../utils/string';
 
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
@@ -31,7 +30,7 @@ class ReuniteBaseApiClient {
     }
 
     throw new ReuniteApiError(
-      `${noTrailingDot(responseBody.title || response.statusText || 'Unknown error')}.`,
+      `${responseBody.title || response.statusText || 'Unknown error'}.`,
       response.status
     );
   }

@@ -159,7 +159,7 @@ export async function handlePush({
       pushId: id,
     };
   } catch (err) {
-    handleReuniteError('✗ File upload failed', err);
+    handleReuniteError('✗ File upload failed.', err);
   }
 }
 

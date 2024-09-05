@@ -1,7 +1,6 @@
 import { pause } from '@redocly/openapi-core';
 import { DeploymentError } from '../utils';
 import { exitWithError } from '../../utils/miscellaneous';
-import { noTrailingDot } from '../../utils/string';
 
 import type { ReuniteApiError } from '../api';
 
@@ -44,7 +43,7 @@ export async function retryUntilConditionMet<T>({
     if (condition(result)) {
       return result;
     } else if (Date.now() - startTime > retryTimeoutMs) {
-      throw new Error('Timeout exceeded');
+      throw new Error('Timeout exceeded.');
     } else {
       onConditionNotMet?.(result);
       await pause(retryIntervalMs);
@@ -63,7 +62,7 @@ export function handleReuniteError(
   const errorMessage =
     error instanceof DeploymentError
       ? error.message
-      : `${noTrailingDot(message)}. Reason: ${noTrailingDot(error.message)}.\n`;
+      : `${message} Reason: ${error.message}\n`;
 
   return exitWithError(errorMessage);
 }
