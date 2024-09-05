@@ -141,6 +141,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'requestBody-replacements-unique': 'error',
     'no-criteria-xpath': 'error',
     'no-actions-type-end': 'error',
+    'criteria-unique': 'error',
   },
 };
 
