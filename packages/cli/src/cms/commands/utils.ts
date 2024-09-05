@@ -60,9 +60,7 @@ export function handleReuniteError(
   error: ReuniteApiError | DeploymentError | Error
 ) {
   const errorMessage =
-    error instanceof DeploymentError
-      ? error.message
-      : `${message} Reason: ${error.message}\n`;
+    error instanceof DeploymentError ? error.message : `${message} Reason: ${error.message}\n`;
 
   return exitWithError(errorMessage);
 }
