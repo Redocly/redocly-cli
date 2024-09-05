@@ -121,6 +121,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'step-onSuccess-unique': 'off',
     'step-onFailure-unique': 'off',
     'requestBody-replacements-unique': 'off',
+    'no-criteria-xpath': 'off',
   },
 };
 

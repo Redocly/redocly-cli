@@ -68,7 +68,9 @@ workflows:
           - condition: $statusCode == 201
           - context: $response.body
             condition: $.name == 'Mermaid Treasure Identification and Analysis'
-            type: jsonpath
+            type:
+              type: jsonpath
+              version: draft-goessner-dispatch-jsonpath-00
         outputs:
           createdEventId: $response.body.eventId
           name: $response.body.name

@@ -121,6 +121,7 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'step-onSuccess-unique': 'error',
     'step-onFailure-unique': 'error',
     'requestBody-replacements-unique': 'error',
+    'no-criteria-xpath': 'error',
   },
 };
 
