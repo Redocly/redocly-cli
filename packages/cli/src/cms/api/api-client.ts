@@ -1,7 +1,8 @@
-import fetch from 'node-fetch';
 import * as FormData from 'form-data';
-import { getProxyAgent } from '@redocly/openapi-core';
-import fetchWithTimeout from '../../utils/fetch-with-timeout';
+import fetchWithTimeout, {
+  type FetchWithTimeoutOptions,
+  DEFAULT_FETCH_TIMEOUT,
+} from '../../utils/fetch-with-timeout';
 
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
@@ -12,41 +13,76 @@ import type {
   UpsertRemoteResponse,
 } from './types';
 
-class RemotesApiClient {
-  constructor(private readonly domain: string, private readonly apiKey: string) {}
+export class ReuniteApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
+}
 
-  private async getParsedResponse<T>(response: Response): Promise<T> {
+class ReuniteBaseApiClient {
+  constructor(protected version: string, protected command: string) {}
+
+  protected async getParsedResponse<T>(response: Response): Promise<T> {
     const responseBody = await response.json();
 
     if (response.ok) {
       return responseBody as T;
     }
 
-    throw new Error(responseBody.title || response.statusText);
+    throw new ReuniteApiError(
+      `${responseBody.title || response.statusText || 'Unknown error'}.`,
+      response.status
+    );
+  }
+
+  protected request(url: string, options: FetchWithTimeoutOptions) {
+    const headers = {
+      ...options.headers,
+      'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
+    };
+
+    return fetchWithTimeout(url, {
+      ...options,
+      headers,
+    });
+  }
+}
+
+class RemotesApiClient extends ReuniteBaseApiClient {
+  constructor(
+    private readonly domain: string,
+    private readonly apiKey: string,
+    version: string,
+    command: string
+  ) {
+    super(version, command);
   }
 
   async getDefaultBranch(organizationId: string, projectId: string) {
-    const response = await fetchWithTimeout(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-      }
-    );
-
-    if (!response) {
-      throw new Error(`Failed to get default branch.`);
-    }
-
     try {
+      const response = await this.request(
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
       const source = await this.getParsedResponse<ProjectSourceResponse>(response);
 
       return source.branchName;
     } catch (err) {
-      throw new Error(`Failed to fetch default branch: ${err.message || 'Unknown error'}`);
+      const message = `Failed to fetch default branch. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
     }
   }
 
@@ -58,31 +94,34 @@ class RemotesApiClient {
       mountBranchName: string;
     }
   ): Promise<UpsertRemoteResponse> {
-    const response = await fetchWithTimeout(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          mountPath: remote.mountPath,
-          mountBranchName: remote.mountBranchName,
-          type: 'CICD',
-          autoMerge: true,
-        }),
-      }
-    );
-
-    if (!response) {
-      throw new Error(`Failed to upsert.`);
-    }
-
     try {
+      const response = await this.request(
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            mountPath: remote.mountPath,
+            mountBranchName: remote.mountBranchName,
+            type: 'CICD',
+            autoMerge: true,
+          }),
+        }
+      );
+
       return await this.getParsedResponse<UpsertRemoteResponse>(response);
     } catch (err) {
-      throw new Error(`Failed to upsert remote: ${err.message || 'Unknown error'}`);
+      const message = `Failed to upsert remote. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
     }
   }
 
@@ -110,46 +149,61 @@ class RemotesApiClient {
     }
 
     payload.isMainBranch && formData.append('isMainBranch', 'true');
-
-    const response = await fetch(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: formData,
-        agent: getProxyAgent(),
-      }
-    );
-
     try {
+      const response = await this.request(
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: formData,
+        }
+      );
+
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      throw new Error(`Failed to push: ${err.message || 'Unknown error'}`);
+      const message = `Failed to push. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
     }
   }
 
-  async getRemotesList(organizationId: string, projectId: string, mountPath: string) {
-    const response = await fetchWithTimeout(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-      }
-    );
-
-    if (!response) {
-      throw new Error(`Failed to get remotes list.`);
-    }
-
+  async getRemotesList({
+    organizationId,
+    projectId,
+    mountPath,
+  }: {
+    organizationId: string;
+    projectId: string;
+    mountPath: string;
+  }) {
     try {
+      const response = await this.request(
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
       return await this.getParsedResponse<ListRemotesResponse>(response);
     } catch (err) {
-      throw new Error(`Failed to get remote list: ${err.message || 'Unknown error'}`);
+      const message = `Failed to get remote list. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
     }
   }
 
@@ -162,25 +216,28 @@ class RemotesApiClient {
     projectId: string;
     pushId: string;
   }) {
-    const response = await fetchWithTimeout(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes/${pushId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-      }
-    );
-
-    if (!response) {
-      throw new Error(`Failed to get push status.`);
-    }
-
     try {
+      const response = await this.request(
+        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes/${pushId}`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
-      throw new Error(`Failed to get push status: ${err.message || 'Unknown error'}`);
+      const message = `Failed to get push status. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
     }
   }
 }
@@ -188,8 +245,18 @@ class RemotesApiClient {
 export class ReuniteApiClient {
   remotes: RemotesApiClient;
 
-  constructor(public domain: string, private readonly apiKey: string) {
-    this.remotes = new RemotesApiClient(this.domain, this.apiKey);
+  constructor({
+    domain,
+    apiKey,
+    version,
+    command,
+  }: {
+    domain: string;
+    apiKey: string;
+    version: string;
+    command: 'push' | 'push-status';
+  }) {
+    this.remotes = new RemotesApiClient(domain, apiKey, version, command);
   }
 }
 

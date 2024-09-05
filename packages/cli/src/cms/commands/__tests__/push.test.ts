@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { handlePush } from '../push';
-import { ReuniteApiClient } from '../../api';
+import { ReuniteApiClient, ReuniteApiError } from '../../api';
 
 const remotes = {
   push: jest.fn(),
@@ -332,6 +332,53 @@ describe('handlePush()', () => {
       version: 'cli-version',
     });
 
-    expect(ReuniteApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
+    expect(ReuniteApiClient).toBeCalledWith({
+      domain: 'test-domain-from-env',
+      apiKey: 'test-api-key',
+      version: 'cli-version',
+      command: 'push',
+    });
+  });
+
+  it('should print error message', async () => {
+    const mockConfig = { apis: {} } as any;
+    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+    remotes.push.mockRestore();
+    remotes.push.mockRejectedValueOnce(new ReuniteApiError('Deprecated.', 412));
+
+    fsStatSyncSpy.mockReturnValueOnce({
+      isDirectory() {
+        return false;
+      },
+    } as any);
+
+    pathResolveSpy.mockImplementationOnce((p) => p);
+    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathDirnameSpy.mockImplementation((_: string) => '.');
+
+    expect(
+      handlePush({
+        argv: {
+          domain: 'test-domain',
+          'mount-path': 'test-mount-path',
+          organization: 'test-org',
+          project: 'test-project',
+          branch: 'test-branch',
+          namespace: 'test-namespace',
+          repository: 'test-repository',
+          'commit-sha': 'test-commit-sha',
+          'commit-url': 'test-commit-url',
+          'default-branch': 'test-branch',
+          'created-at': 'test-created-at',
+          author: 'TestAuthor <test-author@mail.com>',
+          message: 'Test message',
+          files: ['test-file'],
+          'max-execution-time': 10,
+        },
+        config: mockConfig,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow('✗ File upload failed. Reason: Deprecated.');
   });
 });
