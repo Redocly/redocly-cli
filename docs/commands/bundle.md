@@ -78,7 +78,7 @@ apis:
     output: dist/bar.json
 ```
 
-Given the **redocly.yaml** configuration file above, the following command bundles the APIs `foo` and `bar` into the `dist/` folder.
+Given the `redocly.yaml` configuration file above, the following command bundles the APIs `foo` and `bar` into the `dist/` folder.
 
 ```bash
 redocly bundle
