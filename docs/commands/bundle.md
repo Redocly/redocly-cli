@@ -65,7 +65,8 @@ dist/openapi.json
 dist/museum.json
 </pre>
 
-It's also possible to bundle multiple APIs by specifying the `output` fields in the `apis` section of your Redocly configuration file.
+You can specify the default `output` location for a bundled API in the `apis` section of your Redocly configuration file.
+This is especially useful when bundling multiple APIs.
 
 ```yaml
 apis:
