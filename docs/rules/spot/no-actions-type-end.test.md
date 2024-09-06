@@ -12,7 +12,7 @@ The `end` type action is not supported by Spot.
 
 ## API design principles
 
-This is `Spot` specific rule.
+This is a `Spot`-specific rule.
 The `end` type action is not supported by Spot.
 
 ## Configuration
