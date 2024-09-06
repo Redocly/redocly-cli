@@ -86,7 +86,7 @@ function fallbackToAllDefinitions(
   return Object.entries(apis).map(([alias, { root, output }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
-    output,
+    output: output && resolve(getConfigDirectory(config), output),
   }));
 }
 
@@ -365,13 +365,13 @@ export function printConfigLintTotals(totals: Totals, command?: string | number)
 }
 
 export function getOutputFileName(entrypoint: string, output?: string, ext?: BundleOutputFormat) {
-  if (!output) {
+  let outputFile = output;
+  if (!outputFile) {
     return { ext: ext || 'yaml' };
   }
 
-  let outputFile = output;
-  if (output) {
-    ext = ext || (extname(output).substring(1) as BundleOutputFormat);
+  if (outputFile) {
+    ext = ext || (extname(outputFile).substring(1) as BundleOutputFormat);
   }
   ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
   if (!outputExtensions.includes(ext)) {

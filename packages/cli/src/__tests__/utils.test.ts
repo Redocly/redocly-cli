@@ -27,6 +27,7 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
+import { ConfigApis } from '../types';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -76,20 +77,6 @@ describe('pathToFilename', () => {
   it('should use correct path separator', () => {
     const processedPath = pathToFilename('/user/createWithList', '_');
     expect(processedPath).toEqual('user_createWithList');
-  });
-});
-
-describe('getFallbackApisOrExit', () => {
-  it('should find alias by filename', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
-    const entry = await getFallbackApisOrExit(['./test.yaml'], {
-      apis: {
-        main: {
-          root: 'test.yaml',
-        },
-      },
-    } as any);
-    expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 });
 
@@ -279,6 +266,42 @@ describe('getFallbackApisOrExit', () => {
         alias: 'main',
         path: 'https://someLinkt/petstore.yaml?main',
         output: undefined,
+      },
+    ]);
+
+    (isAbsoluteUrl as jest.Mock<any, any>).mockReset();
+  });
+
+  it('should find alias by filename', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    const entry = await getFallbackApisOrExit(['./test.yaml'], {
+      apis: {
+        main: {
+          root: 'test.yaml',
+          styleguide: {},
+        },
+      },
+    });
+    expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
+  });
+
+  it('should return apis from config with paths and outputs resolved relatively to the config location', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    const entry = await getFallbackApisOrExit(undefined, {
+      apis: {
+        main: {
+          root: 'test.yaml',
+          output: 'output/test.yaml',
+          styleguide: {},
+        },
+      },
+      configFile: 'project-folder/redocly.yaml',
+    });
+    expect(entry).toEqual([
+      {
+        path: expect.stringMatching(/project\-folder\/test\.yaml$/),
+        output: expect.stringMatching(/project\-folder\/output\/test\.yaml$/),
+        alias: 'main',
       },
     ]);
   });
@@ -593,28 +616,28 @@ describe('cleanRawInput', () => {
       expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
     });
   });
+});
 
-  describe('writeToFileByExtension', () => {
-    beforeEach(() => {
-      jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
-      (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
-    });
+describe('writeToFileByExtension', () => {
+  beforeEach(() => {
+    jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
+    (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
+  });
 
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-    it('should call stringifyYaml function', () => {
-      writeToFileByExtension('test data', 'test.yaml');
-      expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
-      expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
-    });
+  it('should call stringifyYaml function', () => {
+    writeToFileByExtension('test data', 'test.yaml');
+    expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
+    expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
+  });
 
-    it('should call JSON.stringify function', () => {
-      const stringifySpy = jest.spyOn(JSON, 'stringify').mockImplementation((data) => data);
-      writeToFileByExtension('test data', 'test.json');
-      expect(stringifySpy).toHaveBeenCalledWith('test data', null, 2);
-      expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
-    });
+  it('should call JSON.stringify function', () => {
+    const stringifySpy = jest.spyOn(JSON, 'stringify').mockImplementation((data) => data);
+    writeToFileByExtension('test data', 'test.json');
+    expect(stringifySpy).toHaveBeenCalledWith('test data', null, 2);
+    expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
   });
 });

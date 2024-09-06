@@ -74,15 +74,15 @@ export async function handleBundle({
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
-          const bundledOutput = dumpBundle(
+          const bundled = dumpBundle(
             sortTopLevelKeysForOas(result.parsed),
             argv.ext || 'yaml',
             argv.dereferenced
           );
-          process.stdout.write(bundledOutput);
+          process.stdout.write(bundled);
         } else {
-          const output = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
-          saveBundle(outputFile, output);
+          const bundled = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
+          saveBundle(outputFile, bundled);
         }
       }
 
