@@ -43,6 +43,9 @@ const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '
 // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
 const _importDynamic = new Function('modulePath', 'return import(modulePath)');
 
+// Cache instantiated plugins during a single execution
+const pluginsCache: Map<string, Plugin> = new Map();
+
 export async function resolveConfigFileAndRefs({
   configPath,
   externalRefResolver = new BaseResolver(),
@@ -111,9 +114,9 @@ export async function resolveConfig({
   );
 }
 
-function getDefaultPluginPath(configPath: string): string | undefined {
+function getDefaultPluginPath(configDir: string): string | undefined {
   for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
-    const absolutePluginPath = path.resolve(path.dirname(configPath), pluginPath);
+    const absolutePluginPath = path.resolve(configDir, pluginPath);
     if (existsSync(absolutePluginPath)) {
       return pluginPath;
     }
@@ -123,32 +126,62 @@ function getDefaultPluginPath(configPath: string): string | undefined {
 
 export async function resolvePlugins(
   plugins: (string | Plugin)[] | null,
-  configPath: string = ''
+  configDir: string = ''
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
-  const requireFunc = async (plugin: string | Plugin): Promise<ImportedPlugin | undefined> => {
+  const requireFunc = async (plugin: string | Plugin): Promise<Plugin | undefined> => {
     if (isString(plugin)) {
       try {
-        const maybeAbsolutePluginPath = path.resolve(path.dirname(configPath), plugin);
+        const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
         const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
             require.resolve(plugin);
 
+        if (pluginsCache.has(absolutePluginPath)) {
+          return pluginsCache.get(absolutePluginPath);
+        }
+
+        let requiredPlugin: ImportedPlugin | undefined;
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (typeof __webpack_require__ === 'function') {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          return __non_webpack_require__(absolutePluginPath);
+          requiredPlugin = __non_webpack_require__(absolutePluginPath);
         } else {
           // you can import both cjs and mjs
           const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
-          return mod.default || mod;
+          requiredPlugin = mod.default || mod;
         }
+
+        const pluginCreatorOptions = { contentDir: configDir };
+
+        const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
+          ? requiredPlugin
+          : isCommonJsPlugin(requiredPlugin)
+          ? await requiredPlugin(pluginCreatorOptions)
+          : await requiredPlugin?.default?.(pluginCreatorOptions);
+
+        if (pluginModule?.id && isDeprecatedPluginFormat(requiredPlugin)) {
+          logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
+        }
+
+        if (pluginModule) {
+          pluginsCache.set(absolutePluginPath, {
+            ...pluginModule,
+            path: plugin,
+            absolutePath: absolutePluginPath,
+          });
+        }
+
+        return (
+          pluginsCache.get(absolutePluginPath)
+        );
       } catch (e) {
         throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
       }
@@ -162,7 +195,7 @@ export async function resolvePlugins(
   /**
    * Include the default plugin automatically if it's not in configuration
    */
-  const defaultPluginPath = getDefaultPluginPath(configPath);
+  const defaultPluginPath = getDefaultPluginPath(configDir);
   if (defaultPluginPath) {
     plugins.push(defaultPluginPath);
   }
@@ -182,22 +215,10 @@ export async function resolvePlugins(
         resolvedPlugins.add(p);
       }
 
-      const requiredPlugin: ImportedPlugin | undefined = await requireFunc(p);
-
-      const pluginCreatorOptions = { contentDir: path.dirname(configPath) };
-
-      const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
-        ? requiredPlugin
-        : isCommonJsPlugin(requiredPlugin)
-        ? await requiredPlugin(pluginCreatorOptions)
-        : await requiredPlugin?.default?.(pluginCreatorOptions);
+      const pluginModule: Plugin | undefined = await requireFunc(p);
 
       if (!pluginModule) {
         return;
-      }
-
-      if (isString(p) && pluginModule.id && isDeprecatedPluginFormat(requiredPlugin)) {
-        logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
       }
 
       const id = pluginModule.id;
@@ -313,7 +334,32 @@ export async function resolvePlugins(
         plugin.assertions = pluginModule.assertions;
       }
 
-      return plugin;
+      // Realm properties
+      const {
+        path,
+        absolutePath,
+        processContent,
+        afterRoutesCreated,
+        loaders,
+        requiredEntitlements,
+        ssoConfigSchema,
+        redoclyConfigSchema,
+        ejectIgnore,
+      } = pluginModule;
+
+      return {
+        ...plugin,
+
+        path,
+        absolutePath,
+        processContent,
+        afterRoutesCreated,
+        loaders,
+        requiredEntitlements,
+        ssoConfigSchema,
+        redoclyConfigSchema,
+        ejectIgnore,
+      };
     })
   );
 
@@ -371,7 +417,10 @@ async function resolveAndMergeNestedStyleguideConfig(
     ? // In browser, we don't support plugins from config file yet
       [defaultPlugin]
     : getUniquePlugins(
-        await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
+        await resolvePlugins(
+          [...(styleguideConfig?.plugins || []), defaultPlugin],
+          path.dirname(configPath)
+        )
       );
   const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)
