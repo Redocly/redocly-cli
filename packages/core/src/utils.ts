@@ -63,7 +63,7 @@ export function isEmptyArray(value: unknown) {
 }
 
 export function isNotEmptyArray<T>(args?: T[]): boolean {
-  return Array.isArray(args) && !!args.length;
+  return !!args && Array.isArray(args) && !!args.length;
 }
 
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {

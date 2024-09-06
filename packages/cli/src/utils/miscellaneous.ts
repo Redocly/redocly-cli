@@ -17,7 +17,6 @@ import {
   RedoclyClient,
 } from '@redocly/openapi-core';
 import {
-  isEmptyArray,
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
@@ -49,8 +48,7 @@ export async function getFallbackApisOrExit(
   config: ConfigApis
 ): Promise<Entrypoint[]> {
   const { apis } = config;
-  const shouldFallbackToAllDefinitions =
-    (!argsApis || isEmptyArray(argsApis)) && isNotEmptyObject(apis);
+  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsApis) && isNotEmptyObject(apis);
   const res = shouldFallbackToAllDefinitions
     ? fallbackToAllDefinitions(apis, config)
     : await expandGlobsInEntrypoints(argsApis!, config);
@@ -91,11 +89,12 @@ function fallbackToAllDefinitions(
 }
 
 function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
-  return config.apis[aliasOrPath]
+  const aliasApi = config.apis[aliasOrPath];
+  return aliasApi
     ? {
-        path: config.apis[aliasOrPath]?.root,
+        path: aliasApi.root,
         alias: aliasOrPath,
-        output: config.apis[aliasOrPath]?.output,
+        output: aliasApi.output,
       }
     : {
         path: aliasOrPath,
