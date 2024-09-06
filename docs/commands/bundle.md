@@ -22,23 +22,23 @@ redocly bundle --version
 
 ## Options
 
-| Option                     | Type     | Description                                                                                                                                                                                                                                                     |
-| -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                   |
-| --config                   | string   | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                                                                                  |
-| --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
-| --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
-| --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                    |
-| --force, -f                | boolean  | Generate bundle output even when errors occur.                                                                                                                                                                                                                  |
-| --help                     | boolean  | Show help.                                                                                                                                                                                                                                                      |
-| --keep-url-references, -k  | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
-| --lint-config              | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                              |
-| --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |
-| --output, -o               | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** |
-| --remove-unused-components | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                              |
-| --skip-decorator           | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                       |
-| --skip-preprocessor        | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                    |
-| --version                  | boolean  | Show version number.                                                                                                                                                                                                                                            |
+| Option                     | Type     | Description                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                                                                                                                                |
+| --config                   | string   | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                                                                                                                                                                                               |
+| --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                                                                                                                                          |
+| --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                                                                                                                                       |
+| --extends                  | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration). Default values are taken from the Redocly configuration file.                                                                                                                                                                                                 |
+| --force, -f                | boolean  | Generate bundle output even when errors occur.                                                                                                                                                                                                                                                                                                                               |
+| --help                     | boolean  | Show help.                                                                                                                                                                                                                                                                                                                                                                   |
+| --keep-url-references, -k  | boolean  | Keep absolute url references.                                                                                                                                                                                                                                                                                                                                                |
+| --lint-config              | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                                                                                                           |
+| --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                                                                                                                                           |
+| --output, -o               | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** Use this option when bundling a single API only; otherwise use the `output` option in per-API configuration. |
+| --remove-unused-components | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                                                                                                                                           |
+| --skip-decorator           | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                                                                                                                                    |
+| --skip-preprocessor        | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                                                                                                                                 |
+| --version                  | boolean  | Show version number.                                                                                                                                                                                                                                                                                                                                                         |
 
 ## Examples
 
@@ -64,6 +64,27 @@ The `dist/` folder contents after the `bundle` command is executed:
 dist/openapi.json
 dist/museum.json
 </pre>
+
+You can specify the default `output` location for a bundled API in the `apis` section of your Redocly configuration file.
+This is especially useful when bundling multiple APIs.
+
+```yaml
+apis:
+  orders@v1:
+    root: orders/openapi.yaml
+    output: dist/orders.json
+  accounts@v1:
+    root: accounts/openapi.yaml
+    output: dist/accounts.json
+```
+
+Given the `redocly.yaml` configuration file above, the following command bundles the APIs `foo` and `bar` into the `dist/` folder.
+
+```bash
+redocly bundle
+```
+
+Please note, that providing an API to the `bundle` command results in the command bundling only the specified API.
 
 ### Create a fully dereferenced bundle
 

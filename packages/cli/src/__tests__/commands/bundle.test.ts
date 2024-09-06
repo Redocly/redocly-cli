@@ -1,7 +1,12 @@
-import { bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
+import { bundle, getTotals, getMergedConfig, Config } from '@redocly/openapi-core';
 
 import { BundleOptions, handleBundle } from '../../commands/bundle';
-import { handleError } from '../../utils/miscellaneous';
+import {
+  getFallbackApisOrExit,
+  getOutputFileName,
+  handleError,
+  saveBundle,
+} from '../../utils/miscellaneous';
 import { commandWrapper } from '../../wrapper';
 import SpyInstance = jest.SpyInstance;
 import { Arguments } from 'yargs';
@@ -9,24 +14,31 @@ import { Arguments } from 'yargs';
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils/miscellaneous');
 
+// @ts-ignore
+getOutputFileName = jest.requireActual('../../utils/miscellaneous').getOutputFileName;
+
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
 describe('bundle', () => {
   let processExitMock: SpyInstance;
   let exitCb: any;
-
+  let stderrWriteMock: any;
+  let stdoutWriteMock: any;
   beforeEach(() => {
     processExitMock = jest.spyOn(process, 'exit').mockImplementation();
     jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
       return process.on(_e, cb);
     });
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    stderrWriteMock = jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
+    stdoutWriteMock = jest.spyOn(process.stdout, 'write').mockImplementation(jest.fn());
   });
 
   afterEach(() => {
     (bundle as jest.Mock).mockClear();
     (getTotals as jest.Mock).mockReset();
+    stderrWriteMock.mockRestore();
+    stdoutWriteMock.mockRestore();
   });
 
   it('bundles definitions', async () => {
@@ -113,5 +125,120 @@ describe('bundle', () => {
     } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(0);
+  });
+
+  it('should store bundled API descriptions in the output files described in the apis section of config IF no positional apis provided AND output is specified for both apis', async () => {
+    const apis = {
+      foo: {
+        root: 'foo.yaml',
+        output: 'output/foo.yaml',
+      },
+      bar: {
+        root: 'bar.yaml',
+        output: 'output/bar.json',
+      },
+    };
+    const config = {
+      apis,
+      styleguide: {
+        skipPreprocessors: jest.fn(),
+        skipDecorators: jest.fn(),
+      },
+    } as unknown as Config;
+    // @ts-ignore
+    getFallbackApisOrExit = jest
+      .fn()
+      .mockResolvedValueOnce(
+        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+      );
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 0,
+      warnings: 0,
+      ignored: 0,
+    });
+
+    await handleBundle({
+      argv: { apis: [] }, // positional
+      version: 'test',
+      config,
+    });
+
+    expect(saveBundle).toBeCalledTimes(2);
+    expect(saveBundle).toHaveBeenNthCalledWith(1, 'output/foo.yaml', expect.any(String));
+    expect(saveBundle).toHaveBeenNthCalledWith(2, 'output/bar.json', expect.any(String));
+  });
+
+  it('should store bundled API descriptions in the output files described in the apis section of config AND print the bundled api without the output specified to the terminal IF no positional apis provided AND output is specified for one api', async () => {
+    const apis = {
+      foo: {
+        root: 'foo.yaml',
+        output: 'output/foo.yaml',
+      },
+      bar: {
+        root: 'bar.yaml',
+      },
+    };
+    const config = {
+      apis,
+      styleguide: {
+        skipPreprocessors: jest.fn(),
+        skipDecorators: jest.fn(),
+      },
+    } as unknown as Config;
+    // @ts-ignore
+    getFallbackApisOrExit = jest
+      .fn()
+      .mockResolvedValueOnce(
+        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+      );
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 0,
+      warnings: 0,
+      ignored: 0,
+    });
+
+    await handleBundle({
+      argv: { apis: [] }, // positional
+      version: 'test',
+      config,
+    });
+
+    expect(saveBundle).toBeCalledTimes(1);
+    expect(saveBundle).toHaveBeenCalledWith('output/foo.yaml', expect.any(String));
+    expect(process.stdout.write).toHaveBeenCalledTimes(1);
+  });
+
+  describe('per api output', () => {
+    it('should NOT store bundled API descriptions in the output files described in the apis section of config IF no there is a positional api provided', async () => {
+      const apis = {
+        foo: {
+          root: 'foo.yaml',
+          output: 'output/foo.yaml',
+        },
+      };
+      const config = {
+        apis,
+        styleguide: {
+          skipPreprocessors: jest.fn(),
+          skipDecorators: jest.fn(),
+        },
+      } as unknown as Config;
+      // @ts-ignore
+      getFallbackApisOrExit = jest.fn().mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
+      (getTotals as jest.Mock).mockReturnValue({
+        errors: 0,
+        warnings: 0,
+        ignored: 0,
+      });
+
+      await handleBundle({
+        argv: { apis: ['openapi.yaml'] }, // positional
+        version: 'test',
+        config,
+      });
+
+      expect(saveBundle).toBeCalledTimes(0);
+      expect(process.stdout.write).toHaveBeenCalledTimes(1);
+    });
   });
 });

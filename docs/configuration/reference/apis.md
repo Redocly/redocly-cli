@@ -52,6 +52,12 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 - [Decorators object](./decorators.md)
 - Preprocessors run before linting, and follow the same structure as decorators. We recommend the use of decorators over preprocessors in most cases.
 
+---
+
+- output
+- Output file path
+- When running `bundle` without specifying an API, the bundled API description is saved to this location.
+
 {% /table %}
 
 ## Examples
@@ -72,6 +78,20 @@ apis:
       info-contact: off
       operation-summary: off
 ```
+
+The following example shows `redocly.yaml` configuration file with settings for multiple APIs outputs.
+
+```yaml
+apis:
+  main@v1:
+    root: openapi-v1.yaml
+    output: v1/bundled.yaml
+  main@v2:
+    root: openapi-v2.yaml
+    output: v2/bundled.yaml
+```
+
+When running `redocly bundle` with this config, the bundled API descriptions are saved to the corresponding location.
 
 ## Related options
 
