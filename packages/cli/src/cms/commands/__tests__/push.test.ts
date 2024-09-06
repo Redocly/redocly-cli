@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { handlePush } from '../push';
-import { ReuniteApiClient, ReuniteApiError } from '../../api';
+import { ReuniteApi, ReuniteApiError } from '../../api';
 
 const remotes = {
   push: jest.fn(),
@@ -15,8 +15,9 @@ jest.mock('@redocly/openapi-core', () => ({
 
 jest.mock('../../api', () => ({
   ...jest.requireActual('../../api'),
-  ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
+  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
+    this.reportSunsetWarnings = jest.fn();
   }),
 }));
 
@@ -332,7 +333,7 @@ describe('handlePush()', () => {
       version: 'cli-version',
     });
 
-    expect(ReuniteApiClient).toBeCalledWith({
+    expect(ReuniteApi).toBeCalledWith({
       domain: 'test-domain-from-env',
       apiKey: 'test-api-key',
       version: 'cli-version',

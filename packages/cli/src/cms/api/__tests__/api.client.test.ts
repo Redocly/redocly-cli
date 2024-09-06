@@ -1,7 +1,8 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
 
-import { ReuniteApiClient, PushPayload, ReuniteApiError } from '../api-client';
+import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
+import { red } from 'colorette';
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),
@@ -21,10 +22,10 @@ describe('ApiClient', () => {
   const expectedUserAgent = `redocly-cli/${version} ${command}`;
 
   describe('getDefaultBranch()', () => {
-    let apiClient: ReuniteApiClient;
+    let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should get default project branch', async () => {
@@ -83,6 +84,26 @@ describe('ApiClient', () => {
         new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
       );
     });
+
+    it('should report endpoint sunset', async () => {
+      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          branchName: 'test-branch',
+        }),
+        headers: new Headers({
+          'Sunset': sunsetDate.toISOString(),
+        })
+      });
+
+      await apiClient.remotes.getDefaultBranch(testOrg, testProject);
+      apiClient.reportSunsetWarnings();
+      
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+    });
   });
 
   describe('upsert()', () => {
@@ -90,22 +111,23 @@ describe('ApiClient', () => {
       mountBranchName: 'remote-mount-branch-name',
       mountPath: 'remote-mount-path',
     };
-    let apiClient: ReuniteApiClient;
+
+    const responseMock = {
+      id: 'remote-id',
+      type: 'CICD',
+      mountPath: 'remote-mount-path',
+      mountBranchName: 'remote-mount-branch-name',
+      organizationId: testOrg,
+      projectId: testProject,
+    };
+
+    let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should upsert remote', async () => {
-      const responseMock = {
-        id: 'remote-id',
-        type: 'CICD',
-        mountPath: 'remote-mount-path',
-        mountBranchName: 'remote-mount-branch-name',
-        organizationId: testOrg,
-        projectId: testProject,
-      };
-
       mockFetchResponse({
         ok: true,
         json: jest.fn().mockResolvedValue(responseMock),
@@ -170,6 +192,24 @@ describe('ApiClient', () => {
         new ReuniteApiError('Failed to upsert remote. Not found.', 404)
       );
     });
+
+    it('should report endpoint sunset', async () => {
+      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue(responseMock),
+        headers: new Headers({
+          'Sunset': sunsetDate.toISOString(),
+        })
+      });
+
+      await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
+      apiClient.reportSunsetWarnings();
+      
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+    });
   });
 
   describe('push()', () => {
@@ -204,10 +244,10 @@ describe('ApiClient', () => {
       outdated: false,
     };
 
-    let apiClient: ReuniteApiClient;
+    let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApiClient({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
     });
 
     it('should push to remote', async () => {
@@ -282,6 +322,24 @@ describe('ApiClient', () => {
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
       ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found.', 404));
+    });
+
+    it('should report endpoint sunset', async () => {
+      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue(responseMock),
+        headers: new Headers({
+          'Sunset': sunsetDate.toISOString(),
+        })
+      });
+
+      await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
+      apiClient.reportSunsetWarnings();
+      
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
     });
   });
 });

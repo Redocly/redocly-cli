@@ -5,7 +5,7 @@ import { pluralize } from '@redocly/openapi-core/lib/utils';
 import { green, yellow } from 'colorette';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { handlePushStatus } from './push-status';
-import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
+import { ReuniteApi, getDomain, getApiKeys } from '../api';
 import { handleReuniteError } from './utils';
 
 import type { OutputFormat } from '@redocly/openapi-core';
@@ -81,12 +81,13 @@ export async function handlePush({
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
     const filesToUpload = collectFilesToPush(argv.files || argv.apis);
+    const commandName = 'push' as const;
 
     if (!filesToUpload.length) {
-      return printExecutionTime('push', startedAt, `No files to upload`);
+      return printExecutionTime(commandName, startedAt, `No files to upload`);
     }
 
-    const client = new ReuniteApiClient({ domain, apiKey, version, command: 'push' });
+    const client = new ReuniteApi({ domain, apiKey, version, command: commandName });
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,
@@ -147,13 +148,15 @@ export async function handlePush({
     }
     verbose &&
       printExecutionTime(
-        'push',
+        commandName,
         startedAt,
         `${pluralize(
           'file',
           filesToUpload.length
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
+
+      client.reportSunsetWarnings();
 
     return {
       pushId: id,

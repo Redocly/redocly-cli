@@ -1,3 +1,4 @@
+import { yellow, red } from 'colorette';
 import * as FormData from 'form-data';
 import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
@@ -13,14 +14,98 @@ import type {
   UpsertRemoteResponse,
 } from './types';
 
+interface BaseApiClient {
+  request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
+};
+type CommandOption = 'push' | 'push-status';
+export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean; warning: string };
+export type SunsetWarningsBuffer = SunsetWarning[];
+
 export class ReuniteApiError extends Error {
   constructor(message: string, public status: number) {
     super(message);
   }
 }
 
-class ReuniteBaseApiClient {
+class ReuniteApiClient implements BaseApiClient {
+  public sunsetWarnings: SunsetWarningsBuffer = [];
+
   constructor(protected version: string, protected command: string) {}
+
+  public async request(url: string, options: FetchWithTimeoutOptions) {
+    const headers = {
+      ...options.headers,
+      'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
+    };
+
+    const response = await fetchWithTimeout(url, {
+      ...options,
+      headers,
+    });
+
+    this.collectSunsetWarning(response);
+
+    return response;
+  }
+
+  private collectSunsetWarning(response: Response) {
+    const sunsetTime = this.getSunsetDate(response);
+
+      if (sunsetTime) {
+        const sunsetDate = new Date(sunsetTime);
+        let sunsetWarning: SunsetWarning;
+
+        if (sunsetTime > Date.now()) {
+          sunsetWarning = {
+            sunsetDate,
+            isSunsetExpired: false,
+            warning: `Endpoint ${
+              response.url
+            } is deprecated for removal on ${sunsetDate.toISOString()}`,
+          };
+        } else {
+          sunsetWarning = {
+            sunsetDate,
+            isSunsetExpired: true,
+            warning: `Endpoint ${
+              response.url
+            } was deprecated for removal on ${sunsetDate.toISOString()} and could be removed AT ANY TIME`,
+          };
+        }
+
+        this.sunsetWarnings.push(sunsetWarning);
+      }
+  }
+
+  private getSunsetDate(response: Response): number | undefined {
+    const {headers} = response;
+
+    if (!headers) {
+      return;
+    }
+
+    let sunsetDate = headers.get('sunset');
+
+    if (sunsetDate) {
+      return Date.parse(sunsetDate);
+    }
+
+    sunsetDate = headers.get('Sunset');
+
+    if (sunsetDate) {
+      return Date.parse(sunsetDate);
+    }
+
+    return;
+  }
+}
+
+class RemotesApi {
+  constructor(
+    private client: BaseApiClient,
+    private readonly domain: string,
+    private readonly apiKey: string,
+  ) {}
 
   protected async getParsedResponse<T>(response: Response): Promise<T> {
     const responseBody = await response.json();
@@ -35,32 +120,9 @@ class ReuniteBaseApiClient {
     );
   }
 
-  protected request(url: string, options: FetchWithTimeoutOptions) {
-    const headers = {
-      ...options.headers,
-      'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
-    };
-
-    return fetchWithTimeout(url, {
-      ...options,
-      headers,
-    });
-  }
-}
-
-class RemotesApiClient extends ReuniteBaseApiClient {
-  constructor(
-    private readonly domain: string,
-    private readonly apiKey: string,
-    version: string,
-    command: string
-  ) {
-    super(version, command);
-  }
-
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
-      const response = await this.request(
+      const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/source`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
@@ -95,7 +157,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
     }
   ): Promise<UpsertRemoteResponse> {
     try {
-      const response = await this.request(
+      const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
@@ -150,7 +212,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
 
     payload.isMainBranch && formData.append('isMainBranch', 'true');
     try {
-      const response = await this.request(
+      const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
         {
           method: 'POST',
@@ -183,7 +245,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
     mountPath: string;
   }) {
     try {
-      const response = await this.request(
+      const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
@@ -217,7 +279,7 @@ class RemotesApiClient extends ReuniteBaseApiClient {
     pushId: string;
   }) {
     try {
-      const response = await this.request(
+      const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes/${pushId}`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
@@ -242,8 +304,12 @@ class RemotesApiClient extends ReuniteBaseApiClient {
   }
 }
 
-export class ReuniteApiClient {
-  remotes: RemotesApiClient;
+export class ReuniteApi {
+  private apiClient: ReuniteApiClient;
+  private version: string;
+  private command: CommandOption;
+
+  public remotes: RemotesApi;
 
   constructor({
     domain,
@@ -254,9 +320,60 @@ export class ReuniteApiClient {
     domain: string;
     apiKey: string;
     version: string;
-    command: 'push' | 'push-status';
+    command: CommandOption;
   }) {
-    this.remotes = new RemotesApiClient(domain, apiKey, version, command);
+    this.command = command;
+    this.version = version;
+    this.apiClient = new ReuniteApiClient(this.version, this.command);
+
+    this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
+  }
+
+  public reportSunsetWarnings(): void {
+    const sunsetWarnings = this.apiClient.sunsetWarnings;
+    
+    if (sunsetWarnings.length) {
+      const [{ isSunsetExpired, sunsetDate }] = sunsetWarnings.sort((a: SunsetWarning, b: SunsetWarning) => {
+        if (a.isSunsetExpired && b.isSunsetExpired) {
+          if (a.sunsetDate > b.sunsetDate) {
+            // b will shutdown earlier
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+  
+        if (a.isSunsetExpired) {
+          // a should come before b because it is already expired
+          return -1;
+        }
+  
+        if (b.isSunsetExpired) {
+          // b should come before a because it is already expired
+          return 1;
+        }
+  
+        if (a.sunsetDate > b.sunsetDate) {
+          // b will shutdown earlier
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+
+      const sunsetMessagePrevix = `Endpoint required for proper work of "${this.command}" command is`;
+      const updateVersionMessage = `Please update the version of Redocly CLI.`;
+
+      if (isSunsetExpired) {
+        process.stdout.write(
+          red(`${sunsetMessagePrevix} DEPRECATED on ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+        );
+      } else {
+        process.stdout.write(
+          yellow(`${sunsetMessagePrevix} going to deprecate on ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+        );
+      }
+    }
   }
 }
 
