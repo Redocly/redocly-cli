@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.23.1 (2024-09-06)
+
+### Patch Changes
+
+- Fixed a bug where bundling multiple API description files specified as CLI arguments, along with the `--output` option, stored the result in a single file instead of a folder.
+- Updated @redocly/openapi-core to v1.23.1.
+
 ## 1.23.0 (2024-09-06)
 
 ### Minor Changes
