@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 1.23.0
+
+### Minor Changes
+
+- Added support for the `output` option in the per-API configuration so that the destination file can be specified in configuration.
+
+### Patch Changes
+
+- Fixed the absolute path for importing plugins in Windows.
+- Added the ability to run the `eject` command without specifying components, which displays a selectable list of all available components.
+- Updated @redocly/openapi-core to v1.23.0.
+
 ## 1.22.1
 
 ### Patch Changes
