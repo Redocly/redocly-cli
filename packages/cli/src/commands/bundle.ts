@@ -70,7 +70,13 @@ export async function handleBundle({
       });
 
       const fileTotals = getTotals(problems);
-      const { outputFile, ext } = getOutputFileName(path, output || argv.output, argv.ext);
+      const { outputFile, ext } = getOutputFileName({
+        entrypoint: path,
+        output,
+        argvOutput: argv.output,
+        ext: argv.ext,
+        entries: argv?.apis?.length || 0,
+      });
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
