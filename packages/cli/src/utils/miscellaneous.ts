@@ -363,20 +363,40 @@ export function printConfigLintTotals(totals: Totals, command?: string | number)
   }
 }
 
-export function getOutputFileName(entrypoint: string, output?: string, ext?: BundleOutputFormat) {
-  let outputFile = output;
+export function getOutputFileName({
+  entrypoint,
+  output,
+  argvOutput,
+  ext,
+  entries,
+}: {
+  entrypoint: string;
+  output?: string;
+  argvOutput?: string;
+  ext?: BundleOutputFormat;
+  entries: number;
+}) {
+  let outputFile = output || argvOutput;
   if (!outputFile) {
     return { ext: ext || 'yaml' };
   }
 
-  if (outputFile) {
-    ext = ext || (extname(outputFile).substring(1) as BundleOutputFormat);
+  if (entries > 1 && argvOutput) {
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext)) {
+      throw new Error(`Invalid file extension: ${ext}.`);
+    }
+    outputFile = join(argvOutput, basename(entrypoint, extname(entrypoint))) + '.' + ext;
+  } else {
+    ext =
+      ext ||
+      (extname(outputFile).substring(1) as BundleOutputFormat) ||
+      (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext)) {
+      throw new Error(`Invalid file extension: ${ext}.`);
+    }
+    outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
   }
-  ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
-  if (!outputExtensions.includes(ext)) {
-    throw new Error(`Invalid file extension: ${ext}.`);
-  }
-  outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
   return { outputFile, ext };
 }
 
