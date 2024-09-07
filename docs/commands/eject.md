@@ -19,13 +19,13 @@ redocly eject --version
 
 ## Options
 
-| Option                | Type    | Description                                                                                                  |
-| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `component-path`      | string  | Path to the component or a glob pattern for multiple components.                                             |
-| `--force`, `-f`       | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
-| `--project-dir`, `-d` | string  | Specifies the project folder to execute the command in. Used for managing multiple projects.                 |
-| `--help`              | boolean | Show help.                                                                                                   |
-| `--version`           | boolean | Show version number.                                                                                         |
+| Option            | Type    | Description                                                                                                  |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `component-path`  | string  | Path to the component or a glob pattern for multiple components.                                             |
+| `--force`, `-f`   | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
+| --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                 |
+| `--help`          | boolean | Show help.                                                                                                   |
+| `--version`       | boolean | Show version number.                                                                                         |
 
 ## Examples
 
@@ -93,7 +93,7 @@ By including `--force`, this example ejects the `MenuContainer` component to `@t
 
 ### Specify a project folder
 
-Use the `--project-dir` to run the command from a parent folder and eject components inside a specific project:
+Use the `--project-dir` to provide a path to the project where you want to eject a component:
 
 ```bash
 redocly eject component 'components/Search/SearchDialog.tsx' --project-dir='museum-docs'
