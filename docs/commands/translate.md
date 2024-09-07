@@ -19,12 +19,13 @@ redocly translate --version
 
 ## Options
 
-| Option          | Type    | Description                                                                                                                            |
-| --------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `locale`        | string  | **REQUIRED** Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
-| `--lint-config` | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
-| `--help`        | boolean | Show help.                                                                                                                             |
-| `--version`     | boolean | Show version number.                                                                                                                   |
+| Option            | Type    | Description                                                                                                                            |
+| ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `locale`          | string  | **REQUIRED** Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
+| `--lint-config`   | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
+| --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                           |
+| `--help`          | boolean | Show help.                                                                                                                             |
+| `--version`       | boolean | Show version number.                                                                                                                   |
 
 ## Examples
 
@@ -68,6 +69,39 @@ your-awesome-project
 ├── redocly.yaml
 └── ...
 ```
+
+### Populate translation keys in a specific project
+
+Use the `--project-dir` option to run the `translate` command from a parent folder and populate translation keys inside a specific project:
+
+```bash
+redocly translate all --project-dir='museum-docs'
+```
+
+The following project structure represents the output of running this command from the `projects` folder:
+
+```treeview {% title="Multiple projects in same folder" %}
+projects/
+├── storage-docs/
+├── authentication-docs/
+└── museum-docs/
+    ├── @l10n/
+    │   ├── es-ES/
+    │   │   ├── transcriptions.yaml
+    │   │   └── ...
+    │   ├── fr/
+    │   │   ├── transcriptions.yaml
+    │   │   └── ...
+    │   └── nl-NL/
+    │       ├── transcriptions.yaml
+    │       └── ...
+    ├── index.md
+    ├── sidebars.md
+    ├── redocly.yaml
+    └── ...
+```
+
+The `--project-dir` option is designed to help manage multiple projects by reducing the need for traversal.
 
 ## Tips for using `translate`
 
