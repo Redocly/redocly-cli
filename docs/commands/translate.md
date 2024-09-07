@@ -19,13 +19,13 @@ redocly translate --version
 
 ## Options
 
-| Option                | Type    | Description                                                                                                                            |
-| --------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `locale`              | string  | **REQUIRED** Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
-| `--lint-config`       | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
-| `--project-dir`, `-d` | string  | Specifies the project folder to execute the command in. Used for managing multiple projects.                 |
-| `--help`              | boolean | Show help.                                                                                                                             |
-| `--version`           | boolean | Show version number.                                                                                                                   |
+| Option            | Type    | Description                                                                                                                            |
+| ----------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `locale`          | string  | **REQUIRED** Name of a locale folder, inside your project's `l10n` directory, to generate translations for. Use `all` for all locales. |
+| `--lint-config`   | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
+| --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                           |
+| `--help`          | boolean | Show help.                                                                                                                             |
+| `--version`       | boolean | Show version number.                                                                                                                   |
 
 ## Examples
 
