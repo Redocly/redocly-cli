@@ -148,9 +148,12 @@ export type Plugin = {
   assertions?: AssertionsConfig;
 
   // Realm properties
-  processContent?: Function;
-  afterRoutesCreated?: Function;
-  loaders?: Record<string, Function>;
+  processContent?: (actions: any, content: any) => Promise<void> | void;
+  afterRoutesCreated?: (actions: any, content: any) => Promise<void> | void;
+  loaders?: Record<
+    string,
+    (path: string, context: any, reportError: (error: Error) => void) => Promise<unknown>
+  >;
   requiredEntitlements?: string[];
   ssoConfigSchema?: JSONSchemaType<any>;
   redoclyConfigSchema?: JSONSchemaType<any>;
