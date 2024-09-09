@@ -37,27 +37,8 @@ arazzoRules:
   no-criteria-xpath: error
 ```
 
-Example of an **incorrect** criteria:
 
-```yaml Object example
-successCriteria:
-  - condition: $statusCode == 201
-  - context: $response.body
-    condition: $.name == 'Mermaid Treasure Identification and Analysis'
-    type:
-      type: jsonpath
-      version: draft-goessner-dispatch-jsonpath-00
-  - context: $response.body
-    condition: /bookstore/book[price>35]/price
-    type: xpath
-  - context: $response.body
-    condition: /bookstore/book[price>35]/price
-    type:
-      type: xpath
-      version: xpath-30
-```
-
-Example of a **correct** criteria:
+Example of criteria:
 
 ```yaml Object example
 successCriteria:

@@ -36,29 +36,8 @@ arazzoRules:
   criteria-unique: error
 ```
 
-Example of an **incorrect** criteria:
 
-```yaml Object example
-successCriteria:
-  - condition: $statusCode == 200
-  - condition: $statusCode == 200
-onSuccess:
-  - name: 'onSuccessActionName'
-    type: 'goto'
-    stepId: 'buy-ticket'
-    criteria:
-      - condition: $response.body.open == true
-      - condition: $response.body.open == true
-onFailure:
-  - name: 'onFailureActionName'
-    type: 'goto'
-    stepId: 'buy-ticket'
-    criteria:
-      - condition: $response.body.open == true
-      - condition: $response.body.open == true
-```
-
-Example of a **correct** criteria:
+Example of a criteria list:
 
 ```yaml Object example
 successCriteria:

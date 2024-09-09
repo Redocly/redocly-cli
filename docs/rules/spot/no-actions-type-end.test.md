@@ -37,20 +37,8 @@ arazzoRules:
   no-actions-type-end: error
 ```
 
-Example of an **incorrect** action:
 
-```yaml Object example
-onSuccess:
-  - name: 'onSuccessActionName'
-    type: 'end'
-    stepId: 'buy-ticket'
-onFailure:
-  - name: 'onFailureActionName'
-    type: 'end'
-    stepId: 'buy-ticket'
-```
-
-Example of a **correct** action:
+Example of an action:
 
 ```yaml Object example
 onSuccess:
