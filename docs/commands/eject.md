@@ -19,13 +19,13 @@ redocly eject --version
 
 ## Options
 
-| Option            | Type    | Description                                                                                                  |
-| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `component-path`  | string  | Path to the component or a glob pattern for multiple components.                                             |
-| `--force`, `-f`   | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
+| Option                | Type    | Description                                                                                                  |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `component-path`      | string  | Path to the component or a glob pattern for multiple components.                                             |
+| `--force`, `-f`       | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
 | `--project-dir`, `-d` | string  | Path to the project directory. The default value is `.` (current directory).                                 |
-| `--help`          | boolean | Show help.                                                                                                   |
-| `--version`       | boolean | Show version number.                                                                                         |
+| `--help`              | boolean | Show help.                                                                                                   |
+| `--version`           | boolean | Show version number.                                                                                         |
 
 ## Examples
 
