@@ -139,6 +139,9 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'step-onSuccess-unique': 'error',
     'step-onFailure-unique': 'error',
     'requestBody-replacements-unique': 'error',
+    'no-criteria-xpath': 'error',
+    'no-actions-type-end': 'error',
+    'criteria-unique': 'error',
   },
 };
 

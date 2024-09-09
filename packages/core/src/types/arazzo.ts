@@ -205,7 +205,7 @@ const CriterionObject: NodeType = {
         return undefined;
       } else if (typeof value === 'string') {
         return { enum: ['regex', 'jsonpath', 'simple', 'xpath'] };
-      } else if (value.type === 'jsonpath') {
+      } else if (value?.type === 'jsonpath') {
         return 'JSONPathCriterion';
       } else {
         return 'XPathCriterion';
