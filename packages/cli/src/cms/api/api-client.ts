@@ -16,7 +16,7 @@ import type {
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
-};
+}
 type CommandOption = 'push' | 'push-status';
 export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean; warning: string };
 export type SunsetWarningsBuffer = SunsetWarning[];
@@ -51,34 +51,34 @@ class ReuniteApiClient implements BaseApiClient {
   private collectSunsetWarning(response: Response) {
     const sunsetTime = this.getSunsetDate(response);
 
-      if (sunsetTime) {
-        const sunsetDate = new Date(sunsetTime);
-        let sunsetWarning: SunsetWarning;
+    if (sunsetTime) {
+      const sunsetDate = new Date(sunsetTime);
+      let sunsetWarning: SunsetWarning;
 
-        if (sunsetTime > Date.now()) {
-          sunsetWarning = {
-            sunsetDate,
-            isSunsetExpired: false,
-            warning: `Endpoint ${
-              response.url
-            } is marked for removal after ${sunsetDate.toISOString()}`,
-          };
-        } else {
-          sunsetWarning = {
-            sunsetDate,
-            isSunsetExpired: true,
-            warning: `Endpoint ${
-              response.url
-            } support expired on ${sunsetDate.toISOString()} and will be removed.`,
-          };
-        }
-
-        this.sunsetWarnings.push(sunsetWarning);
+      if (sunsetTime > Date.now()) {
+        sunsetWarning = {
+          sunsetDate,
+          isSunsetExpired: false,
+          warning: `Endpoint ${
+            response.url
+          } is marked for removal after ${sunsetDate.toISOString()}`,
+        };
+      } else {
+        sunsetWarning = {
+          sunsetDate,
+          isSunsetExpired: true,
+          warning: `Endpoint ${
+            response.url
+          } support expired on ${sunsetDate.toISOString()} and will be removed.`,
+        };
       }
+
+      this.sunsetWarnings.push(sunsetWarning);
+    }
   }
 
   private getSunsetDate(response: Response): number | undefined {
-    const {headers} = response;
+    const { headers } = response;
 
     if (!headers) {
       return;
@@ -104,7 +104,7 @@ class RemotesApi {
   constructor(
     private client: BaseApiClient,
     private readonly domain: string,
-    private readonly apiKey: string,
+    private readonly apiKey: string
   ) {}
 
   protected async getParsedResponse<T>(response: Response): Promise<T> {
@@ -331,10 +331,29 @@ export class ReuniteApi {
 
   public reportSunsetWarnings(): void {
     const sunsetWarnings = this.apiClient.sunsetWarnings;
-    
+
     if (sunsetWarnings.length) {
-      const [{ isSunsetExpired, sunsetDate }] = sunsetWarnings.sort((a: SunsetWarning, b: SunsetWarning) => {
-        if (a.isSunsetExpired && b.isSunsetExpired) {
+      const [{ isSunsetExpired, sunsetDate }] = sunsetWarnings.sort(
+        (a: SunsetWarning, b: SunsetWarning) => {
+          if (a.isSunsetExpired && b.isSunsetExpired) {
+            if (a.sunsetDate > b.sunsetDate) {
+              // b will shutdown earlier
+              return 1;
+            } else {
+              return -1;
+            }
+          }
+
+          if (a.isSunsetExpired) {
+            // a should come before b because it is already expired
+            return -1;
+          }
+
+          if (b.isSunsetExpired) {
+            // b should come before a because it is already expired
+            return 1;
+          }
+
           if (a.sunsetDate > b.sunsetDate) {
             // b will shutdown earlier
             return 1;
@@ -342,34 +361,25 @@ export class ReuniteApi {
             return -1;
           }
         }
-  
-        if (a.isSunsetExpired) {
-          // a should come before b because it is already expired
-          return -1;
-        }
-  
-        if (b.isSunsetExpired) {
-          // b should come before a because it is already expired
-          return 1;
-        }
-  
-        if (a.sunsetDate > b.sunsetDate) {
-          // b will shutdown earlier
-          return 1;
-        } else {
-          return -1;
-        }
-      });
+      );
 
       const updateVersionMessage = `Please update the version of Redocly CLI.`;
 
       if (isSunsetExpired) {
         process.stdout.write(
-          red(`Support for "${this.command}" command is deprecated after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+          red(
+            `Support for "${
+              this.command
+            }" command is deprecated after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
+          )
         );
       } else {
         process.stdout.write(
-          yellow(`Support for "${this.command}" command is marked for deprecation after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+          yellow(
+            `Support for "${
+              this.command
+            }" command is marked for deprecation after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
+          )
         );
       }
     }

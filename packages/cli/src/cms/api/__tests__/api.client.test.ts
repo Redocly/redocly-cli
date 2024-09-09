@@ -95,14 +95,18 @@ describe('ApiClient', () => {
           branchName: 'test-branch',
         }),
         headers: new Headers({
-          'Sunset': sunsetDate.toISOString(),
-        })
+          Sunset: sunsetDate.toISOString(),
+        }),
       });
 
       await apiClient.remotes.getDefaultBranch(testOrg, testProject);
       apiClient.reportSunsetWarnings();
-      
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+
+      expect(process.stdout.write).toHaveBeenCalledWith(
+        red(
+          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
+        )
+      );
     });
   });
 
@@ -201,14 +205,18 @@ describe('ApiClient', () => {
         ok: true,
         json: jest.fn().mockResolvedValue(responseMock),
         headers: new Headers({
-          'Sunset': sunsetDate.toISOString(),
-        })
+          Sunset: sunsetDate.toISOString(),
+        }),
       });
 
       await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
       apiClient.reportSunsetWarnings();
-      
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+
+      expect(process.stdout.write).toHaveBeenCalledWith(
+        red(
+          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
+        )
+      );
     });
   });
 
@@ -332,14 +340,18 @@ describe('ApiClient', () => {
         ok: true,
         json: jest.fn().mockResolvedValue(responseMock),
         headers: new Headers({
-          'Sunset': sunsetDate.toISOString(),
-        })
+          Sunset: sunsetDate.toISOString(),
+        }),
       });
 
       await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
       apiClient.reportSunsetWarnings();
-      
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+
+      expect(process.stdout.write).toHaveBeenCalledWith(
+        red(
+          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
+        )
+      );
     });
   });
 });

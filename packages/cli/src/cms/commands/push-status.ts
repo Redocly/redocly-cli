@@ -168,7 +168,7 @@ export async function handlePushStatus({
       printScorecard(pushResponse.status.production.scorecard);
     }
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
-    
+
     client.reportSunsetWarnings();
 
     const summary: PushStatusSummary = {

@@ -156,7 +156,7 @@ export async function handlePush({
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
 
-      client.reportSunsetWarnings();
+    client.reportSunsetWarnings();
 
     return {
       pushId: id,
