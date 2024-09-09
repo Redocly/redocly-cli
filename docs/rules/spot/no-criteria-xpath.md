@@ -37,7 +37,6 @@ arazzoRules:
   no-criteria-xpath: error
 ```
 
-
 Example of criteria:
 
 ```yaml Object example

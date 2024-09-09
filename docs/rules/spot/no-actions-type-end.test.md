@@ -37,7 +37,6 @@ arazzoRules:
   no-actions-type-end: error
 ```
 
-
 Example of an action:
 
 ```yaml Object example

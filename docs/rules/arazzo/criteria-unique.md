@@ -36,7 +36,6 @@ arazzoRules:
   criteria-unique: error
 ```
 
-
 Example of a criteria list:
 
 ```yaml Object example
