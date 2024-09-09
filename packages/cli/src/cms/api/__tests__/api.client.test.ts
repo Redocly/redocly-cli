@@ -1,8 +1,8 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
+import { red } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
-import { red } from 'colorette';
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),
@@ -102,7 +102,7 @@ describe('ApiClient', () => {
       await apiClient.remotes.getDefaultBranch(testOrg, testProject);
       apiClient.reportSunsetWarnings();
       
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
     });
   });
 
@@ -208,7 +208,7 @@ describe('ApiClient', () => {
       await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
       apiClient.reportSunsetWarnings();
       
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
     });
   });
 
@@ -339,7 +339,7 @@ describe('ApiClient', () => {
       await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
       apiClient.reportSunsetWarnings();
       
-      expect(process.stdout.write).toHaveBeenCalledWith(red(`Endpoint required for proper work of "push" command is DEPRECATED on ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
+      expect(process.stdout.write).toHaveBeenCalledWith(red(`Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`))
     });
   });
 });

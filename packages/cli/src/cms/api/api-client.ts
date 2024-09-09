@@ -61,7 +61,7 @@ class ReuniteApiClient implements BaseApiClient {
             isSunsetExpired: false,
             warning: `Endpoint ${
               response.url
-            } is deprecated for removal on ${sunsetDate.toISOString()}`,
+            } is marked for removal after ${sunsetDate.toISOString()}`,
           };
         } else {
           sunsetWarning = {
@@ -69,7 +69,7 @@ class ReuniteApiClient implements BaseApiClient {
             isSunsetExpired: true,
             warning: `Endpoint ${
               response.url
-            } was deprecated for removal on ${sunsetDate.toISOString()} and could be removed AT ANY TIME`,
+            } support expired on ${sunsetDate.toISOString()} and will be removed.`,
           };
         }
 
@@ -361,16 +361,15 @@ export class ReuniteApi {
         }
       });
 
-      const sunsetMessagePrevix = `Endpoint required for proper work of "${this.command}" command is`;
       const updateVersionMessage = `Please update the version of Redocly CLI.`;
 
       if (isSunsetExpired) {
         process.stdout.write(
-          red(`${sunsetMessagePrevix} DEPRECATED on ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+          red(`Support for "${this.command}" command is deprecated after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
         );
       } else {
         process.stdout.write(
-          yellow(`${sunsetMessagePrevix} going to deprecate on ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
+          yellow(`Support for "${this.command}" command is marked for deprecation after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`)
         );
       }
     }
