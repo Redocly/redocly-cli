@@ -23,6 +23,7 @@ export type Totals = {
 export type Entrypoint = {
   path: string;
   alias?: string;
+  output?: string;
 };
 export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined;

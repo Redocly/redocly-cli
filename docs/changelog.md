@@ -7,6 +7,25 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.23.1 (2024-09-06)
+
+### Patch Changes
+
+- Fixed a bug where bundling multiple API description files specified as CLI arguments, along with the `--output` option, stored the result in a single file instead of a folder.
+- Updated @redocly/openapi-core to v1.23.1.
+
+## 1.23.0 (2024-09-06)
+
+### Minor Changes
+
+- Added support for the `output` option in the per-API configuration so that the destination file can be specified in configuration.
+
+### Patch Changes
+
+- Fixed the absolute path for importing plugins in Windows.
+- Added the ability to run the `eject` command without specifying components, which displays a selectable list of all available components.
+- Updated @redocly/openapi-core to v1.23.0.
+
 ## 1.22.1 (2024-08-30)
 
 ### Patch Changes
