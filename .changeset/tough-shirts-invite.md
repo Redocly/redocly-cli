@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue where custom rules were not applied to Arazzo configuration.
+Fixed an issue where custom rules were not applied to Arazzo descriptions.
