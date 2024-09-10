@@ -141,47 +141,43 @@ export async function resolvePlugins(
           : // For plugins imported from packages specifically
             require.resolve(plugin);
 
-        if (pluginsCache.has(absolutePluginPath)) {
-          return pluginsCache.get(absolutePluginPath);
-        }
+        if (!pluginsCache.has(absolutePluginPath)) {
+          let requiredPlugin: ImportedPlugin | undefined;
 
-        let requiredPlugin: ImportedPlugin | undefined;
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (typeof __webpack_require__ === 'function') {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          requiredPlugin = __non_webpack_require__(absolutePluginPath);
-        } else {
-          // you can import both cjs and mjs
-          const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
-          requiredPlugin = mod.default || mod;
+          if (typeof __webpack_require__ === 'function') {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            requiredPlugin = __non_webpack_require__(absolutePluginPath);
+          } else {
+            // you can import both cjs and mjs
+            const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
+            requiredPlugin = mod.default || mod;
+          }
+
+          const pluginCreatorOptions = { contentDir: configDir };
+
+          const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
+            ? requiredPlugin
+            : isCommonJsPlugin(requiredPlugin)
+            ? await requiredPlugin(pluginCreatorOptions)
+            : await requiredPlugin?.default?.(pluginCreatorOptions);
+
+          if (pluginModule?.id && isDeprecatedPluginFormat(requiredPlugin)) {
+            logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
+          }
+
+          if (pluginModule) {
+            pluginsCache.set(absolutePluginPath, {
+              ...pluginModule,
+              path: plugin,
+              absolutePath: absolutePluginPath,
+            });
+          }
         }
 
-        const pluginCreatorOptions = { contentDir: configDir };
-
-        const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
-          ? requiredPlugin
-          : isCommonJsPlugin(requiredPlugin)
-          ? await requiredPlugin(pluginCreatorOptions)
-          : await requiredPlugin?.default?.(pluginCreatorOptions);
-
-        if (pluginModule?.id && isDeprecatedPluginFormat(requiredPlugin)) {
-          logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
-        }
-
-        if (pluginModule) {
-          pluginsCache.set(absolutePluginPath, {
-            ...pluginModule,
-            path: plugin,
-            absolutePath: absolutePluginPath,
-          });
-        }
-
-        return (
-          pluginsCache.get(absolutePluginPath)
-        );
+        return pluginsCache.get(absolutePluginPath);
       } catch (e) {
         throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
       }
@@ -334,31 +330,9 @@ export async function resolvePlugins(
         plugin.assertions = pluginModule.assertions;
       }
 
-      // Realm properties
-      const {
-        path,
-        absolutePath,
-        processContent,
-        afterRoutesCreated,
-        loaders,
-        requiredEntitlements,
-        ssoConfigSchema,
-        redoclyConfigSchema,
-        ejectIgnore,
-      } = pluginModule;
-
       return {
+        ...pluginModule,
         ...plugin,
-
-        path,
-        absolutePath,
-        processContent,
-        afterRoutesCreated,
-        loaders,
-        requiredEntitlements,
-        ssoConfigSchema,
-        redoclyConfigSchema,
-        ejectIgnore,
       };
     })
   );
