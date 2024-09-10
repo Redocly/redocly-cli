@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 1.24.0
+
+### Minor Changes
+
+- Added Spot and Arazzo rules: `no-criteria-xpath`, `no-actions-type-end`, `criteria-unique`.
+
+### Patch Changes
+
+- Updated @redocly/ajv to v8.11.2.
+- Fixed an issue where custom rules were not applied to Arazzo descriptions.
+
 ## 1.23.1
 
 ## 1.23.0
