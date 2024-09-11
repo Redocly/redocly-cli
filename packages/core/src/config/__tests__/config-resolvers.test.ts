@@ -1,3 +1,4 @@
+import * as util from 'util';
 import { colorize } from '../../logger';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
@@ -88,6 +89,59 @@ describe('resolveStyleguideConfig', () => {
       'operation-2xx-response': 'warn',
       'operation-description': 'error',
       'path-http-verbs-order': 'error',
+    });
+  });
+
+  it('should instantiate the plugin once', async () => {
+    // Called by plugin during init
+    const deprecateSpy = jest.spyOn(util, 'deprecate');
+
+    const config = {
+      ...baseStyleguideConfig,
+      extends: ['local-config-with-plugin-init.yaml'],
+    };
+
+    await resolveStyleguideConfig({
+      styleguideConfig: config,
+      configPath,
+    });
+
+    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+
+    await resolveStyleguideConfig({
+      styleguideConfig: config,
+      configPath,
+    });
+
+    // Should not execute the init logic again
+    expect(deprecateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should resolve realm plugin properties', async () => {
+    const config = {
+      ...baseStyleguideConfig,
+      extends: ['local-config-with-realm-plugin.yaml'],
+    };
+
+    const { plugins } = await resolveStyleguideConfig({
+      styleguideConfig: config,
+      configPath,
+    });
+
+    const localPlugin = plugins?.find((p) => p.id === 'realm-plugin');
+    expect(localPlugin).toBeDefined();
+
+    expect(localPlugin).toMatchObject({
+      id: 'realm-plugin',
+      processContent: expect.any(Function),
+      afterRoutesCreated: expect.any(Function),
+      loaders: {
+        'test-loader': expect.any(Function),
+      },
+      requiredEntitlements: ['test-entitlement'],
+      ssoConfigSchema: { type: 'object', additionalProperties: true },
+      redoclyConfigSchema: { type: 'object', additionalProperties: false },
+      ejectIgnore: ['Navbar.tsx', 'Footer.tsx'],
     });
   });
 
