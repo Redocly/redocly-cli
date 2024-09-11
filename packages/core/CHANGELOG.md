@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.25.0
+
+### Minor Changes
+
+- Added a mechanism that resolves plugin properties specific to the Reunite-hosted product family.
+- Added a cache for resolved plugins to ensure that plugins are only instantiated once during a single execution.
+
 ## 1.24.0
 
 ### Minor Changes
