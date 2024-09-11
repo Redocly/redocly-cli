@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 1.25.0
+
+### Minor Changes
+
+- Added a cache for resolved plugins to ensure that plugins are only instantiated once during a single execution.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.25.0.
+
 ## 1.24.0
 
 ### Minor Changes
