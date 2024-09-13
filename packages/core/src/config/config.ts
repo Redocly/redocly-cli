@@ -74,7 +74,7 @@ export class StyleguideConfig {
       [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
       [SpecVersion.Async3]: { ...rawConfig.rules, ...rawConfig.async3Rules },
       [SpecVersion.Arazzo]: {
-        ...rawConfig.arazzoRules,
+        ...(rawConfig.arazzoRules || {}),
         ...(rawConfig.rules?.assertions ? { assertions: rawConfig.rules.assertions } : {}),
       },
     };
