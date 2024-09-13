@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Changes in `criteria-unique` Arazzo rule.
+Added additional checks to `criteria-unique` Arazzo rule.
