@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed camelCase assertion for single letter.
+Fixed `camelCase` assertion for single-letter values.
