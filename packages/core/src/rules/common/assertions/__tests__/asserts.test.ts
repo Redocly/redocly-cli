@@ -317,6 +317,14 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['testExample', 'fooBar'], 'camelCase', assertionProperties)).toEqual(
           []
         );
+        expect(asserts.casing(['f'], 'camelCase', assertionProperties)).toEqual([]);
+        expect(asserts.casing(['Q'], 'camelCase', assertionProperties)).toEqual([
+          {
+            message: '"Q" should use camelCase',
+            location: baseLocation.child('Q').key(),
+          },
+        ]);
+        expect(asserts.casing(['fQ'], 'camelCase', assertionProperties)).toEqual([]);
         expect(asserts.casing(['testExample', 'FooBar'], 'camelCase', assertionProperties)).toEqual(
           [
             {

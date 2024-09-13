@@ -243,7 +243,7 @@ export const asserts: Asserts = {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const casingRegexes: Record<string, RegExp> = {
-      camelCase: /^[a-z][a-zA-Z0-9]+$/g,
+      camelCase: /^[a-z][a-zA-Z0-9]*$/g,
       'kebab-case': /^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g,
       snake_case: /^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g,
       PascalCase: /^[A-Z][a-zA-Z0-9]+$/g,
