@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.25.2
+
+### Patch Changes
+
+- Fixed `camelCase` assertion for single-letter values.
+
 ## 1.25.1
 
 ### Patch Changes

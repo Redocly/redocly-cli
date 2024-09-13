@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.2 (2024-09-13)
+
+### Patch Changes
+
+- Fixed `camelCase` assertion for single-letter values.
+- Updated @redocly/openapi-core to v1.25.2.
+
 ## 1.25.1 (2024-09-13)
 
 ### Patch Changes
