@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.25.1
+
+### Patch Changes
+
+- Added additional checks to `criteria-unique` Arazzo rule.
+- Updated @redocly/openapi-core to v1.25.1.
+
 ## 1.25.0
 
 ### Minor Changes
