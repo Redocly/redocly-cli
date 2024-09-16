@@ -1,6 +1,6 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
-import { red } from 'colorette';
+import { red, yellow } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
@@ -82,30 +82,6 @@ describe('ApiClient', () => {
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
         new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
-      );
-    });
-
-    it('should report endpoint sunset', async () => {
-      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
-      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
-
-      mockFetchResponse({
-        ok: true,
-        json: jest.fn().mockResolvedValue({
-          branchName: 'test-branch',
-        }),
-        headers: new Headers({
-          Sunset: sunsetDate.toISOString(),
-        }),
-      });
-
-      await apiClient.remotes.getDefaultBranch(testOrg, testProject);
-      apiClient.reportSunsetWarnings();
-
-      expect(process.stdout.write).toHaveBeenCalledWith(
-        red(
-          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
-        )
       );
     });
   });
@@ -194,28 +170,6 @@ describe('ApiClient', () => {
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
         new ReuniteApiError('Failed to upsert remote. Not found.', 404)
-      );
-    });
-
-    it('should report endpoint sunset', async () => {
-      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
-      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
-
-      mockFetchResponse({
-        ok: true,
-        json: jest.fn().mockResolvedValue(responseMock),
-        headers: new Headers({
-          Sunset: sunsetDate.toISOString(),
-        }),
-      });
-
-      await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
-      apiClient.reportSunsetWarnings();
-
-      expect(process.stdout.write).toHaveBeenCalledWith(
-        red(
-          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
-        )
       );
     });
   });
@@ -331,27 +285,123 @@ describe('ApiClient', () => {
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
       ).rejects.toThrow(new ReuniteApiError('Failed to push. Not found.', 404));
     });
+  });
 
-    it('should report endpoint sunset', async () => {
-      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
-      const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
-
-      mockFetchResponse({
-        ok: true,
-        json: jest.fn().mockResolvedValue(responseMock),
-        headers: new Headers({
-          Sunset: sunsetDate.toISOString(),
+  describe('Sunset header', () => {
+    const upsertRemoteMock = {
+      requestFn: () =>
+        apiClient.remotes.upsert(testOrg, testProject, {
+          mountBranchName: 'remote-mount-branch-name',
+          mountPath: 'remote-mount-path',
         }),
-      });
+      responseBody: {
+        id: 'remote-id',
+        type: 'CICD',
+        mountPath: 'remote-mount-path',
+        mountBranchName: 'remote-mount-branch-name',
+        organizationId: testOrg,
+        projectId: testProject,
+      },
+    };
 
-      await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
-      apiClient.reportSunsetWarnings();
+    const getDefaultBranchMock = {
+      requestFn: () => apiClient.remotes.getDefaultBranch(testOrg, testProject),
+      responseBody: {
+        branchName: 'test-branch',
+      },
+    };
 
-      expect(process.stdout.write).toHaveBeenCalledWith(
-        red(
-          `Support for "push" command is deprecated after ${sunsetDate.toLocaleString()}. Please update the version of Redocly CLI.\n\n`
-        )
-      );
+    const pushMock = {
+      requestFn: () =>
+        apiClient.remotes.push(
+          testOrg,
+          testProject,
+          {
+            remoteId: 'test-remote-id',
+            commit: {
+              message: 'test-message',
+              author: {
+                name: 'test-name',
+                email: 'test-email',
+              },
+              branchName: 'test-branch-name',
+            },
+          },
+          [{ path: 'some-file.yaml', stream: Buffer.from('text content') }]
+        ),
+      responseBody: {
+        branchName: 'rem/cicd/rem_01he7sr6ys2agb7w0g9t7978fn-main',
+        hasChanges: true,
+        files: [
+          {
+            type: 'file',
+            name: 'some-file.yaml',
+            path: 'docs/remotes/some-file.yaml',
+            lastModified: 1698925132394.2993,
+            mimeType: 'text/yaml',
+          },
+        ],
+        commitSha: 'bb23a2f8e012ac0b7b9961b57fb40d8686b21b43',
+        outdated: false,
+      },
+    };
+
+    const endpointMocks = [upsertRemoteMock, getDefaultBranchMock, pushMock];
+
+    let apiClient: ReuniteApi;
+
+    beforeEach(() => {
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
     });
+
+    it.each(endpointMocks)(
+      'should report endpoint sunset in the past',
+      async ({ responseBody, requestFn }) => {
+        jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
+
+        mockFetchResponse({
+          ok: true,
+          json: jest.fn().mockResolvedValue(responseBody),
+          headers: new Headers({
+            Sunset: sunsetDate.toISOString(),
+          }),
+        });
+
+        await requestFn();
+        apiClient.reportSunsetWarnings();
+
+        expect(process.stdout.write).toHaveBeenCalledWith(
+          red(
+            `The "push" command is not compatible with your version of Redocly CLI. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
+          )
+        );
+      }
+    );
+
+    it.each(endpointMocks)(
+      'should report endpoint sunset in the future',
+      async ({ responseBody, requestFn }) => {
+        jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        const sunsetDate = new Date(Date.now() + 1000 * 60 * 60 * 24);
+
+        mockFetchResponse({
+          ok: true,
+          json: jest.fn().mockResolvedValue(responseBody),
+          headers: new Headers({
+            Sunset: sunsetDate.toISOString(),
+          }),
+        });
+
+        await requestFn();
+        apiClient.reportSunsetWarnings();
+
+        expect(process.stdout.write).toHaveBeenCalledWith(
+          yellow(
+            `The "push" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
+          )
+        );
+      }
+    );
   });
 });
