@@ -1,0 +1,7 @@
+x-internal: true
+title: candy-cane
+type: object
+properties:
+  type:
+    type: string
+    enum: [candy-cane]
