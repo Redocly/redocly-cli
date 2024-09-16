@@ -446,7 +446,7 @@ function makeBundleVisitor(
 
   function saveComponent(
     componentType: string,
-    target: { node: any; location: Location },
+    target: { node: unknown; location: Location },
     ctx: UserContext
   ) {
     components[componentType] = components[componentType] || {};
@@ -464,8 +464,8 @@ function makeBundleVisitor(
   }
 
   function isEqualOrEqualRef(
-    node: any,
-    target: { node: any; location: Location },
+    node: unknown,
+    target: { node: unknown; location: Location },
     ctx: UserContext
   ) {
     if (
@@ -480,7 +480,7 @@ function makeBundleVisitor(
   }
 
   function getComponentName(
-    target: { node: any; location: Location },
+    target: { node: unknown; location: Location },
     componentType: string,
     ctx: UserContext
   ) {
