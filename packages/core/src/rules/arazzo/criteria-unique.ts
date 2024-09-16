@@ -5,7 +5,10 @@ export const CriteriaUnique: ArazzoRule = () => {
   return {
     FailureActionObject: {
       enter(action, { report, location }: UserContext) {
-        const criterias = action.criteria;
+        const criterias = action?.criteria;
+        if (!Array.isArray(criterias)) {
+          return;
+        }
         const seen = new Set<string>();
         for (const criteria of criterias) {
           const key = JSON.stringify(criteria);
@@ -22,7 +25,10 @@ export const CriteriaUnique: ArazzoRule = () => {
     },
     SuccessActionObject: {
       enter(action, { report, location }: UserContext) {
-        const criterias = action.criteria;
+        const criterias = action?.criteria;
+        if (!Array.isArray(criterias)) {
+          return;
+        }
         const seen = new Set<string>();
         for (const criteria of criterias) {
           const key = JSON.stringify(criteria);
@@ -39,11 +45,12 @@ export const CriteriaUnique: ArazzoRule = () => {
     },
     Step: {
       enter(step, { report, location }: UserContext) {
-        if (!step.successCriteria) {
+        const successCriterias = step?.successCriteria;
+
+        if (!Array.isArray(successCriterias)) {
           return;
         }
 
-        const successCriterias = step.successCriteria;
         const seen = new Set<string>();
 
         for (const criteria of successCriterias) {

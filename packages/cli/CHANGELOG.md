@@ -1,5 +1,40 @@
 # @redocly/cli
 
+## 1.25.2
+
+### Patch Changes
+
+- Fixed `camelCase` assertion for single-letter values.
+- Updated @redocly/openapi-core to v1.25.2.
+
+## 1.25.1
+
+### Patch Changes
+
+- Added additional checks to `criteria-unique` Arazzo rule.
+- Updated @redocly/openapi-core to v1.25.1.
+
+## 1.25.0
+
+### Minor Changes
+
+- Added a cache for resolved plugins to ensure that plugins are only instantiated once during a single execution.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.25.0.
+
+## 1.24.0
+
+### Minor Changes
+
+- Added Spot and Arazzo rules: `no-criteria-xpath`, `no-actions-type-end`, `criteria-unique`.
+
+### Patch Changes
+
+- Fixed an issue where custom rules were not applied to Arazzo descriptions.
+- Updated @redocly/openapi-core to v1.24.0.
+
 ## 1.23.1
 
 ### Patch Changes

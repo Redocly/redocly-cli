@@ -30,6 +30,7 @@ import type {
   BuiltInOAS3RuleId,
   BuiltInArazzoRuleId,
 } from '../types/redocly-yaml';
+import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -136,12 +137,27 @@ export type AssertionsConfig = Record<string, CustomFunction>;
 
 export type Plugin = {
   id: string;
+
   configs?: Record<string, PluginStyleguideConfig>;
   rules?: CustomRulesConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
   assertions?: AssertionsConfig;
+
+  // Realm properties
+  path?: string;
+  absolutePath?: string;
+  processContent?: (actions: any, content: any) => Promise<void> | void;
+  afterRoutesCreated?: (actions: any, content: any) => Promise<void> | void;
+  loaders?: Record<
+    string,
+    (path: string, context: any, reportError: (error: Error) => void) => Promise<unknown>
+  >;
+  requiredEntitlements?: string[];
+  ssoConfigSchema?: JSONSchema;
+  redoclyConfigSchema?: JSONSchema;
+  ejectIgnore?: string[];
 };
 
 type PluginCreatorOptions = {
