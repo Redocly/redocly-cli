@@ -363,22 +363,20 @@ export class ReuniteApi {
         }
       );
 
-      const updateVersionMessage = `Please update the version of Redocly CLI.`;
+      const updateVersionMessage = `Update to the latest version by running "npm install @redocly/cli@latest".`;
 
       if (isSunsetExpired) {
         process.stdout.write(
           red(
-            `Support for "${
-              this.command
-            }" command is deprecated after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
+            `The "${this.command}" command is not compatible with your version of Redocly CLI. ${updateVersionMessage}\n\n`
           )
         );
       } else {
         process.stdout.write(
           yellow(
-            `Support for "${
+            `The "${
               this.command
-            }" command is marked for deprecation after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
+            }" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
           )
         );
       }
