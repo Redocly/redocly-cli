@@ -9,7 +9,11 @@ const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   internalFlagProperty = DEFAULT_INTERNAL_PROPERTY_NAME,
 }) => {
-  function removeInternal(node: unknown, ctx: UserContext) {
+  function removeInternal(
+    node: unknown,
+    ctx: UserContext,
+    originalMapping: Record<string, string>
+  ) {
     const { parent, key } = ctx;
     let didDelete = false;
     if (Array.isArray(node)) {
@@ -20,7 +24,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
             // First, remove the reference in the discriminator mapping, if it exists:
             if (parent.discriminator?.mapping) {
               for (const mapping in parent.discriminator.mapping) {
-                if (parent.discriminator.mapping[mapping] === node[i].$ref) {
+                if (originalMapping?.[mapping] === node[i].$ref) {
                   delete parent.discriminator.mapping[mapping];
                 }
               }
@@ -57,10 +61,16 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
     }
   }
 
+  let originalMapping: Record<string, string> = {};
   return {
+    DiscriminatorMapping: {
+      enter: (mapping: Record<string, string>) => {
+        originalMapping = structuredClone(mapping);
+      },
+    },
     any: {
       enter: (node, ctx) => {
-        removeInternal(node, ctx);
+        removeInternal(node, ctx, originalMapping);
       },
     },
   };
