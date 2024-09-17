@@ -18,7 +18,7 @@ interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
 }
 type CommandOption = 'push' | 'push-status';
-export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean; warning: string };
+export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 
 export class ReuniteApiError extends Error {
@@ -51,26 +51,20 @@ class ReuniteApiClient implements BaseApiClient {
   private collectSunsetWarning(response: Response) {
     const sunsetTime = this.getSunsetDate(response);
 
-    if (!sunsetTime) return
-    
+    if (!sunsetTime) return;
+
     const sunsetDate = new Date(sunsetTime);
+
     if (sunsetTime > Date.now()) {
-        this.sunsetWarnings.push({
-          sunsetDate,
-          isSunsetExpired: false,
-          warning: `Endpoint ${
-            response.url
-          } is marked for removal after ${sunsetDate.toISOString()}`,
-        });
-      } else {
-        this.sunsetWarnings.push({
-          sunsetDate,
-          isSunsetExpired: true,
-          warning: `Endpoint ${
-            response.url
-          } support expired on ${sunsetDate.toISOString()} and will be removed.`,
-        };
-      })
+      this.sunsetWarnings.push({
+        sunsetDate,
+        isSunsetExpired: false,
+      });
+    } else {
+      this.sunsetWarnings.push({
+        sunsetDate,
+        isSunsetExpired: true,
+      });
     }
   }
 
@@ -82,7 +76,12 @@ class ReuniteApiClient implements BaseApiClient {
     }
 
     const sunsetDate = headers.get('sunset') || headers.get('Sunset');
-    return sunsetDate && Date.parse(sunsetDate)
+
+    if (!sunsetDate) {
+      return;
+    }
+
+    return Date.parse(sunsetDate);
   }
 }
 
