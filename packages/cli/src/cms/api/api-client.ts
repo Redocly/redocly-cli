@@ -335,33 +335,16 @@ export class ReuniteApi {
     if (sunsetWarnings.length) {
       const [{ isSunsetExpired, sunsetDate }] = sunsetWarnings.sort(
         (a: SunsetWarning, b: SunsetWarning) => {
-          if (a.isSunsetExpired && b.isSunsetExpired) {
-            if (a.sunsetDate > b.sunsetDate) {
-              // b will shutdown earlier
-              return 1;
-            } else {
-              return -1;
-            }
-          }
-
-          if (a.isSunsetExpired) {
-            // a should come before b because it is already expired
-            return -1;
-          }
-
-          if (b.isSunsetExpired) {
-            // b should come before a because it is already expired
-            return 1;
-          }
-
-          if (a.sunsetDate > b.sunsetDate) {
-            // b will shutdown earlier
-            return 1;
-          } else {
-            return -1;
-          }
+        // First, prioritize by expiration status
+        if (a.isSunsetExpired !== b.isSunsetExpired) {
+          return a.isSunsetExpired ? -1 : 1;
         }
-      );
+
+        // If both are either expired or not, sort by sunset date
+        return a.sunsetDate > b.sunsetDate ? 1 : -1;
+      }
+    );
+
 
       const updateVersionMessage = `Update to the latest version by running "npm install @redocly/cli@latest".`;
 
