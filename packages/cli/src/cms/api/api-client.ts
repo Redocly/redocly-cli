@@ -51,29 +51,26 @@ class ReuniteApiClient implements BaseApiClient {
   private collectSunsetWarning(response: Response) {
     const sunsetTime = this.getSunsetDate(response);
 
-    if (sunsetTime) {
-      const sunsetDate = new Date(sunsetTime);
-      let sunsetWarning: SunsetWarning;
-
-      if (sunsetTime > Date.now()) {
-        sunsetWarning = {
+    if (!sunsetTime) return
+    
+    const sunsetDate = new Date(sunsetTime);
+    if (sunsetTime > Date.now()) {
+        this.sunsetWarnings.push({
           sunsetDate,
           isSunsetExpired: false,
           warning: `Endpoint ${
             response.url
           } is marked for removal after ${sunsetDate.toISOString()}`,
-        };
+        });
       } else {
-        sunsetWarning = {
+        this.sunsetWarnings.push({
           sunsetDate,
           isSunsetExpired: true,
           warning: `Endpoint ${
             response.url
           } support expired on ${sunsetDate.toISOString()} and will be removed.`,
         };
-      }
-
-      this.sunsetWarnings.push(sunsetWarning);
+      })
     }
   }
 
