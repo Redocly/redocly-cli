@@ -403,5 +403,48 @@ describe('ApiClient', () => {
         );
       }
     );
+
+    it('should report only expired resource', async () => {
+      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue(upsertRemoteMock.responseBody),
+        headers: new Headers({
+          Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
+        }),
+      });
+
+      await upsertRemoteMock.requestFn();
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue(getDefaultBranchMock.responseBody),
+        headers: new Headers({
+          Sunset: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
+        }),
+      });
+
+      await getDefaultBranchMock.requestFn();
+
+      mockFetchResponse({
+        ok: true,
+        json: jest.fn().mockResolvedValue(pushMock.responseBody),
+        headers: new Headers({
+          Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
+        }),
+      });
+
+      await pushMock.requestFn();
+
+      apiClient.reportSunsetWarnings();
+
+      expect(process.stdout.write).toHaveBeenCalledTimes(1);
+      expect(process.stdout.write).toHaveBeenCalledWith(
+        red(
+          `The "push" command is not compatible with your version of Redocly CLI. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
+        )
+      );
+    });
   });
 });
