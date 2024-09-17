@@ -84,19 +84,8 @@ class ReuniteApiClient implements BaseApiClient {
       return;
     }
 
-    let sunsetDate = headers.get('sunset');
-
-    if (sunsetDate) {
-      return Date.parse(sunsetDate);
-    }
-
-    sunsetDate = headers.get('Sunset');
-
-    if (sunsetDate) {
-      return Date.parse(sunsetDate);
-    }
-
-    return;
+    const sunsetDate = headers.get('sunset') || headers.get('Sunset');
+    return sunsetDate && Date.parse(sunsetDate)
   }
 }
 
