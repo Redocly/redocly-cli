@@ -13,7 +13,7 @@ const SPACE_TO_BORDER = 4;
 
 const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
 const SHOULD_NOT_NOTIFY =
-  process.env.NODE_ENV === 'test' || process.env.CI || !!process.env.LAMBDA_TASK_ROOT;
+  process.env.NODE_ENV === 'test' || process.env.CI || !!process.env.LAMBDA_TASK_ROOT || process.env.REDOCLY_SUPPRESS_UPDATE_NOTICE === 'true';
 
 export const notifyUpdateCliVersion = () => {
   if (SHOULD_NOT_NOTIFY) {
