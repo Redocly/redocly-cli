@@ -2,7 +2,7 @@ import * as colors from 'colorette';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
-import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
+import { ReuniteApi, getApiKeys, getDomain } from '../api';
 import { capitalize } from '../../utils/js-utils';
 import { handleReuniteError, retryUntilConditionMet } from './utils';
 
@@ -68,7 +68,7 @@ export async function handlePushStatus({
 
   try {
     const apiKey = getApiKeys(domain);
-    const client = new ReuniteApiClient({ domain, apiKey, version, command: 'push-status' });
+    const client = new ReuniteApi({ domain, apiKey, version, command: 'push-status' });
 
     let pushResponse: PushResponse;
 
@@ -168,6 +168,8 @@ export async function handlePushStatus({
       printScorecard(pushResponse.status.production.scorecard);
     }
     printPushStatusInfo({ orgId, projectId, pushId, startedAt });
+
+    client.reportSunsetWarnings();
 
     const summary: PushStatusSummary = {
       preview: pushResponse.status.preview,
