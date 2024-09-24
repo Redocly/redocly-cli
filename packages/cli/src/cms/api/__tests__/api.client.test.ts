@@ -1,9 +1,7 @@
-import _fetch, { Response } from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import FormData from 'form-data';
 
 import { ReuniteApiClient, PushPayload } from '../api-client.js';
-
-const fetch = _fetch.default;
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),

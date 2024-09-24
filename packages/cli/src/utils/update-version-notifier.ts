@@ -40,7 +40,7 @@ const getLatestVersion = async (packageName: string): Promise<string | undefined
   const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
   const response = await fetch(latestUrl);
   if (!response) return;
-  const info = await response.json();
+  const info = await response.json() as { version: string | undefined};
   return info.version;
 };
 

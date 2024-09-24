@@ -44,7 +44,7 @@
     "js-yaml": "^4.1.0",
     "lodash.isequal": "^4.5.0",
     "minimatch": "^5.0.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.3.2",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
@@ -54,7 +54,6 @@
     "@types/lodash.isequal": "^4.5.5",
     "@types/minimatch": "^3.0.5",
     "@types/node": "^20.11.5",
-    "@types/node-fetch": "^2.5.7",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
     "typescript": "5.5.3"

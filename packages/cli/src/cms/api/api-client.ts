@@ -1,4 +1,4 @@
-import _fetch from 'node-fetch';
+import fetch from 'node-fetch';
 import FormData from 'form-data';
 import { getProxyAgent } from '@redocly/openapi-core';
 import fetchWithTimeout from '../../utils/fetch-with-timeout.js';
@@ -12,8 +12,6 @@ import type {
   UpsertRemoteResponse,
 } from './types.js';
 
-const fetch = _fetch.default;
-
 class RemotesApiClient {
   constructor(private readonly domain: string, private readonly apiKey: string) {}
 
@@ -24,7 +22,19 @@ class RemotesApiClient {
       return responseBody as T;
     }
 
-    throw new Error(responseBody.title || response.statusText);
+    let errorMessage = response.statusText;
+
+    // Type guard to check for title property
+    if (
+      typeof responseBody === 'object' &&
+      responseBody !== null &&
+      'title' in responseBody &&
+      typeof responseBody.title === 'string'
+    ) {
+      errorMessage = responseBody.title;
+    }
+
+    throw new Error(errorMessage);
   }
 
   async getDefaultBranch(organizationId: string, projectId: string) {

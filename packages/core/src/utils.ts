@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { extname } from 'path';
 import minimatch from 'minimatch';
-import _fetch from 'node-fetch';
+import fetch from 'node-fetch';
 import { parseYaml } from './js-yaml/index.js';
 import { env } from './env.js';
 import { logger, colorize } from './logger.js';
@@ -9,8 +9,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import type { HttpResolveConfig } from './config/index.js';
 import type { UserContext } from './walk.js';
-
-const fetch = _fetch.default;
 
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 

@@ -15,6 +15,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
+    "allowSyntheticDefaultImports": true,
     "lib": ["es2020", "es2020.string", "dom"],
     "sourceMap": true,
     "skipLibCheck": true

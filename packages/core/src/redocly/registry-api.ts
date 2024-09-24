@@ -1,7 +1,7 @@
-import _fetch from 'node-fetch';
+import fetch from 'node-fetch';
 import { getProxyAgent, isNotEmptyObject } from '../utils.js';
 import { getRedoclyDomain } from './domains.js';
-import packageJson from '../../package.json' with { type: 'json' };
+import packageJson from '../../package.json';
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
@@ -11,8 +11,6 @@ import type {
   PushApiParams,
 } from './registry-api-types.js';
 import type { AccessTokens, Region } from '../config/types.js';
-
-const fetch = _fetch.default
 
 const version = packageJson?.version;
 
@@ -57,7 +55,7 @@ export class RegistryApi {
     }
 
     if (response.status === 404) {
-      const body: NotFoundProblemResponse = await response.json();
+      const body = await response.json() as NotFoundProblemResponse;
       throw new Error(body.code);
     }
 
@@ -71,7 +69,7 @@ export class RegistryApi {
     try {
       const response = await this.request('', { headers: { authorization: accessToken } });
 
-      return await response.json();
+      return await response.json() as Promise<{ viewerId: string; organizations: string[] }>;
     } catch (error) {
       if (verbose) {
         console.log(error);
@@ -106,7 +104,7 @@ export class RegistryApi {
     );
 
     if (response.ok) {
-      return response.json();
+      return response.json() as Promise<PrepareFileuploadOKResponse>;
     }
 
     throw new Error('Could not prepare file upload');
