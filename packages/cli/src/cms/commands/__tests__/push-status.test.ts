@@ -17,8 +17,9 @@ jest.mock('colorette', () => ({
 
 jest.mock('../../api', () => ({
   ...jest.requireActual('../../api'),
-  ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
+  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
+    this.reportSunsetWarnings = jest.fn();
   }),
 }));
 
