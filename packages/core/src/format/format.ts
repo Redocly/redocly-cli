@@ -4,7 +4,7 @@ import { output } from '../output.js';
 import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import packageJson from '../../package.json' with { type: 'json' };
+import packageJson from '../../package.json' assert { type: 'json' };
 
 import type {
   NormalizedProblem,
