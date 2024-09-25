@@ -1,11 +1,15 @@
 import { outdent } from 'outdent';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
 import { resolveDocument, BaseResolver, Document } from '../resolve.js';
 import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { Oas3Types } from '../types/oas3.js';
 import { normalizeTypes } from '../types/index.js';
 import * as fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {

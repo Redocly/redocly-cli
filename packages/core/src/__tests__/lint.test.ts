@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { outdent } from 'outdent';
+import { fileURLToPath } from 'url';
 
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
@@ -8,6 +9,9 @@ import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__t
 import { detectSpec } from '../oas-types.js';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const testPortalConfig = parseYamlToDocument(
   outdent`

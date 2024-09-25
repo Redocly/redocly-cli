@@ -1,5 +1,7 @@
+import { jest } from '@jest/globals';
 import { outdent } from 'outdent';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
 import { bundleDocument, bundle, bundleFromString } from '../bundle.js';
 import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils.js';
@@ -11,6 +13,9 @@ import {
   loadConfig,
 } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const stringDocument = outdent`
   openapi: 3.0.0
