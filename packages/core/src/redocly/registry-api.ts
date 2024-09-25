@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { getProxyAgent, isNotEmptyObject } from '../utils.js';
 import { getRedoclyDomain } from './domains.js';
-import packageJson from '../../package.json';
+import packageJson from '../../package.json' with { type: 'json' };
 
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
