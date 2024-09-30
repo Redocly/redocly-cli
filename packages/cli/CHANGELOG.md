@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.25.4
+
+### Patch Changes
+
+- Added a warning message to the `push` and `push-status` commands to notify users about upcoming or ongoing resource deprecation.
+- Updated @redocly/openapi-core to v1.25.4.
+
 ## 1.25.3
 
 ### Patch Changes
