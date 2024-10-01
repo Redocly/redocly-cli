@@ -1,6 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
+import {
+  isRef,
+  joinPointer,
+  escapePointer,
+  parseRef,
+  isAbsoluteUrl,
+  isAnchor,
+  isRelativeReference,
+} from './ref-utils';
 import { isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
 
@@ -287,6 +295,14 @@ export async function resolveDocument(opts: {
           );
         }
         return;
+      }
+
+      // handle externalValue with relative reference in examples object
+      if (node.externalValue && isRelativeReference(node.externalValue)) {
+        node.value = {
+          $ref: node.externalValue,
+        }
+        delete node.externalValue;
       }
 
       for (const propName of Object.keys(node)) {
