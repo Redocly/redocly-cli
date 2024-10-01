@@ -301,7 +301,7 @@ export async function resolveDocument(opts: {
       if (node.externalValue && isRelativeReference(node.externalValue)) {
         node.value = {
           $ref: node.externalValue,
-        }
+        };
         delete node.externalValue;
       }
 

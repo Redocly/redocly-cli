@@ -17,7 +17,7 @@ paths:
   /:
     post:
       summary: Test request externalValue with relative reference in examples
-      requestBody: 
+      requestBody:
         content:
           application/xml:
             schema:
