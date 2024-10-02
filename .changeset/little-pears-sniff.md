@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed resolving `externalValue` with relative reference.
+Fixed an issue where the bundle command did not resolve relative links in `externalValue`.
