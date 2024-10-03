@@ -7,6 +7,7 @@ npm run webpack-bundle
 npm run pack:prepare
 
 cp ./redocly-cli.tgz ./openapi-core.tgz ./dist/bundle.js ./__tests__/smoke/
+cp ./redocly-cli.tgz ./openapi-core.tgz ./__tests__/smoke-plugins
 
 echo "Current directory:"
 pwd
