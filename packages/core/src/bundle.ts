@@ -382,6 +382,17 @@ function makeBundleVisitor(
     Example: {
       leave(node: any, ctx: UserContext) {
         if (node.externalValue && node.value === undefined) {
+          const resolved = ctx.resolve({ $ref: node.externalValue });
+
+          if (!resolved.location || resolved.node === undefined) {
+            reportUnresolvedRef(resolved, ctx.report, ctx.location);
+            return;
+          }
+
+          if (keepUrlRefs && isAbsoluteUrl(node.externalValue)) {
+            return;
+          }
+
           node.value = ctx.resolve({ $ref: node.externalValue }).node;
           delete node.externalValue;
         }

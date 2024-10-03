@@ -1,6 +1,8 @@
 apis:
-  main:
-    root: ./test.yaml
+  first:
+    root: ./test-success.yaml
+  second:
+    root: ./test-wrong-examples.yaml
 
 extends:
   - recommended

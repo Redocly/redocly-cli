@@ -23,6 +23,11 @@ paths:
             schema:
               type: object
             examples:
-              mergeRequest:
-                summary: Merge request example
+              test-resolved:
+                summary: Example should resolved to value
+                externalValue: './external-value.json'
+              test-no-resolved:
+                summary: Example shouldn't be resolved to value
+                value:
+                  type: object
                 externalValue: './external-value.json'
