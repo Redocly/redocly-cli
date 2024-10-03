@@ -553,7 +553,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
                       examples:
                         first:
-                          externalValue: "https://example.com/example.json"
+                          externalValue: ./fixtures/external-value.yaml
       `,
       'foobar.yaml'
     );
