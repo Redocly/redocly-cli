@@ -336,7 +336,7 @@ export async function resolveDocument(opts: {
         resolvePromises.push(promise);
       }
 
-      // handle externalValue with relative reference in examples object
+      // handle example.externalValue as reference
       if (node.externalValue) {
         const promise = followRef(
           rootNodeDocument,
