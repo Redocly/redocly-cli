@@ -289,14 +289,6 @@ export async function resolveDocument(opts: {
         return;
       }
 
-      // handle externalValue with relative reference in examples object
-      if (node.externalValue) {
-        node.value = {
-          $ref: node.externalValue,
-        };
-        delete node.externalValue;
-      }
-
       for (const propName of Object.keys(node)) {
         let propValue = node[propName];
         let propType = type.properties[propName];
@@ -332,6 +324,28 @@ export async function resolveDocument(opts: {
           prev: null,
           node,
         }).then((resolvedRef) => {
+          if (resolvedRef.resolved) {
+            resolveRefsInParallel(
+              resolvedRef.node,
+              resolvedRef.document,
+              resolvedRef.nodePointer!,
+              type
+            );
+          }
+        });
+        resolvePromises.push(promise);
+      }
+
+      // handle externalValue with relative reference in examples object
+      if (node.externalValue) {
+        const promise = followRef(
+          rootNodeDocument,
+          { $ref: node.externalValue },
+          {
+            prev: null,
+            node,
+          }
+        ).then((resolvedRef) => {
           if (resolvedRef.resolved) {
             resolveRefsInParallel(
               resolvedRef.node,

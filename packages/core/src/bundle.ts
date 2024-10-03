@@ -379,6 +379,14 @@ function makeBundleVisitor(
         }
       },
     },
+    Example: {
+      leave(node: any, ctx: UserContext) {
+        if (node.externalValue && node.value === undefined) {
+          node.value = ctx.resolve({ $ref: node.externalValue }).node;
+          delete node.externalValue;
+        }
+      },
+    },
     Root: {
       enter(root: any, ctx: any) {
         rootLocation = ctx.location;
