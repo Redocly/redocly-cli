@@ -23,7 +23,9 @@ jobs:
         run: bash ./scripts/prepare-smoke.sh
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: |
+            __tests__/smoke/
+            __tests__/smoke-plugins/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   run-smoke--npm--node-20:
