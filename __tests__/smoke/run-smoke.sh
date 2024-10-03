@@ -8,9 +8,6 @@ echo "Directory content:"
 ls -a
 echo
 
-# Install npm plugin
-npm i
-
 # Executing the command provided as the first argument 
 $1
 
