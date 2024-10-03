@@ -254,7 +254,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: __tests__/smoke-plugins/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -267,7 +267,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: __tests__/smoke-plugins/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -280,7 +280,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: __tests__/smoke-plugins/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -293,7 +293,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: __tests__/smoke-plugins/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
