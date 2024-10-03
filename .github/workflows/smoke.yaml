@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz -g" "npm run"
 
   run-smoke--npm--node-20--redoc:
     needs: prepare-smoke
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz -g" "npm run"
 
   run-smoke--npm--node-18--redoc:
     needs: prepare-smoke
@@ -89,7 +89,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz -g" "npm run"
 
   run-smoke--npm--node-16--redoc:
     needs: prepare-smoke
@@ -115,7 +115,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz -g" "npm run"
 
   run-smoke--npm--node-14--redoc:
     needs: prepare-smoke
@@ -211,7 +211,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz -g" "npm run"
 
   run-smoke--yarn--node-18--windows:
     needs: prepare-smoke

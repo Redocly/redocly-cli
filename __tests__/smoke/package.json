@@ -10,5 +10,8 @@
     "redocly-build-docs": "redocly build-docs openapi.yaml"
   },
   "author": "redocly",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@redocly/portal-plugin-async-api": "1.0.273"
+  }
 }
