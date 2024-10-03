@@ -12,10 +12,6 @@ export function isRef(node: any): node is OasRef {
   return node && typeof node.$ref === 'string';
 }
 
-export function isRelativeReference(value: any): boolean {
-  return !value.startsWith('http');
-}
-
 export class Location {
   constructor(public source: Source, public pointer: string) {}
 

@@ -7,7 +7,6 @@ import {
   parseRef,
   isAbsoluteUrl,
   isAnchor,
-  isRelativeReference,
 } from './ref-utils';
 import { isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
@@ -298,7 +297,7 @@ export async function resolveDocument(opts: {
       }
 
       // handle externalValue with relative reference in examples object
-      if (node.externalValue && isRelativeReference(node.externalValue)) {
+      if (node.externalValue) {
         node.value = {
           $ref: node.externalValue,
         };
