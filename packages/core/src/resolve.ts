@@ -1,13 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {
-  isRef,
-  joinPointer,
-  escapePointer,
-  parseRef,
-  isAbsoluteUrl,
-  isAnchor,
-} from './ref-utils';
+import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
 import { isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
 
