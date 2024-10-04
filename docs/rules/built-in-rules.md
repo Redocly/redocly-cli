@@ -13,9 +13,19 @@ The _Special rules_ group contains rules that may apply to multiple objects or t
 Build [configurable rules](./configurable-rules.md) if the rule you need isn't listed.
 {% /admonition %}
 
-## List of available rules
+## Per-format rules
 
-Details of all the rules available "out of the box" with Redocly CLI are listed below. Visit each individual page for details of what the rule does, additional configuration options, and examples of it in use.
+Redocly CLI can lint multiple API description formats:
+
+- [OpenAPI](#openapi-rules)
+- [AsyncAPI](#asyncapi-rules)
+- [Arazzo](#arazzo-rules)
+
+Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
+
+## OpenAPI rules
+
+The rules list is split into sections.
 
 ### Special rules
 
@@ -90,6 +100,37 @@ Details of all the rules available "out of the box" with Redocly CLI are listed 
 - [operation-tag-defined](./operation-tag-defined.md): Tags can only be used if they are defined at the top level
 - [tag-description](./tag-description.md): Tags must have descriptions
 - [tags-alphabetical](./tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
+
+## AsyncAPI rules
+
+- [no-channel-trailing-slash](./async/no-channel-trailing-slash.md)
+- [channels-kebab-case](./async/channels-kebab-case.md)
+
+## Arazzo rules
+
+Within the Arazzo family of rules, there are rules for the main Arazzo specification format, and some additional rules for extensions supported by Spot, the Redocly testing utility.
+
+### Arazzo
+
+- [parameters-unique](./arazzo/parameters-unique.md)
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md)
+- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md)
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
+- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [criteria-unique](./arazzo/criteria-unique.md)
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
+
+### Spot
+
+- [no-criteria-xpath](./spot/no-criteria-xpath.md)
+- [parameters-not-in-body](./spot/parameters-not-in-body.md)
+- [version-enum](./spot/version-enum.md)
+- [no-actions-type-end](./spot/no-actions-type-end.test.md)
+
+
 
 ## Rule configuration syntax
 
