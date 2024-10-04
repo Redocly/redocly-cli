@@ -56,4 +56,3 @@ There is also a `recommended-strict` version of `recommended`, which elevates al
 ## Ruleset template
 
 A copy/pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
-

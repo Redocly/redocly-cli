@@ -10,7 +10,7 @@ Requires the `in` section inside `parameters` must not contain a `body`.
 
 This is rule is specific to the Spot tool.
 `body` is not supported in the `in` section inside `parameters`.
-This affects parameter lists in: 
+This affects parameter lists in:
 
 - `workflows.[workflow].parameters`
 - `workflows.[workflow[.steps.[step].parameters`

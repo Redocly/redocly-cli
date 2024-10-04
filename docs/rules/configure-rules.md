@@ -15,14 +15,14 @@ The following example shows rules configured in `redocly.yaml` with short syntax
 ```yaml
 rules:
   operation-operationId: warn
-  
+
 ```
 
 Some rules support additional configuration options. The following example shows the more verbose format where the `severity` setting is added alongside other settings:
 
 ```yaml
 rules:
-  path-excludes-patterns: 
+  path-excludes-patterns:
     severity: error
     patterns:
       - ^\/fetch
@@ -35,14 +35,14 @@ Check the documentation for each rule to see if it supports additional configura
 
 To configure rules that are different for different API formats or versions of API formats, you can use the format/version-specific configuration keys as shown in the table below:
 
-| Configuration | Use for |
-|-------|-------|
-| `oas2Rules` | OpenAPI 2.x |
-| `oas3_0Rules` | OpenAPI 3.0 |
-| `oas3_1Rules` | OpenAPI 3.1 |
+| Configuration | Use for      |
+| ------------- | ------------ |
+| `oas2Rules`   | OpenAPI 2.x  |
+| `oas3_0Rules` | OpenAPI 3.0  |
+| `oas3_1Rules` | OpenAPI 3.1  |
 | `async2Rules` | AsyncAPI 2.6 |
 | `async3Rules` | AsyncAPI 3.0 |
-| `arazzoRules` | Arazzo 1.0 |
+| `arazzoRules` | Arazzo 1.0   |
 
 Using this approach is useful where you have different requirements for the different types of API description, but not necessarily every API. For example, you might choose to enable a very minimal set of rules for all formats, and add some additional restrictions for the OpenAPI 3.1 descriptions since those are expected to meet a higher standard.
 

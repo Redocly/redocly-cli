@@ -9,7 +9,7 @@ Requires unique values in the `parameters` lists.
 ## API design principles
 
 A list of `parameters` that are applicable to a step or all the steps described in a workflow should not contain duplicates.
-If duplicates are present, unexpected parameter overrides could cause problems. 
+If duplicates are present, unexpected parameter overrides could cause problems.
 
 Checks parameter lists in the following locations:
 

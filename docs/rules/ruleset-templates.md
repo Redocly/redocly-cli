@@ -187,6 +187,7 @@ oas2Rules:
   response-contains-property: off
   response-mime-type: off
 ```
+
 ### Minimal ruleset: AsyncAPI 3.0
 
 ```yaml
@@ -512,9 +513,3 @@ arazzoRules:
 - Learn about [API governance](../api-standards.md).
 - More information and examples for individual rules can be found in the [built-in rules documentation](./built-in-rules.md).
 - Add your own [configurable rules](./configurable-rules.md) if there's anything you need that isn't already provided as a built in rule.
-
-
-
-
-
-
