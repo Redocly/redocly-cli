@@ -1,0 +1,92 @@
+name: Smoke tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+jobs:
+  prepare-smoke-plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare Smoke
+        run: bash ./scripts/prepare-smoke-plugins.sh
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+
+  run-smoke-plugins--npm--node-22:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
+  run-smoke-plugins--npm--node-20:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
+  run-smoke-plugins--npm--node-18:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
+  run-smoke-plugins--npm--node-16:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
+  run-smoke-plugins--npm--node-14:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
