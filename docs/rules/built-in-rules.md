@@ -103,8 +103,11 @@ The rules list is split into sections.
 
 ## AsyncAPI rules
 
-- [no-channel-trailing-slash](./async/no-channel-trailing-slash.md)
-- [channels-kebab-case](./async/channels-kebab-case.md)
+Use the rules in this section for AsyncAPI-specific linting.
+Other rules such as the `spec` and `info.*` rules also apply to AsyncAPI.
+
+- [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
+- [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
 
 ## Arazzo rules
 
@@ -112,23 +115,23 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 
 ### Arazzo
 
-- [parameters-unique](./arazzo/parameters-unique.md)
-- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
-- [workflow-dependsOn](./arazzo/workflow-dependsOn.md)
-- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md)
-- [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
-- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md)
-- [stepId-unique](./arazzo/stepId-unique.md)
-- [criteria-unique](./arazzo/criteria-unique.md)
-- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
-- [workflowId-unique](./arazzo/workflowId-unique.md)
+- [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
+- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
+- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md): the items in the `workflow` `dependsOn` property must exist and be unique
+- [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
 
 ### Spot
 
-- [no-criteria-xpath](./spot/no-criteria-xpath.md)
-- [parameters-not-in-body](./spot/parameters-not-in-body.md)
-- [version-enum](./spot/version-enum.md)
-- [no-actions-type-end](./spot/no-actions-type-end.test.md)
+- [no-actions-type-end](./spot/no-actions-type-end.test.md): the `end` type action is not supported by Spot.
+- [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
+- [parameters-not-in-body](./spot/parameters-not-in-body.md): the `in` section inside `parameters` must not contain a `body`.
+- [version-enum](./spot/version-enum.md): the `version` property must be one of the supported values.
 
 
 
