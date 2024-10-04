@@ -75,6 +75,7 @@
           items:
             - page: rules/recommended.md
             - page: rules/minimal.md
+            - page: rules/ruleset-templates.md
         - group: Built-in rules
           page: rules/built-in-rules.md
           items:

@@ -37,3 +37,5 @@ Warnings:
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [tag-description](./tag-description.md)
 - [version-enum](./spot/version-enum.md)
+
+A copy/pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
