@@ -55,6 +55,7 @@ The rules list is split into sections.
 
 ### Parameters
 
+- [array-parameter-serialization](./array-parameter-serialization.md): Require `style` and `explode` for parameters with array type
 - [boolean-parameter-prefixes](./boolean-parameter-prefixes.md): All boolean paramater names start with a particular prefix (such as "is")
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md): Parameter examples must match declared schema types
 - [operation-parameters-unique](./operation-parameters-unique.md): No repeated parameter names within an operation
@@ -75,10 +76,12 @@ The rules list is split into sections.
 
 ### Requests, Responses, and Schemas
 
+- [component-name-unique](./component-name-unique.md): Check for schema-wide unqiue naming of parameters, schemas, request bodies and responses
 - [no-enum-type-mismatch](./no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./no-invalid-media-type-examples.md): Example request bodies must match the declared schema
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md): Schema examples must match declared types
+- [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md): All properties marked as required must be defined
 - [request-mime-type](./request-mime-type.md): Configure allowed mime types for requests
 - [response-mime-type](./response-mime-type.md): Configure allowed mime types for responses
 - [response-contains-header](./response-contains-header.md): List headers that must be included with specific response types
@@ -132,92 +135,6 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
 - [parameters-not-in-body](./spot/parameters-not-in-body.md): the `in` section inside `parameters` must not contain a `body`.
 - [version-enum](./spot/version-enum.md): the `version` property must be one of the supported values.
-
-
-
-## Configure rules in `redocly.yaml`
-
-To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
-
-The following example shows rules configured in `redocly.yaml` with short syntax using the format `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`:
-
-```yaml
-rules:
-  operation-operationId: warn
-  
-```
-
-Some rules support additional configuration options. The following example shows the more verbose format where the `severity` setting is added alongside other settings:
-
-```yaml
-rules:
-  path-excludes-patterns: 
-    severity: error
-    patterns:
-      - ^\/fetch
-      - ^\/v[0-9]
-```
-
-Check the documentation for each rule to see if it supports additional configuration.
-
-### Per-API configuration
-
-You can set different rules for different APIs by adding a `rules` object under each API in `apis`.
-
-```yaml
-rules:
-  operation-operationId: error
-
-apis:
-  museum:
-    root: ./apis/museum.yaml
-    rules:
-      info-license: warn
-  tickets@beta:
-    root: ./apis/tickets.yaml
-    rules:
-      info-license: error
-      operation-operationId-url-safe: error
-      operation-operationId-unique: error
-
-```
-
-Each API picks up the settings that relate to it and gets linted accordingly.
-
-### Per-format configuration
-
-To configure rules that are different for different API formats or versions of API formats, you can use the format/version-specific configuration keys as shown in the table below:
-
-| Configuration | Use for |
-|-------|-------|
-| `oas2Rules` | OpenAPI 2.x |
-| `oas3_0Rules` | OpenAPI 3.0 |
-| `oas3_1Rules` | OpenAPI 3.1 |
-| `async2Rules` | AsyncAPI 2.6 |
-| `async3Rules` | AsyncAPI 3.0 |
-| `arazzoRules` | Arazzo 1.0 |
-
-Using this approach is useful where you have different requirements for the different types of API description, but not necessarily every API. For example, you might choose to enable a very minimal set of rules for all formats, and add some additional restrictions for the OpenAPI 3.1 descriptions since those are expected to meet a higher standard.
-
-The following configuration file shows an example of a minimal ruleset configuration, with some rules adjusted (both increased in severity and disabled) for different OpenAPI description formats:
-
-```yaml
-extends:
- - minimal
-
-rules:
-  info-description: warn
-
-oas2Rules:
-  no-unresolved-refs: off
-
-oas3_1Rules:
-  info-license: error
-  no-ambiguous-paths: error
-  operation-operationId-unique: error
-```
-
-Use these settings alongside `rules` configuration to tune the linting for each API description format.
 
 ## Resources
 

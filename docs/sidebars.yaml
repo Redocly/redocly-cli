@@ -71,7 +71,10 @@
       page: api-standards.md
       items:
         - page: rules.md
-          label: Rules
+          group: Rules and rulesets
+          items:
+            - page: rules/recommended.md
+            - page: rules/minimal.md
         - group: Built-in rules
           page: rules/built-in-rules.md
           items:
@@ -127,6 +130,8 @@
             - page: rules/spec-strict-refs.md
             - page: rules/tag-description.md
             - page: rules/tags-alphabetical.md
+        - page: rules/configure-rules.md
+          label: Rule configuration
         - page: rules/configurable-rules.md
         - group: Decorators
           page: decorators.md
