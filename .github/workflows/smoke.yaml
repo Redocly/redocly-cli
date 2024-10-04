@@ -23,10 +23,51 @@ jobs:
         run: bash ./scripts/prepare-smoke.sh
       - uses: actions/cache@v3
         with:
-          path: |
-            __tests__/smoke/
-            __tests__/smoke-plugins/
+          path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  prepare-smoke-plugins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare Smoke
+        run: bash ./scripts/prepare-smoke.sh
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+
+  run-smoke--npm--node-22:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--npm--node-22--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-20:
     needs: prepare-smoke
@@ -131,6 +172,32 @@ jobs:
         with:
           node-version: 14
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-22:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+
+  run-smoke--yarn--node-22--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke
@@ -250,53 +317,66 @@ jobs:
             exit 1
           fi
 
-  run-smoke-plugins--npm--node-20:
-    needs: prepare-smoke
+  run-smoke-plugins--npm--node-22:
+    needs: prepare-smoke-plugins
     runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
+  run-smoke-plugins--npm--node-20:
+    needs: prepare-smoke-plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
 
   run-smoke-plugins--npm--node-18:
-    needs: prepare-smoke
+    needs: prepare-smoke-plugins
     runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 18
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
 
   run-smoke-plugins--npm--node-16:
-    needs: prepare-smoke
+    needs: prepare-smoke-plugins
     runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
 
   run-smoke-plugins--npm--node-14:
-    needs: prepare-smoke
+    needs: prepare-smoke-plugins
     runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 14
