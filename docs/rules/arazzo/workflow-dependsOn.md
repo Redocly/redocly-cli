@@ -2,7 +2,7 @@
 
 Requires the items in the `workflow` `dependsOn` property to exist and to be unique.
 
-| ARAZZO | Compatibility |
+| Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
