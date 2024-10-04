@@ -13,7 +13,7 @@ The _Special rules_ group contains rules that may apply to multiple objects or t
 Build [configurable rules](./configurable-rules.md) if the rule you need isn't listed.
 {% /admonition %}
 
-## Per-format rules
+## Rules for each API description format
 
 Redocly CLI can lint multiple API description formats:
 
@@ -132,43 +132,92 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 
 
 
-## Rule configuration syntax
+## Configure rules in `redocly.yaml`
 
 To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
 
-You can specify global settings in the top-level `rules` object, or use per-API settings by adding a `rules` object under each API in `apis`.
-
-You can format each entry in the `rules` object in one of the following ways:
-
-- Short syntax with single-line configuration `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`. You can't configure additional rule options with this syntax.
+The following example shows rules configured in `redocly.yaml` with short syntax using the format `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`:
 
 ```yaml
-apis:
-  main:
-    root: ./openapi/openapi.yaml
-    rules:
-      specific-api-rule: warn
 rules:
-  example-rule-name: error
+  operation-operationId: warn
+  
 ```
 
-- Verbose syntax, where you can configure additional options for rules that support them.
+Some rules support additional configuration options. The following example shows the more verbose format where the `severity` setting is added alongside other settings:
 
 ```yaml
-apis:
-  main:
-    root: ./openapi/openapi.yaml
-    rules:
-      specific-api-rule:
-        severity: warn
 rules:
-  example-rule-name:
+  path-excludes-patterns: 
     severity: error
-    rule-option-one: value
-    rule-option-two: value
+    patterns:
+      - ^\/fetch
+      - ^\/v[0-9]
 ```
 
-## Next steps
+Check the documentation for each rule to see if it supports additional configuration.
+
+### Per-API configuration
+
+You can set different rules for different APIs by adding a `rules` object under each API in `apis`.
+
+```yaml
+rules:
+  operation-operationId: error
+
+apis:
+  museum:
+    root: ./apis/museum.yaml
+    rules:
+      info-license: warn
+  tickets@beta:
+    root: ./apis/tickets.yaml
+    rules:
+      info-license: error
+      operation-operationId-url-safe: error
+      operation-operationId-unique: error
+
+```
+
+Each API picks up the settings that relate to it and gets linted accordingly.
+
+### Per-format configuration
+
+To configure rules that are different for different API formats or versions of API formats, you can use the format/version-specific configuration keys as shown in the table below:
+
+| Configuration | Use for |
+|-------|-------|
+| `oas2Rules` | OpenAPI 2.x |
+| `oas3_0Rules` | OpenAPI 3.0 |
+| `oas3_1Rules` | OpenAPI 3.1 |
+| `async2Rules` | AsyncAPI 2.6 |
+| `async3Rules` | AsyncAPI 3.0 |
+| `arazzoRules` | Arazzo 1.0 |
+
+Using this approach is useful where you have different requirements for the different types of API description, but not necessarily every API. For example, you might choose to enable a very minimal set of rules for all formats, and add some additional restrictions for the OpenAPI 3.1 descriptions since those are expected to meet a higher standard.
+
+The following configuration file shows an example of a minimal ruleset configuration, with some rules adjusted (both increased in severity and disabled) for different OpenAPI description formats:
+
+```yaml
+extends:
+ - minimal
+
+rules:
+  info-description: warn
+
+oas2Rules:
+  no-unresolved-refs: off
+
+oas3_1Rules:
+  info-license: error
+  no-ambiguous-paths: error
+  operation-operationId-unique: error
+```
+
+Use these settings alongside `rules` configuration to tune the linting for each API description format.
+
+## Resources
 
 - Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
+- Visit the [documentation on per-API configuration](../configuration/apis.md)
 - If you didn't find the rule you need, build a [configurable rule](./configurable-rules.md) for a perfect linting fit.
