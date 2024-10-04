@@ -139,8 +139,7 @@ export async function resolvePlugins(
         const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            // require.resolve(plugin, { paths: [configDir] });
-            require.resolve(plugin);
+            require.resolve(plugin, { paths: [configDir] });
 
         if (!pluginsCache.has(absolutePluginPath)) {
           let requiredPlugin: ImportedPlugin | undefined;

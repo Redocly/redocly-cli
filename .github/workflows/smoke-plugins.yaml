@@ -1,4 +1,4 @@
-name: Plugins smoke tests 
+name: Plugins smoke tests
 
 on:
   pull_request:
