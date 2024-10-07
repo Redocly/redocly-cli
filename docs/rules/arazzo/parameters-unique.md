@@ -63,8 +63,8 @@ workflows:
         name: Authorization
         value: Basic Og==
       - in: header
-        name: Auth
-        value: Main Og==
+        name: X-Forwarded-For
+        value: 1.2.3.4
 ```
 
 ## Resources
