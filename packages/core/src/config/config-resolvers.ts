@@ -40,9 +40,6 @@ import type { Document, ResolvedRefMap } from '../resolve';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
-// Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
-const _importDynamic = new Function('modulePath', 'return import(modulePath)');
-
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin> = new Map();
 
@@ -151,6 +148,8 @@ export async function resolvePlugins(
             // @ts-ignore
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
+            // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
+            const _importDynamic = new Function('modulePath', 'return import(modulePath)');
             // you can import both cjs and mjs
             const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
             requiredPlugin = mod.default || mod;
