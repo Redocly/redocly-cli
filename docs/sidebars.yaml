@@ -79,6 +79,8 @@
         - group: Built-in rules
           page: rules/built-in-rules.md
           items:
+            - separator: OpenAPI
+            - page: rules/array-parameter-serialization.md
             - page: rules/boolean-parameter-prefixes.md
             - page: rules/component-name-unique.md
             - page: rules/info-contact.md
@@ -131,6 +133,25 @@
             - page: rules/spec-strict-refs.md
             - page: rules/tag-description.md
             - page: rules/tags-alphabetical.md
+            - separator: AsyncAPI
+            - page: rules/async/channels-kebab-case.md
+            - page: rules/async/no-channel-trailing-slash.md
+            - separator: Arazzo
+            - page: rules/spot/no-actions-type-end.test.md
+            - page: rules/spot/no-criteria-xpath.md
+            - page: rules/spot/parameters-not-in-body.md
+            - page: rules/spot/version-enum.md
+            - page: rules/arazzo/criteria-unique.md
+            - page: rules/arazzo/parameters-unique.md
+            - page: rules/arazzo/requestBody-replacements-unique.md
+            - page: rules/arazzo/sourceDescriptions-name-unique.md
+            - page: rules/arazzo/sourceDescriptions-type.md
+            - page: rules/arazzo/stepId-unique.md
+            - page: rules/arazzo/step-onFailure-unique.md
+            - page: rules/arazzo/step-onSuccess-unique.md
+            - page: rules/arazzo/workflow-dependsOn.md
+            - page: rules/arazzo/workflowId-unique.md
+
         - page: rules/configure-rules.md
           label: Rule configuration
         - page: rules/configurable-rules.md

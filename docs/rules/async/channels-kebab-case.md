@@ -4,12 +4,12 @@ Channel address should be `kebab-case` (lowercase with hyphens).
 
 | AsyncAPI | Compatibility |
 | -------- | ------------- |
-| 2.0      | ✅            |
+| 2.6      | ✅            |
 | 3.0      | ✅            |
 
 ## API design principles
 
-Channel address should be `kebab-case` (lowercase with hyphens).
+Using consistent casing for the channel address provides a better developer experience and a more predictable experience overall.
 
 ## Configuration
 
@@ -37,21 +37,40 @@ Example of an **incorrect** channel:
 
 ```yaml
 channels:
-  channel1:
-    address: /NOT_A_KEBAB/
-    payload:
-      type: object
+  ticketSales:
+    address: transactions/ticketSales # channel address value checked by rule
+    messages:
+      ticketSaleTransaction:
+        $ref: '#/components/messages/ticketSaleTransaction'
 ```
 
 Example of a **correct** channel:
 
 ```yaml
 channels:
-  channel1:
-    address: kebab-with-longer-channel-path
-    payload:
-      type: object
+  ticketSales:
+    address: transactions/ticket-sales # channel address value checked by rule
+    messages:
+      ticketSaleTransaction:
+        $ref: '#/components/messages/ticketSaleTransaction'
 ```
+
+### Channel rules for AsyncAPI 2.6
+
+The syntax for how the channels are described changed with the AsyncAPI 3.0 release.
+
+If you still AsyncAPI 2.6, this rule works, and checks the channel address used as the key of the `channels` object.
+For example, the rule would catch this example where `transactions/ticketSales` is used as a channel name:
+
+```yaml
+channels:
+  transactions/ticketSales: # channel address value checked by rule
+    subscribe:
+      message:
+        $ref: '#/components/messages/ticketSaleTransaction'
+```
+
+Change the channel name to `transactions/ticket-sales` to comply with this rule.
 
 ## Resources
 
