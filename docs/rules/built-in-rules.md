@@ -4,7 +4,7 @@ slug: /docs/cli/rules/built-in-rules
 
 # Built-in rules
 
-The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](#rule-configuration-syntax), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
+The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](./configure-rules.md), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
 
 All the built-in rules are listed here, roughly grouped by the OpenAPI object they apply to.
 The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
