@@ -26,6 +26,32 @@ jobs:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
+  run-smoke--npm--node-22:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--npm--node-22--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
   run-smoke--npm--node-20:
     needs: prepare-smoke
     runs-on: ubuntu-latest
@@ -129,6 +155,32 @@ jobs:
         with:
           node-version: 14
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-22:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+
+  run-smoke--yarn--node-22--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke

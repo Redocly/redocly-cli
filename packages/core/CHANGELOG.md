@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.25.5
+
+### Patch Changes
+
+- Fixed an issue where the bundle command did not resolve links in `externalValue`.
+- Fixed an issue where the plugins in external NPM packages could not be resolved if the CLI package was installed globally.
+
 ## 1.25.4
 
 ### Patch Changes

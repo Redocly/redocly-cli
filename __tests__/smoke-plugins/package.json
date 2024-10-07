@@ -1,0 +1,10 @@
+{
+  "name": "test-project-smoke-plugins",
+  "scripts": {
+    "redocly-version": "redocly --version",
+    "redocly-lint": "redocly lint openapi.yaml"
+  },
+  "dependencies": {
+    "@redocly/portal-plugin-async-api": "1.0.273"
+  }
+}
