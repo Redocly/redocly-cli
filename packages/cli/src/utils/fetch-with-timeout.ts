@@ -1,7 +1,5 @@
-import { fetch, type Dispatcher } from 'undici';
+import { fetch, type Dispatcher, type RequestInit } from 'undici';
 import { getProxyAgent} from '@redocly/openapi-core';
-
-import type { RequestInit } from 'undici';
 
 export const DEFAULT_FETCH_TIMEOUT = 3000;
 
