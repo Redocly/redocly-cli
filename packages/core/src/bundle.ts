@@ -399,7 +399,7 @@ function makeBundleVisitor(
       },
     },
     Root: {
-      enter(root: any, ctx: any) {
+      enter(root: any, ctx: UserContext) {
         rootLocation = ctx.location;
         if (version === SpecMajorVersion.OAS3) {
           components = root.components = root.components || {};
@@ -418,7 +418,7 @@ function makeBundleVisitor(
 
   if (version === SpecMajorVersion.OAS3) {
     visitor.DiscriminatorMapping = {
-      leave(mapping: Record<string, string>, ctx: any) {
+      leave(mapping: Record<string, string>, ctx: UserContext) {
         for (const name of Object.keys(mapping)) {
           const $ref = mapping[name];
           const resolved = ctx.resolve({ $ref });
@@ -451,7 +451,7 @@ function makeBundleVisitor(
 
   function saveComponent(
     componentType: string,
-    target: { node: any; location: Location },
+    target: { node: unknown; location: Location },
     ctx: UserContext
   ) {
     components[componentType] = components[componentType] || {};
@@ -467,8 +467,8 @@ function makeBundleVisitor(
   }
 
   function isEqualOrEqualRef(
-    node: any,
-    target: { node: any; location: Location },
+    node: unknown,
+    target: { node: unknown; location: Location },
     ctx: UserContext
   ) {
     if (
@@ -483,7 +483,7 @@ function makeBundleVisitor(
   }
 
   function getComponentName(
-    target: { node: any; location: Location },
+    target: { node: unknown; location: Location },
     componentType: string,
     ctx: UserContext
   ) {
