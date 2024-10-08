@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Dispatcher, fetch } from 'undici';
+import { type Dispatcher, fetch } from 'undici';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
