@@ -1,15 +1,30 @@
 import * as fs from 'fs';
 import { extname } from 'path';
 import * as minimatch from 'minimatch';
-import fetch from 'node-fetch';
 import { parseYaml } from './js-yaml';
 import { env } from './env';
 import { logger, colorize } from './logger';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as pluralizeOne from 'pluralize';
 
 import type { HttpResolveConfig } from './config';
 import type { UserContext } from './walk';
+
+let fetch: ((input: RequestInfo | URL, init?: RequestInit) => Promise<Response>) & {
+    (input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+    (input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response>;
+  },
+  ProxyAgent: (new (arg0: string) => any) | null;
+
+if (typeof window === 'undefined') {
+  // Node.js environment
+  const undici = require('undici');
+  fetch = undici.fetch;
+  ProxyAgent = undici.ProxyAgent;
+} else {
+  // Browser environment
+  fetch = window.fetch;
+  ProxyAgent = null; // No need for ProxyAgent in the browser
+}
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -290,7 +305,7 @@ function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
 
 export function getProxyAgent() {
   const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-  return proxy ? new HttpsProxyAgent(proxy) : undefined;
+  return proxy && ProxyAgent ? new ProxyAgent(proxy) : undefined;
 }
 
 /**

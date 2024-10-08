@@ -5,7 +5,7 @@ import fetchWithTimeout, {
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
 
-import type { Response } from 'node-fetch';
+import type { Response } from 'undici';
 import type { ReadStream } from 'fs';
 import type {
   ListRemotesResponse,
@@ -100,7 +100,7 @@ class RemotesApi {
     }
 
     throw new ReuniteApiError(
-      `${responseBody.title || response.statusText || 'Unknown error'}.`,
+      `${(responseBody as any).title || response.statusText || 'Unknown error'}.`,
       response.status
     );
   }

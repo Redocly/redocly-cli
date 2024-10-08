@@ -6,8 +6,8 @@ import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
 
 jest.mock('fs');
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
+jest.mock('undici', () => ({
+  fetch: jest.fn(() => ({
     ok: true,
     json: jest.fn().mockResolvedValue({}),
   })),

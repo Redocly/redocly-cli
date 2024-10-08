@@ -1,8 +1,8 @@
 import { setRedoclyDomain } from '../domains';
 import { RedoclyClient } from '../index';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
+jest.mock('undici', () => ({
+  fetch: jest.fn(() => ({
     ok: true,
     json: jest.fn().mockResolvedValue({}),
   })),

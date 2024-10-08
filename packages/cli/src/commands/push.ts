@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch from 'node-fetch';
+import { fetch } from 'undici';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -451,6 +451,6 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       'Content-Length': fileSizeInBytes.toString(),
     },
     body: readStream,
-    agent: getProxyAgent(),
+    dispatcher: getProxyAgent(),
   });
 }

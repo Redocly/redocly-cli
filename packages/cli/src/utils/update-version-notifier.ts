@@ -37,7 +37,7 @@ const getLatestVersion = async (packageName: string): Promise<string | undefined
 
   try {
     const response = await fetch(latestUrl, { timeout: DEFAULT_FETCH_TIMEOUT });
-    const info = await response.json();
+    const info = (await response.json()) as { version: string };
 
     return info.version;
   } catch {

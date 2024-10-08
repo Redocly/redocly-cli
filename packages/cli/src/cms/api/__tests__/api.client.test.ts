@@ -1,12 +1,10 @@
-import fetch, { Response } from 'node-fetch';
+import { fetch, type Response } from 'undici';
 import * as FormData from 'form-data';
 import { red, yellow } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(),
-}));
+jest.mock('undici');
 
 function mockFetchResponse(response: any) {
   (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response as unknown as Response);
