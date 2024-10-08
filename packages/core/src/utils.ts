@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { extname } from 'path';
 import * as minimatch from 'minimatch';
 import { parseYaml } from './js-yaml';
-import { env } from './env';
+import { env, isBrowser } from './env';
 import { logger, colorize } from './logger';
 import * as pluralizeOne from 'pluralize';
 
@@ -15,7 +15,7 @@ let fetch: ((input: RequestInfo | URL, init?: RequestInit) => Promise<Response>)
   },
   ProxyAgent: (new (arg0: string) => any) | null;
 
-if (typeof window === 'undefined') {
+if (!isBrowser) {
   // Node.js environment
   const undici = require('undici');
   fetch = undici.fetch;
