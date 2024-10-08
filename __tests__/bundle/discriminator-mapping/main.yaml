@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info: {}
+paths:
+  /test:
+    get:
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: object
+                discriminator:
+                  propertyName: discriminatedProp
+                  mapping:
+                    Foo: ./foo.yaml
+                    Bar: ./bar.yaml
+                oneOf:
+                  - $ref: ./foo.yaml
+                  - $ref: ./bar.yaml
