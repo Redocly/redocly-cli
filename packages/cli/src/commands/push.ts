@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { fetch } from 'undici';
+import { Dispatcher, fetch } from 'undici';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -436,6 +436,21 @@ export function getApiRoot({
   return api?.root;
 }
 
+/**
+ * Uploads a file or buffer to an S3-compatible service using a PUT request.
+ *
+ * @param url - The URL to which the file or buffer will be uploaded.
+ * @param filePathOrBuffer - The file path as a string or the buffer to be uploaded.
+ * @returns A promise that resolves to the response of the fetch request.
+ *
+ * @remarks
+ * The function determines the size of the file or buffer and sets the appropriate
+ * 'Content-Length' header. It also uses a proxy agent for the request.
+ *
+ * @throws Will throw an error if the file path is invalid or if the fetch request fails.
+ *
+ * @see Dispatcher - The type for the dispatcher can be found in the 'undici' library.
+ */
 function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const fileSizeInBytes =
     typeof filePathOrBuffer === 'string'
@@ -451,6 +466,6 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       'Content-Length': fileSizeInBytes.toString(),
     },
     body: readStream,
-    dispatcher: getProxyAgent(),
+    dispatcher: getProxyAgent() as unknown as Dispatcher,
   });
 }

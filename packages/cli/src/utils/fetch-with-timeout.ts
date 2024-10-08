@@ -1,5 +1,5 @@
-import { fetch } from 'undici';
-import { getProxyAgent } from '@redocly/openapi-core';
+import { fetch, Dispatcher } from 'undici';
+import { getProxyAgent} from '@redocly/openapi-core';
 
 import type { RequestInit } from 'undici';
 
@@ -13,7 +13,7 @@ export default async (url: string, { timeout, ...options }: FetchWithTimeoutOpti
   if (!timeout) {
     return fetch(url, {
       ...options,
-      dispatcher: getProxyAgent(),
+      dispatcher: getProxyAgent() as unknown as Dispatcher,
     });
   }
 
@@ -25,7 +25,7 @@ export default async (url: string, { timeout, ...options }: FetchWithTimeoutOpti
   const res = await fetch(url, {
     signal: controller.signal,
     ...options,
-    dispatcher: getProxyAgent(),
+    dispatcher: getProxyAgent()as unknown as Dispatcher,
   });
 
   clearTimeout(timeoutId);
