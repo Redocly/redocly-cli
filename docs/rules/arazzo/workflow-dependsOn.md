@@ -9,7 +9,7 @@ Requires the items in the `workflow` `dependsOn` property to exist and to be uni
 ## API design principles
 
 A list of workflows that should be completed before current workflow can be processed.
-To avoid ambiguity or potential clashes, the `dependsOn` property should be unique.
+To avoid ambiguity or potential clashes, the `dependsOn` list values should be unique.
 
 ## Configuration
 
@@ -30,12 +30,12 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  stepId-unique: error
+  workflow-dependsOn: error
 ```
 
-Example of an **incorrect** `dependsOn` array:
+Example of an **incorrect** `dependsOn` list:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
     - workflowId: get-museum-hours
       description: This workflow demonstrates how to get the museum opening hours and buy tickets.
@@ -45,9 +45,9 @@ workflows:
         - get-museum-hours-2
 ```
 
-Example of a **correct** `dependsOn` array:
+Example of a **correct** `dependsOn` list:
 
-```yaml Object example
+```yaml Correct example
 workflows:
     - workflowId: get-museum-hours
       description: This workflow demonstrates how to get the museum opening hours and buy tickets.

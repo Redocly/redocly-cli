@@ -39,9 +39,9 @@ arazzoRules:
   parameters-unique: error
 ```
 
-Example of an **incorrect** parameters array:
+Example of an **incorrect** `parameters` list:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
   - workflowId: get-museum-hours
     parameters:
@@ -53,9 +53,9 @@ workflows:
         value: Basic Og==
 ```
 
-Example of a **correct** parameters array:
+Example of a **correct** `parameters` list:
 
-```yaml Object example
+```yaml Correct example
 workflows:
   - workflowId: get-museum-hours
     parameters:

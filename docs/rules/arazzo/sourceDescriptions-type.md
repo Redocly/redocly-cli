@@ -1,6 +1,6 @@
-# sourceDescription-type
+# sourceDescriptions-type
 
-The `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
+The `type` property of the Source Description object must be either `openapi` or `arazzo`.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -8,7 +8,7 @@ The `type` property of the `sourceDescription` object must be either `openapi` o
 
 ## API design principles
 
-By the Arazzo standard the possible values for `sourceDescription.type` are "openapi" or "arazzo".
+According to the Arazzo spec, the possible values of the Source Description `type` are `openapi` or `arazzo`.
 
 ## Configuration
 
@@ -20,7 +20,7 @@ An example configuration:
 
 ```yaml
 arazzoRules:
-  sourceDescription-type: error
+  sourceDescriptions-type: error
 ```
 
 ## Examples
@@ -29,12 +29,12 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  sourceDescription-type: error
+  sourceDescriptions-type: error
 ```
 
-Example of an **incorrect** sourceDescriptions array:
+Example of an **incorrect** `sourceDescriptions` list:
 
-```yaml Object example
+```yaml Incorrect example
 sourceDescriptions:
   - name: museum-api
     type: openapi
@@ -44,9 +44,9 @@ sourceDescriptions:
     x-serverUrl: 'http://localhost/api'
 ```
 
-Example of a **correct** sourceDescriptions array:
+Example of a **correct** `sourceDescriptions` list:
 
-```yaml Object example
+```yaml Correct example
 sourceDescriptions:
   - name: museum-api
     type: openapi

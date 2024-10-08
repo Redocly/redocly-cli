@@ -8,8 +8,8 @@ Requires the `workflowId` property to be unique across all workflows.
 
 ## API design principles
 
-Unique string to represent the workflow.
-The `workflowId` must be unique across all workflows described in the API definition.
+The `workflowId` is a string that represents the workflow.
+According to the spec, the `workflowId` must be unique across all workflows described in the API definition.
 
 ## Configuration
 
@@ -33,9 +33,9 @@ arazzoRules:
   workflowId-unique: error
 ```
 
-Example of an **incorrect** `workflows` array:
+Example of an **incorrect** `workflows` list:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
   - workflowId: get-museum-hours
     steps:
@@ -51,9 +51,9 @@ workflows:
           - condition: $statusCode == 200
 ```
 
-Example of a **correct** `workflows` array:
+Example of a **correct** `workflows` list:
 
-```yaml Object example
+```yaml Correct example
 workflows:
   - workflowId: get-museum-hours
     steps:

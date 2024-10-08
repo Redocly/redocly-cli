@@ -32,9 +32,9 @@ arazzoRules:
   requestBody-replacements-unique: error
 ```
 
-Example of an **incorrect** replacements array:
+Example of an **incorrect** `replacements` list:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
   - workflowId: events-crud
     steps:
@@ -51,9 +51,9 @@ workflows:
               value: 'another name'
 ```
 
-Example of a **correct** replacements array:
+Example of a **correct** `replacements` list:
 
-```yaml Object example
+```yaml Correct example
 workflows:
   - workflowId: events-crud
     steps:

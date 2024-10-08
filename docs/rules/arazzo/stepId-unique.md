@@ -8,7 +8,7 @@ Requires the `stepId` to be unique amongst all steps described in the workflow.
 
 ## API design principles
 
-Unique string to represent the step.
+The `stepId` is a unique string that represents the step.
 The `stepId` must be unique amongst all steps described in the workflow.
 The `stepId` value is case-sensitive.
 
@@ -34,9 +34,9 @@ arazzoRules:
   stepId-unique: error
 ```
 
-Example of an **incorrect** step:
+Example of an **incorrect** `stepId`:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
   - workflowId: get-museum-hours-2
     description: This workflow demonstrates how to get the museum opening hours and buy tickets.
@@ -51,9 +51,9 @@ workflows:
           - condition: $statusCode == 200
 ```
 
-Example of a **correct** step:
+Example of a **correct** `stepId`:
 
-```yaml Object example
+```yaml Correct example
 workflows:
   - workflowId: get-museum-hours-2
     description: This workflow demonstrates how to get the museum opening hours and buy tickets.

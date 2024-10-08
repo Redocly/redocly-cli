@@ -8,7 +8,6 @@ Requires the `onSuccess` actions of the `step` object to be unique.
 
 ## API design principles
 
-An array of success action objects that specify what to do upon step success.
 Each `onSuccess` action should be unique to avoid confusion or unexpected outcomes.
 
 ## Configuration
@@ -33,9 +32,9 @@ arazzoRules:
   step-onSuccess-unique: error
 ```
 
-Example of an **incorrect** step:
+Example of an **incorrect** `onSuccess` list:
 
-```yaml Object example
+```yaml Incorrect example
 workflows:
 - workflowId: get-museum-hours
   description: This workflow demonstrates how to get the museum opening hours and buy tickets.
@@ -55,9 +54,9 @@ workflows:
         - reference: $components.successActions.notify
 ```
 
-Example of a **correct** step:
+Example of a **correct** `onSuccess` list:
 
-```yaml Object example
+```yaml Correct example
 workflows:
 - workflowId: get-museum-hours
   description: This workflow demonstrates how to get the museum opening hours and buy tickets.
