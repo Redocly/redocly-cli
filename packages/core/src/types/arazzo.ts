@@ -145,7 +145,6 @@ const Step: NodeType = {
     outputs: 'Outputs',
     'x-inherit': { enum: ['auto', 'none'] },
     'x-expect': 'ExpectSchema',
-    'x-assert': { type: 'string' },
     'x-operation': 'ExtendedOperation',
     requestBody: 'RequestBody',
   },

@@ -115,7 +115,6 @@ export interface Step {
   };
   'x-inherit'?: 'auto' | 'none';
   'x-expect'?: ExpectSchema;
-  'x-assert'?: string;
   'x-operation'?: ExtendedOperation;
   requestBody?: RequestBody;
 }
