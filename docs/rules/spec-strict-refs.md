@@ -36,7 +36,7 @@ The following is a list of elements the `$ref` can be used with according to the
 ## Configuration
 
 To configure the rule, add it to the `rules` object in your configuration file, and
-set the desired [severity](/docs/cli/rules.md#severity-settings).
+set the desired [severity](../rules.md#severity-settings).
 
 | Option   | Type   | Description                                                                              |
 | -------- | ------ | ---------------------------------------------------------------------------------------- |

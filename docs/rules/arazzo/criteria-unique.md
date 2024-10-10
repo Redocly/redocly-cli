@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/arazzo/criteria-unique
----
-
 # criteria-unique
 
 The criteria list must not contain duplicated assertions.
