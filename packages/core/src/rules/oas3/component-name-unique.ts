@@ -133,7 +133,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     const entry: ComponentsMapValue = components.get(key) ?? {
       absolutePointers: new Set(),
       locations: []
-    } satisfies ComponentsMapValue;
+    };
     const absoluteLocation = location.absolutePointer.toString();
     if (!entry.absolutePointers.has(absoluteLocation)) {
       entry.absolutePointers.add(absoluteLocation);
