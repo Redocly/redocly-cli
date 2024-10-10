@@ -60,14 +60,11 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const definitions = Array.from(value.absolutePointers).join(', ');
-
             const problem: Problem = {
               message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at: ${definitions}`,
             };
             problem.location = {
-            ...value.locations[0],
-              //   reportOnKey:
-              // error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
+              ...value.locations.sort((a, b)=> a.absolutePointer.localeCompare(b.absolutePointer))[0],
             };
 
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
