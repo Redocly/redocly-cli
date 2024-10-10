@@ -64,7 +64,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at: ${definitions}`,
             };
             problem.location = {
-              ...value.locations.sort((a, b)=> a.absolutePointer.localeCompare(b.absolutePointer))[0],
+              ...value.locations.sort((a, b) => a.absolutePointer.localeCompare(b.absolutePointer))[0],
             };
 
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
