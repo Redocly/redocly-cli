@@ -6,7 +6,7 @@ import { Arguments } from 'yargs';
 import { handlePush, PushOptions } from '../commands/push';
 import { detectSpec } from '@redocly/openapi-core';
 
-jest.mock('node-fetch');
+jest.mock('undici');
 jest.mock('../utils/miscellaneous', () => ({
   sendTelemetry: jest.fn(),
   loadConfigAndHandleErrors: jest.fn(),

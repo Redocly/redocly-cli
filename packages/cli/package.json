@@ -8,7 +8,7 @@
     "redocly": "bin/cli.js"
   },
   "engines": {
-    "node": ">=14.19.0",
+    "node": ">=18.17.0",
     "npm": ">=7.0.0"
   },
   "engineStrict": true,
@@ -37,7 +37,6 @@
   ],
   "dependencies": {
     "@redocly/openapi-core": "1.25.5",
-    "abort-controller": "^3.0.0",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "core-js": "^3.32.1",
@@ -46,7 +45,6 @@
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
     "mobx": "^6.0.4",
-    "node-fetch": "^2.6.1",
     "pluralize": "^8.0.0",
     "react": "^17.0.0 || ^18.2.0",
     "react-dom": "^17.0.0 || ^18.2.0",
@@ -54,6 +52,7 @@
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
     "styled-components": "^6.0.7",
+    "undici": "^6.19.8",
     "yargs": "17.0.1"
   },
   "devDependencies": {

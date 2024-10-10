@@ -34,6 +34,9 @@ module.exports = {
     fallback: {
       fs: false,
     },
+    alias: {
+      undici: process.env.BROWSER ? false : 'undici', // Replace 'undici' with false in browser builds
+    },
   },
 
   node: {
