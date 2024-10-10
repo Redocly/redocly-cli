@@ -1,4 +1,4 @@
-import type { Location } from "../../ref-utils";
+import type { Location } from '../../ref-utils';
 import type { Problem, UserContext } from '../../walk';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
 import type {
@@ -22,7 +22,7 @@ const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
   [TYPE_NAME_REQUEST_BODY]: 'requestBodies',
 };
 
-type ComponentsMapValue = { absolutePointers: Set<string>, locations: Location[] };
+type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[] };
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, ComponentsMapValue>();
@@ -64,7 +64,9 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at: ${definitions}`,
             };
             problem.location = {
-              ...value.locations.sort((a, b) => a.absolutePointer.localeCompare(b.absolutePointer))[0],
+              ...value.locations.sort((a, b) =>
+                a.absolutePointer.localeCompare(b.absolutePointer)
+              )[0],
             };
 
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
@@ -124,15 +126,11 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     return componentName;
   }
 
-  function addFoundComponent(
-    typeName: string,
-    componentName: string,
-    location: Location
-  ): void {
+  function addFoundComponent(typeName: string, componentName: string, location: Location): void {
     const key = getKeyForComponent(typeName, componentName);
     const entry: ComponentsMapValue = components.get(key) ?? {
       absolutePointers: new Set(),
-      locations: []
+      locations: [],
     };
     const absoluteLocation = location.absolutePointer.toString();
     if (!entry.absolutePointers.has(absoluteLocation)) {
