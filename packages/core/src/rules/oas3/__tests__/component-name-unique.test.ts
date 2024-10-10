@@ -44,7 +44,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/schemas/SomeSchema",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -99,7 +99,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/schemas/SomeSchema",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -202,7 +202,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/parameters/ParameterOne",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -261,7 +261,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/parameters/ParameterOne",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -378,7 +378,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/responses/SuccessResponse",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -444,7 +444,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/responses/SuccessResponse",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -565,7 +565,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/requestBodies/MyRequestBody",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -632,7 +632,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/requestBodies/MyRequestBody",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -761,7 +761,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/requestBodies/MyRequestBody",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -776,7 +776,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/schemas/SomeSchema",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
@@ -804,7 +804,7 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/components/requestBodies/MyRequestBody",
                 "reportOnKey": false,
                 "source": "/foobar.yaml",
               },
