@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.25.6
+
+### Patch Changes
+
+- Removed support of the `x-assert` extension for Arazzo.
+
 ## 1.25.5
 
 ### Patch Changes
