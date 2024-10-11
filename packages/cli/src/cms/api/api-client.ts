@@ -5,7 +5,6 @@ import fetchWithTimeout, {
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
 
-import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
 import type {
   ListRemotesResponse,
@@ -196,6 +195,7 @@ class RemotesApi {
     }
 
     payload.isMainBranch && formData.append('isMainBranch', 'true');
+
     try {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
@@ -204,7 +204,7 @@ class RemotesApi {
           headers: {
             Authorization: `Bearer ${this.apiKey}`,
           },
-          body: formData,
+          body: formData as any,
         }
       );
 

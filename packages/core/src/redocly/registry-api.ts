@@ -1,8 +1,6 @@
-import fetch from 'node-fetch';
 import { getProxyAgent, isNotEmptyObject } from '../utils';
 import { getRedoclyDomain } from './domains';
 
-import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
   NotFoundProblemResponse,
   PrepareFileuploadOKResponse,

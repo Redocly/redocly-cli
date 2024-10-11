@@ -1,16 +1,7 @@
-import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
 import { red, yellow } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
-
-jest.mock('node-fetch', () => ({
-  default: jest.fn(),
-}));
-
-function mockFetchResponse(response: any) {
-  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response as unknown as Response);
-}
 
 describe('ApiClient', () => {
   const testToken = 'test-token';
@@ -20,6 +11,22 @@ describe('ApiClient', () => {
   const version = '1.0.0';
   const command = 'push';
   const expectedUserAgent = `redocly-cli/${version} ${command}`;
+
+  beforeAll(() => {
+    // Initialize fetch as a mock function
+    global.fetch = jest.fn();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks(); // Restore original fetch after tests
+  });
+
+  // Function to mock fetch responses
+  function mockFetchResponse(response: Response | Promise<Response>) {
+    (global.fetch as jest.MockedFunction<typeof fetch>).mockImplementation(() =>
+      Promise.resolve(response)
+    );
+  }
 
   describe('getDefaultBranch()', () => {
     let apiClient: ReuniteApi;
@@ -34,7 +41,7 @@ describe('ApiClient', () => {
         json: jest.fn().mockResolvedValue({
           branchName: 'test-branch',
         }),
-      });
+      } as unknown as Response);
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
@@ -64,7 +71,7 @@ describe('ApiClient', () => {
           detail: 'Not Found',
           object: 'problem',
         }),
-      });
+      } as unknown as Response);
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
         new ReuniteApiError('Failed to fetch default branch. Project source not found.', 404)
@@ -78,7 +85,7 @@ describe('ApiClient', () => {
         json: jest.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
-      });
+      } as unknown as Response);
 
       await expect(apiClient.remotes.getDefaultBranch(testOrg, testProject)).rejects.toThrow(
         new ReuniteApiError('Failed to fetch default branch. Not found.', 404)
@@ -111,7 +118,7 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: jest.fn().mockResolvedValue(responseMock),
-      });
+      } as unknown as Response);
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
 
@@ -148,7 +155,7 @@ describe('ApiClient', () => {
           detail: 'Forbidden',
           object: 'problem',
         }),
-      });
+      } as unknown as Response);
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
         new ReuniteApiError(
@@ -166,7 +173,7 @@ describe('ApiClient', () => {
         json: jest.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
-      });
+      } as unknown as Response);
 
       await expect(apiClient.remotes.upsert(testOrg, testProject, remotePayload)).rejects.toThrow(
         new ReuniteApiError('Failed to upsert remote. Not found.', 404)
@@ -264,7 +271,7 @@ describe('ApiClient', () => {
           detail: 'Forbidden',
           object: 'problem',
         }),
-      });
+      } as unknown as Response);
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
@@ -279,7 +286,7 @@ describe('ApiClient', () => {
         json: jest.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
-      });
+      } as unknown as Response);
 
       await expect(
         apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
@@ -366,7 +373,7 @@ describe('ApiClient', () => {
           headers: new Headers({
             Sunset: sunsetDate.toISOString(),
           }),
-        });
+        } as unknown as Response);
 
         await requestFn();
         apiClient.reportSunsetWarnings();
@@ -391,7 +398,7 @@ describe('ApiClient', () => {
           headers: new Headers({
             Sunset: sunsetDate.toISOString(),
           }),
-        });
+        } as unknown as Response);
 
         await requestFn();
         apiClient.reportSunsetWarnings();
@@ -413,7 +420,7 @@ describe('ApiClient', () => {
         headers: new Headers({
           Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
         }),
-      });
+      } as unknown as Response);
 
       await upsertRemoteMock.requestFn();
 
@@ -423,7 +430,7 @@ describe('ApiClient', () => {
         headers: new Headers({
           Sunset: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
         }),
-      });
+      } as unknown as Response);
 
       await getDefaultBranchMock.requestFn();
 
@@ -433,7 +440,7 @@ describe('ApiClient', () => {
         headers: new Headers({
           Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
         }),
-      });
+      } as unknown as Response);
 
       await pushMock.requestFn();
 

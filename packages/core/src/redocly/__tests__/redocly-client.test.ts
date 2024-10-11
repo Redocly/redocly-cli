@@ -1,12 +1,12 @@
 import { setRedoclyDomain } from '../domains';
 import { RedoclyClient } from '../index';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
+global.fetch = jest.fn(() =>
+  Promise.resolve({
     ok: true,
     json: jest.fn().mockResolvedValue({}),
-  })),
-}));
+  } as any)
+);
 
 describe('RedoclyClient', () => {
   const REDOCLY_DOMAIN_US = 'redocly.com';

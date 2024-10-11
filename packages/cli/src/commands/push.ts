@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -14,6 +13,7 @@ import {
   getProxyAgent,
 } from '@redocly/openapi-core';
 import { pluralize } from '@redocly/openapi-core/lib/utils';
+import { isBrowser } from '@redocly/openapi-core/lib/env';
 import {
   exitWithError,
   printExecutionTime,
@@ -450,7 +450,7 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
     headers: {
       'Content-Length': fileSizeInBytes.toString(),
     },
-    body: readStream,
-    agent: getProxyAgent(),
+    body: readStream as Buffer,
+    ...(isBrowser ? {} : { agent: getProxyAgent() }),
   });
 }
