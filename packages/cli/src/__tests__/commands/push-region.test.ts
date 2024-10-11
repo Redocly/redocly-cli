@@ -4,8 +4,8 @@ import { promptClientToken } from '../../commands/login';
 import { ConfigFixture } from '../fixtures/config';
 
 jest.mock('fs');
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
+jest.mock('undici', () => ({
+  fetch: jest.fn(() => ({
     ok: true,
     json: jest.fn().mockResolvedValue({}),
   })),
