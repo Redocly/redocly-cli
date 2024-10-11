@@ -18,6 +18,7 @@
     "path": "path-browserify",
     "os": false,
     "undici": false,
+    "proxy-agent": false,
     "colorette": false
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
@@ -37,12 +38,14 @@
     "@redocly/ajv": "^8.11.2",
     "@redocly/config": "^0.12.1",
     "colorette": "^1.2.0",
+    "fetch-undici": "^4.0.1",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
     "lodash.isequal": "^4.5.0",
     "minimatch": "^5.0.1",
     "pluralize": "^8.0.0",
-    "undici": "^6.19.8",
+    "proxy-agent": "^6.4.0",
+    "undici": "^6.20.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
