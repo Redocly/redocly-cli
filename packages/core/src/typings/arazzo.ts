@@ -147,7 +147,6 @@ export interface ArazzoDefinition {
   arazzo: '1.0.0';
   info: InfoObject;
   sourceDescriptions: SourceDescription[];
-  'x-parameters'?: Parameter[];
   workflows: Workflow[];
   components?: {
     inputs?: {

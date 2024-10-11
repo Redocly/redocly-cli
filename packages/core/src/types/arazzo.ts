@@ -7,7 +7,6 @@ const Root: NodeType = {
     arazzo: { type: 'string' },
     info: 'Info',
     sourceDescriptions: 'SourceDescriptions',
-    'x-parameters': 'Parameters',
     workflows: 'Workflows',
     components: 'Components',
   },
