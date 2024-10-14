@@ -37,10 +37,26 @@ export interface Parameter {
 }
 
 export interface ExtendedOperation {
-  path: string;
-  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
-  sourceDescriptionName?: string;
-  serverUrl?: string;
+  url: string;
+  method:
+    | 'get'
+    | 'post'
+    | 'put'
+    | 'delete'
+    | 'patch'
+    | 'head'
+    | 'options'
+    | 'trace'
+    | 'connect'
+    | 'GET'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'PATCH'
+    | 'HEAD'
+    | 'OPTIONS'
+    | 'TRACE'
+    | 'CONNECT';
 }
 
 export interface ExpectSchema {

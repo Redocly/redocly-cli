@@ -176,14 +176,31 @@ const Replacement: NodeType = {
 };
 const ExtendedOperation: NodeType = {
   properties: {
-    path: { type: 'string' },
+    url: { type: 'string' },
     method: {
-      enum: ['get', 'post', 'put', 'delete', 'patch'],
+      enum: [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch',
+        'GET',
+        'POST',
+        'PUT',
+        'DELETE',
+        'PATCH',
+        'options',
+        'OPTIONS',
+        'head',
+        'HEAD',
+        'trace',
+        'TRACE',
+        'connect',
+        'CONNECT',
+      ],
     },
-    sourceDescriptionName: { type: 'string' },
-    serverUrl: { type: 'string' },
   },
-  required: ['path', 'method'],
+  required: ['url', 'method'],
 };
 const ExpectSchema: NodeType = {
   properties: {
