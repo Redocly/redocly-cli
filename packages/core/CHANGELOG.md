@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 1.25.6
+
+### Patch Changes
+
+- Changed the `x-operation` extension in Arazzo, enabling users to make requests with this extension without an API description file.
+- Removed support of the `x-assert` extension for Arazzo.
+- Removed the support of the `x-parameters` extension for Arazzo description files.
+
 ## 1.25.5
 
 ### Patch Changes

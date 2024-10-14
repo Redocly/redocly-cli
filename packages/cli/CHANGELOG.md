@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 1.25.6
+
+### Patch Changes
+
+- Changed the `x-operation` extension in Arazzo, enabling users to make requests with this extension without an API description file.
+- Removed the support of the `x-parameters` extension for Arazzo description files.
+- Updated @redocly/openapi-core to v1.25.6.
+
 ## 1.25.5
 
 ### Patch Changes
