@@ -142,7 +142,6 @@ const Step: NodeType = {
     onSuccess: 'OnSuccessActionList',
     onFailure: 'OnFailureActionList',
     outputs: 'Outputs',
-    'x-inherit': { enum: ['auto', 'none'] },
     'x-expect': 'ExpectSchema',
     'x-operation': 'ExtendedOperation',
     requestBody: 'RequestBody',

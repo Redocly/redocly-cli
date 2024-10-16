@@ -129,7 +129,6 @@ export interface Step {
   outputs?: {
     [key: string]: string | object | any[] | boolean | number;
   };
-  'x-inherit'?: 'auto' | 'none';
   'x-expect'?: ExpectSchema;
   'x-operation'?: ExtendedOperation;
   requestBody?: RequestBody;
