@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.25.7
+
+### Patch Changes
+
+- Removed the support of the `x-inherit` extension for Arazzo description files.
+
 ## 1.25.6
 
 ### Patch Changes

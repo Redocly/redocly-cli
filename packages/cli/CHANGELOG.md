@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 1.25.7
+
+### Patch Changes
+
+- Updated redoc to v2.2.0.
+- Removed the support of the `x-inherit` extension for Arazzo description files.
+- Updated @redocly/openapi-core to v1.25.7.
+
 ## 1.25.6
 
 ### Patch Changes
