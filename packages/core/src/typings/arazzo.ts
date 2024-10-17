@@ -12,12 +12,6 @@ export interface OpenAPISourceDescription {
   'x-serverUrl'?: string;
 }
 
-export interface NoneSourceDescription {
-  name: string;
-  type: 'none';
-  'x-serverUrl': string;
-}
-
 export interface ArazzoSourceDescription {
   name: string;
   type: 'arazzo';
@@ -26,7 +20,6 @@ export interface ArazzoSourceDescription {
 
 export type SourceDescription =
   | OpenAPISourceDescription
-  | NoneSourceDescription
   | ArazzoSourceDescription;
 
 export interface Parameter {
@@ -161,7 +154,7 @@ export interface Workflow {
 export interface ArazzoDefinition {
   arazzo: '1.0.0';
   info: InfoObject;
-  sourceDescriptions: SourceDescription[];
+  sourceDescriptions?: SourceDescription[];
   workflows: Workflow[];
   components?: {
     inputs?: {
