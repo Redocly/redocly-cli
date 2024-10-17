@@ -27,7 +27,7 @@ Although commonly used in different kinds of documentation, `example.com` is not
 Your consumers cannot use it to test your APIs.
 Be helpful - give them something they can use.
 
-If you can't reveal a production server, consider a [Redocly mock server](/docs/api-registry/guides/mock-server-quickstart.md) instead.
+If you can't reveal a production server, consider a [Redocly mock server](https://redocly.com/docs/realm/author/how-to/try-apis-with-mock-server) instead.
 
 ## Configuration
 
