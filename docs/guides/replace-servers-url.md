@@ -94,7 +94,7 @@ module.exports = function replaceServersUrlPlugin() {
 
 3. Save the file.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 If you change the names of the plugins directory or the files, make sure to change them also in the Redocly configuration file [when registering your plugins and decorators](#add-a-decorator-and-associate-it-with-an-environment-variable).
 {% /admonition %}
 
@@ -128,7 +128,7 @@ function ReplaceServersURL({serverUrl}) {
 
 3. Save the file.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 If you change the name of the decorators directory, make sure to also change it in line 1 of the [`plugin.js` file](#create-a-custom-plugin).
 {% /admonition %}
 

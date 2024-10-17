@@ -19,7 +19,7 @@ For this tutorial, we've prepared a sample containing OpenAPI specification exte
 
 ## Prerequisites
 
-{% admonition type="note" name="We do, You do" %}
+{% admonition type="info" name="We do, You do" %}
 This tutorial is most effective when you follow along and complete the steps.
 {% /admonition %}
 
@@ -54,7 +54,7 @@ In this step, create a custom plugin and define the decorator dependency.
 
 1. Save the file.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 You can name the plugins directory and the file anything you want. Make sure you use the correct name in the Redocly configuration file (Step 3 below).
 {% /admonition %}
 
@@ -88,7 +88,7 @@ You can name the plugins directory and the file anything you want. Make sure you
 
 1. Save the file.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 You can name the decorators directory anything you want. Make sure you use the correct directory name in the line 1 of the `plugin.js` file (Step 1 above).
 {% /admonition %}
 
