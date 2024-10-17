@@ -19,7 +19,7 @@ The `minLength` keyword constrains string values. When a property of type `strin
 ## Configuration
 
 To configure the rule, add it to the `rules` object in your configuration file.
-Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
+Set the desired [severity](../rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
