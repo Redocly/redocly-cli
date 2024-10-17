@@ -14,6 +14,7 @@ import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique
 import { NoCriteriaXpath } from '../spot/no-criteria-xpath';
 import { NoActionsTypeEnd } from '../spot/no-actions-type-end';
 import { CriteriaUnique } from './criteria-unique';
+import { SourceDescriptionsEmpty } from './sourceDescriptions-empty';
 
 import type { ArazzoRule } from '../../visitors';
 import type { ArazzoRuleSet } from '../../oas-types';
@@ -35,6 +36,7 @@ export const rules: ArazzoRuleSet<'built-in'> = {
   'no-criteria-xpath': NoCriteriaXpath as ArazzoRule,
   'no-actions-type-end': NoActionsTypeEnd as ArazzoRule,
   'criteria-unique': CriteriaUnique as ArazzoRule,
+  'sourceDescriptions-empty': SourceDescriptionsEmpty as ArazzoRule,
 };
 
 export const preprocessors = {};
