@@ -502,6 +502,7 @@ describe('checkIfRulesetExist', () => {
       async2: {},
       async3: {},
       arazzo1: {},
+      overlay1: {},
     };
     expect(() => checkIfRulesetExist(rules)).toThrowError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
