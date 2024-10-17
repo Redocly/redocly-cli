@@ -97,6 +97,10 @@ If your OpenAPI description isn't everything you hoped it would be, enhance it w
 
 This tool [collects data](./docs/usage-data.md) to help Redocly improve our products and services. You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`.
 
+## Update notifications
+
+Redocly CLI checks for updates on startup. You can disable this by setting the `REDOCLY_SUPPRESS_UPDATE_NOTICE` environment variable to `true`.
+
 ## More resources
 
 [Read the detailed docs](https://redocly.com/docs/cli/).
