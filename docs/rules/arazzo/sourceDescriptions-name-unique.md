@@ -19,7 +19,7 @@ To avoid confusion or unexpected outputs, each Source Description object should 
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   sourceDescriptions-name-unique: error
 ```
 
@@ -28,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   sourceDescriptions-name-unique: error
 ```
 

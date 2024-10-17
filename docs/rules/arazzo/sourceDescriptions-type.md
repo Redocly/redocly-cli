@@ -19,7 +19,7 @@ According to the Arazzo spec, the possible values of the Source Description `typ
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   sourceDescriptions-type: error
 ```
 
@@ -28,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   sourceDescriptions-type: error
 ```
 

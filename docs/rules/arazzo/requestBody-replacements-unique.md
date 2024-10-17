@@ -19,7 +19,7 @@ The list of locations and values to set within a payload must not have duplicate
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   requestBody-replacements-unique: error
 ```
 
@@ -28,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   requestBody-replacements-unique: error
 ```
 

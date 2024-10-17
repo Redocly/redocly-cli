@@ -21,7 +21,7 @@ The `stepId` value is case-sensitive.
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   stepId-unique: error
 ```
 
@@ -30,7 +30,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   stepId-unique: error
 ```
 

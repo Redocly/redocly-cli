@@ -19,7 +19,7 @@ Each `onSuccess` action should be unique to avoid confusion or unexpected outcom
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   step-onSuccess-unique: error
 ```
 
@@ -28,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   step-onSuccess-unique: error
 ```
 

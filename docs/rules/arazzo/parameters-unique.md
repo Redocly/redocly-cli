@@ -26,7 +26,7 @@ Checks parameter lists in the following locations:
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   parameters-unique: error
 ```
 
@@ -35,7 +35,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   parameters-unique: error
 ```
 

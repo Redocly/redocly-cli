@@ -5,8 +5,8 @@ Redocly CLI includes some default rulesets to get you started quickly.
 To edit/adjust the rules you use in your own projects, [configure your rules](./configure-rules.md) accordingly to override any settings from the original ruleset.
 
 On this page, each ruleset is included for each of the supported API description formats.
-You can use this information for your own reference, or copy/paste them in order to use separate configuration for each API format.
-Consult the relevant section below, each code sample is formatted to be included in `redocly.yaml` directly.
+You can use this information for your own reference, or copy/paste them in order to use [separate configuration for each API](../configuration/apis.md).
+Consult the format-specific sections below, each code sample is formatted to be included in `redocly.yaml` directly.
 
 More information and examples for individual rules can be found in the [built-in rules documentation](./built-in-rules.md).
 
@@ -17,7 +17,7 @@ The minimal rulesets are a decent baseline that you can use to selective enable 
 ### Minimal ruleset: OpenAPI 3.1
 
 ```yaml
-oas3_1Rules:
+rules:
   info-contact: off
   info-license: off
   info-license-url: off
@@ -79,7 +79,7 @@ oas3_1Rules:
 ### Minimal ruleset: OpenAPI 3.0
 
 ```yaml
-oas3_0Rules:
+rules:
   info-contact: off
   info-license: off
   info-license-url: off
@@ -141,7 +141,7 @@ oas3_0Rules:
 ### Minimal ruleset: OpenAPI 2.0
 
 ```yaml
-oas2Rules:
+rules:
   info-contact: off
   info-license: off
   info-license-url: off
@@ -191,7 +191,7 @@ oas2Rules:
 ### Minimal ruleset: AsyncAPI 3.0
 
 ```yaml
-async3Rules:
+rules:
   spec: error
   info-contact: off
   info-license-strict: off
@@ -205,7 +205,7 @@ async3Rules:
 ### Minimal ruleset: AsyncAPI 2.6
 
 ```yaml
-async2Rules:
+rules:
   spec: error
   info-contact: off
   info-license-strict: off
@@ -219,7 +219,7 @@ async2Rules:
 ### Minimal ruleset: Arazzo 1.0
 
 ```yaml
-arazzoRules:
+rules:
   spec: error
   parameters-not-in-body: off
   sourceDescription-type: off
@@ -350,7 +350,7 @@ oas3_1Rules:
 ### Recommended ruleset: OpenAPI 3.0
 
 ```yaml
-oas3_0Rules:
+rules:
   info-contact: off
   info-license: warn
   info-license-url: off
@@ -412,7 +412,7 @@ oas3_0Rules:
 ### Recommended ruleset: OpenAPI 2.0
 
 ```yaml
-oas2Rules:
+rules:
   info-contact: off
   info-license: warn
   info-license-url: off
@@ -462,7 +462,7 @@ oas2Rules:
 ### Recommended ruleset: AsyncAPI 3.0
 
 ```yaml
-async3Rules:
+rules:
   spec: error
   info-contact: off
   info-license-strict: warn
@@ -476,7 +476,7 @@ async3Rules:
 ### Recommended ruleset: AsyncAPI 2.6
 
 ```yaml
-async2Rules:
+rules:
   spec: error
   info-contact: off
   info-license-strict: warn
@@ -490,7 +490,7 @@ async2Rules:
 ### Recommended ruleset: Arazzo 1.0
 
 ```yaml
-arazzoRules:
+rules:
   spec: error
   parameters-not-in-body: warn
   sourceDescription-type: error

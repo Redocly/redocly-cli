@@ -19,7 +19,7 @@ Each `onFailure` action should be unique to avoid confusion or unexpected result
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   step-onFailure-unique: error
 ```
 
@@ -28,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   step-onFailure-unique: error
 ```
 

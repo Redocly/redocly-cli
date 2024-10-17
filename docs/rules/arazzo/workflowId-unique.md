@@ -20,7 +20,7 @@ According to the spec, the `workflowId` must be unique across all workflows desc
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   workflowId-unique: error
 ```
 
@@ -29,7 +29,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   workflowId-unique: error
 ```
 

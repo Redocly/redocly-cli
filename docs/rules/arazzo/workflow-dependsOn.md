@@ -20,7 +20,7 @@ To avoid ambiguity or potential clashes, the `dependsOn` list values should be u
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   workflow-dependsOn: error
 ```
 
@@ -29,7 +29,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   workflow-dependsOn: error
 ```
 
