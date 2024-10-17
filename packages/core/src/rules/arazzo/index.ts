@@ -1,7 +1,7 @@
 import { Spec } from '../common/spec';
 import { Assertions } from '../common/assertions';
 import { ParametersNotInBody } from '../spot/parameters-not-in-body';
-import { SourceDescriptionType } from '../arazzo/source-description-type';
+import { SourceDescriptionType } from '../arazzo/sourceDescription-type';
 import { VersionEnum } from '../spot/version-enum';
 import { WorkflowIdUnique } from './workflowId-unique';
 import { StepIdUnique } from './stepId-unique';

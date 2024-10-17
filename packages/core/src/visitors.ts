@@ -58,7 +58,6 @@ import type {
   ExpectSchema,
   ExtendedOperation,
   InfoObject,
-  NoneSourceDescription,
   OnFailureObject,
   OnSuccessObject,
   OpenAPISourceDescription,
@@ -240,7 +239,6 @@ type ArazzoFlatVisitor = {
   ParameterObject?: VisitFunctionOrObject<Parameter>;
   InfoObject?: VisitFunctionOrObject<InfoObject>;
   OpenAPISourceDescription?: VisitFunctionOrObject<OpenAPISourceDescription>;
-  NoneSourceDescription?: VisitFunctionOrObject<NoneSourceDescription>;
   ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
   SourceDescription?: VisitFunctionOrObject<SourceDescription>;
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
