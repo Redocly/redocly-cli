@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/arazzo/criteria-unique
----
-
 # criteria-unique
 
 The criteria list must not contain duplicated assertions.
@@ -23,7 +19,7 @@ The criteria list must not contain duplicated assertions.
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   criteria-unique: error
 ```
 
@@ -32,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   criteria-unique: error
 ```
 

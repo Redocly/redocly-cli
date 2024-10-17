@@ -1,7 +1,7 @@
 import type { ArazzoRule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const SourceDescriptionType: ArazzoRule = () => {
+export const SourceDescriptionsType: ArazzoRule = () => {
   return {
     SourceDescriptions: {
       enter(SourceDescriptions, { report, location }: UserContext) {
