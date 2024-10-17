@@ -142,6 +142,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'no-criteria-xpath': 'error',
     'no-actions-type-end': 'error',
     'criteria-unique': 'error',
+    'sourceDescriptions-empty': 'error',
   },
 };
 

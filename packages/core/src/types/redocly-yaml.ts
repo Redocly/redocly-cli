@@ -125,6 +125,7 @@ const builtInArazzoRules = [
   'no-criteria-xpath',
   'no-actions-type-end',
   'criteria-unique',
+  'sourceDescriptions-empty',
 ] as const;
 
 export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];

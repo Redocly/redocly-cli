@@ -124,6 +124,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'no-criteria-xpath': 'warn',
     'no-actions-type-end': 'warn',
     'criteria-unique': 'warn',
+    'sourceDescriptions-empty': 'error',
   },
 };
 
