@@ -114,10 +114,6 @@ workflows:
           - condition: $statusCode == 200
 ```
 
-## Related rules
-
-- [sourceDescription-name-unique](./sourceDescriptions-name-unique.md)
-
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/arazzo/sourceDescriptions-empty.ts)
