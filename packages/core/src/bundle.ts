@@ -305,7 +305,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
       }
     case SpecMajorVersion.Arazzo:
       switch (typeName) {
-        case 'Root.x-parameters_items':
         case 'Root.workflows_items.parameters_items':
         case 'Root.workflows_items.steps_items.parameters_items':
           return 'parameters';

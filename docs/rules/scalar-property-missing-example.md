@@ -22,7 +22,7 @@ Providing examples for properties in your API description not only improves the 
 ## Configuration
 
 To configure the rule, add it to the `rules` object in your configuration file.
-Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
+Set the desired [severity](../rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
