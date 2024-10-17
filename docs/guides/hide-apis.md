@@ -26,7 +26,7 @@ The following image highlights what is to be removed in this tutorial.
 
 ## Prerequisites
 
-{% admonition type="note" name="We do, You do" %}
+{% admonition type="info" name="We do, You do" %}
 This tutorial is most effective when you follow along and complete the steps.
 {% /admonition %}
 
