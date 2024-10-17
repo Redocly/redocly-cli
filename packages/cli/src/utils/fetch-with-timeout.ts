@@ -1,6 +1,6 @@
-import nodeFetch, { type RequestInit } from 'node-fetch';
 import AbortController from 'abort-controller';
 import { getProxyAgent } from '@redocly/openapi-core';
+import { isBrowser } from '@redocly/openapi-core/lib/env';
 
 export const DEFAULT_FETCH_TIMEOUT = 3000;
 
@@ -10,21 +10,21 @@ export type FetchWithTimeoutOptions = RequestInit & {
 
 export default async (url: string, { timeout, ...options }: FetchWithTimeoutOptions = {}) => {
   if (!timeout) {
-    return nodeFetch(url, {
+    return fetch(url, {
       ...options,
-      agent: getProxyAgent(),
+      ...(isBrowser ? {} : { agent: getProxyAgent() }), // Conditionally add agent only in Node.js
     });
   }
 
-  const controller = new AbortController();
+  const controller = isBrowser ? new window.AbortController() : new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
   }, timeout);
 
-  const res = await nodeFetch(url, {
-    signal: controller.signal,
+  const res = await fetch(url, {
+    signal: controller.signal as AbortSignal,
     ...options,
-    agent: getProxyAgent(),
+    ...(isBrowser ? {} : { agent: getProxyAgent() }),
   });
 
   clearTimeout(timeoutId);
