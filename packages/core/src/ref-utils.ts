@@ -1,4 +1,4 @@
-import { isTruthy } from './utils';
+import { isPlainObject, isTruthy } from './utils';
 
 import type { Source } from './resolve';
 import type { OasRef } from './typings/openapi';
@@ -8,8 +8,12 @@ export function joinPointer(base: string, key: string | number) {
   return base[base.length - 1] === '/' ? base + key : base + '/' + key;
 }
 
-export function isRef(node: any): node is OasRef {
-  return node && typeof node.$ref === 'string';
+export function isRef(node: unknown): node is OasRef {
+  return isPlainObject(node) && typeof node.$ref === 'string';
+}
+
+export function isExternalValue(node: unknown) {
+  return isPlainObject(node) && typeof node.isExternalValue === 'string';
 }
 
 export class Location {
