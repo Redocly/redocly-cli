@@ -124,7 +124,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'no-criteria-xpath': 'off',
     'no-actions-type-end': 'off',
     'criteria-unique': 'off',
-    'sourceDescriptions-empty': 'off',
+    'sourceDescriptions-not-empty': 'off',
   },
 };
 

@@ -152,7 +152,7 @@ export interface Workflow {
 export interface ArazzoDefinition {
   arazzo: '1.0.0';
   info: InfoObject;
-  sourceDescriptions?: SourceDescription[];
+  sourceDescriptions: SourceDescription[];
   workflows: Workflow[];
   components?: {
     inputs?: {

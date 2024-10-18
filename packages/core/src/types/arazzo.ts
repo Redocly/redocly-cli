@@ -10,7 +10,7 @@ const Root: NodeType = {
     workflows: 'Workflows',
     components: 'Components',
   },
-  required: ['arazzo', 'info', 'workflows'],
+  required: ['arazzo', 'info', 'sourceDescriptions', 'workflows'],
   extensionsPrefix: 'x-',
 };
 const NamedParameters: NodeType = {

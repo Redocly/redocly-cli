@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo sourceDescriptions-empty', () => {
+describe('Arazzo sourceDescriptions-not-empty', () => {
   const document1 = parseYamlToDocument(
     outdent`
       arazzo: '1.0.0'
@@ -43,6 +43,7 @@ describe('Arazzo sourceDescriptions-empty', () => {
         title: Cool API
         version: 1.0.0
         description: A cool API
+      sourceDescriptions: []
       workflows:
         - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
@@ -61,53 +62,26 @@ describe('Arazzo sourceDescriptions-empty', () => {
     'arazzo.yaml'
   );
 
-  const document3 = parseYamlToDocument(
-    outdent`
-      arazzo: '1.0.0'
-      info:
-        title: Cool API
-        version: 1.0.0
-        description: A cool API
-      workflows:
-        - workflowId: get-museum-hours
-          description: This workflow demonstrates how to get the museum opening hours and buy tickets.
-          parameters:
-            - in: header
-              name: Authorization
-              value: Basic Og==
-          steps:
-            - stepId: get-museum-hours
-              description: >-
-                Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
-              x-operation:
-                url: https://example.com
-                method: GET
-              successCriteria:
-                - condition: $statusCode == 200
-    `,
-    'arazzo.yaml'
-  );
-
-  it('should not report an error when sourceDescriptions described and operationId or operationPath is used.', async () => {
+  it('should not report an error when sourceDescriptions have at leasr one entry.', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: document1,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'sourceDescriptions-empty': 'error' },
+        arazzoRules: { 'sourceDescriptions-not-empty': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report an error when sourceDescriptions are not described and operationId or operationPath is used.', async () => {
+  it('should report an error when sourceDescriptions is empty list.', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: document2,
       config: await makeConfig({
         rules: {},
-        arazzoRules: { 'sourceDescriptions-empty': 'error' },
+        arazzoRules: { 'sourceDescriptions-not-empty': 'error' },
       }),
     });
 
@@ -116,30 +90,17 @@ describe('Arazzo sourceDescriptions-empty', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/operationId",
+              "pointer": "#/sourceDescriptions",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "\`sourceDescriptions\` must be defined when \`operationId\` description reference is used.",
-          "ruleId": "sourceDescriptions-empty",
+          "message": "The \`sourceDescriptions\` list must have at least one entry.",
+          "ruleId": "sourceDescriptions-not-empty",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
-  });
-
-  it('should not report an error when sourceDescriptions are not described and x-operation is used.', async () => {
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document: document3,
-      config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'sourceDescriptions-empty': 'error' },
-      }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
