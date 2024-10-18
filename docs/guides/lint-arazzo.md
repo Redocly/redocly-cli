@@ -87,7 +87,6 @@ The rules available for linting Arazzo are:
 - `no-criteria-xpath`: the `xpath` type criteria is not supported by Spot.
 - `no-actions-type-end`: the `end` type action is not supported by Spot.
 - `criteria-unique`: the criteria list must not contain duplicated assertions.
-- `sourceDescriptions-not-empty`: the `sourceDescriptions` must be defined and the list must have at least one entry.
 
 Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzoRules`.
 The following example shows configuration for the minimal ruleset with some additional rules configuration:
