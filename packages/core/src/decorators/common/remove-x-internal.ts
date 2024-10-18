@@ -22,7 +22,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
           const resolved = ctx.resolve(node[i]);
           if (resolved.node?.[internalFlagProperty]) {
             // First, remove the reference in the discriminator mapping, if it exists:
-            if (parent.discriminator?.mapping) {
+            if (isPlainObject(parent.discriminator?.mapping)) {
               for (const mapping in parent.discriminator.mapping) {
                 if (originalMapping?.[mapping] === node[i].$ref) {
                   delete parent.discriminator.mapping[mapping];
