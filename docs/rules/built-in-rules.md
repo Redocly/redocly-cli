@@ -128,6 +128,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
 - [workflow-dependsOn](./arazzo/workflow-dependsOn.md): the items in the `workflow` `dependsOn` property must exist and be unique
 - [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
+- [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
 
 ### Spot
 
