@@ -71,22 +71,7 @@ run `redocly lint --generate-ignore-file` to add all problems to the ignore file
 ## Configure the linting rules
 
 Choose from the ready-made rulesets (`minimal`, `recommended` or `recommended-strict`), or go one better and configure the rules that suit your use case.
-The rules available for linting Arazzo are:
-
-- `parameters-not-in-body`: the `in` section inside `parameters` must not contain a `body`.
-- `sourceDescription-type`: the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`.
-- `version-enum`: the `version` property must be one of the supported values.
-- `workflowId-unique`: the `workflowId` property must be unique across all workflows.
-- `stepId-unique`: the `stepId` must be unique amongst all steps described in the workflow.
-- `sourceDescription-name-unique`: the `name` property of the `sourceDescription` object must be unique across all source descriptions.
-- `workflow-dependsOn`: the items in the `workflow` `dependsOn` property must exist and be unique.
-- `parameters-unique`: the `parameters` list must not include duplicate parameters.
-- `step-onSuccess-unique`: the `onSuccess` actions of the `step` object must be unique.
-- `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
-- `requestBody-replacements-unique`: the `replacements` of the `requestBody` object must be unique.
-- `no-criteria-xpath`: the `xpath` type criteria is not supported by Spot.
-- `no-actions-type-end`: the `end` type action is not supported by Spot.
-- `criteria-unique`: the criteria list must not contain duplicated assertions.
+There's a full [list of built-in rules for Arazzo](../rules/built-in-rules.md#arazzo-rules) to refer to.
 
 Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzoRules`.
 The following example shows configuration for the minimal ruleset with some additional rules configuration:
@@ -96,7 +81,7 @@ extends:
  - minimal
 
 arazzoRules:
-  sourceDescription-name-unique: warn
+  sourceDescriptions-name-unique: warn
   version-enum: error
 ```
 

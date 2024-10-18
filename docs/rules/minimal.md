@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/minimal
----
-
 # Minimal ruleset
 
 The rules contained in the minimal ruleset:
@@ -12,6 +8,8 @@ Errors:
 - [no-server-variables-empty-enum](./no-server-variables-empty-enum.md)
 - [no-unresolved-refs](./no-unresolved-refs.md)
 - [spec](./spec.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
 
 Warnings:
 
@@ -38,3 +36,6 @@ Warnings:
 - [security-defined](./security-defined.md)
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md)
 - [tag-description](./tag-description.md)
+- [version-enum](./spot/version-enum.md)
+
+A copy/pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
