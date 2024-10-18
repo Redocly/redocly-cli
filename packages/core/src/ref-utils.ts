@@ -13,7 +13,7 @@ export function isRef(node: unknown): node is OasRef {
 }
 
 export function isExternalValue(node: unknown) {
-  return isPlainObject(node) && typeof node.isExternalValue === 'string';
+  return isPlainObject(node) && typeof node.externalValue === 'string';
 }
 
 export class Location {
