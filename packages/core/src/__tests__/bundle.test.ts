@@ -256,6 +256,15 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(parsed).toEqual(origCopy);
   });
+
+  it('should bundle schemas with properties named $ref and externalValues correctly', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({} as ResolvedConfig),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-special-names-in-props.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
 });
 
 describe('bundleFromString', () => {

@@ -1,6 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
+import {
+  isRef,
+  joinPointer,
+  escapePointer,
+  parseRef,
+  isAbsoluteUrl,
+  isAnchor,
+  isExternalValue,
+} from './ref-utils';
 import { isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
 
@@ -337,7 +345,7 @@ export async function resolveDocument(opts: {
       }
 
       // handle example.externalValue as reference
-      if (node.externalValue) {
+      if (isExternalValue(node)) {
         const promise = followRef(
           rootNodeDocument,
           { $ref: node.externalValue },

@@ -262,6 +262,30 @@ components:
 
 `;
 
+exports[`bundle should bundle schemas with properties named $ref and externalValues correctly 1`] = `
+openapi: 3.1.0
+info: {}
+paths:
+  /example:
+    get:
+      summary: Get Example
+      description: This endpoint returns an example response.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  externalValue:
+                    type: string
+                  $ref:
+                    type: string
+components: {}
+
+`;
+
 exports[`bundle should dereferenced correctly when used with dereference 1`] = `
 openapi: 3.0.0
 paths:
