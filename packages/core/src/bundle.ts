@@ -305,7 +305,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
       }
     case SpecMajorVersion.Arazzo:
       switch (typeName) {
-        case 'Root.x-parameters_items':
         case 'Root.workflows_items.parameters_items':
         case 'Root.workflows_items.steps_items.parameters_items':
           return 'parameters';
@@ -379,6 +378,25 @@ function makeBundleVisitor(
         }
       },
     },
+    Example: {
+      leave(node: any, ctx: UserContext) {
+        if (node.externalValue && node.value === undefined) {
+          const resolved = ctx.resolve({ $ref: node.externalValue });
+
+          if (!resolved.location || resolved.node === undefined) {
+            reportUnresolvedRef(resolved, ctx.report, ctx.location);
+            return;
+          }
+
+          if (keepUrlRefs && isAbsoluteUrl(node.externalValue)) {
+            return;
+          }
+
+          node.value = ctx.resolve({ $ref: node.externalValue }).node;
+          delete node.externalValue;
+        }
+      },
+    },
     Root: {
       enter(root: any, ctx: any) {
         rootLocation = ctx.location;
@@ -409,11 +427,7 @@ function makeBundleVisitor(
           }
 
           const componentType = mapTypeToComponent('Schema', version)!;
-          if (dereference) {
-            saveComponent(componentType, resolved, ctx);
-          } else {
-            mapping[name] = saveComponent(componentType, resolved, ctx);
-          }
+          mapping[name] = saveComponent(componentType, resolved, ctx);
         }
       },
     };
@@ -438,9 +452,11 @@ function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === SpecMajorVersion.OAS3) {
-      return `#/components/${componentType}/${name}`;
-    } else if (version === SpecMajorVersion.Async2 || version === SpecMajorVersion.Async3) {
+    if (
+      version === SpecMajorVersion.OAS3 ||
+      version === SpecMajorVersion.Async2 ||
+      version === SpecMajorVersion.Async3
+    ) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;

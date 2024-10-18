@@ -1,5 +1,36 @@
 # @redocly/cli
 
+## 1.25.7
+
+### Patch Changes
+
+- Updated redoc to v2.2.0.
+- Removed the support of the `x-inherit` extension for Arazzo description files.
+- Updated @redocly/openapi-core to v1.25.7.
+
+## 1.25.6
+
+### Patch Changes
+
+- Changed the `x-operation` extension in Arazzo, enabling users to make requests with this extension without an API description file.
+- Removed the support of the `x-parameters` extension for Arazzo description files.
+- Updated @redocly/openapi-core to v1.25.6.
+
+## 1.25.5
+
+### Patch Changes
+
+- Fixed an issue where the bundle command did not resolve links in `externalValue`.
+- Fixed an issue where the plugins in external NPM packages could not be resolved if the CLI package was installed globally.
+- Updated @redocly/openapi-core to v1.25.5.
+
+## 1.25.4
+
+### Patch Changes
+
+- Added a warning message to the `push` and `push-status` commands to notify users about upcoming or ongoing resource deprecation.
+- Updated @redocly/openapi-core to v1.25.4.
+
 ## 1.25.3
 
 ### Patch Changes

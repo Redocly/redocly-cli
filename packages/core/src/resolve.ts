@@ -335,6 +335,28 @@ export async function resolveDocument(opts: {
         });
         resolvePromises.push(promise);
       }
+
+      // handle example.externalValue as reference
+      if (node.externalValue) {
+        const promise = followRef(
+          rootNodeDocument,
+          { $ref: node.externalValue },
+          {
+            prev: null,
+            node,
+          }
+        ).then((resolvedRef) => {
+          if (resolvedRef.resolved) {
+            resolveRefsInParallel(
+              resolvedRef.node,
+              resolvedRef.document,
+              resolvedRef.nodePointer!,
+              type
+            );
+          }
+        });
+        resolvePromises.push(promise);
+      }
     }
 
     async function followRef(

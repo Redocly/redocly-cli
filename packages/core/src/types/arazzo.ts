@@ -7,7 +7,6 @@ const Root: NodeType = {
     arazzo: { type: 'string' },
     info: 'Info',
     sourceDescriptions: 'SourceDescriptions',
-    'x-parameters': 'Parameters',
     workflows: 'Workflows',
     components: 'Components',
   },
@@ -143,9 +142,7 @@ const Step: NodeType = {
     onSuccess: 'OnSuccessActionList',
     onFailure: 'OnFailureActionList',
     outputs: 'Outputs',
-    'x-inherit': { enum: ['auto', 'none'] },
     'x-expect': 'ExpectSchema',
-    'x-assert': { type: 'string' },
     'x-operation': 'ExtendedOperation',
     requestBody: 'RequestBody',
   },
@@ -178,14 +175,31 @@ const Replacement: NodeType = {
 };
 const ExtendedOperation: NodeType = {
   properties: {
-    path: { type: 'string' },
+    url: { type: 'string' },
     method: {
-      enum: ['get', 'post', 'put', 'delete', 'patch'],
+      enum: [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch',
+        'GET',
+        'POST',
+        'PUT',
+        'DELETE',
+        'PATCH',
+        'options',
+        'OPTIONS',
+        'head',
+        'HEAD',
+        'trace',
+        'TRACE',
+        'connect',
+        'CONNECT',
+      ],
     },
-    sourceDescriptionName: { type: 'string' },
-    serverUrl: { type: 'string' },
   },
-  required: ['path', 'method'],
+  required: ['url', 'method'],
 };
 const ExpectSchema: NodeType = {
   properties: {

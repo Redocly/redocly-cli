@@ -1,5 +1,32 @@
 # @redocly/openapi-core
 
+## 1.25.7
+
+### Patch Changes
+
+- Removed the support of the `x-inherit` extension for Arazzo description files.
+
+## 1.25.6
+
+### Patch Changes
+
+- Changed the `x-operation` extension in Arazzo, enabling users to make requests with this extension without an API description file.
+- Removed support of the `x-assert` extension for Arazzo.
+- Removed the support of the `x-parameters` extension for Arazzo description files.
+
+## 1.25.5
+
+### Patch Changes
+
+- Fixed an issue where the bundle command did not resolve links in `externalValue`.
+- Fixed an issue where the plugins in external NPM packages could not be resolved if the CLI package was installed globally.
+
+## 1.25.4
+
+### Patch Changes
+
+- Updated @redocly/config to v0.12.1.
+
 ## 1.25.3
 
 ### Patch Changes

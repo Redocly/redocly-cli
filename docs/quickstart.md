@@ -8,7 +8,7 @@ Before you start:
 - Create a new project folder and `cd` into the folder
 - If you have an OpenAPI description to use, copy it into your project (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
 {% /admonition %}
 

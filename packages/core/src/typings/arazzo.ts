@@ -37,10 +37,26 @@ export interface Parameter {
 }
 
 export interface ExtendedOperation {
-  path: string;
-  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
-  sourceDescriptionName?: string;
-  serverUrl?: string;
+  url: string;
+  method:
+    | 'get'
+    | 'post'
+    | 'put'
+    | 'delete'
+    | 'patch'
+    | 'head'
+    | 'options'
+    | 'trace'
+    | 'connect'
+    | 'GET'
+    | 'POST'
+    | 'PUT'
+    | 'DELETE'
+    | 'PATCH'
+    | 'HEAD'
+    | 'OPTIONS'
+    | 'TRACE'
+    | 'CONNECT';
 }
 
 export interface ExpectSchema {
@@ -113,9 +129,7 @@ export interface Step {
   outputs?: {
     [key: string]: string | object | any[] | boolean | number;
   };
-  'x-inherit'?: 'auto' | 'none';
   'x-expect'?: ExpectSchema;
-  'x-assert'?: string;
   'x-operation'?: ExtendedOperation;
   requestBody?: RequestBody;
 }
@@ -148,7 +162,6 @@ export interface ArazzoDefinition {
   arazzo: '1.0.0';
   info: InfoObject;
   sourceDescriptions: SourceDescription[];
-  'x-parameters'?: Parameter[];
   workflows: Workflow[];
   components?: {
     inputs?: {

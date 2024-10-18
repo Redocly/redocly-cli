@@ -36,7 +36,7 @@ extends:
 
 The configuration here is _very_ minimal with only the ruleset defined so far. Your config file also holds settings for themes, much more detailed configuration for linting and decorating, and custom plugins.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 You can also define rulesets and other linting details differently for each API if you need to.
 {% /admonition %}
 

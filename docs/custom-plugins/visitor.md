@@ -67,7 +67,7 @@ The `Schema` **visitor function** is called by Redocly CLI only if the Schema Ob
 
 As the third argument, `enter()` in a **nested visitor object** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 It is executed only for the first level of the Schema Object.
 {% /admonition %}
 

@@ -21,7 +21,7 @@ Have the following values ready to use with the `push` command:
 - An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) installed.
 
-Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm//setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
+Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
 
 ## Command usage
 
@@ -152,7 +152,7 @@ Apart from uploading your API description file, the `push` command can automatic
 - The `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows uses the `@redocly/cli` version specified in `package.json`.
 - The HTML template and the full contents of the folder specified as the `theme.openapi.htmlTemplate` parameter in the Redocly configuration file.
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 If a plugin is referenced in the Redocly configuration file, the `push` command recursively scans the folder containing the plugin and uploads all `.js`, `.json`, `.mjs` and `.ts` files.
 
 Make sure that each plugin has all the required files in its folder; otherwise, they are not uploaded.
@@ -260,7 +260,7 @@ Note that the organization ID can differ from the organization name. Owners can 
 
 #### API name and version
 
-{% admonition type="attention" %}
+{% admonition type="info" %}
 The name and version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
 {% /admonition %}
 
