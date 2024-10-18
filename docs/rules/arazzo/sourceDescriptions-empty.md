@@ -1,6 +1,6 @@
 # sourceDescriptions-empty
 
-The Source Description object must be defined when `operationId` or `operationPath` is used inside Step to referense description operation.
+The Source Description object must be defined when `operationId` or `operationPath` is used inside Step to reference the description operation.
 `sourceDescriptions` can be undefined in the Arazzo description in case there are no OpenAPI description exist and `x-operation` extension is used inside Step.
 
 | Arazzo | Compatibility |
@@ -95,7 +95,7 @@ sourceDescriptions:
   - name: museum-api
     type: openapi
     url: openapi.yaml
-  - name: museum-api
+  - name: another-api
     type: openapi
     url: openapi.yaml
 workflows:
