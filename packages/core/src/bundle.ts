@@ -427,11 +427,7 @@ function makeBundleVisitor(
           }
 
           const componentType = mapTypeToComponent('Schema', version)!;
-          if (dereference) {
-            saveComponent(componentType, resolved, ctx);
-          } else {
-            mapping[name] = saveComponent(componentType, resolved, ctx);
-          }
+          mapping[name] = saveComponent(componentType, resolved, ctx);
         }
       },
     };
@@ -456,9 +452,11 @@ function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === SpecMajorVersion.OAS3) {
-      return `#/components/${componentType}/${name}`;
-    } else if (version === SpecMajorVersion.Async2 || version === SpecMajorVersion.Async3) {
+    if (
+      version === SpecMajorVersion.OAS3 ||
+      version === SpecMajorVersion.Async2 ||
+      version === SpecMajorVersion.Async3
+    ) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;
