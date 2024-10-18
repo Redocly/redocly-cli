@@ -6,12 +6,6 @@ import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
 
 jest.mock('fs');
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
-    ok: true,
-    json: jest.fn().mockResolvedValue({}),
-  })),
-}));
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils/miscellaneous');
 
@@ -22,6 +16,16 @@ describe('push', () => {
 
   beforeEach(() => {
     jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: jest.fn().mockResolvedValue({}), // Mocked JSON response
+      } as unknown as Response)
+    );
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks(); // Restore original fetch after tests
   });
 
   it('pushes definition', async () => {
