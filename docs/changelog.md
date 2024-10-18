@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.8 (2024-10-18)
+
+### Patch Changes
+
+- Added the `REDOCLY_SUPPRESS_UPDATE_NOTICE` environment variable so that users can skip version updates.
+- Fixed bundling with the `--dereferenced` option. Previously, references to external files were not substituted with references to components, causing them to become invalid.
+- Updated @redocly/openapi-core to v1.25.8.
+
 ## 1.25.7 (2024-10-16)
 
 ### Patch Changes
