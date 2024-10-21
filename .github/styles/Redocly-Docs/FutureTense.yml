@@ -1,6 +1,6 @@
 extends: existence
 message: 'Avoid using future tense: "%s". Use present tense instead.'
-link: https://intranet.redocly.com/contributing/documentation-style-guide/#tone-and-audience
+link: https://intranet.redocly.com/content/documentation-style-guide#tone-and-audience # FIXME: @Lorna
 ignorecase: true
 level: error
 raw:
