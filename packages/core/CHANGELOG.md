@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.25.8
+
+### Patch Changes
+
+- Fixed bundling with the `--dereferenced` option. Previously, references to external files were not substituted with references to components, causing them to become invalid.
+- Fixed an issue where using `externalValue` as a property name was causing the API description validation process to fail.
+
 ## 1.25.7
 
 ### Patch Changes

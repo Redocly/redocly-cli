@@ -1,5 +1,14 @@
 # @redocly/cli
 
+## 1.25.8
+
+### Patch Changes
+
+- Added the `REDOCLY_SUPPRESS_UPDATE_NOTICE` environment variable so that users can skip version updates.
+- Fixed bundling with the `--dereferenced` option. Previously, references to external files were not substituted with references to components, causing them to become invalid.
+- Fixed an issue where using `externalValue` as a property name was causing the API description validation process to fail.
+- Updated @redocly/openapi-core to v1.25.8.
+
 ## 1.25.7
 
 ### Patch Changes
