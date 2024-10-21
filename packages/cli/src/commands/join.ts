@@ -64,18 +64,12 @@ export async function handleJoin({
 }: CommandArgs<JoinOptions>) {
   const startedAt = performance.now();
 
-  if (argv.apis.length < 2) {
-    return exitWithError(`At least 2 apis should be provided.`);
-  }
-
-  const fileExtension = getAndValidateFileExtension(argv.output || argv.apis[0]);
-
   const {
     'prefix-components-with-info-prop': prefixComponentsWithInfoProp,
     'prefix-tags-with-filename': prefixTagsWithFilename,
     'prefix-tags-with-info-prop': prefixTagsWithInfoProp,
     'without-x-tag-groups': withoutXTagGroups,
-    output: specFilename = `openapi.${fileExtension}`,
+    output,
   } = argv;
 
   const usedTagsOptions = [
@@ -91,6 +85,13 @@ export async function handleJoin({
   }
 
   const apis = await getFallbackApisOrExit(argv.apis, config);
+  if (apis.length < 2) {
+    return exitWithError(`At least 2 APIs should be provided.`);
+  }
+
+  const fileExtension = getAndValidateFileExtension(output || apis[0].path);
+  const specFilename = output || `openapi.${fileExtension}`;
+
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
     apis.map(
