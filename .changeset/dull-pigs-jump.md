@@ -3,4 +3,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Removed the `type:none` sourceDescriptions Arazzo extension.
+Updated sourceDescriptions to require a valid type, to align with the Arazzo specification.
