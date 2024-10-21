@@ -32,7 +32,7 @@
     "oas"
   ],
   "contributors": [
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
     "@redocly/ajv": "^8.11.2",

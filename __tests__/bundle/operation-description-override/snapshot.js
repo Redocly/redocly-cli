@@ -12,7 +12,7 @@ info:
   contact:
     name: qa
     url: https://swagger.io/specification/#definitions
-    email: email@redoc.ly
+    email: email@redocly.com
 servers:
   - url: //petstore.swagger.io/v2
     description: Default server

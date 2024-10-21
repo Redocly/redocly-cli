@@ -1,6 +1,6 @@
 extends: substitution
 message: 'Use inclusive language. Consider "%s" instead of "%s".'
-link: https://intranet.redoc.ly/contributing/documentation-style-guide/#grammar-and-syntax
+link: https://intranet.redocly.com/contributing/documentation-style-guide/#grammar-and-syntax
 level: error
 ignorecase: true
 swap:

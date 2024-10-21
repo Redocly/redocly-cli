@@ -8,7 +8,7 @@ bundling ./main.yaml...
 Failed to read markdown override file for tag "pet".
 ENOENT: no such file or directory, open './pet-tag-description.md'
 
-15 |     email: email@redoc.ly
+15 |     email: email@redocly.com
 16 | tags:
 17 |   - name: pet
    |     ^^^^^^^^^

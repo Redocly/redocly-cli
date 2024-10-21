@@ -87,7 +87,7 @@ export async function getPageHTML(
 
       </script>`,
     redocHead:
-      `<script src="https://cdn.redoc.ly/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
+      `<script src="https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
       css,
     title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,

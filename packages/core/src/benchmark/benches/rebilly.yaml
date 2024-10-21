@@ -10,9 +10,6 @@ info:
     name: Rebilly
     url: 'https://www.rebilly.com/api-license/'
   termsOfService: 'https://www.rebilly.com/terms-of-use/'
-  x-logo:
-    url: 'https://rebilly-core.redoc.ly/rb_apiLogo.svg'
-    backgroundColor: '#0033A0'
   description: >
     # Introduction
 

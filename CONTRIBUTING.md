@@ -189,7 +189,7 @@ If you made any changes, make sure to compile the code before running the tests.
 
 - **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/).
 
-- **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redoc.ly/docs/cli/).
+- **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. Сonsists of two packages - CLI and core. The codebase is written in Typescript.
 

@@ -5,7 +5,7 @@ info:
   contact:
     name: qa
     url: https://swagger.io/specification/#definitions
-    email: email@redoc.ly
+    email: email@redocly.com
 servers:
   - url: https://my_api.com
 
