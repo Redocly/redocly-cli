@@ -62,7 +62,7 @@ describe('Arazzo sourceDescriptions-not-empty', () => {
     'arazzo.yaml'
   );
 
-  it('should not report an error when sourceDescriptions have at leasr one entry.', async () => {
+  it('should not report an error when sourceDescriptions have at least one entry.', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: document1,
