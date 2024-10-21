@@ -12,7 +12,7 @@ info:
   contact:
     name: qa
     url: https://swagger.io/specification/#definitions
-    email: email@redoc.ly
+    email: email@redocly.com
 tags:
   - name: test
     description: Description.

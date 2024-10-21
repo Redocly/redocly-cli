@@ -34,7 +34,7 @@ import type {
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
-  `# See https://redoc.ly/docs/cli/ for more information.\n`;
+  `# See https://redocly.com/docs/cli/ for more information.\n`;
 
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {
