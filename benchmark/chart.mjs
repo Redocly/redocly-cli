@@ -15,7 +15,7 @@ const constructBarForChart = (x) => {
 };
 
 const output = [
-  '| CLI Version | Performance benchmark (test duration) |',
+  '| CLI Version | Performance benchmark (test duration diff) |',
   '|---|---|',
   ...arr.map(
     ([cliVersion, mean]) =>
