@@ -398,7 +398,7 @@ function makeBundleVisitor(
       },
     },
     Root: {
-      enter(root: any, ctx: any) {
+      enter(root: any, ctx: UserContext) {
         rootLocation = ctx.location;
         if (version === SpecMajorVersion.OAS3) {
           components = root.components = root.components || {};
@@ -417,7 +417,7 @@ function makeBundleVisitor(
 
   if (version === SpecMajorVersion.OAS3) {
     visitor.DiscriminatorMapping = {
-      leave(mapping: Record<string, string>, ctx: any) {
+      leave(mapping: Record<string, string>, ctx: UserContext) {
         for (const name of Object.keys(mapping)) {
           const $ref = mapping[name];
           const resolved = ctx.resolve({ $ref });

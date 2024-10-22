@@ -126,7 +126,7 @@ export class BaseResolver {
         return new Source(absoluteRef, body, mimeType);
       } else {
         if (fs.lstatSync(absoluteRef).isDirectory()) {
-          throw new Error(`Expected a file but received a folder at ${absoluteRef}`);
+          throw new Error(`Expected a file but received a folder at ${absoluteRef}.`);
         }
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
         // In some cases file have \r\n line delimeters like on windows, we should skip it.
@@ -233,7 +233,7 @@ export async function resolveDocument(opts: {
 }): Promise<ResolvedRefMap> {
   const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
-  const seedNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
+  const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
 
   const resolvePromises: Array<Promise<void>> = [];
   resolveRefsInParallel(rootDocument.parsed, rootDocument, '#/', rootType);
@@ -262,11 +262,11 @@ export async function resolveDocument(opts: {
       }
 
       const nodeId = `${type.name}::${nodeAbsoluteRef}`;
-      if (seedNodes.has(nodeId)) {
+      if (seenNodes.has(nodeId)) {
         return;
       }
 
-      seedNodes.add(nodeId);
+      seenNodes.add(nodeId);
 
       const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
       if (anchor) {
