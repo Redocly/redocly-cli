@@ -1,10 +1,8 @@
 import AbortController from 'abort-controller';
 import fetchWithTimeout from '../utils/fetch-with-timeout';
-import nodeFetch from 'node-fetch';
 import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-jest.mock('node-fetch');
 jest.mock('@redocly/openapi-core');
 
 describe('fetchWithTimeout', () => {
@@ -16,6 +14,12 @@ describe('fetchWithTimeout', () => {
 
   beforeEach(() => {
     (getProxyAgent as jest.Mock).mockReturnValueOnce(undefined);
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: jest.fn().mockResolvedValue({}), // Mocked JSON response
+      } as unknown as Response)
+    );
   });
 
   afterEach(() => {
@@ -26,7 +30,7 @@ describe('fetchWithTimeout', () => {
     await fetchWithTimeout('url', { timeout: 1000 });
 
     expect(global.setTimeout).toHaveBeenCalledTimes(1);
-    expect(nodeFetch).toHaveBeenCalledWith('url', {
+    expect(fetch).toHaveBeenCalledWith('url', {
       signal: new AbortController().signal,
       agent: undefined,
     });
@@ -40,14 +44,14 @@ describe('fetchWithTimeout', () => {
 
     await fetchWithTimeout('url');
 
-    expect(nodeFetch).toHaveBeenCalledWith('url', { agent: proxyAgent });
+    expect(fetch).toHaveBeenCalledWith('url', { agent: proxyAgent });
   });
 
   it('should call node-fetch without signal when timeout is not passed', async () => {
     await fetchWithTimeout('url');
 
     expect(global.setTimeout).not.toHaveBeenCalled();
-    expect(nodeFetch).toHaveBeenCalledWith('url', { agent: undefined });
+    expect(fetch).toHaveBeenCalledWith('url', { agent: undefined });
     expect(global.clearTimeout).not.toHaveBeenCalled();
   });
 });
