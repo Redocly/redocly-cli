@@ -6,9 +6,10 @@ The `type` property of the Source Description object must be either `openapi` or
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-According to the Arazzo spec, the possible values of the Source Description `type` are `openapi` or `arazzo`.
+Arazzo currently supports either an OpenAPI file or another Arazzo file as the source description.
+This rule makes sure that the type is clearly identified and is one of the supported types.
 
 ## Configuration
 

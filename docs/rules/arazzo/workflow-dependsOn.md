@@ -6,9 +6,8 @@ Requires the items in the `workflow` `dependsOn` property to exist and to be uni
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-A list of workflows that should be completed before current workflow can be processed.
 To avoid ambiguity or potential clashes, the `dependsOn` list values should be unique.
 
 ## Configuration

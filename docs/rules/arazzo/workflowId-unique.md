@@ -6,10 +6,10 @@ Requires the `workflowId` property to be unique across all workflows.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-The `workflowId` is a string that represents the workflow.
-According to the spec, the `workflowId` must be unique across all workflows described in the API definition.
+According to the spec, the `workflowId` must be unique across all workflows described in the API description.
+Duplication could also indicate a typo or other mistake; this rule alerts you if such a situation arises.
 
 ## Configuration
 

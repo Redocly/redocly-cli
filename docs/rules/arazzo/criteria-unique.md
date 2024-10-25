@@ -6,9 +6,9 @@ The criteria list must not contain duplicated assertions.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-The criteria list must not contain duplicated assertions.
+To avoid redundancy and confusion, the assertions in the criteria list must not be duplicated.
 
 ## Configuration
 

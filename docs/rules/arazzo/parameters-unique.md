@@ -6,12 +6,12 @@ Requires unique values in the `parameters` lists.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
 A list of `parameters` that are applicable to a step or all the steps described in a workflow should not contain duplicates.
 If duplicates are present, unexpected parameter overrides could cause problems.
 
-Checks parameter lists in the following locations:
+This ruled checks parameter lists in the following locations:
 
 - `workflows.[workflow].parameters`
 - `workflows.[workflow[.steps.[step].parameters`

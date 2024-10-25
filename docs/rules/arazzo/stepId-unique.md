@@ -6,11 +6,12 @@ Requires the `stepId` to be unique amongst all steps described in the workflow.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-The `stepId` is a unique string that represents the step.
-The `stepId` must be unique amongst all steps described in the workflow.
-The `stepId` value is case-sensitive.
+The steps in a workflow each have a required `stepId` field and this must be unique in order to conform with the specification.
+This rule catches any accidental duplication of `stepId` values so that the workflow is valid.
+
+Note: `stepId` values are considered to be case-sensitive.
 
 ## Configuration
 

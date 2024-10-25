@@ -6,9 +6,10 @@ Requires the `onSuccess` actions of the `step` object to be unique.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
 Each `onSuccess` action should be unique to avoid confusion or unexpected outcomes.
+A duplicate could indicate a mistake, or cause unwanted side effects if not detected by this rule.
 
 ## Configuration
 
