@@ -74,22 +74,6 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               problem.forceSeverity = componentSeverity;
             }
             ctx.report(problem);
-            // value.locations.forEach((location) => {
-            //   const problem: Problem = {
-            //     message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at: ${definitions}`,
-            //   };
-            //   problem.location = {
-            //     ...location,
-            //     //   reportOnKey:
-            //     // error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
-            //   };
-            //
-            //   const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            //   if (componentSeverity) {
-            //     problem.forceSeverity = componentSeverity;
-            //   }
-            //   ctx.report(problem);
-            // });
           }
         });
       },
