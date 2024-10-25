@@ -13,15 +13,15 @@ module.exports = {
   coverageThreshold: {
     'packages/core/': {
       statements: 80,
-      branches: 71,
-      functions: 74,
+      branches: 72,
+      functions: 75,
       lines: 80,
     },
     'packages/cli/': {
-      statements: 60,
-      branches: 49,
-      functions: 60,
-      lines: 60,
+      statements: 63,
+      branches: 52,
+      functions: 63,
+      lines: 63,
     },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
