@@ -199,7 +199,6 @@ const testPortalConfig = parseYamlToDocument(
         editPage:
           baseUrl: https://test.com
       graphql:
-        pagination: section
         menu:
           requireExactGroups: false
           groups:

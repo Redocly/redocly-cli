@@ -187,7 +187,6 @@ markdown:
   editPage:
     baseUrl: https://test.com
 graphql:
-  pagination: section
   menu:
     requireExactGroups: false
     groups:
