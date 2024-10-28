@@ -60,7 +60,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            value.locations.forEach((location) => {
+            for (const location of value.locations) {
               const definitions = Array.from(value.absolutePointers)
                 .filter((v) => v !== location.absolutePointer.toString())
                 .map((v) => `- ${v}`)
@@ -73,8 +73,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
                 problem.forceSeverity = componentSeverity;
               }
               ctx.report(problem);
-            });
-
+            }
           }
         });
       },
