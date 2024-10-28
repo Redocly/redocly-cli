@@ -1,0 +1,25 @@
+openapi: 3.1.0
+info: {}
+paths:
+  /test:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/christmas-tree'
+components:
+  schemas:
+    christmas-tree:
+      type: array
+      items:
+        discriminator:
+          propertyName: type
+          mapping:
+            candy-cane: schemas/candy-cane.yaml
+            popcorn: schemas/popcorn.yaml
+            cranberry: schemas/cranberry.yaml
+        anyOf:
+          - $ref: schemas/candy-cane.yaml
+          - $ref: schemas/popcorn.yaml
+          - $ref: schemas/cranberry.yaml

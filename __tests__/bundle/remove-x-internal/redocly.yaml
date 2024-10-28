@@ -1,0 +1,5 @@
+apis:
+  main:
+    root: ./main.yaml
+    decorators:
+      remove-x-internal: on
