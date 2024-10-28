@@ -59,23 +59,22 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
           if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
-            const definitions = Array.from(value.absolutePointers)
-              .map((v) => `- ${v}`)
-              .join('\n');
-            const problem: Problem = {
-              message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at:\n${definitions}`,
-            };
-            problem.location = {
-              ...value.locations.sort((a, b) =>
-                a.absolutePointer.localeCompare(b.absolutePointer)
-              )[0],
-            };
-
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            if (componentSeverity) {
-              problem.forceSeverity = componentSeverity;
-            }
-            ctx.report(problem);
+            value.locations.forEach((location) => {
+              const definitions = Array.from(value.absolutePointers)
+                .filter((v) => v !== location.absolutePointer.toString())
+                .map((v) => `- ${v}`)
+                .join('\n');
+              const problem: Problem = {
+                message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is also defined at:\n${definitions}`,
+                location: location,
+              };
+              if (componentSeverity) {
+                problem.forceSeverity = componentSeverity;
+              }
+              ctx.report(problem);
+            });
+
           }
         });
       },
