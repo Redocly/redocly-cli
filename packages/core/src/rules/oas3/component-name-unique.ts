@@ -1,3 +1,4 @@
+import type { Location } from '../../ref-utils';
 import type { Problem, UserContext } from '../../walk';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
 import type {
@@ -21,8 +22,10 @@ const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
   [TYPE_NAME_REQUEST_BODY]: 'requestBodies',
 };
 
+type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[] };
+
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
-  const components = new Map<string, Set<string>>();
+  const components = new Map<string, ComponentsMapValue>();
 
   const typeNames: string[] = [];
   if (options.schemas !== 'off') {
@@ -46,32 +49,31 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
 
-          addComponentFromAbsoluteLocation(
-            typeName,
-            resolvedRef.location.absolutePointer.toString()
-          );
+          addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
         }
       },
     },
     Root: {
       leave(root: Oas3Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
-          if (value.size > 1) {
+          if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
-            const definitions = Array.from(value)
-              .map((v) => `- ${v}`)
-              .join('\n');
-
-            const problem: Problem = {
-              message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at:\n${definitions}`,
-            };
-
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            if (componentSeverity) {
-              problem.forceSeverity = componentSeverity;
+            for (const location of value.locations) {
+              const definitions = Array.from(value.absolutePointers)
+                .filter((v) => v !== location.absolutePointer.toString())
+                .map((v) => `- ${v}`)
+                .join('\n');
+              const problem: Problem = {
+                message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is also defined at:\n${definitions}`,
+                location: location,
+              };
+              if (componentSeverity) {
+                problem.forceSeverity = componentSeverity;
+              }
+              ctx.report(problem);
             }
-            ctx.report(problem);
           }
         });
       },
@@ -81,7 +83,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   if (options.schemas != 'off') {
     rule.NamedSchemas = {
       Schema(_: Oas3Schema, { location }: UserContext) {
-        addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location.absolutePointer.toString());
+        addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location);
       },
     };
   }
@@ -89,7 +91,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   if (options.responses != 'off') {
     rule.NamedResponses = {
       Response(_: Oas3Response, { location }: UserContext) {
-        addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location.absolutePointer.toString());
+        addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location);
       },
     };
   }
@@ -97,7 +99,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   if (options.parameters != 'off') {
     rule.NamedParameters = {
       Parameter(_: Oas3Parameter, { location }: UserContext) {
-        addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location.absolutePointer.toString());
+        addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location);
       },
     };
   }
@@ -105,10 +107,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   if (options.requestBodies != 'off') {
     rule.NamedRequestBodies = {
       RequestBody(_: Oas3RequestBody, { location }: UserContext) {
-        addComponentFromAbsoluteLocation(
-          TYPE_NAME_REQUEST_BODY,
-          location.absolutePointer.toString()
-        );
+        addComponentFromAbsoluteLocation(TYPE_NAME_REQUEST_BODY, location);
       },
     };
   }
@@ -127,20 +126,23 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     return componentName;
   }
 
-  function addFoundComponent(
-    typeName: string,
-    componentName: string,
-    absoluteLocation: string
-  ): void {
+  function addFoundComponent(typeName: string, componentName: string, location: Location): void {
     const key = getKeyForComponent(typeName, componentName);
-    const locations = components.get(key) ?? new Set();
-    locations.add(absoluteLocation);
-    components.set(key, locations);
+    const entry: ComponentsMapValue = components.get(key) ?? {
+      absolutePointers: new Set(),
+      locations: [],
+    };
+    const absoluteLocation = location.absolutePointer.toString();
+    if (!entry.absolutePointers.has(absoluteLocation)) {
+      entry.absolutePointers.add(absoluteLocation);
+      entry.locations.push(location);
+    }
+    components.set(key, entry);
   }
 
-  function addComponentFromAbsoluteLocation(typeName: string, absoluteLocation: string): void {
-    const componentName = getComponentNameFromAbsoluteLocation(absoluteLocation);
-    addFoundComponent(typeName, componentName, absoluteLocation);
+  function addComponentFromAbsoluteLocation(typeName: string, location: Location): void {
+    const componentName = getComponentNameFromAbsoluteLocation(location.absolutePointer.toString());
+    addFoundComponent(typeName, componentName, location);
   }
 };
 
