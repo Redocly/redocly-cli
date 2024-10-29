@@ -22,6 +22,61 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     });
   }
 
+  function getBasePath(path: string): string {
+    const [fileLocation, localPointer] = path.split('#', 2);
+    return `${fileLocation}#${localPointer.split('/').slice(0, 4).join('/')}`;
+  }
+
+  function removeCircularDependencies(): void {
+    const visited = new Set<string>();
+    const stack = new Set<string>();
+    const circularDeps = new Set<string>();
+
+    function detectCircularDependencies(path: string): boolean {
+      if (stack.has(path)) {
+        circularDeps.add(path);
+        return true;
+      }
+
+      if (visited.has(path)) {
+        return false;
+      }
+
+      visited.add(path);
+      stack.add(path);
+
+      const component = components.get(path);
+      if (component) {
+        for (const location of component.usedIn) {
+          const neighbor = getBasePath(location.absolutePointer);
+          if (detectCircularDependencies(neighbor)) {
+            return true;
+          }
+        }
+      }
+
+      stack.delete(path);
+      return false;
+    }
+
+    for (const path of components.keys()) {
+      if (!visited.has(path)) {
+        stack.clear();
+        visited.clear();
+        detectCircularDependencies(path)
+      }
+    }
+
+    for (const path of circularDeps) {
+      const component = components.get(path);
+      if (component) {
+        component.usedIn = component.usedIn.filter(
+          (location) => !circularDeps.has(getBasePath(location.absolutePointer))
+        );
+      }
+    }
+  }
+
   function removeUnusedComponents(root: Oas3Definition, removedPaths: string[]): number {
     const removedLengthStart = removedPaths.length;
 
@@ -30,9 +85,10 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
         (location) =>
           !removedPaths.some(
             (removed) =>
-              location.absolutePointer.startsWith(removed) &&
-              (location.absolutePointer.length === removed.length ||
-                location.absolutePointer[removed.length] === '/')
+              location.absolutePointer.startsWith(path) ||
+              (location.absolutePointer.startsWith(removed) &&
+                (location.absolutePointer.length === removed.length ||
+                  location.absolutePointer[removed.length] === '/'))
           )
       );
 
@@ -68,12 +124,20 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
           const registered = components.get(pointer);
+          const basePath = getBasePath(location.absolutePointer);
 
-          if (registered) {
-            registered.usedIn.push(location);
-          } else {
+          if (pointer !== basePath) {
+            if (registered) {
+              registered.usedIn.push(location);
+            } else {
+              components.set(pointer, {
+                usedIn: [location],
+                name: key.toString(),
+              });
+            }
+          } else if (!registered) {
             components.set(pointer, {
-              usedIn: [location],
+              usedIn: [],
               name: key.toString(),
             });
           }
@@ -82,7 +146,9 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     },
     Root: {
       leave(root, ctx) {
+        removeCircularDependencies();
         const data = ctx.getVisitorData() as { removedCount: number };
+
         data.removedCount = removeUnusedComponents(root, []);
 
         if (isEmptyObject(root.components)) {

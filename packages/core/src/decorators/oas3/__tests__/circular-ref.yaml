@@ -1,0 +1,88 @@
+openapi: 3.1.0
+info:
+  title: 'Test'
+  version: '1.0.0'
+paths:
+  /pet:
+    post:
+      parameters:
+        - in: query
+          name: test
+          schema:
+            $ref: '#/components/schemas/wefewf'
+components:
+  schemas:
+    abc:
+      properties:
+        property:
+          type: string
+      type: object
+    jkl:
+      properties:
+        filters:
+          items:
+            $ref: '#/components/schemas/abc'
+          type: array
+      type: object
+    def:
+      type: object
+    ghi:
+      properties:
+        property:
+          allOf:
+            - $ref: '#/components/schemas/jkl'
+        property1:
+          items:
+            $ref: '#/components/schemas/def'
+          type: array
+        property2:
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/ghi'
+              - $ref: '#/components/schemas/mnor'
+          type: array
+        property3:
+          items:
+            $ref: '#/components/schemas/pqr'
+          type: array
+        property4:
+          allOf:
+            - $ref: '#/components/schemas/stu'
+      type: object
+    pqr:
+      properties:
+        property:
+          items:
+            $ref: '#/components/schemas/def'
+          type: array
+      type: object
+    mnor:
+      properties:
+        property:
+          items:
+            $ref: '#/components/schemas/def'
+          type: array
+        property1:
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/ghi'
+              - $ref: '#/components/schemas/mnor'
+          type: array
+        property2:
+          items:
+            $ref: '#/components/schemas/pqr'
+          type: array
+      type: object
+    stu:
+      properties:
+        type:
+          allOf:
+            - $ref: '#/components/schemas/vwx'
+          default: absolute
+      type: object
+    vwx:
+      description: An enumeration.
+    wefewf:
+      properties:
+        property:
+          type: string
