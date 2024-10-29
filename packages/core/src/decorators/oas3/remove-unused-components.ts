@@ -63,7 +63,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       if (!visited.has(path)) {
         stack.clear();
         visited.clear();
-        detectCircularDependencies(path)
+        detectCircularDependencies(path);
       }
     }
 
