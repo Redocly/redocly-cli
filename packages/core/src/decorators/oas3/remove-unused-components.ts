@@ -119,10 +119,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
 
-          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
-          const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
-          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
-
+          const pointer = getBasePath(resolvedRef.location.absolutePointer);
           const registered = components.get(pointer);
           const basePath = getBasePath(location.absolutePointer);
 
