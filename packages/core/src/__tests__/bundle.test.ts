@@ -265,6 +265,57 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should not fail when bundling openapi with nulls', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths: 
+          /:
+            get: 
+              responses: 
+                200:
+                  content: 
+                    application/json: 
+                      schema: 
+                        type: object
+                        properties: 
+                      examples: 
+                        Foo:           
+      `,
+      ''
+    );
+
+    const config = await makeConfig({ rules: {} });
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      paths:
+        /:
+          get:
+            responses:
+              '200':
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties: null
+                    examples:
+                      Foo: null
+      components: {}
+
+    `);
+  });
 });
 
 describe('bundleFromString', () => {

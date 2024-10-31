@@ -9,7 +9,7 @@ import {
   SpecMajorVersion,
   SpecVersion,
 } from './oas-types';
-import { isAbsoluteUrl, isRef, refBaseName } from './ref-utils';
+import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { dequal, isPlainObject, isTruthy } from './utils';
@@ -380,7 +380,7 @@ function makeBundleVisitor(
     },
     Example: {
       leave(node: any, ctx: UserContext) {
-        if (node.externalValue && node.value === undefined) {
+        if (isExternalValue(node) && node.value === undefined) {
           const resolved = ctx.resolve({ $ref: node.externalValue });
 
           if (!resolved.location || resolved.node === undefined) {
