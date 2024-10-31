@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 1.25.10
+
+### Patch Changes
+
+- Fixed `component-name-unique` problems to include correct location.
+- Fixed the `remove-x-internal` decorator, which was not removing the reference in the corresponding discriminator mapping while removing the original `$ref`.
+- Updated @redocly/openapi-core to v1.25.10.
+
 ## 1.25.9
 
 ### Patch Changes

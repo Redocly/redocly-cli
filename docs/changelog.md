@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.10 (2024-10-30)
+
+### Patch Changes
+
+- Fixed `component-name-unique` problems to include correct location.
+- Fixed the `remove-x-internal` decorator, which was not removing the reference in the corresponding discriminator mapping while removing the original `$ref`.
+- Updated @redocly/openapi-core to v1.25.10.
+
 ## 1.25.9 (2024-10-25)
 
 ### Patch Changes
