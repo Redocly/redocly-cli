@@ -65,7 +65,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   return {
     DiscriminatorMapping: {
       enter: (mapping: Record<string, string>) => {
-        originalMapping = structuredClone(mapping);
+        originalMapping = JSON.parse(JSON.stringify(mapping));
       },
     },
     any: {
