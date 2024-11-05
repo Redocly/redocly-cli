@@ -12,7 +12,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
 ): Oas3Visitor => {
   return {
     Parameter: {
-      leave(node: Oas3Parameter, ctx) {
+      leave(node: Oas3Parameter<Oas3_1Schema>, ctx) {
         if (!node.schema) {
           return;
         }
@@ -32,7 +32,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
 };
 
 function shouldReportMissingStyleAndExplode(
-  node: Oas3Parameter,
+  node: Oas3Parameter<Oas3_1Schema>,
   schema: Oas3_1Schema,
   options: ArrayParameterSerializationOptions
 ) {

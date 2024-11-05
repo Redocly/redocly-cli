@@ -1,6 +1,6 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { Oas2PathItem } from '../../typings/swagger';
-import type { Oas3PathItem } from '../../typings/openapi';
+import type { Oas3PathItem, Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
 import type { UserContext } from '../../walk';
 
 const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
@@ -12,7 +12,7 @@ export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts: any) => {
   }
 
   return {
-    PathItem(path: Oas2PathItem | Oas3PathItem, { report, location }: UserContext) {
+    PathItem(path: Oas2PathItem | Oas3PathItem<Oas3Schema | Oas3_1Schema>, { report, location }: UserContext) {
       const httpVerbs = Object.keys(path).filter((k) => order.includes(k));
 
       for (let i = 0; i < httpVerbs.length - 1; i++) {

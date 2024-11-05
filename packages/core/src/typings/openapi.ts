@@ -1,13 +1,13 @@
-export interface Oas3Definition {
+export interface Oas3Definition<T extends Oas3Schema | Oas3_1Schema> {
   openapi: string;
   info?: Oas3Info;
   servers?: Oas3Server[];
-  paths?: Oas3Paths;
-  components?: Oas3Components;
+  paths?: Oas3Paths<T>;
+  components?: Oas3Components<T>;
   security?: Oas3SecurityRequirement[];
   tags?: Oas3Tag[];
   externalDocs?: Oas3ExternalDocs;
-  'x-webhooks'?: Oas3_1Webhooks;
+  'x-webhooks'?: Oas3_1Webhooks<T>;
 }
 
 export interface Oas3Info {
@@ -32,8 +32,8 @@ export interface Oas3ServerVariable {
   description?: string;
 }
 
-export interface Oas3Paths {
-  [path: string]: Referenced<Oas3PathItem>;
+export interface Oas3Paths<T extends Oas3Schema | Oas3_1Schema> {
+  [path: string]: Referenced<Oas3PathItem<T>>;
 }
 export interface OasRef {
   $ref: string;
@@ -41,19 +41,20 @@ export interface OasRef {
 
 export type Referenced<T> = OasRef | T;
 
-export interface Oas3PathItem {
+export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema> {
   summary?: string;
   description?: string;
-  get?: Oas3Operation;
-  put?: Oas3Operation;
-  post?: Oas3Operation;
-  delete?: Oas3Operation;
-  options?: Oas3Operation;
-  head?: Oas3Operation;
-  patch?: Oas3Operation;
-  trace?: Oas3Operation;
+  get?: Oas3Operation<T>;
+  put?: Oas3Operation<T>;
+  post?: Oas3Operation<T>;
+  delete?: Oas3Operation<T>;
+  options?: Oas3Operation<T>;
+  head?: Oas3Operation<T>;
+  patch?: Oas3Operation<T>;
+  trace?: Oas3Operation<T>;
   servers?: Oas3Server[];
-  parameters?: Array<Referenced<Oas3Parameter>>;
+  parameters?: Array<Referenced<Oas3Parameter<T>>>;
+  $ref?: Referenced<OasRef>;
 }
 
 export interface Oas3XCodeSample {
@@ -62,16 +63,16 @@ export interface Oas3XCodeSample {
   source: string;
 }
 
-export interface Oas3Operation {
+export interface Oas3Operation<T extends Oas3Schema | Oas3_1Schema> {
   tags?: string[];
   summary?: string;
   description?: string;
   externalDocs?: Oas3ExternalDocs;
   operationId?: string;
-  parameters?: Array<Referenced<Oas3Parameter>>;
-  requestBody?: Referenced<Oas3RequestBody>;
-  responses: Oas3Responses;
-  callbacks?: { [name: string]: Referenced<Oas3Callback> };
+  parameters?: Array<Referenced<Oas3Parameter<T>>>;
+  requestBody?: Referenced<Oas3RequestBody<T>>;
+  responses: Oas3Responses<T>;
+  callbacks?: { [name: string]: Referenced<Oas3Callback<T>> };
   deprecated?: boolean;
   security?: Oas3SecurityRequirement[];
   servers?: Oas3Server[];
@@ -80,7 +81,7 @@ export interface Oas3Operation {
   'x-hideTryItPanel'?: boolean;
 }
 
-export interface Oas3Parameter {
+export interface Oas3Parameter<T extends Oas3Schema | Oas3_1Schema> {
   name: string;
   in?: Oas3ParameterLocation;
   description?: string;
@@ -90,10 +91,10 @@ export interface Oas3Parameter {
   style?: Oas3ParameterStyle;
   explode?: boolean;
   allowReserved?: boolean;
-  schema?: Referenced<Oas3Schema>;
+  schema?: Referenced<T>;
   example?: unknown;
   examples?: { [media: string]: Referenced<Oas3Example> };
-  content?: { [media: string]: Oas3MediaType };
+  content?: { [media: string]: Oas3MediaType<T> };
 }
 
 export interface Oas3Example {
@@ -112,7 +113,7 @@ export interface Oas3Xml {
 }
 
 // common fields for OpenAPI Schema v3.x
-interface Oas3XSchemaBase {
+interface Oas3XSchemaBase<T extends Oas3Schema | Oas3_1Schema> {
   $ref?: string;
   description?: string;
   default?: unknown;
@@ -123,8 +124,10 @@ interface Oas3XSchemaBase {
   format?: string;
   externalDocs?: Oas3ExternalDocs;
   discriminator?: Oas3Discriminator;
-  nullable?: boolean;
-
+  oneOf?: T[];
+  anyOf?: T[];
+  allOf?: T[];
+  not?: T;
   title?: string;
   multipleOf?: number;
   maximum?: number;
@@ -132,9 +135,11 @@ interface Oas3XSchemaBase {
   maxLength?: number;
   minLength?: number;
   pattern?: string;
+  items?: boolean | T;
   maxItems?: number;
   minItems?: number;
   uniqueItems?: boolean;
+  additionalProperties?: boolean | T;
   maxProperties?: number;
   minProperties?: number;
   enum?: unknown[];
@@ -144,30 +149,27 @@ interface Oas3XSchemaBase {
   'x-tags'?: string[];
 }
 
-export interface Oas3Schema extends Oas3XSchemaBase {
+export interface Oas3Schema extends Oas3XSchemaBase<Oas3Schema> {
   type?: string;
   properties?: { [name: string]: Referenced<Oas3Schema> };
-  additionalProperties?: boolean | Oas3Schema;
-  items?: Oas3Schema;
   exclusiveMaximum?: boolean;
   exclusiveMinimum?: boolean;
-  oneOf?: Oas3Schema[];
-  anyOf?: Oas3Schema[];
-  allOf?: Oas3Schema[];
-  not?: Oas3Schema;
+  nullable?: boolean;
 }
 
-export interface Oas3_1Schema extends Oas3XSchemaBase {
+export interface Oas3_1Schema extends Oas3XSchemaBase<Oas3_1Schema> {
+  $id?: string;
+  $schema?: string;
+  $anchor?: string;
+  $dynamicAnchor?: string;
+  $dynamicRef?: string;
+  $defs?: { [name: string]: Referenced<Oas3_1Schema> };
+  $vocabulary?: { [uri: string]: boolean };
+  $comment?: string;
   type?: string | string[];
   properties?: { [name: string]: Referenced<Oas3_1Schema> };
-  additionalProperties?: boolean | Oas3_1Schema;
   examples?: unknown[];
   prefixItems?: Oas3_1Schema[];
-  items?: Oas3_1Schema;
-  oneOf?: Oas3_1Schema[];
-  anyOf?: Oas3_1Schema[];
-  allOf?: Oas3_1Schema[];
-  not?: Oas3_1Schema;
   exclusiveMaximum?: number;
   exclusiveMinimum?: number;
   const?: unknown;
@@ -181,19 +183,19 @@ export interface Oas3_1Schema extends Oas3XSchemaBase {
   dependentRequired?: { [name: string]: string[] };
   dependentSchemas?: { [name: string]: Referenced<Oas3_1Schema> };
   patternProperties?: { [name: string]: Referenced<Oas3_1Schema> };
-  unevaluatedItems?: Oas3_1Schema;
-  unevaluatedProperties?: Oas3_1Schema;
+  unevaluatedItems?: boolean | Oas3_1Schema;
+  unevaluatedProperties?: boolean | Oas3_1Schema;
   contentSchema?: Oas3_1Schema;
   contentMediaType?: string;
   contentEncoding?: string;
 }
 
-export interface Oas3_1Definition extends Oas3Definition {
-  webhooks?: Oas3_1Webhooks;
+export interface Oas3_1Definition<T extends Oas3Schema | Oas3_1Schema> extends Oas3Definition<T> {
+  webhooks?: Oas3_1Webhooks<T>;
 }
 
-export interface Oas3_1Webhooks {
-  [webhook: string]: Referenced<Oas3PathItem>;
+export interface Oas3_1Webhooks<T extends Oas3Schema | Oas3_1Schema> {
+  [webhook: string]: Referenced<Oas3PathItem<T>>;
 }
 
 export interface Oas3Discriminator {
@@ -202,16 +204,16 @@ export interface Oas3Discriminator {
   'x-explicitMappingOnly'?: boolean;
 }
 
-export interface Oas3MediaType {
-  schema?: Referenced<Oas3Schema>;
+export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema> {
+  schema?: Referenced<T>;
   example?: unknown;
   examples?: { [name: string]: Referenced<Oas3Example> };
-  encoding?: { [field: string]: Oas3Encoding };
+  encoding?: { [field: string]: Oas3Encoding<T> };
 }
 
-export interface Oas3Encoding {
+export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema> {
   contentType: string;
-  headers?: { [name: string]: Referenced<Oas3Header> };
+  headers?: { [name: string]: Referenced<Oas3Header<T>> };
   style: Oas3ParameterStyle;
   explode: boolean;
   allowReserved: boolean;
@@ -227,46 +229,55 @@ export type Oas3ParameterStyle =
   | 'pipeDelimited'
   | 'deepObject';
 
-export interface Oas3RequestBody {
+export interface Oas3RequestBody<T extends Oas3Schema | Oas3_1Schema> {
   description?: string;
   required?: boolean;
-  content: { [mime: string]: Oas3MediaType };
+  content: { [mime: string]: Oas3MediaType<T> };
 }
 
-export interface Oas3Responses {
-  [code: string]: Oas3Response;
+export interface Oas3Responses<T extends Oas3Schema | Oas3_1Schema> {
+  [code: string]: Oas3Response<T>;
 }
 
-export interface Oas3Response {
+export interface Oas3Response<T extends Oas3Schema | Oas3_1Schema> {
   description?: string;
-  headers?: { [name: string]: Referenced<Oas3Header> };
-  content?: { [mime: string]: Oas3MediaType };
+  headers?: { [name: string]: Referenced<Oas3Header<T>> };
+  content?: { [mime: string]: Oas3MediaType<T> };
   links?: { [name: string]: Referenced<Oas3Link> };
 }
 
 export interface Oas3Link {
-  $ref?: string;
+  operationRef?: string;
+  operationId?: string;
+  parameters?: { [ name: string]: unknown };
+  requestBody?: unknown;
+  description?: string;
+  server?: Oas3Server;
 }
 
-export type Oas3Header = Omit<Oas3Parameter, 'in' | 'name'>;
+export type Oas3Header<T extends Oas3Schema | Oas3_1Schema> = Omit<Oas3Parameter<T>, 'in' | 'name'>;
 
-export interface Oas3Callback {
-  [name: string]: Oas3PathItem;
+export interface Oas3Callback<T extends Oas3Schema | Oas3_1Schema> {
+  [name: string]: Oas3PathItem<T>;
 }
 
-export interface Oas3Components {
-  schemas?: { [name: string]: Referenced<Oas3Schema> };
-  responses?: { [name: string]: Referenced<Oas3Response> };
-  parameters?: { [name: string]: Referenced<Oas3Parameter> };
+export interface Oas3Components<T extends Oas3Schema | Oas3_1Schema> {
+  schemas?: { [name: string]: Referenced<T> };
+  responses?: { [name: string]: Referenced<Oas3Response<T>> };
+  parameters?: { [name: string]: Referenced<Oas3Parameter<T>> };
   examples?: { [name: string]: Referenced<Oas3Example> };
-  requestBodies?: { [name: string]: Referenced<Oas3RequestBody> };
-  headers?: { [name: string]: Referenced<Oas3Header> };
+  requestBodies?: { [name: string]: Referenced<Oas3RequestBody<T>> };
+  headers?: { [name: string]: Referenced<Oas3Header<T>> };
   securitySchemes?: { [name: string]: Referenced<Oas3SecurityScheme> };
   links?: { [name: string]: Referenced<Oas3Link> };
-  callbacks?: { [name: string]: Referenced<Oas3Callback> };
+  callbacks?: { [name: string]: Referenced<Oas3Callback<T>> };
 }
 
-export type Oas3ComponentName = keyof Oas3Components;
+export interface Oas3_1Components<T extends Oas3Components<Oas3_1Schema>>{
+  pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3_1Schema>> };
+}
+
+export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema> = keyof Oas3Components<T>;
 
 export interface Oas3SecurityRequirement {
   [name: string]: string[];

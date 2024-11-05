@@ -2,17 +2,17 @@ import { isEmptyObject } from '../../utils';
 
 import type { Location } from '../../ref-utils';
 import type { Oas3Decorator } from '../../visitors';
-import type { Oas3Components, Oas3Definition } from '../../typings/openapi';
+import type { Oas3Schema, Oas3_1Schema, Oas3Components, Oas3Definition } from '../../typings/openapi';
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
-    { usedIn: Location[]; componentType?: keyof Oas3Components; name: string }
+    { usedIn: Location[]; componentType?: keyof Oas3Components<Oas3Schema | Oas3_1Schema>; name: string }
   >();
 
   function registerComponent(
     location: Location,
-    componentType: keyof Oas3Components,
+    componentType: keyof Oas3Components<Oas3Schema | Oas3_1Schema>,
     name: string
   ): void {
     components.set(location.absolutePointer, {
@@ -22,7 +22,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     });
   }
 
-  function removeUnusedComponents(root: Oas3Definition, removedPaths: string[]): number {
+  function removeUnusedComponents(root: Oas3Definition<Oas3Schema | Oas3_1Schema>, removedPaths: string[]): number {
     const removedLengthStart = removedPaths.length;
 
     for (const [path, { usedIn, name, componentType }] of components) {

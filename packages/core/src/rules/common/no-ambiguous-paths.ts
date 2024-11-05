@@ -1,11 +1,11 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
-import type { Oas3Paths } from '../../typings/openapi';
+import type { Oas3_1Schema, Oas3Paths, Oas3Schema } from '../../typings/openapi';
 import type { Oas2Paths } from '../../typings/swagger';
 
 export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
   return {
-    Paths(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
+    Paths(pathMap: Oas3Paths<Oas3Schema | Oas3_1Schema> | Oas2Paths, { report, location }: UserContext) {
       const seenPaths: string[] = [];
 
       for (const currentPath of Object.keys(pathMap)) {
