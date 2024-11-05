@@ -91,13 +91,13 @@ export interface Oas3Parameter {
   explode?: boolean;
   allowReserved?: boolean;
   schema?: Referenced<Oas3Schema>;
-  example?: any;
+  example?: unknown;
   examples?: { [media: string]: Referenced<Oas3Example> };
   content?: { [media: string]: Oas3MediaType };
 }
 
 export interface Oas3Example {
-  value: any;
+  value: unknown;
   summary?: string;
   description?: string;
   externalValue?: string;
@@ -112,13 +112,10 @@ export interface Oas3Xml {
 }
 
 // common fields for OpenAPI Schema v3.x
-interface Oas3XSchemaBase<T> {
+interface Oas3XSchemaBase {
   $ref?: string;
-  properties?: { [name: string]: T };
-  additionalProperties?: boolean | T;
   description?: string;
-  default?: any;
-  items?: T;
+  default?: unknown;
   required?: string[];
   readOnly?: boolean;
   writeOnly?: boolean;
@@ -127,17 +124,11 @@ interface Oas3XSchemaBase<T> {
   externalDocs?: Oas3ExternalDocs;
   discriminator?: Oas3Discriminator;
   nullable?: boolean;
-  oneOf?: T[];
-  anyOf?: T[];
-  allOf?: T[];
-  not?: T;
 
   title?: string;
   multipleOf?: number;
   maximum?: number;
-  exclusiveMaximum?: boolean;
   minimum?: number;
-  exclusiveMinimum?: boolean;
   maxLength?: number;
   minLength?: number;
   pattern?: string;
@@ -146,21 +137,55 @@ interface Oas3XSchemaBase<T> {
   uniqueItems?: boolean;
   maxProperties?: number;
   minProperties?: number;
-  enum?: any[];
-  example?: any;
+  enum?: unknown[];
+  example?: unknown;
 
   xml?: Oas3Xml;
   'x-tags'?: string[];
 }
 
-export interface Oas3Schema extends Oas3XSchemaBase<Oas3Schema> {
+export interface Oas3Schema extends Oas3XSchemaBase {
   type?: string;
+  properties?: { [name: string]: Referenced<Oas3Schema> };
+  additionalProperties?: boolean | Oas3Schema;
+  items?: Oas3Schema;
+  exclusiveMaximum?: boolean;
+  exclusiveMinimum?: boolean;
+  oneOf?: Oas3Schema[];
+  anyOf?: Oas3Schema[];
+  allOf?: Oas3Schema[];
+  not?: Oas3Schema;
 }
 
-export interface Oas3_1Schema extends Oas3XSchemaBase<Oas3_1Schema> {
+export interface Oas3_1Schema extends Oas3XSchemaBase {
   type?: string | string[];
-  examples?: any[];
+  properties?: { [name: string]: Referenced<Oas3_1Schema> };
+  additionalProperties?: boolean | Oas3_1Schema;
+  examples?: unknown[];
   prefixItems?: Oas3_1Schema[];
+  items?: Oas3_1Schema;
+  oneOf?: Oas3_1Schema[];
+  anyOf?: Oas3_1Schema[];
+  allOf?: Oas3_1Schema[];
+  not?: Oas3_1Schema;
+  exclusiveMaximum?: number;
+  exclusiveMinimum?: number;
+  const?: unknown;
+  contains?: Oas3_1Schema;
+  minContains?: number;
+  maxContains?: number;
+  propertyNames?: Oas3_1Schema;
+  if?: Oas3_1Schema;
+  then?: Oas3_1Schema;
+  else?: Oas3_1Schema;
+  dependentRequired?: { [name: string]: string[] };
+  dependentSchemas?: { [name: string]: Referenced<Oas3_1Schema> };
+  patternProperties?: { [name: string]: Referenced<Oas3_1Schema> };
+  unevaluatedItems?: Oas3_1Schema;
+  unevaluatedProperties?: Oas3_1Schema;
+  contentSchema?: Oas3_1Schema;
+  contentMediaType?: string;
+  contentEncoding?: string;
 }
 
 export interface Oas3_1Definition extends Oas3Definition {
@@ -179,7 +204,7 @@ export interface Oas3Discriminator {
 
 export interface Oas3MediaType {
   schema?: Referenced<Oas3Schema>;
-  example?: any;
+  example?: unknown;
   examples?: { [name: string]: Referenced<Oas3Example> };
   encoding?: { [field: string]: Oas3Encoding };
 }
