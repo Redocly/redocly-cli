@@ -1,6 +1,5 @@
 ---
-"@redocly/openapi-core": minor
-"@redocly/cli": minor
+"@redocly/openapi-core": patch
 ---
 
-Update typings for OAS 3.0 and OAS 3.1 Schemas
+Updated typings for OAS 3.0 and OAS 3.1 Schemas.

@@ -8,6 +8,8 @@ import type {
   Oas2SecurityScheme,
 } from '../../typings/swagger';
 import type {
+  Oas3Schema,
+  Oas3_1Schema,
   Oas3Definition,
   Oas3Operation,
   Oas3PathItem,
@@ -31,7 +33,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
 
   return {
     Root: {
-      leave(root: Oas2Definition | Oas3Definition, { report }: UserContext) {
+      leave(root: Oas2Definition | Oas3Definition<Oas3Schema | Oas3_1Schema>, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
@@ -69,10 +71,10 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
       }
     },
     PathItem: {
-      enter(pathItem: Oas2PathItem | Oas3PathItem, { key }: UserContext) {
+      enter(pathItem: Oas2PathItem | Oas3PathItem<Oas3Schema | Oas3_1Schema>, { key }: UserContext) {
         path = key as string;
       },
-      Operation(operation: Oas2Operation | Oas3Operation, { location, key }: UserContext) {
+      Operation(operation: Oas2Operation | Oas3Operation<Oas3Schema | Oas3_1Schema>, { location, key }: UserContext) {
         const isException = opts.exceptions?.some(
           (item) =>
             item.path === path &&

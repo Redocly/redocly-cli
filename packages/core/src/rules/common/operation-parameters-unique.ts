@@ -1,6 +1,6 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { Oas2Parameter } from '../../typings/swagger';
-import type { Oas3Parameter } from '../../typings/openapi';
+import type { Oas3Schema, Oas3_1Schema, Oas3Parameter } from '../../typings/openapi';
 import type { UserContext } from '../../walk';
 
 export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
@@ -13,7 +13,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
         seenPathParams = new Set();
       },
       Parameter(
-        parameter: Oas2Parameter | Oas3Parameter,
+        parameter: Oas2Parameter | Oas3Parameter<Oas3Schema | Oas3_1Schema>,
         { report, key, parentLocations }: UserContext
       ) {
         const paramId = `${parameter.in}___${parameter.name}`;
@@ -30,7 +30,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
           seenOperationParams = new Set();
         },
         Parameter(
-          parameter: Oas2Parameter | Oas3Parameter,
+          parameter: Oas2Parameter | Oas3Parameter<Oas3Schema | Oas3_1Schema>,
           { report, key, parentLocations }: UserContext
         ) {
           const paramId = `${parameter.in}___${parameter.name}`;
