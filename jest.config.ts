@@ -14,13 +14,12 @@ const jestConfig: JestConfigWithTsJest = {
       'ts-jest',
       {
         useESM: true,
+        tsconfig: {
+          esModuleInterop: true,
+          allowSyntheticDefaultImports: true
+        }
       },
     ],
-  },
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
   },
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
@@ -50,6 +49,7 @@ const jestConfig: JestConfigWithTsJest = {
     },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
+  setupFiles: ['<rootDir>/setup-jest.js'],
 };
 
 export default jestConfig;
