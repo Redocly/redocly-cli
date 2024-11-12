@@ -209,7 +209,7 @@ describe('bundle', () => {
       expect(process.stdout.write).toHaveBeenCalledTimes(1);
     });
 
-    it('should NOT store bundled API descriptions in the output files described in the apis section of config IF no there is a positional api provided', async () => {
+    it('should NOT store bundled API descriptions in the output files described in the apis section of config IF there is a positional api provided', async () => {
       const apis = {
         foo: {
           root: 'foo.yaml',

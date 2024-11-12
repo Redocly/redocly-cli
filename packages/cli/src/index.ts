@@ -473,86 +473,94 @@ yargs
     'bundle [apis...]',
     'Bundle a multi-file API description to a single file.',
     (yargs) =>
-      yargs.positional('apis', { array: true, type: 'string', demandOption: true }).options({
-        output: {
-          type: 'string',
-          description: 'Output file.',
-          alias: 'o',
-        },
-        ext: {
-          description: 'Bundle file extension.',
-          requiresArg: true,
-          choices: outputExtensions,
-        },
-        'skip-preprocessor': {
-          description: 'Ignore certain preprocessors.',
-          array: true,
-          type: 'string',
-        },
-        'skip-decorator': {
-          description: 'Ignore certain decorators.',
-          array: true,
-          type: 'string',
-        },
-        dereferenced: {
-          alias: 'd',
-          type: 'boolean',
-          description: 'Produce a fully dereferenced bundle.',
-        },
-        force: {
-          alias: 'f',
-          type: 'boolean',
-          description: 'Produce bundle output even when errors occur.',
-        },
-        config: {
-          description: 'Path to the config file.',
-          type: 'string',
-        },
-        metafile: {
-          description: 'Produce metadata about the bundle',
-          type: 'string',
-        },
-        extends: {
-          description: 'Override extends configurations (defaults or config file settings).',
-          requiresArg: true,
-          array: true,
-          type: 'string',
-          hidden: true,
-        },
-        'remove-unused-components': {
-          description: 'Remove unused components.',
-          type: 'boolean',
-          default: false,
-        },
-        'keep-url-references': {
-          description: 'Keep absolute url references.',
-          type: 'boolean',
-          alias: 'k',
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-        format: {
-          hidden: true,
-          deprecated: true,
-        },
-        lint: {
-          hidden: true,
-          deprecated: true,
-        },
-        'skip-rule': {
-          hidden: true,
-          deprecated: true,
-          array: true,
-          type: 'string',
-        },
-        'max-problems': {
-          hidden: true,
-          deprecated: true,
-        },
-      }),
+      yargs
+        .positional('apis', { array: true, type: 'string', demandOption: true })
+        .options({
+          output: {
+            type: 'string',
+            description: 'Output file or folder for inline APIs.',
+            alias: 'o',
+          },
+          ext: {
+            description: 'Bundle file extension.',
+            requiresArg: true,
+            choices: outputExtensions,
+          },
+          'skip-preprocessor': {
+            description: 'Ignore certain preprocessors.',
+            array: true,
+            type: 'string',
+          },
+          'skip-decorator': {
+            description: 'Ignore certain decorators.',
+            array: true,
+            type: 'string',
+          },
+          dereferenced: {
+            alias: 'd',
+            type: 'boolean',
+            description: 'Produce a fully dereferenced bundle.',
+          },
+          force: {
+            alias: 'f',
+            type: 'boolean',
+            description: 'Produce bundle output even when errors occur.',
+          },
+          config: {
+            description: 'Path to the config file.',
+            type: 'string',
+          },
+          metafile: {
+            description: 'Produce metadata about the bundle',
+            type: 'string',
+          },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
+            array: true,
+            type: 'string',
+            hidden: true,
+          },
+          'remove-unused-components': {
+            description: 'Remove unused components.',
+            type: 'boolean',
+            default: false,
+          },
+          'keep-url-references': {
+            description: 'Keep absolute url references.',
+            type: 'boolean',
+            alias: 'k',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            hidden: true,
+            deprecated: true,
+          },
+          lint: {
+            hidden: true,
+            deprecated: true,
+          },
+          'skip-rule': {
+            hidden: true,
+            deprecated: true,
+            array: true,
+            type: 'string',
+          },
+          'max-problems': {
+            hidden: true,
+            deprecated: true,
+          },
+        })
+        .check((argv) => {
+          if (argv.output && (!argv.apis || argv.apis.length === 0)) {
+            throw new Error('At least one inline API must be specified when using --output.');
+          }
+          return true;
+        }),
     (argv) => {
       const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
       const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
@@ -778,7 +786,7 @@ yargs
         })
         .check((argv: any) => {
           if (argv.theme && !argv.theme?.openapi)
-            throw Error('Invalid option: theme.openapi not set');
+            throw Error('Invalid option: theme.openapi not set.');
           return true;
         }),
     async (argv) => {
