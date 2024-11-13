@@ -1,7 +1,7 @@
 import { isDefined } from '../utils';
 
 import type {
-  ArazzoRuleSet,
+  Arazzo1RuleSet,
   Async2RuleSet,
   Async3RuleSet,
   Oas2RuleSet,
@@ -18,7 +18,7 @@ type InitializedRule = {
 };
 
 export function initRules(
-  rules: (Oas3RuleSet | Oas2RuleSet | Async2RuleSet | Async3RuleSet | ArazzoRuleSet)[],
+  rules: (Oas3RuleSet | Oas2RuleSet | Async2RuleSet | Async3RuleSet | Arazzo1RuleSet)[],
   config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: SpecVersion

@@ -9,7 +9,7 @@ const XMetaData = {
 module.exports = {
   id: 'type-extension',
   typeExtension: {
-    arazzo(types) {
+    arazzo1(types) {
       newTypes = {
         ...types,
         XMetaData: XMetaData,

@@ -73,12 +73,10 @@ export async function makeConfig({
   rules,
   decorators,
   configPath,
-  arazzoRules,
 }: {
   rules: Record<string, RuleConfig>;
   decorators?: Record<string, DecoratorConfig>;
   configPath?: string;
-  arazzoRules?: Record<string, RuleConfig>;
 }) {
   return new StyleguideConfig(
     await resolveStyleguideConfig({
@@ -86,7 +84,6 @@ export async function makeConfig({
         plugins: [],
         extends: [],
         rules,
-        arazzoRules,
         decorators,
       },
     }),

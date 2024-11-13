@@ -200,7 +200,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "Expected type \`Schema\` (object) but got \`null\`",
-          "ruleId": "spec",
+          "ruleId": "struct",
           "severity": "error",
           "suggest": [],
         },

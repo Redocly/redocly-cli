@@ -684,7 +684,7 @@ No code changes.
 
 ### Features
 
-- Added the [required-min-length-string-type-property](./rules/required-string-property-missing-min-length.md) rule that requires required properties in the API description with type `string` to have a `minLength`.
+- Added the [required-min-length-string-type-property](./rules/oas/required-string-property-missing-min-length.md) rule that requires required properties in the API description with type `string` to have a `minLength`.
 
 ### Fixes
 
@@ -716,7 +716,7 @@ No code changes.
 ### Features
 
 - Added custom output file option to the `join` command.
-- Added an option to include webhooks to [operation-4xx-response](./rules/operation-4xx-response.md) rule.
+- Added an option to include webhooks to [operation-4xx-response](./rules/oas/operation-4xx-response.md) rule.
 - Added a new built-in decorator [info-override](./decorators/info-override.md).
 - Added support for `/` as a separator which puts paths into subdirectories for each path segment with the [split command](./commands/split.md).
 
@@ -859,7 +859,7 @@ theme:
 
 - Added rfc7807 problem details rule.
 - Improved error messages by adding `referenced from` information.
-- Added the [`spec-components-invalid-map-name`](./rules/spec-components-invalid-map-name.md) rule for component map names validation.
+- Added the [`spec-components-invalid-map-name`](./rules/oas/spec-components-invalid-map-name.md) rule for component map names validation.
 - Added a new lint `--format` option: `summary`.
 
 ### Fixes
@@ -1279,8 +1279,8 @@ rules:
 
 - Added support for the [region](./configuration/index.md) option with the `login`, `push`, and other commands.
 - Added two new built-in rules:
-  - [no-invalid-schema-examples](./rules/no-invalid-schema-examples.md)
-  - [no-invalid-parameter-examples](./rules/no-invalid-parameter-examples.md)
+  - [no-invalid-schema-examples](./rules/oas/no-invalid-schema-examples.md)
+  - [no-invalid-parameter-examples](./rules/oas/no-invalid-parameter-examples.md)
 
 ### Fixes
 
@@ -1313,7 +1313,7 @@ rules:
 
 ### Features
 
-- Added a new built-in rule: [operation-4xx-response](./rules/operation-4xx-response.md).
+- Added a new built-in rule: [operation-4xx-response](./rules/oas/operation-4xx-response.md).
 
 ---
 
@@ -1322,11 +1322,10 @@ rules:
 ### Features
 
 - Added five new built-in rules:
-  - [path-excludes-patterns](./rules/path-excludes-patterns.md)
-  - [no-http-verbs-in-paths](./rules/no-http-verbs-in-paths.md)
-  - [path-excludes-patterns](./rules/path-excludes-patterns.md)
-  - [request-mime-type](./rules/request-mime-type.md)
-  - [response-mime-type](./rules/response-mime-type.md)
+  - [path-excludes-patterns](./rules/oas/path-excludes-patterns.md)
+  - [no-http-verbs-in-paths](./rules/oas/no-http-verbs-in-paths.md)
+  - [request-mime-type](./rules/oas/request-mime-type.md)
+  - [response-mime-type](./rules/oas/response-mime-type.md)
 
 ### Fixes
 

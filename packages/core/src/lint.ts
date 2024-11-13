@@ -7,7 +7,7 @@ import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { createConfigTypes } from './types/redocly-yaml';
-import { Spec } from './rules/common/spec';
+import { Struct } from './rules/common/struct';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
 
 import type { StyleguideConfig, Config } from './config';
@@ -15,7 +15,7 @@ import type { Document, ResolvedRefMap } from './resolve';
 import type { ProblemSeverity, WalkContext } from './walk';
 import type { NodeType } from './types';
 import type {
-  ArazzoVisitor,
+  Arazzo1Visitor,
   Async2Visitor,
   Async3Visitor,
   NestedVisitObject,
@@ -71,7 +71,7 @@ export async function lintDocument(opts: {
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForOasVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
@@ -152,14 +152,14 @@ export async function lintConfig(opts: {
       | Async2Visitor[]
       | Async3Visitor
       | Async3Visitor[]
-      | ArazzoVisitor
-      | ArazzoVisitor[]
+      | Arazzo1Visitor
+      | Arazzo1Visitor[]
     >;
   })[] = [
     {
       severity: severity || 'error',
       ruleId: 'configuration spec',
-      visitor: Spec({ severity: 'error' }),
+      visitor: Struct({ severity: 'error' }),
     },
     {
       severity: severity || 'error',

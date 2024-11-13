@@ -3,6 +3,6 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  spec: error
+  struct: error
 
 extends: [recommended]

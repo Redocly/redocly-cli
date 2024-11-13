@@ -33,4 +33,4 @@ apis:
     root: ./websocket-gemini.yml
 
 rules:
-  spec: error
+  struct: error

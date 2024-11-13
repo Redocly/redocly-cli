@@ -84,8 +84,7 @@ describe('Arazzo criteria-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'criteria-unique': 'error' },
+        rules: { 'criteria-unique': 'error' },
       }),
     });
 

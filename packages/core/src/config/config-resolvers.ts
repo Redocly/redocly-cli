@@ -261,8 +261,8 @@ export async function resolvePlugins(
         if (pluginModule.rules.async3) {
           plugin.rules.async3 = prefixRules(pluginModule.rules.async3, id);
         }
-        if (pluginModule.rules.arazzo) {
-          plugin.rules.arazzo = prefixRules(pluginModule.rules.arazzo, id);
+        if (pluginModule.rules.arazzo1) {
+          plugin.rules.arazzo1 = prefixRules(pluginModule.rules.arazzo1, id);
         }
       }
       if (pluginModule.preprocessors) {
@@ -271,7 +271,7 @@ export async function resolvePlugins(
           !pluginModule.preprocessors.oas2 &&
           !pluginModule.preprocessors.async2 &&
           !pluginModule.preprocessors.async3 &&
-          !pluginModule.preprocessors.arazzo
+          !pluginModule.preprocessors.arazzo1
         ) {
           throw new Error(
             `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\` or \`async2\` preprocessors "${p}.`
@@ -290,8 +290,8 @@ export async function resolvePlugins(
         if (pluginModule.preprocessors.async3) {
           plugin.preprocessors.async3 = prefixRules(pluginModule.preprocessors.async3, id);
         }
-        if (pluginModule.preprocessors.arazzo) {
-          plugin.preprocessors.arazzo = prefixRules(pluginModule.preprocessors.arazzo, id);
+        if (pluginModule.preprocessors.arazzo1) {
+          plugin.preprocessors.arazzo1 = prefixRules(pluginModule.preprocessors.arazzo1, id);
         }
       }
 
@@ -301,7 +301,7 @@ export async function resolvePlugins(
           !pluginModule.decorators.oas2 &&
           !pluginModule.decorators.async2 &&
           !pluginModule.decorators.async3 &&
-          !pluginModule.decorators.arazzo
+          !pluginModule.decorators.arazzo1
         ) {
           throw new Error(
             `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\` or \`async3\` decorators "${p}.`
@@ -320,8 +320,8 @@ export async function resolvePlugins(
         if (pluginModule.decorators.async3) {
           plugin.decorators.async3 = prefixRules(pluginModule.decorators.async3, id);
         }
-        if (pluginModule.decorators.arazzo) {
-          plugin.decorators.arazzo = prefixRules(pluginModule.decorators.arazzo, id);
+        if (pluginModule.decorators.arazzo1) {
+          plugin.decorators.arazzo1 = prefixRules(pluginModule.decorators.arazzo1, id);
         }
       }
 
@@ -520,7 +520,7 @@ function getMergedRawStyleguideConfig(
     oas3_1Rules: { ...rootStyleguideConfig?.oas3_1Rules, ...apiStyleguideConfig?.oas3_1Rules },
     async2Rules: { ...rootStyleguideConfig?.async2Rules, ...apiStyleguideConfig?.async2Rules },
     async3Rules: { ...rootStyleguideConfig?.async3Rules, ...apiStyleguideConfig?.async3Rules },
-    arazzoRules: { ...rootStyleguideConfig?.arazzoRules, ...apiStyleguideConfig?.arazzoRules },
+    arazzo1Rules: { ...rootStyleguideConfig?.arazzo1Rules, ...apiStyleguideConfig?.arazzo1Rules },
     preprocessors: {
       ...rootStyleguideConfig?.preprocessors,
       ...apiStyleguideConfig?.preprocessors,

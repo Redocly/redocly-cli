@@ -4,7 +4,7 @@ plugins:
   - plugins/type-extention.js
 
 rules:
-  spec: warn
+  struct: warn
   rule/metadata-lifecycle:
     subject:
       type: WrongXMetaData

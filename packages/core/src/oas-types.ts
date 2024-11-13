@@ -3,15 +3,14 @@ import { Oas3Types } from './types/oas3';
 import { Oas3_1Types } from './types/oas3_1';
 import { AsyncApi2Types } from './types/asyncapi2';
 import { AsyncApi3Types } from './types/asyncapi3';
-import { ArazzoTypes } from './types/arazzo';
+import { Arazzo1Types } from './types/arazzo';
 import { isPlainObject } from './utils';
 import { VERSION_PATTERN } from './typings/arazzo';
 
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,
-  BuiltInCommonOASRuleId,
-  BuiltInArazzoRuleId,
+  BuiltInArazzo1RuleId,
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
 } from './types/redocly-yaml';
@@ -24,8 +23,8 @@ import type {
   Async2Rule,
   Async3Preprocessor,
   Async3Rule,
-  ArazzoPreprocessor,
-  ArazzoRule,
+  Arazzo1Preprocessor,
+  Arazzo1Rule,
 } from './visitors';
 
 export enum SpecVersion {
@@ -34,7 +33,7 @@ export enum SpecVersion {
   OAS3_1 = 'oas3_1',
   Async2 = 'async2',
   Async3 = 'async3',
-  Arazzo = 'arazzo',
+  Arazzo1 = 'arazzo1',
 }
 
 export enum SpecMajorVersion {
@@ -42,7 +41,7 @@ export enum SpecMajorVersion {
   OAS3 = 'oas3',
   Async2 = 'async2',
   Async3 = 'async3',
-  Arazzo = 'arazzo',
+  Arazzo1 = 'arazzo1',
 }
 
 const typesMap = {
@@ -51,7 +50,7 @@ const typesMap = {
   [SpecVersion.OAS3_1]: Oas3_1Types,
   [SpecVersion.Async2]: AsyncApi2Types,
   [SpecVersion.Async3]: AsyncApi3Types,
-  [SpecVersion.Arazzo]: ArazzoTypes,
+  [SpecVersion.Arazzo1]: Arazzo1Types,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -59,28 +58,28 @@ export type RuleMap<Key extends string, RuleConfig, T> = Record<
   RuleConfig
 >;
 export type Oas3RuleSet<T = undefined> = RuleMap<
-  BuiltInCommonOASRuleId | BuiltInOAS3RuleId | 'assertions',
+  BuiltInOAS3RuleId | 'struct' | 'assertions',
   Oas3Rule,
   T
 >;
 export type Oas2RuleSet<T = undefined> = RuleMap<
-  BuiltInCommonOASRuleId | BuiltInOAS2RuleId | 'assertions',
+  BuiltInOAS2RuleId | 'struct' | 'assertions',
   Oas2Rule,
   T
 >;
 export type Async2RuleSet<T = undefined> = RuleMap<
-  BuiltInAsync2RuleId | 'assertions',
+  BuiltInAsync2RuleId | 'struct' | 'assertions',
   Async2Rule,
   T
 >;
 export type Async3RuleSet<T = undefined> = RuleMap<
-  BuiltInAsync3RuleId | 'assertions',
+  BuiltInAsync3RuleId | 'struct' | 'assertions',
   Async3Rule,
   T
 >;
-export type ArazzoRuleSet<T = undefined> = RuleMap<
-  BuiltInArazzoRuleId | 'assertions',
-  ArazzoRule,
+export type Arazzo1RuleSet<T = undefined> = RuleMap<
+  BuiltInArazzo1RuleId | 'struct' | 'assertions',
+  Arazzo1Rule,
   T
 >;
 
@@ -88,13 +87,13 @@ export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
 export type Async3PreprocessorsSet = Record<string, Async3Preprocessor>;
-export type ArazzoPreprocessorsSet = Record<string, ArazzoPreprocessor>;
+export type Arazzo1PreprocessorsSet = Record<string, Arazzo1Preprocessor>;
 
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
 export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
 export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
-export type ArazzoDecoratorsSet = Record<string, ArazzoPreprocessor>;
+export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
 
 export function detectSpec(root: unknown): SpecVersion {
   if (!isPlainObject(root)) {
@@ -134,7 +133,7 @@ export function detectSpec(root: unknown): SpecVersion {
   }
 
   if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
-    return SpecVersion.Arazzo;
+    return SpecVersion.Arazzo1;
   }
 
   throw new Error(`Unsupported specification`);
@@ -147,8 +146,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return SpecMajorVersion.Async2;
   } else if (version === SpecVersion.Async3) {
     return SpecMajorVersion.Async3;
-  } else if (version === SpecVersion.Arazzo) {
-    return SpecMajorVersion.Arazzo;
+  } else if (version === SpecVersion.Arazzo1) {
+    return SpecMajorVersion.Arazzo1;
   } else {
     return SpecMajorVersion.OAS3;
   }

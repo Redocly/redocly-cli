@@ -12,22 +12,13 @@ export interface OpenAPISourceDescription {
   'x-serverUrl'?: string;
 }
 
-export interface NoneSourceDescription {
-  name: string;
-  type: 'none';
-  'x-serverUrl': string;
-}
-
 export interface ArazzoSourceDescription {
   name: string;
   type: 'arazzo';
   url: string;
 }
 
-export type SourceDescription =
-  | OpenAPISourceDescription
-  | NoneSourceDescription
-  | ArazzoSourceDescription;
+export type SourceDescription = OpenAPISourceDescription | ArazzoSourceDescription;
 
 export interface Parameter {
   in?: 'header' | 'query' | 'path' | 'cookie' | 'body';

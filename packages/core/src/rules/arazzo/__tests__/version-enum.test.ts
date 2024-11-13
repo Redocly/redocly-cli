@@ -38,8 +38,7 @@ describe('Arazzo version-enum', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'version-enum': 'error' },
+        rules: { 'version-enum': 'error' },
       }),
     });
 

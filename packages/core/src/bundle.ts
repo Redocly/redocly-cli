@@ -163,7 +163,7 @@ export async function bundleDocument(opts: {
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForOasVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
@@ -303,7 +303,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.Arazzo:
+    case SpecMajorVersion.Arazzo1:
       switch (typeName) {
         case 'Root.workflows_items.parameters_items':
         case 'Root.workflows_items.steps_items.parameters_items':
@@ -408,7 +408,7 @@ function makeBundleVisitor(
           components = root.components = root.components || {};
         } else if (version === SpecMajorVersion.Async3) {
           components = root.components = root.components || {};
-        } else if (version === SpecMajorVersion.Arazzo) {
+        } else if (version === SpecMajorVersion.Arazzo1) {
           components = root.components = root.components || {};
         }
       },

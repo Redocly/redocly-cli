@@ -131,8 +131,7 @@ describe('Arazzo workflow-dependsOn', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'workflow-dependsOn': 'error' },
+        rules: { 'workflow-dependsOn': 'error' },
       }),
     });
 
@@ -160,8 +159,7 @@ describe('Arazzo workflow-dependsOn', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'workflow-dependsOn': 'off' },
+        rules: { 'workflow-dependsOn': 'off' },
       }),
     });
 
@@ -173,8 +171,7 @@ describe('Arazzo workflow-dependsOn', () => {
       externalRefResolver: new BaseResolver(),
       document: documentWithNotExistingWorkflows,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'workflow-dependsOn': 'error' },
+        rules: { 'workflow-dependsOn': 'error' },
       }),
     });
 
