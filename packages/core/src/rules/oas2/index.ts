@@ -1,4 +1,4 @@
-import { Spec } from '../common/spec';
+import { Struct } from '../common/struct';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { InfoContact } from '../common/info-contact';
@@ -47,7 +47,10 @@ import type { Oas2Rule } from '../../visitors';
 import type { Oas2RuleSet } from '../../oas-types';
 
 export const rules: Oas2RuleSet<'built-in'> = {
-  spec: Spec as Oas2Rule,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
+  spec: Struct as Oas2Rule,
+  struct: Struct as Oas2Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-contact': InfoContact as Oas2Rule,

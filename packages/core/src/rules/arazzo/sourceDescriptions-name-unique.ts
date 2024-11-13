@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const SourceDescriptionsNameUnique: ArazzoRule = () => {
+export const SourceDescriptionsNameUnique: Arazzo1Rule = () => {
   const seenSourceDescriptions = new Set();
 
   return {

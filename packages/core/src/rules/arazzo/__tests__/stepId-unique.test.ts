@@ -57,8 +57,7 @@ describe('Arazzo stepId-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'stepId-unique': 'error' },
+        rules: { 'stepId-unique': 'error' },
       }),
     });
 

@@ -1,5 +1,5 @@
 import { Assertions } from '../common/assertions';
-import { Spec } from '../common/spec';
+import { Struct } from '../common/struct';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicenseStrict } from '../common/info-license-strict';
 import { OperationOperationId } from '../common/operation-operationId';
@@ -12,7 +12,10 @@ import type { Async2Rule } from '../../visitors';
 import type { Async2RuleSet } from '../../oas-types';
 
 export const rules: Async2RuleSet<'built-in'> = {
-  spec: Spec as Async2Rule,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
+  spec: Struct as Async2Rule,
+  struct: Struct as Async2Rule,
   assertions: Assertions as Async2Rule,
   'info-contact': InfoContact as Async2Rule,
   'info-license-strict': InfoLicenseStrict as Async2Rule,

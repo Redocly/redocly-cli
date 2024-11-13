@@ -1,7 +1,8 @@
-import { Spec } from '../common/spec';
+import { Struct } from '../common/struct';
 import { Assertions } from '../common/assertions';
 import { ParametersNotInBody } from '../spot/parameters-not-in-body';
-import { SourceDescriptionType } from '../arazzo/source-description-type';
+import { SourceDescriptionType } from '../arazzo/sourceDescription-type';
+import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty';
 import { VersionEnum } from '../spot/version-enum';
 import { WorkflowIdUnique } from './workflowId-unique';
 import { StepIdUnique } from './stepId-unique';
@@ -15,26 +16,27 @@ import { NoCriteriaXpath } from '../spot/no-criteria-xpath';
 import { NoActionsTypeEnd } from '../spot/no-actions-type-end';
 import { CriteriaUnique } from './criteria-unique';
 
-import type { ArazzoRule } from '../../visitors';
-import type { ArazzoRuleSet } from '../../oas-types';
+import type { Arazzo1Rule } from '../../visitors';
+import type { Arazzo1RuleSet } from '../../oas-types';
 
-export const rules: ArazzoRuleSet<'built-in'> = {
-  spec: Spec as ArazzoRule,
-  assertions: Assertions as ArazzoRule,
-  'parameters-not-in-body': ParametersNotInBody as ArazzoRule,
-  'sourceDescription-type': SourceDescriptionType as ArazzoRule,
-  'version-enum': VersionEnum as ArazzoRule,
-  'workflowId-unique': WorkflowIdUnique as ArazzoRule,
-  'stepId-unique': StepIdUnique as ArazzoRule,
-  'sourceDescription-name-unique': SourceDescriptionsNameUnique as ArazzoRule,
-  'workflow-dependsOn': WorkflowDependsOn as ArazzoRule,
-  'parameters-unique': ParametersUnique as ArazzoRule,
-  'step-onSuccess-unique': StepOnSuccessUnique as ArazzoRule,
-  'step-onFailure-unique': StepOnFailureUnique as ArazzoRule,
-  'requestBody-replacements-unique': RequestBodyReplacementsUnique as ArazzoRule,
-  'no-criteria-xpath': NoCriteriaXpath as ArazzoRule,
-  'no-actions-type-end': NoActionsTypeEnd as ArazzoRule,
-  'criteria-unique': CriteriaUnique as ArazzoRule,
+export const rules: Arazzo1RuleSet<'built-in'> = {
+  struct: Struct as Arazzo1Rule,
+  assertions: Assertions as Arazzo1Rule,
+  'parameters-not-in-body': ParametersNotInBody as Arazzo1Rule,
+  'sourceDescription-type': SourceDescriptionType as Arazzo1Rule,
+  'version-enum': VersionEnum as Arazzo1Rule,
+  'workflowId-unique': WorkflowIdUnique as Arazzo1Rule,
+  'stepId-unique': StepIdUnique as Arazzo1Rule,
+  'sourceDescription-name-unique': SourceDescriptionsNameUnique as Arazzo1Rule,
+  'sourceDescriptions-not-empty': SourceDescriptionsNotEmpty as Arazzo1Rule,
+  'workflow-dependsOn': WorkflowDependsOn as Arazzo1Rule,
+  'parameters-unique': ParametersUnique as Arazzo1Rule,
+  'step-onSuccess-unique': StepOnSuccessUnique as Arazzo1Rule,
+  'step-onFailure-unique': StepOnFailureUnique as Arazzo1Rule,
+  'requestBody-replacements-unique': RequestBodyReplacementsUnique as Arazzo1Rule,
+  'no-criteria-xpath': NoCriteriaXpath as Arazzo1Rule,
+  'no-actions-type-end': NoActionsTypeEnd as Arazzo1Rule,
+  'criteria-unique': CriteriaUnique as Arazzo1Rule,
 };
 
 export const preprocessors = {};

@@ -48,8 +48,7 @@ describe('Spot parameters-not-in-body', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'parameters-not-in-body': 'error' },
+        rules: { 'parameters-not-in-body': 'error' },
       }),
     });
 

@@ -15,21 +15,13 @@ import type {
   Async3PreprocessorsSet,
   Async3DecoratorsSet,
   Async3RuleSet,
-  ArazzoRuleSet,
-  ArazzoPreprocessorsSet,
-  ArazzoDecoratorsSet,
+  Arazzo1RuleSet,
+  Arazzo1PreprocessorsSet,
+  Arazzo1DecoratorsSet,
   RuleMap,
 } from '../oas-types';
 import type { NodeType } from '../types';
 import type { SkipFunctionContext } from '../visitors';
-import type {
-  BuiltInAsync2RuleId,
-  BuiltInAsync3RuleId,
-  BuiltInCommonOASRuleId,
-  BuiltInOAS2RuleId,
-  BuiltInOAS3RuleId,
-  BuiltInArazzoRuleId,
-} from '../types/redocly-yaml';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';
@@ -58,13 +50,13 @@ export type StyleguideRawConfig<T = undefined> = {
   doNotResolveExamples?: boolean;
   recommendedFallback?: boolean;
 
-  rules?: RuleMap<BuiltInCommonOASRuleId, RuleConfig, T>;
-  oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
-  oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
-  oas3_1Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
-  async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
-  async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
-  arazzoRules?: RuleMap<BuiltInArazzoRuleId, RuleConfig, T>;
+  rules?: RuleMap<string, RuleConfig, T>;
+  oas2Rules?: RuleMap<string, RuleConfig, T>;
+  oas3_0Rules?: RuleMap<string, RuleConfig, T>;
+  oas3_1Rules?: RuleMap<string, RuleConfig, T>;
+  async2Rules?: RuleMap<string, RuleConfig, T>;
+  async3Rules?: RuleMap<string, RuleConfig, T>;
+  arazzo1Rules?: RuleMap<string, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
@@ -72,7 +64,7 @@ export type StyleguideRawConfig<T = undefined> = {
   oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
-  arazzoPreprocessors?: Record<string, PreprocessorConfig>;
+  arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
@@ -80,7 +72,7 @@ export type StyleguideRawConfig<T = undefined> = {
   oas3_1Decorators?: Record<string, DecoratorConfig>;
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
-  arazzoDecorators?: Record<string, DecoratorConfig>;
+  arazzo1Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
@@ -98,7 +90,7 @@ export type PreprocessorsConfig = {
   oas2?: Oas2PreprocessorsSet;
   async2?: Async2PreprocessorsSet;
   async3?: Async3PreprocessorsSet;
-  arazzo?: ArazzoPreprocessorsSet;
+  arazzo1?: Arazzo1PreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
@@ -106,7 +98,7 @@ export type DecoratorsConfig = {
   oas2?: Oas2DecoratorsSet;
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
-  arazzo?: ArazzoDecoratorsSet;
+  arazzo1?: Arazzo1DecoratorsSet;
 };
 
 export type TypesExtensionFn = (
@@ -116,13 +108,15 @@ export type TypesExtensionFn = (
 
 export type TypeExtensionsConfig = Partial<Record<SpecMajorVersion, TypesExtensionFn>>;
 
-export type CustomRulesConfig = {
-  oas3?: Oas3RuleSet;
-  oas2?: Oas2RuleSet;
-  async2?: Async2RuleSet;
-  async3?: Async3RuleSet;
-  arazzo?: ArazzoRuleSet;
+export type RulesConfig<T> = {
+  oas3?: Oas3RuleSet<T>;
+  oas2?: Oas2RuleSet<T>;
+  async2?: Async2RuleSet<T>;
+  async3?: Async3RuleSet<T>;
+  arazzo1?: Arazzo1RuleSet<T>;
 };
+
+export type CustomRulesConfig = RulesConfig<undefined>;
 
 export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };
 
@@ -135,11 +129,11 @@ export type CustomFunction = (
 
 export type AssertionsConfig = Record<string, CustomFunction>;
 
-export type Plugin = {
+export type Plugin<T = undefined> = {
   id: string;
 
   configs?: Record<string, PluginStyleguideConfig>;
-  rules?: CustomRulesConfig;
+  rules?: RulesConfig<T>;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
@@ -287,18 +281,18 @@ export type RulesFields =
   | 'oas3_1Rules'
   | 'async2Rules'
   | 'async3Rules'
-  | 'arazzoRules'
+  | 'arazzo1Rules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
   | 'oas3_1Preprocessors'
   | 'async2Preprocessors'
   | 'async3Preprocessors'
-  | 'arazzoPreprocessors'
+  | 'arazzo1Preprocessors'
   | 'decorators'
   | 'oas2Decorators'
   | 'oas3_0Decorators'
   | 'oas3_1Decorators'
   | 'async2Decorators'
   | 'async3Decorators'
-  | 'arazzoDecorators';
+  | 'arazzo1Decorators';

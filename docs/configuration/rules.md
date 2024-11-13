@@ -27,7 +27,7 @@ Find a full list of [built-in rules here](../rules/built-in-rules.md).
 
 ## Set rule options
 
-Some rules allow additional configuration. For example, the rule `boolean-parameter-prefixes` supports an array of prefixes ([see rule documentation](../rules/boolean-parameter-prefixes.md)). To set these in a configuration file, set the rule `severity` and any options within the rule configuration, like this:
+Some rules allow additional configuration. For example, the rule `boolean-parameter-prefixes` supports an array of prefixes ([see rule documentation](../rules/oas/boolean-parameter-prefixes.md)). To set these in a configuration file, set the rule `severity` and any options within the rule configuration, like this:
 
 ```yaml
 rules:

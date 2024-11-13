@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const ParametersUnique: ArazzoRule = () => {
+export const ParametersUnique: Arazzo1Rule = () => {
   return {
     Parameters: {
       enter(parameters, { report, location }: UserContext) {
