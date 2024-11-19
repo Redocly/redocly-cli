@@ -14,6 +14,9 @@ export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptio
   spawn(
     npxExecutableName,
     ['-y', '@redocly/realm', 'translate', argv.locale, `-d=${argv['project-dir']}`],
-    { stdio: 'inherit' }
+    {
+      stdio: 'inherit',
+      shell: true,
+    }
   );
 };

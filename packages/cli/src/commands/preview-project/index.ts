@@ -30,6 +30,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
     {
       stdio: 'inherit',
       cwd: projectDir,
+      shell: true,
     }
   );
 };
