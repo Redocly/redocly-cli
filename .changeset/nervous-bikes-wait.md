@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue when valid Redocly tokens were not recognized.
+Fixed an issue where valid Redocly tokens were not recognized.
