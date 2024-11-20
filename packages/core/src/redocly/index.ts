@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { RegistryApi } from './registry-api';
 import { env } from '../env';
-import { isNotEmptyObject } from '../utils';
+import { isNotEmptyArray, isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 import {
   AVAILABLE_REGIONS,
@@ -135,7 +135,7 @@ export class RedoclyClient {
   }
 
   async isAuthorizedWithRedocly(): Promise<boolean> {
-    return this.hasTokens() && isNotEmptyObject(await this.getValidTokens());
+    return this.hasTokens() && isNotEmptyArray(await this.getValidTokens());
   }
 
   readCredentialsFile(credentialsPath: string) {
