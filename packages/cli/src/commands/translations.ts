@@ -14,9 +14,10 @@ export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptio
   const isWindowsPlatform = process.platform === 'win32';
 
   const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
-  const projectDir = isWindowsPlatform && argv['project-dir']
-    ? sanitizePath(argv['project-dir'])
-    : argv['project-dir'];
+  const projectDir =
+    isWindowsPlatform && argv['project-dir']
+      ? sanitizePath(argv['project-dir'])
+      : argv['project-dir'];
   const locale = isWindowsPlatform ? sanitizeLocale(argv.locale) : argv.locale;
 
   const child = spawn(

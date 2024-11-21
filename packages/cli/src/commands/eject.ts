@@ -17,9 +17,10 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
 
   const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
   const path = isWindowsPlatform ? sanitizePath(argv.path ?? '') : argv.path ?? '';
-  const projectDir = isWindowsPlatform && argv['project-dir']
-    ? sanitizePath(argv['project-dir'])
-    : argv['project-dir'];
+  const projectDir =
+    isWindowsPlatform && argv['project-dir']
+      ? sanitizePath(argv['project-dir'])
+      : argv['project-dir'];
 
   const child = spawn(
     npxExecutableName,
@@ -35,7 +36,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
     {
       stdio: 'inherit',
       shell: isWindowsPlatform,
-    },
+    }
   );
 
   child.on('error', (error) => {
@@ -43,4 +44,3 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
     throw new Error('Eject launch failed.');
   });
 };
-
