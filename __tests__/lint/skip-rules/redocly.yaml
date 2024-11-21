@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    rules:
+      rule/operationId-casing:
+        subject:
+          type: Operation
+          property: operationId
+        assertions:
+          casing: PascalCase
+      operation-4xx-response: error

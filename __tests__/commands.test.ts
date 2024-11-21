@@ -81,6 +81,22 @@ describe('E2E', () => {
         join(folderPath, 'snapshot.js')
       );
     });
+
+    test('skip-rules', () => {
+      const dirName = 'skip-rules';
+      const folderPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        '--skip-rule=operation-4xx-response',
+        '--skip-rule',
+        'rule/operationId-casing',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
+    });
   });
 
   describe('zero-config', () => {

@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  version: 1.0.0
+  description: It should skip built-in and configurable rules.
+paths:
+  /users:
+    get:
+      summary: Retrieve a list of users
+      operationId: camelCase
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: object
