@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.25.13
+
+### Patch Changes
+
+- Added the possibility to skip configurable rules using the `--skip-rule` option.
+- Updated @redocly/openapi-core to v1.25.13.
+
 ## 1.25.12
 
 ### Patch Changes
