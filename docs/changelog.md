@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.13 (2024-11-21)
+
+### Patch Changes
+
+- Added the possibility to skip configurable rules using the `--skip-rule` option.
+- Updated @redocly/openapi-core to v1.25.13.
+
 ## 1.25.12 (2024-11-20)
 
 ### Patch Changes
