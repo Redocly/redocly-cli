@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.12 (2024-11-20)
+
+### Patch Changes
+
+- Fixed an issue where valid Redocly tokens were not recognized.
+- Updated @redocly/openapi-core to v1.25.12.
+
 ## 1.25.11 (2024-11-04)
 
 ### Patch Changes
