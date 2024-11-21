@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { sanitizePath } from '../utils/sanitize';
+import { sanitizePath } from '../utils/miscellaneous';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
