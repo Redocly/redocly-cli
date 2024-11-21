@@ -323,6 +323,13 @@ export class StyleguideConfig {
       for (const version of Object.values(SpecVersion)) {
         if (this.rules[version][ruleId]) {
           this.rules[version][ruleId] = 'off';
+        } else if (Array.isArray(this.rules[version].assertions)) {
+          // skip assertions
+          for (const configurableRule of this.rules[version].assertions) {
+            if (configurableRule.assertionId === ruleId) {
+              configurableRule.severity = 'off';
+            }
+          }
         }
       }
     }
