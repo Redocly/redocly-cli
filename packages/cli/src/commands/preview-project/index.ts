@@ -24,15 +24,20 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
 
   const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
-  spawn(
+  const child = spawn(
     npxExecutableName,
     ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
     {
       stdio: 'inherit',
       cwd: projectDir,
-      shell: true,
+      shell: process.platform === 'win32',
     }
   );
+
+  child.on('error', (error) => {
+    process.stderr.write(`Project preview launch failed: ${error.message}`);
+    throw new Error(`Project preview launch failed.`);
+  });
 };
 
 const isValidProduct = (product: string | undefined): product is Product => {

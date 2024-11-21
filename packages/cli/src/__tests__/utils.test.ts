@@ -14,6 +14,8 @@ import {
   cleanRawInput,
   getAndValidateFileExtension,
   writeToFileByExtension,
+  sanitizePath,
+  sanitizeLocale,
 } from '../utils/miscellaneous';
 import {
   ResolvedApi,
@@ -639,5 +641,37 @@ describe('writeToFileByExtension', () => {
     writeToFileByExtension('test data', 'test.json');
     expect(stringifySpy).toHaveBeenCalledWith('test data', null, 2);
     expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
+  });
+});
+
+describe('sanitize', () => {
+  describe('sanitizePath', () => {
+    test.each([
+      ['C:\\Program Files\\App', 'C:\\Program Files\\App'],
+      ['/usr/local/bin/app', '/usr/local/bin/app'],
+      ['invalid|path?name*', 'invalidpathname'],
+      ['', ''],
+      ['<>:"|?*', ':'],
+      ['C:/Program Files\\App', 'C:/Program Files\\App'],
+      ['path\nname\r', 'pathname'],
+      ['/usr/local; rm -rf /', '/usr/local rm -rf /'],
+      ['C:\\data&& dir', 'C:\\data dir'],
+    ])('should sanitize path %s to %s', (input, expected) => {
+      expect(sanitizePath(input)).toBe(expected);
+    });
+  });
+
+  describe('sanitizeLocale', () => {
+    test.each([
+      ['en-US', 'en-US'],
+      ['fr_FR', 'fr_FR'],
+      ['en<>US', 'enUS'],
+      ['fr@FR', 'fr@FR'],
+      ['en_US@#$%', 'en_US@'],
+      [' en-US ', 'en-US'],
+      ['', ''],
+    ])('should sanitize locale %s to %s', (input, expected) => {
+      expect(sanitizeLocale(input)).toBe(expected);
+    });
   });
 });
