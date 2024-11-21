@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.25.13
+
+### Patch Changes
+
+- Added the possibility to skip configurable rules using the `--skip-rule` option.
+
 ## 1.25.12
 
 ### Patch Changes
