@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.14 (2024-11-25)
+
+### Patch Changes
+
+- Resolved an issue where overrides for the severity of configurable rules were ignored.
+- Updated @redocly/openapi-core to v1.25.14.
+
 ## 1.25.13 (2024-11-21)
 
 ### Patch Changes
