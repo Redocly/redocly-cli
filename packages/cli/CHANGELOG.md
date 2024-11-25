@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.25.14
+
+### Patch Changes
+
+- Resolved an issue where overrides for the severity of configurable rules were ignored.
+- Updated @redocly/openapi-core to v1.25.14.
+
 ## 1.25.13
 
 ### Patch Changes
