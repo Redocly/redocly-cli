@@ -196,13 +196,13 @@ export function isNotString<T>(value: string | T): value is T {
   return !isString(value);
 }
 
-export const assignRules = <T extends string | { severity?: string }>(
+export const assignConfig = <T extends string | { severity?: string }>(
   target: Record<string, T>,
   obj?: Record<string, T>
 ) => {
   if (!obj) return;
   for (const k of Object.keys(obj)) {
-    if (typeof target[k] === 'object' && target[k] !== null && typeof obj[k] === 'string') {
+    if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
       target[k].severity = obj[k];
     } else {
       target[k] = obj[k];
@@ -210,14 +210,14 @@ export const assignRules = <T extends string | { severity?: string }>(
   }
 };
 
-export function assignExistingRules<T extends string | { severity?: string }>(
+export function assignOnlyExistingConfig<T extends string | { severity?: string }>(
   target: Record<string, T>,
   obj?: Record<string, T>
 ) {
   if (!obj) return;
   for (const k of Object.keys(obj)) {
     if (!target.hasOwnProperty(k)) continue;
-    if (typeof target[k] === 'object' && target[k] !== null && typeof obj[k] === 'string') {
+    if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
       target[k].severity = obj[k];
     } else {
       target[k] = obj[k];
