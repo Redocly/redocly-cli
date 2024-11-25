@@ -196,9 +196,30 @@ export function isNotString<T>(value: string | T): value is T {
   return !isString(value);
 }
 
-export function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
+export const assignConfig = <T extends string | { severity?: string }>(
+  target: Record<string, T>,
+  obj?: Record<string, T>
+) => {
+  if (!obj) return;
   for (const k of Object.keys(obj)) {
-    if (target.hasOwnProperty(k)) {
+    if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
+      target[k].severity = obj[k];
+    } else {
+      target[k] = obj[k];
+    }
+  }
+};
+
+export function assignOnlyExistingConfig<T extends string | { severity?: string }>(
+  target: Record<string, T>,
+  obj?: Record<string, T>
+) {
+  if (!obj) return;
+  for (const k of Object.keys(obj)) {
+    if (!target.hasOwnProperty(k)) continue;
+    if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
+      target[k].severity = obj[k];
+    } else {
       target[k] = obj[k];
     }
   }
