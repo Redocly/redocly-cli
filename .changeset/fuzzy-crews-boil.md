@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Resolved issue where severity changes for configurable rules were not being applied correctly.
+Resolved an issue where overrides for the severity of configurable scorecard rules were ignored.
