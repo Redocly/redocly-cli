@@ -1,5 +1,6 @@
 import {
-  assignExisting,
+  assignExistingRules,
+  assignRules,
   isDefined,
   isTruthy,
   showErrorForDeprecatedField,
@@ -198,47 +199,47 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
       );
     }
 
-    Object.assign(result.rules, rulesConf.rules);
-    Object.assign(result.oas2Rules, rulesConf.oas2Rules);
-    assignExisting(result.oas2Rules, rulesConf.rules || {});
-    Object.assign(result.oas3_0Rules, rulesConf.oas3_0Rules);
-    assignExisting(result.oas3_0Rules, rulesConf.rules || {});
-    Object.assign(result.oas3_1Rules, rulesConf.oas3_1Rules);
-    assignExisting(result.oas3_1Rules, rulesConf.rules || {});
-    Object.assign(result.async2Rules, rulesConf.async2Rules);
-    assignExisting(result.async2Rules, rulesConf.rules || {});
-    Object.assign(result.async3Rules, rulesConf.async3Rules);
-    assignExisting(result.async3Rules, rulesConf.rules || {});
-    Object.assign(result.arazzoRules, rulesConf.arazzoRules);
-    assignExisting(result.arazzoRules, rulesConf.rules || {});
+    assignRules(result.rules, rulesConf.rules);
+    assignRules(result.oas2Rules, rulesConf.oas2Rules);
+    assignExistingRules(result.oas2Rules, rulesConf.rules);
+    assignRules(result.oas3_0Rules, rulesConf.oas3_0Rules);
+    assignExistingRules(result.oas3_0Rules, rulesConf.rules || {});
+    assignRules(result.oas3_1Rules, rulesConf.oas3_1Rules);
+    assignExistingRules(result.oas3_1Rules, rulesConf.rules || {});
+    assignRules(result.async2Rules, rulesConf.async2Rules);
+    assignExistingRules(result.async2Rules, rulesConf.rules || {});
+    assignRules(result.async3Rules, rulesConf.async3Rules);
+    assignExistingRules(result.async3Rules, rulesConf.rules || {});
+    assignRules(result.arazzoRules, rulesConf.arazzoRules);
+    assignExistingRules(result.arazzoRules, rulesConf.rules || {});
 
-    Object.assign(result.preprocessors, rulesConf.preprocessors);
-    Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
-    assignExisting(result.oas2Preprocessors, rulesConf.preprocessors || {});
-    Object.assign(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
-    assignExisting(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
-    Object.assign(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
-    assignExisting(result.oas3_1Preprocessors, rulesConf.preprocessors || {});
-    Object.assign(result.async2Preprocessors, rulesConf.async2Preprocessors);
-    assignExisting(result.async2Preprocessors, rulesConf.preprocessors || {});
-    Object.assign(result.async3Preprocessors, rulesConf.async3Preprocessors);
-    assignExisting(result.async3Preprocessors, rulesConf.preprocessors || {});
-    Object.assign(result.arazzoPreprocessors, rulesConf.arazzoPreprocessors);
-    assignExisting(result.arazzoPreprocessors, rulesConf.preprocessors || {});
+    assignRules(result.preprocessors, rulesConf.preprocessors);
+    assignRules(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
+    assignExistingRules(result.oas2Preprocessors, rulesConf.preprocessors || {});
+    assignRules(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
+    assignExistingRules(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
+    assignRules(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
+    assignExistingRules(result.oas3_1Preprocessors, rulesConf.preprocessors || {});
+    assignRules(result.async2Preprocessors, rulesConf.async2Preprocessors);
+    assignExistingRules(result.async2Preprocessors, rulesConf.preprocessors || {});
+    assignRules(result.async3Preprocessors, rulesConf.async3Preprocessors);
+    assignExistingRules(result.async3Preprocessors, rulesConf.preprocessors || {});
+    assignRules(result.arazzoPreprocessors, rulesConf.arazzoPreprocessors);
+    assignExistingRules(result.arazzoPreprocessors, rulesConf.preprocessors || {});
 
-    Object.assign(result.decorators, rulesConf.decorators);
-    Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
-    assignExisting(result.oas2Decorators, rulesConf.decorators || {});
-    Object.assign(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
-    assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
-    Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
-    assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
-    Object.assign(result.async2Decorators, rulesConf.async2Decorators);
-    assignExisting(result.async2Decorators, rulesConf.decorators || {});
-    Object.assign(result.async3Decorators, rulesConf.async3Decorators);
-    assignExisting(result.async3Decorators, rulesConf.decorators || {});
-    Object.assign(result.arazzoDecorators, rulesConf.arazzoDecorators);
-    assignExisting(result.arazzoDecorators, rulesConf.decorators || {});
+    assignRules(result.decorators, rulesConf.decorators);
+    assignRules(result.oas2Decorators, rulesConf.oas2Decorators);
+    assignExistingRules(result.oas2Decorators, rulesConf.decorators || {});
+    assignRules(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
+    assignExistingRules(result.oas3_0Decorators, rulesConf.decorators || {});
+    assignRules(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
+    assignExistingRules(result.oas3_1Decorators, rulesConf.decorators || {});
+    assignRules(result.async2Decorators, rulesConf.async2Decorators);
+    assignExistingRules(result.async2Decorators, rulesConf.decorators || {});
+    assignRules(result.async3Decorators, rulesConf.async3Decorators);
+    assignExistingRules(result.async3Decorators, rulesConf.decorators || {});
+    assignRules(result.arazzoDecorators, rulesConf.arazzoDecorators);
+    assignExistingRules(result.arazzoDecorators, rulesConf.decorators || {});
 
     result.plugins!.push(...(rulesConf.plugins || []));
     result.pluginPaths!.push(...(rulesConf.pluginPaths || []));
