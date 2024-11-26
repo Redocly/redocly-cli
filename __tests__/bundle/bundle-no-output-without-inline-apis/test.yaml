@@ -1,0 +1,25 @@
+openapi: 3.1.0
+paths:
+  /test-api:
+    get:
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $defs:
+                  main_data:
+                    $anchor: main_data
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                type: object
+                oneOf:
+                  - properties:
+                      wrapper:
+                        $ref: '#main_data'
+                  - $ref: '#main_data'
+              example:
+                foo: TEST

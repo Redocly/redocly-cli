@@ -451,6 +451,7 @@ describe('E2E', () => {
       'bundle-remove-unused-components',
       'bundle-remove-unused-components-from-config',
       'bundle-arazzo-valid-test-description',
+      'bundle-no-output-without-inline-apis',
     ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -475,6 +476,13 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'bundle-arazzo-valid-test-description');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['museum.yaml']);
 
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('bundle should NOT be invoked IF no positional apis provided AND --output specified', () => {
+      const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['--output=dist']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
