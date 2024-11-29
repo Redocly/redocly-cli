@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Removed support of the `x-expect` extension for Arazzo.
+Removed the support of the `x-expect` extension for Arazzo.
