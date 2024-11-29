@@ -55,7 +55,6 @@ import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
   CriteriaObject,
-  ExpectSchema,
   ExtendedOperation,
   InfoObject,
   NoneSourceDescription,
@@ -244,7 +243,6 @@ type ArazzoFlatVisitor = {
   ArazzoSourceDescription?: VisitFunctionOrObject<ArazzoSourceDescription>;
   SourceDescription?: VisitFunctionOrObject<SourceDescription>;
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
-  ExpectSchema?: VisitFunctionOrObject<ExpectSchema>;
   Replacement?: VisitFunctionOrObject<Replacement>;
   RequestBody?: VisitFunctionOrObject<RequestBody>;
   CriteriaObject?: VisitFunctionOrObject<CriteriaObject>;

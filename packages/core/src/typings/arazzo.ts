@@ -59,15 +59,6 @@ export interface ExtendedOperation {
     | 'CONNECT';
 }
 
-export interface ExpectSchema {
-  statusCode?: number;
-  mimeType?: string;
-  body?: any;
-  schema?: {
-    [key: string]: any;
-  };
-}
-
 export interface Replacement {
   target: string;
   value: string | object | any[];
@@ -129,7 +120,6 @@ export interface Step {
   outputs?: {
     [key: string]: string | object | any[] | boolean | number;
   };
-  'x-expect'?: ExpectSchema;
   'x-operation'?: ExtendedOperation;
   requestBody?: RequestBody;
 }
