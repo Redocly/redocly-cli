@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "1.25.14",
+  "version": "1.25.15",
   "description": "",
   "main": "lib/index.js",
   "engines": {

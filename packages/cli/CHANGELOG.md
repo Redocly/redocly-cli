@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.25.15
+
+### Patch Changes
+
+- Clarified usage of the `--output` option in the `bundle` command.
+- Updated @redocly/openapi-core to v1.25.15.
+
 ## 1.25.14
 
 ### Patch Changes

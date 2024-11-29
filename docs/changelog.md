@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.15 (2024-11-29)
+
+### Patch Changes
+
+- Clarified usage of the `--output` option in the `bundle` command.
+- Updated @redocly/openapi-core to v1.25.15.
+
 ## 1.25.14 (2024-11-25)
 
 ### Patch Changes
