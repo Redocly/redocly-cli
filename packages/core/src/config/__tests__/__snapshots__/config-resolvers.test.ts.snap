@@ -63,7 +63,10 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
     "component-name-unique": "off",
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
-    "no-invalid-media-type-examples": "error",
+    "no-invalid-media-type-examples": {
+      "allowAdditionalProperties": false,
+      "severity": "error",
+    },
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
     "no-server-variables-empty-enum": "error",
@@ -208,7 +211,10 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
     "component-name-unique": "off",
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
-    "no-invalid-media-type-examples": "warn",
+    "no-invalid-media-type-examples": {
+      "allowAdditionalProperties": false,
+      "severity": "warn",
+    },
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
     "no-server-variables-empty-enum": "error",

@@ -1,5 +1,18 @@
 # @redocly/openapi-core
 
+## 1.25.15
+
+### Patch Changes
+
+- Removed the support of the `x-expect` extension for Arazzo.
+- Updated @redocly/config to v0.17.0.
+
+## 1.25.14
+
+### Patch Changes
+
+- Resolved an issue where overrides for the severity of configurable rules were ignored.
+
 ## 1.25.13
 
 ### Patch Changes

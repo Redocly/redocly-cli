@@ -142,7 +142,6 @@ const Step: NodeType = {
     onSuccess: 'OnSuccessActionList',
     onFailure: 'OnFailureActionList',
     outputs: 'Outputs',
-    'x-expect': 'ExpectSchema',
     'x-operation': 'ExtendedOperation',
     requestBody: 'RequestBody',
   },
@@ -200,15 +199,6 @@ const ExtendedOperation: NodeType = {
     },
   },
   required: ['url', 'method'],
-};
-const ExpectSchema: NodeType = {
-  properties: {
-    statusCode: { type: 'number' },
-    mimeType: { type: 'string' },
-    body: {},
-    schema: 'Schema',
-  },
-  requiredOneOf: ['statusCode', 'mimeType', 'body', 'schema'],
 };
 const CriterionObject: NodeType = {
   properties: {
@@ -300,7 +290,6 @@ export const ArazzoTypes: Record<string, NodeType> = {
   RequestBody,
   Replacement,
   ExtendedOperation,
-  ExpectSchema,
   Outputs,
   CriterionObject,
   XPathCriterion,
