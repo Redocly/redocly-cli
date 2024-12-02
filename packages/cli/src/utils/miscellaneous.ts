@@ -700,11 +700,3 @@ export function notifyAboutIncompatibleConfigOptions(
     }
   }
 }
-
-export const sanitizePath = (input: string): string => {
-  return input.replace(/[^a-zA-Z0-9 ._\-:\\/@]/g, '');
-};
-
-export const sanitizeLocale = (input: string): string => {
-  return input.replace(/[^a-zA-Z0-9@._-]/g, '');
-};

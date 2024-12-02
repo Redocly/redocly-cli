@@ -2,6 +2,7 @@ import path = require('path');
 import { existsSync, readFileSync } from 'fs';
 import { spawn } from 'child_process';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
+import { getPlatformArgs } from '../../utils/platform';
 
 import type { PreviewProjectOptions, Product } from './types';
 import type { CommandArgs } from '../../wrapper';
@@ -21,8 +22,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const packageName = PRODUCT_PACKAGES[product];
 
   process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
-
-  const npxExecutableName = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const { npxExecutableName, shell } = getPlatformArgs({});
 
   const child = spawn(
     npxExecutableName,
@@ -30,7 +30,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
     {
       stdio: 'inherit',
       cwd: projectDir,
-      shell: process.platform === 'win32',
+      shell,
     }
   );
 

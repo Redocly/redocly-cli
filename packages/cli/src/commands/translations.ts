@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { sanitizeLocale, sanitizePath } from '../utils/miscellaneous';
+import { getPlatformArgs } from '../utils/platform';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -11,21 +11,14 @@ export type TranslationsOptions = {
 
 export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptions>) => {
   process.stdout.write(`\nLaunching translate using NPX.\n\n`);
-  const isWindowsPlatform = process.platform === 'win32';
-
-  const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
-  const projectDir =
-    isWindowsPlatform && argv['project-dir']
-      ? sanitizePath(argv['project-dir'])
-      : argv['project-dir'];
-  const locale = isWindowsPlatform ? sanitizeLocale(argv.locale) : argv.locale;
+  const { npxExecutableName, projectDir, locale, shell } = getPlatformArgs(argv);
 
   const child = spawn(
     npxExecutableName,
-    ['-y', '@redocly/realm', 'translate', locale, `-d=${projectDir}`],
+    ['-y', '@redocly/realm', 'translate', locale ?? '', `-d=${projectDir}`],
     {
       stdio: 'inherit',
-      shell: isWindowsPlatform,
+      shell,
     }
   );
 
