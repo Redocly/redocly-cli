@@ -16,7 +16,7 @@ export function getPlatformArgs(argv: { path?: string; locale?: string; 'project
     } else {
       return input;
     }
-  }
+  };
 
   const path = sanitizeIfWindows(argv.path, sanitizePath);
   const locale = sanitizeIfWindows(argv.locale, sanitizeLocale);
