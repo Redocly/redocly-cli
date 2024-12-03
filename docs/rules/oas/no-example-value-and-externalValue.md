@@ -98,7 +98,7 @@ requestBody:
 ## Related rules
 
 - [configurable rules](../configurable-rules.md)
-- [spec](../spec.md)
+- [spec](./struct.md)
 
 ## Resources
 
