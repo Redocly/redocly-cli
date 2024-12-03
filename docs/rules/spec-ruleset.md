@@ -2,12 +2,25 @@
 slug: /docs/cli/rules/spec
 ---
 
-# Recommended ruleset
+# Spec ruleset
 
-These are the rules in the `spec` set, grouped by their severity.
+This ruleset strictly follows the specifications.
+All the rules are of severity `error`:
 
-## Arazzo1Rules
-
-Errors:
-
+- `struct`
 - [criteria-unique](./arazzo/criteria-unique.md)
+- `parameters-not-in-body`
+- `sourceDescription-type`
+- `version-enum`
+- `workflowId-unique`
+- `stepId-unique`
+- `sourceDescription-name-unique`
+- `sourceDescriptions-not-empty`
+- `workflow-dependsOn`
+- `parameters-unique`
+- `step-onSuccess-unique`
+- `step-onFailure-unique`
+- `requestBody-replacements-unique`
+- `no-criteria-xpath`
+- `no-actions-type-end`
+- `criteria-unique`
