@@ -1321,7 +1321,7 @@ rules:
 
 ### Features
 
-- Added five new built-in rules:
+- Added four new built-in rules:
   - [path-excludes-patterns](./rules/oas/path-excludes-patterns.md)
   - [no-http-verbs-in-paths](./rules/oas/no-http-verbs-in-paths.md)
   - [request-mime-type](./rules/oas/request-mime-type.md)

@@ -11,7 +11,7 @@ Errors:
 - [no-server-trailing-slash](./oas/no-server-trailing-slash.md)
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md)
 - [no-unresolved-refs](./oas/no-unresolved-refs.md)
-- [spec](./spec.md)
+- [struct](./oas/struct.md)
 
 Warnings:
 

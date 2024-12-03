@@ -26,7 +26,7 @@ Errors:
 - [path-parameters-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
-- [spec](./spec.md)
+- [struct](./oas/struct.md)
 
 Warnings:
 

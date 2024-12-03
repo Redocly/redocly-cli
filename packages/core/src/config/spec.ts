@@ -4,6 +4,7 @@ const spec: PluginStyleguideConfig<'built-in'> = {
   rules: {
     struct: 'error',
   },
+  // TODO: populate with spec-related rules similar to `arazzo1Rules`
   oas2Rules: {},
   oas3_0Rules: {},
   oas3_1Rules: {},
