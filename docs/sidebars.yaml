@@ -123,7 +123,7 @@
             - page: rules/oas/scalar-property-missing-example.md
             - page: rules/oas/security-defined.md
             - page: rules/oas/spec-components-invalid-map-name.md
-            - page: rules/spec.md
+            - page: rules/oas/struct.md
             - page: rules/oas/spec-strict-refs.md
             - page: rules/oas/tag-description.md
             - page: rules/oas/tags-alphabetical.md
