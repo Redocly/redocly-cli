@@ -3,5 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Introduced `struct` rule.
-Added Arazzo version 1 ruleset.
+Introduced the `struct` rule and deprecated the `spec` rule. Added the `spec` ruleset, which enforces compliance with the specifications.
