@@ -22,7 +22,7 @@ Details of all the rules available "out of the box" with Redocly CLI are listed 
 - [no-unresolved-refs](./oas/no-unresolved-refs.md): Every `$ref` must exist
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
-- [spec](./spec.md): Conform to the declared OpenAPI specification version
+- [struct](./oas/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
 - [spec-strict-refs](./oas/spec-strict-refs.md) Restricts the usage of the `$ref` keyword.
 
