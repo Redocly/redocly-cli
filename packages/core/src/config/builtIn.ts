@@ -2,7 +2,7 @@ import recommended from './recommended';
 import recommendedStrict from './recommended-strict';
 import all from './all';
 import minimal from './minimal';
-import specArazzo from './spec-arazzo';
+import spec from './spec';
 import { rules as oas3Rules, preprocessors as oas3Preprocessors } from '../rules/oas3';
 import { rules as oas2Rules, preprocessors as oas2Preprocessors } from '../rules/oas2';
 import { rules as async2Rules, preprocessors as async2Preprocessors } from '../rules/async2';
@@ -21,7 +21,7 @@ export const builtInConfigs: Record<string, StyleguideRawConfig> = {
   'recommended-strict': recommendedStrict,
   minimal,
   all,
-  'spec-arazzo': specArazzo,
+  spec,
   'redocly-registry': {
     decorators: { 'registry-dependencies': 'on' },
   },
