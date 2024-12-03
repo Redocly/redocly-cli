@@ -1,6 +1,14 @@
 import type { PluginStyleguideConfig } from './types';
 
-const specArazzo: PluginStyleguideConfig<'built-in'> = {
+const spec: PluginStyleguideConfig<'built-in'> = {
+  rules: {
+    struct: 'error',
+  },
+  oas2Rules: {},
+  oas3_0Rules: {},
+  oas3_1Rules: {},
+  async2Rules: {},
+  async3Rules: {},
   arazzo1Rules: {
     'parameters-not-in-body': 'error',
     'sourceDescription-type': 'error',
@@ -20,4 +28,4 @@ const specArazzo: PluginStyleguideConfig<'built-in'> = {
   },
 };
 
-export default specArazzo;
+export default spec;
