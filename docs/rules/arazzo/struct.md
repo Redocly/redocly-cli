@@ -1,0 +1,28 @@
+---
+slug: /docs/cli/rules/arazzo/struct
+---
+
+# struct
+
+Ensures that your API document conforms to the [OpenAPI specification](https://spec.openapis.org/arazzo/latest.html#arazzo-specification).
+
+| Arzzo | Compatibility |
+| ----- | ------------- |
+| 1.0.0 | ✅            |
+
+The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
+
+This is an essential rule that should not be turned off except in rare and special cases.
+
+## Configuration
+
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+
+An example configuration:
+
+```yaml
+rules:
+  struct: error
+```
