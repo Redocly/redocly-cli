@@ -1,7 +1,3 @@
----
-slug: /docs/cli/rules/arazzo/criteria-unique
----
-
 # criteria-unique
 
 The criteria list must not contain duplicated assertions.
@@ -10,9 +6,9 @@ The criteria list must not contain duplicated assertions.
 | ------ | ------------- |
 | 1.0.0  | ✅            |
 
-## API design principles
+## Design principles
 
-The criteria list must not contain duplicated assertions.
+To avoid redundancy and confusion, the assertions in the criteria list must not be duplicated.
 
 ## Configuration
 
@@ -23,7 +19,7 @@ The criteria list must not contain duplicated assertions.
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   criteria-unique: error
 ```
 
@@ -32,7 +28,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   criteria-unique: error
 ```
 
