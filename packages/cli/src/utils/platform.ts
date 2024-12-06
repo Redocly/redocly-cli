@@ -1,12 +1,21 @@
+/**
+ * Sanitizes the input path by removing invalid characters.
+ */
 export const sanitizePath = (input: string): string => {
   return input.replace(/[^a-zA-Z0-9 ._\-:\\/@]/g, '');
 };
 
+/**
+ * Sanitizes the input locale (ex. en-US) by removing invalid characters.
+ */
 export const sanitizeLocale = (input: string): string => {
   return input.replace(/[^a-zA-Z0-9@._-]/g, '');
 };
 
-export function getPlatformArgs(argv: { path?: string; locale?: string; 'project-dir'?: string }) {
+/**
+ * Retrieves platform-specific arguments and utilities.
+ */
+export function getPlatformArgs() {
   const isWindowsPlatform = process.platform === 'win32';
   const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
 
@@ -14,13 +23,9 @@ export function getPlatformArgs(argv: { path?: string; locale?: string; 'project
     if (isWindowsPlatform && input) {
       return sanitizer(input);
     } else {
-      return input;
+      return input || '';
     }
   };
 
-  const path = sanitizeIfWindows(argv.path, sanitizePath);
-  const locale = sanitizeIfWindows(argv.locale, sanitizeLocale);
-  const projectDir = sanitizeIfWindows(argv['project-dir'], sanitizePath);
-
-  return { npxExecutableName, path, locale, projectDir, shell: isWindowsPlatform };
+  return { npxExecutableName, sanitize: sanitizeIfWindows, shell: isWindowsPlatform };
 }

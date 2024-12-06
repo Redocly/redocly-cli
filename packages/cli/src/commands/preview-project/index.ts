@@ -22,7 +22,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const packageName = PRODUCT_PACKAGES[product];
 
   process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
-  const { npxExecutableName, shell } = getPlatformArgs({});
+  const { npxExecutableName, shell } = getPlatformArgs();
 
   const child = spawn(
     npxExecutableName,

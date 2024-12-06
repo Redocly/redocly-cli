@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { getPlatformArgs } from '../utils/platform';
+import { getPlatformArgs, sanitizeLocale, sanitizePath } from '../utils/platform';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -11,11 +11,14 @@ export type TranslationsOptions = {
 
 export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptions>) => {
   process.stdout.write(`\nLaunching translate using NPX.\n\n`);
-  const { npxExecutableName, projectDir, locale, shell } = getPlatformArgs(argv);
+  const { npxExecutableName, sanitize, shell } = getPlatformArgs();
+
+  const projectDir = sanitize(argv['project-dir'], sanitizePath);
+  const locale = sanitize(argv.locale, sanitizeLocale);
 
   const child = spawn(
     npxExecutableName,
-    ['-y', '@redocly/realm', 'translate', locale ?? '', `-d=${projectDir}`],
+    ['-y', '@redocly/realm', 'translate', locale, `-d=${projectDir}`],
     {
       stdio: 'inherit',
       shell,

@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { getPlatformArgs } from '../utils/platform';
+import { getPlatformArgs, sanitizePath } from '../utils/platform';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -13,7 +13,10 @@ export type EjectOptions = {
 
 export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
   process.stdout.write(`\nLaunching eject using NPX.\n\n`);
-  const { npxExecutableName, path, projectDir, shell } = getPlatformArgs(argv);
+  const { npxExecutableName, sanitize, shell } = getPlatformArgs();
+
+  const path = sanitize(argv.path, sanitizePath);
+  const projectDir = sanitize(argv['project-dir'], sanitizePath);
 
   const child = spawn(
     npxExecutableName,
@@ -22,7 +25,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
       '@redocly/realm',
       'eject',
       `${argv.type}`,
-      path ?? '',
+      path,
       `-d=${projectDir}`,
       argv.force ? `--force=${argv.force}` : '',
     ],

@@ -683,65 +683,31 @@ describe('runtime platform', () => {
       });
     });
 
-    it('should return sanitized args for Windows platform', () => {
+    it('should return args for Windows platform', () => {
       Object.defineProperty(process, 'platform', {
         value: 'win32',
       });
 
-      const argv = {
-        path: 'C:\\Program Files\\App',
-        locale: 'en<>US',
-        'project-dir': 'C:\\data&& dir',
-      };
-
-      const result = getPlatformArgs(argv);
+      const result = getPlatformArgs();
 
       expect(result).toEqual({
         npxExecutableName: 'npx.cmd',
-        path: 'C:\\Program Files\\App',
-        locale: 'enUS',
-        projectDir: 'C:\\data dir',
+        sanitize: expect.any(Function),
         shell: true,
       });
     });
 
-    it('should return original args for non-Windows platform', () => {
+    it('should return args for non-Windows platform', () => {
       Object.defineProperty(process, 'platform', {
         value: 'linux',
       });
 
-      const argv = {
-        path: '/usr/local/bin/app',
-        locale: 'en-US',
-        'project-dir': '/usr/local/bin',
-      };
-
-      const result = getPlatformArgs(argv);
+      const result = getPlatformArgs();
 
       expect(result).toEqual({
         npxExecutableName: 'npx',
-        path: '/usr/local/bin/app',
-        locale: 'en-US',
-        projectDir: '/usr/local/bin',
+        sanitize: expect.any(Function),
         shell: false,
-      });
-    });
-
-    it('should handle undefined args', () => {
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-      });
-
-      const argv = {};
-
-      const result = getPlatformArgs(argv);
-
-      expect(result).toEqual({
-        npxExecutableName: 'npx.cmd',
-        path: undefined,
-        locale: undefined,
-        projectDir: undefined,
-        shell: true,
       });
     });
   });
