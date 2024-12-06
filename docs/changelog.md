@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.25.16 (2024-12-06)
+
+### Patch Changes
+
+- Fixed an issue where the CLI would fail to run on Windows due to a breaking change in the Node.js API.
+- Fixed an issue where `join` would throw an error when a glob pattern was provided.
+- Updated @redocly/openapi-core to v1.25.16.
+
 ## 1.25.15 (2024-11-29)
 
 ### Patch Changes
