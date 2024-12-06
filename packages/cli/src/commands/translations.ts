@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { getPlatformArgs, sanitizeLocale, sanitizePath } from '../utils/platform';
+import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/platform';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -11,7 +11,7 @@ export type TranslationsOptions = {
 
 export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptions>) => {
   process.stdout.write(`\nLaunching translate using NPX.\n\n`);
-  const { npxExecutableName, sanitize, shell } = getPlatformArgs();
+  const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 
   const projectDir = sanitize(argv['project-dir'], sanitizePath);
   const locale = sanitize(argv.locale, sanitizeLocale);

@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { getPlatformArgs, sanitizePath } from '../utils/platform';
+import { getPlatformSpawnArgs, sanitizePath } from '../utils/platform';
 
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -13,7 +13,7 @@ export type EjectOptions = {
 
 export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
   process.stdout.write(`\nLaunching eject using NPX.\n\n`);
-  const { npxExecutableName, sanitize, shell } = getPlatformArgs();
+  const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 
   const path = sanitize(argv.path, sanitizePath);
   const projectDir = sanitize(argv['project-dir'], sanitizePath);

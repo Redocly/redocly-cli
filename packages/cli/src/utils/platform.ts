@@ -15,7 +15,7 @@ export const sanitizeLocale = (input: string): string => {
 /**
  * Retrieves platform-specific arguments and utilities.
  */
-export function getPlatformArgs() {
+export function getPlatformSpawnArgs() {
   const isWindowsPlatform = process.platform === 'win32';
   const npxExecutableName = isWindowsPlatform ? 'npx.cmd' : 'npx';
 

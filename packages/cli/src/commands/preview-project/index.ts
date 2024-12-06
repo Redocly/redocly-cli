@@ -2,7 +2,7 @@ import path = require('path');
 import { existsSync, readFileSync } from 'fs';
 import { spawn } from 'child_process';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
-import { getPlatformArgs } from '../../utils/platform';
+import { getPlatformSpawnArgs } from '../../utils/platform';
 
 import type { PreviewProjectOptions, Product } from './types';
 import type { CommandArgs } from '../../wrapper';
@@ -22,7 +22,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const packageName = PRODUCT_PACKAGES[product];
 
   process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
-  const { npxExecutableName, shell } = getPlatformArgs();
+  const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,

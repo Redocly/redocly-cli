@@ -15,7 +15,7 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous';
-import { sanitizeLocale, sanitizePath, getPlatformArgs } from '../utils/platform';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform';
 import {
   ResolvedApi,
   Totals,
@@ -674,7 +674,7 @@ describe('runtime platform', () => {
     });
   });
 
-  describe('getPlatformArgs', () => {
+  describe('getPlatformSpawnArgs', () => {
     const originalPlatform = process.platform;
 
     afterEach(() => {
@@ -688,7 +688,7 @@ describe('runtime platform', () => {
         value: 'win32',
       });
 
-      const result = getPlatformArgs();
+      const result = getPlatformSpawnArgs();
 
       expect(result).toEqual({
         npxExecutableName: 'npx.cmd',
@@ -702,7 +702,7 @@ describe('runtime platform', () => {
         value: 'linux',
       });
 
-      const result = getPlatformArgs();
+      const result = getPlatformSpawnArgs();
 
       expect(result).toEqual({
         npxExecutableName: 'npx',
