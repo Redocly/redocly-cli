@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue where join threw an error when glob was provided.
+Fixed an issue where `join` would throw an error when a glob pattern was provided.
