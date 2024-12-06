@@ -12,7 +12,7 @@ Ensures that your API document conforms to the [OpenAPI specification](https://s
 
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 
-This is an essential rule that should not be turned off except in rare and special cases.
+This is an essential rule. Do not turned it off, except in rare and special cases.
 
 ## Configuration
 
