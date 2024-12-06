@@ -61,7 +61,7 @@ function extractFlatConfig<
   oas3_1Rules,
   async2Rules,
   async3Rules,
-  arazzoRules,
+  arazzo1Rules,
 
   preprocessors,
   oas2Preprocessors,
@@ -69,7 +69,7 @@ function extractFlatConfig<
   oas3_1Preprocessors,
   async2Preprocessors,
   async3Preprocessors,
-  arazzoPreprocessors,
+  arazzo1Preprocessors,
 
   decorators,
   oas2Decorators,
@@ -77,7 +77,7 @@ function extractFlatConfig<
   oas3_1Decorators,
   async2Decorators,
   async3Decorators,
-  arazzoDecorators,
+  arazzo1Decorators,
 
   ...rawConfigRest
 }: T): {
@@ -94,7 +94,7 @@ function extractFlatConfig<
     oas3_1Rules,
     async2Rules,
     async3Rules,
-    arazzoRules,
+    arazzo1Rules,
 
     preprocessors,
     oas2Preprocessors,
@@ -102,7 +102,7 @@ function extractFlatConfig<
     oas3_1Preprocessors,
     async2Preprocessors,
     async3Preprocessors,
-    arazzoPreprocessors,
+    arazzo1Preprocessors,
 
     decorators,
     oas2Decorators,
@@ -110,7 +110,7 @@ function extractFlatConfig<
     oas3_1Decorators,
     async2Decorators,
     async3Decorators,
-    arazzoDecorators,
+    arazzo1Decorators,
 
     doNotResolveExamples: rawConfigRest.resolve?.doNotResolveExamples,
   };
@@ -169,7 +169,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     oas3_1Rules: {},
     async2Rules: {},
     async3Rules: {},
-    arazzoRules: {},
+    arazzo1Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -177,7 +177,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     oas3_1Preprocessors: {},
     async2Preprocessors: {},
     async3Preprocessors: {},
-    arazzoPreprocessors: {},
+    arazzo1Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
@@ -185,7 +185,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     oas3_1Decorators: {},
     async2Decorators: {},
     async3Decorators: {},
-    arazzoDecorators: {},
+    arazzo1Decorators: {},
 
     plugins: [],
     pluginPaths: [],
@@ -210,8 +210,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async2Rules, rulesConf.rules);
     assignConfig(result.async3Rules, rulesConf.async3Rules);
     assignOnlyExistingConfig(result.async3Rules, rulesConf.rules);
-    assignConfig(result.arazzoRules, rulesConf.arazzoRules);
-    assignOnlyExistingConfig(result.arazzoRules, rulesConf.rules);
+    assignConfig(result.arazzo1Rules, rulesConf.arazzo1Rules);
+    assignOnlyExistingConfig(result.arazzo1Rules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -224,8 +224,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async2Preprocessors, rulesConf.preprocessors);
     assignConfig(result.async3Preprocessors, rulesConf.async3Preprocessors);
     assignOnlyExistingConfig(result.async3Preprocessors, rulesConf.preprocessors);
-    assignConfig(result.arazzoPreprocessors, rulesConf.arazzoPreprocessors);
-    assignOnlyExistingConfig(result.arazzoPreprocessors, rulesConf.preprocessors);
+    assignConfig(result.arazzo1Preprocessors, rulesConf.arazzo1Preprocessors);
+    assignOnlyExistingConfig(result.arazzo1Preprocessors, rulesConf.preprocessors);
 
     assignConfig(result.decorators, rulesConf.decorators);
     assignConfig(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -238,8 +238,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async2Decorators, rulesConf.decorators);
     assignConfig(result.async3Decorators, rulesConf.async3Decorators);
     assignOnlyExistingConfig(result.async3Decorators, rulesConf.decorators);
-    assignConfig(result.arazzoDecorators, rulesConf.arazzoDecorators);
-    assignOnlyExistingConfig(result.arazzoDecorators, rulesConf.decorators);
+    assignConfig(result.arazzo1Decorators, rulesConf.arazzo1Decorators);
+    assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
 
     result.plugins!.push(...(rulesConf.plugins || []));
     result.pluginPaths!.push(...(rulesConf.pluginPaths || []));
@@ -291,7 +291,8 @@ export function checkForDeprecatedFields(
   deprecatedField: keyof (DeprecatedInRawConfig & RawConfig),
   updatedField: keyof FlatRawConfig | undefined,
   rawConfig: DeprecatedInRawConfig & RawConfig & FlatRawConfig,
-  updatedObject: keyof FlatRawConfig | undefined
+  updatedObject: keyof FlatRawConfig | undefined,
+  link?: string | undefined
 ): void {
   const isDeprecatedFieldInApis =
     rawConfig.apis &&
@@ -301,7 +302,7 @@ export function checkForDeprecatedFields(
     );
 
   if (rawConfig[deprecatedField] && updatedField === null) {
-    showWarningForDeprecatedField(deprecatedField);
+    showWarningForDeprecatedField(deprecatedField, undefined, updatedObject, link);
   }
 
   if (rawConfig[deprecatedField] && updatedField && rawConfig[updatedField]) {
@@ -313,7 +314,7 @@ export function checkForDeprecatedFields(
   }
 
   if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
-    showWarningForDeprecatedField(deprecatedField, updatedField, updatedObject);
+    showWarningForDeprecatedField(deprecatedField, updatedField, updatedObject, link);
   }
 }
 
@@ -323,17 +324,28 @@ export function transformConfig(
   const migratedFields: [
     keyof (DeprecatedInRawConfig & RawConfig),
     keyof FlatRawConfig | undefined,
-    keyof ThemeConfig | undefined
+    keyof ThemeConfig | undefined,
+    string | undefined
   ][] = [
-    ['apiDefinitions', 'apis', undefined],
-    ['referenceDocs', 'openapi', 'theme'],
-    ['lint', undefined, undefined],
-    ['styleguide', undefined, undefined],
-    ['features.openapi', 'openapi', 'theme'],
+    ['apiDefinitions', 'apis', undefined, undefined],
+    ['referenceDocs', 'openapi', 'theme', undefined],
+    [
+      'lint',
+      undefined,
+      undefined,
+      'https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties',
+    ],
+    [
+      'styleguide',
+      undefined,
+      undefined,
+      'https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties',
+    ],
+    ['features.openapi', 'openapi', 'theme', undefined],
   ];
 
-  for (const [deprecatedField, updatedField, updatedObject] of migratedFields) {
-    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig, updatedObject);
+  for (const [deprecatedField, updatedField, updatedObject, link] of migratedFields) {
+    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig, updatedObject, link);
   }
 
   const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;

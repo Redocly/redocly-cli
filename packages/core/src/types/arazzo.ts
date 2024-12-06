@@ -50,10 +50,8 @@ const SourceDescriptions: NodeType = {
   items: (value: any) => {
     if (value?.type === 'openapi') {
       return 'OpenAPISourceDescription';
-    } else if (value?.type === 'arazzo') {
-      return 'ArazzoSourceDescription';
     } else {
-      return 'NoneSourceDescription';
+      return 'ArazzoSourceDescription';
     }
   },
 };
@@ -65,15 +63,6 @@ const OpenAPISourceDescription: NodeType = {
     'x-serverUrl': { type: 'string' },
   },
   required: ['name', 'type', 'url'],
-  extensionsPrefix: 'x-',
-};
-const NoneSourceDescription: NodeType = {
-  properties: {
-    name: { type: 'string' },
-    type: { type: 'string', enum: ['none'] },
-    'x-serverUrl': { type: 'string' },
-  },
-  required: ['name', 'type', 'x-serverUrl'],
   extensionsPrefix: 'x-',
 };
 const ArazzoSourceDescription: NodeType = {
@@ -273,12 +262,11 @@ const OnFailureActionList: NodeType = {
   },
 };
 
-export const ArazzoTypes: Record<string, NodeType> = {
+export const Arazzo1Types: Record<string, NodeType> = {
   Root,
   Info,
   SourceDescriptions,
   OpenAPISourceDescription,
-  NoneSourceDescription,
   ArazzoSourceDescription,
   Parameters,
   Parameter,

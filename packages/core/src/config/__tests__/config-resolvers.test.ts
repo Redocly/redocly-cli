@@ -389,11 +389,23 @@ describe('resolveStyleguideConfig', () => {
 
 describe('resolveApis', () => {
   it('should resolve apis styleguideConfig and merge minimal extends', async () => {
+    const baseStyleguideConfig: StyleguideRawConfig = {
+      oas3_1Rules: {
+        'operation-2xx-response': 'error',
+      },
+    };
+    const mergedStyleguidePreset = resolveStyleguideConfig({
+      styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal'] },
+    });
     const rawConfig: RawConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {},
+          styleguide: {
+            oas3_1Rules: {
+              'operation-2xx-response': 'error',
+            },
+          },
         },
       },
       styleguide: {
@@ -401,7 +413,7 @@ describe('resolveApis', () => {
       },
     };
     const apisResult = await resolveApis({ rawConfig });
-    expect(apisResult['petstore'].styleguide).toEqual(await minimalStyleguidePreset);
+    expect(apisResult['petstore'].styleguide).toEqual(await mergedStyleguidePreset);
   });
 
   it('should not merge recommended extends by default by every level', async () => {

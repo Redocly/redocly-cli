@@ -40,7 +40,7 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 - {additional properties}
 - any
-- Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here. For example the [`boolean-parameter-prefixes` rule](../../rules/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
+- Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here. For example the [`boolean-parameter-prefixes` rule](../../rules/oas/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
 
 {% /table %}
 

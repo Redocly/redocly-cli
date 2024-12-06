@@ -76,8 +76,7 @@ describe('Arazzo no-criteria-xpath', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'no-criteria-xpath': 'error' },
+        rules: { 'no-criteria-xpath': 'error' },
       }),
     });
 

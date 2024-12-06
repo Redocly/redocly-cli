@@ -21,7 +21,7 @@ decorators:
 
 ## Examples
 
-Read the article on [no-unused-components](../rules/no-unused-components.md#examples) rule to see examples.
+Read the article on [no-unused-components](../rules/oas/no-unused-components.md#examples) rule to see examples.
 
 ## Related decorators
 

@@ -41,8 +41,7 @@ describe('Arazzo sourceDescription-name-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'sourceDescription-name-unique': 'error' },
+        rules: { 'sourceDescription-name-unique': 'error' },
       }),
     });
 

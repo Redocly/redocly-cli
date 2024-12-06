@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const NoCriteriaXpath: ArazzoRule = () => {
+export const NoCriteriaXpath: Arazzo1Rule = () => {
   return {
     CriterionObject: {
       enter(criteria, { report, location }: UserContext) {

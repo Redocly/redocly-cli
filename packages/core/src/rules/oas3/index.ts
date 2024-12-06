@@ -1,4 +1,4 @@
-import { Spec } from '../common/spec';
+import { Struct } from '../common/struct';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
 import { Assertions } from '../common/assertions';
@@ -59,7 +59,10 @@ import type { Oas3RuleSet } from '../../oas-types';
 import type { Oas3Rule } from '../../visitors';
 
 export const rules: Oas3RuleSet<'built-in'> = {
-  spec: Spec as Oas3Rule,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
+  spec: Struct as Oas3Rule,
+  struct: Struct as Oas3Rule,
   'info-contact': InfoContact as Oas3Rule,
   'info-license': InfoLicense as Oas3Rule,
   'info-license-url': InfoLicenseUrl as Oas3Rule,

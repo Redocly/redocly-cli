@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const NoActionsTypeEnd: ArazzoRule = () => {
+export const NoActionsTypeEnd: Arazzo1Rule = () => {
   return {
     FailureActionObject: {
       enter(action, { report, location }: UserContext) {

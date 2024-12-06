@@ -6,7 +6,7 @@ tocMaxDepth: 3
 
 ## Overview
 
-This guide describes how to ensure that the API operation's response [contains a specific property](../rules/response-contains-property.md)
+This guide describes how to ensure that the API operation's response [contains a specific property](../rules/oas/response-contains-property.md)
 with three different cases:
 
 1. Single response containing one property
