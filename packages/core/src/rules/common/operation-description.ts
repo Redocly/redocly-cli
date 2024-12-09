@@ -3,11 +3,11 @@ import { validateDefinedAndNonEmpty } from '../utils';
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 import type { Oas2Operation } from '../../typings/swagger';
-import type { Oas3Operation } from '../../typings/openapi';
+import type { Oas3Operation, Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
 
 export const OperationDescription: Oas3Rule | Oas2Rule = () => {
   return {
-    Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
+    Operation(operation: Oas2Operation | Oas3Operation<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
       validateDefinedAndNonEmpty('description', operation, ctx);
     },
   };
