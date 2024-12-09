@@ -3,7 +3,7 @@ import { isString } from '../../../utils';
 
 import type { asserts, AssertionFn } from './asserts';
 import type {
-  ArazzoVisitor,
+  Arazzo1Visitor,
   Async2Visitor,
   Async3Visitor,
   Oas2Visitor,
@@ -35,7 +35,7 @@ export type RawAssertion = AssertionDefinition & {
 export type Assertion = RawAssertion & { assertionId: string };
 
 export const Assertions = (opts: Record<string, Assertion>) => {
-  const visitors: (Oas2Visitor | Oas3Visitor | Async2Visitor | Async3Visitor | ArazzoVisitor)[] =
+  const visitors: (Oas2Visitor | Oas3Visitor | Async2Visitor | Async3Visitor | Arazzo1Visitor)[] =
     [];
 
   // As 'Assertions' has an array of asserts,

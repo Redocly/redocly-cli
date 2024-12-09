@@ -60,8 +60,7 @@ describe('Arazzo step-onSuccess-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'step-onSuccess-unique': 'error' },
+        rules: { 'step-onSuccess-unique': 'error' },
       }),
     });
 

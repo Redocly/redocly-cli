@@ -244,14 +244,16 @@ export function doesYamlFileExist(filePath: string): boolean {
 export function showWarningForDeprecatedField(
   deprecatedField: string,
   updatedField?: string,
-  updatedObject?: string
+  updatedObject?: string,
+  link?: string
 ) {
+  const readMoreText = link ? `Read more about this change: ${link}` : '';
   logger.warn(
     `The '${colorize.red(deprecatedField)}' field is deprecated. ${
       updatedField
         ? `Use ${colorize.green(getUpdatedFieldName(updatedField, updatedObject))} instead. `
         : ''
-    }Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
+    }${readMoreText}\n`
   );
 }
 

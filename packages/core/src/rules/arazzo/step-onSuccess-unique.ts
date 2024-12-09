@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const StepOnSuccessUnique: ArazzoRule = () => {
+export const StepOnSuccessUnique: Arazzo1Rule = () => {
   return {
     OnSuccessActionList: {
       enter(onSuccessActionList, { report, location }: UserContext) {

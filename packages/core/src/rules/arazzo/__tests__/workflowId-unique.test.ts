@@ -51,8 +51,7 @@ describe('Arazzo workflowId-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'workflowId-unique': 'error' },
+        rules: { 'workflowId-unique': 'error' },
       }),
     });
 
@@ -80,8 +79,7 @@ describe('Arazzo workflowId-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'workflowId-unique': 'off' },
+        rules: { 'workflowId-unique': 'off' },
       }),
     });
 

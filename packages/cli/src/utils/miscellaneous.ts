@@ -529,7 +529,7 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
     ...rules.oas3_1,
     ...rules.async2,
     ...rules.async3,
-    ...rules.arazzo,
+    ...rules.arazzo1,
   };
 
   if (isEmptyObject(ruleset)) {

@@ -71,8 +71,7 @@ describe('Arazzo no-actions-type-end', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'no-actions-type-end': 'error' },
+        rules: { 'no-actions-type-end': 'error' },
       }),
     });
 

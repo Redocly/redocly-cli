@@ -8,8 +8,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
 import type { Config } from '../config';
 
-const builtInCommonOASRules = [
-  'spec',
+const builtInOAS2Rules = [
   'info-contact',
   'operation-operationId',
   'tag-description',
@@ -49,11 +48,6 @@ const builtInCommonOASRules = [
   'spec-strict-refs',
   'no-unresolved-refs',
   'no-required-schema-properties-undefined',
-] as const;
-
-export type BuiltInCommonOASRuleId = typeof builtInCommonOASRules[number];
-
-const builtInOAS2Rules = [
   'boolean-parameter-prefixes',
   'request-mime-type',
   'response-contains-property',
@@ -63,6 +57,45 @@ const builtInOAS2Rules = [
 export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
 
 const builtInOAS3Rules = [
+  'info-contact',
+  'operation-operationId',
+  'tag-description',
+  'tags-alphabetical',
+  'info-license-url',
+  'info-license-strict',
+  'info-license',
+  'no-ambiguous-paths',
+  'no-enum-type-mismatch',
+  'no-http-verbs-in-paths',
+  'no-identical-paths',
+  'no-invalid-parameter-examples',
+  'no-invalid-schema-examples',
+  'no-path-trailing-slash',
+  'operation-2xx-response',
+  'operation-4xx-response',
+  'operation-description',
+  'operation-operationId-unique',
+  'operation-operationId-url-safe',
+  'operation-parameters-unique',
+  'operation-singular-tag',
+  'operation-summary',
+  'operation-tag-defined',
+  'parameter-description',
+  'path-declaration-must-exist',
+  'path-excludes-patterns',
+  'path-http-verbs-order',
+  'path-not-include-query',
+  'path-params-defined',
+  'path-parameters-defined',
+  'path-segment-plural',
+  'paths-kebab-case',
+  'required-string-property-missing-min-length',
+  'response-contains-header',
+  'scalar-property-missing-example',
+  'security-defined',
+  'spec-strict-refs',
+  'no-unresolved-refs',
+  'no-required-schema-properties-undefined',
   'boolean-parameter-prefixes',
   'component-name-unique',
   'no-empty-servers',
@@ -84,7 +117,6 @@ const builtInOAS3Rules = [
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
 
 const builtInAsync2Rules = [
-  'spec',
   'info-contact',
   'info-license-strict',
   'operation-operationId',
@@ -95,7 +127,6 @@ const builtInAsync2Rules = [
 ] as const;
 
 const builtInAsync3Rules = [
-  'spec',
   'info-contact',
   'info-license-strict',
   'operation-operationId',
@@ -109,14 +140,14 @@ export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
 
 export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
 
-const builtInArazzoRules = [
-  'spec',
+const builtInArazzo1Rules = [
   'parameters-not-in-body',
   'sourceDescription-type',
   'version-enum',
   'workflowId-unique',
   'stepId-unique',
   'sourceDescription-name-unique',
+  'sourceDescriptions-not-empty',
   'workflow-dependsOn',
   'parameters-unique',
   'step-onSuccess-unique',
@@ -127,15 +158,16 @@ const builtInArazzoRules = [
   'criteria-unique',
 ] as const;
 
-export type BuiltInArazzoRuleId = typeof builtInArazzoRules[number];
+export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
 
 const builtInRules = [
-  ...builtInCommonOASRules,
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
   ...builtInAsync2Rules,
   ...builtInAsync3Rules,
-  ...builtInArazzoRules,
+  ...builtInArazzo1Rules,
+  'spec', // TODO: depricated in favor of struct
+  'struct',
 ] as const;
 
 type BuiltInRuleId = typeof builtInRules[number];
@@ -278,7 +310,7 @@ const ConfigStyleguide: NodeType = {
     oas3_0Rules: 'Rules',
     oas3_1Rules: 'Rules',
     async2Rules: 'Rules',
-    arazzoRules: 'Rules',
+    arazzo1Rules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
@@ -290,7 +322,7 @@ const ConfigStyleguide: NodeType = {
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
     async2Decorators: { type: 'object' },
-    arazzoDecorators: { type: 'object' },
+    arazzo1Decorators: { type: 'object' },
   },
 };
 

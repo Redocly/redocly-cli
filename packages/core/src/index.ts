@@ -8,7 +8,7 @@ export {
   pause,
 } from './utils';
 export { Oas3_1Types } from './types/oas3_1';
-export { ArazzoTypes } from './types/arazzo';
+export { Arazzo1Types } from './types/arazzo';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
 export { AsyncApi2Types } from './types/asyncapi2';

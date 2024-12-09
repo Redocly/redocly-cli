@@ -1,10 +1,10 @@
 import { ARAZZO_VERSIONS_SUPPORTED_BY_SPOT } from '../../typings/arazzo';
 import { pluralize } from '../../utils';
 
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const VersionEnum: ArazzoRule = () => {
+export const VersionEnum: Arazzo1Rule = () => {
   const supportedVersions = ARAZZO_VERSIONS_SUPPORTED_BY_SPOT.join(', ');
   return {
     Root: {

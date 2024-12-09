@@ -117,7 +117,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": {
-            "arazzo": {},
+            "arazzo1": {},
             "async2": {},
             "async3": {},
             "oas2": {},
@@ -130,7 +130,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": [],
           "plugins": [],
           "preprocessors": {
-            "arazzo": {},
+            "arazzo1": {},
             "async2": {},
             "async3": {},
             "oas2": {},
@@ -146,7 +146,9 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": {
-            "arazzo": {},
+            "arazzo1": {
+              "operation-summary": "warn",
+            },
             "async2": {
               "operation-summary": "warn",
             },
@@ -230,7 +232,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": {
-            "arazzo": {},
+            "arazzo1": {},
             "async2": {},
             "async3": {},
             "oas2": {},
@@ -243,7 +245,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": [],
           "plugins": [],
           "preprocessors": {
-            "arazzo": {},
+            "arazzo1": {},
             "async2": {},
             "async3": {},
             "oas2": {},
@@ -261,7 +263,10 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": {
-            "arazzo": {},
+            "arazzo1": {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
             "async2": {
               "no-empty-servers": "error",
               "operation-summary": "error",

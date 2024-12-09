@@ -41,8 +41,7 @@ describe('Arazzo sourceDescription-type', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'sourceDescription-type': 'error' },
+        rules: { 'sourceDescription-type': 'error' },
       }),
     });
 
@@ -70,8 +69,7 @@ describe('Arazzo sourceDescription-type', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'sourceDescription-type': 'off' },
+        rules: { 'sourceDescription-type': 'off' },
       }),
     });
 

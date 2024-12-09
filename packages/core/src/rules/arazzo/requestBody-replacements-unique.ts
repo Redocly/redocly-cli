@@ -1,7 +1,7 @@
-import type { ArazzoRule } from '../../visitors';
+import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const RequestBodyReplacementsUnique: ArazzoRule = () => {
+export const RequestBodyReplacementsUnique: Arazzo1Rule = () => {
   const seenReplacements = new Set();
 
   return {

@@ -71,8 +71,7 @@ describe('Arazzo requestBody-replacements-unique', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: {},
-        arazzoRules: { 'requestBody-replacements-unique': 'error' },
+        rules: { 'requestBody-replacements-unique': 'error' },
       }),
     });
 
