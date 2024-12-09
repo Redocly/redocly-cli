@@ -58,7 +58,6 @@ channels:
 ### Channel rules for AsyncAPI 2.6
 
 The syntax for how the channels are described changed with the AsyncAPI 3.0 release.
-
 This rule also works with AsyncAPI 2.6 and checks the channel address used as the key of the `channels` object.
 For example, the rule would catch this example where `transactions/ticketSales` is used as a channel name:
 
