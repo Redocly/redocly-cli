@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 1.26.0
+
+### Minor Changes
+
+- Introduced the `struct` rule and deprecated the `spec` rule.
+  Added the `spec` ruleset, which enforces compliance with the specifications.
+
+### Patch Changes
+
+- Updated `sourceDescriptions` to enforce a valid type field, ensuring compliance with the Arazzo specification.
+
 ## 1.25.15
 
 ### Patch Changes

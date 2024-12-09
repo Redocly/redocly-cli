@@ -1,5 +1,19 @@
 # @redocly/cli
 
+## 1.26.0
+
+### Minor Changes
+
+- Introduced the `struct` rule and deprecated the `spec` rule.
+  Added the `spec` ruleset, which enforces compliance with the specifications.
+
+### Patch Changes
+
+- Fixed an issue where the CLI would fail to run on Windows due to a breaking change in the Node.js API.
+- Fixed an issue where `join` would throw an error when a glob pattern was provided.
+- Updated `sourceDescriptions` to enforce a valid type field, ensuring compliance with the Arazzo specification.
+- Updated @redocly/openapi-core to v1.26.0.
+
 ## 1.25.15
 
 ### Patch Changes
