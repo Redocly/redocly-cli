@@ -130,7 +130,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
 
-### Spot [ depricated, will be removed soon ]
+### Spot [ deprecated ]
 
 - [no-actions-type-end](./spot/no-actions-type-end.test.md): the `end` type action is not supported by Spot.
 - [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
