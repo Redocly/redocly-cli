@@ -100,7 +100,7 @@ The rules list is split into sections.
 ### Tags
 
 - [operation-singular-tag](./oas/operation-singular-tag.md): Each operation may only have one tag
-- [operation-tag-defined](.oas/operation-tag-defined.md): Tags can only be used if they are defined at the top level
+- [operation-tag-defined](./oas/operation-tag-defined.md): Tags can only be used if they are defined at the top level
 - [tag-description](./oas/tag-description.md): Tags must have descriptions
 - [tags-alphabetical](./oas/tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
 
