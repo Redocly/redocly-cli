@@ -108,6 +108,7 @@ export type VisitorNode<T> = {
 type VisitorRefNode = {
   ruleId: string;
   severity: ProblemSeverity;
+  message?: string;
   context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
@@ -369,6 +370,7 @@ export type OasDecorator = Oas3Decorator;
 export type RuleInstanceConfig = {
   ruleId: string;
   severity: ProblemSeverity;
+  message?: string;
 };
 
 export function normalizeVisitors<T extends BaseVisitor>(
