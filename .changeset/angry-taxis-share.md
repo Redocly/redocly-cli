@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added JSON Schema format validation.
+Added validation for JSON Schema format.
