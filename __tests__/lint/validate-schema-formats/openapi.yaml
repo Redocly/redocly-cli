@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: Test format validation
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      responses:
+        200:
+          description: Validate formats using $refs.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+              examples:
+                Correct:
+                  $ref: '#/components/examples/DateTime'
+                Incorrect:
+                  $ref: '#/components/examples/Date'
+
+components:
+  schemas:
+    Date:
+      type: string
+      format: date
+      examples:
+        - '2000-01-01' # correct
+        - 2000 # incorrect type
+        - incorrect
+    Email:
+      description: Email address for ticket purchaser.
+      type: string
+      format: email
+      examples:
+        - museum-lover@example.com # correct
+        - wrong.format
+    Id:
+      type: string
+      format: uuid
+      examples:
+        - 3be6453c-03eb-4357-ae5a-984a0e574a54 # correct
+        - incorrect
+        - 42 # wrong type
+    Time:
+      type: string
+      pattern: '^([01]\d|2[0-3]):?([0-5]\d)$'
+      description: Time the museum opens on a specific date. Uses 24 hour time format (`HH:mm`).
+      examples:
+        - 09:00 # correct
+        - incorrect
+        - 09.00 # wrong type
+
+  examples:
+    Date:
+      value: '2000-01-01'
+    DateTime:
+      value: '2000-01-01T12:00:00Z'
