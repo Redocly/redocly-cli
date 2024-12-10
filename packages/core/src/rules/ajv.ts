@@ -1,4 +1,5 @@
 import Ajv from '@redocly/ajv/dist/2020';
+import addFormats from 'ajv-formats';
 import { escapePointer } from '../ref-utils';
 
 import type { Location } from '../ref-utils';
@@ -22,7 +23,7 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       validateSchema: false,
       discriminator: true,
       allowUnionTypes: true,
-      validateFormats: false, // TODO: fix it
+      validateFormats: true,
       defaultUnevaluatedProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, $id: string) {
         const resolvedRef = resolve({ $ref }, base.split('#')[0]);
@@ -31,6 +32,7 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       },
       logger: false,
     });
+    addFormats(ajvInstance as any); // FIXME: type mismatch
   }
   return ajvInstance;
 }
