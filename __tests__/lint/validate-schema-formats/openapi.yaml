@@ -50,6 +50,15 @@ components:
         - 09:00 # correct
         - incorrect
         - 09.00 # wrong type
+    Oneof:
+      type: string
+      oneOf:
+        - format: date
+        - pattern: ^(month|year)ly$
+      examples:
+        - '2000-01-01' # correct
+        - monthly # correct
+        - wrong
 
   examples:
     Date:
