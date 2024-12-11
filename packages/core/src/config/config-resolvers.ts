@@ -370,19 +370,19 @@ export async function resolveApis({
   return resolvedApis;
 }
 
-async function resolveAndMergeNestedStyleguideConfig(
-  {
-    styleguideConfig,
-    configPath = '',
-    resolver = new BaseResolver(),
-  }: {
-    styleguideConfig?: StyleguideRawConfig;
-    configPath?: string;
-    resolver?: BaseResolver;
-  },
-  parentConfigPaths: string[] = [],
-  extendPaths: string[] = []
-): Promise<ResolvedStyleguideConfig> {
+async function resolveAndMergeNestedStyleguideConfig({
+  styleguideConfig,
+  configPath = '',
+  resolver = new BaseResolver(),
+  parentConfigPaths = [],
+  extendPaths = [],
+}: {
+  styleguideConfig?: StyleguideRawConfig;
+  configPath?: string;
+  resolver?: BaseResolver;
+  parentConfigPaths?: string[];
+  extendPaths?: string[];
+}): Promise<ResolvedStyleguideConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
@@ -414,15 +414,13 @@ async function resolveAndMergeNestedStyleguideConfig(
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
       const extendedStyleguideConfig = await loadExtendStyleguideConfig(pathItem, resolver);
-      return await resolveAndMergeNestedStyleguideConfig(
-        {
-          styleguideConfig: extendedStyleguideConfig,
-          configPath: pathItem,
-          resolver: resolver,
-        },
-        [...parentConfigPaths, resolvedConfigPath],
-        extendPaths
-      );
+      return await resolveAndMergeNestedStyleguideConfig({
+        styleguideConfig: extendedStyleguideConfig,
+        configPath: pathItem,
+        resolver,
+        parentConfigPaths: [...parentConfigPaths, resolvedConfigPath],
+        extendPaths,
+      });
     }) || []
   );
 
@@ -446,20 +444,14 @@ async function resolveAndMergeNestedStyleguideConfig(
   };
 }
 
-export async function resolveStyleguideConfig(
-  opts: {
-    styleguideConfig?: StyleguideRawConfig;
-    configPath?: string;
-    resolver?: BaseResolver;
-  },
-  parentConfigPaths: string[] = [],
-  extendPaths: string[] = []
-): Promise<ResolvedStyleguideConfig> {
-  const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig(
-    opts,
-    parentConfigPaths,
-    extendPaths
-  );
+export async function resolveStyleguideConfig(opts: {
+  styleguideConfig?: StyleguideRawConfig;
+  configPath?: string;
+  resolver?: BaseResolver;
+  parentConfigPaths?: string[];
+  extendPaths?: string[];
+}): Promise<ResolvedStyleguideConfig> {
+  const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig(opts);
 
   return {
     ...resolvedStyleguideConfig,

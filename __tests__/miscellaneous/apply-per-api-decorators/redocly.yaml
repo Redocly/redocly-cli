@@ -1,0 +1,8 @@
+apis:
+  test@v1:
+    root: openapi.yaml
+    decorators:
+      test/version: on
+      remove-unused-components: on
+plugins:
+  - plugins/test.js
