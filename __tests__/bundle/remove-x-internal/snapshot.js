@@ -39,7 +39,7 @@ components:
           enum:
             - cranberry
 
-bundling ./main.yaml...
-📦 Created a bundle for ./main.yaml at stdout <test>ms.
+bundling main.yaml...
+📦 Created a bundle for main.yaml at stdout <test>ms.
 
 `;

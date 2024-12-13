@@ -1,6 +1,6 @@
-module.exports = sparkle;
+module.exports = addVersion;
 
-function sparkle() {
+function addVersion() {
   return {
     Info: {
       leave(target) {

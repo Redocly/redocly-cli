@@ -38,7 +38,7 @@ securityDefinitions:
     name: access_token
     type: apiKey
 
-bundling ./openapi.yaml...
-📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
+bundling openapi.yaml...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
 
 `;

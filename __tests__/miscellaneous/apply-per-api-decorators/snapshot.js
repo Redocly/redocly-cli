@@ -11,8 +11,8 @@ components:
     Unused:
       type: string
 
-bundling ./__tests__/miscellaneous/apply-per-api-decorators/openapi.yaml...
-📦 Created a bundle for ./__tests__/miscellaneous/apply-per-api-decorators/openapi.yaml at stdout <test>ms.
+bundling nested/openapi/main.yaml...
+📦 Created a bundle for nested/openapi/main.yaml at stdout <test>ms.
 
 `;
 
@@ -27,7 +27,7 @@ components:
     Unused:
       type: string
 
-bundling ./__tests__/miscellaneous/apply-per-api-decorators/openapi.yaml...
-📦 Created a bundle for ./__tests__/miscellaneous/apply-per-api-decorators/openapi.yaml at stdout <test>ms.
+bundling nested/openapi/main.yaml...
+📦 Created a bundle for nested/openapi/main.yaml at stdout <test>ms.
 
 `;

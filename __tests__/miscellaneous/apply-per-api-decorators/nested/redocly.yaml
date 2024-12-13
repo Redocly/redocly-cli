@@ -1,6 +1,6 @@
 apis:
   test@v1:
-    root: openapi.yaml
+    root: openapi/main.yaml
     decorators:
       test/version: on
       remove-unused-components: on

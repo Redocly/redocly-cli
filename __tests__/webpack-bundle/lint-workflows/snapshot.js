@@ -10,8 +10,8 @@ exports[`webpack-bundle test lint-workflows 1`] = `
   "version": "<version>",
   "problems": []
 }
-validating ./openapi.yaml...
-./openapi.yaml: validated in <test>ms
+validating openapi.yaml...
+openapi.yaml: validated in <test>ms
 
 Woohoo! Your API description is valid. 🎉
 

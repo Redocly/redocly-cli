@@ -54,7 +54,7 @@ operations:
                 format: email
                 description: Email of the user
 
-bundling ./simple.yml...
-📦 Created a bundle for ./simple.yml at stdout <test>ms.
+bundling simple.yml...
+📦 Created a bundle for simple.yml at stdout <test>ms.
 
 `;

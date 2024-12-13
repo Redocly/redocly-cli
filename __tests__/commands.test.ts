@@ -616,14 +616,19 @@ describe('E2E', () => {
 
     test('apply a decorator to a specific api (without specifying the api)', () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
-      const args = getParams('../../../packages/cli/src/index.ts', 'bundle');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        '--config=nested/redocly.yaml',
+      ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
 
     test('apply a decorator to a specific api (when the api is specified as an alias)', () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
-      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['test@v1']);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        '--config=nested/redocly.yaml',
+        'test@v1',
+      ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
