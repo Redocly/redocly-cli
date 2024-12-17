@@ -13,7 +13,6 @@ import { StepOnSuccessUnique } from './step-onSuccess-unique';
 import { StepOnFailureUnique } from './step-onFailure-unique';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique';
 import { NoCriteriaXpath } from '../spot/no-criteria-xpath';
-import { NoActionsTypeEnd } from '../spot/no-actions-type-end';
 import { CriteriaUnique } from './criteria-unique';
 
 import type { Arazzo1Rule } from '../../visitors';
@@ -35,7 +34,6 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'step-onFailure-unique': StepOnFailureUnique,
   'requestBody-replacements-unique': RequestBodyReplacementsUnique,
   'no-criteria-xpath': NoCriteriaXpath,
-  'no-actions-type-end': NoActionsTypeEnd,
   'criteria-unique': CriteriaUnique,
 };
 

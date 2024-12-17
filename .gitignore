@@ -13,3 +13,4 @@ output/
 *.tgz
 redoc-static.html
 packages/cli/README.md
+.tool-versions

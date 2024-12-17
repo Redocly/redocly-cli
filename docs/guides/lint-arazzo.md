@@ -85,7 +85,6 @@ The rules available for linting Arazzo are:
 - `step-onFailure-unique`: the `onFailure` actions of the `step` object must be unique.
 - `requestBody-replacements-unique`: the `replacements` of the `requestBody` object must be unique.
 - `no-criteria-xpath`: the `xpath` type criteria is not supported by Spot.
-- `no-actions-type-end`: the `end` type action is not supported by Spot.
 - `criteria-unique`: the criteria list must not contain duplicated assertions.
 
 Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzoRules`.

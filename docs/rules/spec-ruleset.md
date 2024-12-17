@@ -22,5 +22,4 @@ All the rules are of severity `error`:
 - `step-onFailure-unique`
 - `requestBody-replacements-unique`
 - `no-criteria-xpath`
-- `no-actions-type-end`
 - `criteria-unique`

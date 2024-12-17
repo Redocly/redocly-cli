@@ -187,7 +187,6 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   arazzo1Rules: {
     'criteria-unique': 'off',
     'no-criteria-xpath': 'off',
-    'no-actions-type-end': 'off',
     'parameters-not-in-body': 'off',
     'parameters-unique': 'off',
     'requestBody-replacements-unique': 'off',

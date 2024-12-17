@@ -187,7 +187,6 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   arazzo1Rules: {
     'criteria-unique': 'warn',
     'no-criteria-xpath': 'warn',
-    'no-actions-type-end': 'warn',
     'parameters-not-in-body': 'warn',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'warn',
