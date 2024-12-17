@@ -24,7 +24,6 @@ const spec: PluginStyleguideConfig<'built-in'> = {
     'step-onFailure-unique': 'error',
     'requestBody-replacements-unique': 'error',
     'no-criteria-xpath': 'error',
-    'no-actions-type-end': 'error',
     'criteria-unique': 'error',
   },
 };

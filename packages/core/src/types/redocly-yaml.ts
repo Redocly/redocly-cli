@@ -154,7 +154,6 @@ const builtInArazzo1Rules = [
   'step-onFailure-unique',
   'requestBody-replacements-unique',
   'no-criteria-xpath',
-  'no-actions-type-end',
   'criteria-unique',
 ] as const;
 

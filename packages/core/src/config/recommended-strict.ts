@@ -187,7 +187,6 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
   arazzo1Rules: {
     'criteria-unique': 'error',
     'no-criteria-xpath': 'error',
-    'no-actions-type-end': 'error',
     'parameters-not-in-body': 'error',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'error',
