@@ -4,7 +4,7 @@ slug: /docs/cli/rules/built-in-rules
 
 # Built-in rules
 
-The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](#rule-configuration-syntax), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
+The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](./configure-rules.md), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
 
 All the built-in rules are listed here, roughly grouped by the OpenAPI object they apply to.
 The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
@@ -13,9 +13,19 @@ The _Special rules_ group contains rules that may apply to multiple objects or t
 Build [configurable rules](./configurable-rules.md) if the rule you need isn't listed.
 {% /admonition %}
 
-## List of available rules
+## Rules for each API description format
 
-Details of all the rules available "out of the box" with Redocly CLI are listed below. Visit each individual page for details of what the rule does, additional configuration options, and examples of it in use.
+Redocly CLI can lint multiple API description formats:
+
+- [OpenAPI](#openapi-rules)
+- [AsyncAPI](#asyncapi-rules)
+- [Arazzo](#arazzo-rules)
+
+Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
+
+## OpenAPI rules
+
+The rules list is split into sections.
 
 ### Special rules
 
@@ -45,6 +55,7 @@ Details of all the rules available "out of the box" with Redocly CLI are listed 
 
 ### Parameters
 
+- [array-parameter-serialization](./oas/array-parameter-serialization.md): Require `style` and `explode` for parameters with array type
 - [boolean-parameter-prefixes](./oas/boolean-parameter-prefixes.md): All boolean paramater names start with a particular prefix (such as "is")
 - [no-invalid-parameter-examples](./oas/no-invalid-parameter-examples.md): Parameter examples must match declared schema types
 - [operation-parameters-unique](./oas/operation-parameters-unique.md): No repeated parameter names within an operation
@@ -65,10 +76,12 @@ Details of all the rules available "out of the box" with Redocly CLI are listed 
 
 ### Requests, Responses, and Schemas
 
+- [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unqiue naming of parameters, schemas, request bodies and responses
 - [no-enum-type-mismatch](./oas/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types
+- [no-required-schema-properties-undefined](./oas/no-required-schema-properties-undefined.md): All properties marked as required must be defined
 - [request-mime-type](./oas/request-mime-type.md): Configure allowed mime types for requests
 - [response-mime-type](./oas/response-mime-type.md): Configure allowed mime types for responses
 - [response-contains-header](./oas/response-contains-header.md): List headers that must be included with specific response types
@@ -91,43 +104,42 @@ Details of all the rules available "out of the box" with Redocly CLI are listed 
 - [tag-description](./oas/tag-description.md): Tags must have descriptions
 - [tags-alphabetical](./oas/tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
 
-## Rule configuration syntax
+## AsyncAPI rules
 
-To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
+Use the rules in this section for AsyncAPI-specific linting.
+Other rules such as the `spec` and `info.*` rules also apply to AsyncAPI.
 
-You can specify global settings in the top-level `rules` object, or use per-API settings by adding a `rules` object under each API in `apis`.
+- [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
+- [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
 
-You can format each entry in the `rules` object in one of the following ways:
+## Arazzo rules
 
-- Short syntax with single-line configuration `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`. You can't configure additional rule options with this syntax.
+Within the Arazzo family of rules, there are rules for the main Arazzo specification format, and some additional rules for extensions supported by Spot, the Redocly testing utility.
 
-```yaml
-apis:
-  main:
-    root: ./openapi/openapi.yaml
-    rules:
-      specific-api-rule: warn
-rules:
-  example-rule-name: error
-```
+### Arazzo
 
-- Verbose syntax, where you can configure additional options for rules that support them.
+- [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
+- [parameters-unique](./arazzo/parameters-unique.md): the `parameters` list must not include duplicate parameters
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md): the `replacements` of the `requestBody` object must be unique
+- [sourceDescriptions-name-unique](./arazzo/sourceDescriptions-name-unique.md): the `name` property of the `sourceDescription` object must be unique across all source descriptions
+- [sourceDescriptions-type](./arazzo/sourceDescriptions-type.md): the `type` property of the `sourceDescription` object must be either `openapi` or `arazzo`
+- [stepId-unique](./arazzo/stepId-unique.md): the `stepId` must be unique amongst all steps described in the workflow
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md): the `onFailure` actions of the `step` object must be unique
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md): the `onSuccess` actions of the `step` object must be unique
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md): the items in the `workflow` `dependsOn` property must exist and be unique
+- [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
+- [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
 
-```yaml
-apis:
-  main:
-    root: ./openapi/openapi.yaml
-    rules:
-      specific-api-rule:
-        severity: warn
-rules:
-  example-rule-name:
-    severity: error
-    rule-option-one: value
-    rule-option-two: value
-```
+### Spot [ deprecated ]
 
-## Next steps
+The below rules are being migrated to Spot:
+
+- [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
+- [parameters-not-in-body](./spot/parameters-not-in-body.md): the `in` section inside `parameters` must not contain a `body`.
+- [version-enum](./spot/version-enum.md): the `version` property must be one of the supported values.
+
+## Resources
 
 - Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
+- Visit the [documentation on per-API configuration](../configuration/apis.md).
 - If you didn't find the rule you need, build a [configurable rule](./configurable-rules.md) for a perfect linting fit.

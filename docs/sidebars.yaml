@@ -71,10 +71,17 @@
       page: api-standards.md
       items:
         - page: rules.md
-          label: Rules
+          group: Rules and rulesets
+          items:
+            - page: rules/recommended.md
+            - page: rules/minimal.md
+            - page: rules/spec-ruleset.md
+            - page: rules/ruleset-templates.md
         - group: Built-in rules
           page: rules/built-in-rules.md
           items:
+            - separator: OpenAPI
+            - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
             - page: rules/oas/component-name-unique.md
             - page: rules/oas/info-contact.md
@@ -127,6 +134,26 @@
             - page: rules/oas/spec-strict-refs.md
             - page: rules/oas/tag-description.md
             - page: rules/oas/tags-alphabetical.md
+            - separator: AsyncAPI
+            - page: rules/async/channels-kebab-case.md
+            - page: rules/async/no-channel-trailing-slash.md
+            - separator: Arazzo
+            - page: rules/spot/no-criteria-xpath.md
+            - page: rules/spot/version-enum.md
+            - page: rules/spot/parameters-not-in-body.md
+            - page: rules/arazzo/criteria-unique.md
+            - page: rules/arazzo/parameters-unique.md
+            - page: rules/arazzo/requestBody-replacements-unique.md
+            - page: rules/arazzo/sourceDescriptions-name-unique.md
+            - page: rules/arazzo/sourceDescriptions-type.md
+            - page: rules/arazzo/stepId-unique.md
+            - page: rules/arazzo/step-onFailure-unique.md
+            - page: rules/arazzo/step-onSuccess-unique.md
+            - page: rules/arazzo/workflow-dependsOn.md
+            - page: rules/arazzo/workflowId-unique.md
+
+        - page: rules/configure-rules.md
+          label: Rule configuration
         - page: rules/configurable-rules.md
         - group: Decorators
           page: decorators.md

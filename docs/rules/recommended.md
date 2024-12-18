@@ -27,6 +27,12 @@ Errors:
 - [security-defined](./oas/security-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
 - [struct](./oas/struct.md)
+- [parameters-unique](./arazzo/parameters-unique.md)
+- [sourceDescription-type](./arazzo/sourceDescriptions-type.md)
+- [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
 
 Warnings:
 
@@ -41,7 +47,14 @@ Warnings:
 - [operation-4xx-response](./oas/operation-4xx-response.md)
 - [operation-operationId](./oas/operation-operationId.md)
 - [tag-description](./oas/tag-description.md)
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
 
 ## Recommended strict ruleset
 
 There is also a `recommended-strict` version of `recommended`, which elevates all warnings to errors.
+
+## Ruleset template
+
+A copy-pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
