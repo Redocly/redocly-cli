@@ -1,6 +1,6 @@
 import { blue, green, gray } from 'colorette';
 import { RedoclyClient } from '@redocly/openapi-core';
-import { promptUser } from '../utils/miscellaneous';
+import { exitWithError, promptUser } from '../utils/miscellaneous';
 
 import type { CommandArgs } from '../wrapper';
 import type { Region } from '@redocly/openapi-core';
@@ -21,10 +21,14 @@ export type LoginOptions = {
 };
 
 export async function handleLogin({ argv, config }: CommandArgs<LoginOptions>) {
-  const region = argv.region || config.region;
-  const client = new RedoclyClient(region);
-  const clientToken = await promptClientToken(client.domain);
-  process.stdout.write(gray('\n  Logging in...\n'));
-  await client.login(clientToken, argv.verbose);
-  process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
+  try {
+    const region = argv.region || config.region;
+    const client = new RedoclyClient(region);
+    const clientToken = await promptClientToken(client.domain);
+    process.stdout.write(gray('\n  Logging in...\n'));
+    await client.login(clientToken, argv.verbose);
+    process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
+  } catch (err) {
+    exitWithError('  ' + err?.message);
+  }
 }

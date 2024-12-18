@@ -1,3 +1,4 @@
+import { relative } from 'path';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
@@ -54,7 +55,7 @@ export async function handleBundle({
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
 
-      process.stderr.write(gray(`bundling ${path}...\n`));
+      process.stderr.write(gray(`bundling ${relative(process.cwd(), path)}...\n`));
 
       const {
         bundle: result,
@@ -117,22 +118,22 @@ export async function handleBundle({
       if (fileTotals.errors > 0) {
         if (argv.force) {
           process.stderr.write(
-            `❓ Created a bundle for ${blue(path)} at ${blue(
+            `❓ Created a bundle for ${blue(relative(process.cwd(), path))} at ${blue(
               outputFile || 'stdout'
             )} with errors ${green(elapsed)}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
           process.stderr.write(
             `❌ Errors encountered while bundling ${blue(
-              path
+              relative(process.cwd(), path)
             )}: bundle not created (use --force to ignore errors).\n`
           );
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile || 'stdout')} ${green(
-            elapsed
-          )}.\n`
+          `📦 Created a bundle for ${blue(relative(process.cwd(), path))} at ${blue(
+            outputFile || 'stdout'
+          )} ${green(elapsed)}.\n`
         );
       }
 

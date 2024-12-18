@@ -28,7 +28,7 @@ paths:
                 foo: TEST
 components: {}
 
-bundling ./test.yaml...
-📦 Created a bundle for ./test.yaml at stdout <test>ms.
+bundling test.yaml...
+📦 Created a bundle for test.yaml at stdout <test>ms.
 
 `;

@@ -7,7 +7,7 @@ components:
     myObject.v2.schema:
       type: object
 
-bundling ./openapi.yaml...
-📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
+bundling openapi.yaml...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
 
 `;

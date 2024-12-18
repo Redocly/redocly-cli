@@ -36,8 +36,8 @@ components:
           $ref: '#/components/schemas/Name'
           description: Other name (specific).
 
-bundling ./test.yaml...
-📦 Created a bundle for ./test.yaml at stdout <test>ms.
+bundling test.yaml...
+📦 Created a bundle for test.yaml at stdout <test>ms.
 
 `;
 
