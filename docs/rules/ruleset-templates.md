@@ -500,7 +500,7 @@ rules:
   step-onFailure-unique: warn
   spot-supported-versions: off
   requestBody-replacements-unique: warn
-  no-criteria-xpath: warn
+  no-criteria-xpath: off
   no-actions-type-end: warn
   criteria-unique: warn
 ```

@@ -6,7 +6,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "arazzo1Preprocessors": {},
   "arazzo1Rules": {
     "criteria-unique": "warn",
-    "no-criteria-xpath": "warn",
+    "no-criteria-xpath": "off",
     "parameters-unique": "error",
     "requestBody-replacements-unique": "warn",
     "sourceDescription-name-unique": "error",
@@ -232,7 +232,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "arazzo1Preprocessors": {},
   "arazzo1Rules": {
     "criteria-unique": "warn",
-    "no-criteria-xpath": "warn",
+    "no-criteria-xpath": "off",
     "parameters-unique": "error",
     "requestBody-replacements-unique": "warn",
     "sourceDescription-name-unique": "error",
