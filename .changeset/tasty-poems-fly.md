@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Chnages to Spot validation rules.
+Updated Spot validation rules.
