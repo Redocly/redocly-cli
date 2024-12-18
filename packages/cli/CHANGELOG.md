@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.26.1
+
+### Patch Changes
+
+- Fixed an issue where an API alias's root path might be resolved incorrectly for configuration files located outside the root folder.
+- Updated @redocly/openapi-core to v1.26.1.
+
 ## 1.26.0
 
 ### Minor Changes
