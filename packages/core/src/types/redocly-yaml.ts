@@ -141,9 +141,7 @@ export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
 export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
 
 const builtInArazzo1Rules = [
-  'parameters-not-in-body',
   'sourceDescription-type',
-  'version-enum',
   'workflowId-unique',
   'stepId-unique',
   'sourceDescription-name-unique',
@@ -152,6 +150,7 @@ const builtInArazzo1Rules = [
   'parameters-unique',
   'step-onSuccess-unique',
   'step-onFailure-unique',
+  'spot-supported-versions',
   'requestBody-replacements-unique',
   'no-criteria-xpath',
   'criteria-unique',

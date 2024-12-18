@@ -1,9 +1,8 @@
 import { Struct } from '../common/struct';
 import { Assertions } from '../common/assertions';
-import { ParametersNotInBody } from '../spot/parameters-not-in-body';
 import { SourceDescriptionType } from '../arazzo/sourceDescription-type';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty';
-import { VersionEnum } from '../spot/version-enum';
+import { SpotSupportedVersions } from '../spot/spot-supported-versions';
 import { WorkflowIdUnique } from './workflowId-unique';
 import { StepIdUnique } from './stepId-unique';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique';
@@ -21,9 +20,8 @@ import type { Arazzo1RuleSet } from '../../oas-types';
 export const rules: Arazzo1RuleSet<'built-in'> = {
   struct: Struct as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
-  'parameters-not-in-body': ParametersNotInBody,
   'sourceDescription-type': SourceDescriptionType,
-  'version-enum': VersionEnum,
+  'spot-supported-versions': SpotSupportedVersions,
   'workflowId-unique': WorkflowIdUnique,
   'stepId-unique': StepIdUnique,
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,

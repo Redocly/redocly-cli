@@ -221,9 +221,7 @@ rules:
 ```yaml
 rules:
   struct: error
-  parameters-not-in-body: off
   sourceDescription-type: off
-  version-enum: warn
   workflowId-unique: error
   stepId-unique: error
   sourceDescription-name-unique: off
@@ -231,6 +229,7 @@ rules:
   parameters-unique: off
   step-onSuccess-unique: off
   step-onFailure-unique: off
+  spot-supported-versions: off
   requestBody-replacements-unique: off
   no-criteria-xpath: off
   no-actions-type-end: off
@@ -491,9 +490,7 @@ rules:
 ```yaml
 rules:
   struct: error
-  parameters-not-in-body: warn
   sourceDescription-type: error
-  version-enum: warn
   workflowId-unique: error
   stepId-unique: error
   sourceDescription-name-unique: error
@@ -501,6 +498,7 @@ rules:
   parameters-unique: error
   step-onSuccess-unique: warn
   step-onFailure-unique: warn
+  spot-supported-versions: off
   requestBody-replacements-unique: warn
   no-criteria-xpath: warn
   no-actions-type-end: warn

@@ -135,8 +135,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 The below rules are being migrated to Spot:
 
 - [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
-- [parameters-not-in-body](./spot/parameters-not-in-body.md): the `in` section inside `parameters` must not contain a `body`.
-- [version-enum](./spot/version-enum.md): the `version` property must be one of the supported values.
+- [spot-supported-versions](./spot/spot-supported-versions.md): the `version` property must be one of the supported values.
 
 ## Resources
 

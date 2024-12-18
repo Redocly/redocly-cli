@@ -139,8 +139,7 @@
             - page: rules/async/no-channel-trailing-slash.md
             - separator: Arazzo
             - page: rules/spot/no-criteria-xpath.md
-            - page: rules/spot/version-enum.md
-            - page: rules/spot/parameters-not-in-body.md
+            - page: rules/spot/spot-supported-versions.md
             - page: rules/arazzo/criteria-unique.md
             - page: rules/arazzo/parameters-unique.md
             - page: rules/arazzo/requestBody-replacements-unique.md

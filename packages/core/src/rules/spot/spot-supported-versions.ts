@@ -4,7 +4,7 @@ import { pluralize } from '../../utils';
 import type { Arazzo1Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 
-export const VersionEnum: Arazzo1Rule = () => {
+export const SpotSupportedVersions: Arazzo1Rule = () => {
   const supportedVersions = ARAZZO_VERSIONS_SUPPORTED_BY_SPOT.join(', ');
   return {
     Root: {

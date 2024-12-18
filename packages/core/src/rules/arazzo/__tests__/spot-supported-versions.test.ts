@@ -3,10 +3,10 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Spot parameters-not-in-body', () => {
+describe('Arazzo spot-supported-versions', () => {
   const document = parseYamlToDocument(
     outdent`
-      arazzo: '1.0.0'
+      arazzo: '1.0.1'
       info:
         title: Cool API
         version: 1.0.0
@@ -19,7 +19,7 @@ describe('Spot parameters-not-in-body', () => {
         - workflowId: get-museum-hours
           description: This workflow demonstrates how to get the museum opening hours and buy tickets.
           parameters:
-            - in: body
+            - in: header
               name: Authorization
               value: Basic Og==
           steps:
@@ -33,22 +33,12 @@ describe('Spot parameters-not-in-body', () => {
     'arazzo.yaml'
   );
 
-  it('should not report on `body` inside parameter `in` field', async () => {
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await makeConfig({ rules: {} }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
-  });
-
-  it('should report on `body` inside parameter `in` field', async () => {
+  it('should report on arazzo version error', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'parameters-not-in-body': 'error' },
+        rules: { 'spot-supported-versions': 'error' },
       }),
     });
 
@@ -57,17 +47,29 @@ describe('Spot parameters-not-in-body', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/parameters/0/in",
+              "pointer": "#/arazzo",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`body\` value of the \`in\` property is not supported by Spot.",
-          "ruleId": "parameters-not-in-body",
+          "message": "Only 1.0.0 Arazzo version is supported by Spot.",
+          "ruleId": "spot-supported-versions",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not report on arazzo version error', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: {},
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
