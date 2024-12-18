@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.26.1
+
+### Patch Changes
+
+- Removed the `no-actions-type-end` Spot rule.
+- Removed unused lodash.isequal dependency.
+
 ## 1.26.0
 
 ### Minor Changes
