@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-fix: cli build-docs / use stdout instead of stderr for simple logs
+Updated the Redocly CLI command `redocly build-docs` to use `stdout` instead of `stderr` for simple logs.
