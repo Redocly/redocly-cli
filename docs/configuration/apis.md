@@ -27,8 +27,8 @@ apis:
     root: ./openapi/openapi.yaml
     labels:
       - production
-    theme:
-      openapi: {}
+    openapi: {}
+    output: ./openapi/bundled.yaml
 ```
 
 {% admonition type="warning" name="Important" %}

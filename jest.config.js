@@ -14,14 +14,14 @@ module.exports = {
     'packages/core/': {
       statements: 80,
       branches: 72,
-      functions: 75,
+      functions: 76,
       lines: 80,
     },
     'packages/cli/': {
-      statements: 63,
+      statements: 64,
       branches: 52,
       functions: 63,
-      lines: 63,
+      lines: 65,
     },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],

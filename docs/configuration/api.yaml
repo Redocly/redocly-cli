@@ -17,6 +17,9 @@ additionalProperties:
     root:
       type: string
       description: The path to the root API description file of the specified API.
+    output:
+      type: string
+      description: The path to the output file produced by the `bundle` command.
     labels:
       type: array
       description: >-
