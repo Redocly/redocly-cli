@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.26.2
+
+### Patch Changes
+
+- Updated Spot validation rules.
+
 ## 1.26.1
 
 ### Patch Changes
