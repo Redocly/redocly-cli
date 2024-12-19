@@ -7,19 +7,18 @@ slug: /docs/cli/rules/spec
 This ruleset strictly follows the specifications.
 All the rules are of severity `error`:
 
-- `struct`
+- [struct](./arazzo/struct.md)
 - [criteria-unique](./arazzo/criteria-unique.md)
-- `parameters-not-in-body`
-- `sourceDescription-type`
-- `version-enum`
-- `workflowId-unique`
-- `stepId-unique`
-- `sourceDescription-name-unique`
-- `sourceDescriptions-not-empty`
-- `workflow-dependsOn`
-- `parameters-unique`
-- `step-onSuccess-unique`
-- `step-onFailure-unique`
-- `requestBody-replacements-unique`
-- `no-criteria-xpath`
-- `criteria-unique`
+- [sourceDescription-type](./arazzo/sourceDescriptions-type.md)
+- [spot-supported-versions](./spot/spot-supported-versions.md)
+- [workflowId-unique](./arazzo/workflowId-unique.md)
+- [stepId-unique](./arazzo/stepId-unique.md)
+- [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)
+- [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md)
+- [workflow-dependsOn](./arazzo/workflow-dependsOn.md)
+- [parameters-unique](./arazzo/parameters-unique.md)
+- [step-onSuccess-unique](./arazzo/step-onSuccess-unique.md)
+- [step-onFailure-unique](./arazzo/step-onFailure-unique.md)
+- [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
+- [no-criteria-xpath](./spot/no-criteria-xpath.md)
+- [criteria-unique](./arazzo/criteria-unique.md)

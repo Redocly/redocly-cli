@@ -186,8 +186,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
   },
   arazzo1Rules: {
     'criteria-unique': 'warn',
-    'no-criteria-xpath': 'warn',
-    'parameters-not-in-body': 'warn',
+    'no-criteria-xpath': 'off',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'warn',
     'sourceDescription-type': 'error',
@@ -196,7 +195,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
     'sourceDescriptions-not-empty': 'error',
-    'version-enum': 'warn',
+    'spot-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
   },

@@ -187,7 +187,6 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
   arazzo1Rules: {
     'criteria-unique': 'off',
     'no-criteria-xpath': 'off',
-    'parameters-not-in-body': 'off',
     'parameters-unique': 'off',
     'requestBody-replacements-unique': 'off',
     'sourceDescription-type': 'off',
@@ -196,7 +195,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'step-onFailure-unique': 'off',
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'off',
-    'version-enum': 'off',
+    'spot-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'off',
   },

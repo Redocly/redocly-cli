@@ -11,9 +11,8 @@ const spec: PluginStyleguideConfig<'built-in'> = {
   async2Rules: {},
   async3Rules: {},
   arazzo1Rules: {
-    'parameters-not-in-body': 'error',
     'sourceDescription-type': 'error',
-    'version-enum': 'error',
+    'spot-supported-versions': 'off',
     'workflowId-unique': 'error',
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
@@ -23,7 +22,7 @@ const spec: PluginStyleguideConfig<'built-in'> = {
     'step-onSuccess-unique': 'error',
     'step-onFailure-unique': 'error',
     'requestBody-replacements-unique': 'error',
-    'no-criteria-xpath': 'error',
+    'no-criteria-xpath': 'off',
     'criteria-unique': 'error',
   },
 };

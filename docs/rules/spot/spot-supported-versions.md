@@ -1,4 +1,4 @@
-# version-enum
+# spot-supported-versions
 
 The `version` property must be one of the supported values.
 
@@ -21,7 +21,7 @@ An example configuration:
 
 ```yaml
 arazzoRules:
-  version-enum: error
+  spot-supported-versions: error
 ```
 
 ## Examples
@@ -30,7 +30,7 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  version-enum: error
+  spot-supported-versions: error
 ```
 
 Example of a **correct** entry:
@@ -41,8 +41,8 @@ arazzo: 1.0.0
 
 ## Related rules
 
-- [parameters-not-in-body](./parameters-not-in-body.md)
+- [no-criteria-xpath](./no-criteria-xpath.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/version-enum.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/spot-supported-versions.ts)
