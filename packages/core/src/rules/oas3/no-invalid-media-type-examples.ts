@@ -37,7 +37,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             location = isMultiple ? resolved.location.child('value') : resolved.location;
             example = resolved.node;
           }
-          if (isMultiple && typeof example.value === 'undefined') {
+          if (isMultiple && typeof example?.value === 'undefined') {
             return;
           }
           validateExample(
