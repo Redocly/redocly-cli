@@ -38,6 +38,14 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 
 ---
 
+- message
+- string
+- Optional custom message for this rule.
+  Example: `My Error Derscription. {{message}}`.
+  The {{message}} placeholder (if provided) will be replaced with the actual message of the rule.
+
+---
+
 - {additional properties}
 - any
 - Some rules allow additional configuration, check the details of each rule to find out the values that can be supplied here. For example the [`boolean-parameter-prefixes` rule](../../rules/oas/boolean-parameter-prefixes.md) supports an additional option of `prefixes` that accepts an array of strings.
