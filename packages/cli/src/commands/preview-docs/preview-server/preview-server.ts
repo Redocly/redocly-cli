@@ -10,7 +10,9 @@ import type { IncomingMessage } from 'http';
 
 function getPageHTML(
   htmlTemplate: string,
-  redocOptions: object = {},
+  redocOptions: {
+    redocBundleURL?: string;
+  } = {},
   useRedocPro: boolean,
   wsPort: number,
   host: string
@@ -24,6 +26,12 @@ function getPageHTML(
 
   const template = compile(templateSrc);
 
+  const redocBundleURL =
+    redocOptions.redocBundleURL ||
+    (useRedocPro
+      ? 'https://cdn.redocly.com/reference-docs/latest/redocly-reference-docs.min.js'
+      : 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js');
+
   return template({
     redocHead: `
   <script>
@@ -33,11 +41,7 @@ function getPageHTML(
   </script>
   <script src="/simplewebsocket.min.js"></script>
   <script src="/hot.js"></script>
-  <script src="${
-    useRedocPro
-      ? 'https://cdn.redocly.com/reference-docs/latest/redocly-reference-docs.min.js'
-      : 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js'
-  }"></script>
+<script src="${redocBundleURL}"></script>
 `,
     redocHTML: `
   <div id="redoc"></div>
