@@ -39,19 +39,21 @@ export function initRules(
           return undefined;
         }
         const severity: ProblemSeverity = ruleSettings.severity;
-
+        const message = ruleSettings.message;
         const visitors = rule(ruleSettings);
 
         if (Array.isArray(visitors)) {
           return visitors.map((visitor: any) => ({
             severity,
             ruleId,
+            message,
             visitor: visitor,
           }));
         }
 
         return {
           severity,
+          message,
           ruleId,
           visitor: visitors, // note: actually it is only one visitor object
         };

@@ -12,6 +12,7 @@ import {
 import { BaseResolver, Document } from '../resolve';
 import { listOf } from '../types';
 import { Oas3RuleSet } from '../oas-types';
+import { createConfig } from '../config';
 
 describe('walk order', () => {
   it('should run visitors', async () => {
@@ -1332,6 +1333,56 @@ describe('context.report', () => {
           ],
           "message": "Parameter name shouldn't contain '_: param_b",
           "ruleId": "test/test",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report errors with custom messages', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          license: {}
+        paths: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const config = await createConfig(`
+      rules:
+        info-contact: 
+          message: "MY ERR DESCRIPTION: {{message}}"
+          severity: "error"
+    `);
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: config.styleguide,
+    });
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/info/contact",
+              "reportOnKey": true,
+              "source": Source {
+                "absoluteRef": "foobar.yaml",
+                "body": "openapi: 3.0.0
+      info:
+        license: {}
+      paths: {}",
+                "mimeType": undefined,
+              },
+            },
+          ],
+          "message": "MY ERR DESCRIPTION: Info object should contain \`contact\` field.",
+          "ruleId": "info-contact",
           "severity": "error",
           "suggest": [],
         },
