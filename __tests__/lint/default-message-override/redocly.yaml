@@ -1,0 +1,28 @@
+apis:
+  built-in-rule-message-override:
+    root: ./openapi.yaml
+    rules:
+      info-contact:
+        message: 'API LEVEL MESSAGE' # should override teh root-level message
+        severity: warn
+      operation-operationId:
+        severity: warn
+        message: 'API LEVEL WITH ORIGINAL MSG: {{message}}' # should enhance the original message
+  split-documentation:
+    root: split/openapi.yaml
+
+rules:
+  info-contact:
+    message: ROOT LEVEL MESSAGE # should be replaced with api-level message
+    severity: error
+  struct:
+    message: 'ROOT LEVEL WITH ORIGINAL MSG: {{message}}' # should enhance the original message
+    severity: error
+  rule/operationId:
+    subject:
+      type: Operation
+    message: 'Original problem: {{problems}}' # should not interfere with assertion messages
+    severity: error
+    assertions:
+      required:
+        - operationId
