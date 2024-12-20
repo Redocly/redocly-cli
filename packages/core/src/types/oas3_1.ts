@@ -182,6 +182,8 @@ export const Schema: NodeType = {
     const: null,
     $comment: { type: 'string' },
     'x-tags': { type: 'array', items: { type: 'string' } },
+    $dynamicAnchor: { type: 'string' },
+    $dynamicRef: { type: 'string' },
   },
   extensionsPrefix: 'x-',
 };

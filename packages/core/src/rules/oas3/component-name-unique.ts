@@ -7,6 +7,7 @@ import type {
   Oas3RequestBody,
   Oas3Response,
   Oas3Schema,
+  Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi';
 
@@ -54,7 +55,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
       },
     },
     Root: {
-      leave(root: Oas3Definition, ctx: UserContext) {
+      leave(root: Oas3Definition<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);
@@ -90,7 +91,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.responses != 'off') {
     rule.NamedResponses = {
-      Response(_: Oas3Response, { location }: UserContext) {
+      Response(_: Oas3Response<Oas3Schema | Oas3_1Schema>, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location);
       },
     };
@@ -98,7 +99,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.parameters != 'off') {
     rule.NamedParameters = {
-      Parameter(_: Oas3Parameter, { location }: UserContext) {
+      Parameter(_: Oas3Parameter<Oas3Schema | Oas3_1Schema>, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location);
       },
     };
@@ -106,7 +107,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.requestBodies != 'off') {
     rule.NamedRequestBodies = {
-      RequestBody(_: Oas3RequestBody, { location }: UserContext) {
+      RequestBody(_: Oas3RequestBody<Oas3Schema | Oas3_1Schema>, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_REQUEST_BODY, location);
       },
     };
