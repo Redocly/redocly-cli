@@ -41,7 +41,7 @@ The `rules` block can be used at the root of a configuration file, or inside an 
 - message
 - string
 - Optional custom message for this rule.
-  Example: `My Error Derscription. {{message}}`.
+  Example: `My Error Description. {{message}}`.
   The {{message}} placeholder (if provided) gets replaced with the actual message of the rule.
 
 ---
