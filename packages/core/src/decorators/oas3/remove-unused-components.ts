@@ -2,17 +2,28 @@ import { isEmptyObject } from '../../utils';
 
 import type { Location } from '../../ref-utils';
 import type { Oas3Decorator } from '../../visitors';
-import type { Oas3Schema, Oas3_1Schema, Oas3Components, Oas3Definition } from '../../typings/openapi';
+import type {
+  Oas3Definition,
+  Oas3_1Definition,
+  Oas3ComponentsBase,
+  Oas3_1Components,
+  Oas3Schema,
+  Oas3_1Schema,
+} from '../../typings/openapi';
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
-    { usedIn: Location[]; componentType?: keyof Oas3Components<Oas3Schema | Oas3_1Schema>; name: string }
+    {
+      usedIn: Location[];
+      componentType?: keyof (Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components);
+      name: string;
+    }
   >();
 
   function registerComponent(
     location: Location,
-    componentType: keyof Oas3Components<Oas3Schema | Oas3_1Schema>,
+    componentType: keyof (Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components),
     name: string
   ): void {
     components.set(location.absolutePointer, {
@@ -22,7 +33,10 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     });
   }
 
-  function removeUnusedComponents(root: Oas3Definition<Oas3Schema | Oas3_1Schema>, removedPaths: string[]): number {
+  function removeUnusedComponents(
+    root: Oas3Definition | Oas3_1Definition,
+    removedPaths: string[]
+  ): number {
     const removedLengthStart = removedPaths.length;
 
     for (const [path, { usedIn, name, componentType }] of components) {

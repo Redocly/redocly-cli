@@ -17,14 +17,14 @@ export { ConfigTypes } from './types/redocly-yaml';
 export type {
   Oas3Definition,
   Oas3_1Definition,
-  Oas3Components,
+  Oas3ComponentsBase,
+  Oas3_1Components,
   Oas3PathItem,
   Oas3Paths,
   Oas3ComponentName,
   Oas3Schema,
   Oas3_1Schema,
   Oas3Tag,
-  Oas3_1Webhooks,
   Referenced,
   OasRef,
 } from './typings/openapi';
