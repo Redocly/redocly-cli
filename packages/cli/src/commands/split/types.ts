@@ -1,29 +1,6 @@
-import {
-  Oas3Schema,
-  Oas3_1Schema,
-  Oas3Definition,
-  Oas3_1Definition,
-  Oas3Components,
-  Oas3PathItem,
-  Oas3Paths,
-  Oas3ComponentName,
-  Oas3_1Webhooks,
-  Oas2Definition,
-  Referenced,
-} from '@redocly/openapi-core';
-export {
-  Oas3_1Definition,
-  Oas3Definition,
-  Oas2Definition,
-  Oas3Components,
-  Oas3Paths,
-  Oas3PathItem,
-  Oas3ComponentName,
-  Oas3_1Schema,
-  Oas3Schema,
-  Oas3_1Webhooks,
-  Referenced,
-};
+import type { Oas2Definition } from '@redocly/openapi-core';
+import type { Oas3_1Definition, Oas3Definition } from 'core/src/typings/openapi';
+
 export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;

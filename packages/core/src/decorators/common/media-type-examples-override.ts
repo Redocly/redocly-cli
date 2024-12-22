@@ -2,13 +2,13 @@ import { yamlAndJsonSyncReader } from '../../utils';
 import { isRef } from '../../ref-utils';
 
 import type { Oas3Decorator } from '../../visitors';
-import type { Oas3_1Schema, Oas3Operation, Oas3RequestBody, Oas3Response, Oas3Schema } from '../../typings/openapi';
+import type { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi';
 import type { NonUndefined, ResolveFn, UserContext } from '../../walk';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   return {
     Operation: {
-      enter(operation: Oas3Operation<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
+      enter(operation: Oas3Operation, ctx: UserContext) {
         const operationId = operation.operationId;
 
         if (!operationId) {
@@ -23,7 +23,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
 
         if (properties.responses && operation.responses) {
           for (const responseCode of Object.keys(properties.responses)) {
-            const resolvedResponse = checkAndResolveRef<Oas3Response<Oas3Schema | Oas3_1Schema>>(
+            const resolvedResponse = checkAndResolveRef<Oas3Response>(
               operation.responses[responseCode],
               ctx.resolve
             );
@@ -46,7 +46,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
         }
 
         if (properties.request && operation.requestBody) {
-          const resolvedRequest = checkAndResolveRef<Oas3RequestBody<Oas3Schema | Oas3_1Schema>>(
+          const resolvedRequest = checkAndResolveRef<Oas3RequestBody>(
             operation.requestBody,
             ctx.resolve
           );

@@ -2,7 +2,7 @@ import { getMatchingStatusCodeRange } from '../../utils';
 
 import type { Oas2Rule, Oas3Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
-import type { Oas3Response, Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
+import type { Oas3Response } from '../../typings/openapi';
 import type { Oas2Response } from '../../typings/swagger';
 
 export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
@@ -10,7 +10,7 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
   return {
     Operation: {
       Response: {
-        enter: (response: Oas2Response | Oas3Response<Oas3Schema | Oas3_1Schema>, { report, location, key }: UserContext) => {
+        enter: (response: Oas2Response | Oas3Response, { report, location, key }: UserContext) => {
           const expectedHeaders =
             names[key] ||
             names[getMatchingStatusCodeRange(key)] ||

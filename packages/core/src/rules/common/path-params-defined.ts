@@ -1,6 +1,6 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { Oas2Parameter } from '../../typings/swagger';
-import type { Oas3Schema, Oas3_1Schema, Oas3Parameter } from '../../typings/openapi';
+import type { Oas3Parameter } from '../../typings/openapi';
 import type { UserContext } from '../../walk';
 
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
@@ -20,7 +20,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
           Array.from(key!.toString().matchAll(pathRegex)).map((m) => m[1])
         );
       },
-      Parameter(parameter: Oas2Parameter | Oas3Parameter<Oas3Schema | Oas3_1Schema>, { report, location }: UserContext) {
+      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
         if (parameter.in === 'path' && parameter.name) {
           definedPathParams.add(parameter.name);
           if (!pathTemplateParams.has(parameter.name)) {
@@ -48,7 +48,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
             }
           }
         },
-        Parameter(parameter: Oas2Parameter | Oas3Parameter<Oas3Schema | Oas3_1Schema>, { report, location }: UserContext) {
+        Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
           if (parameter.in === 'path' && parameter.name) {
             definedOperationParams.add(parameter.name);
             if (!pathTemplateParams.has(parameter.name)) {

@@ -2,14 +2,14 @@ import { isPathParameter, splitCamelCaseIntoWords } from '../../utils';
 
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import type { Oas2PathItem } from '../../typings/swagger';
-import type { Oas3Schema, Oas3_1Schema, Oas3PathItem } from '../../typings/openapi';
+import type { Oas3PathItem } from '../../typings/openapi';
 import type { UserContext } from '../../walk';
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
 export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
   return {
-    PathItem(_path: Oas2PathItem | Oas3PathItem<Oas3Schema | Oas3_1Schema>, { key, report, location }: UserContext) {
+    PathItem(_path: Oas2PathItem | Oas3PathItem, { key, report, location }: UserContext) {
       const pathKey = key.toString();
       if (!pathKey.startsWith('/')) return;
       const pathSegments = pathKey.split('/');

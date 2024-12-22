@@ -6,10 +6,11 @@ import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import type { Location } from './ref-utils';
 import type {
   Oas3Definition,
+  Oas3_1Definition,
   Oas3ExternalDocs,
   Oas3Info,
   Oas3Contact,
-  Oas3Components,
+  Oas3ComponentsBase,
   Oas3_1Components,
   Oas3License,
   Oas3Schema,
@@ -154,7 +155,7 @@ export type BaseVisitor = {
 };
 
 type Oas3FlatVisitor = {
-  Root?: VisitFunctionOrObject<Oas3Definition<Oas3Schema | Oas3_1Schema>>;
+  Root?: VisitFunctionOrObject<Oas3Definition | Oas3_1Definition>;
   Tag?: VisitFunctionOrObject<Oas3Tag>;
   ExternalDocs?: VisitFunctionOrObject<Oas3ExternalDocs>;
   Server?: VisitFunctionOrObject<Oas3Server>;
@@ -178,17 +179,21 @@ type Oas3FlatVisitor = {
   Responses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
   Response?: VisitFunctionOrObject<Oas3Response<Oas3Schema | Oas3_1Schema>>;
   Link?: VisitFunctionOrObject<Oas3Link>;
-  Schema?: VisitFunctionOrObject<Oas3Schema>;
+  Schema?: VisitFunctionOrObject<Oas3Schema | Oas3_1Schema>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
   SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
   Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
-  Components?: VisitFunctionOrObject<Oas3Components<Oas3Schema | Oas3_1Schema> | Oas3_1Components<Oas3_1Schema>>;
+  Components?: VisitFunctionOrObject<
+    Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components
+  >;
   NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema>>>;
   NamedExamples?: VisitFunctionOrObject<Record<string, Oas3Example>>;
-  NamedRequestBodies?: VisitFunctionOrObject<Record<string, Oas3RequestBody<Oas3Schema | Oas3_1Schema>>>;
+  NamedRequestBodies?: VisitFunctionOrObject<
+    Record<string, Oas3RequestBody<Oas3Schema | Oas3_1Schema>>
+  >;
   NamedHeaders?: VisitFunctionOrObject<Record<string, Oas3Header<Oas3Schema | Oas3_1Schema>>>;
   NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
