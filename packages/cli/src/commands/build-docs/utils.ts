@@ -37,7 +37,7 @@ export function getObjectOrJSON(
       break;
     default: {
       if (config) {
-        process.stderr.write(`Found ${config.configFile} and using theme.openapi options\n`);
+        process.stdout.write(`Found ${config.configFile} and using theme.openapi options\n`);
 
         return config.theme.openapi ? config.theme.openapi : {};
       }
@@ -60,7 +60,7 @@ export async function getPageHTML(
   }: BuildDocsOptions,
   configPath?: string
 ) {
-  process.stderr.write('Prerendering docs\n');
+  process.stdout.write('Prerendering docs\n');
 
   const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
   const store = await createStore(api, apiUrl, redocOptions);
