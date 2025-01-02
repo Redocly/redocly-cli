@@ -92,7 +92,7 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
   const aliasApi = config.apis[aliasOrPath];
   return aliasApi
     ? {
-        path: isAbsolute(aliasApi.root)
+        path: isAbsoluteUrl(aliasApi.root)
           ? aliasApi.root
           : resolve(getConfigDirectory(config), aliasApi.root),
         alias: aliasOrPath,

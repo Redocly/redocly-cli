@@ -627,7 +627,17 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         '--config=nested/redocly.yaml',
-        'test@v1',
+        'test@fs',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('lint a specific api (when the api is specified as an alias and it points to an external URL)', () => {
+      const testPath = join(folderPath, 'apply-per-api-decorators');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        '--config=nested/redocly.yaml',
+        'test@external-url',
       ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
