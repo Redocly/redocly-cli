@@ -1,4 +1,3 @@
-import { relative } from 'path';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';

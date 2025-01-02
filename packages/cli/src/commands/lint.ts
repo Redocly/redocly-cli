@@ -1,4 +1,3 @@
-import { relative } from 'path';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
