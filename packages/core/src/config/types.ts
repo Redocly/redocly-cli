@@ -26,15 +26,11 @@ import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
-export type RuleSettings = { severity: RuleSeverity };
+export type RuleSettings = { severity: RuleSeverity; message?: string };
 
 export type PreprocessorSeverity = RuleSeverity | 'on';
 
-export type RuleConfig =
-  | RuleSeverity
-  | ({
-      severity?: ProblemSeverity;
-    } & Record<string, any>);
+export type RuleConfig = RuleSeverity | (Partial<RuleSettings> & Record<string, any>);
 
 export type PreprocessorConfig =
   | PreprocessorSeverity

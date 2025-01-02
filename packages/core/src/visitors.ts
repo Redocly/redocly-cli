@@ -97,6 +97,7 @@ type VisitFunctionOrObject<T> = VisitFunction<T> | VisitObject<T>;
 export type VisitorNode<T> = {
   ruleId: string;
   severity: ProblemSeverity;
+  message?: string;
   context: VisitorLevelContext | VisitorSkippedLevelContext;
   depth: number;
   visit: VisitFunction<T>;
@@ -106,6 +107,7 @@ export type VisitorNode<T> = {
 type VisitorRefNode = {
   ruleId: string;
   severity: ProblemSeverity;
+  message?: string;
   context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
@@ -365,6 +367,7 @@ export type OasDecorator = Oas3Decorator;
 export type RuleInstanceConfig = {
   ruleId: string;
   severity: ProblemSeverity;
+  message?: string;
 };
 
 export function normalizeVisitors<T extends BaseVisitor>(
@@ -390,8 +393,8 @@ export function normalizeVisitors<T extends BaseVisitor>(
     leave: [],
   };
 
-  for (const { ruleId, severity, visitor } of visitorsConfig) {
-    normalizeVisitorLevel({ ruleId, severity }, visitor, null);
+  for (const { ruleId, severity, message, visitor } of visitorsConfig) {
+    normalizeVisitorLevel({ ruleId, severity, message }, visitor, null);
   }
 
   for (const v of Object.keys(normalizedVisitors)) {
