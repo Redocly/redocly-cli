@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed the incorrect resolution of the `apis`' root when it is a URL.
+Fixed an issue where `apis`' root in `redocly.yaml` was not resolved properly when the value of `root` was a URL.
