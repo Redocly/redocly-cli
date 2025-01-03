@@ -23,14 +23,17 @@ import { isObject, isString, keysOf } from '../utils/js-utils';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
 import { crawl, startsWithComponents } from './split';
 
-import type { Oas3Definition, Document, Oas3Tag, Referenced } from '@redocly/openapi-core';
+import type { Document, Referenced } from '@redocly/openapi-core';
 import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {
+  Oas3Definition,
+  Oas3_1Definition,
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
-  Oas3_1Definition,
+  Oas3Tag,
 } from '@redocly/openapi-core/lib/typings/openapi';
+import type { StrictObject } from '@redocly/openapi-core/lib/utils';
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
 
@@ -311,7 +314,7 @@ export async function handleJoin({
     }
   }
 
-  function collectServers(openapi: Oas3Definition) {
+  function collectServers(openapi: Oas3Definition | Oas3_1Definition) {
     const { servers } = openapi;
     if (servers) {
       if (!joinedDef.hasOwnProperty('servers')) {
@@ -325,7 +328,10 @@ export async function handleJoin({
     }
   }
 
-  function collectExternalDocs(openapi: Oas3Definition, { api }: JoinDocumentContext) {
+  function collectExternalDocs(
+    openapi: Oas3Definition | Oas3_1Definition,
+    { api }: JoinDocumentContext
+  ) {
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (joinedDef.hasOwnProperty('externalDocs')) {
@@ -339,7 +345,7 @@ export async function handleJoin({
   }
 
   function collectPaths(
-    openapi: Oas3Definition,
+    openapi: Oas3Definition | Oas3_1Definition,
     {
       apiFilename,
       apiTitle,
@@ -567,7 +573,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: Oas3_1Definition,
+    openapi: StrictObject<Oas3Definition | Oas3_1Definition>,
     {
       apiFilename,
       apiTitle,
