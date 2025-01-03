@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.27.0 (2025-01-03)
+
+### Minor Changes
+
+- Added the ability to override default problem messages for built-in rules.
+
+### Patch Changes
+
+- Fixed an issue where `apis`' root in `redocly.yaml` was not resolved properly when the value of `root` was a URL.
+- Updated the Redocly CLI command `redocly build-docs` to use `stdout` instead of `stderr` for simple logs.
+- Updated @redocly/openapi-core to v1.27.0.
+
 ## 1.26.1 (2024-12-18)
 
 ### Patch Changes
