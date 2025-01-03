@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 1.27.0
+
+### Minor Changes
+
+- Added the ability to override default problem messages for built-in rules.
+
+### Patch Changes
+
+- Updated Spot validation rules.
+
 ## 1.26.1
 
 ### Patch Changes
