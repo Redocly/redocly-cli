@@ -1,4 +1,3 @@
-import { relative } from 'path';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
@@ -13,6 +12,7 @@ import { pluralize } from '@redocly/openapi-core/lib/utils';
 import {
   checkIfRulesetExist,
   exitWithError,
+  formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
@@ -75,7 +75,7 @@ export async function handleLint({
           )} configuration by default.\n\n`
         );
       }
-      process.stderr.write(gray(`validating ${relative(process.cwd(), path)}...\n`));
+      process.stderr.write(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
         config: resolvedConfig,
@@ -102,7 +102,7 @@ export async function handleLint({
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${relative(process.cwd(), path)}: validated in ${elapsed}\n\n`));
+      process.stderr.write(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
     } catch (e) {
       handleError(e, path);
     }

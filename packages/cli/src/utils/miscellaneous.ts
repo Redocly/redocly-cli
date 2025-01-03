@@ -57,7 +57,7 @@ export async function getFallbackApisOrExit(
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
     for (const { path } of filteredInvalidEntrypoints) {
       process.stderr.write(
-        yellow(`\n${relative(process.cwd(), path)} ${red(`does not exist or is invalid.\n\n`)}`)
+        yellow(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`)
       );
     }
     exitWithError('Please provide a valid path.');
@@ -92,7 +92,7 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
   const aliasApi = config.apis[aliasOrPath];
   return aliasApi
     ? {
-        path: isAbsolute(aliasApi.root)
+        path: isAbsoluteUrl(aliasApi.root)
           ? aliasApi.root
           : resolve(getConfigDirectory(config), aliasApi.root),
         alias: aliasOrPath,
@@ -701,4 +701,11 @@ export function notifyAboutIncompatibleConfigOptions(
       );
     }
   }
+}
+
+export function formatPath(path: string) {
+  if (isAbsoluteUrl(path)) {
+    return path;
+  }
+  return relative(process.cwd(), path);
 }
