@@ -140,7 +140,7 @@ export async function resolvePlugins(
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
-                // Plugins imported from the node_modules in package install directory (for example, npx cache directory)
+                // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
                 __dirname,
               ],
             });
