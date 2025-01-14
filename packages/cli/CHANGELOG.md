@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.27.2
+
+### Patch Changes
+
+- Updated the `sideNavStyle` configuration schema to include the `path-only` option.
+- Updated @redocly/openapi-core to v1.27.2.
+
 ## 1.27.1
 
 ### Patch Changes
