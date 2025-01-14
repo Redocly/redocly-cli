@@ -1093,7 +1093,7 @@ const ConfigReferenceDocs: NodeType = {
     showObjectSchemaExamples: { type: 'boolean' },
     disableTryItRequestUrlEncoding: { type: 'boolean' },
     sidebarLinks: 'ConfigSidebarLinks',
-    sideNavStyle: { enum: ['summary-only', 'path-first', 'id-only'] },
+    sideNavStyle: { enum: ['summary-only', 'path-first', 'id-only', 'path-only'] },
     simpleOneOfTypeLabel: { type: 'boolean' },
     sortEnumValuesAlphabetically: { type: 'boolean' },
     sortOperationsAlphabetically: { type: 'boolean' },
