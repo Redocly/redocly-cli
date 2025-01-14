@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.27.2 (2025-01-14)
+
+### Patch Changes
+
+- Updated the `sideNavStyle` configuration schema to include the `path-only` option.
+- Updated @redocly/openapi-core to v1.27.2.
+
 ## 1.27.1 (2025-01-07)
 
 ### Patch Changes
