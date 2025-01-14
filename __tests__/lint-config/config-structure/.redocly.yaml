@@ -62,7 +62,7 @@ responseHeaders:
       # name: Must be reported as a missing required prop
       value: 123 # Must be a string
 
-ssoOnPrem:
+ssoDirect:
   oidc:
     title: 456 # Must be a string
     type: OIDC
