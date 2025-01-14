@@ -76,7 +76,7 @@ const testPortalConfig = parseYamlToDocument(
           # name: Must be reported as a missing required prop
           value: 123 # Must be a string
 
-    ssoOnPrem:
+    ssoDirect:
       oidc:
         title: 456 # Must be a string
         type: OIDC
@@ -791,7 +791,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/oidc/title",
+              "pointer": "#/ssoDirect/oidc/title",
               "reportOnKey": false,
               "source": "",
             },
@@ -805,7 +805,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/oidc/defaultTeams/0",
+              "pointer": "#/ssoDirect/oidc/defaultTeams/0",
               "reportOnKey": false,
               "source": "",
             },
@@ -819,7 +819,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/oidc/configuration",
+              "pointer": "#/ssoDirect/oidc/configuration",
               "reportOnKey": true,
               "source": "",
             },
@@ -833,7 +833,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/oidc/configuration/token_endpoint",
+              "pointer": "#/ssoDirect/oidc/configuration/token_endpoint",
               "reportOnKey": false,
               "source": "",
             },
@@ -847,7 +847,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/oidc/authorizationRequestCustomParams/login_hint",
+              "pointer": "#/ssoDirect/oidc/authorizationRequestCustomParams/login_hint",
               "reportOnKey": false,
               "source": "",
             },
@@ -861,7 +861,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/sso-config-schema-without-configurationUrl",
+              "pointer": "#/ssoDirect/sso-config-schema-without-configurationUrl",
               "reportOnKey": true,
               "source": "",
             },
@@ -875,7 +875,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem/sso-config-schema-without-configurationUrl",
+              "pointer": "#/ssoDirect/sso-config-schema-without-configurationUrl",
               "reportOnKey": true,
               "source": "",
             },
@@ -1205,12 +1205,12 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/ssoOnPrem",
+              "pointer": "#/ssoDirect",
               "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Property \`ssoOnPrem\` is not expected here.",
+          "message": "Property \`ssoDirect\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
