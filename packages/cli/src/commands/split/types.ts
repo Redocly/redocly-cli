@@ -1,5 +1,5 @@
 import type { Oas2Definition } from '@redocly/openapi-core';
-import type { Oas3_1Definition, Oas3Definition } from 'core/src/typings/openapi';
+import type { Oas3_1Definition, Oas3Definition } from '@redocly/openapi-core/lib/typings/openapi';
 
 export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
