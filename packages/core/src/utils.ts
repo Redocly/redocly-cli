@@ -354,3 +354,5 @@ export function dequal(foo: any, bar: any): boolean {
 }
 
 export type CollectFn = (value: unknown) => void;
+
+export type StrictObject<T extends object> = T & { [key: string]: undefined };
