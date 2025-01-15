@@ -1680,7 +1680,7 @@ describe('lint', () => {
       outdent`
         openapi: 3.0.4
         info:
-          title: test json schema validation keyword - allOf should use an OAS Schema, not JSON Schema
+          title: test json schema validation keyword $schema - should use an OAS Schema, not JSON Schema
           version: 1.0.0
         paths:
           '/thing':
@@ -1694,7 +1694,7 @@ describe('lint', () => {
                       schema:
                         $schema: http://json-schema.org/draft-04/schema#
                         type: object
-                        properties: {}              
+                        properties: {}
       `,
       ''
     );
@@ -1723,7 +1723,7 @@ describe('lint', () => {
             },
           ],
           "message": "Property \`$schema\` is not expected here.",
-          "ruleId": "spec",
+          "ruleId": "struct",
           "severity": "error",
           "suggest": [],
         },
@@ -1736,7 +1736,7 @@ describe('lint', () => {
       outdent`
         openapi: 3.1.1
         info:
-          title: test json schema validation keyword - allOf should use an OAS Schema, not JSON Schema
+          title: test json schema validation keyword $schema - should allow a JSON Schema
           version: 1.0.0
         paths:
           '/thing':
@@ -1750,7 +1750,7 @@ describe('lint', () => {
                       schema:
                         $schema: http://json-schema.org/draft-04/schema#
                         type: object
-                        properties: {}              
+                        properties: {}
       `,
       ''
     );
