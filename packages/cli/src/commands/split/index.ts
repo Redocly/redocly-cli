@@ -26,7 +26,7 @@ import type { Oas3Definition, Oas3_1Definition, Oas2Definition } from '@redocly/
 import type {
   Oas3Schema,
   Oas3_1Schema,
-  Oas3ComponentsBase,
+  Oas3Components,
   Oas3_1Components,
   Oas3ComponentName,
   Oas3PathItem,
@@ -262,7 +262,7 @@ function getFileNamePath(componentDirPath: string, componentName: string, ext: s
 }
 
 function gatherComponentsFiles(
-  components: Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components,
+  components: Oas3Components | Oas3_1Components,
   componentsFiles: ComponentsFiles,
   componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>,
   componentName: string,

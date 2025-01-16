@@ -5,10 +5,8 @@ import type { Oas3Decorator } from '../../visitors';
 import type {
   Oas3Definition,
   Oas3_1Definition,
-  Oas3ComponentsBase,
+  Oas3Components,
   Oas3_1Components,
-  Oas3Schema,
-  Oas3_1Schema,
 } from '../../typings/openapi';
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
@@ -16,14 +14,14 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     string,
     {
       usedIn: Location[];
-      componentType?: keyof (Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components);
+      componentType?: keyof (Oas3Components | Oas3_1Components);
       name: string;
     }
   >();
 
   function registerComponent(
     location: Location,
-    componentType: keyof (Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components),
+    componentType: keyof (Oas3Components | Oas3_1Components),
     name: string
   ): void {
     components.set(location.absolutePointer, {

@@ -10,7 +10,7 @@ import type {
   Oas3ExternalDocs,
   Oas3Info,
   Oas3Contact,
-  Oas3ComponentsBase,
+  Oas3Components,
   Oas3_1Components,
   Oas3License,
   Oas3Schema,
@@ -184,9 +184,7 @@ type Oas3FlatVisitor = {
   SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
   Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
-  Components?: VisitFunctionOrObject<
-    Oas3ComponentsBase<Oas3Schema | Oas3_1Schema> | Oas3_1Components
-  >;
+  Components?: VisitFunctionOrObject<Oas3Components | Oas3_1Components>;
   NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema>>>;

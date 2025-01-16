@@ -4,7 +4,7 @@ interface Oas3DefinitionBase<T extends Oas3Schema | Oas3_1Schema> {
   info?: Oas3Info;
   servers?: Oas3Server[];
   paths?: Oas3Paths<T>;
-  components?: T extends Oas3_1Schema ? Oas3_1Components : Oas3ComponentsBase<T>;
+  components?: T extends Oas3_1Schema ? Oas3_1Components : Oas3Components;
   security?: Oas3SecurityRequirement[];
   tags?: Oas3Tag[];
   externalDocs?: Oas3ExternalDocs;
@@ -278,9 +278,11 @@ export interface Oas3ComponentsBase<T extends Oas3Schema | Oas3_1Schema> {
   callbacks?: { [name: string]: Referenced<Oas3Callback<T>> };
 }
 
-export interface Oas3_1Components extends Oas3ComponentsBase<Oas3Schema> {
-  pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3Schema | Oas3_1Schema>> };
+export interface Oas3_1Components extends Oas3ComponentsBase<Oas3_1Schema> {
+  pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3_1Schema>> };
 }
+
+export interface Oas3Components extends Oas3ComponentsBase<Oas3Schema> {}
 
 export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema> = keyof Oas3ComponentsBase<T>;
 
