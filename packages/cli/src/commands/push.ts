@@ -62,7 +62,6 @@ export function commonPushHandler({
 
 export async function handlePush({ argv, config }: CommandArgs<PushOptions>): Promise<void> {
   const client = new RedoclyClient(config.region);
-  console.log('config.region', config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
     try {
