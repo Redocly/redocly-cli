@@ -1,15 +1,21 @@
-import fetch, { Response } from 'node-fetch';
-import * as FormData from 'form-data';
 import { red, yellow } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(),
-}));
+const originalFetch = global.fetch;
+
+beforeAll(() => {
+  // Reset fetch mock before each test
+  global.fetch = jest.fn();
+});
+
+afterAll(() => {
+  // Restore original fetch after each test
+  global.fetch = originalFetch;
+});
 
 function mockFetchResponse(response: any) {
-  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response as unknown as Response);
+  (global.fetch as jest.Mock).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -38,7 +44,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(global.fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/source`,
         {
           method: 'GET',
@@ -115,7 +121,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(global.fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/remotes`,
         {
           method: 'POST',
@@ -213,12 +219,11 @@ describe('ApiClient', () => {
     });
 
     it('should push to remote', async () => {
-      let passedFormData = new FormData();
+      let passedFormData: FormData = new FormData();
 
       (fetch as jest.MockedFunction<typeof fetch>).mockImplementationOnce(
         async (_: any, options: any): Promise<Response> => {
           passedFormData = options.body as FormData;
-
           return {
             ok: true,
             json: jest.fn().mockResolvedValue(responseMock),
@@ -226,14 +231,14 @@ describe('ApiClient', () => {
         }
       );
 
-      const formData = new FormData();
+      const formData = new globalThis.FormData();
 
       formData.append('remoteId', testRemoteId);
       formData.append('commit[message]', pushPayload.commit.message);
       formData.append('commit[author][name]', pushPayload.commit.author.name);
       formData.append('commit[author][email]', pushPayload.commit.author.email);
       formData.append('commit[branchName]', pushPayload.commit.branchName);
-      formData.append('files[some-file.yaml]', filesMock[0].stream);
+      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream]));
 
       const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
@@ -247,10 +252,7 @@ describe('ApiClient', () => {
           },
         })
       );
-
-      expect(
-        JSON.stringify(passedFormData).replace(new RegExp(passedFormData.getBoundary(), 'g'), '')
-      ).toEqual(JSON.stringify(formData).replace(new RegExp(formData.getBoundary(), 'g'), ''));
+      expect(passedFormData).toEqual(formData);
       expect(result).toEqual(responseMock);
     });
 
