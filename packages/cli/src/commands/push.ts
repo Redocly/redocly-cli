@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -22,7 +21,10 @@ import {
 } from '../utils/miscellaneous';
 import { promptClientToken } from './login';
 import { handlePush as handleCMSPush } from '../cms/commands/push';
+import { streamToBuffer } from '../cms/api/api-client';
 
+import type { Readable } from 'node:stream';
+import type { Agent } from 'node:http';
 import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
@@ -436,7 +438,7 @@ export function getApiRoot({
   return api?.root;
 }
 
-function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
+async function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const fileSizeInBytes =
     typeof filePathOrBuffer === 'string'
       ? fs.statSync(filePathOrBuffer).size
@@ -445,12 +447,24 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
-  return fetch(url, {
+  type NodeFetchRequestInit = RequestInit & {
+    dispatcher?: Agent;
+  };
+
+  const requestOptions: NodeFetchRequestInit = {
     method: 'PUT',
     headers: {
       'Content-Length': fileSizeInBytes.toString(),
     },
-    body: readStream,
-    agent: getProxyAgent(),
-  });
+    body: Buffer.isBuffer(readStream)
+      ? new Blob([readStream])
+      : new Blob([await streamToBuffer(readStream as Readable)]),
+  };
+
+  const proxyAgent = getProxyAgent();
+  if (proxyAgent) {
+    requestOptions.dispatcher = proxyAgent;
+  }
+
+  return fetch(url, requestOptions);
 }
