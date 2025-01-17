@@ -17,7 +17,7 @@ export { ConfigTypes } from './types/redocly-yaml';
 export type {
   Oas3Definition,
   Oas3_1Definition,
-  Oas3ComponentsBase,
+  Oas3Components,
   Oas3_1Components,
   Oas3PathItem,
   Oas3Paths,

@@ -122,7 +122,7 @@ export interface Oas3Xml {
 interface Oas3XSchemaBase<T extends Oas3Schema | Oas3_1Schema> {
   $ref?: string;
   properties?: { [name: string]: Referenced<T> };
-  additionalProperties?: boolean | { [name: string]: Referenced<T> };
+  additionalProperties?: boolean | T;
   description?: string;
   default?: unknown;
   required?: string[];
@@ -236,7 +236,7 @@ export interface Oas3RequestBody<T extends Oas3Schema | Oas3_1Schema = Oas3Schem
   content: { [mime: string]: Oas3MediaType<T> };
 }
 
-export interface Oas3Responses<T extends Oas3Schema | Oas3_1Schema> {
+export interface Oas3Responses<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   [code: string]: Oas3Response<T>;
 }
 
@@ -284,7 +284,8 @@ export interface Oas3_1Components extends Oas3ComponentsBase<Oas3_1Schema> {
 
 export interface Oas3Components extends Oas3ComponentsBase<Oas3Schema> {}
 
-export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema> = keyof Oas3ComponentsBase<T>;
+export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> =
+  keyof Oas3ComponentsBase<T>;
 
 export interface Oas3SecurityRequirement {
   [name: string]: string[];
