@@ -1,8 +1,6 @@
-import fetch from 'node-fetch';
 import { getProxyAgent, isNotEmptyObject } from '../utils';
 import { getRedoclyDomain } from './domains';
 
-import type { RequestInit, HeadersInit } from 'node-fetch';
 import type {
   NotFoundProblemResponse,
   PrepareFileuploadOKResponse,
@@ -43,10 +41,13 @@ export class RegistryApi {
       throw new Error('Unauthorized');
     }
 
-    const response = await fetch(
-      `${this.getBaseUrl()}${path}`,
-      Object.assign({}, options, { headers, agent: getProxyAgent() })
-    );
+    const requestOptions = {
+      ...options,
+      headers,
+      agent: getProxyAgent(),
+    };
+
+    const response = await fetch(`${this.getBaseUrl()}${path}`, requestOptions);
 
     if (response.status === 401) {
       throw new Error('Unauthorized');
