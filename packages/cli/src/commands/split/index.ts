@@ -22,20 +22,18 @@ import {
   OPENAPI3_COMPONENT_NAMES,
 } from './types';
 
-import type { OasRef } from '@redocly/openapi-core';
+import type { Oas3Definition, Oas3_1Definition, Oas2Definition } from '@redocly/openapi-core';
 import type {
-  Definition,
-  Oas2Definition,
   Oas3Schema,
-  Oas3Definition,
-  Oas3_1Definition,
+  Oas3_1Schema,
   Oas3Components,
+  Oas3_1Components,
   Oas3ComponentName,
-  ComponentsFiles,
-  RefObject,
   Oas3PathItem,
+  OasRef,
   Referenced,
-} from './types';
+} from '@redocly/openapi-core/lib/typings/openapi';
+import type { ComponentsFiles, Definition, RefObject } from './types';
 import type { CommandArgs } from '../../wrapper';
 import type { VerifyConfigOptions } from '../../types';
 
@@ -239,7 +237,7 @@ function doesFileDiffer(filename: string, componentData: any) {
 
 function removeEmptyComponents(
   openapi: Oas3Definition | Oas3_1Definition,
-  componentType: Oas3ComponentName
+  componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>
 ) {
   if (openapi.components && isEmptyObject(openapi.components[componentType])) {
     delete openapi.components[componentType];
@@ -264,15 +262,17 @@ function getFileNamePath(componentDirPath: string, componentName: string, ext: s
 }
 
 function gatherComponentsFiles(
-  components: Oas3Components,
+  components: Oas3Components | Oas3_1Components,
   componentsFiles: ComponentsFiles,
-  componentType: Oas3ComponentName,
+  componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>,
   componentName: string,
   filename: string
 ) {
   let inherits: string[] = [];
   if (componentType === OPENAPI3_COMPONENT.Schemas) {
-    inherits = ((components?.[componentType]?.[componentName] as Oas3Schema)?.allOf || [])
+    inherits = (
+      (components?.[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
+    )
       .map(({ $ref }) => $ref)
       .filter(isTruthy);
   }
@@ -347,7 +347,9 @@ function iterateComponents(
     componentTypes.forEach(iterateComponentTypes);
 
     // eslint-disable-next-line no-inner-declarations
-    function iterateAndGatherComponentsFiles(componentType: Oas3ComponentName) {
+    function iterateAndGatherComponentsFiles(
+      componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>
+    ) {
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName, ext);
@@ -356,7 +358,7 @@ function iterateComponents(
     }
 
     // eslint-disable-next-line no-inner-declarations
-    function iterateComponentTypes(componentType: Oas3ComponentName) {
+    function iterateComponentTypes(componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>) {
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {

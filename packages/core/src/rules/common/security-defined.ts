@@ -9,6 +9,7 @@ import type {
 } from '../../typings/swagger';
 import type {
   Oas3Definition,
+  Oas3_1Definition,
   Oas3Operation,
   Oas3PathItem,
   Oas3SecurityScheme,
@@ -31,7 +32,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
 
   return {
     Root: {
-      leave(root: Oas2Definition | Oas3Definition, { report }: UserContext) {
+      leave(root: Oas2Definition | Oas3Definition | Oas3_1Definition, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {

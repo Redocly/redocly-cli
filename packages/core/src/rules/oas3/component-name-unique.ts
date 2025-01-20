@@ -3,10 +3,12 @@ import type { Problem, UserContext } from '../../walk';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
 import type {
   Oas3Definition,
+  Oas3_1Definition,
   Oas3Parameter,
   Oas3RequestBody,
   Oas3Response,
   Oas3Schema,
+  Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi';
 
@@ -54,7 +56,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
       },
     },
     Root: {
-      leave(root: Oas3Definition, ctx: UserContext) {
+      leave(root: Oas3Definition | Oas3_1Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);
@@ -82,7 +84,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.schemas != 'off') {
     rule.NamedSchemas = {
-      Schema(_: Oas3Schema, { location }: UserContext) {
+      Schema(_: Oas3Schema | Oas3_1Schema, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location);
       },
     };

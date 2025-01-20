@@ -1674,4 +1674,99 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should throw an error for $schema not expected here - OAS 3.0.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.4
+        info:
+          title: test json schema validation keyword $schema - should use an OAS Schema, not JSON Schema
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'application/json':
+                      schema:
+                        $schema: http://json-schema.org/draft-04/schema#
+                        type: object
+                        properties: {}
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: { spec: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/paths/~1thing/get/responses/200/content/application~1json/schema/$schema",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`$schema\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should allow for $schema to be defined - OAS 3.1.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        info:
+          title: test json schema validation keyword $schema - should allow a JSON Schema
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'application/json':
+                      schema:
+                        $schema: http://json-schema.org/draft-04/schema#
+                        type: object
+                        properties: {}
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: { spec: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
