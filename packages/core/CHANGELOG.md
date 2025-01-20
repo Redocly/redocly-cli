@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.27.3
+
+### Patch Changes
+
+- Updated typings for OAS 3.0 and OAS 3.1 Schemas.
+
 ## 1.27.2
 
 ### Patch Changes
