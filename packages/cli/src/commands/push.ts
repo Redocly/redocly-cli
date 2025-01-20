@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
@@ -26,6 +25,7 @@ import { handlePush as handleCMSPush } from '../cms/commands/push';
 import type { Config, BundleOutputFormat, Region } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper';
 import type { VerifyConfigOptions } from '../types';
+import type { Readable } from 'node:stream';
 
 const DEFAULT_VERSION = 'latest';
 
@@ -436,7 +436,7 @@ export function getApiRoot({
   return api?.root;
 }
 
-function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
+async function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const fileSizeInBytes =
     typeof filePathOrBuffer === 'string'
       ? fs.statSync(filePathOrBuffer).size
@@ -445,12 +445,29 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
-  return fetch(url, {
+  const requestOptions = {
     method: 'PUT',
     headers: {
       'Content-Length': fileSizeInBytes.toString(),
     },
-    body: readStream,
-    agent: getProxyAgent(),
-  });
+    body: Buffer.isBuffer(readStream)
+      ? new Blob([readStream])
+      : new Blob([await streamToBuffer(readStream as Readable)]),
+  } as RequestInit;
+
+  const proxyAgent = getProxyAgent();
+  if (proxyAgent) {
+    // @ts-expect-error Node.js fetch has different type for agent
+    requestOptions.dispatcher = proxyAgent;
+  }
+
+  return fetch(url, requestOptions);
+}
+
+async function streamToBuffer(stream: Readable): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
 }

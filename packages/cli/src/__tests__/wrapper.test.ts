@@ -6,11 +6,19 @@ import { Arguments } from 'yargs';
 import { handlePush, PushOptions } from '../commands/push';
 import { detectSpec } from '@redocly/openapi-core';
 
-jest.mock('node-fetch');
 jest.mock('../utils/miscellaneous', () => ({
   sendTelemetry: jest.fn(),
   loadConfigAndHandleErrors: jest.fn(),
 }));
+
+beforeEach(() => {
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
 jest.mock('../commands/lint', () => ({
   handleLint: jest.fn().mockImplementation(({ collectSpecData }) => {
     collectSpecData({ openapi: '3.1.0' });

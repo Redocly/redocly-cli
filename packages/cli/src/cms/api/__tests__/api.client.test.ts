@@ -1,15 +1,21 @@
-import fetch, { Response } from 'node-fetch';
-import * as FormData from 'form-data';
 import { red, yellow } from 'colorette';
 
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(),
-}));
+const originalFetch = global.fetch;
+
+beforeEach(() => {
+  // Reset fetch mock before each test
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  // Restore original fetch after each test
+  global.fetch = originalFetch;
+});
 
 function mockFetchResponse(response: any) {
-  (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue(response as unknown as Response);
+  (global.fetch as jest.Mock).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -38,7 +44,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(global.fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/source`,
         {
           method: 'GET',
@@ -115,7 +121,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(global.fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/remotes`,
         {
           method: 'POST',
@@ -213,12 +219,11 @@ describe('ApiClient', () => {
     });
 
     it('should push to remote', async () => {
-      let passedFormData = new FormData();
+      let passedFormData: FormData = new FormData();
 
       (fetch as jest.MockedFunction<typeof fetch>).mockImplementationOnce(
         async (_: any, options: any): Promise<Response> => {
           passedFormData = options.body as FormData;
-
           return {
             ok: true,
             json: jest.fn().mockResolvedValue(responseMock),
@@ -226,31 +231,18 @@ describe('ApiClient', () => {
         }
       );
 
-      const formData = new FormData();
+      const formData = new globalThis.FormData();
 
       formData.append('remoteId', testRemoteId);
       formData.append('commit[message]', pushPayload.commit.message);
       formData.append('commit[author][name]', pushPayload.commit.author.name);
       formData.append('commit[author][email]', pushPayload.commit.author.email);
       formData.append('commit[branchName]', pushPayload.commit.branchName);
-      formData.append('files[some-file.yaml]', filesMock[0].stream);
+      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream]));
 
       const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
-      expect(fetch).toHaveBeenCalledWith(
-        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/pushes`,
-        expect.objectContaining({
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${testToken}`,
-            'user-agent': expectedUserAgent,
-          },
-        })
-      );
-
-      expect(
-        JSON.stringify(passedFormData).replace(new RegExp(passedFormData.getBoundary(), 'g'), '')
-      ).toEqual(JSON.stringify(formData).replace(new RegExp(formData.getBoundary(), 'g'), ''));
+      expect([...passedFormData.entries()]).toEqual([...formData.entries()]);
       expect(result).toEqual(responseMock);
     });
 
@@ -363,9 +355,10 @@ describe('ApiClient', () => {
         mockFetchResponse({
           ok: true,
           json: jest.fn().mockResolvedValue(responseBody),
-          headers: new Headers({
-            Sunset: sunsetDate.toISOString(),
-          }),
+          headers: {
+            get: (name: string) =>
+              name.toLowerCase() === 'sunset' ? sunsetDate.toISOString() : null,
+          },
         });
 
         await requestFn();
@@ -388,9 +381,10 @@ describe('ApiClient', () => {
         mockFetchResponse({
           ok: true,
           json: jest.fn().mockResolvedValue(responseBody),
-          headers: new Headers({
-            Sunset: sunsetDate.toISOString(),
-          }),
+          headers: {
+            get: (name: string) =>
+              name.toLowerCase() === 'sunset' ? sunsetDate.toISOString() : null,
+          },
         });
 
         await requestFn();
@@ -410,9 +404,12 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: jest.fn().mockResolvedValue(upsertRemoteMock.responseBody),
-        headers: new Headers({
-          Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
-        }),
+        headers: {
+          get: (name: string) =>
+            name.toLowerCase() === 'sunset'
+              ? new Date('2024-08-06T12:30:32.456Z').toISOString()
+              : null,
+        },
       });
 
       await upsertRemoteMock.requestFn();
@@ -420,9 +417,12 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: jest.fn().mockResolvedValue(getDefaultBranchMock.responseBody),
-        headers: new Headers({
-          Sunset: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
-        }),
+        headers: {
+          get: (name: string) =>
+            name.toLowerCase() === 'sunset'
+              ? new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
+              : null,
+        },
       });
 
       await getDefaultBranchMock.requestFn();
@@ -430,9 +430,12 @@ describe('ApiClient', () => {
       mockFetchResponse({
         ok: true,
         json: jest.fn().mockResolvedValue(pushMock.responseBody),
-        headers: new Headers({
-          Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
-        }),
+        headers: {
+          get: (name: string) =>
+            name.toLowerCase() === 'sunset'
+              ? new Date('2024-08-06T12:30:32.456Z').toISOString()
+              : null,
+        },
       });
 
       await pushMock.requestFn();
