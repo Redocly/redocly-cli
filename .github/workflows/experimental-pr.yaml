@@ -13,14 +13,19 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create the experimental branch
+        run: git push origin main:refs/heads/experimental
+
       - name: Checkout the PR branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
-
-      - name: Create/Update the experimental branch from main
-        run: git push -f origin main:refs/heads/experimental
 
       - name: Create PR to experimental
         env:
