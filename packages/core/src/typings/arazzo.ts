@@ -21,7 +21,7 @@ export interface ArazzoSourceDescription {
 export type SourceDescription = OpenAPISourceDescription | ArazzoSourceDescription;
 
 export interface Parameter {
-  in?: 'header' | 'query' | 'path' | 'cookie' | 'body';
+  in?: 'header' | 'query' | 'path' | 'cookie';
   name: string;
   value: string | number | boolean;
   reference?: string;
