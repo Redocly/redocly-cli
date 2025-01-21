@@ -37,7 +37,7 @@ jobs:
           gh pr create \
             --base experimental \
             --head "$SOURCE_BRANCH" \
-            --title "🧪 $PR_TITLE" \
+            --title "chore: 🧪 release ($PR_TITLE)" \
             --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
 
             Merging this PR will trigger a experimental package release to the NPM registry.
