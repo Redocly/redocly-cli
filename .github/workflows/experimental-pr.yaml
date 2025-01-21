@@ -1,0 +1,35 @@
+name: Experimental PR Creation
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  create-experimental-pr:
+    if: github.event.label.name == 'experimental'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout the PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Create PR to experimental
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          gh pr create \
+            --base experimental \
+            --head "$SOURCE_BRANCH" \
+            --title "🧪 $PR_TITLE" \
+            --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
+
+            Original PR: #$PR_NUMBER" \
+            --label experimental
