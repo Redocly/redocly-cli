@@ -38,7 +38,7 @@ jobs:
             --base experimental \
             --head "$SOURCE_BRANCH" \
             --title "🧪 $PR_TITLE" \
-            --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added. 
-            
+            --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
+
             Merging this PR will trigger a experimental package release to the NPM registry.
-            You will be able to install it with `npm install @redocly/cli@experimental`.
+            You will be able to install it with \`npm install @redocly/cli@experimental\`."
