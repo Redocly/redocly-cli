@@ -84,7 +84,7 @@ const ReusableObject: NodeType = {
 };
 const Parameter: NodeType = {
   properties: {
-    in: { type: 'string', enum: ['header', 'query', 'path', 'cookie', 'body'] },
+    in: { type: 'string', enum: ['header', 'query', 'path', 'cookie'] },
     name: { type: 'string' },
     value: {}, // any
   },
