@@ -11,9 +11,6 @@ jobs:
       CI: true
     steps:
       - uses: actions/checkout@v3
-        with:
-          # check out full history
-          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: 20

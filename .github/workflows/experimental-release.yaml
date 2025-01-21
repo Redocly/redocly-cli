@@ -1,0 +1,37 @@
+name: Experimental Release
+
+on:
+  push:
+    branches:
+      - experimental
+
+jobs:
+  release-experimental:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run compile
+
+      - name: Publish experimental packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/core
+          npm publish --tag experimental 
+          cd ../cli
+          npm publish --tag experimental
