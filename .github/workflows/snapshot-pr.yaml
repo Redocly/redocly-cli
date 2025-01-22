@@ -1,12 +1,12 @@
-name: Experimental PR Creation
+name: Snapshot PR Creation
 
 on:
   pull_request:
     types: [labeled]
 
 jobs:
-  create-experimental-pr:
-    if: github.event.label.name == 'experimental'
+  create-snapshot-pr:
+    if: github.event.label.name == 'snapshot'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,15 +19,15 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Create or update the experimental branch
-        run: git push origin main:refs/heads/experimental --force
+      - name: Create or update the snapshot branch
+        run: git push origin main:refs/heads/snapshot --force
 
       - name: Checkout the PR branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create PR to experimental
+      - name: Create PR to snapshot
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -35,10 +35,10 @@ jobs:
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           gh pr create \
-            --base experimental \
+            --base snapshot \
             --head "$SOURCE_BRANCH" \
             --title "chore: 🧪 release ($PR_TITLE)" \
-            --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
+            --body "This PR was automatically created from #$PR_NUMBER when the 'snapshot' label was added.
 
-            Merging this PR will trigger an experimental package release to the NPM registry.
-            You will be able to install it under the experimental tag."
+            Merging this PR will trigger a snapshot package release to the NPM registry.
+            You will be able to install it under the 'snapshot' tag."
