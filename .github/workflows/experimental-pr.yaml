@@ -19,8 +19,8 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Create the experimental branch
-        run: git push origin main:refs/heads/experimental
+      - name: Create or update the experimental branch
+        run: git push origin main:refs/heads/experimental --force
 
       - name: Checkout the PR branch
         uses: actions/checkout@v4
@@ -40,5 +40,5 @@ jobs:
             --title "chore: 🧪 release ($PR_TITLE)" \
             --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
 
-            Merging this PR will trigger a experimental package release to the NPM registry.
+            Merging this PR will trigger an experimental package release to the NPM registry.
             You will be able to install it with \`npm install @redocly/cli@experimental\`."

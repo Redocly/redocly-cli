@@ -233,3 +233,10 @@ However, you can release a new version with a problematic commit reverted.
 Create a new branch from **main**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
 Create a patch-level changeset for the revert and open a PR with it.
 Merge the PR and cut a release according to the [Release flow](#release-flow).
+
+### Experimental release
+
+To release an experimental version to the NPM registry, create a new branch from **main**, then add the `experimental` label to the PR.
+This creates a new PR with the `experimental` branch as the source.
+Merging this PR triggers an experimental package release to the NPM registry.
+You can install it with `npm install @redocly/cli@experimental`.

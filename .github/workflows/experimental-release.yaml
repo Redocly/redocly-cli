@@ -17,19 +17,38 @@ jobs:
     steps:
       - run: echo "Hello experimental release"
 
-      # - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 20
-      #     cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
 
-      # - name: Install dependencies
-      #   run: npm ci
+      - name: Update package versions
+        run: |
+          TIMESTAMP=$(date +%s)
+          VERSION="0.0.0-experimental.$TIMESTAMP"
 
-      # - name: Build packages
-      #   run: npm run compile
+          echo "VERSION=$VERSION" 
+
+          # Update Core package version
+          jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
+
+          # Update CLI package version and the Core dependency
+          jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+
+          git diff
+
+        # outputs:
+        #   version: $VERSION
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build packages
+        run: npm run compile
 
       # - name: Publish experimental packages
       #   # env:
