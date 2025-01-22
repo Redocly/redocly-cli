@@ -50,8 +50,8 @@ jobs:
         run: npm run compile
 
       - name: Publish snapshot packages
-        # env:
-        #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
