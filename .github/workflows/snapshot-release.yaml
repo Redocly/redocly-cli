@@ -51,7 +51,7 @@ jobs:
 
       - name: Publish snapshot packages
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
