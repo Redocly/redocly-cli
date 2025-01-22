@@ -29,8 +29,6 @@ jobs:
           TIMESTAMP=$(date +%s)
           VERSION="0.0.0-experimental.$TIMESTAMP"
 
-          echo "VERSION=$VERSION" 
-
           # Update Core package version
           jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
 
@@ -38,7 +36,9 @@ jobs:
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
-          NEW_DESCRIPTION="Experimental release v$VERSION. Install it with \`npm install @redocly/cli@$VERSION\`."
+          NEW_DESCRIPTION="${{ github.event.pull_request.body }}
+          ---
+          Experimental release v$VERSION. Install it with \`npm install @redocly/cli@$VERSION\`."
 
           gh pr edit $PR_NUMBER --body "$NEW_DESCRIPTION"
         env:
@@ -51,15 +51,6 @@ jobs:
       - name: Build packages
         run: npm run compile
 
-      # - name: Publish experimental packages
-      #   # env:
-      #   #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      #   run: |
-      #     cd packages/core
-      #     npm publish --tag experimental
-      #     cd ../cli
-      #     npm publish --tag experimental
-
       - name: Publish experimental packages
         # env:
         #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -67,6 +58,6 @@ jobs:
           git diff
 
           cd packages/core
-          npm pack --tag experimental
+          npm publish --tag experimental
           cd ../cli
-          npm pack --tag experimental
+          npm publish --tag experimental

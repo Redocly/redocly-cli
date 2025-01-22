@@ -41,4 +41,4 @@ jobs:
             --body "This PR was automatically created from #$PR_NUMBER when the 'experimental' label was added.
 
             Merging this PR will trigger an experimental package release to the NPM registry.
-            You will be able to install it with \`npm install @redocly/cli@experimental\`."
+            You will be able to install it under the experimental tag."
