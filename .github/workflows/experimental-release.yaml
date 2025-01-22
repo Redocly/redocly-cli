@@ -10,10 +10,9 @@ jobs:
   release-experimental:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    # permissions:
-    #   contents: read
-    #   id-token: write
-
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - run: echo "Hello experimental release"
 
@@ -39,10 +38,12 @@ jobs:
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
-          git diff
+          NEW_DESCRIPTION="Experimental release v$VERSION. Install it with \`npm install @redocly/cli@$VERSION\`."
 
-        # outputs:
-        #   version: $VERSION
+          gh pr edit $PR_NUMBER --body "$NEW_DESCRIPTION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
 
       - name: Install dependencies
         run: npm install
@@ -58,3 +59,14 @@ jobs:
       #     npm publish --tag experimental
       #     cd ../cli
       #     npm publish --tag experimental
+
+      - name: Publish experimental packages
+        # env:
+        #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          git diff
+
+          cd packages/core
+          npm pack --tag experimental
+          cd ../cli
+          npm pack --tag experimental
