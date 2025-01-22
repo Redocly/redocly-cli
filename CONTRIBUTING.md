@@ -234,9 +234,12 @@ Create a new branch from **main**, then find the hash of the commit you want to 
 Create a patch-level changeset for the revert and open a PR with it.
 Merge the PR and cut a release according to the [Release flow](#release-flow).
 
-### Experimental release
+### Experimental release flow
 
-To release an experimental version to the NPM registry, create a new branch from **main**, then add the `experimental` label to the PR.
-This creates a new PR with the `experimental` branch as the source.
-Merging this PR triggers an experimental package release to the NPM registry.
-You can install it with `npm install @redocly/cli@experimental`.
+To release an experimental version to the **NPM** registry, follow these steps:
+
+1. Create a new PR to **main**.
+2. Add the `experimental` label to the PR. This creates a new PR with to the `experimental` branch (which is a copy of the `main` branch).
+3. Merging the second PR triggers release to the **NPM** registry under the `experimental` tag.
+
+The released version can be installed with `npm install @redocly/cli@experimental`.
