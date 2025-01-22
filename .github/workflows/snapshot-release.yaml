@@ -1,0 +1,62 @@
+name: Snapshot Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - snapshot
+
+jobs:
+  release-snapshot:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update package versions
+        run: |
+          TIMESTAMP=$(date +%s)
+          VERSION="0.0.0-snapshot.$TIMESTAMP"
+
+          # Update Core package version
+          jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
+
+          # Update CLI package version and the Core dependency
+          jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+
+          NEW_DESCRIPTION="${{ github.event.pull_request.body }}
+
+          Experimental release **v$VERSION**. Install it with \`npm install @redocly/cli@$VERSION\`."
+
+          gh pr edit $PR_NUMBER --body "$NEW_DESCRIPTION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build packages
+        run: npm run compile
+
+      - name: Publish snapshot packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          git diff
+
+          cd packages/core
+          npm publish --tag snapshot
+          cd ../cli
+          npm publish --tag snapshot

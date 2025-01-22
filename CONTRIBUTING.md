@@ -233,3 +233,13 @@ However, you can release a new version with a problematic commit reverted.
 Create a new branch from **main**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
 Create a patch-level changeset for the revert and open a PR with it.
 Merge the PR and cut a release according to the [Release flow](#release-flow).
+
+### Snapshot release flow
+
+To release an experimental version to the **NPM** registry, follow these steps:
+
+1. Create a new PR to **main**.
+2. Add the `snapshot` label to the PR. This creates a new PR with to the `snapshot` branch (which is a copy of the `main` branch).
+3. Merging the second PR triggers release to the **NPM** registry under the `snapshot` tag.
+
+The released version can be installed with `npm install @redocly/cli@snapshot`.
