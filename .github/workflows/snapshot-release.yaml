@@ -35,11 +35,19 @@ jobs:
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
-          NEW_DESCRIPTION="${{ github.event.pull_request.body }}
+          # Add comment with installation instructions
+          COMMENT="📦 A new experimental version **v$VERSION** of Redocly CLI has been published for testing.
 
-          Experimental release **v$VERSION**. Install it with \`npm install @redocly/cli@$VERSION\`."
+          Install with NPM:
+          \`\`\`bash
+          npm install @redocly/cli@$VERSION
+          # or
+          npm install @redocly/openapi-core@$VERSION
+          \`\`\`
 
-          gh pr edit $PR_NUMBER --body "$NEW_DESCRIPTION"
+          ⚠️ Note: This is a development build and may contain unstable features."
+
+          gh pr comment $PR_NUMBER --body "$COMMENT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
