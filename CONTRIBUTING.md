@@ -234,7 +234,7 @@ Create a new branch from **main**, then find the hash of the commit you want to 
 Create a patch-level changeset for the revert and open a PR with it.
 Merge the PR and cut a release according to the [Release flow](#release-flow).
 
-### Snapshot release flow
+### Snapshot release
 
 To release an experimental version to the **NPM** registry, follow these steps:
 
