@@ -30,11 +30,20 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 | Option               | Type    | Description                                                                                                                     |
 | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | pushId               | string  | **REQUIRED.** Identifier of the push you are tracking. Returned as result of the [`push`](./push.md) command.                   |
-| --organization, -o   | string  | **REQUIRED.** [Organization slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug). |
-| --project, -p        | string  | **REQUIRED.** [Project slug](https://redocly.com/docs/realm/setup/how-to/git-providers/gitlab-self-managed#find-org-slug).      |
+| --organization, -o   | string  | **REQUIRED.** [Organization slug](#find-org-slug). |
+| --project, -p        | string  | **REQUIRED.** [Project slug](#find-org-slug).      |
 | --domain, -d         | string  | The domain that the `push` command pushed to. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com).  |
 | --wait               | boolean | Waits until the build is completed if it is in progress. Default value is `false`.                                              |
 | --max-execution-time | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `600`.       |
+
+<details>
+<summary>How to find and copy the Reunite organization or project slugs<a id="find-org-slug"></a></summary>
+
+  1. Log in to Reunite.
+  2. Select your organization and project.
+  3. Copy the value of the `{ORGANIZATION_SLUG}` or `{PROJECT_SLUG}` from the page URL in your browser, based on the following structure, `https://{REDOCLY_HOST}/org/{ORGANIZATION_SLUG}/project/{PROJECT_SLUG}`.
+
+</details>
 
 ## Examples
 
