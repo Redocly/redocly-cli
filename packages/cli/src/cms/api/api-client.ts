@@ -1,12 +1,11 @@
 import { yellow, red } from 'colorette';
-import * as FormData from 'form-data';
 import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout';
 
-import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
+import type { Readable } from 'node:stream';
 import type {
   ListRemotesResponse,
   ProjectSourceResponse,
@@ -178,7 +177,7 @@ class RemotesApi {
     payload: PushPayload,
     files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
-    const formData = new FormData();
+    const formData = new globalThis.FormData();
 
     formData.append('remoteId', payload.remoteId);
     formData.append('commit[message]', payload.commit.message);
@@ -192,7 +191,10 @@ class RemotesApi {
     payload.commit.createdAt && formData.append('commit[createdAt]', payload.commit.createdAt);
 
     for (const file of files) {
-      formData.append(`files[${file.path}]`, file.stream);
+      const blob = Buffer.isBuffer(file.stream)
+        ? new Blob([file.stream])
+        : new Blob([await streamToBuffer(file.stream)]);
+      formData.append(`files[${file.path}]`, blob, file.path);
     }
 
     payload.isMainBranch && formData.append('isMainBranch', 'true');
@@ -369,3 +371,11 @@ export type PushPayload = {
   };
   isMainBranch?: boolean;
 };
+
+export async function streamToBuffer(stream: ReadStream | Readable): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}

@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.27.2",
+  "version": "1.28.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -8,8 +8,8 @@
     "redocly": "bin/cli.js"
   },
   "engines": {
-    "node": ">=14.19.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.17.0",
+    "npm": ">=10.8.2"
   },
   "engineStrict": true,
   "scripts": {
@@ -36,7 +36,7 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "1.27.2",
+    "@redocly/openapi-core": "1.28.0",
     "abort-controller": "^3.0.0",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
@@ -46,7 +46,6 @@
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
     "mobx": "^6.0.4",
-    "node-fetch": "^2.6.1",
     "pluralize": "^8.0.0",
     "react": "^17.0.0 || ^18.2.0",
     "react-dom": "^17.0.0 || ^18.2.0",

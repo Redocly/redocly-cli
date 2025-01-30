@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.28.0 (2025-01-30)
+
+### Minor Changes
+
+- Switched to using native `fetch` API instead of `node-fetch` dependency, improving performance and reducing bundle size.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.28.0.
+
 ## 1.27.2 (2025-01-14)
 
 ### Patch Changes
@@ -87,7 +97,7 @@ toc:
 
 ### Patch Changes
 
-- Fixed an issue with the `remove-x-internal` decorator where bundling API descirptions containing discriminators could fail when using **Node.js** v17 or earlier.
+- Fixed an issue with the `remove-x-internal` decorator where bundling API descriptions containing discriminators could fail when using **Node.js** v17 or earlier.
 - Fixed API descriptions bundling. Previously, schemas containing nulls in examples were causing failures.
 - Updated @redocly/openapi-core to v1.25.11.
 

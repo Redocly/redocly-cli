@@ -4,24 +4,64 @@ import { exitWithError } from '../../utils/miscellaneous';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
+import { Readable } from 'node:stream';
 
-jest.mock('fs');
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
-    ok: true,
-    json: jest.fn().mockResolvedValue({}),
-  })),
+// Mock fs operations
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  createReadStream: jest.fn(() => {
+    const readable = new Readable();
+    readable.push('test data');
+    readable.push(null);
+    return readable;
+  }),
+  statSync: jest.fn(() => ({ isDirectory: () => false, size: 10 })),
+  readFileSync: jest.fn(() => Buffer.from('test data')),
+  existsSync: jest.fn(() => false),
+  readdirSync: jest.fn(() => []),
 }));
+
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils/miscellaneous');
+
+// Mock fetch
+const mockFetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    headers: new Headers(),
+    statusText: 'OK',
+    redirected: false,
+    type: 'default',
+    url: '',
+    clone: () => ({} as Response),
+    body: null,
+    bodyUsed: false,
+    arrayBuffer: async () => new ArrayBuffer(0),
+    blob: async () => new Blob(),
+    formData: async () => new FormData(),
+    text: async () => '',
+  } as Response)
+);
+
+const originalFetch = global.fetch;
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
 describe('push', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
 
+  beforeAll(() => {
+    global.fetch = mockFetch;
+  });
+
   beforeEach(() => {
     jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
   });
 
   it('pushes definition', async () => {

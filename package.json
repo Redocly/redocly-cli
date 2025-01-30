@@ -4,8 +4,8 @@
   "description": "",
   "private": true,
   "engines": {
-    "node": ">=15.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.17.0",
+    "npm": ">=10.8.2"
   },
   "engineStrict": true,
   "scripts": {
