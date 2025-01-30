@@ -11,7 +11,7 @@ export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
       definedTags = new Set((root.tags ?? []).map((t) => t.name));
     },
     Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
-      if (operation.tags) {
+      if (operation?.tags) {
         for (let i = 0; i < operation.tags.length; i++) {
           if (!definedTags.has(operation.tags[i])) {
             report({
@@ -20,6 +20,11 @@ export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
             });
           }
         }
+      } else {
+        report({
+          message: `Operation tags should be defined`,
+          location: location.key(),
+        });
       }
     },
   };
