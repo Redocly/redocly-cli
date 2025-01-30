@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 1.28.0
+
+### Minor Changes
+
+- Switched to using native `fetch` API instead of `node-fetch` dependency, improving performance and reducing bundle size.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.28.0.
+
 ## 1.27.2
 
 ### Patch Changes
