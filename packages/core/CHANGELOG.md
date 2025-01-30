@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 1.28.0
+
+### Minor Changes
+
+- Switched to using native `fetch` API instead of `node-fetch` dependency, improving performance and reducing bundle size.
+
+### Patch Changes
+
+- Removed support for `in: body` parameters due to Arazzo specification updates.
+- Updated typings for OAS 3.0 and OAS 3.1 Schemas.
+
 ## 1.27.2
 
 ### Patch Changes

@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.28.0 (2025-01-30)
+
+### Minor Changes
+
+- Switched to using native `fetch` API instead of `node-fetch` dependency, improving performance and reducing bundle size.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.28.0.
+
 ## 1.27.2 (2025-01-14)
 
 ### Patch Changes
