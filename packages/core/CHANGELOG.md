@@ -82,7 +82,7 @@
 
 ### Patch Changes
 
-- Fixed an issue with the `remove-x-internal` decorator where bundling API descirptions containing discriminators could fail when using **Node.js** v17 or earlier.
+- Fixed an issue with the `remove-x-internal` decorator where bundling API descriptions containing discriminators could fail when using **Node.js** v17 or earlier.
 - Fixed API descriptions bundling. Previously, schemas containing nulls in examples were causing failures.
 
 ## 1.25.10
