@@ -36,7 +36,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v14.19.0+ and NPM v7.0.0+ are required.
+[Node.js](http://nodejs.org) at v18.17.0+ and NPM v10.8.2+ are required.
 
 After forking the repo, run:
 

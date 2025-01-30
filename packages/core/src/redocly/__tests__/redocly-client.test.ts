@@ -1,12 +1,7 @@
 import { setRedoclyDomain } from '../domains';
 import { RedoclyClient } from '../index';
 
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
-    ok: true,
-    json: jest.fn().mockResolvedValue({}),
-  })),
-}));
+const originalFetch = global.fetch;
 
 describe('RedoclyClient', () => {
   const REDOCLY_DOMAIN_US = 'redocly.com';
@@ -14,6 +9,19 @@ describe('RedoclyClient', () => {
   const REDOCLY_AUTHORIZATION_TOKEN = 'redocly-auth-token';
   const testRedoclyDomain = 'redoclyDomain.com';
   const testToken = 'test-token';
+
+  beforeAll(() => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: jest.fn().mockResolvedValue({}),
+      } as any)
+    );
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
 
   afterEach(() => {
     delete process.env.REDOCLY_DOMAIN;
