@@ -19,9 +19,9 @@ import {
   getFallbackApisOrExit,
   dumpBundle,
 } from '../utils/miscellaneous';
-import { promptClientToken } from './login';
-import { handlePush as handleCMSPush } from '../cms/commands/push';
-import { streamToBuffer } from '../cms/api/api-client';
+import { promptClientToken } from './auth';
+import { handlePush as handleCMSPush } from '../reunite/commands/push';
+import { streamToBuffer } from '../reunite/api/api-client';
 
 import type { Readable } from 'node:stream';
 import type { Agent } from 'node:http';
