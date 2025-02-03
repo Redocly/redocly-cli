@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.28.1
+
+### Patch Changes
+
+- Resolved an issue where overrides for the severity of configurable rules raised warnings when validating the config.
+
 ## 1.28.0
 
 ### Minor Changes
