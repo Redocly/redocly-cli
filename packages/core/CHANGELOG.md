@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.28.2
+
+### Patch Changes
+
+- Added support for Arazzo version 1.0.1 in Spot validation rules.
+
 ## 1.28.1
 
 ### Patch Changes
