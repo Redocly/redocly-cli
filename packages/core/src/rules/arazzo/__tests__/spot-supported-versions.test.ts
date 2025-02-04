@@ -4,7 +4,36 @@ import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../
 import { BaseResolver } from '../../../resolve';
 
 describe('Arazzo spot-supported-versions', () => {
-  const document = parseYamlToDocument(
+  const documentWithUnsupportedVersion = parseYamlToDocument(
+    outdent`
+      arazzo: '1.0.2'
+      info:
+        title: Cool API
+        version: 1.0.0
+        description: A cool API
+      sourceDescriptions:
+        - name: museum-api
+          type: openapi
+          url: openapi.yaml
+      workflows:
+        - workflowId: get-museum-hours
+          description: This workflow demonstrates how to get the museum opening hours and buy tickets.
+          parameters:
+            - in: header
+              name: Authorization
+              value: Basic Og==
+          steps:
+            - stepId: get-museum-hours
+              description: >-
+                Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+              operationId: museum-api.getMuseumHours
+              successCriteria:
+                - condition: $statusCode == 200
+    `,
+    'arazzo.yaml'
+  );
+
+  const documentWithSupportedVersion = parseYamlToDocument(
     outdent`
       arazzo: '1.0.1'
       info:
@@ -36,7 +65,7 @@ describe('Arazzo spot-supported-versions', () => {
   it('should report on arazzo version error', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
-      document,
+      document: documentWithUnsupportedVersion,
       config: await makeConfig({
         rules: { 'spot-supported-versions': 'error' },
       }),
@@ -52,7 +81,7 @@ describe('Arazzo spot-supported-versions', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Only 1.0.0 Arazzo version is supported by Spot.",
+          "message": "Only 1.0.0, 1.0.1 Arazzo versions are supported by Spot.",
           "ruleId": "spot-supported-versions",
           "severity": "error",
           "suggest": [],
@@ -61,10 +90,22 @@ describe('Arazzo spot-supported-versions', () => {
     `);
   });
 
-  it('should not report on arazzo version error', async () => {
+  it('should not report on arazzo version error when supported version is used', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
-      document,
+      document: documentWithSupportedVersion,
+      config: await makeConfig({
+        rules: { 'spot-supported-versions': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report on arazzo version error when rule is not configured', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithSupportedVersion,
       config: await makeConfig({
         rules: {},
       }),
