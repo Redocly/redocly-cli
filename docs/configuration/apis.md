@@ -9,7 +9,7 @@ For every API listed in the object, you must provide the path to the OpenAPI des
 
 If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root settings are used.
 If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the root configuration.
-If per-API and root settings modify the same properties, per-API settings overrides root settings.
+If per-API `rules`, `decorators`, or `preprocessors` and root settings modify the same properties, per-API `rules`, `decorators`, and `preprocessors` override root settings.
 
 ## Patterned properties
 
