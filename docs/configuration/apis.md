@@ -8,8 +8,8 @@ Every `name@version` combination listed in the object must be unique.
 For every API listed in the object, you must provide the path to the OpenAPI description using the `root` property.
 
 If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root settings are used.
-If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the root configuration.
-If per-API `rules`, `decorators`, or `preprocessors` and root settings modify the same properties, per-API `rules`, `decorators`, and `preprocessors` override root settings.
+If `rules`, `decorators`, or `preprocessors` are defined for an API, its first-level properties apply together with the root configuration.
+If per-API `rules`, `decorators`, or `preprocessors` and root settings modify the same first-level properties, per-API `rules`, `decorators`, and `preprocessors` override root settings.
 
 ## Patterned properties
 
