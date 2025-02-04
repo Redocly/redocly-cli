@@ -18,7 +18,7 @@ export function promptClientToken(domain: string) {
 
 export type LoginOptions = {
   verbose?: boolean;
-  region?: Region;
+  region?: string;
   config?: string;
   next?: boolean;
 };
@@ -40,7 +40,7 @@ export async function handleLogin({ argv, config, version }: CommandArgs<LoginOp
   } else {
     try {
       const region = argv.region || config.region;
-      const client = new RedoclyClient(region);
+      const client = new RedoclyClient(region as Region);
       const clientToken = await promptClientToken(client.domain);
       process.stdout.write(gray('\n  Logging in...\n'));
       await client.login(clientToken, argv.verbose);

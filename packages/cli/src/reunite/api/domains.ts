@@ -9,10 +9,10 @@ export function getDomain(): string {
   return process.env.REDOCLY_DOMAIN || REUNITE_URLS.us;
 }
 
-export function getReuniteUrl(residency?: Region) {
+export function getReuniteUrl(residency?: string) {
   if (!residency) residency = 'us';
 
-  let reuniteUrl: string = REUNITE_URLS[residency];
+  let reuniteUrl: string = REUNITE_URLS[residency as Region];
 
   if (!reuniteUrl) {
     reuniteUrl = residency;

@@ -22,15 +22,24 @@ redocly login [--help] [--verbose] [--version]
 redocly login --verbose
 ```
 
+To authenticate using **Reunite** API, use `--next` option.
+
+```bash
+redocly login --next
+```
+
+Please note that login with **Reunite** API does not allow you to use the `push` command.
+
 ## Options
 
-| Option       | Type    | Description                                                                                                                                           |
-| ------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --config     | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                  |
-| --help       | boolean | Show help.                                                                                                                                            |
-| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. |
-| --verbose    | boolean | Display additional output.                                                                                                                            |
-| --version    | boolean | Show version number.                                                                                                                                  |
+| Option                   | Type    | Description                                                                                                                                    |
+| ------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| --config                 | string  | Specify path to the [configuration file](../configuration/index.md).                                                                           |
+| --help                   | boolean | Show help.                                                                                                                                     |
+| --region, --residency -r | string  | Specify residency of the application. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. |
+| --verbose                | boolean | Display additional output.                                                                                                                     |
+| --version                | boolean | Show version number.                                                                                                                           |
+| --next                   | boolean | Authenticate through Reunite API.                                                                                                              |
 
 ## Examples
 

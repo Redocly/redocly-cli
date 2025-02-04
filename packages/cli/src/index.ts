@@ -614,7 +614,7 @@ yargs
         region: {
           description: 'Residency of the application. Defaults to US.',
           alias: ['r', 'residency'],
-          choices: regionChoices,
+          type: 'string',
         },
         config: {
           description: 'Path to the config file.',
