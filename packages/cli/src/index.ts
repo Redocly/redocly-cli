@@ -611,9 +611,9 @@ yargs
           description: 'Include additional output.',
           type: 'boolean',
         },
-        region: {
-          description: 'Residency of the application. Defaults to US.',
-          alias: ['r', 'residency'],
+        residency: {
+          description: 'Residency of the application. Defaults to `us`.',
+          alias: ['r', 'region'],
           type: 'string',
         },
         config: {

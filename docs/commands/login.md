@@ -32,14 +32,14 @@ Note that logging in with **Reunite** API does not allow you to use the `push` c
 
 ## Options
 
-| Option                   | Type    | Description                                                                                                                                        |
-| ------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --config                 | string  | Specify path to the [configuration file](../configuration/index.md).                                                                               |
-| --help                   | boolean | Show help.                                                                                                                                         |
-| --region, --residency -r | string  | Specify the residency of the application. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. |
-| --verbose                | boolean | Display additional output.                                                                                                                         |
-| --version                | boolean | Show version number.                                                                                                                               |
-| --next                   | boolean | Authenticate through Reunite API.                                                                                                                  |
+| Option                    | Type    | Description                                                                                                                                                  |
+| ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --config                  | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                         |
+| --help                    | boolean | Show help.                                                                                                                                                   |
+| --residency, --region, -r | string  | Specify the application's residency. Supported values: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. Default value is `us`. |
+| --verbose                 | boolean | Display additional output.                                                                                                                                   |
+| --version                 | boolean | Show version number.                                                                                                                                         |
+| --next                    | boolean | Authenticate through Reunite API.                                                                                                                            |
 
 ## Examples
 

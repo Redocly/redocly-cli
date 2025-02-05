@@ -18,7 +18,7 @@ export function promptClientToken(domain: string) {
 
 export type LoginOptions = {
   verbose?: boolean;
-  region?: string;
+  residency?: string;
   config?: string;
   next?: boolean;
 };
@@ -26,12 +26,12 @@ export type LoginOptions = {
 export async function handleLogin({ argv, config, version }: CommandArgs<LoginOptions>) {
   if (argv.next) {
     try {
-      const reuniteUrl = getReuniteUrl(argv.region);
+      const reuniteUrl = getReuniteUrl(argv.residency);
       const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
       await oauthClient.login(reuniteUrl);
     } catch {
-      if (argv.region) {
-        const reuniteUrl = getReuniteUrl(argv.region);
+      if (argv.residency) {
+        const reuniteUrl = getReuniteUrl(argv.residency);
         exitWithError(`❌ Connection to ${reuniteUrl} failed.`);
       } else {
         exitWithError(`❌ Login failed. Please check your credentials and try again.`);
@@ -39,8 +39,8 @@ export async function handleLogin({ argv, config, version }: CommandArgs<LoginOp
     }
   } else {
     try {
-      const region = argv.region || config.region;
-      const client = new RedoclyClient(region as Region);
+      const region = (argv.residency as Region) || config.region;
+      const client = new RedoclyClient(region);
       const clientToken = await promptClientToken(client.domain);
       process.stdout.write(gray('\n  Logging in...\n'));
       await client.login(clientToken, argv.verbose);
