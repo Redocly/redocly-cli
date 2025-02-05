@@ -9,7 +9,7 @@
   },
   "engines": {
     "node": ">=18.17.0",
-    "npm": ">=10.8.2"
+    "npm": ">=9.5.0"
   },
   "engineStrict": true,
   "scripts": {
