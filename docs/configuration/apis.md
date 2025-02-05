@@ -11,29 +11,30 @@ If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root set
 If `rules`, `decorators`, or `preprocessors` are defined for an API, they apply together with the root configuration.
 If per-API `rules`, `decorators`, or `preprocessors` and root settings modify the same properties, per-API `rules`, `decorators`, and `preprocessors` override root settings.
 
-For example, if you include the same `decorator` at the root level and for a specific API, but with different properties, only the properties applied to the specific API will be applied to that API.
+For example, if you include the same `decorator` at the root level and for a specific API, but with different properties, the API-level settings replace the root ones.
 
-So if you have the following `redocly.yaml` configuration, adding `decorator-one` and `decorator-two` at the root level and applying `decorator-one` to the `override@v1` API:
+So if you have the following `redocly.yaml` configuration, adding `filter-in` and `plugin/change-title` at the root level and applying `plugin/change-title` with a different `title` property to the `storefront@latest` API:
 
 ```yaml
 decorators:
-  decorator-one:
-    property-one: 1
-    property-two: 2
-  decorator-two:
-    property-three: 3
-    property-four: 4
+  filter-in:
+    property: x-products
+    value:
+      - Core
+  plugin/change-title: 
+    title: All APIs
+  
 
 apis:
-  override@v1:
+  storefront@latest:
     decorators:
-      decorator-one:
-        property-five: 5
+      plugin/change-title:
+        title: Storefront APIs
 ```
 
-Only `property-five` is applied to `decorator-one` for the `override@v2` API, and both `property-three` and `property-four` are applied for `decorator-two`.
+The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront@latest` API, and the `filter-in` decorator is also applied to the `storefront@latest` API.
 
-For all other APIs, not including the `override@v2` API, `property-one` and `property-two` are applied to `decorator-one` and `property-three` and `property-four` are applied to `decorator-two`.
+For all other APIs, not including the `storefront@latest` API, `filter-in` and `plugin/change-title` with the "Core" `title` property are applied.
 
 
 ## Patterned properties
