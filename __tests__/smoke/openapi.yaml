@@ -17,3 +17,5 @@ paths:
             application/json:
               schema:
                 $ref: ./message-schema.yaml
+        400:
+          $ref: https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/resources/museum.yaml#/components/responses/BadRequest
