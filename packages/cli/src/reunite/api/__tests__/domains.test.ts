@@ -4,6 +4,10 @@ import { getReuniteUrl } from '../domains';
 import type { Region } from '@redocly/openapi-core';
 
 describe('getDomain()', () => {
+  afterEach(() => {
+    delete process.env.REDOCLY_DOMAIN;
+  });
+
   it('should return the domain from environment variable', () => {
     process.env.REDOCLY_DOMAIN = 'test-domain';
 
