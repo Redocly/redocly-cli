@@ -21,7 +21,7 @@ decorators:
     property: x-products
     value:
       - Core
-  plugin/change-title: 
+  plugin/change-title:
     title: All APIs
   
 
