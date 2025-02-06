@@ -23,7 +23,7 @@ decorators:
       - Core
   plugin/change-title:
     title: All APIs
-  
+
 
 apis:
   storefront@latest:
@@ -35,7 +35,6 @@ apis:
 The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront@latest` API, and the `filter-in` decorator is also applied to the `storefront@latest` API.
 
 For all other APIs, not including the `storefront@latest` API, `filter-in` and `plugin/change-title` with the "Core" `title` property are applied.
-
 
 ## Patterned properties
 
