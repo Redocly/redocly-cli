@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.28.3
+
+### Patch Changes
+
+- Added support for the `query` HTTP method in Arazzo operation definitions to enhance API interaction capabilities.
+
 ## 1.28.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @redocly/cli
 
+## 1.28.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.28.3.
+
 ## 1.28.2
 
 ### Patch Changes
