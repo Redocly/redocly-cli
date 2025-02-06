@@ -39,6 +39,7 @@ export interface ExtendedOperation {
     | 'options'
     | 'trace'
     | 'connect'
+    | 'query'
     | 'GET'
     | 'POST'
     | 'PUT'
@@ -47,7 +48,8 @@ export interface ExtendedOperation {
     | 'HEAD'
     | 'OPTIONS'
     | 'TRACE'
-    | 'CONNECT';
+    | 'CONNECT'
+    | 'QUERY';
 }
 
 export interface Replacement {
