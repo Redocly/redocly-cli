@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed the `build-docs` command failure when React 19 is installed in the project folder.
+Fixed an issue where the `build-docs` command failed when React 19 was installed in the project folder.
