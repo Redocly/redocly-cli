@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.28.4
+
+### Patch Changes
+
+- Fixed an issue where the `build-docs` command failed when React 19 was installed in the project folder.
+- Updated @redocly/openapi-core to v1.28.4.
+
 ## 1.28.3
 
 ### Patch Changes

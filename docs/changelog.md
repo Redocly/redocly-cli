@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.28.4 (2025-02-07)
+
+### Patch Changes
+
+- Fixed an issue where the `build-docs` command failed when React 19 was installed in the project folder.
+- Updated @redocly/openapi-core to v1.28.4.
+
 ## 1.28.3 (2025-02-06)
 
 ### Patch Changes
