@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.28.5
+
+### Patch Changes
+
+- Fixed an issue where the `build-docs` command produced incorrect output.
+- Updated @redocly/openapi-core to v1.28.5.
+
 ## 1.28.4
 
 ### Patch Changes
