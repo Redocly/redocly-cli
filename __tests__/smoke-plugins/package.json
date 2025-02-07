@@ -1,5 +1,6 @@
 {
   "name": "test-project-smoke-plugins",
+  "private": true,
   "scripts": {
     "redocly-version": "redocly --version",
     "redocly-lint": "redocly lint openapi.yaml"
