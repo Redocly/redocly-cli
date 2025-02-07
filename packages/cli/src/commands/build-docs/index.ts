@@ -29,7 +29,7 @@ export const handlerBuildCommand = async ({
     redocOptions: getObjectOrJSON(argv.theme?.openapi, config),
   };
 
-  const redocCurrentVersion = require('../../../package.json').dependencies.redoc.substring(1); // remove ~
+  const redocCurrentVersion = require('../../../package.json').dependencies.redoc;
 
   try {
     const elapsed = getExecutionTime(startedAt);
