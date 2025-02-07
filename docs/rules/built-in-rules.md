@@ -82,6 +82,7 @@ The rules list is split into sections.
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types
 - [no-required-schema-properties-undefined](./oas/no-required-schema-properties-undefined.md): All properties marked as required must be defined
+- [no-schema-type-mismatch](./oas/no-schema-type-mismatch.md): Detects schemas with type mismatches between object and items fields, and array and properties fields.
 - [request-mime-type](./oas/request-mime-type.md): Configure allowed mime types for requests
 - [response-mime-type](./oas/response-mime-type.md): Configure allowed mime types for responses
 - [response-contains-header](./oas/response-contains-header.md): List headers that must be included with specific response types
