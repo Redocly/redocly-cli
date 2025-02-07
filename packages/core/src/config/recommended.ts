@@ -19,6 +19,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'warn',
     'operation-summary': 'error',
     'operation-description': 'off',
     'operation-operationId': 'warn',
@@ -66,6 +67,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'warn',
     'no-invalid-media-type-examples': {
       severity: 'warn',
       allowAdditionalProperties: false,
@@ -126,6 +128,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'warn',
     'no-invalid-media-type-examples': 'warn',
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
