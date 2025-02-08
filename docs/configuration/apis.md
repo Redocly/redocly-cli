@@ -9,7 +9,7 @@ For every API listed in the object, you must provide the path to the OpenAPI des
 
 If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root settings are used.
 If `rules`, `decorators`, or `preprocessors` are defined for an API, they apply together with the root configuration.
-If per-API `rules`, `decorators`, or `preprocessors` and root settings modify the same properties, per-API `rules`, `decorators`, and `preprocessors` override root settings.
+If the same `rules`, `decorators`, or `preprocessors` are defined on `apis` and the root level, per-API `rules`, `decorators`, and `preprocessors` override the root ones.
 
 For example, if you include the same `decorator` at the root level and for a specific API, but with different properties, the API-level settings replace the root ones.
 
@@ -23,6 +23,7 @@ decorators:
       - Core
   plugin/change-title:
     title: All APIs
+    extraProperty: This property will be ignored at the per-API level.
 
 
 apis:
@@ -32,9 +33,9 @@ apis:
         title: Storefront APIs
 ```
 
-The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront@latest` API, and the `filter-in` decorator is also applied to the `storefront@latest` API.
+The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront@latest` API with the value `Storefront APIs`, and the `filter-in` decorator is also applied to the `storefront@latest` API.
 
-For all other APIs, not including the `storefront@latest` API, `filter-in` and `plugin/change-title` with the "Core" `title` property are applied.
+For all other APIs, not including the `storefront@latest` API, `filter-in` and `plugin/change-title` with the "Core" `title` and `extraProperty` properties are applied.
 
 ## Patterned properties
 
