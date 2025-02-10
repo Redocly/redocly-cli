@@ -36,7 +36,7 @@ rules:
 Example of a **correct** usage:
 
 ```yaml Correct example
-arazzo: '1.0.0'
+arazzo: '1.0.1'
 info:
   title: Cool API
   version: 1.0.0

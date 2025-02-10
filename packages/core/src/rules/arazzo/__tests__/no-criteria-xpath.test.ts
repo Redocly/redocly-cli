@@ -6,7 +6,7 @@ import { BaseResolver } from '../../../resolve';
 describe('Arazzo no-criteria-xpath', () => {
   const document = parseYamlToDocument(
     outdent`
-      arazzo: '1.0.0'
+      arazzo: '1.0.1'
       info:
         title: Cool API
         version: 1.0.0
