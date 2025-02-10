@@ -202,6 +202,9 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'off',
   },
+  overlay1Rules: {
+    'info-contact': 'off',
+  },
 };
 
 export default minimal;

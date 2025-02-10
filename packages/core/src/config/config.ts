@@ -14,6 +14,7 @@ import type {
   Async2RuleSet,
   Async3RuleSet,
   Arazzo1RuleSet,
+  Overlay1RuleSet,
 } from '../oas-types';
 import type { NodeType } from '../types';
 import type {
@@ -75,6 +76,7 @@ export class StyleguideConfig {
       'async2Rules',
       'async3Rules',
       'arazzo1Rules',
+      'overlay1Rules',
     ];
 
     replaceSpecWithStruct(ruleGroups, rawConfig);
@@ -86,6 +88,7 @@ export class StyleguideConfig {
       [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
       [SpecVersion.Async3]: { ...rawConfig.rules, ...rawConfig.async3Rules },
       [SpecVersion.Arazzo1]: { ...rawConfig.rules, ...rawConfig.arazzo1Rules },
+      [SpecVersion.Overlay1]: { ...rawConfig.rules, ...rawConfig.overlay1Rules },
     };
 
     this.preprocessors = {
@@ -95,6 +98,7 @@ export class StyleguideConfig {
       [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
       [SpecVersion.Async3]: { ...rawConfig.preprocessors, ...rawConfig.async3Preprocessors },
       [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Preprocessors },
+      [SpecVersion.Overlay1]: { ...rawConfig.preprocessors, ...rawConfig.overlay1Preprocessors },
     };
 
     this.decorators = {
@@ -104,6 +108,7 @@ export class StyleguideConfig {
       [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
       [SpecVersion.Async3]: { ...rawConfig.decorators, ...rawConfig.async3Decorators },
       [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Decorators },
+      [SpecVersion.Overlay1]: { ...rawConfig.decorators, ...rawConfig.overlay1Decorators },
     };
 
     this.extendPaths = rawConfig.extendPaths || [];
@@ -206,6 +211,10 @@ export class StyleguideConfig {
           case SpecVersion.Arazzo1:
             if (!plugin.typeExtension.arazzo1) continue;
             extendedTypes = plugin.typeExtension.arazzo1(extendedTypes, version);
+            break;
+          case SpecVersion.Overlay1:
+            if (!plugin.typeExtension.overlay1) continue;
+            extendedTypes = plugin.typeExtension.overlay1(extendedTypes, version);
             break;
           default:
             throw new Error('Not implemented');
@@ -328,6 +337,17 @@ export class StyleguideConfig {
           (p) => p.decorators?.arazzo1 && arazzo1Rules.push(p.decorators.arazzo1)
         );
         return arazzo1Rules;
+      case SpecMajorVersion.Overlay1:
+        // eslint-disable-next-line no-case-declarations
+        const overlay1Rules: Overlay1RuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.overlay1 && overlay1Rules.push(p.preprocessors.overlay1)
+        );
+        this.plugins.forEach((p) => p.rules?.overlay1 && overlay1Rules.push(p.rules.overlay1));
+        this.plugins.forEach(
+          (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
+        );
+        return overlay1Rules;
     }
   }
 

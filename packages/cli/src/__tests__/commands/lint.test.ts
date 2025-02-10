@@ -58,7 +58,7 @@ describe('handleLint', () => {
     getMergedConfigMock.mockReset();
   });
 
-  describe('loadConfig and getEnrtypoints stage', () => {
+  describe('loadConfig and getEntrypoints stage', () => {
     it('should fail if config file does not exist', async () => {
       await commandWrapper(handleLint)({ ...argvMock, config: 'config.yaml' });
       expect(exitWithError).toHaveBeenCalledWith(

@@ -25,6 +25,9 @@ const spec: PluginStyleguideConfig<'built-in'> = {
     'no-criteria-xpath': 'off',
     'criteria-unique': 'error',
   },
+  overlay1Rules: {
+    'info-contact': 'warn',
+  },
 };
 
 export default spec;

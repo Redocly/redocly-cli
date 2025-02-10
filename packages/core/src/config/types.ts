@@ -19,6 +19,9 @@ import type {
   Arazzo1PreprocessorsSet,
   Arazzo1DecoratorsSet,
   RuleMap,
+  Overlay1PreprocessorsSet,
+  Overlay1DecoratorsSet,
+  Overlay1RuleSet,
 } from '../oas-types';
 import type { NodeType } from '../types';
 import type { SkipFunctionContext } from '../visitors';
@@ -53,6 +56,7 @@ export type StyleguideRawConfig<T = undefined> = {
   async2Rules?: RuleMap<string, RuleConfig, T>;
   async3Rules?: RuleMap<string, RuleConfig, T>;
   arazzo1Rules?: RuleMap<string, RuleConfig, T>;
+  overlay1Rules?: RuleMap<string, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
@@ -61,6 +65,7 @@ export type StyleguideRawConfig<T = undefined> = {
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
+  overlay1Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
@@ -69,6 +74,7 @@ export type StyleguideRawConfig<T = undefined> = {
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;
+  overlay1Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
@@ -87,6 +93,7 @@ export type PreprocessorsConfig = {
   async2?: Async2PreprocessorsSet;
   async3?: Async3PreprocessorsSet;
   arazzo1?: Arazzo1PreprocessorsSet;
+  overlay1?: Overlay1PreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
@@ -95,6 +102,7 @@ export type DecoratorsConfig = {
   async2?: Async2DecoratorsSet;
   async3?: Async3DecoratorsSet;
   arazzo1?: Arazzo1DecoratorsSet;
+  overlay1?: Overlay1DecoratorsSet;
 };
 
 export type TypesExtensionFn = (
@@ -110,6 +118,7 @@ export type RulesConfig<T> = {
   async2?: Async2RuleSet<T>;
   async3?: Async3RuleSet<T>;
   arazzo1?: Arazzo1RuleSet<T>;
+  overlay1?: Overlay1RuleSet<T>;
 };
 
 export type CustomRulesConfig = RulesConfig<undefined>;
@@ -278,6 +287,7 @@ export type RulesFields =
   | 'async2Rules'
   | 'async3Rules'
   | 'arazzo1Rules'
+  | 'overlay1Rules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
@@ -285,10 +295,12 @@ export type RulesFields =
   | 'async2Preprocessors'
   | 'async3Preprocessors'
   | 'arazzo1Preprocessors'
+  | 'overlay1Preprocessors'
   | 'decorators'
   | 'oas2Decorators'
   | 'oas3_0Decorators'
   | 'oas3_1Decorators'
   | 'async2Decorators'
   | 'async3Decorators'
-  | 'arazzo1Decorators';
+  | 'arazzo1Decorators'
+  | 'overlay1Decorators';

@@ -21,6 +21,7 @@ import type {
   NestedVisitObject,
   Oas2Visitor,
   Oas3Visitor,
+  Overlay1Visitor,
   RuleInstanceConfig,
 } from './visitors';
 import type { CollectFn } from './utils';
@@ -154,6 +155,8 @@ export async function lintConfig(opts: {
       | Async3Visitor[]
       | Arazzo1Visitor
       | Arazzo1Visitor[]
+      | Overlay1Visitor
+      | Overlay1Visitor[]
     >;
   })[] = [
     {
