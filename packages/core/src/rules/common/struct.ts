@@ -4,9 +4,22 @@ import { isRef } from '../../ref-utils';
 import { isPlainObject } from '../../utils';
 
 import type { UserContext } from '../../walk';
-import type { Oas3Rule, Oas2Rule, Async2Rule, Async3Rule, Arazzo1Rule } from '../../visitors';
+import type {
+  Oas3Rule,
+  Oas2Rule,
+  Async2Rule,
+  Async3Rule,
+  Arazzo1Rule,
+  Overlay1Rule,
+} from '../../visitors';
 
-export const Struct: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule | Arazzo1Rule = () => {
+export const Struct:
+  | Oas3Rule
+  | Oas2Rule
+  | Async2Rule
+  | Async3Rule
+  | Arazzo1Rule
+  | Overlay1Rule = () => {
   return {
     any(
       node: any,

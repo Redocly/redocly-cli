@@ -9,7 +9,7 @@ export interface ActionObject {
   update?: unknown;
   remove?: boolean;
 }
-export interface OverlayDefinition {
+export interface Overlay1Definition {
   overlay: '1.0.0';
   info: InfoObject;
   extends?: string;

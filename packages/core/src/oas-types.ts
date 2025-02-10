@@ -4,6 +4,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { AsyncApi2Types } from './types/asyncapi2';
 import { AsyncApi3Types } from './types/asyncapi3';
 import { Arazzo1Types } from './types/arazzo';
+import { Overlay1Types } from './types/overlay';
 import { isPlainObject } from './utils';
 import { VERSION_PATTERN } from './typings/arazzo';
 
@@ -13,6 +14,7 @@ import type {
   BuiltInArazzo1RuleId,
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
+  BuiltInOverlay1RuleId,
 } from './types/redocly-yaml';
 import type {
   Oas3Rule,
@@ -25,6 +27,8 @@ import type {
   Async3Rule,
   Arazzo1Preprocessor,
   Arazzo1Rule,
+  Overlay1Preprocessor,
+  Overlay1Rule,
 } from './visitors';
 
 export enum SpecVersion {
@@ -34,6 +38,7 @@ export enum SpecVersion {
   Async2 = 'async2',
   Async3 = 'async3',
   Arazzo1 = 'arazzo1',
+  Overlay1 = 'overlay1',
 }
 
 export enum SpecMajorVersion {
@@ -42,6 +47,7 @@ export enum SpecMajorVersion {
   Async2 = 'async2',
   Async3 = 'async3',
   Arazzo1 = 'arazzo1',
+  Overlay1 = 'overlay1',
 }
 
 const typesMap = {
@@ -51,6 +57,7 @@ const typesMap = {
   [SpecVersion.Async2]: AsyncApi2Types,
   [SpecVersion.Async3]: AsyncApi3Types,
   [SpecVersion.Arazzo1]: Arazzo1Types,
+  [SpecVersion.Overlay1]: Overlay1Types,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -83,17 +90,24 @@ export type Arazzo1RuleSet<T = undefined> = RuleMap<
   T
 >;
 
+export type Overlay1RuleSet<T = undefined> = RuleMap<
+  BuiltInOverlay1RuleId | 'struct' | 'assertions',
+  Overlay1Rule,
+  T
+>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
 export type Async3PreprocessorsSet = Record<string, Async3Preprocessor>;
 export type Arazzo1PreprocessorsSet = Record<string, Arazzo1Preprocessor>;
+export type Overlay1PreprocessorsSet = Record<string, Overlay1Preprocessor>;
 
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
 export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
 export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
 export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
+export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
 
 export function detectSpec(root: unknown): SpecVersion {
   if (!isPlainObject(root)) {
@@ -136,6 +150,10 @@ export function detectSpec(root: unknown): SpecVersion {
     return SpecVersion.Arazzo1;
   }
 
+  if (typeof root.overlay === 'string' && VERSION_PATTERN.test(root.overlay)) {
+    return SpecVersion.Overlay1;
+  }
+
   throw new Error(`Unsupported specification`);
 }
 
@@ -148,6 +166,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return SpecMajorVersion.Async3;
   } else if (version === SpecVersion.Arazzo1) {
     return SpecMajorVersion.Arazzo1;
+  } else if (version === SpecVersion.Overlay1) {
+    return SpecMajorVersion.Overlay1;
   } else {
     return SpecMajorVersion.OAS3;
   }

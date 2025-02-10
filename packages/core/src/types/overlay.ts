@@ -1,10 +1,10 @@
-import { type NodeType, type NormalizedScalarSchema, listOf } from '.';
+import { type NodeType, listOf } from '.';
 
 const Root: NodeType = {
   properties: {
     overlay: { type: 'string' },
     info: 'Info',
-    extends: 'Extends',
+    extends: { type: 'string' },
     actions: 'Actions',
   },
   required: ['overlay', 'info', 'actions'],
@@ -20,11 +20,6 @@ const Info: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const Extends: NormalizedScalarSchema = {
-  type: 'string',
-  resolvable: true,
-};
-
 const Actions: NodeType = listOf('Action');
 const Action: NodeType = {
   properties: {
@@ -37,10 +32,9 @@ const Action: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const OverlayTypes: Record<string, NodeType | NormalizedScalarSchema> = {
+export const Overlay1Types: Record<string, NodeType> = {
   Root,
   Info,
-  Extends,
   Actions,
   Action,
 };
