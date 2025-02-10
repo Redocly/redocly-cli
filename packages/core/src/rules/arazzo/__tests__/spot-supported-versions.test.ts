@@ -81,7 +81,7 @@ describe('Arazzo spot-supported-versions', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Only 1.0.0, 1.0.1 Arazzo versions are supported by Spot.",
+          "message": "Only 1.0.1 Arazzo version is supported by Spot.",
           "ruleId": "spot-supported-versions",
           "severity": "error",
           "suggest": [],

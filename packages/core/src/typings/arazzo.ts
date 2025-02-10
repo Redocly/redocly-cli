@@ -142,7 +142,7 @@ export interface Workflow {
 }
 
 export interface ArazzoDefinition {
-  arazzo: '1.0.0';
+  arazzo: '1.0.1';
   info: InfoObject;
   sourceDescriptions: SourceDescription[];
   workflows: Workflow[];
@@ -169,4 +169,4 @@ export interface ArazzoDefinition {
 
 export const VERSION_PATTERN = /^1\.0\.\d+(-.+)?$/;
 
-export const ARAZZO_VERSIONS_SUPPORTED_BY_SPOT = ['1.0.0', '1.0.1'];
+export const ARAZZO_VERSIONS_SUPPORTED_BY_SPOT = ['1.0.1'];

@@ -9,7 +9,7 @@ validating museum.yaml...
 
 The field \`info\` must be present on this level.
 
- 1 | arazzo: 1.0.0
+ 1 | arazzo: 1.0.1
    | ^^^^^^^^^^^^^
  2 |
    | ^

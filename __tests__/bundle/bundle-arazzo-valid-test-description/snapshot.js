@@ -6,7 +6,7 @@ info:
   description: A part of imaginary, but delightful Museum API for interacting with museum services and information. Built with love by Redocly.
   version: 1.0.0
 components: {}
-arazzo: 1.0.0
+arazzo: 1.0.1
 sourceDescriptions:
   - name: museum-api
     type: openapi

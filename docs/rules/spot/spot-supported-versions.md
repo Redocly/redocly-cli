@@ -36,7 +36,7 @@ arazzoRules:
 Example of a **correct** entry:
 
 ```yaml Object example
-arazzo: 1.0.0
+arazzo: 1.0.1
 ```
 
 ## Related rules
