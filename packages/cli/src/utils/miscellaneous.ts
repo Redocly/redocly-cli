@@ -29,6 +29,8 @@ import { outputExtensions } from '../types';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from '../commands/push';
 import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout';
+import { RedoclyOAuthClient } from '../auth/oauth-client';
+import { getReuniteUrl } from '../reunite/api';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -565,7 +567,9 @@ export async function sendTelemetry(
     } = argv;
     const event_time = new Date().toISOString();
     const redoclyClient = new RedoclyClient();
-    const logged_in = redoclyClient.hasTokens();
+    const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
+    const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
+    const logged_in = redoclyClient.hasTokens() || (await oauthClient.isAuthorized(reuniteUrl));
     const data: Analytics = {
       event: 'cli_command',
       event_time,
