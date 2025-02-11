@@ -2,4 +2,4 @@
 "@redocly/openapi-core": minor
 ---
 
-Added rule `no-schema-type-mismatch`.
+Added the `no-schema-type-mismatch` rule.
