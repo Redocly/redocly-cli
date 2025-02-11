@@ -1,8 +1,8 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from '.';
-import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 import { SpecVersion, getTypes } from '../oas-types';
+import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';

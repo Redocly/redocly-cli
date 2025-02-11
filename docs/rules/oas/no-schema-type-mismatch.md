@@ -5,6 +5,7 @@ slug: /docs/cli/rules/oas/no-schema-type-mismatch
 # no-schema-type-mismatch
 
 Ensures that a schema's structural properties match its declared `type`. In particular:
+
 - A schema of type `object` **must not** include an `items` field.
 - A schema of type `array` **must not** include a `properties` field.
 
@@ -23,6 +24,7 @@ flowchart TD
 ## API design principles
 
 When designing an API schema, the defined `type` should be consistent with its structure:
+
 - **Objects** are collections of key/value pairs. They should be defined using `properties` (or additionalProperties) and must not use `items`.
 - **Arrays** are ordered lists of items and must use `items` to define their content. Including `properties` is invalid.
 
@@ -30,8 +32,8 @@ This rule helps catch typos and misconfigurations early in your API definition.
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| Option   | Type   | Description                                                                                   |
+| -------- | ------ | --------------------------------------------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default is `error` in the recommended configuration. |
 
 Example configuration:
@@ -58,7 +60,7 @@ properties:
       type: number
 ```
 
-*Error:* An `object` type should not include an `items` field.
+_Error:_ An `object` type should not include an `items` field.
 
 #### Array type with a `properties` field
 
@@ -71,7 +73,7 @@ properties:
         type: string
 ```
 
-*Error:* An `array` type should not include a `properties` field.
+_Error:_ An `array` type should not include a `properties` field.
 
 ### Correct Examples
 
