@@ -54,6 +54,7 @@ import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { ComponentNameUnique } from './component-name-unique';
 import { ArrayParameterSerialization } from './array-parameter-serialization';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
+import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch';
 
 import type { Oas3RuleSet } from '../../oas-types';
 import type { Oas3Rule } from '../../visitors';
@@ -119,6 +120,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'component-name-unique': ComponentNameUnique as Oas3Rule,
   'array-parameter-serialization': ArrayParameterSerialization,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas3Rule,
+  'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas3Rule,
 };
 
 export const preprocessors = {};

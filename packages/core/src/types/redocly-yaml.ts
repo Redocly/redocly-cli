@@ -1,8 +1,8 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from '.';
-import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 import { SpecVersion, getTypes } from '../oas-types';
+import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
@@ -48,6 +48,7 @@ const builtInOAS2Rules = [
   'spec-strict-refs',
   'no-unresolved-refs',
   'no-required-schema-properties-undefined',
+  'no-schema-type-mismatch',
   'boolean-parameter-prefixes',
   'request-mime-type',
   'response-contains-property',
@@ -96,6 +97,7 @@ const builtInOAS3Rules = [
   'spec-strict-refs',
   'no-unresolved-refs',
   'no-required-schema-properties-undefined',
+  'no-schema-type-mismatch',
   'boolean-parameter-prefixes',
   'component-name-unique',
   'no-empty-servers',

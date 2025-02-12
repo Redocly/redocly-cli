@@ -42,6 +42,7 @@ import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined';
+import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch';
 
 import type { Oas2Rule } from '../../visitors';
 import type { Oas2RuleSet } from '../../oas-types';
@@ -95,6 +96,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength as Oas2Rule,
   'spec-strict-refs': SpecStrictRefs as Oas2Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas2Rule,
+  'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas2Rule,
 };
 
 export const preprocessors = {};

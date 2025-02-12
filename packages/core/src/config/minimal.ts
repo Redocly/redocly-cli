@@ -19,6 +19,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'warn',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'off',
     'operation-summary': 'warn',
     'operation-operationId': 'warn',
     'operation-operationId-unique': 'warn',
@@ -66,6 +67,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'warn',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': {
       severity: 'warn',
       allowAdditionalProperties: false,
@@ -126,6 +128,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'no-enum-type-mismatch': 'warn',
     'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
+    'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': 'warn',
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
