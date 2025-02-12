@@ -283,6 +283,28 @@ jobs:
           node-version: 18
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
 
+  run-smoke--split--windows:
+    needs: prepare-smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: Run split smoke
+        run: |
+          npm i -g __tests__/smoke/redocly-cli.tgz
+          redocly --version
+          redocly split resources/pets.yaml --outDir __tests__/smoke/__split-pets
+          git diff
+          redocly split resources/museum.yaml --outDir __tests__/smoke/__split-museum
+          git diff
+
   run-smoke--docker-image:
     runs-on: ubuntu-latest
     steps:
