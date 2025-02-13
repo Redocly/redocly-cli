@@ -46,16 +46,16 @@ export type SplitOptions = {
 export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOptions>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
-  validateDefinitionFileName(api!);
+  validateDefinitionFileName(api);
   const ext = getAndValidateFileExtension(api);
-  const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
+  const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
-    `🪓 Document: ${blue(api!)} ${green('is successfully split')}
+    `🪓 Document: ${blue(api)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
-  printExecutionTime('split', startedAt, api!);
+  printExecutionTime('split', startedAt, api);
 }
 
 function splitDefinition(
