@@ -18,7 +18,7 @@ $2 redocly-bundle
 $2 redocly-build-docs
 $2 redocly-split
 
-# Check for broken styles building the docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
+# Check for broken styles when building docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 echo "Checking docs for issues..."
 if [[ "$(wc -l redoc-static.html)" == "324 redoc-static.html" ]]; then
   echo "✅ Docs built correctly."
