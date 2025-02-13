@@ -1,0 +1,19 @@
+description: Request payload for creating new special events at the museum.
+type: object
+properties:
+  name:
+    $ref: ./EventName.yaml
+  location:
+    $ref: ./EventLocation.yaml
+  eventDescription:
+    $ref: ./EventDescription.yaml
+  dates:
+    $ref: ./EventDates.yaml
+  price:
+    $ref: ./EventPrice.yaml
+required:
+  - name
+  - location
+  - eventDescription
+  - dates
+  - price

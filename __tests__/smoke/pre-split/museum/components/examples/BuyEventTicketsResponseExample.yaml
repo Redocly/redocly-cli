@@ -1,0 +1,8 @@
+summary: Special event ticket
+value:
+  message: Museum special event ticket purchased
+  ticketId: b811f723-17b2-44f7-8952-24b03e43d8a9
+  eventName: Mermaid Treasure Identification and Analysis
+  ticketType: event
+  ticketDate: '2023-09-05'
+  confirmationCode: ticket-event-9c55eg-8v82a

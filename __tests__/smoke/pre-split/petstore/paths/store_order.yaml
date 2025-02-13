@@ -1,0 +1,30 @@
+post:
+  tags:
+    - store
+  summary: Place an order for a pet
+  description: ''
+  operationId: placeOrder
+  responses:
+    '200':
+      description: successful operation
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Order.yaml
+        application/xml:
+          schema:
+            $ref: ../components/schemas/Order.yaml
+    '400':
+      description: Invalid Order
+      content:
+        application/json:
+          example:
+            status: 400
+            message: Invalid Order
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/Order.yaml
+    description: order placed for purchasing the pet
+    required: true

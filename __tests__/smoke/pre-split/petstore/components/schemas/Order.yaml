@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    description: Order ID
+    allOf:
+      - $ref: ./Id.yaml
+  petId:
+    description: Pet ID
+    allOf:
+      - $ref: ./Id.yaml
+  quantity:
+    type: integer
+    format: int32
+    minimum: 1
+    default: 1
+  shipDate:
+    description: Estimated ship date
+    type: string
+    format: date-time
+  status:
+    type: string
+    description: Order Status
+    enum:
+      - placed
+      - approved
+      - delivered
+  complete:
+    description: Indicates whenever order was completed or not
+    type: boolean
+    default: false
+    readOnly: true
+  requestId:
+    description: Unique Request Id
+    type: string
+    writeOnly: true
+xml:
+  name: Order

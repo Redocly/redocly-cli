@@ -8,7 +8,8 @@
     "redocly-version": "redocly --version",
     "redocly-lint": "redocly lint openapi.yaml",
     "redocly-bundle": "redocly bundle openapi.yaml --ext json",
-    "redocly-build-docs": "redocly build-docs openapi.yaml"
+    "redocly-build-docs": "redocly build-docs openapi.yaml",
+    "redocly-split": "redocly split pets.yaml --outDir output/split/petstore && redocly split museum.yaml --outDir output/split/museum"
   },
   "author": "redocly",
   "license": "ISC"

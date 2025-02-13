@@ -1,0 +1,4 @@
+type: array
+items:
+  $ref: ./Date.yaml
+description: List of planned dates for the special event.

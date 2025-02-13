@@ -1,0 +1,48 @@
+type: object
+properties:
+  id:
+    $ref: ./Id.yaml
+  pet:
+    oneOf:
+      - $ref: ./Pet.yaml
+      - $ref: ./Tag.yaml
+  username:
+    description: User supplied username
+    type: string
+    minLength: 4
+    example: John78
+  firstName:
+    description: User first name
+    type: string
+    minLength: 1
+    example: John
+  lastName:
+    description: User last name
+    type: string
+    minLength: 1
+    example: Smith
+  email:
+    description: User email address
+    type: string
+    format: email
+    example: john.smith@example.com
+  password:
+    type: string
+    description: >-
+      User password, MUST contain a mix of upper and lower case letters, as well
+      as digits
+    format: password
+    minLength: 8
+    pattern: /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/
+    example: drowssaP123
+  phone:
+    description: User phone number in international format
+    type: string
+    pattern: /^\+(?:[0-9]-?){6,14}[0-9]$/
+    example: +1-202-555-0192
+  userStatus:
+    description: User status
+    type: integer
+    format: int32
+xml:
+  name: User

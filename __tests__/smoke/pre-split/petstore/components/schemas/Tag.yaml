@@ -1,0 +1,12 @@
+type: object
+properties:
+  id:
+    description: Tag ID
+    allOf:
+      - $ref: ./Id.yaml
+  name:
+    description: Tag name
+    type: string
+    minLength: 1
+xml:
+  name: Tag

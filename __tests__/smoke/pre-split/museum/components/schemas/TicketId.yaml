@@ -1,0 +1,4 @@
+description: Unique identifier for museum ticket. Generated when purchased.
+type: string
+format: uuid
+example: a54a57ca-36f8-421b-a6b4-2e8f26858a4c

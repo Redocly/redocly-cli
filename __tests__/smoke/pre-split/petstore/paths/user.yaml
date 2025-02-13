@@ -1,0 +1,16 @@
+post:
+  tags:
+    - user
+  summary: Create user
+  description: This can only be done by the logged in user.
+  operationId: createUser
+  responses:
+    default:
+      description: successful operation
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/User.yaml
+    description: Created user object
+    required: true

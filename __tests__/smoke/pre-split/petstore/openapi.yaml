@@ -1,0 +1,175 @@
+openapi: 3.0.0
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
+  - url: //petstore.swagger.io/sandbox
+    description: Sandbox server
+info:
+  description: >
+    This is a sample server Petstore server.
+
+    You can find out more about Swagger at
+
+    [http://swagger.io](http://swagger.io) or on [irc.freenode.net,
+    #swagger](http://swagger.io/irc/).
+
+    For this sample, you can use the api key `special-key` to test the
+    authorization filters.
+
+
+    # Introduction
+
+    This API is documented in **OpenAPI format** and is based on
+
+    [Petstore sample](http://petstore.swagger.io/) provided by
+    [swagger.io](http://swagger.io) team.
+
+    It was **extended** to illustrate features of
+    [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
+
+    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In
+    addition to standard
+
+    OpenAPI syntax we use a few [vendor
+    extensions](https://github.com/Redocly/redoc/blob/master/docs/redoc-vendor-extensions.md).
+
+
+    # OpenAPI Specification
+
+    This API is documented in **OpenAPI format** and is based on
+
+    [Petstore sample](http://petstore.swagger.io/) provided by
+    [swagger.io](http://swagger.io) team.
+
+    It was **extended** to illustrate features of
+    [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo)
+
+    tool and [ReDoc](https://github.com/Redocly/redoc) documentation. In
+    addition to standard
+
+    OpenAPI syntax we use a few [vendor
+    extensions](https://github.com/Redocly/redoc/blob/master/docs/redoc-vendor-extensions.md).
+
+
+    # Cross-Origin Resource Sharing
+
+    This API features Cross-Origin Resource Sharing (CORS) implemented in
+    compliance with  [W3C spec](https://www.w3.org/TR/cors/).
+
+    And that allows cross-domain communication from the browser.
+
+    All responses have a wildcard same-origin which makes them completely public
+    and accessible to everyone, including any code on any site.
+
+
+    # Authentication
+
+
+    Petstore offers two forms of authentication:
+      - API Key
+      - OAuth2
+    OAuth2 - an open protocol to allow secure authorization in a simple
+
+    and standard method from web, mobile and desktop applications.
+
+
+    <SecurityDefinitions />
+  version: 1.0.0
+  title: Swagger Petstore
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: API Support
+    email: apiteam@swagger.io
+    url: https://github.com/Redocly/redoc
+  x-logo:
+    url: https://redocly.github.io/redoc/petstore-logo.png
+    altText: Petstore logo
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+externalDocs:
+  description: Find out how to create Github repo for your OpenAPI spec.
+  url: https://github.com/Rebilly/generator-openapi-repo
+tags:
+  - name: pet
+    description: Everything about your Pets
+  - name: store
+    description: Access to Petstore orders
+  - name: user
+    description: Operations about user
+  - name: pet_model
+    x-displayName: The Pet Model
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/Pet" />
+  - name: store_model
+    x-displayName: The Order Model
+    description: >
+      <SchemaDefinition schemaRef="#/components/schemas/Order"
+      exampleRef="#/components/examples/Order" showReadOnly={true}
+      showWriteOnly={true} />
+x-tagGroups:
+  - name: General
+    tags:
+      - pet
+      - store
+  - name: User Management
+    tags:
+      - user
+  - name: Models
+    tags:
+      - pet_model
+      - store_model
+paths:
+  /petGet:
+    $ref: paths/petGet.yaml
+  /GETpet/{petId}:
+    $ref: paths/GETpet_{petId}.yaml
+  /pet/{petId}/uploadImage:
+    $ref: paths/pet_{petId}_uploadImage.yaml
+  /pet/findByStatusPut:
+    $ref: paths/pet_findByStatusPut.yaml
+  /GETCustomers/findByTags:
+    $ref: paths/GETCustomers_findByTags.yaml
+  /store/inventory:
+    $ref: paths/store_inventory.yaml
+  /store/order:
+    $ref: paths/store_order.yaml
+  /store/order/{orderId}:
+    $ref: paths/store_order_{orderId}.yaml
+  /store/subscribe:
+    $ref: paths/store_subscribe.yaml
+  /user:
+    $ref: paths/user.yaml
+  /user/{username}:
+    $ref: paths/user_{username}.yaml
+  /user/createWithArray:
+    $ref: paths/user_createWithArray.yaml
+  /user/createWithList:
+    $ref: paths/user_createWithList.yaml
+  /user/login:
+    $ref: paths/user_login.yaml
+  /user/logout:
+    $ref: paths/user_logout.yaml
+components:
+  securitySchemes:
+    petstore_auth:
+      description: |
+        Get access to data while protecting your account credentials.
+        OAuth2 is also a safer and more secure way to give you access.
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/api/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      description: >
+        For this sample, you can use the api key `special-key` to test the
+        authorization filters.
+      type: apiKey
+      name: api_key
+      in: header
+x-webhooks:
+  newPet:
+    $ref: webhooks/newPet.yaml

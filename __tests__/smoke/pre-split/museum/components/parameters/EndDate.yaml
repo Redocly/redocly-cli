@@ -1,0 +1,9 @@
+name: endDate
+in: query
+description: >-
+  End of a date range to retrieve special events for. Defaults to 7 days after
+  `startDate`.
+schema:
+  type: string
+  format: date
+  example: '2023-04-18'

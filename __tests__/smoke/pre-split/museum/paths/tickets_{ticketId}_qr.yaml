@@ -1,0 +1,19 @@
+get:
+  summary: Get ticket QR code
+  description: Return an image of your ticket with scannable QR code. Used for event entry.
+  operationId: getTicketCode
+  tags:
+    - Tickets
+  parameters:
+    - $ref: ../components/parameters/TicketId.yaml
+  responses:
+    '200':
+      description: Scannable event ticket in image format.
+      content:
+        image/png:
+          schema:
+            $ref: ../components/schemas/GetTicketCodeResponse.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml

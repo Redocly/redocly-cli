@@ -1,0 +1,13 @@
+description: A representation of a dog
+allOf:
+  - $ref: ./Pet.yaml
+  - type: object
+    properties:
+      packSize:
+        type: integer
+        format: int32
+        description: The size of the pack the dog is from
+        default: 1
+        minimum: 1
+    required:
+      - packSize

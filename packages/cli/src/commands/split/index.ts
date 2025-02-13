@@ -258,7 +258,7 @@ function extractFileNameFromPath(filename: string) {
 }
 
 function getFileNamePath(componentDirPath: string, componentName: string, ext: string) {
-  return slash(path.join(componentDirPath, componentName) + `.${ext}`);
+  return path.join(componentDirPath, componentName) + `.${ext}`;
 }
 
 function gatherComponentsFiles(
@@ -273,7 +273,7 @@ function gatherComponentsFiles(
     inherits = (
       (components?.[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
     )
-      .map(({ $ref }) => $ref && slash($ref))
+      .map(({ $ref }) => $ref)
       .filter(isTruthy);
   }
   componentsFiles[componentType] = componentsFiles[componentType] || {};

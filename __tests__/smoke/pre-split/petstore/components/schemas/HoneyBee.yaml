@@ -1,0 +1,12 @@
+description: A representation of a honey bee
+allOf:
+  - $ref: ./Pet.yaml
+  - type: object
+    properties:
+      honeyPerDay:
+        type: number
+        description: Average amount of honey produced per day in ounces
+        example: 3.14
+        multipleOf: 0.01
+    required:
+      - honeyPerDay

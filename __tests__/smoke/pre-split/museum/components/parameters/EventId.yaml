@@ -1,0 +1,8 @@
+name: eventId
+in: path
+description: Identifier for a special event.
+required: true
+schema:
+  type: string
+  format: uuid
+  example: dad4bce8-f5cb-4078-a211-995864315e39

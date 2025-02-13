@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Prepare Smoke
-        run: bash ./scripts/prepare-smoke-plugins.sh
+        run: bash ./__tests__/smoke-plugins/prepare-smoke-plugins.sh
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/

@@ -1,0 +1,4 @@
+description: Identifier for a special event.
+type: string
+format: uuid
+example: 3be6453c-03eb-4357-ae5a-984a0e574a54
