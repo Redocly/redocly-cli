@@ -291,15 +291,23 @@ jobs:
         run: docker build -t redocly/cli:latest .
       - name: Run docker image
         run: |
+          # Prepare
+          cp resources/pets.yaml resources/museum.yaml __tests__/smoke/
           cd __tests__/smoke/
+
+          # Run commands
           docker run --rm redocly/cli:latest --version
           docker run --rm -v $PWD:/spec redocly/cli:latest lint openapi.yaml
           docker run --rm -v $PWD:/spec redocly/cli:latest bundle openapi.yaml --ext json
           docker run --rm -v $PWD:/spec redocly/cli:latest build-docs openapi.yaml
-          # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073) 
-          if [[ "$(wc -l redoc-static.html)" == "324 redoc-static.html" ]]; then
-            echo "Docs built correctly."
-          else
-            echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 324 lines in redoc-static.html)."
-            exit 1
-          fi
+          docker run --rm -v $PWD:/spec redocly/cli:latest split pets.yaml --outDir output/split/petstore && docker run --rm -v $PWD:/spec redocly/cli:latest split museum.yaml --outDir output/split/museum
+
+          # Check for broken styles when building docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
+          echo "Checking docs for issues..."
+          diff pre-built/redoc.html redoc-static.html 
+          echo "✅ Docs built correctly."
+
+          # Check for broken $refs (or other issues) in the split files, especially on Windows (it will fail on a difference)
+          echo "Checking split files for issues..."
+          diff -r pre-split output/split
+          echo "✅ Files split correctly."
