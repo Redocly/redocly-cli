@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 1.29.0
+
+### Minor Changes
+
+- Added the `no-schema-type-mismatch` rule.
+- Added typings and interfaces for Overlay Specification v1.0.0.
+
+### Patch Changes
+
+- Added validation to ensure only Arazzo version 1.0.1 is used, helping users stay on the supported version.
+- Fixed an issue where the `no-invalid-media-type-examples` rule crashed instead of reporting an error when it failed to resolve an example from a $ref.
+
 ## 1.28.5
 
 ## 1.28.4
