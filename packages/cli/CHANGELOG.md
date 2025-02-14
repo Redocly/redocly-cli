@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 1.29.0
+
+### Minor Changes
+
+- Added typings and interfaces for Overlay Specification v1.0.0.
+
+### Patch Changes
+
+- Fixed a problem where the `split` command produced backslashes instead of forward slashes in `$ref`s on Windows.
+- Fixed an issue where the `no-invalid-media-type-examples` rule crashed instead of reporting an error when it failed to resolve an example from a $ref.
+- Updated @redocly/openapi-core to v1.29.0.
+
 ## 1.28.5
 
 ### Patch Changes
