@@ -1,0 +1,4 @@
+description: List of museum operating hours for consecutive days.
+type: array
+items:
+  $ref: ./MuseumDailyHours.yaml

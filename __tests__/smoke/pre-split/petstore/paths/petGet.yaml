@@ -1,0 +1,63 @@
+parameters:
+  - name: Accept-Language
+    in: header
+    description: >-
+      The language you prefer for messages. Supported values are en-AU, en-CA,
+      en-GB, en-US
+    example: en-US
+    required: false
+    schema:
+      type: string
+      default: en-AU
+  - name: cookieParam
+    in: cookie
+    description: Some cookie
+    required: true
+    schema:
+      type: integer
+      format: int64
+post:
+  tags:
+    - pet
+  summary: Add a new pet to the store
+  description: Add new pet to the store inventory.
+  operationId: addPet
+  responses:
+    '405':
+      description: Invalid input
+  security:
+    - petstore_auth:
+        - write:pets
+        - read:pets
+  x-codeSamples:
+    - lang: C#
+      source:
+        $ref: ../code_samples/C_sharp/petGet/post.cs
+    - lang: PHP
+      source:
+        $ref: ../code_samples/PHP/petGet/post.php
+  requestBody:
+    $ref: ../components/requestBodies/Pet.yaml
+put:
+  tags:
+    - pet
+  summary: Update an existing pet
+  description: ''
+  operationId: updatePet
+  responses:
+    '400':
+      description: Invalid ID supplied
+    '404':
+      description: Pet not found
+    '405':
+      description: Validation exception
+  security:
+    - petstore_auth:
+        - write:pets
+        - read:pets
+  x-codeSamples:
+    - lang: PHP
+      source:
+        $ref: ../code_samples/PHP/petGet/put.php
+  requestBody:
+    $ref: ../components/requestBodies/Pet.yaml

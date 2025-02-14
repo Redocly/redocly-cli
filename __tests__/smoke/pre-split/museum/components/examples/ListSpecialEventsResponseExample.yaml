@@ -1,0 +1,93 @@
+summary: List of special events
+value:
+  - eventId: f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97
+    name: Sasquatch Ballet
+    location: Seattle... probably
+    eventDescription: >-
+      They're big, they're hairy, but they're also graceful. Come learn how the
+      biggest feet can have the lightest touch.
+    dates:
+      - '2023-12-15'
+      - '2023-12-22'
+    price: 40
+  - eventId: 2f14374a-9c65-4ee5-94b7-fba66d893483
+    name: Solar Telescope Demonstration
+    location: Far from the sun.
+    eventDescription: Look at the sun without going blind!
+    dates:
+      - '2023-09-07'
+      - '2023-09-14'
+    price: 50
+  - eventId: 6aaa61ba-b2aa-4868-b803-603dbbf7bfdb
+    name: Cook like a Caveman
+    location: Fire Pit on East side
+    eventDescription: Learn to cook on an open flame.
+    dates:
+      - '2023-11-10'
+      - '2023-11-17'
+      - '2023-11-24'
+    price: 5
+  - eventId: 602b75e1-5696-4ab8-8c7a-f9e13580f910
+    name: Underwater Basket Weaving
+    location: Rec Center Pool next door.
+    eventDescription: Learn to weave baskets underwater.
+    dates:
+      - '2023-09-12'
+      - '2023-09-15'
+    price: 15
+  - eventId: dad4bce8-f5cb-4078-a211-995864315e39
+    name: Mermaid Treasure Identification and Analysis
+    location: Room Sea-12
+    eventDescription: >-
+      Join us as we review and classify a rare collection of 20 thingamabobs,
+      gadgets, gizmos, whoosits, and whatsits — kindly donated by Ariel.
+    dates:
+      - '2023-09-05'
+      - '2023-09-08'
+    price: 30
+  - eventId: 6744a0da-4121-49cd-8479-f8cc20526495
+    name: Time Traveler Tea Party
+    location: Temporal Tearoom
+    eventDescription: Sip tea with important historical figures.
+    dates:
+      - '2023-11-18'
+      - '2023-11-25'
+      - '2023-12-02'
+    price: 60
+  - eventId: 3be6453c-03eb-4357-ae5a-984a0e574a54
+    name: Pirate Coding Workshop
+    location: Computer Room
+    eventDescription: >-
+      Captain Blackbeard shares his love of the C...language. And possibly
+      Arrrrr (R lang).
+    dates:
+      - '2023-10-29'
+      - '2023-10-30'
+      - '2023-10-31'
+    price: 45
+  - eventId: 9d90d29a-2af5-4206-97d9-9ea9ceadcb78
+    name: Llama Street Art Through the Ages
+    location: Auditorium
+    eventDescription: Llama street art?! Alpaca my bags -- let's go!
+    dates:
+      - '2023-10-29'
+      - '2023-10-30'
+      - '2023-10-31'
+    price: 45
+  - eventId: a3c7b2c4-b5fb-4ef7-9322-00a919864957
+    name: The Great Parrot Debate
+    location: Outdoor Amphitheatre
+    eventDescription: See leading parrot minds discuss important geopolitical issues.
+    dates:
+      - '2023-11-03'
+      - '2023-11-10'
+    price: 35
+  - eventId: b92d46b7-4c5d-422b-87a5-287767e26f29
+    name: Eat a Bunch of Corn
+    location: Cafeteria
+    eventDescription: We accidentally bought too much corn. Please come eat it.
+    dates:
+      - '2023-11-10'
+      - '2023-11-17'
+      - '2023-11-24'
+    price: 5

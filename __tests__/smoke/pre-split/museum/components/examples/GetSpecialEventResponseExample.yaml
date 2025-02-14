@@ -1,0 +1,11 @@
+summary: Get special event
+value:
+  eventId: 6744a0da-4121-49cd-8479-f8cc20526495
+  name: Time Traveler Tea Party
+  location: Temporal Tearoom
+  eventDescription: Sip tea with important historical figures.
+  dates:
+    - '2023-11-18'
+    - '2023-11-25'
+    - '2023-12-02'
+  price: 60

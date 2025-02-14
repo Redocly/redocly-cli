@@ -1,0 +1,25 @@
+description: Daily operating hours for the museum.
+type: object
+properties:
+  date:
+    description: Date the operating hours apply to.
+    $ref: ./Date.yaml
+    example: '2024-12-31'
+  timeOpen:
+    type: string
+    pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
+    description: >-
+      Time the museum opens on a specific date. Uses 24 hour time format
+      (`HH:mm`).
+    example: '09:00'
+  timeClose:
+    description: >-
+      Time the museum closes on a specific date. Uses 24 hour time format
+      (`HH:mm`).
+    type: string
+    pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
+    example: '18:00'
+required:
+  - date
+  - timeOpen
+  - timeClose

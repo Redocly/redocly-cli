@@ -1,0 +1,8 @@
+content:
+  application/json:
+    schema:
+      type: array
+      items:
+        $ref: ../schemas/User.yaml
+description: List of user object
+required: true

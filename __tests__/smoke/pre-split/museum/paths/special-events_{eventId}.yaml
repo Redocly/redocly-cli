@@ -1,0 +1,72 @@
+get:
+  summary: Get special event
+  description: Get details about a special event.
+  operationId: getSpecialEvent
+  tags:
+    - Events
+  parameters:
+    - $ref: ../components/parameters/EventId.yaml
+  responses:
+    '200':
+      description: Success.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SpecialEventResponse.yaml
+          examples:
+            default_example:
+              $ref: ../components/examples/GetSpecialEventResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+patch:
+  summary: Update special event
+  description: Update the details of a special event.
+  operationId: updateSpecialEvent
+  tags:
+    - Events
+  parameters:
+    - $ref: ../components/parameters/EventId.yaml
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/UpdateSpecialEventRequest.yaml
+        examples:
+          default_example:
+            $ref: ../components/examples/UpdateSpecialEventRequestExample.yaml
+  responses:
+    '200':
+      description: Success.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SpecialEventResponse.yaml
+          examples:
+            default_example:
+              $ref: ../components/examples/UpdateSpecialEventResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+delete:
+  summary: Delete special event
+  description: >-
+    Delete a special event from the collection. Allows museum to cancel planned
+    events.
+  operationId: deleteSpecialEvent
+  tags:
+    - Events
+  parameters:
+    - $ref: ../components/parameters/EventId.yaml
+  responses:
+    '204':
+      description: Success - no content.
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../components/responses/Unauthorized.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml

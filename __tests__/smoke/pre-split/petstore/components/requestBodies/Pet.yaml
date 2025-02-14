@@ -1,0 +1,16 @@
+content:
+  application/json:
+    schema:
+      allOf:
+        - description: My Pet
+          title: Pettie
+        - $ref: ../schemas/Pet.yaml
+  application/xml:
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: hooray
+description: Pet object that needs to be added to the store
+required: true

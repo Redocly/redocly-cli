@@ -1,0 +1,4 @@
+description: Price of a ticket for the special event.
+type: number
+format: float
+example: 25

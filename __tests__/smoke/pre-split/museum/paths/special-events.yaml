@@ -1,0 +1,54 @@
+post:
+  summary: Create special events
+  description: Creates a new special event for the museum.
+  operationId: createSpecialEvent
+  tags:
+    - Events
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/CreateSpecialEventRequest.yaml
+        examples:
+          default_example:
+            $ref: ../components/examples/CreateSpecialEventRequestExample.yaml
+  responses:
+    '201':
+      description: Created.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/SpecialEventResponse.yaml
+          examples:
+            default_example:
+              $ref: ../components/examples/CreateSpecialEventResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml
+get:
+  summary: List special events
+  description: Return a list of upcoming special events at the museum.
+  operationId: listSpecialEvents
+  tags:
+    - Events
+  parameters:
+    - $ref: ../components/parameters/StartDate.yaml
+    - $ref: ../components/parameters/EndDate.yaml
+    - $ref: ../components/parameters/PaginationPage.yaml
+    - $ref: ../components/parameters/PaginationLimit.yaml
+  responses:
+    '200':
+      description: Success.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/ListSpecialEventsResponse.yaml
+          examples:
+            default_example:
+              $ref: ../components/examples/ListSpecialEventsResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml

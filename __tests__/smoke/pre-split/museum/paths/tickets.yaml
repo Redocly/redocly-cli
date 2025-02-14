@@ -1,0 +1,33 @@
+post:
+  summary: Buy museum tickets
+  description: Purchase museum tickets for general entry or special events.
+  operationId: buyMuseumTickets
+  tags:
+    - Tickets
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/BuyMuseumTicketsRequest.yaml
+        examples:
+          general_entry:
+            $ref: ../components/examples/BuyGeneralTicketsRequestExample.yaml
+          event_entry:
+            $ref: ../components/examples/BuyEventTicketsRequestExample.yaml
+  responses:
+    '201':
+      description: Created.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/BuyMuseumTicketsResponse.yaml
+          examples:
+            general_entry:
+              $ref: ../components/examples/BuyGeneralTicketsResponseExample.yaml
+            event_entry:
+              $ref: ../components/examples/BuyEventTicketsResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml

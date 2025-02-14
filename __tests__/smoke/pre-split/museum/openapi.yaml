@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: Redocly Museum API
+  description: >-
+    Imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
+  version: 1.1.1
+  termsOfService: https://redocly.com/subscription-agreement/
+  contact:
+    email: team@redocly.com
+    url: https://redocly.com/docs/cli/
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit/
+servers:
+  - url: https://redocly.com/_mock/docs/openapi/museum-api
+paths:
+  /museum-hours:
+    $ref: paths/museum-hours.yaml
+  /special-events:
+    $ref: paths/special-events.yaml
+  /special-events/{eventId}:
+    $ref: paths/special-events_{eventId}.yaml
+  /tickets:
+    $ref: paths/tickets.yaml
+  /tickets/{ticketId}/qr:
+    $ref: paths/tickets_{ticketId}_qr.yaml
+components:
+  securitySchemes:
+    MuseumPlaceholderAuth:
+      type: http
+      scheme: basic
+tags:
+  - name: Operations
+    description: Operational information about the museum.
+  - name: Events
+    description: Special events hosted by the museum.
+  - name: Tickets
+    description: Museum tickets for general entrance or special events.
+security:
+  - MuseumPlaceholderAuth: []

@@ -46,16 +46,16 @@ export type SplitOptions = {
 export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOptions>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
-  validateDefinitionFileName(api!);
+  validateDefinitionFileName(api);
   const ext = getAndValidateFileExtension(api);
-  const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
+  const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
-    `🪓 Document: ${blue(api!)} ${green('is successfully split')}
+    `🪓 Document: ${blue(api)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
-  printExecutionTime('split', startedAt, api!);
+  printExecutionTime('split', startedAt, api);
 }
 
 function splitDefinition(
@@ -176,9 +176,9 @@ function replace$Refs(obj: unknown, relativeFrom: string, componentFiles = {} as
     const groupName = splittedNode[2];
     const filesGroupName = componentFiles[groupName];
     if (!filesGroupName || !filesGroupName[name!]) return;
-    let filename = path.relative(relativeFrom, filesGroupName[name!].filename);
+    let filename = slash(path.relative(relativeFrom, filesGroupName[name!].filename));
     if (!filename.startsWith('.')) {
-      filename = '.' + path.sep + filename;
+      filename = './' + filename;
     }
     node[key] = filename;
   }
@@ -192,11 +192,11 @@ function implicitlyReferenceDiscriminator(
 ) {
   if (!obj.discriminator) return;
   const defPtr = `#/${COMPONENTS}/${OPENAPI3_COMPONENT.Schemas}/${defName}`;
-  const implicitMapping = {} as any;
+  const implicitMapping: Record<string, string> = {};
   for (const [name, { inherits, filename: parentFilename }] of Object.entries(schemaFiles) as any) {
     if (inherits.indexOf(defPtr) > -1) {
-      const res = path.relative(path.dirname(filename), parentFilename);
-      implicitMapping[name] = res.startsWith('.') ? res : '.' + path.sep + res;
+      const res = slash(path.relative(path.dirname(filename), parentFilename));
+      implicitMapping[name] = res.startsWith('.') ? res : './' + res;
     }
   }
 

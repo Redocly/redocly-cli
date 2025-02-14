@@ -1,0 +1,21 @@
+description: Request payload used for purchasing museum tickets.
+type: object
+properties:
+  ticketType:
+    $ref: ./TicketType.yaml
+  eventId:
+    description: >-
+      Unique identifier for a special event. Required if purchasing tickets for
+      the museum's special events.
+    $ref: ./EventId.yaml
+  ticketDate:
+    description: Date that the ticket is valid for.
+    $ref: ./Date.yaml
+  email:
+    $ref: ./Email.yaml
+  phone:
+    $ref: ./Phone.yaml
+required:
+  - ticketType
+  - ticketDate
+  - email

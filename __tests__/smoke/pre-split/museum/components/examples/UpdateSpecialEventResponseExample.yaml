@@ -1,0 +1,12 @@
+summary: Update special event
+value:
+  eventId: dad4bce8-f5cb-4078-a211-995864315e39
+  name: Mermaid Treasure Identification and Analysis
+  location: On the beach.
+  eventDescription: >-
+    Join us as we review and classify a rare collection of 20 thingamabobs,
+    gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.
+  dates:
+    - '2023-09-05'
+    - '2023-09-08'
+  price: 15

@@ -1,0 +1,24 @@
+get:
+  summary: Get museum hours
+  description: Get upcoming museum operating hours.
+  operationId: getMuseumHours
+  tags:
+    - Operations
+  parameters:
+    - $ref: ../components/parameters/StartDate.yaml
+    - $ref: ../components/parameters/PaginationPage.yaml
+    - $ref: ../components/parameters/PaginationLimit.yaml
+  responses:
+    '200':
+      description: Success.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/GetMuseumHoursResponse.yaml
+          examples:
+            default_example:
+              $ref: ../components/examples/GetMuseumHoursResponseExample.yaml
+    '400':
+      $ref: ../components/responses/BadRequest.yaml
+    '404':
+      $ref: ../components/responses/NotFound.yaml

@@ -1,0 +1,22 @@
+description: Details for a museum ticket after a successful purchase.
+type: object
+properties:
+  message:
+    $ref: ./TicketMessage.yaml
+  eventName:
+    $ref: ./EventName.yaml
+  ticketId:
+    $ref: ./TicketId.yaml
+  ticketType:
+    $ref: ./TicketType.yaml
+  ticketDate:
+    description: Date the ticket is valid for.
+    $ref: ./Date.yaml
+  confirmationCode:
+    $ref: ./TicketConfirmation.yaml
+required:
+  - message
+  - ticketId
+  - ticketType
+  - ticketDate
+  - confirmationCode
