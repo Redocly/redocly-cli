@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should use server override from CLI and env 1`] = `
+"────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow server-override-with-console-parameters.yaml / get-museum-hours[0m
+[0m
+  ✗ GET /museum-hours - step get-museum-hours[0m
+[0m
+    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/museum-hours[0m
+    Request Headers:[0m
+      accept: application/json, application/problem+json[0m
+      authorization: Basic Og==[0m
+[0m
+    ✗ failed network request
+[0m
+  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets[0m
+[0m
+  ✗ POST /tickets - step buy-tickets[0m
+    ✗ failed network request
+────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow server-override-with-console-parameters.yaml / events-crud[0m
+[0m
+  ✗ GET /special-events - step list-events[0m
+[0m
+    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/special-events[0m
+    Request Headers:[0m
+      accept: application/json, application/problem+json[0m
+      authorization: Basic Og==[0m
+[0m
+    ✗ failed network request
+[0m
+[0m
+  Failed tests info:
+[0m
+  Workflow name: get-museum-hours[0m
+[0m
+    stepId - get-museum-hours[0m
+    ✗ failed network request[0m
+      fetch failed[0m
+      [0m
+    stepId - buy-ticket[0m
+    ✗ unexpected error[0m
+    Reason: Failed to resolve outputs in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.[0m
+  Workflow name: events-crud[0m
+[0m
+    stepId - list-events[0m
+    ✗ failed network request[0m
+      fetch failed[0m
+      [0m
+    stepId - create-event[0m
+    ✗ unexpected error[0m
+    Reason: Error in resolving runtime expression '$steps.list-events.outputs.events.0.dates.0'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.[0m
+    stepId - get-event-by-id[0m
+    ✗ unexpected error[0m
+    Reason: Error in resolving runtime expression '$steps.create-event.outputs.createdEventId'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.[0m
+    stepId - update-event[0m
+    ✗ unexpected error[0m
+    Reason: Error in resolving runtime expression '$steps.create-event.outputs.createdEventId'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.[0m
+    stepId - delete-event[0m
+    ✗ unexpected error[0m
+    Reason: Error in resolving runtime expression '$steps.update-event.outputs.updatedEventId'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.[0m
+  Summary for server-override-with-console-parameters.yaml
+  
+  Workflows: 2 failed, 2 total
+  Steps: 7 failed, 7 total
+  Checks: 7 failed, 7 total
+  Time: <test>ms[0m
+[0m
+[0m
+┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ x server-override-with-console-parameters.yaml                                       │ 2          │ 0       │ 2       │ -        │ -       │
+└──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
+[0m
+[0m
+
+ Tests exited with error 
+"
+`;

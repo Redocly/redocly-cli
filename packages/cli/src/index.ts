@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-
+import * as path from 'path';
+import * as dotenv from 'dotenv';
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
@@ -24,6 +25,7 @@ import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
+import { handleRun } from '@redocly/respect';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
@@ -31,6 +33,8 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushStatusOptions } from './reunite/commands/push-status';
 import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -862,6 +866,122 @@ yargs
       process.env.REDOCLY_CLI_COMMAND = 'eject';
       commandWrapper(handleEject)(argv as Arguments<EjectOptions>);
     }
+  )
+  .command(
+    'respect [files..]',
+    'Run workflow tests',
+    (yargs) => {
+      return yargs
+        .positional('files', {
+          describe: 'Test files or glob pattern',
+          type: 'string',
+          default: [],
+        })
+        .env('REDOCLY_CLI_RESPECT')
+        .options({
+          input: {
+            alias: 'i',
+            describe: 'Input parameters',
+            type: 'string',
+          },
+          server: {
+            alias: 'S',
+            describe: 'Server parameters',
+            type: 'string',
+          },
+          workflow: {
+            alias: 'w',
+            describe: 'Workflow name',
+            type: 'array',
+            greedy: false,
+          },
+          skip: {
+            alias: 's',
+            describe: 'Workflow to skip',
+            type: 'array',
+            greedy: false,
+          },
+          verbose: {
+            alias: 'v',
+            describe: 'Apply verbose mode',
+            type: 'boolean',
+          },
+          'har-output': {
+            describe: 'Har file output name',
+            type: 'string',
+          },
+          'json-output': {
+            describe: 'JSON file output name',
+            type: 'string',
+          },
+          residency: {
+            describe: 'Residency of Reunite application. Defaults to US.',
+            type: 'string',
+            default: 'us',
+          },
+          'client-cert': {
+            describe: 'Mutual TLS client certificate',
+            type: 'string',
+          },
+          'client-key': {
+            describe: 'Mutual TLS client key',
+            type: 'string',
+          },
+          'ca-cert': {
+            describe: 'Mutual TLS CA certificate',
+            type: 'string',
+          },
+          severity: {
+            describe: 'Severity of the check',
+            type: 'string',
+          },
+        });
+    },
+    async (argv) => {
+      try {
+        await handleRun(argv);
+      } catch (err) {
+        // logger.error(red(`${err?.message}`));
+        process.exit(1);
+      }
+    }
+  )
+  .command(
+    'generate-arazzo <descriptionPath>',
+    'Auto-generate test config file from description',
+    (yargs) => {
+      return yargs
+        .positional('descriptionPath', {
+          describe: 'Description file path',
+          type: 'string',
+        })
+        .env('REDOCLY_SPOT')
+        .options({
+          'output-file': {
+            alias: 'o',
+            describe: 'Output File name',
+            type: 'string',
+          },
+          extended: {
+            describe:
+              'Generate config with populated values from description using success criteria',
+            type: 'boolean',
+          },
+          residency: {
+            describe: 'Residency of Reunite application. Defaults to US.',
+            type: 'string',
+            default: 'us',
+          },
+        });
+    }
+    // async (argv) => {
+    //   try {
+    //     await handleGenerate(argv as GenerateConfigFileArgv);
+    //   } catch {
+    //     logger.error(`❌  Auto config generation failed.`);
+    //     process.exit(1);
+    //   }
+    // },
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)

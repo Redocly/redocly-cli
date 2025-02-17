@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`printErrors should display multiple Ajv errors 1`] = `
+"
+UNEVALUATEDPROPERTIES must NOT have unevaluated properties: "date".: "date".
+
+  1 | [
+> 2 |   {
+    |   ^
+> 3 |     "date": "2023-09-11",
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 |     "timeOpen": "09:00",
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 |     "timeClose": "18:00"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 6 |   },
+    | ^^^^ 👈🏽  unevaluatedProperties must NOT have unevaluated properties: "date".: "date".
+  7 |   {
+  8 |     "date": "2023-09-12",
+  9 |     "timeOpen": "09:00",
+
+UNEVALUATEDPROPERTIES must NOT have unevaluated properties: "date".: "date".
+
+   5 |     "timeClose": "18:00"
+   6 |   },
+>  7 |   {
+     |   ^
+>  8 |     "date": "2023-09-12",
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+>  9 |     "timeOpen": "09:00",
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 10 |     "timeClose": "18:00"
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 11 |   }
+     | ^^^^ 👈🏽  unevaluatedProperties must NOT have unevaluated properties: "date".: "date".
+  12 | ]
+"
+`;
