@@ -152,7 +152,7 @@ describe('ApiFetcher', () => {
         requestBody: {},
       };
       await expect(apiFetcher.fetchResult(ctx, requestData)).rejects.toThrowError(
-        'No server url provided',
+        'No server url provided'
       );
     });
   });

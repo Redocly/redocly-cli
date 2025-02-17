@@ -22,7 +22,7 @@ describe('buildHeaders', () => {
       new Map([
         ['Accept', '*/*'],
         ['User-Agent', 'undici'],
-      ]),
+      ])
     );
     expect(headers).toEqual([
       { name: 'Accept', value: '*/*' },

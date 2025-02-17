@@ -40,7 +40,7 @@ export async function handleRun(argv: any) {
       // TODO: implement multiple run files logs output
       exitWithErrorMsg(
         'Currently only a single file can be run with --har-output or --json-output. Please run a single file at a time.',
-        1,
+        1
       );
     }
 
@@ -68,7 +68,7 @@ export async function handleRun(argv: any) {
 async function runFile(
   argv: RunArgv,
   startedAt: number,
-  output: { harFile: string | undefined; jsonFile: string | undefined },
+  output: { harFile: string | undefined; jsonFile: string | undefined }
 ) {
   const { workflows } = await runTestFile(argv as RunArgv, output);
 

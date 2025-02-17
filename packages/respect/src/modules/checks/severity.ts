@@ -25,7 +25,7 @@ export function resolveSeverityConfiguration(severityArgument: string | string[]
 
   if (Object.keys(severityConfiguration).length === 0) {
     throw new Error(
-      `Failed to parse severity configuration, please check the format ${severityArgument}`,
+      `Failed to parse severity configuration, please check the format ${severityArgument}`
     );
   }
 

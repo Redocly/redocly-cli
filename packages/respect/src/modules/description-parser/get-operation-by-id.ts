@@ -5,7 +5,7 @@ import type { OperationDetails } from './get-operation-from-description';
 // TODO: create a type: ExtendedOpenAPIOperation = OpenAPIOperation & { pathParameters: Parameter[], path, ... }
 export function getOperationById(
   operationIdStr: string,
-  descriptions: any,
+  descriptions: any
 ): (OperationDetails & Record<string, any>) | undefined {
   let descriptionName;
   let operationId;
@@ -26,8 +26,8 @@ export function getOperationById(
   if (!descriptions[descriptionName]) {
     throw new Error(
       `Unknown description name ${red(descriptionName)} at ${red(
-        operationIdStr,
-      )}. Available descriptions: ${availableDescriptions.join(', ')}.`,
+        operationIdStr
+      )}. Available descriptions: ${availableDescriptions.join(', ')}.`
     );
   }
 

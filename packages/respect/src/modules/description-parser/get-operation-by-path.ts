@@ -10,7 +10,7 @@ export function getOperationByPath(
   descriptionDetails: {
     $sourceDescriptions: any;
     sourceDescriptions: SourceDescription[] | undefined;
-  },
+  }
 ): (OperationDetails & Record<string, string>) | undefined {
   const { $sourceDescriptions, sourceDescriptions } = descriptionDetails;
   const [basePath, fragmentIdentifier] = operationPath.split('#');
@@ -33,8 +33,8 @@ export function getOperationByPath(
   if (!descriptionName) {
     throw new Error(
       `Unknown operationPath ${red(operationPath)}. API description ${red(
-        basePath,
-      )} is not listed in 'sourceDescriptions' workflow section.`,
+        basePath
+      )} is not listed in 'sourceDescriptions' workflow section.`
     );
   }
 
@@ -43,7 +43,7 @@ export function getOperationByPath(
 
   if (prop !== 'paths') {
     throw new Error(
-      `Invalid fragment identifier: ${fragmentIdentifier} at operationPath ${red(operationPath)}.`,
+      `Invalid fragment identifier: ${fragmentIdentifier} at operationPath ${red(operationPath)}.`
     );
   }
 

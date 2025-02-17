@@ -28,7 +28,7 @@ export async function prepareRequest(ctx: TestContext, step: Step, workflowName:
           operationId,
           operationPath,
         },
-        ctx,
+        ctx
       );
 
   let path = '';
@@ -77,7 +77,7 @@ export async function prepareRequest(ctx: TestContext, step: Step, workflowName:
     stepRequestBodyContentType
       ? [{ in: 'header', name: 'content-type', value: stepRequestBodyContentType }]
       : [],
-    resolveParameters(step.parameters || [], ctx),
+    resolveParameters(step.parameters || [], ctx)
   );
 
   // save local $steps context before evaluating runtime expressions
@@ -156,30 +156,24 @@ export async function prepareRequest(ctx: TestContext, step: Step, workflowName:
 function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   const parametersWithNames = parameters.flat().filter((param) => 'name' in param);
 
-  const parameterMap = parametersWithNames.reduce(
-    (map, param) => {
-      map[param.name] = param;
-      return map;
-    },
-    {} as { [key: string]: ParameterWithIn },
-  );
+  const parameterMap = parametersWithNames.reduce((map, param) => {
+    map[param.name] = param;
+    return map;
+  }, {} as { [key: string]: ParameterWithIn });
 
   return Object.values(parameterMap);
 }
 
 function groupParametersValuesByName(
   parameters: ParameterWithIn[],
-  inValue: 'header' | 'query' | 'path' | 'cookie',
+  inValue: 'header' | 'query' | 'path' | 'cookie'
 ): Record<string, string | number | boolean> {
-  return parameters.reduce(
-    (acc, param) => {
-      if (param.in === inValue && 'name' in param) {
-        acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
-      }
-      return acc;
-    },
-    {} as Record<string, string | number | boolean>,
-  );
+  return parameters.reduce((acc, param) => {
+    if (param.in === inValue && 'name' in param) {
+      acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
+    }
+    return acc;
+  }, {} as Record<string, string | number | boolean>);
 }
 
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {
@@ -195,7 +189,7 @@ function resolveParameters(parameters: Parameter[], ctx: TestContext): Parameter
 }
 
 function extractCookieParametersFromHeaderParameters(
-  parameters: ParameterWithIn[],
+  parameters: ParameterWithIn[]
 ): ParameterWithIn[] {
   const result = [];
   for (const parameter of parameters) {

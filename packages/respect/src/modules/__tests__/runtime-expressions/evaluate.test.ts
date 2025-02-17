@@ -281,69 +281,69 @@ describe('evaluateRuntimeExpressionPayload', () => {
   it('should evaluate string value', () => {
     const payload = 'foo';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('foo');
   });
 
   it('should evaluate number value', () => {
     const payload = 32;
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual(32);
   });
 
   it('should evaluate boolead value', () => {
     const payload = true;
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual(true);
   });
 
   it('should evaluate simple runtime expression value', () => {
     const payload = '$statusCode';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual(200);
   });
 
   it('should evaluate simple runtime expression value with dash', () => {
     const payload = '$request.header.content-type';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('application/json');
   });
   it('should evaluate simple runtime expression value with dot notation', () => {
     const payload = '$steps.step-three.outputs.fullBody.dates.0';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('2023-12-15');
   });
 
   it('should evaluate $faker runtime expression value', () => {
     const payload = '$faker.number.integer({ min: 1, max: 10 })';
     expect(
-      typeof evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      typeof evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toBe('number');
   });
 
   it('should evaluate $faker inside string runtime expression value', () => {
     const payload = 'Some text {$faker.number.integer({ min: 1, max: 10 })}';
     expect(
-      typeof evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      typeof evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toBe('string');
   });
 
   it('should evaluate multiword runtime expression value', () => {
     const payload = 'Bearer {$steps.step-three.outputs.hardcoded}';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('Bearer 125');
   });
 
   it('should evaluate multiword runtime expression with JsonPointer value', () => {
     const payload = 'Bearer {$request.body#/multiwordSecret}';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('Bearer Bearer 382c0820-0530-4f4b-99af-13811ad0f17a');
   });
 
@@ -369,14 +369,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
     const payload =
       'client_id={$steps.step-three.response.body.location}&grant_type={$steps.step-three.response.body.location}';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual('client_id=Under the seaaa 🦀 🎶 🌊.&grant_type=Under the seaaa 🦀 🎶 🌊.');
   });
 
   it('should evaluate object runtime expression value', () => {
     const payload = '$response.body';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual({
       eventId: 'dad4bce8-f5cb-4078-a211-995864315e39',
       name: 'Mermaid Treasure Identification and Analysis',
@@ -398,14 +398,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
       },
     } as unknown as RuntimeExpressionContext;
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual(`some string value == \"some string value\"`);
   });
 
   it('should evaluate runctime expressions with url comparison', () => {
     const payload = '$url == "http://example.com"';
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual(`http://example.com == \"http://example.com\"`);
   });
 
@@ -419,7 +419,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
       multiwordSecret: 'Bearer {$inputs.env.AUTH_TOKEN}',
     };
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual({
       test: 'dad4bce8-f5cb-4078-a211-995864315e39',
       name: 'Mermaid Treasure Identification and Analysis',
@@ -435,7 +435,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
       evaluateRuntimeExpressionPayload({
         payload: '$response.body#/device_code',
         context: runtimeExpressionContext,
-      }),
+      })
     ).toEqual('123');
   });
 
@@ -450,7 +450,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
         payload,
         context: runtimeExpressionContext,
         contentType: 'multipart/form-data',
-      }),
+      })
     ).toEqual({
       multipleFiles: ['./logo.png', './image.svg'],
       name: 'test',
@@ -468,7 +468,7 @@ describe('evaluateRuntimeExpressionPayload', () => {
       name6: '$steps.step1.outputs.bodyCopy#/name',
     };
     expect(
-      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext }),
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext })
     ).toEqual({
       name: 'Mermaid Treasure Identification and Analysis',
       name2: 'Mermaid Treasure Identification and Analysis',
@@ -504,7 +504,7 @@ describe('evaluateRuntimeExpression', () => {
   it('should evaluate simple runtime expression value with dash', () => {
     const payload = '$request.header.content-type';
     expect(evaluateRuntimeExpression(payload, runtimeExpressionContext)).toEqual(
-      'application/json',
+      'application/json'
     );
   });
 
@@ -519,17 +519,17 @@ describe('evaluateRuntimeExpression', () => {
     expect(
       evaluateRuntimeExpression(
         '$request.body#/test == "382c0820-0530-4f4b-99af-13811ad0f17a"',
-        runtimeExpressionContext,
-      ),
+        runtimeExpressionContext
+      )
     ).toEqual(true);
     expect(
-      evaluateRuntimeExpression('$request.body#/price == 0', runtimeExpressionContext),
+      evaluateRuntimeExpression('$request.body#/price == 0', runtimeExpressionContext)
     ).toEqual(true);
   });
 
   it('should evaluate simple runtime expression comparing empty array', () => {
     expect(
-      evaluateRuntimeExpression('$response.body#/items == []', runtimeExpressionContext),
+      evaluateRuntimeExpression('$response.body#/items == []', runtimeExpressionContext)
     ).toEqual(false);
   });
 

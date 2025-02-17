@@ -22,7 +22,7 @@ describe('generateTestDataFromJsonSchema', () => {
             type: 'string',
           },
         },
-      }),
+      })
     ).toEqual({
       name: 'string',
     });
@@ -42,7 +42,7 @@ describe('generateTestDataFromJsonSchema', () => {
             type: 'string',
           },
         },
-      }),
+      })
     ).toBeNull();
   });
 
@@ -61,10 +61,10 @@ describe('generateTestDataFromJsonSchema', () => {
             type: 'string',
           },
         },
-      }),
+      })
     ).toBeUndefined();
     expect(mockLogger).toHaveBeenCalledWith(
-      expect.stringContaining('Mocked error from openapi-sampler'),
+      expect.stringContaining('Mocked error from openapi-sampler')
     );
 
     mockLogger.mockRestore();

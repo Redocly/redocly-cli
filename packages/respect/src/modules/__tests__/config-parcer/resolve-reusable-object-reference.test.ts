@@ -5,9 +5,9 @@ import { resolveReusableObjectReference } from '../../config-parser/resolve-reus
 describe('resolveReusableObjectReference', () => {
   it('should throw an error if the reference is invalid', () => {
     expect(() =>
-      resolveReusableObjectReference({ reference: '$components.inputs.test' }, {} as TestContext),
+      resolveReusableObjectReference({ reference: '$components.inputs.test' }, {} as TestContext)
     ).toThrow(
-      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions',
+      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );
   });
 
@@ -15,7 +15,7 @@ describe('resolveReusableObjectReference', () => {
     expect(
       resolveReusableObjectReference({ reference: '$components.parameters.test' }, {
         $components: { parameters: { test: { value: 'test', in: 'query', name: 'test' } } },
-      } as unknown as TestContext),
+      } as unknown as TestContext)
     ).toEqual({
       value: 'test',
       in: 'query',
@@ -36,7 +36,7 @@ describe('resolveReusableObjectReference', () => {
             },
           },
         },
-      } as unknown as TestContext),
+      } as unknown as TestContext)
     ).toEqual({
       name: 'retryAction',
       type: 'retry',
@@ -60,8 +60,8 @@ describe('resolveReusableObjectReference', () => {
               },
             },
           },
-        } as unknown as TestContext,
-      ),
+        } as unknown as TestContext
+      )
     ).toEqual({
       name: 'gotoSuccessAction',
       type: 'goto',
@@ -74,7 +74,7 @@ describe('resolveReusableObjectReference', () => {
     expect(
       resolveReusableObjectReference({ reference: '$components.parameters.test', value: '12' }, {
         $components: { parameters: { test: { value: 'test', in: 'query', name: 'test' } } },
-      } as unknown as TestContext),
+      } as unknown as TestContext)
     ).toEqual({
       value: '12',
       in: 'query',

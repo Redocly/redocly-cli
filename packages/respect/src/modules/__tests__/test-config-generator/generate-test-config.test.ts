@@ -48,7 +48,7 @@ describe('generateTestConfig', () => {
       await generateTestConfig({
         descriptionPath: 'description.yaml',
         extended: false,
-      }),
+      })
     ).toEqual({
       arazzo: '1.0.1',
       info: {
@@ -92,7 +92,7 @@ describe('generateTestConfig', () => {
         descriptionPath: 'description.yaml',
         outputFile: '../final-test-location/output.yaml',
         extended: false,
-      }),
+      })
     ).toEqual({
       arazzo: '1.0.1',
       info: {
@@ -155,7 +155,7 @@ describe('generateTestConfig', () => {
       await generateTestConfig({
         descriptionPath: 'description.yaml',
         extended: true,
-      }),
+      })
     ).toEqual({
       arazzo: '1.0.1',
       info: {
@@ -199,7 +199,7 @@ describe('generateTestConfig', () => {
       await generateTestConfig({
         descriptionPath: 'description.yaml',
         extended: false,
-      }),
+      })
     ).toEqual({
       arazzo: '1.0.1',
       info: {

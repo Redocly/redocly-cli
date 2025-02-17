@@ -362,7 +362,7 @@ describe('resolveWorkflowContext', () => {
         workflow: ['get-museum-tickets'],
         workflowPath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
       },
-      apiClient,
+      apiClient
     );
   });
 
@@ -382,7 +382,7 @@ describe('resolveWorkflowContext', () => {
         workflow: ['get-museum-tickets'],
         workflowPath: '',
       },
-      apiClient,
+      apiClient
     );
   });
 
@@ -398,7 +398,7 @@ describe('resolveWorkflowContext', () => {
         workflow: ['get-museum-tickets'],
         workflowPath: 'museum-api.yaml',
       },
-      apiClient,
+      apiClient
     );
   });
 
@@ -528,7 +528,7 @@ describe('resolveWorkflowContext', () => {
     const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
 
     await expect(resolveWorkflowContext(workflowId, resolvedWorkflow, ctx)).rejects.toThrowError(
-      'Unknown source description type invalid',
+      'Unknown source description type invalid'
     );
   });
 });

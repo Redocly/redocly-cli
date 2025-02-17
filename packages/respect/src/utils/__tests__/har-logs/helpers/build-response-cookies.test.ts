@@ -63,7 +63,7 @@ describe('buildResponseCookies', () => {
     const headers = new Headers();
     headers.append(
       'set-cookie',
-      'name=value; Path=/; Expires=Fri, 25 Dec 2024 12:00:00 GMT; HttpOnly; Secure',
+      'name=value; Path=/; Expires=Fri, 25 Dec 2024 12:00:00 GMT; HttpOnly; Secure'
     );
     const cookies = buildResponseCookies(headers);
     expect(cookies).toEqual([

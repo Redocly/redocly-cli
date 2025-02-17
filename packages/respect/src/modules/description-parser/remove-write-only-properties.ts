@@ -26,17 +26,17 @@ export function removeWriteOnlyProperties<T>(schema: JSONSchemaType<T>): JSONSch
 
     if (schema.oneOf) {
       schema.oneOf = schema.oneOf.map((subSchema: JSONSchemaType<T>) =>
-        filterWriteOnlyProps(subSchema as JSONSchemaType<T>),
+        filterWriteOnlyProps(subSchema as JSONSchemaType<T>)
       );
     }
     if (schema.allOf) {
       schema.allOf = schema.allOf.map((subSchema: JSONSchemaType<T>) =>
-        filterWriteOnlyProps(subSchema as JSONSchemaType<T>),
+        filterWriteOnlyProps(subSchema as JSONSchemaType<T>)
       );
     }
     if (schema.anyOf) {
       schema.anyOf = schema.anyOf.map((subSchema: JSONSchemaType<T>) =>
-        filterWriteOnlyProps(subSchema as JSONSchemaType<T>),
+        filterWriteOnlyProps(subSchema as JSONSchemaType<T>)
       );
     }
     return schema;

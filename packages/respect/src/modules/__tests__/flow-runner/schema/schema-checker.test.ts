@@ -148,7 +148,7 @@ describe('checkSchema', () => {
       {
         additionalMessage: 'Response code 200 matches one of description codes: [200]',
         message: expect.stringContaining(
-          'List of valid response codes are inferred from description',
+          'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
         pass: true,
@@ -307,7 +307,7 @@ describe('checkSchema', () => {
       {
         additionalMessage: 'Response code 200 matches one of description codes: [200]',
         message: expect.stringContaining(
-          'List of valid response codes are inferred from description',
+          'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
         pass: true,
@@ -373,7 +373,7 @@ describe('checkSchema', () => {
       {
         additionalMessage: 'Response code 200 matches one of description codes: [200]',
         message: expect.stringContaining(
-          'List of valid response codes are inferred from description',
+          'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
         pass: true,

@@ -3,7 +3,7 @@ import type { TestContext, Step, Workflow } from '../../../types';
 export function getStepFromCtx(
   ctx: TestContext,
   workflowInput: string | Workflow,
-  stepId: string,
+  stepId: string
 ): Step {
   const workflowId = typeof workflowInput === 'string' ? workflowInput : workflowInput.workflowId;
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);

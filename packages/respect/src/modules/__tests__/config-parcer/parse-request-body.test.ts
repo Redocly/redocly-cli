@@ -18,7 +18,7 @@ describe('parseRequestBody', () => {
         payload: {
           test: 'test',
         },
-      }),
+      })
     ).toEqual({
       payload: { test: 'test' },
       contentType: undefined,
@@ -37,7 +37,7 @@ describe('parseRequestBody', () => {
             value: '123',
           },
         ],
-      }),
+      })
     ).toEqual({
       payload: {
         clientId: '123',
@@ -56,7 +56,7 @@ describe('parseRequestBody', () => {
         },
         contentType: 'application/json',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: { test: 'test' },
       contentType: 'application/json',
@@ -72,11 +72,11 @@ describe('parseRequestBody', () => {
         },
         contentType: 'multipart/form-data',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: expect.any(Object),
       contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------',
+        'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
     });
@@ -96,11 +96,11 @@ describe('parseRequestBody', () => {
         },
         contentType: 'multipart/form-data',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: expect.any(Object),
       contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------',
+        'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
     });
@@ -138,11 +138,11 @@ describe('parseRequestBody', () => {
         },
         contentType: 'multipart/form-data',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: expect.any(Object),
       contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------',
+        'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
     });
@@ -162,11 +162,11 @@ describe('parseRequestBody', () => {
         },
         contentType: 'multipart/form-data',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: expect.any(Object),
       contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------',
+        'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
     });
@@ -204,7 +204,7 @@ describe('parseRequestBody', () => {
         payload: "$file('file3.txt')",
         contentType: 'application/octet-stream',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: 'readStream',
       contentType: 'application/octet-stream',
@@ -219,7 +219,7 @@ describe('parseRequestBody', () => {
         payload: new Buffer('test') as unknown as RequestBody['payload'],
         contentType: 'application/octet-stream',
         encoding: 'utf-8',
-      }),
+      })
     ).toEqual({
       payload: new Buffer('test'),
       contentType: 'application/octet-stream',
@@ -238,7 +238,7 @@ describe('parseRequestBody', () => {
         payload: "$file('file3.txt')",
         contentType: 'application/octet-stream',
         encoding: 'utf-8',
-      }),
+      })
     ).rejects.toThrow("file3.txt doesn't exist or isn't readable.");
   });
 });

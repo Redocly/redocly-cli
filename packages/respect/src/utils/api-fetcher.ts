@@ -107,7 +107,7 @@ export class ApiFetcher implements IFetcher {
 
   fetchResult = async (
     ctx: TestContext,
-    requestData: ResultObject['requestData'],
+    requestData: ResultObject['requestData']
   ): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
@@ -150,7 +150,7 @@ export class ApiFetcher implements IFetcher {
     if (pathToFetch.startsWith('/')) {
       logger.error(
         bgRed(` Wrong url: ${inverse(pathToFetch)} `) +
-          ` Did you forget to provide a correct "serverUrl"?\n`,
+          ` Did you forget to provide a correct "serverUrl"?\n`
       );
     }
 
@@ -158,7 +158,7 @@ export class ApiFetcher implements IFetcher {
     if (requestBody && !contentType) {
       logger.error(
         bgRed(` Incorrect request `) +
-          ` Please provide a correct "content-type" header or specify the "content-type" field in the test case itself. \n`,
+          ` Please provide a correct "content-type" header or specify the "content-type" field in the test case itself. \n`
       );
     }
 
@@ -175,7 +175,7 @@ export class ApiFetcher implements IFetcher {
         requestBody.pipe(
           concat((data: Buffer) => {
             resolve(data);
-          }),
+          })
         );
 
         requestBody.on('error', reject);

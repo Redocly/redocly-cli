@@ -20,7 +20,7 @@ type WorkflowsFromDescriptionInput = {
 };
 
 function generateParametersWithSuccessCriteria(
-  responses: any,
+  responses: any
 ): [] | { successCriteria: { condition: string }[] } {
   const responseCodesFromDescription = Object.keys(responses || {});
 
@@ -80,7 +80,7 @@ function generateWorkflowsFromDescription({
               operationId: `$sourceDescriptions.${sourceDescriptionName}.${resolvedOperationId}`,
               ...(extended &&
                 generateParametersWithSuccessCriteria(
-                  descriptionPaths[pathItemKey][method].responses,
+                  descriptionPaths[pathItemKey][method].responses
                 )),
             } as unknown as Step,
           ],

@@ -27,13 +27,10 @@ export function evaluateRuntimeExpressionPayload({
       ? evaluateRuntimeExpression(payload, context)
       : evaluateExpressionsInString(payload, context);
   } else if (isPlainObject(payload)) {
-    return Object.entries(payload).reduce(
-      (acc, [key, value]) => {
-        acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context });
-        return acc;
-      },
-      {} as Record<string, any>,
-    );
+    return Object.entries(payload).reduce((acc, [key, value]) => {
+      acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context });
+      return acc;
+    }, {} as Record<string, any>);
   } else if (Array.isArray(payload)) {
     // Handle each element in an array
     return payload.map((item) => evaluateRuntimeExpressionPayload({ payload: item, context }));
@@ -48,13 +45,10 @@ export function evaluateRuntimeExpression(expression: any, context: RuntimeExpre
   if (typeof expression === 'string') {
     return evaluateExpressionString(expression, context);
   } else if (isPlainObject(expression)) {
-    return Object.entries(expression).reduce(
-      (acc, [key, value]) => {
-        acc[key] = value && evaluateRuntimeExpression(value, context);
-        return acc;
-      },
-      {} as Record<string, any>,
-    );
+    return Object.entries(expression).reduce((acc, [key, value]) => {
+      acc[key] = value && evaluateRuntimeExpression(value, context);
+      return acc;
+    }, {} as Record<string, any>);
   } else if (Array.isArray(expression)) {
     return expression.map((exp) => evaluateRuntimeExpression(exp, context));
   } else {
@@ -91,7 +85,7 @@ function evaluateExpressionString(expression: string, context: RuntimeExpression
   // Create a new Function to evaluate the expression
   const evaluate = new Function(
     ...Object.keys(normalizedContext),
-    `return ${normalizedExpression};`,
+    `return ${normalizedExpression};`
   );
 
   try {
@@ -100,7 +94,7 @@ function evaluateExpressionString(expression: string, context: RuntimeExpression
   } catch (_error) {
     throw new Error(
       `Error in resolving runtime expression '${expression}'. \n` +
-        "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.",
+        "This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set."
     );
   }
 }
@@ -133,7 +127,7 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
     headerParameterNameRegex,
     (_match, p1) => {
       return `.header.${p1.toLowerCase()}`;
-    },
+    }
   );
 
   return normalizedExpression;
@@ -166,14 +160,11 @@ function normalizeValue(value: any): any {
 
 // Normalize an object by replacing hyphens with underscores in keys
 function normalizeObject(obj: Record<string, any>): Record<string, any> {
-  return Object.keys(obj).reduce(
-    (acc, key) => {
-      const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
-      acc[normalizedKey] = normalizeValue(obj[key]);
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
+  return Object.keys(obj).reduce((acc, key) => {
+    const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
+    acc[normalizedKey] = normalizeValue(obj[key]);
+    return acc;
+  }, {} as Record<string, any>);
 }
 
 function convertNumericIndices(expression: string): string {
@@ -191,7 +182,7 @@ function convertNumericIndices(expression: string): string {
 // Helper function to evaluate expressions within a string
 function evaluateExpressionsInString(
   expression: string,
-  context: RuntimeExpressionContext,
+  context: RuntimeExpressionContext
 ): string {
   const regex = /\{([^{}]*|(\{[^{}]*\}))*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
 

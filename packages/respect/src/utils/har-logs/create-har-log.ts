@@ -19,7 +19,7 @@ export function createHarLog(entries: any[] = [], pageInfo: any = {}): any {
               onLoad: -1,
             },
           },
-          pageInfo,
+          pageInfo
         ),
       ],
       entries,

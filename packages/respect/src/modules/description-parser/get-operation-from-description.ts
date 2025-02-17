@@ -19,14 +19,14 @@ export type OperationDetails = {
 export function getOperationFromDescription(
   path: string,
   method: string,
-  descriptionPaths: Record<string, any>,
+  descriptionPaths: Record<string, any>
 ): Record<string, string> | undefined {
   return descriptionPaths?.[path]?.[method] as Record<string, string>;
 }
 
 export function getOperationFromDescriptionBySource(
   source: DescriptionSource,
-  ctx: TestContext,
+  ctx: TestContext
 ): (OperationDetails & Record<string, any>) | undefined {
   if (!source.operationId && !source.operationPath) {
     return undefined;

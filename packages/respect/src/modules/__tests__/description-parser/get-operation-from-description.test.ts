@@ -50,7 +50,7 @@ describe('getOperationFromDescriptionBySource', () => {
           operationPath:
             'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/paths/~1pet/get',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -68,7 +68,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationPath: '$sourceDescriptions.cats#/paths/~1pet/get',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -88,11 +88,11 @@ describe('getOperationFromDescriptionBySource', () => {
             operationPath:
               'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/not-existing.yaml#/paths/~1pet/post',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(cleanColors(e.message)).toEqual(
-          "Unknown operationPath https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/not-existing.yaml#/paths/~1pet/post. API description https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/not-existing.yaml is not listed in 'sourceDescriptions' workflow section.",
+          "Unknown operationPath https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/not-existing.yaml#/paths/~1pet/post. API description https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/not-existing.yaml is not listed in 'sourceDescriptions' workflow section."
         );
       }
     });
@@ -104,7 +104,7 @@ describe('getOperationFromDescriptionBySource', () => {
             operationPath:
               'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/paths/~1not-existing/get',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(e.message).toEqual('Invalid reference token: /not-existing');
@@ -142,7 +142,7 @@ describe('getOperationFromDescriptionBySource', () => {
             operationPath:
               'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/paths/~1not-existing/get',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(e.message).toEqual('Missing described sourceDescriptions');
@@ -156,11 +156,11 @@ describe('getOperationFromDescriptionBySource', () => {
             operationPath:
               'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/not-existing',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(cleanColors(e.message)).toEqual(
-          'Invalid fragment identifier: /not-existing at operationPath https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/not-existing.',
+          'Invalid fragment identifier: /not-existing at operationPath https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/not-existing.'
         );
       }
     });
@@ -171,7 +171,7 @@ describe('getOperationFromDescriptionBySource', () => {
           operationPath:
             'https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml#/paths/~1pet~1{petId}/get',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -191,7 +191,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationId: 'cats.getPet',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -209,7 +209,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationId: 'getPet',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -227,7 +227,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationId: 'cats.getPetById',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -246,11 +246,11 @@ describe('getOperationFromDescriptionBySource', () => {
           {
             operationId: 'cats.getPetByStatus',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(cleanColors(e.message)).toEqual(
-          'Unknown operationId getPetByStatus at cats.getPetByStatus.',
+          'Unknown operationId getPetByStatus at cats.getPetByStatus.'
         );
       }
     });
@@ -261,11 +261,11 @@ describe('getOperationFromDescriptionBySource', () => {
           {
             operationId: 'catss.getPetByStatus',
           },
-          context,
+          context
         );
       } catch (e) {
         expect(cleanColors(e.message)).toEqual(
-          'Unknown description name catss at catss.getPetByStatus. Available descriptions: cats.',
+          'Unknown description name catss at catss.getPetByStatus. Available descriptions: cats.'
         );
       }
     });
@@ -292,7 +292,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationId: 'cats.create',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual(undefined);
@@ -303,7 +303,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           operationId: '$sourceDescriptions.cats.getPet',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual({
@@ -350,7 +350,7 @@ describe('getOperationFromDescriptionBySource', () => {
           path: '/pet',
           method: 'get',
         },
-        context,
+        context
       );
 
       expect(operation).toEqual(undefined);

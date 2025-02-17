@@ -49,14 +49,14 @@ export async function runStep({
   const { stepId, onFailure, onSuccess, workflowId, parameters } = step;
 
   const failureActionsToRun = (onFailure || workflow?.failureActions || []).map(
-    (action) => resolveReusableComponentItem(action, ctx) as OnFailureObject,
+    (action) => resolveReusableComponentItem(action, ctx) as OnFailureObject
   );
   const successActionsToRun = (onSuccess || workflow?.successActions || []).map(
-    (action) => resolveReusableComponentItem(action, ctx) as OnSuccessObject,
+    (action) => resolveReusableComponentItem(action, ctx) as OnSuccessObject
   );
 
   const resolvedParameters = parameters?.map(
-    (parameter) => resolveReusableComponentItem(parameter, ctx) as ResolvedParameter,
+    (parameter) => resolveReusableComponentItem(parameter, ctx) as ResolvedParameter
   );
 
   if (workflowId) {
@@ -79,14 +79,13 @@ export async function runStep({
 
     if (resolvedParameters && resolvedParameters.length) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
-        (acc, parameter: ParameterWithoutIn) => {
+      const workflowInputParameters = resolvedParameters
+        .filter(isParameterWithoutIn)
+        .reduce((acc, parameter: ParameterWithoutIn) => {
           // Ensure parameter is of type ParameterWithoutIn
           acc[parameter.name] = getValueFromContext(parameter.value, ctx);
           return acc;
-        },
-        {} as Record<string, any>,
-      );
+        }, {} as Record<string, any>);
 
       workflowCtx.$workflows[resolvedWorkflow.workflowId].inputs = workflowInputParameters;
     }
@@ -154,7 +153,7 @@ export async function runStep({
 
     if (parameterWithoutIn) {
       throw new Error(
-        `Parameter "in" is required for ${stepId} step parameter ${parameterWithoutIn.name}`,
+        `Parameter "in" is required for ${stepId} step parameter ${parameterWithoutIn.name}`
       );
     }
   }
@@ -234,7 +233,7 @@ export async function runStep({
 
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[],
-    onlyTypes?: ('end' | 'goto' | 'retry')[],
+    onlyTypes?: ('end' | 'goto' | 'retry')[]
   ): Promise<{ shouldEnd: boolean } | void> {
     for (const item of actions) {
       const { type, criteria } = item;
@@ -298,7 +297,7 @@ async function handleGoTo({
     throw new Error(
       `Cannot use both workflowId: ${
         typeof workflowInput === 'string' ? workflowInput : workflowInput.workflowId
-      } and stepId: ${stepId} in goto action`,
+      } and stepId: ${stepId} in goto action`
     );
   }
 
@@ -391,11 +390,11 @@ async function handleRetryActions({
   const retryOperation = async (
     retryLimit = 0,
     retryAfter = 0,
-    criteria: CriteriaObject[] | undefined,
+    criteria: CriteriaObject[] | undefined
   ) => {
     while (retryLimit > 0) {
       logger.log(
-        `\n  Retrying step ${blue(stepId)} attempt # ${configuredRetryLimit - retryLimit + 1}\n`,
+        `\n  Retrying step ${blue(stepId)} attempt # ${configuredRetryLimit - retryLimit + 1}\n`
       );
 
       if (retryWorkflowId && retryStepId) {

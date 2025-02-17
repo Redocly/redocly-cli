@@ -9,7 +9,7 @@ describe('getStepFromCtx', () => {
     } as any;
 
     expect(() => getStepFromCtx(ctx, 'workflowId', 'stepId')).toThrowError(
-      'Workflow "workflowId" not found in context',
+      'Workflow "workflowId" not found in context'
     );
   });
 
@@ -24,7 +24,7 @@ describe('getStepFromCtx', () => {
     } as any;
 
     expect(() => getStepFromCtx(ctx, 'workflowId', 'stepId')).toThrowError(
-      'Step "stepId" not found in workflow "workflowId"',
+      'Step "stepId" not found in workflow "workflowId"'
     );
   });
 

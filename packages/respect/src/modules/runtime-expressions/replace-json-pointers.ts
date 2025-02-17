@@ -26,7 +26,7 @@ export function replaceJSONPointers(expression: string, context: any): string {
         return resolvePointer(
           context.$workflows?.[workflowId]?.outputs?.[property],
           pointer,
-          match,
+          match
         );
       },
     },

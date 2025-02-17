@@ -25,7 +25,7 @@ export function handleRequest({
     return handleUndiciRequest(
       input as Dispatcher.DispatchOptions,
       handler as Dispatcher.DispatchHandlers,
-      harLog,
+      harLog
     );
   } else {
     handleNodeRequest(input as Request, handler as NodeJS.EventEmitter, harLog);
@@ -36,7 +36,7 @@ export function handleRequest({
 function handleUndiciRequest(
   options: Dispatcher.DispatchOptions,
   handler: Dispatcher.DispatchHandlers,
-  harLog?: Map<string, Har>,
+  harLog?: Map<string, Har>
 ): Dispatcher.DispatchHandlers {
   const startTime = Date.now();
   const requestId = generateRequestId();
@@ -130,7 +130,7 @@ function handleUndiciRequest(
 }
 
 function formatUndiciHeaders(
-  headers: Record<string, string | string[]> | string[] | IncomingHttpHeaders | null | undefined,
+  headers: Record<string, string | string[]> | string[] | IncomingHttpHeaders | null | undefined
 ): Array<{ name: string; value: string }> {
   if (!headers) return [];
 
@@ -146,7 +146,7 @@ function formatUndiciHeaders(
 
 function chunks<T>(arr: T[], size: number): T[][] {
   return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size),
+    arr.slice(i * size, i * size + size)
   );
 }
 

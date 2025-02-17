@@ -2,7 +2,6 @@ import { RedoclyOAuthClient } from '../utils/oauth';
 import { env } from '../utils/env';
 import { getReuniteUrl } from '../utils/get-reunite-url';
 
-
 const client = new RedoclyOAuthClient('spot');
 
 export async function requireLogin(residency: string) {

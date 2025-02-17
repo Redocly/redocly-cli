@@ -46,7 +46,7 @@ export function getValueFromContext(value: any, ctx: TestContext | RuntimeExpres
 
 export function replaceFakerVariablesInString(
   input: string,
-  ctx: TestContext | RuntimeExpressionContext,
+  ctx: TestContext | RuntimeExpressionContext
 ) {
   const startIndex = input.indexOf('{');
 
@@ -63,7 +63,7 @@ export function replaceFakerVariablesInString(
 
 function replaceVariablesInString(
   input: string,
-  ctx: TestContext | RuntimeExpressionContext,
+  ctx: TestContext | RuntimeExpressionContext
 ): string {
   // Regular expression to match content inside ${...}
   const regex = /\{\$(\{[^{}]*\}|[^{}])*\}/g;
@@ -120,7 +120,7 @@ const resolveValue = (value: string | null, ctx: TestContext | RuntimeExpression
     }
 
     return sourceDescriptions[sourceDescriptionName].workflows.find(
-      (workflow: Workflow) => workflow.workflowId === workflowId,
+      (workflow: Workflow) => workflow.workflowId === workflowId
     );
   }
 
@@ -179,7 +179,7 @@ export function getFakeData(pointer: string, ctx: TestContext | RuntimeExpressio
       .map((segment, idx) =>
         // Dumb function check (if ends by ')'), if function goes first dont need to put '.',
         // if goes second and so on - must be prepended by '.', like ["escaped-field"].func()
-        segment.endsWith(')') ? `${idx == 0 ? '' : '.'}${segment}` : `["${segment}"]`,
+        segment.endsWith(')') ? `${idx == 0 ? '' : '.'}${segment}` : `["${segment}"]`
       )
       .join('');
 
@@ -219,7 +219,7 @@ export function parseJson(objectToResolve: any, ctx: TestContext | RuntimeExpres
 
 export function resolvePath(
   path?: string,
-  pathParams?: Record<string, string | number | boolean>,
+  pathParams?: Record<string, string | number | boolean>
 ): string | undefined {
   if (!path) return;
 

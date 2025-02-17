@@ -4,7 +4,7 @@ import type { TestContext } from '../../types';
 
 export function createMtlsClient(
   parsedPathToFetch: string,
-  mtlsCerts: TestContext['mtlsCerts'] = {},
+  mtlsCerts: TestContext['mtlsCerts'] = {}
 ) {
   const { clientCert, clientKey, caCert } = mtlsCerts;
   const baseUrl = new URL(parsedPathToFetch).origin;

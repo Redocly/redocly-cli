@@ -15,7 +15,7 @@ export interface OpenApiRequestData {
 }
 
 export function getRequestDataFromOpenApi(
-  operation: OperationDetails & Record<string, any>,
+  operation: OperationDetails & Record<string, any>
 ): OpenApiRequestData {
   const content: Record<string, any> = operation?.requestBody?.content || {};
   const [contentType, contentItem]: [string, any] = Object.entries(content)[0] || [];
@@ -49,8 +49,8 @@ function getAcceptHeader(descriptionOperation: OperationDetails & Record<string,
               return Object.keys((response as Record<string, any>).content || {});
             }
             return [];
-          }),
-        ),
+          })
+        )
       ).join(', ')
     : undefined;
 }
@@ -58,8 +58,7 @@ function getAcceptHeader(descriptionOperation: OperationDetails & Record<string,
 function transformParameters(params: Parameter[]): ParameterWithIn[] {
   return (params || [])
     .filter(
-      (parameter): parameter is ParameterWithIn & { required: true } =>
-        parameter?.required === true,
+      (parameter): parameter is ParameterWithIn & { required: true } => parameter?.required === true
     )
     .map((parameter) => {
       if (isParameterWithIn(parameter)) {
