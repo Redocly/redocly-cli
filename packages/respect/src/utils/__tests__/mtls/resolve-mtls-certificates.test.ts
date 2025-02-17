@@ -87,7 +87,7 @@ describe('resolveMtlsCertificates', () => {
         clientCert: 'clientCert.pem',
         clientKey: 'clientKey.pem',
         caCert: 'caCert.pem',
-      }),
+      })
     ).toThrow('Failed to read certificate: File not found');
   });
 
@@ -118,7 +118,7 @@ describe('resolveMtlsCertificates', () => {
     expect(() =>
       resolveMtlsCertificates({
         clientCert: '-----BEGIN CERTIFICATE--22323-----END CERTIFICATE-----',
-      }),
+      })
     ).toThrow('Invalid certificate format');
   });
 });

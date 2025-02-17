@@ -46,7 +46,7 @@ export function printWorkflowSeparator(fileName: string, workflowName: string | 
 export function printDependentWorkflowSeparator(parentWorkflowId: string) {
   logger.printNewLine();
   logger.log(
-    `  ${bold('Running required')} workflows for ${blue(parentWorkflowId)} ${RESET_ESCAPE_CODE}\n`,
+    `  ${bold('Running required')} workflows for ${blue(parentWorkflowId)} ${RESET_ESCAPE_CODE}\n`
   );
 }
 
@@ -64,17 +64,20 @@ export function printConfigLintTotals(totals: Totals): void {
   if (totals.errors > 0) {
     logger.error(
       red(
-        `❌  Your config has ${totals.errors} ${pluralize('error', totals.errors)}.${RESET_ESCAPE_CODE}`,
-      ),
+        `❌  Your config has ${totals.errors} ${pluralize(
+          'error',
+          totals.errors
+        )}.${RESET_ESCAPE_CODE}`
+      )
     );
   } else if (totals.warnings > 0) {
     logger.error(
       yellow(
         `⚠️  Your config has ${totals.warnings} ${pluralize(
           'warning',
-          totals.warnings,
-        )}.${RESET_ESCAPE_CODE}`,
-      ),
+          totals.warnings
+        )}.${RESET_ESCAPE_CODE}`
+      )
     );
   }
 }

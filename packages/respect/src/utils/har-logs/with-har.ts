@@ -134,10 +134,10 @@ export const withHar: WithHar = function (baseFetch: any, defaults: any = {}): a
     const headerLines = [...response.headers.entries()].map(([name, value]) => `${name}: ${value}`);
     const statusLine = `HTTP/1.1 ${response.status} ${response.statusText}`;
     const headerBytes = Buffer.byteLength(
-      statusLine + '\r\n' + headerLines.join('\r\n') + '\r\n\r\n',
+      statusLine + '\r\n' + headerLines.join('\r\n') + '\r\n\r\n'
     );
     harEntry._compressed = /^(gzip|compress|deflate|br)$/.test(
-      response.headers.get('content-encoding') || '',
+      response.headers.get('content-encoding') || ''
     );
 
     if (!harEntry.response.content) {

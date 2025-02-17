@@ -20,8 +20,8 @@ describe('resolveReusableComponentItem', () => {
           workflowId: 'test',
           criteria: [{ condition: '$statusCode == 200' }],
         },
-        {},
-      ),
+        {}
+      )
     ).toEqual({
       name: 'SuccessActio',
       type: 'goto',
@@ -32,7 +32,7 @@ describe('resolveReusableComponentItem', () => {
 
   it('should throw an error if reference is not found', () => {
     expect(() => resolveReusableComponentItem({ reference: '$components.some.page' }, {})).toThrow(
-      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions',
+      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );
   });
 
@@ -40,7 +40,7 @@ describe('resolveReusableComponentItem', () => {
     expect(
       resolveReusableComponentItem({ reference: '$components.parameters.page' }, {
         $components: { parameters: { page: { value: 'test', in: 'query', name: 'page' } } },
-      } as unknown as TestContext),
+      } as unknown as TestContext)
     ).toEqual({
       value: 'test',
       in: 'query',
@@ -61,7 +61,7 @@ describe('resolveReusableComponentItem', () => {
             },
           },
         },
-      } as unknown as TestContext),
+      } as unknown as TestContext)
     ).toEqual({
       name: 'SuccessAction',
       type: 'goto',

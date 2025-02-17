@@ -49,7 +49,7 @@ export function getServerUrl({
 
   if (openapiOperation?.servers?.[0]) {
     const activeSourceDescription = ctx.sourceDescriptions?.find(
-      (sd) => sd.name === openapiOperation.sourceDescriptionName,
+      (sd) => sd.name === openapiOperation.sourceDescriptionName
     );
     let serverUrlOverride;
 

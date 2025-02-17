@@ -120,7 +120,7 @@ describe('isRegexpSuccessCriteria', () => {
         type: 'regex',
         context: '$statusCode',
         condition: '^200$',
-      }),
+      })
     ).toBe(true);
   });
 
@@ -133,7 +133,7 @@ describe('isRegexpSuccessCriteria', () => {
         },
         context: '$statusCode',
         condition: '200',
-      }),
+      })
     ).toBe(false);
   });
 });

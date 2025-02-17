@@ -55,7 +55,7 @@ describe('runTestFile', () => {
       if (path.includes('cats.yaml')) {
         return true;
       }
-    // Return false for non-existing files
+      // Return false for non-existing files
       if (path.includes('not-existing')) {
         return false;
       }
@@ -63,7 +63,7 @@ describe('runTestFile', () => {
     });
     (readYaml as jest.Mock).mockReset().mockResolvedValue({
       openapi: '1.0.0',
-      info: { title: 'Cat Facts API', version: '1.0' }
+      info: { title: 'Cat Facts API', version: '1.0' },
     });
     (lint as jest.Mock).mockReset().mockResolvedValue([]);
     (bundle as jest.Mock).mockReset();
@@ -84,13 +84,13 @@ describe('runTestFile', () => {
         openapi: '1.0.0',
         info: { title: 'Cat Facts API', version: '1.0' },
       }),
-      'test.yml',
+      'test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
 
     await expect(runTestFile({ file: 'test.yaml' })).rejects.toThrowError(
-      'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.',
+      'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
     );
   });
 
@@ -110,7 +110,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'test.yml',
+      'test.yml'
     );
 
     lint.mockResolvedValueOnce([
@@ -138,7 +138,7 @@ describe('runTestFile', () => {
       runTestFile({
         file: 'test.yaml',
         testDescription,
-      }),
+      })
     ).rejects.toMatchSnapshot();
   });
 
@@ -192,7 +192,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'api-test-framework/test.yml',
+      'api-test-framework/test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -282,7 +282,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'test.yml',
+      'test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -373,7 +373,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'api-test-framework/test.yml',
+      'api-test-framework/test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -387,7 +387,7 @@ describe('runTestFile', () => {
     await expect(runTestFile({ file: 'test.yaml' })).rejects.toThrow(
       expect.objectContaining({
         message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
-      }),
+      })
     );
   }, 8000);
 
@@ -463,7 +463,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'api-test-framework/test.yml',
+      'api-test-framework/test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -481,7 +481,7 @@ describe('runTestFile', () => {
     await expect(
       runTestFile({
         file: 'test.yaml',
-      }),
+      })
     ).rejects.toThrowError('Dependent workflows has failed steps');
   }, 8000);
 
@@ -520,7 +520,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'api-test-framework/test.yml',
+      'api-test-framework/test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -531,7 +531,7 @@ describe('runTestFile', () => {
       },
     });
     await expect(runTestFile({ file: 'test.yaml' })).rejects.toThrowError(
-      `Could not find source description file 'api-samples/not-existing.yaml' at path 'test.yaml'`,
+      `Could not find source description file 'api-samples/not-existing.yaml' at path 'test.yaml'`
     );
   });
 
@@ -575,7 +575,7 @@ describe('runTestFile', () => {
           },
         ],
       }),
-      'api-test-framework/test.yml',
+      'api-test-framework/test.yml'
     );
 
     readYaml.mockResolvedValue(mockDocument.parsed);
@@ -586,7 +586,7 @@ describe('runTestFile', () => {
       },
     });
     await expect(runTestFile({ file: 'test.yaml' })).rejects.toThrowError(
-      `Could not find source description file 'not-existing-arazzo.yaml' at path 'api-samples/not-existing-arazzo.yaml'`,
+      `Could not find source description file 'not-existing-arazzo.yaml' at path 'api-samples/not-existing-arazzo.yaml'`
     );
   });
 });

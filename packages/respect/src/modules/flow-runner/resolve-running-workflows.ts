@@ -1,5 +1,5 @@
 export function resolveRunningWorkflows(
-  workflows: string | string[] | undefined,
+  workflows: string | string[] | undefined
 ): string[] | undefined {
   if (!workflows) {
     return undefined;

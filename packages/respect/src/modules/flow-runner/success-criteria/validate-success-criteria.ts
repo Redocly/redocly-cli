@@ -5,13 +5,13 @@ import type {
 } from '../../../types';
 
 export function isRegexpSuccessCriteria(
-  criteria: CriteriaObject,
+  criteria: CriteriaObject
 ): criteria is RegexpSuccessCriteria {
   return (criteria as RegexpSuccessCriteria).type === 'regex';
 }
 
 export function isJSONPathSuccessCriteria(
-  criteria: CriteriaObject,
+  criteria: CriteriaObject
 ): criteria is JsonPathSuccessCriteria {
   const typeValue = (criteria as JsonPathSuccessCriteria)?.type;
 

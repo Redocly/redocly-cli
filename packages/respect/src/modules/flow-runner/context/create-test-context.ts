@@ -1,5 +1,10 @@
 import { dirname, resolve } from 'node:path';
-import { type TestDescription, type AppOptions, type TestContext, type InputSchema } from '../../../types';
+import {
+  type TestDescription,
+  type AppOptions,
+  type TestContext,
+  type InputSchema,
+} from '../../../types';
 import { type ApiFetcher } from '../../../utils/api-fetcher';
 import { bundleOpenApi } from '../../description-parser';
 import { createFaker } from '../../faker';
@@ -21,7 +26,7 @@ interface Descriptions {
 export async function createTestContext(
   testDescription: TestDescription,
   options: AppOptions,
-  apiClient: ApiFetcher,
+  apiClient: ApiFetcher
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
@@ -33,7 +38,7 @@ export async function createTestContext(
         if (sourceDescription.type === 'openapi') {
           bundledDescriptions[sourceDescription.name] = await bundleOpenApi(
             sourceDescription.url,
-            options.workflowPath,
+            options.workflowPath
           );
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
@@ -42,7 +47,7 @@ export async function createTestContext(
 
           bundledDescriptions[name] = bundledTestDescription;
         }
-      }),
+      })
     );
   }
 
@@ -97,7 +102,7 @@ export function collectSecretFields(
   ctx: TestContext,
   schema: InputSchema | undefined,
   inputs: Record<string, any> | undefined,
-  path: string[] = [],
+  path: string[] = []
 ) {
   if (!schema || !inputs) return;
 

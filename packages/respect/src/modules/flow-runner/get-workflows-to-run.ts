@@ -9,7 +9,7 @@ const logger = DefaultLogger.getInstance();
 export function getWorkflowsToRun(
   workflows: Workflow[],
   workflowsToRun: string[] | undefined,
-  workflowsToSkip: string[] | undefined,
+  workflowsToSkip: string[] | undefined
 ): Workflow[] {
   let filteredWorkflows: Workflow[] = [];
 
@@ -26,7 +26,7 @@ export function getWorkflowsToRun(
 
 function filterWorkflowsToSkip(workflows: Workflow[], workflowsToSkip: string[]) {
   const workflowsToRun = workflows.filter(
-    (workflow) => !workflowsToSkip.includes(workflow.workflowId),
+    (workflow) => !workflowsToSkip.includes(workflow.workflowId)
   );
 
   if (!workflowsToRun.length) {

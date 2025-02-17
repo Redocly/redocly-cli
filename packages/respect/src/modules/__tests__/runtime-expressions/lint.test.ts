@@ -6,10 +6,10 @@ describe('lintExpression', () => {
       expect(() => lintExpression('$statusCode == 201')).not.toThrow();
       expect(() => lintExpression('{$statusCode == 201 || $statusCode != 200}')).not.toThrow();
       expect(() =>
-        lintExpression('$statusCode == 201 && $statusCode != 200 || $url == "test"'),
+        lintExpression('$statusCode == 201 && $statusCode != 200 || $url == "test"')
       ).not.toThrow();
       expect(() =>
-        lintExpression('{$statusCode == 201 && $statusCode != 200 || $url == "test"}'),
+        lintExpression('{$statusCode == 201 && $statusCode != 200 || $url == "test"}')
       ).not.toThrow();
       expect(() => lintExpression('$response.header.Server == 201')).not.toThrow();
       expect(() => lintExpression('{$response.header.Server == 201}')).not.toThrow();
@@ -20,12 +20,12 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression('foo bar')).toThrowError(
-        'Runtime expression is not valid: foo bar',
+        'Runtime expression is not valid: foo bar'
       );
       expect(() =>
-        lintExpression("$response.body.name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$response.body.name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $response.body.name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $response.body.name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -37,9 +37,9 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("$url.body.name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$url.body.name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $url.body.name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $url.body.name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -51,9 +51,9 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("$method.body.name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$method.body.name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $method.body.name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $method.body.name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -65,9 +65,9 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("$statusCode.body.name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$statusCode.body.name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $statusCode.body.name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $statusCode.body.name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -82,12 +82,12 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression('$request.body.name != Jim')).toThrowError(
-        'Runtime expression is not valid: $request.body.name != Jim',
+        'Runtime expression is not valid: $request.body.name != Jim'
       );
       expect(() =>
-        lintExpression("$request == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$request == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $request == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $request == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -111,12 +111,12 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression('$response.body.name == Jim')).toThrowError(
-        'Runtime expression is not valid: $response.body.name == Jim',
+        'Runtime expression is not valid: $response.body.name == Jim'
       );
       expect(() =>
-        lintExpression("$response.test == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$response.test == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $response.test == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $response.test == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -128,9 +128,9 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("$inputs.body#/name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$inputs.body#/name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $inputs.body#/name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $inputs.body#/name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -142,17 +142,17 @@ describe('lintExpression', () => {
 
     it('should not throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("$outputs#/name == 'Mermaid Treasure Identification and Analysis'"),
+        lintExpression("$outputs#/name == 'Mermaid Treasure Identification and Analysis'")
       ).toThrowError(
-        "Runtime expression is not valid: $outputs#/name == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $outputs#/name == 'Mermaid Treasure Identification and Analysis'"
       );
     });
 
     it('should not throw an error in situations where the output named property return payloads, references may be made to portions of the response body', () => {
       expect(() =>
         lintExpression(
-          "$outputs.mappedResponse#/name == 'Mermaid Treasure Identification and Analysis'",
-        ),
+          "$outputs.mappedResponse#/name == 'Mermaid Treasure Identification and Analysis'"
+        )
       ).not.toThrow();
     });
   });
@@ -165,18 +165,18 @@ describe('lintExpression', () => {
     it('should not throw an error in situations where the workflow output named property return payloads, references may be made to portions of the response body', () => {
       expect(() =>
         lintExpression(
-          "$workflows.foo.outputs.mappedResponse#/name == 'Mermaid Treasure Identification and Analysis'",
-        ),
+          "$workflows.foo.outputs.mappedResponse#/name == 'Mermaid Treasure Identification and Analysis'"
+        )
       ).not.toThrow();
     });
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
         lintExpression(
-          "$workflow.foo.inputs.username == 'Mermaid Treasure Identification and Analysis'",
-        ),
+          "$workflow.foo.inputs.username == 'Mermaid Treasure Identification and Analysis'"
+        )
       ).toThrowError(
-        "Runtime expression is not valid: $workflow.foo.inputs.username == 'Mermaid Treasure Identification and Analysis'",
+        "Runtime expression is not valid: $workflow.foo.inputs.username == 'Mermaid Treasure Identification and Analysis'"
       );
     });
   });
@@ -193,10 +193,10 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression("$step.foo.outputs.username == 'Bob'")).toThrowError(
-        "Runtime expression is not valid: $step.foo.outputs.username == 'Bob'",
+        "Runtime expression is not valid: $step.foo.outputs.username == 'Bob'"
       );
       expect(() => lintExpression('$step.foo.outputs#/username/test')).toThrowError(
-        'Runtime expression is not valid: $step.foo.outputs#/username/test',
+        'Runtime expression is not valid: $step.foo.outputs#/username/test'
       );
     });
   });
@@ -208,9 +208,9 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() =>
-        lintExpression("{$sourceDescriptions.petstoreDescription.url#/paths} == 'Bob'"),
+        lintExpression("{$sourceDescriptions.petstoreDescription.url#/paths} == 'Bob'")
       ).toThrowError(
-        "Runtime expression is not valid: {$sourceDescriptions.petstoreDescription.url#/paths} == 'Bob'",
+        "Runtime expression is not valid: {$sourceDescriptions.petstoreDescription.url#/paths} == 'Bob'"
       );
     });
   });
@@ -222,7 +222,7 @@ describe('lintExpression', () => {
 
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression('test $components.parameters.foo')).toThrowError(
-        'Runtime expression is not valid: test $components.parameters.foo',
+        'Runtime expression is not valid: test $components.parameters.foo'
       );
     });
   });
@@ -230,10 +230,10 @@ describe('lintExpression', () => {
   describe('$faker', () => {
     it('should throw an error if the expression is not valid', () => {
       expect(() => lintExpression('$faker.number.integer({ min: 1, max: 10 })')).toThrowError(
-        'Runtime expression is not valid: $faker.number.integer({ min: 1, max: 10 })',
+        'Runtime expression is not valid: $faker.number.integer({ min: 1, max: 10 })'
       );
       expect(() => lintExpression('$faker.sentence.integer({ min: 1, max: 10 })')).toThrowError(
-        'Runtime expression is not valid: $faker.sentence.integer({ min: 1, max: 10 })',
+        'Runtime expression is not valid: $faker.sentence.integer({ min: 1, max: 10 })'
       );
     });
   });

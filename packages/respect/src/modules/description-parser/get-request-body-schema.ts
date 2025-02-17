@@ -2,7 +2,7 @@ import type { OperationDetails } from './get-operation-from-description';
 
 export function getRequestBodySchema(
   contentType: string,
-  descriptionOperation: (OperationDetails & Record<string, any>) | undefined,
+  descriptionOperation: (OperationDetails & Record<string, any>) | undefined
 ) {
   if (!descriptionOperation) return undefined;
 

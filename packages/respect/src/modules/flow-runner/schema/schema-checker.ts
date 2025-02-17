@@ -82,13 +82,13 @@ function checkSchemaFromDescription({
         name: CHECKS.SCHEMA_CHECK,
         pass: ajvStrict.validate(
           removeWriteOnlyProperties(schemaFromDescription as JSONSchemaType<unknown>),
-          resultBody,
+          resultBody
         ),
         message: ajvStrict.errors
           ? printAjvErrors(
               removeWriteOnlyProperties(schemaFromDescription as JSONSchemaType<unknown>),
               resultBody,
-              ajvStrict.errors,
+              ajvStrict.errors
             )
           : '',
         severity: ctx.severity['SCHEMA_CHECK'],
@@ -125,7 +125,7 @@ function checkStatusCodeFromDescription({
       diffLinesUnified(
         // [`Expected one code from those: ${responseCodesFromDescription.join(', ')}`], // TODO: decide on output style
         responseCodesFromDescription.map(String),
-        [`${responseStatusCode}`],
+        [`${responseStatusCode}`]
       )
     : ''; // NOTE: we don't show any diff if response code hits default response
 
@@ -137,7 +137,7 @@ function checkStatusCodeFromDescription({
     message,
     ...(pass && {
       additionalMessage: `Response code ${responseStatusCode} matches one of description codes: [${responseCodesFromDescription.join(
-        ', ',
+        ', '
       )}]`,
     }),
     severity: ctx.severity['STATUS_CODE_CHECK'],
@@ -153,7 +153,7 @@ function checkContentTypeFromDescription({
   const statusCode = $response?.statusCode;
   const responseContentType = $response?.contentType;
   const possibleContentTypesFromDescription = Object.keys(
-    descriptionOperation?.responses[statusCode]?.content || {},
+    descriptionOperation?.responses[statusCode]?.content || {}
   );
 
   if (!possibleContentTypesFromDescription.length) {
@@ -164,7 +164,9 @@ function checkContentTypeFromDescription({
     checks.push({
       name: CHECKS.CONTENT_TYPE_CHECK,
       pass: false,
-      message: `Content type ${red(responseContentType)} for ${blue(statusCode)} response is not described in the schema.
+      message: `Content type ${red(responseContentType)} for ${blue(
+        statusCode
+      )} response is not described in the schema.
        Expected content types: ${blue(possibleContentTypesFromDescription.join(', '))}.`,
       severity: ctx.severity['CONTENT_TYPE_CHECK'],
     });

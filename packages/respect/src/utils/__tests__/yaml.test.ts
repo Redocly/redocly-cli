@@ -33,7 +33,7 @@ describe('yaml', () => {
         description: test
       `;
       expect(stringifyYaml(parseYaml(yaml), { noRefs: true })).toEqual(
-        `name: test\ndescription: test\n`,
+        `name: test\ndescription: test\n`
       );
     });
   });

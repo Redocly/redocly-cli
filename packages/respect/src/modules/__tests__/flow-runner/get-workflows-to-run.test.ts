@@ -67,7 +67,7 @@ describe('getWorkflowsToRun', () => {
 
     expect(mockLogger).toHaveBeenCalledTimes(1);
     expect(mockLogger).toHaveBeenCalledWith(
-      expect.stringMatching('Following workflows are skipped: flow1'),
+      expect.stringMatching('Following workflows are skipped: flow1')
     );
     expect(result).toEqual([
       {

@@ -35,7 +35,7 @@ describe('resolveSeverityConfiguration', () => {
 
   it('should throw an error if the severity configuration is not valid', () => {
     expect(() => resolveSeverityConfiguration('invalid')).toThrow(
-      'Failed to parse severity configuration',
+      'Failed to parse severity configuration'
     );
   });
 });

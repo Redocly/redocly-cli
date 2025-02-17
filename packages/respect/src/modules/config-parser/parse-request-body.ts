@@ -34,7 +34,7 @@ const appendObjectToFormData = (
   promises: Promise<void>[],
   formData: FormData,
   payload: Record<string, any>,
-  parentKey?: string,
+  parentKey?: string
 ) => {
   Object.entries(payload).forEach(([key, item]) => {
     const formKey = parentKey ? `${parentKey}[${key}]` : key;
@@ -59,7 +59,7 @@ const appendObjectToFormData = (
 
 const getRequestBodyMultipartFormData = async (
   payload: RequestBody['payload'],
-  formData: FormData,
+  formData: FormData
 ) => {
   // TODO: handle other than object payload type
   if (payload && typeof payload === 'object' && !Array.isArray(payload)) {

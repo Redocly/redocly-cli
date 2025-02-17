@@ -71,7 +71,7 @@ export async function runTestFile(argv: RunArgv, output: { harFile?: string; jso
 
   const { harLogs, jsonLogs, workflows, secretFields } = await runWorkflows(
     bundledTestDescription,
-    options,
+    options
   );
 
   if (output?.harFile && Object.keys(harLogs).length) {
@@ -213,7 +213,7 @@ export async function runWorkflow({
         ctx.$workflows[workflowName].outputs = workflow.outputs;
       } catch (error: any) {
         throw new Error(
-          `Failed to resolve outputs in workflow "${workflowName}": ${error.message}`,
+          `Failed to resolve outputs in workflow "${workflowName}": ${error.message}`
         );
       }
     }
@@ -238,7 +238,7 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
         parentWorkflowId: workflow.workflowId,
         ctx: workflowCtx,
       });
-    }),
+    })
   );
 
   if (dependenciesWorkflows.some((w) => !w)) {
@@ -256,7 +256,7 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext,
+  ctx: TestContext
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
@@ -272,7 +272,7 @@ export async function resolveWorkflowContext(
           workflowPath: findSourceDescriptionUrl(
             sourceDescriptionId,
             ctx.sourceDescriptions,
-            ctx.options,
+            ctx.options
           ),
           workflow: [resolvedWorkflow.workflowId],
           skip: undefined,
@@ -280,19 +280,19 @@ export async function resolveWorkflowContext(
           server: ctx.options.server || undefined,
           severity: ctx.options.severity || undefined,
         },
-        ctx.apiClient,
+        ctx.apiClient
       )
     : await createTestContext(
         JSON.parse(JSON.stringify(ctx.testDescription)),
         JSON.parse(JSON.stringify(ctx.options)),
-        ctx.apiClient,
+        ctx.apiClient
       );
 }
 
 function findSourceDescriptionUrl(
   sourceDescriptionId: string,
   sourceDescriptions: SourceDescription[] | undefined,
-  options: AppOptions,
+  options: AppOptions
 ) {
   const sourceDescription =
     sourceDescriptions && sourceDescriptions.find(({ name }) => name === sourceDescriptionId);
@@ -305,7 +305,7 @@ function findSourceDescriptionUrl(
     return resolve(dirname(options.workflowPath), sourceDescription.url);
   } else {
     throw new Error(
-      `Unknown source description type ${(sourceDescription as SourceDescription).type}`,
+      `Unknown source description type ${(sourceDescription as SourceDescription).type}`
     );
   }
 }

@@ -11,7 +11,7 @@ describe('getReuniteUrl', () => {
 
   it('should return residency url when url provided', () => {
     expect(getReuniteUrl('http://someenvironment.redocly.com')).toBe(
-      'http://someenvironment.redocly.com/api',
+      'http://someenvironment.redocly.com/api'
     );
   });
 });

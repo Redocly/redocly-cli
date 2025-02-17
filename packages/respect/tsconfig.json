@@ -19,7 +19,7 @@
   "references": [{ "path": "../core" }],
   "include": [
     "src/**/*.ts",
-    "src/**/*.js"  // Add this line
+    "src/**/*.js" // Add this line
   ],
   "exclude": ["**/__tests__", "**/__mocks__"]
 }

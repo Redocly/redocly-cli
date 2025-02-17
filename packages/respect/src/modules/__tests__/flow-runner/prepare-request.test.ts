@@ -991,7 +991,7 @@ describe('prepareRequest', () => {
     } as unknown as TestContext;
 
     await expect(prepareRequest(ctx, step, workflowName)).rejects.toThrow(
-      'No servers found in API description',
+      'No servers found in API description'
     );
   });
 

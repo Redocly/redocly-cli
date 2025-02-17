@@ -30,11 +30,11 @@ export class RedoclyOAuthClient {
 
     const key = Buffer.alloc(
       32,
-      Buffer.from(hashHex).toString('base64'),
+      Buffer.from(hashHex).toString('base64')
     ).toString() as crypto.CipherKey;
     const iv = Buffer.alloc(
       16,
-      Buffer.from(process.env.HOME as string).toString('base64'),
+      Buffer.from(process.env.HOME as string).toString('base64')
     ).toString() as crypto.BinaryLike;
     this.cipher = crypto.createCipheriv(CRYPTO_ALGORITHM, key, iv);
     this.decipher = crypto.createDecipheriv(CRYPTO_ALGORITHM, key, iv);

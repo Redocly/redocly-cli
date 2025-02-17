@@ -27,7 +27,7 @@ export function getPublicWorkflows({
     if (workflowInputSchema?.properties?.env) {
       resolvedDotEnvInputs = resolveInputValuesToSchema(
         env || {},
-        workflowInputSchema.properties.env as InputSchema,
+        workflowInputSchema.properties.env as InputSchema
       );
     }
 

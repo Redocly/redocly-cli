@@ -62,7 +62,7 @@ describe('getValueFromContext', () => {
       $faker: createFaker(),
     } as unknown as TestContext;
     expect(
-      getValueFromContext('bearer {$env.token} {$faker.number.integer({min:5,max:5})}', ctx),
+      getValueFromContext('bearer {$env.token} {$faker.number.integer({min:5,max:5})}', ctx)
     ).toEqual('bearer test 5');
   });
 
@@ -76,8 +76,8 @@ describe('getValueFromContext', () => {
     expect(
       getValueFromContext(
         '  "name": "spot-test-project-name-{$faker.number.integer({ min: 5, max: 5 })}::{$faker.number.integer({ min: 5, max: 5 })}",',
-        ctx,
-      ),
+        ctx
+      )
     ).toEqual('  "name": "spot-test-project-name-5::5",');
   });
 
@@ -102,7 +102,7 @@ describe('getValueFromContext', () => {
       $faker: createFaker(),
     } as unknown as TestContext;
     expect(getValueFromContext('number is {$faker.number.integer({min:5,max:5})}', ctx)).toEqual(
-      'number is 5',
+      'number is 5'
     );
   });
 
@@ -111,7 +111,7 @@ describe('getValueFromContext', () => {
       $faker: createFaker(),
     } as unknown as TestContext;
     expect(getValueFromContext('city is {$faker.address.city}', ctx)).not.toMatch(
-      '{$faker.address.city}',
+      '{$faker.address.city}'
     );
   });
 
@@ -156,7 +156,7 @@ describe('getValueFromContext', () => {
       },
     } as unknown as TestContext;
     expect(
-      getValueFromContext('$sourceDescriptions.notExistingName.workflows.workflowTestId', ctx),
+      getValueFromContext('$sourceDescriptions.notExistingName.workflows.workflowTestId', ctx)
     ).toEqual(undefined);
   });
 
@@ -174,7 +174,7 @@ describe('getValueFromContext', () => {
       },
     } as unknown as TestContext;
     expect(getValueFromContext('$sourceDescriptions.notExistingName.workflows.', ctx)).toEqual(
-      undefined,
+      undefined
     );
   });
 
@@ -201,7 +201,7 @@ describe('parsePath', () => {
     expect(
       resolvePath(path, {
         id: 'test',
-      }),
+      })
     ).toEqual('https://api.com/user/test/profile');
   });
 

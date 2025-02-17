@@ -76,5 +76,7 @@
     "undici": "^6.21.1",
     "yargs": "^17.6.2"
   },
-  "files": ["lib"]
+  "files": [
+    "lib"
+  ]
 }

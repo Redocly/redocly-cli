@@ -6,18 +6,15 @@ import { DefaultLogger } from '../logger/logger';
 const logger = DefaultLogger.getInstance();
 
 export class RedoclyOAuthDeviceFlow {
-  constructor(
-    private baseUrl: string,
-    private clientName: string,
-  ) {}
+  constructor(private baseUrl: string, private clientName: string) {}
 
   async run() {
     const code = await this.getDeviceCode();
     logger.log(
-      'Attempting to automatically open the SSO authorization page in your default browser.\n',
+      'Attempting to automatically open the SSO authorization page in your default browser.\n'
     );
     logger.log(
-      'If the browser does not open or you wish to use a different device to authorize this request, open the following URL:\n\n',
+      'If the browser does not open or you wish to use a different device to authorize this request, open the following URL:\n\n'
     );
     logger.log(blue(code.verificationUri));
     logger.log(`\n\n`);
@@ -30,7 +27,7 @@ export class RedoclyOAuthDeviceFlow {
       const accessToken = await this.pollingAccessToken(
         code.deviceCode,
         code.interval,
-        code.expiresIn,
+        code.expiresIn
       );
       logger.log(green('✅  Logged in\n\n'));
 
@@ -147,7 +144,7 @@ export class RedoclyOAuthDeviceFlow {
     url: string,
     method: string = 'GET',
     body: Record<string, any> | undefined = undefined,
-    headers: Record<string, string> = {},
+    headers: Record<string, string> = {}
   ) {
     url = `${this.baseUrl}${url}`;
     const res = await fetch(url, {

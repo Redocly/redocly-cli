@@ -31,7 +31,7 @@ describe('handlePayloadReplacements', () => {
     ];
 
     expect(() => handlePayloadReplacements(payload, replacements)).toThrowError(
-      'Invalid JSON Pointer: /bar',
+      'Invalid JSON Pointer: /bar'
     );
   });
 
@@ -43,7 +43,7 @@ describe('handlePayloadReplacements', () => {
 
     // @ts-expect-error
     expect(() => handlePayloadReplacements(payload, replacements)).toThrowError(
-      'Invalid JSON Pointer: 1',
+      'Invalid JSON Pointer: 1'
     );
   });
 });

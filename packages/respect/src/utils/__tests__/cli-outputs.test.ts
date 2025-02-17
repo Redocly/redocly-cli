@@ -98,7 +98,7 @@ describe('cliOutputs', () => {
       const mockLogger = jest.spyOn(logger, 'error').mockImplementation();
       printConfigLintTotals({ errors: 1, warnings: 0, ignored: 0 } as Totals);
       expect(mockLogger).toHaveBeenCalledWith(
-        expect.stringMatching('❌  Your config has 1 one error.'),
+        expect.stringMatching('❌  Your config has 1 one error.')
       );
       mockLogger.mockRestore();
     });
@@ -107,7 +107,7 @@ describe('cliOutputs', () => {
       const mockLogger = jest.spyOn(logger, 'error').mockImplementation();
       printConfigLintTotals({ errors: 0, warnings: 1, ignored: 0 } as Totals);
       expect(mockLogger).toHaveBeenCalledWith(
-        expect.stringMatching('⚠️  Your config has 1 one warning.'),
+        expect.stringMatching('⚠️  Your config has 1 one warning.')
       );
       mockLogger.mockRestore();
     });

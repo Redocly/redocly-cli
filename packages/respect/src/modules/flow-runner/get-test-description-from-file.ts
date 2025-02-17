@@ -18,7 +18,7 @@ export async function bundleArazzo(filePath: string) {
   if (!existsSync(filePath)) {
     const relativePath = path.relative(process.cwd(), filePath);
     throw new Error(
-      `Could not find source description file '${fileName}' at path '${relativePath}'`,
+      `Could not find source description file '${fileName}' at path '${relativePath}'`
     );
   }
 
@@ -26,7 +26,7 @@ export async function bundleArazzo(filePath: string) {
 
   if (!isTestFile(fileName, fileContent)) {
     throw new Error(
-      `No test files found. File ${fileName} does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.`,
+      `No test files found. File ${fileName} does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.`
     );
   }
 

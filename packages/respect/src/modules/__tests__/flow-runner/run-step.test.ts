@@ -1213,9 +1213,9 @@ describe('runStep', () => {
         workflowName,
         parentStepId,
         parentWorkflowId,
-      }),
+      })
     ).rejects.toThrowError(
-      'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action',
+      'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
     );
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2174,7 +2174,7 @@ describe('runStep', () => {
         workflowName,
         parentStepId,
         parentWorkflowId,
-      }),
+      })
     ).rejects.toThrow(`Parameter "in" is required for ${stepOne.stepId} step`);
   });
 
@@ -3574,7 +3574,7 @@ describe('runStep', () => {
           },
         ],
       },
-      localCTX,
+      localCTX
     );
     expect(runWorkflow).toHaveBeenCalledTimes(1);
   });
@@ -4029,7 +4029,7 @@ describe('runStep', () => {
 
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
-      'Workflow $sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow not found.',
+      'Workflow $sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow not found.'
     );
   });
 });
