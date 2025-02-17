@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`runTestFile should throw Invalid file configuration error when contains lint errors 1`] = `[Error: [31mInvalid file configuration[39m [1mtest.yaml[22m]`;

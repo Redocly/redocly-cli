@@ -36,7 +36,8 @@
     "release": "changeset publish",
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
-    "pack:prepare": "./scripts/local-pack.sh"
+    "pack:prepare": "./scripts/local-pack.sh",
+    "respect:parser:generate": "pegjs --format commonjs packages/respect/src/modules/runtime-expressions/abnf-parser.pegjs"
   },
   "workspaces": [
     "packages/*"

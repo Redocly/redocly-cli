@@ -1,0 +1,21 @@
+arazzo: 1.0.1
+info:
+  title: Cat Facts API
+  version: '1.0'
+sourceDescriptions:
+  - name: cats
+    type: openapi
+    url: ../../api-samples/cats.yaml
+workflows:
+  - workflowId: get-breeds-workflow
+    steps:
+      - stepId: get-breeds-step
+        operationId: $sourceDescriptions.cats.getBreeds
+  - workflowId: get-fact-workflow
+    steps:
+      - stepId: get-fact-step
+        operationId: $sourceDescriptions.cats.getRandomFact
+  - workflowId: get-facts-workflow
+    steps:
+      - stepId: get-facts-step
+        operationId: $sourceDescriptions.cats.getFacts

@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rebilly test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow rebilly.yaml / crud[0m
+[0m
+  ✓ POST https://api-sandbox.rebilly.com/organizations/redocly/customers - step create-member[0m
+    ✓ success criteria check
+[0m
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-member[0m
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+[0m
+  ✓ PUT https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step update-member[0m
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+[0m
+  ✓ DELETE https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step delete-member[0m
+    ✓ success criteria check
+[0m
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-non-existing-member[0m
+    ✓ success criteria check
+[0m
+────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow rebilly.yaml / inherited[0m
+[0m
+  ✓ POST /customers - step add-user[0m
+    ✓ status code check (Response code 422 matches one of description codes: [201, 401, 403, 409, 422])
+    ✓ content-type check
+    ✓ schema check
+[0m
+[0m
+  Summary for rebilly.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 6 passed, 6 total
+  Checks: 13 passed, 13 total
+  Time: <test>ms[0m
+[0m
+[0m
+┌──────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                             │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├──────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ ✓ rebilly.yaml                                       │ 2          │ 2       │ -       │ -        │ -       │
+└──────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
+[0m
+
+"
+`;

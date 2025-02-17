@@ -23,6 +23,12 @@ module.exports = {
       functions: 63,
       lines: 64,
     },
+    'packages/respect/': {
+      statements: 64,
+      branches: 52,
+      functions: 63,
+      lines: 65,
+    },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
   globals: {

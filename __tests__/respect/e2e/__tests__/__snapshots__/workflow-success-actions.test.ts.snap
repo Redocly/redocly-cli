@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
+"────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow workflow-success-actions.yaml / get-museum-hours[0m
+[0m
+  ✓ GET /museum-hours - step get-museum-hours[0m
+    ✓ success criteria check
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+  Running required workflows for get-museum-hours [0m
+[0m
+  ✓ POST /tickets - step buy-tickets[0m
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+[0m
+────────────────────────────────────────────────────────────────────────────────[0m
+[0m
+  Running workflow workflow-success-actions.yaml / events-crud[0m
+[0m
+  ✓ GET /special-events - step list-events[0m
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+  Running required workflows for events-crud [0m
+[0m
+  ✓ POST /tickets - step buy-tickets[0m
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+[0m
+  ✓ POST /special-events - step create-event[0m
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+  ✓ GET /special-events - step list-events[0m
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+  Running required workflows for events-crud [0m
+[0m
+  ✓ POST /tickets - step buy-tickets[0m
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+[0m
+[0m
+[0m
+  Summary for workflow-success-actions.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 3 passed, 3 total
+  Checks: 12 passed, 12 total
+  Time: <test>ms[0m
+[0m
+[0m
+┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ ✓ workflow-success-actions.yaml                                       │ 2          │ 2       │ -       │ -        │ -       │
+└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
+[0m
+
+"
+`;

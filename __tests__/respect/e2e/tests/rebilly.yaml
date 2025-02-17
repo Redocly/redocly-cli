@@ -1,0 +1,124 @@
+arazzo: 1.0.1
+info:
+  title: Rebilly API
+  version: latest
+sourceDescriptions:
+  - name: rebilly-description
+    type: openapi
+    url: ../../api-samples/rebilly-description.yaml
+    x-serverUrl: https://api-sandbox.rebilly.com/organizations/redocly
+
+workflows:
+  - workflowId: crud
+    inputs:
+      type: object
+      properties:
+        env:
+          type: object
+          properties:
+            SANDBOX_REBILLY_TOKEN:
+              type: string
+    parameters:
+      - in: header
+        name: reb-apikey
+        value: $inputs.env.SANDBOX_REBILLY_TOKEN
+    steps:
+      - stepId: create-member
+        x-operation:
+          url: https://api-sandbox.rebilly.com/organizations/redocly/customers
+          method: post
+        requestBody:
+          payload:
+            primaryAddress:
+              firstName: First
+              lastName: Last
+            defaultPaymentInstrument:
+              method: check
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          id: $response.body#/id
+      - stepId: read-member
+        x-operation:
+          url: https://api-sandbox.rebilly.com/organizations/redocly/customers/{id}
+          method: get
+        parameters:
+          - in: path
+            name: id
+            value: $steps.create-member.outputs.id
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/firstName == 'First'
+          - condition: $response.body#/lastName == 'Last'
+
+      - stepId: update-member
+        x-operation:
+          url: https://api-sandbox.rebilly.com/organizations/redocly/customers/{id}
+          method: put
+        parameters:
+          - in: path
+            name: id
+            value: $steps.create-member.outputs.id
+        requestBody:
+          payload:
+            primaryAddress:
+              firstName: UpdatedName
+              lastName: Last
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/firstName == 'UpdatedName'
+          - condition: $response.body#/lastName == 'Last'
+          - condition: $response.body#/id == $steps.create-member.outputs.id
+      - stepId: delete-member
+        x-operation:
+          method: delete
+          url: https://api-sandbox.rebilly.com/organizations/redocly/customers/{id}
+        parameters:
+          - in: path
+            name: id
+            value: $steps.create-member.outputs.id
+          - in: query
+            name: targetCustomerId
+            value: cus_01GYWHGJAJYC3SKM8BKWKZA0SZ # Technical customer ID
+        successCriteria:
+          - condition: $statusCode == 204
+      - stepId: read-non-existing-member
+        x-operation:
+          method: get
+          url: https://api-sandbox.rebilly.com/organizations/redocly/customers/{id}
+        parameters:
+          - in: path
+            name: id
+            value: $steps.create-member.outputs.id
+        successCriteria:
+          - condition: $statusCode == 404
+
+  #  - workflowId: get-all-users
+  #    steps:
+  #      - stepId: getUsers
+  #        x-operation:
+  #          url: https://api-sandbox.rebilly.com/organizations/redocly/customers
+  #          method: get
+  #        parameters:
+  #          - in: query
+  #            name: limit
+  #            value: 1
+  #        successCriteria:
+  #          - condition: $statusCode == 200
+
+  - workflowId: inherited
+    inputs:
+      type: object
+      properties:
+        env:
+          type: object
+          properties:
+            SANDBOX_REBILLY_TOKEN:
+              type: string
+    parameters:
+      - in: header
+        name: reb-apikey
+        value: $inputs.env.SANDBOX_REBILLY_TOKEN
+    steps:
+      - stepId: add-user
+        operationId: PostCustomer

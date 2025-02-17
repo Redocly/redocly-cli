@@ -1,0 +1,153 @@
+arazzo: 1.0.1
+info:
+  title: Test reusable $components
+  description: Testing functionality of reusable $components
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../../examples/museum-api/museum-api.yaml
+  - name: tickets-from-museum-api
+    type: arazzo
+    url: ../../examples/museum-api/museum-tickets.yaml
+
+workflows:
+  - workflowId: get-museum-hours
+    inputs:
+      $ref: '#/components/inputs/reusable-test'
+    description: >-
+      This workflow demonstrates how to get the museum opening hours and buy tickets.
+    parameters:
+      - reference: $components.parameters.pageSize
+        value: 256
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    outputs:
+      reusable-test: $inputs.reusable-test
+    steps:
+      - stepId: get-museum-hours-step-success-action
+        operationId: $sourceDescriptions.museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          schedule: $response.body
+        onSuccess:
+          - reference: $components.successActions.gotoSuccessAction
+      - stepId: get-museum-hours-step-failure-action-goto
+        description: >-
+          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
+        operationId: $sourceDescriptions.museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          schedule: $response.body
+        onFailure:
+          - reference: $components.failureActions.gotoFailureAction
+      - stepId: get-museum-hours-step-failure-action-retry
+        operationId: $sourceDescriptions.museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          schedule: $response.body
+        onFailure:
+          - reference: $components.failureActions.retryFailureAction
+  - workflowId: events-crud
+    inputs:
+      $ref: '#/components/inputs/buy_available_pet_input'
+    parameters:
+      - reference: $components.parameters.pageSize
+        value: 256
+      - in: header
+        name: Authorization
+        value: Basic Og==
+      - reference: $components.parameters.page
+        value: 42
+    steps:
+      - stepId: list-events
+        parameters:
+          - reference: $components.parameters.page
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
+        outputs:
+          events: $response.body
+      - stepId: create-event
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+        requestBody:
+          payload:
+            reusable: $workflows.get-museum-hours.outputs.reusable-test
+            store_id: $inputs.store_id
+            my_pet_tags: $inputs.my_pet_tags
+            name: 'Mermaid Treasure Identification and Analysis'
+            location: 'Under the seaaa 🦀 🎶 🌊.'
+            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
+            dates:
+              - '2023-09-05'
+              - '2023-09-08'
+            price: 0
+        successCriteria:
+          - condition: $statusCode == 201
+  - workflowId: final-workflow
+    inputs:
+      $ref: '#/components/inputs/reusable-test'
+    parameters:
+      - reference: $components.parameters.pageSize
+        value: 256
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    steps:
+      - stepId: final-workflow-step
+        operationId: $sourceDescriptions.museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+
+components:
+  inputs:
+    reusable-test:
+      type: string
+      description: This is a reusable input component
+    buy_available_pet_input:
+      type: object
+      properties:
+        my_pet_tags:
+          type: array
+          items:
+            type: string
+          description: Desired tags to use when searching for a pet, in CSV format (e.g. "puppy, dalmatian")
+        store_id:
+          $ref: '#/components/inputs/store_id'
+    store_id:
+      type: string
+      description: Indicates the domain name of the store where the customer is browsing or buying pets, e.g. "pets.example.com" or "pets.example.co.uk".
+  parameters:
+    page:
+      name: page
+      in: header
+      value: 1
+    pageSize:
+      name: pageSize
+      in: header
+      value: 100
+  failureActions:
+    gotoFailureAction:
+      name: get-museum-hours-failure-action
+      type: goto
+      workflowId: final-workflow
+      criteria:
+        - condition: $statusCode == 200
+    retryFailureAction:
+      name: get-museum-hours-failure-action
+      type: retry
+      retryAfter: 3000
+      retryLimit: 1
+      workflowId: final-workflow
+      criteria:
+        - condition: $statusCode == 200
+  successActions:
+    gotoSuccessAction:
+      name: get-museum-hours-success-action
+      type: goto
+      workflowId: final-workflow
+      criteria:
+        - condition: $statusCode == 200
