@@ -38,6 +38,7 @@
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
     "pack:prepare": "./scripts/local-pack.sh",
+    "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [
@@ -77,6 +78,7 @@
     "json-server": "1.0.0-beta.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
+    "pegjs": "0.10.0",
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "ts-jest": "^29.1.1",
