@@ -1,6 +1,7 @@
 # Redocly CLI Contributing Guide
 
-Hi! We're really excited that you are interested in contributing to Redocly CLI. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
+Hi! We're really excited that you are interested in contributing to Redocly CLI.
+Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
@@ -48,7 +49,8 @@ npm install # or npm i
 
 To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
 
-To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
+To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
+Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run prettier` before committing.
 
@@ -70,13 +72,15 @@ To test local changes as a package, you can use the following steps:
 
 1. Optionally, bump the version of the packages ([see details](#version-updating)).
 
-1. Run `npm run pack:prepare` in the repository's root. This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
+1. Run `npm run pack:prepare` in the repository's root.
+   This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
 
 1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
 
 ## Contribute documentation
 
-Additions and updates to our documentation are very welcome. You can find the documentation in the `docs/` folder, and this is published to https://redocly.com/docs/cli/ as part of our main website.
+Additions and updates to our documentation are very welcome.
+You can find the documentation in the `docs/` folder, and this is published to https://redocly.com/docs/cli/ as part of our main website.
 
 To preview your documentation changes locally:
 
@@ -90,11 +94,14 @@ redocly preview
 
 By default, you can access the docs preview at http://localhost:4000 or http://127.0.0.1:4000.
 
-> Please note that currently the custom markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform. The pull request workflows generate a full preview, so rest assured that you are able to check everything is in good shape before we review and merge your changes.
+> Please note that currently the custom markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform.
+> The pull request workflows generate a full preview, so rest assured that you are able to check everything is in good shape before we review and merge your changes.
 
 ### Prose linting
 
-We are proud of our docs. When you open a pull request, we lint the prose using [Vale](https://vale.sh/). You can also install this tool locally and run it from the root of the project with:
+We are proud of our docs.
+When you open a pull request, we lint the prose using [Vale](https://vale.sh/).
+You can also install this tool locally and run it from the root of the project with:
 
 ```bash
 vale docs/
@@ -110,7 +117,9 @@ We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that 
 
 ### Markdown link checking
 
-We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder. This tool runs automatically on every pull request, but you can also run it locally if you want to. Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
+We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder.
+This tool runs automatically on every pull request, but you can also run it locally if you want to.
+Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
 
 ```bash
 mlc docs/
@@ -120,7 +129,8 @@ It only checks links within the local docs (it can't check links to other docs s
 
 ## Built-in rules changes
 
-After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error) and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error) and `all` rulesets with appropriate severity levels.
+The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 
 Separately, open a merge request with the corresponding documentation changes.
@@ -137,11 +147,16 @@ Environment variables should not affect the **core** package logic.
 
 ### Command line arguments
 
-Use them to provide some arguments that are specific to a certain command. Think of them as modifiers. They should not affect the **core** package logic.
+Use them to provide some arguments that are specific to a certain command.
+Think of them as modifiers.
+They should not affect the **core** package logic.
 
 ### Configuration file
 
-The **redocly.yaml** file is the most flexible way of providing arguments. Please use it to provide arguments that are common for all the commands, for a specific command, or for a specific API. It could be used for providing arguments for both **cli** and **core** packages. Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
+The **redocly.yaml** file is the most flexible way of providing arguments.
+Please use it to provide arguments that are common for all the commands, for a specific command, or for a specific API.
+It could be used for providing arguments for both **cli** and **core** packages.
+Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
 
 ## Exit codes
 
@@ -215,6 +230,8 @@ If you made any changes, make sure to compile the code before running the tests.
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
+  - **`packages/respect-core`**: contains the Respect core package.
+
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 
 ## Release flow
@@ -222,7 +239,8 @@ If you made any changes, make sure to compile the code before running the tests.
 We use [Changesets](https://github.com/changesets/changesets) flow.
 After merging a PR with a changeset, the release PR is automatically created.
 
-If the pipelines are not starting, close and reopen the PR. Merging that PR triggers the release process.
+If the pipelines are not starting, close and reopen the PR.
+Merging that PR triggers the release process.
 
 ### Revert a release
 
