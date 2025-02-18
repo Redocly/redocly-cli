@@ -15,7 +15,7 @@ export function displayChecks(
   testNameToDisplay: string,
   checks: Check[],
   verboseLogs?: VerboseLog,
-  verboseResponseLogs?: VerboseLog,
+  verboseResponseLogs?: VerboseLog
 ) {
   const allChecksPassed = checks.every(({ pass }) => pass);
   logger.log(`  ${allChecksPassed ? green('✓') : red('✗')} ${blue(testNameToDisplay)}`);
@@ -26,7 +26,7 @@ export function displayChecks(
   }
   if (verboseResponseLogs) {
     logger.log(
-      `${RESET_ESCAPE_CODE}\n` + (displayVerboseLogs(verboseResponseLogs, 'response') || ''),
+      `${RESET_ESCAPE_CODE}\n` + (displayVerboseLogs(verboseResponseLogs, 'response') || '')
     );
     logger.printNewLine();
   }
@@ -35,7 +35,9 @@ export function displayChecks(
   for (const check of checks) {
     const { name: checkName, pass, severity } = check;
     const passTestMessage = (checkName: string) =>
-      `${green('✓')} ${gray(checkName.toLowerCase())}${check?.additionalMessage ? ` (${check.additionalMessage})` : ''}`;
+      `${green('✓')} ${gray(checkName.toLowerCase())}${
+        check?.additionalMessage ? ` (${check.additionalMessage})` : ''
+      }`;
 
     const failTestMessage = (checkName: string, severity?: RuleSeverity) =>
       `${severity === 'warn' ? yellow('⚠') : red('✗')} ${gray(checkName.toLowerCase())}${
@@ -47,7 +49,7 @@ export function displayChecks(
         pass
           ? indent(passTestMessage(checkName), 4)
           : indent(failTestMessage(checkName, severity), 4)
-      }\n`,
+      }\n`
     );
   }
 }

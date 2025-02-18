@@ -15,7 +15,7 @@ const logger = DefaultLogger.getInstance();
 export function displaySummary(
   startedAt: number,
   workflows: Workflow[],
-  argv?: { workflow?: string[]; skip?: string[]; file?: string },
+  argv?: { workflow?: string[]; skip?: string[]; file?: string }
 ) {
   const fileName = path.basename(argv?.file || '');
   const workflowArgv = resolveRunningWorkflows(argv?.workflow) || [];
@@ -43,7 +43,7 @@ export function displaySummary(
         ${indent(formatTotals('Steps:', totals.steps), 2)}
         ${indent(formatTotals('Checks:', totals.checks), 2)}
         ${indent(inverse(`Time: ${executionTime}`), 2)}
-  `,
+  `
   );
   logger.printNewLine();
   logger.printNewLine();

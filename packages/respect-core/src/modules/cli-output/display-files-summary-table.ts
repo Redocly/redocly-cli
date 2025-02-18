@@ -15,11 +15,11 @@ export function displayFilesSummaryTable(
     hasProblems: boolean;
     workflows: Workflow[];
     argv?: { workflow?: string[]; skip?: string[] };
-  }[],
+  }[]
 ) {
   const DEFAULT_FILENAME_PADDING = 40;
   const maxFilenameLength = Math.max(
-    ...filesResult.map(({ file }) => path.basename(file).length + DEFAULT_FILENAME_PADDING),
+    ...filesResult.map(({ file }) => path.basename(file).length + DEFAULT_FILENAME_PADDING)
   );
 
   const columns = [
@@ -97,7 +97,9 @@ export function displayFilesSummaryTable(
   });
 
   // Bottom line
-  output += `${gray(`└${columns.map((col) => '─'.repeat(col.width + 2)).join('┴')}┘`)}${RESET_ESCAPE_CODE}\n`;
+  output += `${gray(
+    `└${columns.map((col) => '─'.repeat(col.width + 2)).join('┴')}┘`
+  )}${RESET_ESCAPE_CODE}\n`;
 
   // Add a single reset at the very end
   logger.log(output);
