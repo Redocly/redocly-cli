@@ -1,10 +1,10 @@
-import type { ExtendedOperation, TestContext } from '../../types';
-import type { OperationDetails } from '../description-parser';
-
 import { getValueFromContext } from '../config-parser';
 import { formatCliInputs } from './inputs';
 
-type GetServerUrlInput = {
+import type { ExtendedOperation, TestContext } from '../../types';
+import type { OperationDetails } from '../description-parser';
+
+export type GetServerUrlInput = {
   ctx: TestContext;
   descriptionName?: string;
   openapiOperation?: (OperationDetails & Record<string, any>) | undefined;

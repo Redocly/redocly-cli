@@ -98,7 +98,7 @@ export function checkCriteria({
       checks.push({
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
-        message: `Failed to pass ${JSON.stringify(criteria)}. Error: ${e.message}`,
+        message: `Failed to pass ${JSON.stringify(criteria)}: ${e.message}`,
         severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
       });
     }
