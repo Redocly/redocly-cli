@@ -7,10 +7,10 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: ../../examples/museum-api/museum-api.yaml
+    url: museum-api.yaml
   - name: tickets-from-museum-api
     type: arazzo
-    url: ../../examples/museum-api/museum-tickets.yaml
+    url: museum-tickets.yaml
 
 workflows:
   - workflowId: events-crud
