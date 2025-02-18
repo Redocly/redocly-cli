@@ -128,6 +128,7 @@ export async function runWorkflow({
   ctx,
   parentStepId,
   parentWorkflowId,
+  fromStepId,
 }: RunWorkflowInput): Promise<Workflow | void> {
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
@@ -151,7 +152,10 @@ export async function runWorkflow({
     printWorkflowSeparator(fileBaseName, workflowName);
   }
 
-  const workflowSteps = workflow.steps;
+  const fromStepIndex = fromStepId
+    ? workflow.steps.findIndex((step) => step.stepId === fromStepId)
+    : 0;
+  const workflowSteps = workflow.steps.slice(fromStepIndex);
 
   // clean $steps ctx before running workflow steps
   ctx.$steps = {};
