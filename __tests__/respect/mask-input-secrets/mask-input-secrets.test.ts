@@ -1,7 +1,7 @@
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 
-it('should hide sensitive input values', () => {
+test('should hide sensitive input values', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

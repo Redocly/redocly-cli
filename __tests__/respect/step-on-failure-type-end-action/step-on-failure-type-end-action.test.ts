@@ -1,7 +1,7 @@
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 // Snapshot should have two workflows, and first workflow should run only first step
-it('should end workflow execution, context returns to the caller with applicable outputs, when step fails and onFailure action is of type `end`', () => {
+test('should end workflow execution, context returns to the caller with applicable outputs, when step fails and onFailure action is of type `end`', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
