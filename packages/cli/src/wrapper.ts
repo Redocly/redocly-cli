@@ -38,6 +38,8 @@ export function commandWrapper<T extends CommandOptions>(
         ? 'asyncapi'
         : document?.arazzo
         ? 'arazzo'
+        : document?.overlay
+        ? 'overlay'
         : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;

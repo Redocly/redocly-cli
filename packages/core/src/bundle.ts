@@ -311,6 +311,11 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case SpecMajorVersion.Overlay1:
+      switch (typeName) {
+        default:
+          return null;
+      }
   }
 }
 
