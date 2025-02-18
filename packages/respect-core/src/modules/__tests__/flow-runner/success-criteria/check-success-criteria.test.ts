@@ -129,7 +129,7 @@ describe('checkSuccessCriteria', () => {
       response: {
         body: {
           slug: 'organization-1',
-          name: 'spot-test-project-name',
+          name: 'respect-test-project-name',
         },
         statusCode: 200,
         headers: new Headers(),
@@ -154,7 +154,7 @@ describe('checkSuccessCriteria', () => {
         {
           type: 'regex',
           context: '$response.body#/name',
-          condition: '/spot-test-project-name/',
+          condition: '/respect-test-project-name/',
         },
       ],
       ctx: {
@@ -218,7 +218,7 @@ describe('checkSuccessCriteria', () => {
       },
       {
         message:
-          'Checking regex criteria: {"type":"regex","context":"$response.body#/name","condition":"/spot-test-project-name/"}',
+          'Checking regex criteria: {"type":"regex","context":"$response.body#/name","condition":"/respect-test-project-name/"}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',

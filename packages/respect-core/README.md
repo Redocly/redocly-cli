@@ -1,8 +1,8 @@
-# Spot API problems before they stain
+# Respect Your API. Monitor with Confidence
 
 ## `@redocly/respect-core`
 
-Respect the discrepancies between OpenAPI descriptions and actual API responses.
+Continuous API monitoring powered by OpenAPI Arazzo workflows. Get real-time insights, detect issues early, and receive automated alerts via email or Slack.
 
 The key benefits of `respect`:
 

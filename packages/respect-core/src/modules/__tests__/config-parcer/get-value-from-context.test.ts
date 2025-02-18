@@ -75,10 +75,10 @@ describe('getValueFromContext', () => {
     } as unknown as TestContext;
     expect(
       getValueFromContext(
-        '  "name": "spot-test-project-name-{$faker.number.integer({ min: 5, max: 5 })}::{$faker.number.integer({ min: 5, max: 5 })}",',
+        '  "name": "respect-test-project-name-{$faker.number.integer({ min: 5, max: 5 })}::{$faker.number.integer({ min: 5, max: 5 })}",',
         ctx
       )
-    ).toEqual('  "name": "spot-test-project-name-5::5",');
+    ).toEqual('  "name": "respect-test-project-name-5::5",');
   });
 
   it('should return original value if can not resolve from context', () => {

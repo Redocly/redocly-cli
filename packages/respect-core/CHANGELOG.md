@@ -1,4 +1,4 @@
-# @redocly/spot
+# @redocly/respect-core
 
 ## 0.12.0
 
@@ -81,7 +81,7 @@
 
 ### Patch Changes
 
-- 7cd087a963: Added the `server` input Spot parameter so users can use it to override the server URL for each source description inside `sourceDescriptions`.
+- 7cd087a963: Added the `server` input Respect parameter so users can use it to override the server URL for each source description inside `sourceDescriptions`.
 
 ## 0.7.30
 
@@ -126,7 +126,7 @@
 ### Patch Changes
 
 - ffef283ad6: Added a `--json-output` CLI option.
-  Using this option with a Spot `run` command saves the logs to a JSON file.
+  Using this option with a Respect `run` command saves the logs to a JSON file.
 
 ## 0.7.23
 
@@ -208,7 +208,7 @@
 
 ### Patch Changes
 
-- 29e51a927b: Fixed an issue where Spot didn’t resolve references inside the external OpenAPI description.
+- 29e51a927b: Fixed an issue where Respect didn’t resolve references inside the external OpenAPI description.
 
 ## 0.7.10
 
@@ -276,4 +276,4 @@
 
 ### Minor Changes
 
-- a752b85ebb: feat: Migrated Spot syntax to use Arazzo Specification.
+- a752b85ebb: feat: Migrated Respect syntax to use Arazzo Specification.

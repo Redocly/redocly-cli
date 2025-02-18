@@ -325,7 +325,7 @@ describe('resolveWorkflowContext', () => {
       metadata: {
         _: ['run'],
         files: ['examples/museum-api/museum-api-test.yaml'],
-        $0: 'spot',
+        $0: 'respect',
         file: 'examples/museum-api/museum-api-test.yaml',
       },
       input: undefined,
