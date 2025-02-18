@@ -48,8 +48,8 @@ export type AdditionalParameterProperties = {
   target?: string;
   required?: boolean;
   schema?: Record<string, any>;
-  example?: Record<string, any>;
-  examples?: Record<string, any> | { $ref: string };
+  example?: unknown;
+  examples?: Record<string, any> | unknown;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
 export type Parameter = ExtendedParameter<ArazzoParameter>;
@@ -188,6 +188,7 @@ export type RunWorkflowInput = {
   ctx: TestContext;
   parentStepId?: string;
   parentWorkflowId?: string;
+  fromStepId?: string;
 };
 
 export type TestContext = RuntimeExpressionContext & {
@@ -228,7 +229,7 @@ export type Check = {
   message?: string;
   additionalMessage?: string;
 };
-export type Checks = Record<string, Record<string, Check[]>>; // fixme: rename
+
 export type GenerateConfigFileArgv = {
   descriptionPath: string;
   outputFile?: string;

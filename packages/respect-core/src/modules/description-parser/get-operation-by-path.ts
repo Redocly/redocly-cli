@@ -53,7 +53,7 @@ export function getOperationByPath(
     JsonPointerLib.get(description, JsonPointerLib.compile(['paths', path])) ||
     ({} as OperationDetails);
 
-  // fixme: use servers from path level
+  // FIXME: use servers from path level
   return {
     servers: pathItemObject.servers || servers, // use servers from path level if exists
     ...operation, // operation level servers override path level or global servers

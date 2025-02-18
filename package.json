@@ -22,7 +22,7 @@
     "eslint": "eslint packages/**",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
     "watch": "tsc -b tsconfig.build.json --watch ",
-    "compile": "tsc -b tsconfig.build.json",
+    "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
     "lint": "npm run cli lint resources/pets.yaml -- --format stylish",

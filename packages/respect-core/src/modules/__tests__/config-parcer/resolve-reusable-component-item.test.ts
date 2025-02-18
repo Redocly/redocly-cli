@@ -4,7 +4,7 @@ import { resolveReusableComponentItem } from '../../config-parser';
 
 describe('resolveReusableComponentItem', () => {
   it('should return parameter if not reference', () => {
-    expect(resolveReusableComponentItem({ in: 'query', name: 'test', value: 'test' }, {})).toEqual({
+    expect(resolveReusableComponentItem({ in: 'query', name: 'test', value: 'test' }, {} as any)).toEqual({
       in: 'query',
       name: 'test',
       value: 'test',
@@ -20,7 +20,7 @@ describe('resolveReusableComponentItem', () => {
           workflowId: 'test',
           criteria: [{ condition: '$statusCode == 200' }],
         },
-        {}
+        {} as unknown as TestContext
       )
     ).toEqual({
       name: 'SuccessActio',
@@ -31,7 +31,7 @@ describe('resolveReusableComponentItem', () => {
   });
 
   it('should throw an error if reference is not found', () => {
-    expect(() => resolveReusableComponentItem({ reference: '$components.some.page' }, {})).toThrow(
+    expect(() => resolveReusableComponentItem({ reference: '$components.some.page' }, {} as any)).toThrow(
       'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );
   });

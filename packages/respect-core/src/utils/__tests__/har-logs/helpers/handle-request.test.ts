@@ -80,9 +80,9 @@ describe('handleRequest', () => {
     }) as Dispatcher.DispatchHandlers;
 
     // Simulate response events using the wrapped handler
-    wrappedHandler.onHeaders(200, responseHeaders, () => {}, {});
-    wrappedHandler.onData(responseData, () => {}, {});
-    wrappedHandler.onComplete({});
+    wrappedHandler?.onHeaders?.(200, responseHeaders as any, () => {}, {} as any);
+    wrappedHandler?.onData?.(responseData);
+    wrappedHandler?.onComplete?.({} as any);
   });
 
   it('should handle node request with response data', () => {
@@ -152,7 +152,7 @@ describe('handleRequest', () => {
 
     // Simulate error
     const error = new Error('Network error');
-    handler.onError(error);
+    handler?.onError?.(error);
   });
 
   it('should handle errors in node request', () => {

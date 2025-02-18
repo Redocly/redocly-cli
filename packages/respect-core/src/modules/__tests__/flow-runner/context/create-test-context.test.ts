@@ -586,7 +586,7 @@ describe('createTestContext', () => {
             {
               stepId: 'test',
               operationId: 'getCat',
-            },
+            } as unknown as Step,
           ],
         },
       ],

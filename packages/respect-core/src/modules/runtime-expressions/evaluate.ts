@@ -82,13 +82,13 @@ function evaluateExpressionString(expression: string, context: RuntimeExpression
   // Normalize the context for evaluation by replacing hyphens with underscores in all keys
   const normalizedContext = normalizeContext(context);
 
-  // Create a new Function to evaluate the expression
-  const evaluate = new Function(
-    ...Object.keys(normalizedContext),
-    `return ${normalizedExpression};`
-  );
-
   try {
+    // Create a new Function to evaluate the expression
+    const evaluate = new Function(
+      ...Object.keys(normalizedContext),
+      `return ${normalizedExpression};`
+    );
+
     // Evaluate the modified expression
     return evaluate(...Object.values(normalizedContext));
   } catch (_error) {

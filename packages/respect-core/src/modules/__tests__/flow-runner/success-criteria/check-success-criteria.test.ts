@@ -16,7 +16,7 @@ describe('checkSuccessCriteria', () => {
     response: {
       body: {},
       statusCode: 200,
-      headers: new Headers(),
+      header: {},
       contentType: 'application/json',
     },
   };
@@ -132,7 +132,7 @@ describe('checkSuccessCriteria', () => {
           name: 'respect-test-project-name',
         },
         statusCode: 200,
-        headers: new Headers(),
+        header: {},
         contentType: 'application/json',
       },
     };
@@ -246,7 +246,7 @@ describe('checkSuccessCriteria', () => {
           ],
         },
         statusCode: 200,
-        headers: new Headers(),
+        header: {},
         contentType: 'application/json',
       },
     };
@@ -393,7 +393,7 @@ describe('checkSuccessCriteria', () => {
       response: {
         body: { pets: ['dog', 'cat', 'bunny'], access_token: null, checks: [] },
         statusCode: 200,
-        headers: new Headers(),
+        header: {},
         contentType: 'application/json',
       },
     };
@@ -583,7 +583,7 @@ describe('checkSuccessCriteria', () => {
     expect(result).toEqual([
       {
         message:
-          'Failed to pass {"condition":"$statusCode === () => {throw new Error(\\"error\\")}","type":"not_exist"}. Error: Runtime expression is not valid: $statusCode === () => {throw new Error("error")}',
+          'Failed to pass {"condition":"$statusCode === () => {throw new Error(\\"error\\")}","type":"not_exist"}: Runtime expression is not valid: $statusCode === () => {throw new Error("error")}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
         severity: 'error',
