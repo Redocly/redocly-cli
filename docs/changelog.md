@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.30.0 (2025-02-18)
+
+### Minor Changes
+
+- Added [OAuth 2.0 Device authorization flow](https://datatracker.ietf.org/doc/html/rfc8628) that enables users to authenticate through Reunite API.
+
+### Patch Changes
+
+- Updated `operation-tag-defined` built-in rule to verify tags are defined on the operation prior to matching them to a global tag.
+- Updated @redocly/openapi-core to v1.30.0.
+
 ## 1.29.0 (2025-02-14)
 
 ### Minor Changes
