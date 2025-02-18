@@ -5,7 +5,7 @@ info:
 sourceDescriptions:
   - name: json-server-openapi
     type: openapi
-    url: ../../api-samples/json-server-openapi.yaml
+    url: json-server-openapi.yaml
 workflows:
   - workflowId: before
     steps:
