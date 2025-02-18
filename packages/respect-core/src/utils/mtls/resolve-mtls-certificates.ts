@@ -34,7 +34,7 @@ function resolveCertificate(cert: string | undefined): string | undefined {
 function formatCertificate(cert: string): string {
   // Split the content into header, body, and footer
   const matches = cert.match(
-    /^(-----BEGIN[^-]+-----)\s*([A-Za-z0-9+/=\s]+)\s*(-----END[^-]+-----)/
+    /^(-----BEGIN[^-]+-----)\r?\n([A-Za-z0-9+/=\r\n\t ]+)\r?\n(-----END[^-]+-----)/
   );
   if (!matches) {
     throw new Error('Invalid certificate format');
