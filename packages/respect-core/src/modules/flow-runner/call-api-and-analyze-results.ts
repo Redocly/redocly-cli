@@ -4,27 +4,8 @@ import { CHECKS } from '../checks';
 import { createRuntimeExpressionCtx } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 
+import type { RequestData } from './prepare-request';
 import type { TestContext, Step } from '../../types';
-import type { OperationDetails } from '../description-parser';
-import type { ParameterWithIn } from '../config-parser';
-
-// TODO: rename
-export type ResultObject = {
-  ctx: TestContext;
-  workflowName: string;
-  step: Step;
-  requestData: {
-    serverUrl?: {
-      url: string;
-      // todo: support variables
-    };
-    path: string;
-    method: string;
-    parameters: ParameterWithIn[];
-    requestBody: any;
-    openapiOperation?: OperationDetails & Record<string, string>;
-  };
-};
 
 // TODO: split into two functions
 export async function callAPIAndAnalyzeResults({
@@ -32,7 +13,12 @@ export async function callAPIAndAnalyzeResults({
   workflowName,
   step,
   requestData,
-}: ResultObject) {
+}: {
+  ctx: TestContext;
+  workflowName: string;
+  step: Step;
+  requestData: RequestData;
+}) {
   // clear checks in case of retry
   step.checks = [];
 

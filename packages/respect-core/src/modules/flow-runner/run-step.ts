@@ -4,7 +4,7 @@ import { checkCriteria } from './success-criteria';
 import { delay } from '../../utils/delay';
 import { CHECKS } from '../checks';
 import { runWorkflow, resolveWorkflowContext } from './runner';
-import { prepareRequest } from './prepare-request';
+import { prepareRequest, type RequestData } from './prepare-request';
 import { printStepDetails } from '../../utils/cli-outputs';
 import {
   getValueFromContext,
@@ -25,7 +25,6 @@ import type {
   ResolvedParameter,
 } from '../../types';
 import type { ParameterWithoutIn } from '../config-parser';
-import type { ResultObject } from './call-api-and-analyze-results';
 
 const logger = DefaultLogger.getInstance();
 
@@ -158,7 +157,7 @@ export async function runStep({
   }
 
   let allChecksPassed = false;
-  let requestData: ResultObject['requestData'] | undefined;
+  let requestData: RequestData | undefined;
 
   try {
     if (!workflowName) {
