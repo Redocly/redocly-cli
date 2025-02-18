@@ -23,7 +23,7 @@ module.exports = {
       functions: 63,
       lines: 64,
     },
-    'packages/respect/': {
+    'packages/respect-core/': {
       statements: 64,
       branches: 52,
       functions: 63,

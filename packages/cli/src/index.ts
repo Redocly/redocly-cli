@@ -25,7 +25,7 @@ import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
-import { handleRun } from '@redocly/respect';
+import { handleRun } from '@redocly/respect-core';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';

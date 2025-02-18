@@ -37,7 +37,7 @@
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
     "pack:prepare": "./scripts/local-pack.sh",
-    "respect:parser:generate": "pegjs --format commonjs packages/respect/src/modules/runtime-expressions/abnf-parser.pegjs"
+    "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs"
   },
   "workspaces": [
     "packages/*"
