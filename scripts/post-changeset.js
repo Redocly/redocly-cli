@@ -2,8 +2,6 @@ const fs = require('fs');
 
 const generatedLogsCli = fs.readFileSync('./packages/cli/CHANGELOG.md').toString();
 const [, logCli] = generatedLogsCli.split('\n## ', 2);
-const generatedLogsCore = fs.readFileSync('./packages/core/CHANGELOG.md').toString();
-const [, logCore] = generatedLogsCore.split('\n## ', 2);
 
 const mainChangelog = fs.readFileSync('./docs/changelog.md').toString();
 const [date] = new Date().toISOString().split('T');

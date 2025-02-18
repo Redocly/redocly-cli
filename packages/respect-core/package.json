@@ -3,7 +3,8 @@
   "version": "1.29.0",
   "description": "API TEST FRAMEWORK",
   "scripts": {
-    "json-server": "json-server --watch api-samples/fake-db.json --port 3000 --host 0.0.0.0"
+    "json-server": "json-server --watch api-samples/fake-db.json --port 3000 --host 0.0.0.0",
+    "parser:generate": "pegjs src/modules/runtime-expressions/abnf-parser.pegjs"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -44,7 +45,7 @@
     "@faker-js/faker": "^7.6.0",
     "@jest/expect-utils": "^29.3.1",
     "@redocly/ajv": "8.11.2",
-    "@redocly/openapi-core": "1.28.3",
+    "@redocly/openapi-core": "1.29.0",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
     "concat-stream": "^2.0.0",
