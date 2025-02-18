@@ -71,5 +71,9 @@ jobs:
 
           cd packages/core
           npm publish --tag snapshot
+
+          cd ../respect-core
+          npm publish --tag snapshot
+
           cd ../cli
           npm publish --tag snapshot
