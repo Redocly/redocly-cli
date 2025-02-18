@@ -1,7 +1,7 @@
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 
-it('should use off severity level', () => {
+test('should use off severity level', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'severity-level.yaml');
   const args = getParams(indexEntryPoint, [

@@ -1,7 +1,7 @@
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 
-it('should use inputs from CLI and env to mapp with resolved refs', () => {
+test('should use inputs from CLI and env to mapp with resolved refs', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

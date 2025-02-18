@@ -2,7 +2,7 @@ import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 
 // Snapshot is intentionally should show failed request to museum-api-bad-endpoint
-it('should use server override from CLI and env', () => {
+test('should use server override from CLI and env', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
   process.env.REDOCLY_CLI_RESPECT_SERVER =
     'museum-api=https://museum-api-bad-endpoint.com/museum-api-bad-endpoint,tickets-from-museum-api=https://redocly.com/_mock/docs/openapi/museum-api';

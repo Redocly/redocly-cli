@@ -1,7 +1,7 @@
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
 
-it('should resolve outputs access syntax variations', () => {
+test('should resolve outputs access syntax variations', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

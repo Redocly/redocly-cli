@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { getParams, getCommandOutput, getFixturePath, cleanColors } from '../utils';
 
-it('cats api test case', () => {
+test('cats api test case', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'auto-cat.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);

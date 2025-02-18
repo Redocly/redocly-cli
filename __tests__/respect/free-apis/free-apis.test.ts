@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { getParams, getCommandOutput } from '../utils';
 
-it('free apis test case', () => {
+test('free apis test case', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'free.yaml');
   const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
