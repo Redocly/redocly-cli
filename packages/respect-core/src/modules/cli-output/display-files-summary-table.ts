@@ -1,11 +1,10 @@
 import { green, red, gray, yellow } from 'colorette';
 import * as path from 'path';
-
-import type { Workflow } from '../../types';
-
 import { calculateTotals } from './calculate-tests-passed';
 import { RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
+
+import type { Workflow } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 

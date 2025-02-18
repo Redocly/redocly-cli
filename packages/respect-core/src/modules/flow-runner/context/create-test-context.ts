@@ -30,7 +30,7 @@ export async function createTestContext(
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
-  let bundledDescriptions = {} as Descriptions;
+  const bundledDescriptions = {} as Descriptions;
 
   if (sourceDescriptions) {
     await Promise.all(

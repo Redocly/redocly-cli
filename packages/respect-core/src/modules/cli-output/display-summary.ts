@@ -1,14 +1,13 @@
 import { outdent } from 'outdent';
 import { yellow, inverse, bold, green, red, blue, gray } from 'colorette';
 import * as path from 'path';
-
-import type { ResultsOfTests, Workflow } from '../../types';
-
 import { getExecutionTime } from '../../utils/time';
 import { calculateTotals } from './calculate-tests-passed';
 import { indent } from '../../utils/cli-outputs';
 import { resolveRunningWorkflows } from '../flow-runner';
 import { DefaultLogger } from '../../utils/logger/logger';
+
+import type { ResultsOfTests, Workflow } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 

@@ -1,4 +1,6 @@
-// @ts-ignore
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore broken types for js-yaml
 import { JSON_SCHEMA, types, load, dump } from 'js-yaml';
 import { readFileSync } from 'fs';
 

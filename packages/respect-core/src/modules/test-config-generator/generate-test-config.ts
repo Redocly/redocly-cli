@@ -1,4 +1,6 @@
 import * as path from 'path';
+import { sortMethods } from '../../utils/sort';
+import { bundleOpenApi } from '../description-parser';
 
 import type {
   OperationMethod,
@@ -7,9 +9,6 @@ import type {
   Workflow,
   Step,
 } from '../../types';
-
-import { sortMethods } from '../../utils/sort';
-import { bundleOpenApi } from '../description-parser';
 
 type WorkflowsFromDescriptionInput = {
   descriptionPaths: any;

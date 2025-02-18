@@ -1,6 +1,5 @@
 import * as Sampler from 'openapi-sampler';
 import { bgRed } from 'colorette';
-
 import { DefaultLogger } from '../../utils/logger/logger';
 
 const logger = DefaultLogger.getInstance();

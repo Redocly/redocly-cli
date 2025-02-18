@@ -59,10 +59,10 @@ export function evaluateRuntimeExpression(expression: any, context: RuntimeExpre
 function evaluateExpressionString(expression: string, context: RuntimeExpressionContext) {
   // Replace $faker expressions with fake data as it is not the part of the Runtime
   // Expressions and should be evaluated separately
-  if (/^\$faker\.[a-zA-Z0-9._-]+(\([^\)]*\))?$/.test(expression)) {
+  if (/^\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?$/.test(expression)) {
     return getFakeData(expression.slice(1), context);
   } else if (expression.includes('$faker.')) {
-    const fakerRegex = /\$faker\.[a-zA-Z0-9._-]+(\([^\)]*\))?/g;
+    const fakerRegex = /\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?/g;
     expression = expression
       .replace(fakerRegex, (match) => {
         return getFakeData(match.slice(1), context);

@@ -1,12 +1,12 @@
 import { isPlainObject } from '@redocly/openapi-core/lib/utils';
+import { generateTestDataFromJsonSchema, generateExampleValue } from '../test-config-generator';
+import { extractFirstExample } from './extract-first-example';
+import { isParameterWithIn } from '../config-parser';
 
 import type { Parameter } from '../../types';
 import type { ParameterWithIn } from '../config-parser';
 import type { OperationDetails } from './get-operation-from-description';
 
-import { generateTestDataFromJsonSchema, generateExampleValue } from '../test-config-generator';
-import { extractFirstExample } from './extract-first-example';
-import { isParameterWithIn } from '../config-parser';
 
 export interface OpenApiRequestData {
   requestBody?: Record<string, unknown>;

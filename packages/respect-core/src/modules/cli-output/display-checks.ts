@@ -1,13 +1,12 @@
 import { blue, yellow, green, gray, red } from 'colorette';
 import { outdent } from 'outdent';
-
-import type { Check, VerboseLog } from '../../types';
-import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
-
 import { combineUrl } from '../../utils/url';
 import { isJSON } from '../../utils/is-json';
 import { indent, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
+
+import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
+import type { Check, VerboseLog } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 

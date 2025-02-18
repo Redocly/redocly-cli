@@ -1,7 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
 import { Dispatcher } from 'undici';
-
 import { getInputUrl } from './get-input-url';
 import { handleRequest } from './handle-request';
 
@@ -36,7 +35,8 @@ export function getAgent(input: any, options: any): any {
   if (options.agent) {
     if (typeof options.agent === 'function') {
       return function (...args: any[]) {
-        //@ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const agent = options.agent.call(this, ...args);
         if (agent) {
           instrumentAgentInstance(agent);
@@ -74,8 +74,7 @@ function getGlobalAgent(input: any): any {
 function instrumentAgentInstance(agent: any): void {
   const { addRequest: originalAddRequest } = agent;
   if (!originalAddRequest.isHarEnabled) {
-    agent.addRequest = function addRequest(request: any, ...args: any[]) {
-      // @ts-ignore
+    agent.addRequest = function addRequest(request: any, ...args: []) {
       handleRequest(request, ...args);
       return originalAddRequest.call(this, request, ...args);
     };
@@ -87,12 +86,10 @@ function createAgentClass(BaseAgent: any): any {
   class HarAgent extends BaseAgent {
     constructor(...args: any[]) {
       super(...args);
-      // @ts-ignore
-      this.addRequest.isHarEnabled = true;
+      (this.addRequest as any).isHarEnabled = true;
     }
 
-    addRequest(request: any, ...args: any[]): void {
-      // @ts-ignore
+    addRequest(request: any, ...args: []): void {
       handleRequest(request, ...args);
       return super.addRequest(request, ...args);
     }

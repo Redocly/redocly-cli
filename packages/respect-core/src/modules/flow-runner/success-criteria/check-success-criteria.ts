@@ -1,13 +1,4 @@
 import { JSONPath } from 'jsonpath-plus';
-
-import type {
-  TestContext,
-  Check,
-  RegexpSuccessCriteria,
-  Step,
-  CriteriaObject,
-} from '../../../types';
-
 import {
   validateSuccessCriteria,
   isRegexpSuccessCriteria,
@@ -16,6 +7,14 @@ import {
 import { CHECKS } from '../../checks';
 import { evaluateRuntimeExpression } from '../../runtime-expressions';
 import { createRuntimeExpressionCtx } from '../context';
+
+import type {
+  TestContext,
+  Check,
+  RegexpSuccessCriteria,
+  Step,
+  CriteriaObject,
+} from '../../../types';
 
 export function checkCriteria({
   workflowId,
@@ -77,7 +76,7 @@ export function checkCriteria({
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
         });
       } else if (isJSONPathSuccessCriteria(criteria)) {
-        let { context, condition } = criteria;
+        const { context, condition } = criteria;
         const data = evaluateRuntimeExpression(context, criteriaContext);
 
         checks.push({

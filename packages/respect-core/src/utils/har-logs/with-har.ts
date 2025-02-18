@@ -10,7 +10,6 @@
 import { URL } from 'url';
 import { Client } from 'undici';
 import * as crypto from 'node:crypto';
-
 import { addHeaders } from './helpers/add-headers';
 import { getDuration } from './helpers/get-duration';
 import { buildRequestCookies } from './helpers/build-request-cookies';
@@ -195,7 +194,7 @@ export const withHar: WithHar = function (baseFetch: any, defaults: any = {}): a
     const parents = [];
     let child = harEntry;
     do {
-      let parent = child._parent;
+      const parent = child._parent;
       delete child._parent;
       if (parent) {
         parents.unshift(parent);

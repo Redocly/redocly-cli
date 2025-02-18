@@ -1,9 +1,9 @@
 import { red } from 'colorette';
 import { createContext, runInContext } from 'node:vm';
+import { DefaultLogger } from '../../utils/logger/logger';
 
 import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types';
 
-import { DefaultLogger } from '../../utils/logger/logger';
 
 const logger = DefaultLogger.getInstance();
 
@@ -149,7 +149,7 @@ const getFrom =
     }
 
     if (!pointer) return $;
-    let [key, ...rest] = pointer.split('.');
+    const [key, ...rest] = pointer.split('.');
 
     if (!$) {
       throw Error(`Cannot get ${red(key)} from ${red(originalPointer)}`);

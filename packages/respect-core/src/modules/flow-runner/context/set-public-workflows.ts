@@ -1,7 +1,8 @@
-import type { Workflow, PublicWorkflow, InputSchema } from '../../../types';
 
 import { resolveInputValuesToSchema } from '../inputs';
 import { getPublicSteps } from './set-public-steps';
+
+import type { Workflow, PublicWorkflow, InputSchema } from '../../../types';
 
 export function getPublicWorkflows({
   workflows,
