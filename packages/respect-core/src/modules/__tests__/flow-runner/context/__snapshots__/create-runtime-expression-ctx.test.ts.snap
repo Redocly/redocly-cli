@@ -1,0 +1,1511 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createRuntimeExpressionCtx should create limited runtime expression context when step is not provided 1`] = `
+{
+  "$components": {},
+  "$faker": {
+    "address": {
+      "city": [Function],
+      "country": [Function],
+      "street": [Function],
+      "zipCode": [Function],
+    },
+    "date": {
+      "future": [Function],
+      "past": [Function],
+    },
+    "number": {
+      "float": [Function],
+      "integer": [Function],
+    },
+    "string": {
+      "email": [Function],
+      "firstName": [Function],
+      "fullName": [Function],
+      "lastName": [Function],
+      "string": [Function],
+      "userName": [Function],
+      "uuid": [Function],
+    },
+  },
+  "$inputs": {
+    "env": {},
+  },
+  "$method": "",
+  "$outputs": {},
+  "$request": undefined,
+  "$response": undefined,
+  "$sourceDescriptions": {
+    "cats": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "catsTwo": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "externalWorkflow": {
+      "arazzo": "1.0.1",
+      "components": {},
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "sourceDescriptions": [
+        {
+          "name": "cats",
+          "type": "openapi",
+          "url": "cats.yaml",
+        },
+      ],
+      "workflows": [
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getBreeds",
+              "stepId": "get-breeds-step",
+            },
+          ],
+          "workflowId": "get-breeds-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getRandomFact",
+              "stepId": "get-fact-step",
+            },
+          ],
+          "workflowId": "get-fact-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getFacts",
+              "stepId": "get-facts-step",
+            },
+          ],
+          "workflowId": "get-facts-workflow",
+        },
+      ],
+    },
+  },
+  "$statusCode": undefined,
+  "$steps": {},
+  "$url": "",
+  "$workflows": {
+    "test": {
+      "inputs": {
+        "env": {
+          "AUTH_TOKEN": "1234567890",
+        },
+      },
+      "outputs": undefined,
+      "steps": {
+        "test": {},
+      },
+    },
+  },
+}
+`;
+
+exports[`createRuntimeExpressionCtx should create limited runtime expression context when workflowId and step provided 1`] = `
+{
+  "$components": {},
+  "$faker": {
+    "address": {
+      "city": [Function],
+      "country": [Function],
+      "street": [Function],
+      "zipCode": [Function],
+    },
+    "date": {
+      "future": [Function],
+      "past": [Function],
+    },
+    "number": {
+      "float": [Function],
+      "integer": [Function],
+    },
+    "string": {
+      "email": [Function],
+      "firstName": [Function],
+      "fullName": [Function],
+      "lastName": [Function],
+      "string": [Function],
+      "userName": [Function],
+      "uuid": [Function],
+    },
+  },
+  "$inputs": {
+    "env": {},
+  },
+  "$method": undefined,
+  "$outputs": {},
+  "$request": {
+    "body": {},
+    "header": undefined,
+    "path": undefined,
+    "query": undefined,
+  },
+  "$response": {
+    "body": {},
+    "header": {},
+    "path": undefined,
+    "query": undefined,
+  },
+  "$sourceDescriptions": {
+    "cats": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "catsTwo": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "externalWorkflow": {
+      "arazzo": "1.0.1",
+      "components": {},
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "sourceDescriptions": [
+        {
+          "name": "cats",
+          "type": "openapi",
+          "url": "cats.yaml",
+        },
+      ],
+      "workflows": [
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getBreeds",
+              "stepId": "get-breeds-step",
+            },
+          ],
+          "workflowId": "get-breeds-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getRandomFact",
+              "stepId": "get-fact-step",
+            },
+          ],
+          "workflowId": "get-fact-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getFacts",
+              "stepId": "get-facts-step",
+            },
+          ],
+          "workflowId": "get-facts-workflow",
+        },
+      ],
+    },
+  },
+  "$statusCode": undefined,
+  "$steps": {},
+  "$url": undefined,
+  "$workflows": {
+    "test": {
+      "inputs": {
+        "env": {
+          "AUTH_TOKEN": "1234567890",
+        },
+      },
+      "outputs": undefined,
+      "steps": {
+        "test": {},
+      },
+    },
+  },
+}
+`;
+
+exports[`createRuntimeExpressionCtx should create limited runtime expression context when workflowId is not provided 1`] = `
+{
+  "$components": {},
+  "$faker": {
+    "address": {
+      "city": [Function],
+      "country": [Function],
+      "street": [Function],
+      "zipCode": [Function],
+    },
+    "date": {
+      "future": [Function],
+      "past": [Function],
+    },
+    "number": {
+      "float": [Function],
+      "integer": [Function],
+    },
+    "string": {
+      "email": [Function],
+      "firstName": [Function],
+      "fullName": [Function],
+      "lastName": [Function],
+      "string": [Function],
+      "userName": [Function],
+      "uuid": [Function],
+    },
+  },
+  "$inputs": {
+    "env": {},
+  },
+  "$method": "",
+  "$outputs": {},
+  "$request": undefined,
+  "$response": undefined,
+  "$sourceDescriptions": {
+    "cats": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "catsTwo": {
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "paths": {
+        "/breeds": {
+          "get": {
+            "description": "Returns a a list of breeds",
+            "operationId": "getBreeds",
+            "parameters": [
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "Breed",
+                        "properties": {
+                          "breed": {
+                            "description": "Breed",
+                            "format": "string",
+                            "title": "Breed",
+                            "type": "string",
+                          },
+                          "coat": {
+                            "description": "Coat",
+                            "format": "string",
+                            "title": "Coat",
+                            "type": "string",
+                          },
+                          "country": {
+                            "description": "Country",
+                            "format": "string",
+                            "title": "Country",
+                            "type": "string",
+                          },
+                          "origin": {
+                            "description": "Origin",
+                            "format": "string",
+                            "title": "Origin",
+                            "type": "string",
+                          },
+                          "pattern": {
+                            "description": "Pattern",
+                            "format": "string",
+                            "title": "Pattern",
+                            "type": "string",
+                          },
+                        },
+                        "title": "Breed model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of breeds",
+            "tags": [
+              "Breeds",
+            ],
+          },
+        },
+        "/fact": {
+          "get": {
+            "description": "Returns a random fact",
+            "operationId": "getRandomFact",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "description": "CatFact",
+                      "properties": {
+                        "fact": {
+                          "description": "Fact",
+                          "format": "string",
+                          "title": "Fact",
+                          "type": "string",
+                        },
+                        "length": {
+                          "description": "Length",
+                          "format": "int32",
+                          "title": "Length",
+                          "type": "integer",
+                        },
+                      },
+                      "title": "CatFact model",
+                      "type": "object",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+              "404": {
+                "description": "Fact not found",
+              },
+            },
+            "summary": "Get Random Fact",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+        "/facts": {
+          "get": {
+            "description": "Returns a a list of facts",
+            "operationId": "getFacts",
+            "parameters": [
+              {
+                "description": "maximum length of returned fact",
+                "in": "query",
+                "name": "max_length",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+              {
+                "description": "limit the amount of results returned",
+                "in": "query",
+                "name": "limit",
+                "required": false,
+                "schema": {
+                  "format": "int64",
+                  "type": "integer",
+                },
+              },
+            ],
+            "responses": {
+              "200": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "items": {
+                        "description": "CatFact",
+                        "properties": {
+                          "fact": {
+                            "description": "Fact",
+                            "format": "string",
+                            "title": "Fact",
+                            "type": "string",
+                          },
+                          "length": {
+                            "description": "Length",
+                            "format": "int32",
+                            "title": "Length",
+                            "type": "integer",
+                          },
+                        },
+                        "title": "CatFact model",
+                        "type": "object",
+                      },
+                      "type": "array",
+                    },
+                  },
+                },
+                "description": "successful operation",
+              },
+            },
+            "summary": "Get a list of facts",
+            "tags": [
+              "Facts",
+            ],
+          },
+        },
+      },
+      "servers": [
+        {
+          "url": "https://catfact.ninja/",
+        },
+      ],
+    },
+    "externalWorkflow": {
+      "arazzo": "1.0.1",
+      "components": {},
+      "info": {
+        "title": "Cat Facts API",
+        "version": "1.0",
+      },
+      "sourceDescriptions": [
+        {
+          "name": "cats",
+          "type": "openapi",
+          "url": "cats.yaml",
+        },
+      ],
+      "workflows": [
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getBreeds",
+              "stepId": "get-breeds-step",
+            },
+          ],
+          "workflowId": "get-breeds-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getRandomFact",
+              "stepId": "get-fact-step",
+            },
+          ],
+          "workflowId": "get-fact-workflow",
+        },
+        {
+          "steps": [
+            {
+              "operationId": "$sourceDescriptions.cats.getFacts",
+              "stepId": "get-facts-step",
+            },
+          ],
+          "workflowId": "get-facts-workflow",
+        },
+      ],
+    },
+  },
+  "$statusCode": undefined,
+  "$steps": {},
+  "$url": "",
+  "$workflows": {
+    "test": {
+      "inputs": {
+        "env": {
+          "AUTH_TOKEN": "1234567890",
+        },
+      },
+      "outputs": undefined,
+      "steps": {
+        "test": {},
+      },
+    },
+  },
+}
+`;

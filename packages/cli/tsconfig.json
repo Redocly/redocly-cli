@@ -4,6 +4,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "references": [{ "path": "../core" }, { "path": "../respect" }],
+  "references": [{ "path": "../core" }, { "path": "../respect-core" }],
   "exclude": ["lib"]
 }

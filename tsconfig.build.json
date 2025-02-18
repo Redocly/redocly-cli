@@ -3,6 +3,6 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/cli" },
-    { "path": "packages/respect" }
+    { "path": "packages/respect-core" }
   ]
 }
