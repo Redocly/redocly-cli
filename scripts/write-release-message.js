@@ -14,8 +14,8 @@ fs.writeFileSync(
   JSON.stringify({
     text: slackifyMarkdown(
       `:bookmark: New @redocly/cli release ${logCli}\n\n` +
-      `:bookmark: New @redocly/openapi-core release ${logCore}\n\n` +
-      `:bookmark: New @redocly/respect-core release ${logRespectCore}\n\n`
+        `:bookmark: New @redocly/openapi-core release ${logCore}\n\n` +
+        `:bookmark: New @redocly/respect-core release ${logRespectCore}\n\n`
     ),
   })
 );

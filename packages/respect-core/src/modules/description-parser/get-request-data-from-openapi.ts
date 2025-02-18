@@ -7,7 +7,6 @@ import type { Parameter } from '../../types';
 import type { ParameterWithIn } from '../config-parser';
 import type { OperationDetails } from './get-operation-from-description';
 
-
 export interface OpenApiRequestData {
   requestBody?: Record<string, unknown>;
   contentType?: string;

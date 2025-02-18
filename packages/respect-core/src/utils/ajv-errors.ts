@@ -3,7 +3,6 @@ import { RESET_ESCAPE_CODE } from './cli-outputs';
 
 import type { JSONSchemaType } from '@redocly/ajv/dist/2020';
 
-
 export function printErrors(schema: JSONSchemaType<unknown>, data: any, errors: any[]) {
   const updatedErrors = errors.map((error: any) => {
     if (error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties') {
