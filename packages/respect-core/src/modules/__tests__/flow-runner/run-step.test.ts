@@ -602,7 +602,7 @@ const basicCTX = {
     metadata: {
       _: [],
       files: ['runStepTest.yml'],
-      $0: 'spot',
+      $0: 'respect',
       file: 'runStepTest.yml',
     },
     input: undefined,
@@ -2571,7 +2571,7 @@ describe('runStep', () => {
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'runStepTest.yml',
         },
         input: undefined,
@@ -3008,7 +3008,7 @@ describe('runStep', () => {
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'runStepTest.yml',
         },
         input: undefined,
@@ -3479,7 +3479,7 @@ describe('runStep', () => {
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'runStepTest.yml',
         },
         input: undefined,
@@ -3974,7 +3974,7 @@ describe('runStep', () => {
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'runStepTest.yml',
         },
         input: undefined,

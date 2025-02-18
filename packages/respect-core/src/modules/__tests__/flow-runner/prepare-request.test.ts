@@ -309,7 +309,7 @@ describe('prepareRequest', () => {
       metadata: {
         _: [],
         files: ['simple.yaml'],
-        $0: 'spot',
+        $0: 'respect',
         file: 'simple.yaml',
       },
     },
@@ -554,7 +554,7 @@ describe('prepareRequest', () => {
         metadata: {
           _: [],
           files: ['simple.yaml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'simple.yaml',
         },
       },
@@ -682,7 +682,7 @@ describe('prepareRequest', () => {
         metadata: {
           _: [],
           files: ['simple.yaml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'simple.yaml',
         },
       },
@@ -885,7 +885,7 @@ describe('prepareRequest', () => {
         metadata: {
           _: [],
           files: ['simple.yaml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'simple.yaml',
         },
       },
@@ -1090,7 +1090,7 @@ describe('prepareRequest', () => {
         metadata: {
           _: [],
           files: ['simple.yaml'],
-          $0: 'spot',
+          $0: 'respect',
           file: 'simple.yaml',
         },
       },
