@@ -15,6 +15,7 @@
     "unit:watch": "REDOCLY_TELEMETRY=off jest --watch",
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
+    "coverage:respect-core": "npm run jest -- --roots packages/respect-core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "npm run webpack-bundle -- --mode=none && REDOCLY_TELEMETRY=off NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\"  jest --roots=./__tests__/",
     "prettier": "      npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
@@ -37,7 +38,6 @@
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
     "pack:prepare": "./scripts/local-pack.sh",
-    "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [

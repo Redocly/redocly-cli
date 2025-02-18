@@ -31,9 +31,14 @@ jobs:
           # Update Core package version
           jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
 
-          # Update CLI package version and the Core dependency
+          # Update Respect Core package version and dependencies
+          jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+
+          # Update CLI package version and dependencies
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
           # Add comment with installation instructions
           COMMENT="📦 A new experimental version **v$VERSION** of Redocly CLI has been published for testing.

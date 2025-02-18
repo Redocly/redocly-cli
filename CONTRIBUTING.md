@@ -70,11 +70,9 @@ To test local changes as a package, you can use the following steps:
 
 1. Optionally, bump the version of the packages ([see details](#version-updating)).
 
-1. Run `npm run pack:prepare` in the repository's root. This generates **redocly-cli.tgz** and **openapi-core.tgz** files and makes some changes to **packages/cli/package.json** file.
+1. Run `npm run pack:prepare` in the repository's root. This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
 
-1. Copy **redocly-cli.tgz** file to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
-
-Don't forget to revert the changes to **package.json** files later.
+1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
 
 ## Contribute documentation
 
