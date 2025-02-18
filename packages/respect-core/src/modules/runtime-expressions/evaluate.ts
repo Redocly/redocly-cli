@@ -184,7 +184,7 @@ function evaluateExpressionsInString(
   expression: string,
   context: RuntimeExpressionContext
 ): string {
-  const regex = /\{([^{}]*|(\{[^{}]*\}))*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
+  const regex = /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
 
   return expression.replace(regex, (match) => {
     const exprToEvaluate = match.trim();

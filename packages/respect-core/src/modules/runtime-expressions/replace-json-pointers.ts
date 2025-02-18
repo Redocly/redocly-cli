@@ -15,13 +15,13 @@ export function replaceJSONPointers(expression: string, context: any): string {
       },
     },
     {
-      pattern: /\$outputs\.([\w\-A-Za-z0-9_]+)#\/([\w/]+)/g,
+      pattern: /\$outputs\.([\w-]+)#\/([\w/]+)/g,
       ctxFunction: (match: string, property: string, pointer: string) => {
         return resolvePointer(context.$outputs?.[property], pointer, match);
       },
     },
     {
-      pattern: /\$workflows\.([\w\-A-Za-z0-9_]+)\.outputs\.([\w\-A-Za-z0-9_]+)#\/([\w/]+)/g,
+      pattern: /\$workflows\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/]+)/g,
       ctxFunction: (match: string, workflowId: string, property: string, pointer: string) => {
         return resolvePointer(
           context.$workflows?.[workflowId]?.outputs?.[property],
@@ -31,7 +31,7 @@ export function replaceJSONPointers(expression: string, context: any): string {
       },
     },
     {
-      pattern: /\$steps\.([\w\-A-Za-z0-9_]+)\.outputs\.([\w\-A-Za-z0-9_]+)#\/([\w/]+)/g,
+      pattern: /\$steps\.([\w-]+)\.outputs\.([\w-]+)#\/([\w/]+)/g,
       ctxFunction: (match: string, stepId: string, property: string, pointer: string) => {
         return resolvePointer(context.$steps?.[stepId]?.outputs?.[property], pointer, match);
       },
