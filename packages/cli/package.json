@@ -4,8 +4,8 @@
   "description": "",
   "license": "MIT",
   "bin": {
-    "openapi": "bin/cli.js",
-    "redocly": "bin/cli.js"
+    "redocly": "bin/cli.js",
+    "openapi": "bin/cli.js"
   },
   "engines": {
     "node": ">=18.17.0",
