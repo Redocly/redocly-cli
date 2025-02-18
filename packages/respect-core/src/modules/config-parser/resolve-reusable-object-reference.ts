@@ -8,7 +8,6 @@ import type {
   Parameter,
 } from '../../types';
 
-
 type ComponentType<T extends ReusableObject> =
   T['reference'] extends `$components.successActions${string}`
     ? OnSuccessObject

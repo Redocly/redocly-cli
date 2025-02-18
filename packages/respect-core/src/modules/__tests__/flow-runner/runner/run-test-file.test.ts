@@ -135,10 +135,13 @@ describe('runTestFile', () => {
     (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
 
     await expect(
-      runTestFile({
-        file: 'test.yaml',
-        testDescription,
-      }, {})
+      runTestFile(
+        {
+          file: 'test.yaml',
+          testDescription,
+        },
+        {}
+      )
     ).rejects.toMatchSnapshot();
   });
 
@@ -203,9 +206,12 @@ describe('runTestFile', () => {
       },
     });
 
-    await runTestFile({
-      file: 'test.yaml',
-    }, {});
+    await runTestFile(
+      {
+        file: 'test.yaml',
+      },
+      {}
+    );
 
     expect(runStep).toHaveBeenCalledTimes(1);
   });
@@ -293,9 +299,12 @@ describe('runTestFile', () => {
       },
     });
 
-    await runTestFile({
-      file: 'test.yaml',
-    }, {});
+    await runTestFile(
+      {
+        file: 'test.yaml',
+      },
+      {}
+    );
 
     // called 3 times, one for each step from each workflow and one from dependsOn
     expect(runStep).toHaveBeenCalledTimes(3);
@@ -480,9 +489,12 @@ describe('runTestFile', () => {
     });
 
     await expect(
-      runTestFile({
-        file: 'test.yaml',
-      }, {})
+      runTestFile(
+        {
+          file: 'test.yaml',
+        },
+        {}
+      )
     ).rejects.toThrowError('Dependent workflows has failed steps');
   }, 8000);
 

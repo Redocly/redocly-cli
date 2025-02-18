@@ -1,7 +1,12 @@
 import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020';
 import { diffLinesUnified } from 'jest-diff';
 import { blue, dim, red, yellow } from 'colorette';
-import { type Check, type DescriptionChecks, type StepCallContext, type TestContext } from '../../../types';
+import {
+  type Check,
+  type DescriptionChecks,
+  type StepCallContext,
+  type TestContext,
+} from '../../../types';
 import { CHECKS } from '../../checks';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema';
@@ -120,10 +125,7 @@ function checkStatusCodeFromDescription({
 
   const message = matchesCodeFromDescription
     ? dim(`List of valid response codes are inferred from description \n\n`) +
-      diffLinesUnified(
-        responseCodesFromDescription.map(String),
-        [`${responseStatusCode}`]
-      )
+      diffLinesUnified(responseCodesFromDescription.map(String), [`${responseStatusCode}`])
     : ''; // NOTE: we don't show any diff if response code hits default response
 
   const pass = matchesCodeFromDescription || matchesDefaultResponse;

@@ -3,7 +3,6 @@ import { DefaultLogger } from '../../utils/logger/logger';
 
 import type { Workflow } from '../../types';
 
-
 const logger = DefaultLogger.getInstance();
 
 export function getWorkflowsToRun(

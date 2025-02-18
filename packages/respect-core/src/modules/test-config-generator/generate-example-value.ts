@@ -1,4 +1,3 @@
-
 import { generateTestDataFromJsonSchema } from './generate-test-data-from-json-schema';
 import { extractFirstExample } from '../description-parser';
 

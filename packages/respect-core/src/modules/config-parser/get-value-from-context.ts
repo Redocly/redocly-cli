@@ -4,7 +4,6 @@ import { DefaultLogger } from '../../utils/logger/logger';
 
 import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types';
 
-
 const logger = DefaultLogger.getInstance();
 
 export interface ParsedParameters {

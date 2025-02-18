@@ -1132,24 +1132,26 @@ describe('runStep', () => {
     const parentWorkflowId = undefined;
     const parentStepId = undefined;
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
-          message: '',
-          severity: 'error',
-        },
-        {
-          name: 'MIME-TYPE CHECK',
-          pass: true,
-          message: '',
-          severity: 'error',
-        },
-      ];
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: true,
+            message: '',
+            severity: 'error',
+          },
+          {
+            name: 'MIME-TYPE CHECK',
+            pass: true,
+            message: '',
+            severity: 'error',
+          },
+        ];
 
-      return { successCriteriaCheck: true, expectCheck: true };
-    });
+        return { successCriteriaCheck: true, expectCheck: true };
+      }
+    );
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
@@ -1253,24 +1255,26 @@ describe('runStep', () => {
     const parentStepId = undefined;
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
-          message: '',
-          severity: 'error',
-        },
-        {
-          name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: false,
-          message: '',
-          severity: 'error',
-        },
-      ];
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: false,
+            message: '',
+            severity: 'error',
+          },
+          {
+            name: CHECKS.CONTENT_TYPE_CHECK,
+            pass: false,
+            message: '',
+            severity: 'error',
+          },
+        ];
 
-      return { successCriteriaCheck: false, expectCheck: true };
-    });
+        return { successCriteriaCheck: false, expectCheck: true };
+      }
+    );
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
@@ -1364,24 +1368,26 @@ describe('runStep', () => {
     const parentStepId = undefined;
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
-          message: '',
-          severity: 'error',
-        },
-        {
-          name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: false,
-          message: '',
-          severity: 'error',
-        },
-      ];
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: false,
+            message: '',
+            severity: 'error',
+          },
+          {
+            name: CHECKS.CONTENT_TYPE_CHECK,
+            pass: false,
+            message: '',
+            severity: 'error',
+          },
+        ];
 
-      return { successCriteriaCheck: false, expectCheck: true };
-    });
+        return { successCriteriaCheck: false, expectCheck: true };
+      }
+    );
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
@@ -1868,68 +1874,74 @@ describe('runStep', () => {
     const parentStepId = undefined;
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
-          message: '',
-          severity: 'error',
-        },
-      ];
-
-      if (step.stepId === 'get-bird') {
-        step.response = {
-          body: {
-            bird: '🐦',
-            name: 'hawk',
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: false,
+            message: '',
+            severity: 'error',
           },
-          statusCode: 200,
-          headers: new Headers(),
-          contentType: 'application/json',
-        } as unknown as ResponseContext;
+        ];
+
+        if (step.stepId === 'get-bird') {
+          step.response = {
+            body: {
+              bird: '🐦',
+              name: 'hawk',
+            },
+            statusCode: 200,
+            headers: new Headers(),
+            contentType: 'application/json',
+          } as unknown as ResponseContext;
+        }
+
+        return { successCriteriaCheck: false, expectCheck: true };
       }
+    );
 
-      return { successCriteriaCheck: false, expectCheck: true };
-    });
-
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
-          message: '',
-          severity: 'error',
-        },
-      ];
-
-      return { successCriteriaCheck: true, expectCheck: true };
-    });
-
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
-      step.checks = [
-        {
-          name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
-          message: '',
-          severity: 'error',
-        },
-      ];
-
-      if (step.stepId === 'get-bird') {
-        step.response = {
-          body: {
-            bird: '🐦',
-            name: 'hawk',
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: true,
+            message: '',
+            severity: 'error',
           },
-          statusCode: 200,
-          headers: new Headers(),
-          contentType: 'application/json',
-        } as unknown as ResponseContext;
-      }
+        ];
 
-      return { successCriteriaCheck: true, expectCheck: true };
-    });
+        return { successCriteriaCheck: true, expectCheck: true };
+      }
+    );
+
+    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+      async ({ step }: { step: Step }) => {
+        step.checks = [
+          {
+            name: CHECKS.STATUS_CODE_CHECK,
+            pass: true,
+            message: '',
+            severity: 'error',
+          },
+        ];
+
+        if (step.stepId === 'get-bird') {
+          step.response = {
+            body: {
+              bird: '🐦',
+              name: 'hawk',
+            },
+            statusCode: 200,
+            headers: new Headers(),
+            contentType: 'application/json',
+          } as unknown as ResponseContext;
+        }
+
+        return { successCriteriaCheck: true, expectCheck: true };
+      }
+    );
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
