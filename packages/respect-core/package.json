@@ -1,6 +1,6 @@
 {
   "name": "@redocly/respect-core",
-  "version": "0.12.0",
+  "version": "1.29.0",
   "description": "API TEST FRAMEWORK",
   "scripts": {
     "clean": "rimraf lib && rimraf lib-internal",
