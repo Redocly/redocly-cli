@@ -6,6 +6,26 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 
 import type { RequestData } from './prepare-request';
 import type { TestContext, Step } from '../../types';
+import type { OperationDetails } from '../description-parser';
+import type { ParameterWithIn } from '../config-parser';
+
+// TODO: rename
+export type ResultObject = {
+  ctx: TestContext;
+  workflowName: string;
+  step: Step;
+  requestData: {
+    serverUrl?: {
+      url: string;
+      // TODO: support variables
+    };
+    path: string;
+    method: string;
+    parameters: ParameterWithIn[];
+    requestBody: any;
+    openapiOperation?: OperationDetails & Record<string, string>;
+  };
+};
 
 // TODO: split into two functions
 export async function callAPIAndAnalyzeResults({

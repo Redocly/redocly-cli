@@ -60,7 +60,7 @@ export async function createTestContext(
   const ctx: TestContext = {
     $response: undefined,
     $request: undefined,
-    $inputs: { env: {} }, // todo: check me?
+    $inputs: { env: {} },
     $faker: faker,
     $sourceDescriptions: bundledDescriptions,
     $workflows: getPublicWorkflows({

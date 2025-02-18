@@ -50,7 +50,7 @@ export function getOperationById(
       } else {
         if (operationDetails.operationId === operationId) {
           return {
-            servers: (pathDetails as any).servers || rootServers, // TODO: fix typings
+            servers: (pathDetails as any).servers || rootServers,
             ...operationDetails,
             pathParameters: operationDetails.parameters || [],
             path,

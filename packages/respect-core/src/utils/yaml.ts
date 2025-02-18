@@ -1,6 +1,4 @@
-// TODO: add a type for "types" https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/js-yaml/index.d.ts
 // @ts-ignore
-
 import { JSON_SCHEMA, types, load, dump } from 'js-yaml';
 import { readFileSync } from 'fs';
 

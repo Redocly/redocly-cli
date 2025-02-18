@@ -61,7 +61,6 @@ const getRequestBodyMultipartFormData = async (
   payload: RequestBody['payload'],
   formData: FormData
 ) => {
-  // TODO: handle other than object payload type
   if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
     const promises: Promise<void>[] = [];
     appendObjectToFormData(promises, formData, payload);
