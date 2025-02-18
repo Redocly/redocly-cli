@@ -1,7 +1,12 @@
 import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
 import concat from 'concat-stream';
-import { type OperationMethod, type VerboseLog, type TestContext, type ResponseContext } from '../types';
+import {
+  type OperationMethod,
+  type VerboseLog,
+  type TestContext,
+  type ResponseContext,
+} from '../types';
 import { type ResultObject } from '../modules/flow-runner';
 import { withHar } from '../utils/har-logs';
 import { isEmpty } from './is-empty';

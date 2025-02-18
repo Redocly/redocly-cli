@@ -17,7 +17,9 @@ export function displayErrors(workflows: Workflow[]) {
     if (!hasProblems) continue;
 
     logger.log(
-      `${RESET_ESCAPE_CODE}\n${indent(gray('Workflow name:'), 2)} ${underline(workflow.workflowId)}${RESET_ESCAPE_CODE}\n`,
+      `${RESET_ESCAPE_CODE}\n${indent(gray('Workflow name:'), 2)} ${underline(
+        workflow.workflowId
+      )}${RESET_ESCAPE_CODE}\n`
     );
 
     for (const step of workflow.steps) {
@@ -28,7 +30,7 @@ export function displayErrors(workflows: Workflow[]) {
       logger.printNewLine();
       logger.log(
         indent(`${blue('stepId - ')}`, 4) +
-          (step?.stepId ? red(step.stepId) : red(step?.operationId || step?.operationPath || '')),
+          (step?.stepId ? red(step.stepId) : red(step?.operationId || step?.operationPath || ''))
       );
 
       for (const failedCheckIndex in failedStepChecks) {
