@@ -83,9 +83,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with file', async () => {
-    fs.createReadStream.mockReturnValueOnce('readStream');
+    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    fs.access = jest.fn((_filePath, _mode, callback) => {
+    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -149,9 +149,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with array with file', async () => {
-    fs.createReadStream.mockReturnValueOnce('readStream');
+    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    fs.access = jest.fn((_filePath, _mode, callback) => {
+    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -174,9 +174,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data and return error reading file', async () => {
-    fs.createReadStream.mockReturnValueOnce('readStream');
+    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    fs.access = jest.fn((_filePath, _mode, callback) => {
+    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     try {
@@ -194,9 +194,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream', async () => {
-    fs.createReadStream.mockReturnValueOnce('readStream');
+    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    fs.access = jest.fn((_filePath, _mode, callback) => {
+    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -228,9 +228,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream and return error reading file', async () => {
-    fs.createReadStream.mockReturnValueOnce('readStream');
+    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    fs.access = jest.fn((_filePath, _mode, callback) => {
+    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     await expect(

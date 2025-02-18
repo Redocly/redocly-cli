@@ -1,4 +1,4 @@
-import fs, { constants } from 'node:fs';
+import * as fs from 'node:fs';
 import { type TestContext } from '../../types';
 
 export function resolveMtlsCertificates(mtlsCertificates: Partial<TestContext['mtlsCerts']> = {}) {
@@ -20,7 +20,7 @@ function resolveCertificate(cert: string | undefined): string | undefined {
 
     if (!isCertContent) {
       // If not a certificate content, treat as file path
-      fs.accessSync(cert, constants.R_OK);
+      fs.accessSync(cert, fs.constants.R_OK);
       return fs.readFileSync(cert, 'utf-8');
     }
 

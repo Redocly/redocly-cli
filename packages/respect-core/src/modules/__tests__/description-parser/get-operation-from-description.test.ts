@@ -4,8 +4,10 @@ import { cleanColors } from '../../../utils/clean-colors';
 import {
   getOperationFromDescriptionBySource,
   getOperationFromDescription,
+  DescriptionSource,
 } from '../../description-parser';
 import { ApiFetcher } from '../../../utils/api-fetcher';
+
 describe('getOperationFromDescriptionBySource', () => {
   const apiClient = new ApiFetcher({
     harLogs: undefined,
@@ -349,7 +351,7 @@ describe('getOperationFromDescriptionBySource', () => {
         {
           path: '/pet',
           method: 'get',
-        },
+        } as unknown as DescriptionSource,
         context
       );
 

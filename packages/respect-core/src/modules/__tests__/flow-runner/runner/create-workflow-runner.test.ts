@@ -26,7 +26,7 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: jest.fn(),
     } as unknown as ApiFetcher;
 
-    apiClient.fetchResult.mockResolvedValue({
+    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
       statusCode: 200,
     });
 
@@ -146,7 +146,7 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: jest.fn(),
     } as unknown as ApiFetcher;
 
-    apiClient.fetchResult.mockResolvedValue({
+    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
       statusCode: 200,
     });
 
@@ -227,7 +227,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx });
 
-    expect(ctx.$outputs.test).toEqual({ outputs: [{ test: 'test' }] });
+    expect(ctx.$outputs?.test).toEqual({ outputs: [{ test: 'test' }] });
     expect(ctx.$workflows.test.outputs).toEqual([{ test: 'test' }]);
   });
 
@@ -236,7 +236,7 @@ describe('runWorkflow', () => {
       fetchResult: jest.fn(),
     } as unknown as ApiFetcher;
 
-    apiClient.fetchResult.mockResolvedValue({
+    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
       statusCode: 200,
     });
 
@@ -312,7 +312,7 @@ describe('runWorkflow', () => {
       fetchResult: jest.fn(),
     } as unknown as ApiFetcher;
 
-    apiClient.fetchResult.mockResolvedValue({
+    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
       statusCode: 200,
     });
 
@@ -382,7 +382,7 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: jest.fn(),
     } as unknown as ApiFetcher;
 
-    apiClient.fetchResult.mockResolvedValue({
+    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
       statusCode: 200,
     });
 
@@ -473,7 +473,7 @@ describe('runWorkflow', () => {
       ctx,
     });
 
-    expect(ctx.$outputs.test).toEqual({ outputs: [{ test: 'test' }] });
+    expect(ctx.$outputs?.test).toEqual({ outputs: [{ test: 'test' }] });
     expect(ctx.$workflows.test.outputs).toEqual([{ test: 'test' }]);
   });
 });

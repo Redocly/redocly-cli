@@ -1,4 +1,4 @@
-import { type AppOptions, type TestDescription } from '../../../../types';
+import { Step, type AppOptions, type TestDescription } from '../../../../types';
 import { createRuntimeExpressionCtx, createTestContext } from '../../../flow-runner/context';
 import { ApiFetcher } from '../../../../utils/api-fetcher';
 
@@ -63,19 +63,23 @@ describe('createRuntimeExpressionCtx', () => {
       workflowId: 'test',
       step: {
         stepId: 'test',
-        requestBody: {
-          header: {
+        'x-operation': {
+          method: 'get',
+          url: 'https://api.thecatapi.com/v1/images/search',
+        },
+        requestData: {
+          headers: {
             accept: 'application/json',
           },
           method: 'get',
           url: 'https://api.thecatapi.com/v1/images/search',
         },
-      },
+      } as unknown as Step,
     });
 
     expect(runtimeExpressionContext).toMatchSnapshot();
     expect(context.workflows).toBeDefined();
-    expect(runtimeExpressionContext.workflows).toBeUndefined();
+    expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
 
   it('should create limited runtime expression context when workflowId is not provided', async () => {
@@ -87,12 +91,13 @@ describe('createRuntimeExpressionCtx', () => {
       ctx: context,
       step: {
         stepId: 'test',
-      },
+        workflowId: 'test',
+      } as unknown as Step,
     });
 
     expect(runtimeExpressionContext).toMatchSnapshot();
     expect(context.workflows).toBeDefined();
-    expect(runtimeExpressionContext.workflows).toBeUndefined();
+    expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
   it('should create limited runtime expression context when step is not provided', async () => {
     const apiClient = new ApiFetcher({
@@ -106,6 +111,6 @@ describe('createRuntimeExpressionCtx', () => {
 
     expect(runtimeExpressionContext).toMatchSnapshot();
     expect(context.workflows).toBeDefined();
-    expect(runtimeExpressionContext.workflows).toBeUndefined();
+    expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
 });

@@ -1,5 +1,7 @@
 import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore this works but some types are not working
 import concat from 'concat-stream';
 import {
   type OperationMethod,

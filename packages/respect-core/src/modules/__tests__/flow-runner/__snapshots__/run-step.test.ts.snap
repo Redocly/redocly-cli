@@ -1,43 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`runStep should result with an error when onFailure step criteria with retry StepId and WorkflowId provided 1`] = `
-[MockFunction] {
-  "calls": [
-    [
-      "GET [37mhttp://localhost:3000/bird[39m [34m- step[39m [37m[1mget-bird[22m[39m",
-      [
-        {
-          "message": "",
-          "name": "status code check",
-          "pass": false,
-          "severity": "error",
-        },
-        {
-          "message": "",
-          "name": "content-type check",
-          "pass": false,
-          "severity": "error",
-        },
-        {
-          "message": "Cannot use both workflowId and stepId in onFailure retry action",
-          "name": "unexpected error",
-          "pass": false,
-          "severity": "error",
-        },
-      ],
-      undefined,
-      undefined,
-    ],
-  ],
-  "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
-  ],
-}
-`;
-
 exports[`runStep should run step and display checks 1`] = `
 [MockFunction] {
   "calls": [

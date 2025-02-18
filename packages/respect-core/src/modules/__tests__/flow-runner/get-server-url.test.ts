@@ -1,7 +1,7 @@
 import type { ExtendedOperation, TestContext } from '../../../types';
 import type { OperationDetails } from '../../description-parser';
 
-import { getServerUrl } from '../../flow-runner';
+import { getServerUrl, GetServerUrlInput } from '../../flow-runner';
 
 describe('getServerUrl', () => {
   it('should return first server url from servers', () => {
@@ -205,11 +205,11 @@ describe('getServerUrl', () => {
       servers: [{ url: 'https://server1.com' }],
     } as unknown as OperationDetails & { servers: { url: string }[] };
     const result = getServerUrl({
-      ctx: { sourceDescriptions: [] },
+      ctx: { sourceDescriptions: [] } as unknown as TestContext,
       descriptionName: 'test',
       path: '',
       openapiOperation: mockDescriptionOperation,
-    });
+    } as unknown as GetServerUrlInput);
 
     expect(result).toEqual({ url: 'https://server1.com' });
   });
