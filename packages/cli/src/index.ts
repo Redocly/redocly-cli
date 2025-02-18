@@ -3,16 +3,15 @@
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
-import { RedoclyClient } from '@redocly/openapi-core';
 import { outputExtensions, regionChoices } from './types';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
-import { handlePushStatus } from './cms/commands/push-status';
+import { handlePushStatus } from './reunite/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
-import { handleLogin } from './commands/login';
+import { handleLogin, handleLogout } from './commands/auth';
 import { handlerBuildCommand } from './commands/build-docs';
 import {
   cacheLatestVersion,
@@ -29,7 +28,7 @@ import { commonPushHandler } from './commands/push';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushStatusOptions } from './cms/commands/push-status';
+import type { PushStatusOptions } from './reunite/commands/push-status';
 import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
@@ -605,22 +604,26 @@ yargs
   )
   .command(
     'login',
-    'Login to the Redocly API registry with an access token.',
+    'Log in to Redocly.',
     async (yargs) =>
       yargs.options({
         verbose: {
           description: 'Include additional output.',
           type: 'boolean',
         },
-        region: {
-          description: 'Specify a region.',
-          alias: 'r',
-          choices: regionChoices,
+        residency: {
+          description: 'Residency of the application. Defaults to `us`.',
+          alias: ['r', 'region'],
+          type: 'string',
         },
         config: {
           description: 'Path to the config file.',
           requiresArg: true,
           type: 'string',
+        },
+        next: {
+          description: 'Use Reunite application to login.',
+          type: 'boolean',
         },
       }),
     (argv) => {
@@ -632,13 +635,9 @@ yargs
     'logout',
     'Clear your stored credentials for the Redocly API registry.',
     (yargs) => yargs,
-    async (argv) => {
+    (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'logout';
-      await commandWrapper(async () => {
-        const client = new RedoclyClient();
-        client.logout();
-        process.stdout.write('Logged out from the Redocly account. ✋\n');
-      })(argv);
+      commandWrapper(handleLogout)(argv);
     }
   )
   .command(

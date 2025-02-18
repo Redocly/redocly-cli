@@ -26,7 +26,7 @@ export class ReuniteApiError extends Error {
   }
 }
 
-class ReuniteApiClient implements BaseApiClient {
+export class ReuniteApiClient implements BaseApiClient {
   public sunsetWarnings: SunsetWarningsBuffer = [];
 
   constructor(protected version: string, protected command: string) {}

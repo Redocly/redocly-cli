@@ -1,6 +1,6 @@
 import { getMergedConfig } from '@redocly/openapi-core';
 import { handlePush } from '../../commands/push';
-import { promptClientToken } from '../../commands/login';
+import { promptClientToken } from '../../commands/auth';
 import { ConfigFixture } from '../fixtures/config';
 import { Readable } from 'node:stream';
 
@@ -23,7 +23,7 @@ jest.mock('fs', () => ({
 
 // Mock OpenAPI core
 jest.mock('@redocly/openapi-core');
-jest.mock('../../commands/login');
+jest.mock('../../commands/auth');
 jest.mock('../../utils/miscellaneous');
 
 const mockPromptClientToken = promptClientToken as jest.MockedFunction<typeof promptClientToken>;
