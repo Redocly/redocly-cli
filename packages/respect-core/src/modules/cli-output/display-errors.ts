@@ -1,10 +1,9 @@
 import { red, gray, underline, blue, yellow } from 'colorette';
-
-import type { Workflow } from '../../types';
-
 import { CHECKS } from '../checks';
 import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
+
+import type { Workflow } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 

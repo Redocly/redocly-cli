@@ -2,7 +2,7 @@
 import type { CalculatedResults, Workflow } from '../../types';
 
 export function calculateTotals(workflows: Workflow[]): CalculatedResults {
-  let totalWorkflows = workflows.length;
+  const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;
   let totalSteps = 0;

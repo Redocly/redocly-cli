@@ -1,3 +1,5 @@
+import { getValueFromContext } from './get-value-from-context';
+
 import type {
   ReusableObject,
   TestContext,
@@ -6,7 +8,6 @@ import type {
   Parameter,
 } from '../../types';
 
-import { getValueFromContext } from './get-value-from-context';
 
 type ComponentType<T extends ReusableObject> =
   T['reference'] extends `$components.successActions${string}`

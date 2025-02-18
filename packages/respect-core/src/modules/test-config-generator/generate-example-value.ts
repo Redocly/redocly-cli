@@ -1,7 +1,8 @@
-import type { Parameter } from '../../types';
 
 import { generateTestDataFromJsonSchema } from './generate-test-data-from-json-schema';
 import { extractFirstExample } from '../description-parser';
+
+import type { Parameter } from '../../types';
 
 export function generateExampleValue(parameter: Parameter) {
   if (parameter?.example) {
