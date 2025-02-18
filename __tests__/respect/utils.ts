@@ -23,8 +23,8 @@ export function getCommandOutput(args: string[]) {
     throw new Error(`Command execution failed: ${result.error.message}`);
   }
 
-  const out = result.stdout ? result.stdout.toString('utf-8') : '';
-  const err = result.stderr ? result.stderr.toString('utf-8') : '';
+  const out = result.stdout ? result.stdout.toString() : '';
+  const err = result.stderr ? result.stderr.toString() : '';
   return `${out}\n${err}`;
 }
 
