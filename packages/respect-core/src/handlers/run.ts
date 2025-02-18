@@ -5,7 +5,7 @@ import {
   displaySummary,
   displayFilesSummaryTable,
   calculateTotals,
-} from '../modules/output';
+} from '../modules/cli-output';
 import { DefaultLogger } from '../utils/logger/logger';
 
 import type { RunArgv } from '../types';

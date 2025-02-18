@@ -1,14 +1,12 @@
 import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
 import concat from 'concat-stream';
-
-import type { OperationMethod, VerboseLog, TestContext, ResponseContext } from '../types';
-import type { ResultObject } from '../modules/flow-runner';
-
+import { type OperationMethod, type VerboseLog, type TestContext, type ResponseContext } from '../types';
+import { type ResultObject } from '../modules/flow-runner';
 import { withHar } from '../utils/har-logs';
 import { isEmpty } from './is-empty';
 import { resolvePath } from '../modules/config-parser';
-import { getVerboseLogs, maskSecrets } from '../modules/output';
+import { getVerboseLogs, maskSecrets } from '../modules/cli-output';
 import { getResponseSchema } from '../modules/description-parser';
 import { collectSecretFields } from '../modules/flow-runner';
 import { createMtlsClient } from './mtls/create-mtls-client';

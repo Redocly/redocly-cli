@@ -4,7 +4,7 @@ import { red, yellow, bold, blue } from 'colorette';
 import type { Totals } from '@redocly/openapi-core';
 import type { Check, VerboseLog } from '../types';
 
-import { displayChecks } from '../modules/output';
+import { displayChecks } from '../modules/cli-output';
 import { DefaultLogger } from './logger/logger';
 
 const logger = DefaultLogger.getInstance();

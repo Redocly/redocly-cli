@@ -18,7 +18,7 @@ import { bundleArazzo } from './get-test-description-from-file';
 import { CHECKS } from '../checks';
 import { createRuntimeExpressionCtx } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
-import { calculateTotals, composeJsonLogs, maskSecrets } from '../output';
+import { calculateTotals, composeJsonLogs, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
 

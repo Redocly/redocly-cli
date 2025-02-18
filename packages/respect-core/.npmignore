@@ -1,6 +1,5 @@
 *
 !lib/**/*
-!lib-internal/**/*
 !bin/**/*
 !README.md
 !LICENSE

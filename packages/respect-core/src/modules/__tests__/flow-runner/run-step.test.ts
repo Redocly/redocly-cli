@@ -11,14 +11,14 @@ import {
 } from '../../flow-runner';
 import { createHarLog } from '../../../utils/har-logs';
 import { ApiFetcher } from '../../../utils/api-fetcher';
-import { displayChecks } from '../../output';
+import { displayChecks } from '../../cli-output';
 import { cleanColors } from '../../../utils/clean-colors';
 
 jest.mock('../../flow-runner/call-api-and-analyze-results', () => ({
   callAPIAndAnalyzeResults: jest.fn(),
 }));
 
-jest.mock('../../output', () => ({
+jest.mock('../../cli-output', () => ({
   displayChecks: jest.fn(),
 }));
 
