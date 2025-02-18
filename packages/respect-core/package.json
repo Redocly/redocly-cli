@@ -13,13 +13,17 @@
       "types": "./lib/index.d.ts"
     }
   },
-  "keywords": [],
-  "author": {
-    "name": "Redocly Inc.",
-    "email": "team@redocly.com",
-    "url": "https://redocly.com"
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.5.0"
   },
   "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Redocly/redocly-cli.git"
+  },
+  "homepage": "https://github.com/Redocly/redocly-cli",
+  "keywords": [],
   "devDependencies": {
     "@types/concat-stream": "^2.0.3",
     "@types/cookie": "0.6.0",
