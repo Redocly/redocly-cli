@@ -75,79 +75,6 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✓ content-type check
     ✓ schema check
 [0m
-  Running required workflows for get-museum-hours [0m
-[0m
-  ✓ GET /museum-hours - step final-workflow-step[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ][0m
-[0m
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
-    ✓ content-type check
-    ✓ schema check
-[0m
-[0m
   ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto[0m
 [0m
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
@@ -290,151 +217,6 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✓ content-type check
     ✓ schema check
 [0m
-
-  Retrying step get-museum-hours-step-failure-action-retry attempt # 1
-[0m
-  Running required workflows for get-museum-hours [0m
-[0m
-  ✓ GET /museum-hours - step final-workflow-step[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ][0m
-[0m
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
-    ✓ content-type check
-    ✓ schema check
-[0m
-[0m
-  ✗ GET /museum-hours - step get-museum-hours-step-failure-action-retry[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ][0m
-[0m
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
-    ✓ content-type check
-    ✓ schema check
 [0m
 ────────────────────────────────────────────────────────────────────────────────[0m
 [0m
@@ -706,15 +488,11 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✗ success criteria check[0m
       Checking simple criteria: {"condition":"$statusCode == 201"}[0m
       [0m
-    stepId - get-museum-hours-step-failure-action-retry[0m
-    ✗ success criteria check[0m
-      Checking simple criteria: {"condition":"$statusCode == 201"}[0m
-      [0m
   Summary for reusable-components.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
-  Steps: 4 passed, 2 failed, 6 total
-  Checks: 21 passed, 2 failed, 23 total
+  Steps: 5 passed, 1 failed, 6 total
+  Checks: 18 passed, 1 failed, 19 total
   Time: <test>ms[0m
 [0m
 [0m

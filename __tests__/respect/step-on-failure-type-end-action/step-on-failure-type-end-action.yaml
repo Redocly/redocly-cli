@@ -52,11 +52,6 @@ workflows:
             name: step-onSuccess-action-end
             criteria:
               - condition: $statusCode == 403
-          - type: goto
-            name: step-onSuccess-action-2
-            stepId: list-events
-            criteria:
-              - condition: $statusCode == 201
         requestBody:
           payload:
             name: 'Mermaid Treasure Identification and Analysis'

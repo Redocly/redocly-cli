@@ -33,8 +33,6 @@ workflows:
           - condition: $statusCode == 200
         outputs:
           schedule: $response.body
-        onSuccess:
-          - reference: $components.successActions.gotoSuccessAction
       - stepId: get-museum-hours-step-failure-action-goto
         description: >-
           Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
