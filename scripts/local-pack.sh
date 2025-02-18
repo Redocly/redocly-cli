@@ -19,7 +19,7 @@ cd ../../
 # Update and pack respect-core package
 cd packages/respect-core
 jq ".version = \"$VERSION\"" package.json > tmp.json && mv tmp.json package.json
-jq ".dependencies[\"@redocly/openapi-core\"] = \"file:./openapi-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
+jq ".dependencies[\"@redocly/openapi-core\"] = \"./openapi-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
 respect_core=$(npm pack | tail -n 1)
 mv $respect_core ../../respect-core.tgz
 cd ../../
@@ -27,8 +27,8 @@ cd ../../
 # Update and pack cli package
 cd packages/cli
 jq ".version = \"$VERSION\"" package.json > tmp.json && mv tmp.json package.json
-jq ".dependencies[\"@redocly/openapi-core\"] = \"file:./openapi-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
-jq ".dependencies[\"@redocly/respect-core\"] = \"file:./respect-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
+jq ".dependencies[\"@redocly/openapi-core\"] = \"./openapi-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
+jq ".dependencies[\"@redocly/respect-core\"] = \"./respect-core.tgz\"" package.json > tmp.json && mv tmp.json package.json
 cli=$(npm pack | tail -n 1)
 mv $cli ../../redocly-cli.tgz
 cd ../../
