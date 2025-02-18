@@ -5,8 +5,8 @@
   "scripts": {
     "json-server": "json-server --watch api-samples/fake-db.json --port 3000 --host 0.0.0.0"
   },
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "exports": {
     ".": {
       "require": "./lib/index.js",
@@ -17,13 +17,19 @@
     "node": ">=18.17.0",
     "npm": ">=9.5.0"
   },
+  "engineStrict": true,
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/redocly-cli.git"
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
-  "keywords": [],
+  "keywords": [
+    "API Testing"
+  ],
+  "contributors": [
+    "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
+  ],
   "devDependencies": {
     "@types/concat-stream": "^2.0.3",
     "@types/cookie": "0.6.0",
@@ -68,5 +74,9 @@
   },
   "files": [
     "lib"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }
