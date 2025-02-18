@@ -58,7 +58,7 @@ export async function handleRun(argv: any) {
     logger.printNewLine();
 
     if (testsRunProblemsStatus.some((problems) => problems)) {
-      exitWithErrorMsg(' Tests exited with error ', 1); // todo check this
+      exitWithErrorMsg(' Tests exited with error ', 1);
     }
   } catch (err) {
     exitWithErrorMsg((err as Error)?.message ?? err, 1);

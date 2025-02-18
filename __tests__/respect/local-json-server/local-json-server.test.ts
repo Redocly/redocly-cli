@@ -10,7 +10,6 @@
 //   expect(result).toMatchSnapshot();
 // });
 
-
 test('local-json-server test case', () => {
   //TODO: Remove.Disable this test until json-server is added to the e2e flow.
   expect(true).toBe(true);

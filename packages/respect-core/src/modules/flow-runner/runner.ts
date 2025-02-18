@@ -1,4 +1,3 @@
-//@ts-ignore
 import { blue, green } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
 import { writeFileSync } from 'node:fs';
@@ -143,7 +142,6 @@ export async function runWorkflow({
 
   const workflowName = workflow?.workflowId || parentWorkflowId;
 
-  // TODO: pass logger
   if (parentWorkflowId && parentStepId) {
     printStepWorkflowSeparator(parentStepId, parentWorkflowId);
   } else if (parentWorkflowId) {

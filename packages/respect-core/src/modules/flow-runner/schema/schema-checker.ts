@@ -1,9 +1,7 @@
 import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020';
 import { diffLinesUnified } from 'jest-diff';
 import { blue, dim, red, yellow } from 'colorette';
-
-import type { Check, DescriptionChecks, StepCallContext, TestContext } from '../../../types';
-
+import { type Check, type DescriptionChecks, type StepCallContext, type TestContext } from '../../../types';
 import { CHECKS } from '../../checks';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema';
@@ -21,7 +19,7 @@ const ajvStrict = new Ajv({
   validateSchema: false,
   discriminator: true,
   allowUnionTypes: true,
-  validateFormats: false, // TODO: fix it
+  validateFormats: false,
   logger: false,
   verbose: true,
   defaultUnevaluatedProperties: false,
@@ -123,7 +121,6 @@ function checkStatusCodeFromDescription({
   const message = matchesCodeFromDescription
     ? dim(`List of valid response codes are inferred from description \n\n`) +
       diffLinesUnified(
-        // [`Expected one code from those: ${responseCodesFromDescription.join(', ')}`], // TODO: decide on output style
         responseCodesFromDescription.map(String),
         [`${responseStatusCode}`]
       )

@@ -1,13 +1,12 @@
 import { pluralize } from 'jest-matcher-utils';
 import { red, yellow, bold, blue } from 'colorette';
-
-import type { Totals } from '@redocly/openapi-core';
-import type { Check, VerboseLog } from '../types';
-
+import { type Totals } from '@redocly/openapi-core';
+import { type Check, type VerboseLog } from '../types';
 import { displayChecks } from '../modules/cli-output';
 import { DefaultLogger } from './logger/logger';
 
 const logger = DefaultLogger.getInstance();
+
 export const RESET_ESCAPE_CODE = '\x1B[0m';
 
 export function removeExtraIndentation(message: string | undefined): string {

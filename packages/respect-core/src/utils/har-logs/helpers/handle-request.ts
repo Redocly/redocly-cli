@@ -163,9 +163,9 @@ function handleNodeRequest(request: Request, handler: any, harLog?: Map<string, 
       method: request.method || 'GET',
       url: request.url,
       httpVersion: 'HTTP/1.1',
-      cookies: [], // TODO: Parse cookies from headers
+      cookies: [],
       headers: formatUndiciHeaders(request.headers as any),
-      queryString: [], // TODO: Parse query params
+      queryString: [],
       headersSize: -1,
       bodySize: -1,
     },
