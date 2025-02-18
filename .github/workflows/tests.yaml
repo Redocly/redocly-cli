@@ -28,7 +28,7 @@ jobs:
         run: npm run e2e
         env:
           CI: true
-
+          SANDBOX_REBILLY_TOKEN: ${{ secrets.SANDBOX_REBILLY_TOKEN }}
   cli-package-test:
     runs-on: ubuntu-latest
     steps:
