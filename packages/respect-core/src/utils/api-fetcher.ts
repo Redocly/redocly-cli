@@ -9,7 +9,6 @@ import {
   type TestContext,
   type ResponseContext,
 } from '../types';
-import { type ResultObject } from '../modules/flow-runner';
 import { withHar } from '../utils/har-logs';
 import { isEmpty } from './is-empty';
 import { resolvePath } from '../modules/config-parser';
@@ -18,6 +17,8 @@ import { getResponseSchema } from '../modules/description-parser';
 import { collectSecretFields } from '../modules/flow-runner';
 import { createMtlsClient } from './mtls/create-mtls-client';
 import { DefaultLogger } from './logger/logger';
+
+import type { RequestData } from '../modules/flow-runner';
 
 const logger = DefaultLogger.getInstance();
 
@@ -112,7 +113,7 @@ export class ApiFetcher implements IFetcher {
 
   fetchResult = async (
     ctx: TestContext,
-    requestData: ResultObject['requestData']
+    requestData: RequestData
   ): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {

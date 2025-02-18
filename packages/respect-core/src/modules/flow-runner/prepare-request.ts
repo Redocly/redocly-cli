@@ -1,6 +1,3 @@
-import type { TestContext, Step, Parameter, PublicStep } from '../../types';
-import type { ParameterWithIn } from '../config-parser';
-
 import {
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
@@ -15,7 +12,27 @@ import { getServerUrl } from './get-server-url';
 import { createRuntimeExpressionCtx, collectSecretFields } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 
-export async function prepareRequest(ctx: TestContext, step: Step, workflowName: string) {
+import type { ParameterWithIn } from '../config-parser';
+import type { TestContext, Step, Parameter, PublicStep } from '../../types';
+import type { OperationDetails } from '../description-parser';
+
+export type RequestData = {
+  serverUrl?: {
+    url: string;
+    // todo: support variables
+  };
+  path: string;
+  method: string;
+  parameters: ParameterWithIn[];
+  requestBody: any;
+  openapiOperation?: OperationDetails & Record<string, string>;
+};
+
+export async function prepareRequest(
+  ctx: TestContext,
+  step: Step,
+  workflowName: string
+): Promise<RequestData> {
   const { stepId, operationId, operationPath, 'x-operation': xOperation } = step;
 
   const activeWorkflow = ctx.workflows.find((workflow) => workflow.workflowId === workflowName);
@@ -33,7 +50,7 @@ export async function prepareRequest(ctx: TestContext, step: Step, workflowName:
 
   let path = '';
   let method;
-  let serverUrl: { url: string; descriptionName?: string } | undefined = getServerUrl({
+  const serverUrl: { url: string; descriptionName?: string } | undefined = getServerUrl({
     ctx,
     descriptionName: openapiOperation?.descriptionName,
     openapiOperation,
