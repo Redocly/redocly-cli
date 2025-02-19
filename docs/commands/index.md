@@ -24,10 +24,12 @@ Linting commands:
 - [`lint`](lint.md) Lint API description.
 - [`check-config`](check-config.md) Lint Redocly configuration file.
 
+{% if includes($rbac.teams, "autheticated") %}
 Testing commands:
 
 - [`respect`](respect.md) Execute API tests described in an Arazzo file.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo file from an OpenAPI description.
+{% /if %}
 
 Redocly platform commands:
 

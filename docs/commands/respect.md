@@ -2,6 +2,8 @@
 slug:
   - /docs/cli/commands/respect
   - /docs/respect/commands/respect
+rbac:
+  authenticated: read
 ---
 # `respect`
 

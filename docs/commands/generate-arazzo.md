@@ -2,6 +2,8 @@
 slug:
   - /docs/cli/commands/generate-arazzo
   - /docs/respect/commands/generate-arazzo
+rbac:
+  authenticated: read
 ---
 # `generate-arazzo`
 
