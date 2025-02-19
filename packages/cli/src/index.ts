@@ -952,7 +952,7 @@ yargs
           describe: 'Description file path',
           type: 'string',
         })
-        .env('REDOCLY_SPOT')
+        .env('REDOCLY_CLI_RESPECT')
         .options({
           'output-file': {
             alias: 'o',
