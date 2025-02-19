@@ -94,7 +94,8 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   Default: `us`.
   You can also pass the residency as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_RESIDENCY='eu'`
-  {% /table %}
+
+{% /table %}
 
 ## Examples
 

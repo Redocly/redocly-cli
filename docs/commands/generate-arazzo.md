@@ -55,7 +55,8 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 - --with-expectations
 - boolean
 - By default, data for requests comes from the description at runtime. This option generates a test config file with data populated from the description with additional expectations. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml --with-expectations`.
-  {% /table %}
+
+{% /table %}
 
 <!-- TODO
 ## Examples
