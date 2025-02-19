@@ -8,7 +8,7 @@ rbac:
 
 # `generate-arazzo`
 
-Auto-generate an Arazzo file based on an OpenAPI description file.
+Auto-generate an Arazzo description based on an OpenAPI description file.
 
 If `examples` are provided in the OpenAPI description, they are used as input data for test requests.
 If `schema` is provided, the config generates fake data based on the description schema.
@@ -19,7 +19,7 @@ The `--extended` option also demonstrates how `respect` gets data from an OpenAP
 
 {% admonition type="warning" %}
 
-Given the nature of OpenAPI, the generated Arazzo file is not a complete test file and may not function. Dependencies between endpoints are not resolved.
+Given the nature of OpenAPI, the generated Arazzo description is not a complete test file and may not function. Dependencies between endpoints are not resolved.
 
 It acts as a starting point for a test file and needs to be extended to be functional.
 {% /admonition %}
