@@ -80,7 +80,7 @@ export async function prepareRequest(
     payload: stepRequestBodyPayload,
     // encoding: stepRequestBodyEncoding,
     contentType: stepRequestBodyContentType,
-  } = await parseRequestBody(step['requestBody']);
+  } = await parseRequestBody(step['requestBody'], ctx);
 
   const requestBody = stepRequestBodyPayload || requestDataFromOpenAPI?.requestBody;
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
