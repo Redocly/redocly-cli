@@ -1,0 +1,49 @@
+arazzo: 1.0.1
+info:
+  title: Free APIs
+  version: '1.0'
+sourceDescriptions:
+  - name: testing_acme
+    type: openapi
+    url: testing-acme.yaml
+workflows:
+  - workflowId: json
+    steps:
+      - stepId: get-first-post
+        x-operation:
+          url: https://jsonplaceholder.typicode.com/posts/1
+          method: get
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/id == 1
+          - condition: $response.body#/title == 'sunt aut facere repellat provident occaecati excepturi optio reprehenderit'
+          - condition: $response.body#/body == "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+          - condition: $response.body#/userId == 1
+      - stepId: get-wrong-post
+        x-operation:
+          url: https://jsonplaceholder.typicode.com/posts/wrong-id
+          method: get
+        successCriteria:
+          - condition: $statusCode == 404
+  - workflowId: xml
+    steps:
+      - stepId: post-traveler
+        x-operation:
+          url: http://restapi.adequateshop.com/api/Traveler
+          method: post
+        parameters:
+          - in: header
+            name: content-type
+            value: application/xml
+        requestBody:
+          payload: |
+            <?xml version="1.0"?>
+            <Travelerinformation>
+              <name>John</name>
+              <email>john344+1@gmail.com</email>
+              <adderes>Usa</adderes>
+            </Travelerinformation>
+        successCriteria:
+          - condition: $statusCode == 404
+          - condition: $response.header.content-type == 'text/html; charset=us-ascii'
+          - condition: $response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'

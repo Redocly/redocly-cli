@@ -1,0 +1,82 @@
+arazzo: 1.0.1
+info:
+  title: Fake JSON Server
+  version: 1.0.0
+sourceDescriptions:
+  - name: json-server-openapi
+    type: openapi
+    url: json-server-openapi.yaml
+workflows:
+  - workflowId: before
+    steps:
+      - stepId: get-all-items-before
+        operationId: list-items
+  - workflowId: crud-items
+    steps:
+      - stepId: add-item
+        operationId: create-item
+        requestBody:
+          payload:
+            value: '$faker.number.integer({ min: 1, max: 10 })'
+        parameters:
+          - in: header
+            name: Content-Type
+            value: application/json
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          createdItemId: $response.body#/id
+          createdItemValue: $response.body#/value
+      - stepId: get-all-items-again
+        operationId: list-items
+        successCriteria:
+          # Expecting wrong lvalue == 100
+          - condition: $response.body#/0/value == 100
+
+      - stepId: get-item-by-id
+        operationId: get-by-id
+        parameters:
+          - in: path
+            name: id
+            value: $steps.add-item.outputs.createdItemId
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/id == $steps.add-item.outputs.createdItemId
+          - condition: $response.body#/value == $steps.add-item.outputs.createdItemValue
+
+      - stepId: drop-item
+        operationId: remove-item
+        parameters:
+          - in: path
+            name: id
+            value: $steps.add-item.outputs.createdItemId
+        successCriteria:
+          - condition: $statusCode == 200
+
+      - stepId: get-after-deleting
+        operationId: get-by-id
+        parameters:
+          - in: path
+            name: id
+            value: $steps.add-item.outputs.createdItemId
+        successCriteria:
+          - condition: $statusCode == 404
+
+  - workflowId: auto-inherit
+    steps:
+      - stepId: add-item-auto-inherit
+        operationId: create-item
+        outputs:
+          id: $response.body#/id
+      - stepId: get-all-items
+        operationId: list-items
+      - stepId: get-item-by-id-auto-inherit
+        operationId: get-by-id
+      - stepId: drop-item-auto-inherit
+        operationId: remove-item
+        parameters:
+          - in: path
+            name: id
+            value: $steps.add-item-auto-inherit.outputs.id
+        successCriteria:
+          - condition: $statusCode == 200
