@@ -8,7 +8,7 @@ import {
 } from '../modules/cli-output';
 import { DefaultLogger } from '../utils/logger/logger';
 
-import type { Config, RuleSeverity } from '@redocly/openapi-core';
+import type { Config } from '@redocly/openapi-core';
 import type { CollectFn } from '@redocly/openapi-core/src/utils';
 import type { RunArgv } from '../types';
 
@@ -33,20 +33,18 @@ export type RespectOptions = {
   'client-key'?: string;
   'ca-cert'?: string;
   severity?: string;
-  config?: string;
-  'lint-config'?: RuleSeverity;
 };
 
 const logger = DefaultLogger.getInstance();
 export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOptions>) {
   const harOutputFile = argv['har-output'];
   if (harOutputFile && !harOutputFile.endsWith('.har')) {
-    exitWithError('File for HAR logs should be in .har format');
+    throw new Error('File for HAR logs should be in .har format');
   }
 
   const jsonOutputFile = argv['json-output'];
   if (jsonOutputFile && !jsonOutputFile.endsWith('.json')) {
-    exitWithError('File for JSON logs should be in .json format');
+    throw new Error('File for JSON logs should be in .json format');
   }
 
   const { skip, workflow } = argv;
@@ -57,38 +55,42 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
     return;
   }
 
-  const startedAt = performance.now();
-  const testsRunProblemsStatus: boolean[] = [];
-  const { files } = argv;
-  const runAllFilesResult = [];
+  try {
+    const startedAt = performance.now();
+    const testsRunProblemsStatus: boolean[] = [];
+    const { files } = argv;
+    const runAllFilesResult = [];
 
-  if (files.length > 1 && (jsonOutputFile || harOutputFile)) {
-    // TODO: implement multiple run files logs output
-    exitWithError(
-      'Currently only a single file can be run with --har-output or --json-output. Please run a single file at a time.'
-    );
-  }
+    if (files.length > 1 && (jsonOutputFile || harOutputFile)) {
+      // TODO: implement multiple run files logs output
+      throw new Error(
+        'Currently only a single file can be run with --har-output or --json-output. Please run a single file at a time.'
+      );
+    }
 
-  for (const path of files) {
-    const result = await runFile(
-      { ...argv, file: path },
-      startedAt,
-      {
-        harFile: harOutputFile,
-        jsonFile: jsonOutputFile,
-      },
-      collectSpecData
-    );
-    testsRunProblemsStatus.push(result.hasProblems);
-    runAllFilesResult.push(result);
-  }
+    for (const path of files) {
+      const result = await runFile(
+        { ...argv, file: path },
+        startedAt,
+        {
+          harFile: harOutputFile,
+          jsonFile: jsonOutputFile,
+        },
+        collectSpecData
+      );
+      testsRunProblemsStatus.push(result.hasProblems);
+      runAllFilesResult.push(result);
+    }
 
-  logger.printNewLine();
-  displayFilesSummaryTable(runAllFilesResult);
-  logger.printNewLine();
+    logger.printNewLine();
+    displayFilesSummaryTable(runAllFilesResult);
+    logger.printNewLine();
 
-  if (testsRunProblemsStatus.some((problems) => problems)) {
-    exitWithError(' Tests exited with error ');
+    if (testsRunProblemsStatus.some((problems) => problems)) {
+      throw new Error(' Tests exited with error ');
+    }
+  } catch (err) {
+    exitWithError((err as Error)?.message ?? err);
   }
 }
 
