@@ -21,6 +21,7 @@ import { calculateTotals, composeJsonLogs, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
 
+import type { CollectFn } from '@redocly/openapi-core/src/utils';
 import type {
   TestDescription,
   AppOptions,
@@ -34,7 +35,11 @@ import type {
 
 const logger = DefaultLogger.getInstance();
 
-export async function runTestFile(argv: RunArgv, output: { harFile?: string; jsonFile?: string }) {
+export async function runTestFile(
+  argv: RunArgv,
+  output: { harFile?: string; jsonFile?: string },
+  collectSpecData?: CollectFn
+) {
   const {
     file: filePath,
     workflow,
@@ -66,6 +71,7 @@ export async function runTestFile(argv: RunArgv, output: { harFile?: string; jso
   };
 
   const bundledTestDescription = await bundleArazzo(filePath);
+  collectSpecData?.(bundledTestDescription);
   const descriptionCopy = JSON.parse(JSON.stringify(bundledTestDescription));
 
   const { harLogs, jsonLogs, workflows, secretFields } = await runWorkflows(

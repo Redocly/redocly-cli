@@ -90,7 +90,7 @@ describe('generateTestConfig', () => {
     expect(
       await generateTestConfig({
         descriptionPath: 'description.yaml',
-        outputFile: '../final-test-location/output.yaml',
+        outputFile: './final-test-location/output.yaml',
         extended: false,
       })
     ).toEqual({
@@ -103,7 +103,7 @@ describe('generateTestConfig', () => {
         {
           name: 'description',
           type: 'openapi',
-          url: '../redocly-cli/description.yaml',
+          url: '../description.yaml',
         },
       ],
       workflows: [

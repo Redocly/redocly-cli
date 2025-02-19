@@ -875,6 +875,7 @@ yargs
         .positional('files', {
           describe: 'Test files or glob pattern',
           type: 'string',
+          array: true,
           default: [],
         })
         .env('REDOCLY_CLI_RESPECT')
@@ -892,14 +893,14 @@ yargs
           workflow: {
             alias: 'w',
             describe: 'Workflow name',
-            type: 'array',
-            greedy: false,
+            type: 'string',
+            array: true,
           },
           skip: {
             alias: 's',
             describe: 'Workflow to skip',
-            type: 'array',
-            greedy: false,
+            type: 'string',
+            array: true,
           },
           verbose: {
             alias: 'v',
@@ -937,13 +938,9 @@ yargs
           },
         });
     },
-    async (argv) => {
-      try {
-        await handleRun(argv);
-      } catch (err) {
-        // logger.error(red(`${err?.message}`));
-        process.exit(1);
-      }
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'respect';
+      commandWrapper(handleRun)(argv);
     }
   )
   .command(
