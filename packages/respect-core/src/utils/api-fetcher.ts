@@ -147,6 +147,12 @@ export class ApiFetcher implements IFetcher {
       headers['content-type'] = 'application/json';
     }
 
+    if (Object.keys(cookies).length) {
+      headers['cookie'] = Object.entries(cookies)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('; ');
+    }
+
     let resolvedPath = resolvePath(path, pathParams) || '';
     const pathWithSearchParams = `${resolvedPath}${
       searchParams.toString() ? '?' + searchParams.toString() : ''

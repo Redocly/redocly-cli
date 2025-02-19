@@ -222,5 +222,6 @@ function extractCookieParametersFromHeaderParameters(
       result.push(parameter);
     }
   }
+
   return result;
 }

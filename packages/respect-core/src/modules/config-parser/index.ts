@@ -4,4 +4,3 @@ export * from './parse-request-body';
 export * from './handle-request-body-replacements';
 export * from './resolve-reusable-object-reference';
 export * from './resolve-reusable-component';
-export * from './map-header-params-and-cookie-to-object';
