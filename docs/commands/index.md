@@ -29,7 +29,7 @@ Testing commands:
 
 - [`respect`](respect.md) Execute API tests described in an Arazzo file.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo file from an OpenAPI description.
-{% /if %}
+  {% /if %}
 
 Redocly platform commands:
 

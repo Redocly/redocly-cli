@@ -5,6 +5,7 @@ slug:
 rbac:
   authenticated: read
 ---
+
 # `generate-arazzo`
 
 Auto-generate an Arazzo file based on an OpenAPI description file.
@@ -15,7 +16,6 @@ By default, data for requests comes from the description at run-time.
 To materialize tests with the data, use the `--extended` option.
 
 The `--extended` option also demonstrates how `respect` gets data from an OpenAPI description.
-
 
 {% admonition type="warning" %}
 
@@ -33,22 +33,29 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 ## Options
 
 {% table %}
-* Option {% width="20%" %}
-* Type {% width="15%" %}
-* Description
+
+- Option {% width="20%" %}
+- Type {% width="15%" %}
+- Description
+
 ---
-* -o, --output-file
-* string
-* Path to the OAS description file. If the file name is not provided, the default name is used - `auto-generate.yaml`. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml`
+
+- -o, --output-file
+- string
+- Path to the OAS description file. If the file name is not provided, the default name is used - `auto-generate.yaml`. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml`
+
 ---
-* --extended
-* boolean
-* By default, data for requests comes from the description at runtime. This option generates a test config file with data populated from the description. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml --extended`.
+
+- --extended
+- boolean
+- By default, data for requests comes from the description at runtime. This option generates a test config file with data populated from the description. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml --extended`.
+
 ---
-* --with-expectations
-* boolean
-* By default, data for requests comes from the description at runtime. This option generates a test config file with data populated from the description with additional expectations. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml --with-expectations`.
-{% /table %}
+
+- --with-expectations
+- boolean
+- By default, data for requests comes from the description at runtime. This option generates a test config file with data populated from the description with additional expectations. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.yaml --with-expectations`.
+  {% /table %}
 
 <!-- TODO
 ## Examples
