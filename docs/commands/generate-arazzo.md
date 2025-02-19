@@ -1,3 +1,8 @@
+---
+slug:
+  - /docs/cli/commands/generate-arazzo
+  - /docs/respect/commands/generate-arazzo
+---
 # `generate-arazzo`
 
 Auto-generate an Arazzo file based on an OpenAPI description file.

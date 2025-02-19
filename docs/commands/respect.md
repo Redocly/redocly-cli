@@ -1,3 +1,8 @@
+---
+slug:
+  - /docs/cli/commands/respect
+  - /docs/respect/commands/respect
+---
 # `respect`
 
 Use this command to execute API tests described in an Arazzo file.
@@ -131,11 +136,9 @@ Running workflow warp.arazzo.yaml / missionLostInvention
 └──────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
 ```
 
-<!-- UNCOMMENT AFTER OTHER CONTENT PUBLISHES AND CHECK RELATIVE LINKS
 ## Resources
 
-- Learn more about using mTLS with Respect in [Use mTLS](../../respect/guides/mtls-cli.md).
-- Follow steps to test API sequences in [Test a sequence of API calls](../../respect/guides/test-api-sequences.md).
-- Learn what Respect is and how you can use it to test API in the [Respect](../../respect/index.md) concept document. 
-- Link to learning center for Arazzo too
--->
+- Learn more about using mTLS with Respect in [Use mTLS](/docs/respect/guides/mtls-cli).
+- Follow steps to test API sequences in [Test a sequence of API calls](/docs/respect/guides/test-api-sequences).
+- Learn what Respect is and how you can use it to test API in the [Respect](/docs/respect) concept document. 
+- [Learn Arazzo](/learn/arazzo/what-is-arazzo)
