@@ -1498,4 +1498,184 @@ describe('prepareRequest', () => {
       },
     ]);
   });
+
+  it('should merge cookie parameters from workflow and step', async () => {
+    const localCtx = {
+      ...ctx,
+      ...{
+        workflows: [
+          {
+            workflowId: 'get-breeds-workflow',
+            parameters: [
+              {
+                name: 'pageSize',
+                in: 'header',
+                value: 100,
+              },
+              {
+                name: 'cookie',
+                in: 'header',
+                value: 'sessionId=32;userId=32;workflow-cookie=32',
+              },
+              {
+                name: 'token-from-workflow',
+                in: 'cookie',
+                value: '32',
+              },
+            ],
+            steps: [
+              {
+                stepId: 'get-breeds-step',
+                operationId: 'cats.getBreeds',
+                parameters: [
+                  {
+                    name: 'step-header',
+                    in: 'header',
+                    value: 'step-header-value',
+                  },
+                  {
+                    name: 'token-from-step',
+                    in: 'cookie',
+                    value: '42',
+                  },
+                  {
+                    name: 'cookie',
+                    in: 'header',
+                    value: 'sessionId=42;stepСookie=42',
+                  },
+                ],
+                checks: [],
+                response: {
+                  body: {
+                    current_page: 1,
+                    data: [
+                      {
+                        breed: 'Abyssinian',
+                        country: 'Ethiopia',
+                        origin: 'Natural/Standard',
+                        coat: 'Short',
+                        pattern: 'Ticked',
+                      },
+                      {
+                        breed: 'Aegean',
+                        country: 'Greece',
+                        origin: 'Natural/Standard',
+                        coat: 'Semi-long',
+                        pattern: 'Bi- or tri-colored',
+                      },
+                    ],
+                    first_page_url: 'https://catfact.ninja/breeds?page=1',
+                    from: 1,
+                    last_page: 4,
+                    last_page_url: 'https://catfact.ninja/breeds?page=4',
+                    links: [
+                      {
+                        url: null,
+                        label: 'Previous',
+                        active: false,
+                      },
+                      {
+                        url: 'https://catfact.ninja/breeds?page=1',
+                        label: '1',
+                        active: true,
+                      },
+                    ],
+                    next_page_url: 'https://catfact.ninja/breeds?page=2',
+                    path: 'https://catfact.ninja/breeds',
+                    per_page: 25,
+                    prev_page_url: null,
+                    to: 25,
+                    total: 98,
+                  },
+                  code: 200,
+                  headers: {},
+                  contentType: 'application/json',
+                },
+                verboseLog: {},
+              },
+            ],
+          },
+        ],
+        $workflows: {
+          'get-breeds-workflow': {
+            parameters: [
+              {
+                name: 'pageSize',
+                in: 'header',
+                value: 100,
+              },
+            ],
+            steps: {
+              'get-breeds-step': {
+                request: {
+                  headers: {},
+                  path: '/breeds',
+                  url: 'https://catfact.ninja/',
+                  method: 'get',
+                  queryParams: {},
+                  pathParams: {},
+                  headerParams: {},
+                },
+              },
+            },
+          },
+        },
+        $components: {
+          parameters: {
+            page: {
+              name: 'page',
+              in: 'header',
+              value: 1,
+            },
+            pageSize: {
+              name: 'pageSize',
+              in: 'header',
+              value: 100,
+            },
+          },
+        },
+      },
+    } as unknown as TestContext;
+
+    const step = {
+      stepId: 'get-breeds-step',
+      operationId: 'cats.getBreeds',
+      checks: [],
+    } as unknown as Step;
+
+    const { parameters } = await prepareRequest(localCtx, step, workflowName);
+
+    expect(parameters).toEqual([
+      {
+        value: 'application/json',
+        in: 'header',
+        name: 'accept',
+      },
+      {
+        value: 100,
+        in: 'header',
+        name: 'pageSize',
+      },
+      {
+        value: '32',
+        in: 'cookie',
+        name: 'sessionId',
+      },
+      {
+        value: '32',
+        in: 'cookie',
+        name: 'userId',
+      },
+      {
+        value: '32',
+        in: 'cookie',
+        name: 'workflow-cookie',
+      },
+      {
+        value: '32',
+        in: 'cookie',
+        name: 'token-from-workflow',
+      },
+    ]);
+  });
 });
