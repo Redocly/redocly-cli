@@ -2,14 +2,12 @@
 slug:
   - /docs/cli/commands/respect
   - /docs/respect/commands/respect
-rbac:
-  authenticated: read
 ---
 
 # `respect`
 
 Use this command to execute API tests described in an Arazzo description.
-In addition to the Arazzo specification, Respect supports specification extensions for API testing: `x-operation` and `x-serverUrl`.
+In addition to the Arazzo specification, Respect supports specification extensions for API testing: [`x-operation`](/docs/respect/extensions/x-operation) and [`x-serverUrl`](/docs/respect/extensions/x-serverUrl).
 
 ## Usage
 
@@ -86,15 +84,6 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   You can also pass the server overrides as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`
 
----
-
-- --residency
-- string
-- If not logged in already, use the residency location of the Reunite application.
-  Default: `us`.
-  You can also pass the residency as an environment variable, as in the following example:
-  `REDOCLY_CLI_RESPECT_RESIDENCY='eu'`
-
 {% /table %}
 
 ## Examples
@@ -158,7 +147,7 @@ Running workflow warp.arazzo.yaml / missionLostInvention
 
 ## Resources
 
-<!-- - Learn more about using mTLS with Respect in [Use mTLS](/docs/respect/guides/mtls-cli).
+- Learn more about using mTLS with Respect in [Use mTLS](/docs/respect/guides/mtls-cli).
 - Follow steps to test API sequences in [Test a sequence of API calls](/docs/respect/guides/test-api-sequences).
 - Learn what Respect is and how you can use it to test API in the [Respect](/docs/respect) concept document.
-- [Learn Arazzo](/learn/arazzo/what-is-arazzo). -->
+- [Learn Arazzo](/learn/arazzo/what-is-arazzo).
