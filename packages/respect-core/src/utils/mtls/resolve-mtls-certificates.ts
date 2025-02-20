@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import { type TestContext } from '../../types';
 import * as path from 'node:path';
-import { stripFileDecorator } from '../../modules/config-parser/parse-request-body';
 
 export function resolveMtlsCertificates(
   mtlsCertificates: Partial<TestContext['mtlsCerts']> = {},
@@ -25,7 +24,7 @@ function resolveCertificate(cert: string | undefined, arazzoFilePath: string): s
 
     if (!isCertContent) {
       const currentArazzoFileFolder = path.dirname(arazzoFilePath);
-      const certPath = path.resolve(currentArazzoFileFolder, stripFileDecorator(cert));
+      const certPath = path.resolve(currentArazzoFileFolder, cert);
 
       // If not a certificate content, treat as file path
       fs.accessSync(certPath, fs.constants.R_OK);
