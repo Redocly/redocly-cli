@@ -19,6 +19,8 @@ import type { OperationDetails } from './modules/description-parser';
 import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
 import type { ApiFetcher } from './utils/api-fetcher';
 import type { RespectOptions } from './handlers/run';
+import type { Config } from '@redocly/openapi-core';
+import type { CollectFn } from '@redocly/openapi-core/src/utils';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -80,6 +82,13 @@ export type RunArgv = Omit<RespectOptions, 'files'> & {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
+};
+
+export type CommandArgs<T> = {
+  argv: T;
+  config: Config;
+  version: string;
+  collectSpecData?: CollectFn;
 };
 
 export interface RequestContext {
@@ -221,12 +230,6 @@ export type Check = {
   name: string;
   message?: string;
   additionalMessage?: string;
-};
-
-export type GenerateArazzoFileArgv = {
-  descriptionPath: string;
-  'output-file'?: string;
-  extended?: boolean;
 };
 
 export interface ResultsOfTests {

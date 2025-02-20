@@ -1,4 +1,5 @@
-import { bgRed, red } from 'colorette';
+import { red } from 'colorette';
+import { type CollectFn } from '@redocly/openapi-core/src/utils';
 import { runTestFile } from '../modules/flow-runner';
 import {
   displayErrors,
@@ -7,17 +8,8 @@ import {
   calculateTotals,
 } from '../modules/cli-output';
 import { DefaultLogger } from '../utils/logger/logger';
-
-import type { Config } from '@redocly/openapi-core';
-import type { CollectFn } from '@redocly/openapi-core/src/utils';
-import type { RunArgv } from '../types';
-
-export type CommandArgs<T> = {
-  argv: T;
-  config: Config;
-  version: string;
-  collectSpecData?: CollectFn;
-};
+import { type CommandArgs, type RunArgv } from '../types';
+import { exitWithError } from '../utils/exit-with-error';
 
 export type RespectOptions = {
   files: string[];
@@ -112,9 +104,3 @@ async function runFile(
 
   return { hasProblems, file: argv.file, workflows, argv };
 }
-
-const exitWithError = (message: string) => {
-  logger.error(bgRed(message));
-  logger.printNewLine();
-  throw new Error(message);
-};
