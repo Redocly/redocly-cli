@@ -6,36 +6,16 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 
 import type { RequestData } from './prepare-request';
 import type { TestContext, Step } from '../../types';
-import type { OperationDetails } from '../description-parser';
-import type { ParameterWithIn } from '../config-parser';
-
-// TODO: rename
-export type ResultObject = {
-  ctx: TestContext;
-  workflowName: string;
-  step: Step;
-  requestData: {
-    serverUrl?: {
-      url: string;
-      // TODO: support variables
-    };
-    path: string;
-    method: string;
-    parameters: ParameterWithIn[];
-    requestBody: any;
-    openapiOperation?: OperationDetails & Record<string, string>;
-  };
-};
 
 // TODO: split into two functions
 export async function callAPIAndAnalyzeResults({
   ctx,
-  workflowName,
+  workflowId,
   step,
   requestData,
 }: {
   ctx: TestContext;
-  workflowName: string;
+  workflowId: string;
   step: Step;
   requestData: RequestData;
 }) {
@@ -61,7 +41,7 @@ export async function callAPIAndAnalyzeResults({
     return checksResult;
   }
 
-  const request = ctx.$workflows[workflowName].steps[step.stepId].request;
+  const request = ctx.$workflows[workflowId].steps[step.stepId].request;
 
   // store step level outputs
   if (step.outputs) {
@@ -71,10 +51,10 @@ export async function callAPIAndAnalyzeResults({
         ...{
           $request: request,
           $response: step.response,
-          $inputs: ctx.$workflows[workflowName].inputs,
+          $inputs: ctx.$workflows[workflowId].inputs,
         },
       },
-      workflowId: workflowName,
+      workflowId,
       step,
     });
 
@@ -92,7 +72,7 @@ export async function callAPIAndAnalyzeResults({
 
   if (step.successCriteria) {
     const successCriteriaChecks = checkCriteria({
-      workflowId: workflowName,
+      workflowId,
       step,
       criteria: step.successCriteria,
       ctx: {
@@ -100,7 +80,7 @@ export async function callAPIAndAnalyzeResults({
         ...{
           $request: request,
           $response: step.response,
-          $inputs: ctx.$workflows[workflowName].inputs,
+          $inputs: ctx.$workflows[workflowId].inputs,
         },
       },
     });
@@ -113,7 +93,7 @@ export async function callAPIAndAnalyzeResults({
     stepCallCtx: {
       $request: request,
       $response: step.response,
-      $inputs: ctx.$workflows[workflowName].inputs,
+      $inputs: ctx.$workflows[workflowId].inputs,
     },
     descriptionOperation: requestData.openapiOperation,
     ctx,
@@ -131,7 +111,7 @@ export async function callAPIAndAnalyzeResults({
       : step.outputs,
   };
   // save $workflows context
-  ctx.$workflows[workflowName].steps[step.stepId] = {
+  ctx.$workflows[workflowId].steps[step.stepId] = {
     outputs: ctx.$steps[step.stepId].outputs,
     request,
     response: step.response,

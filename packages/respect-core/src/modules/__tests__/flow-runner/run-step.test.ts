@@ -611,7 +611,6 @@ const basicCTX = {
   arazzo: '1.0.1',
   $outputs: {},
 } as unknown as TestContext;
-const testDocumentFilePath = 'test.yml';
 
 describe('runStep', () => {
   afterEach(() => {
@@ -626,9 +625,7 @@ describe('runStep', () => {
       successCriteria: [{ condition: '$statusCode == 200' }],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -653,31 +650,25 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: basicCTX,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toMatchSnapshot();
   });
 
-  it('should run step and return failed result when workflowName is missing', async () => {
+  it('should run step and return failed result when workflowId is missing', async () => {
     const step = {
       stepId: 'get-bird',
       'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
       successCriteria: [{ condition: '$statusCode == 200' }],
       checks: [],
     } as unknown as Step;
-    const workflowName = undefined;
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId = undefined;
 
     await runStep({
       step,
       ctx: basicCTX,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(step.checks).toEqual([
@@ -700,9 +691,7 @@ describe('runStep', () => {
       successCriteria: [{ condition: '$statusCode == 200' }],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -713,9 +702,7 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: basicCTX,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     // @ts-ignore
@@ -758,9 +745,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -843,9 +828,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -871,9 +854,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -968,9 +949,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1003,9 +982,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
@@ -1091,9 +1068,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1128,9 +1103,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
@@ -1212,9 +1185,7 @@ describe('runStep', () => {
       runStep({
         step: stepOne,
         ctx: context,
-        workflowName,
-        parentStepId,
-        parentWorkflowId,
+        workflowId,
       })
     ).rejects.toThrowError(
       'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
@@ -1250,9 +1221,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1335,9 +1304,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1363,9 +1330,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1462,9 +1427,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1499,9 +1462,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
@@ -1581,9 +1542,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1619,9 +1578,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
@@ -1700,9 +1657,7 @@ describe('runStep', () => {
         await runStep({
           step: stepOne,
           ctx: context,
-          workflowName,
-          parentStepId,
-          parentWorkflowId,
+          workflowId,
         })
     ).rejects.toThrow(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
@@ -1737,9 +1692,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
@@ -1832,9 +1785,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1869,9 +1820,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1997,9 +1946,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2034,9 +1981,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
@@ -2118,9 +2063,7 @@ describe('runStep', () => {
     await runStep({
       step: stepOne,
       ctx: context,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2147,9 +2090,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowName = 'get-bird-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId= 'get-bird-workflow';
 
     const context = {
       ...basicCTX,
@@ -2183,9 +2124,7 @@ describe('runStep', () => {
       runStep({
         step: stepOne,
         ctx: context,
-        workflowName,
-        parentStepId,
-        parentWorkflowId,
+        workflowId,
       })
     ).rejects.toThrow(`Parameter "in" is required for ${stepOne.stepId} step`);
   });
@@ -2199,9 +2138,7 @@ describe('runStep', () => {
       },
       checks: [],
     } as unknown as Step;
-    const workflowName = 'test-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId = 'test-workflow';
     const localCTX = {
       $request: undefined,
       $response: undefined,
@@ -2629,9 +2566,7 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: localCTX,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(runWorkflow).toHaveBeenCalled();
@@ -3066,9 +3001,7 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: localCTX,
-      workflowName: 'test-workflow',
-      parentStepId,
-      parentWorkflowId,
+      workflowId: 'test-workflow',
     });
 
     // @ts-ignore
@@ -3542,9 +3475,7 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: localCTX,
-      workflowName: 'test-workflow',
-      parentStepId,
-      parentWorkflowId,
+      workflowId: 'test-workflow',
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
@@ -3600,9 +3531,7 @@ describe('runStep', () => {
       },
       checks: [],
     } as unknown as Step;
-    const workflowName = 'test-workflow';
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
+    const workflowId = 'test-workflow';
     const localCTX = {
       apiClient,
       $request: undefined,
@@ -4034,9 +3963,7 @@ describe('runStep', () => {
     await runStep({
       step,
       ctx: localCTX,
-      workflowName,
-      parentStepId,
-      parentWorkflowId,
+      workflowId,
     });
 
     expect(runWorkflow).not.toHaveBeenCalled();

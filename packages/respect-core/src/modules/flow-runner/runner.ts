@@ -146,14 +146,14 @@ export async function runWorkflow({
     throw new Error(`\n ${blue('Workflow')} ${workflowInput} ${blue('not found')} \n`);
   }
 
-  const workflowName = workflow?.workflowId || parentWorkflowId;
+  const workflowId = workflow.workflowId;
 
   if (parentWorkflowId && parentStepId) {
     printStepWorkflowSeparator(parentStepId, parentWorkflowId);
   } else if (parentWorkflowId) {
     printDependentWorkflowSeparator(parentWorkflowId);
   } else {
-    printWorkflowSeparator(fileBaseName, workflowName);
+    printWorkflowSeparator(fileBaseName, workflowId);
   }
 
   const fromStepIndex = fromStepId
@@ -169,9 +169,7 @@ export async function runWorkflow({
       const stepResults = await runStep({
         step,
         ctx,
-        workflowName,
-        parentWorkflowId,
-        parentStepId,
+        workflowId,
       });
       // When `end` action is used, we should not continue with the next steps
       if (stepResults?.shouldEnd) {
@@ -190,12 +188,12 @@ export async function runWorkflow({
   }
 
   // workflow level outputs
-  if (workflow.outputs && workflowName) {
+  if (workflow.outputs && workflowId) {
     if (!ctx.$outputs) {
       ctx.$outputs = {};
     }
-    if (!ctx.$outputs[workflowName]) {
-      ctx.$outputs[workflowName] = {};
+    if (!ctx.$outputs[workflowId]) {
+      ctx.$outputs[workflowId] = {};
     }
 
     const runtimeExpressionContext = createRuntimeExpressionCtx({
@@ -203,10 +201,10 @@ export async function runWorkflow({
         ...ctx,
         $inputs: {
           ...(ctx.$inputs || {}),
-          ...(ctx.$workflows[workflowName]?.inputs || {}),
+          ...(ctx.$workflows[workflowId]?.inputs || {}),
         },
       },
-      workflowId: workflowName,
+      workflowId,
     });
 
     for (const outputKey of Object.keys(workflow.outputs)) {
@@ -217,11 +215,11 @@ export async function runWorkflow({
             context: runtimeExpressionContext,
           });
         }
-        ctx.$outputs[workflowName].outputs = workflow.outputs;
-        ctx.$workflows[workflowName].outputs = workflow.outputs;
+        ctx.$outputs[workflowId].outputs = workflow.outputs;
+        ctx.$workflows[workflowId].outputs = workflow.outputs;
       } catch (error: any) {
         throw new Error(
-          `Failed to resolve outputs in workflow "${workflowName}": ${error.message}`
+          `Failed to resolve outputs in workflow "${workflowId}": ${error.message}`
         );
       }
     }
