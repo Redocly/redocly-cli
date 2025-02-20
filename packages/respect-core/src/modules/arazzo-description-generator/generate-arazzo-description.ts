@@ -89,7 +89,7 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
   return path.parse(descriptionPath).name;
 }
 
-export async function generateTestConfig({
+export async function generateArazzoDescription({
   descriptionPath,
   'output-file': outputFile,
 }: GenerateArazzoFileOptions) {

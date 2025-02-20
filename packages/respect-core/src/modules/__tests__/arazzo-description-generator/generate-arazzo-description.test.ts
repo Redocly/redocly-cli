@@ -1,4 +1,4 @@
-import { generateTestConfig } from '../../test-config-generator';
+import { generateArazzoDescription } from '../../arazzo-description-generator';
 import {
   bundleOpenApi,
   getOperationFromDescription,
@@ -41,11 +41,11 @@ const BUNDLED_DESCRIPTION_MOCK = {
   },
 };
 
-describe('generateTestConfig', () => {
+describe('generateArazzoDescription', () => {
   it('should generate test config when output file is provided', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     expect(
-      await generateTestConfig({
+      await generateArazzoDescription({
         descriptionPath: 'description.yaml',
         'output-file': './final-test-location/output.yaml',
       })
@@ -109,7 +109,7 @@ describe('generateTestConfig', () => {
     });
 
     expect(
-      await generateTestConfig({
+      await generateArazzoDescription({
         descriptionPath: 'description.yaml',
       })
     ).toEqual({
@@ -152,7 +152,7 @@ describe('generateTestConfig', () => {
   it('should generate test config with not existing description', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(undefined);
     expect(
-      await generateTestConfig({
+      await generateArazzoDescription({
         descriptionPath: 'description.yaml',
       })
     ).toEqual({

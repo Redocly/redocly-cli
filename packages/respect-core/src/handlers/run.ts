@@ -24,6 +24,7 @@ export type RespectOptions = {
   'client-key'?: string;
   'ca-cert'?: string;
   severity?: string;
+  config?: never;
 };
 
 const logger = DefaultLogger.getInstance();

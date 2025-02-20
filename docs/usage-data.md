@@ -18,6 +18,7 @@ When a command is run, the following data is collected:
 - Node.js and NPM versions
 - whether the `redocly.yaml` configuration file exists
 - API specification version
+- Platform (Linux, macOS, Windows)
 
 Values such as file names, organization IDs, and URLs are removed, replaced by just "URL" or "file", etc.
 
