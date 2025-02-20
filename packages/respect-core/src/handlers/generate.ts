@@ -9,7 +9,6 @@ import { type CommandArgs } from '../types';
 export type GenerateArazzoFileOptions = {
   descriptionPath: string;
   'output-file'?: string;
-  extended?: boolean;
 };
 
 const logger = DefaultLogger.getInstance();

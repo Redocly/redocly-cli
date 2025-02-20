@@ -954,11 +954,6 @@ yargs
             describe: 'Output File name',
             type: 'string',
           },
-          extended: {
-            describe:
-              'Generate config with populated values from description using success criteria',
-            type: 'boolean',
-          },
         });
     },
     async (argv) => {

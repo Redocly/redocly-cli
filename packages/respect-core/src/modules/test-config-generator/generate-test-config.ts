@@ -8,9 +8,6 @@ import type { GenerateArazzoFileOptions } from '../../handlers/generate';
 type WorkflowsFromDescriptionInput = {
   descriptionPaths: any;
   sourceDescriptionName: string;
-  options: {
-    extended?: boolean;
-  };
 };
 
 function generateParametersWithSuccessCriteria(
@@ -32,10 +29,8 @@ function generateOperationId(path: string, method: OperationMethod) {
 
 function generateWorkflowsFromDescription({
   descriptionPaths,
-  options,
   sourceDescriptionName,
 }: WorkflowsFromDescriptionInput): Workflow[] {
-  const { extended } = options;
   const workflows = [] as Workflow[];
 
   for (const pathItemKey in descriptionPaths) {
@@ -72,10 +67,9 @@ function generateWorkflowsFromDescription({
             {
               stepId: pathKey ? `${method}-${pathKey}-step` : `${method}-step`,
               operationId: `$sourceDescriptions.${sourceDescriptionName}.${resolvedOperationId}`,
-              ...(extended &&
-                generateParametersWithSuccessCriteria(
-                  descriptionPaths[pathItemKey][method].responses
-                )),
+              ...generateParametersWithSuccessCriteria(
+                descriptionPaths[pathItemKey][method].responses
+              ),
             } as unknown as Step,
           ],
         });
@@ -98,7 +92,6 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
 export async function generateTestConfig({
   descriptionPath,
   'output-file': outputFile,
-  extended,
 }: GenerateArazzoFileOptions) {
   const { paths: pathsObject, info } = (await bundleOpenApi(descriptionPath, '')) || {};
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
@@ -121,7 +114,6 @@ export async function generateTestConfig({
     ],
     workflows: generateWorkflowsFromDescription({
       descriptionPaths: pathsObject,
-      options: { extended },
       sourceDescriptionName,
     }),
   };
