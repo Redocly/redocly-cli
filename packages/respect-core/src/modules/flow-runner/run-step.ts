@@ -31,20 +31,16 @@ const logger = DefaultLogger.getInstance();
 export async function runStep({
   step,
   ctx,
-  workflowName,
-  parentStepId,
-  parentWorkflowId,
+  workflowId,
   retriesLeft,
 }: {
   step: Step;
   ctx: TestContext;
-  workflowName: string | undefined;
-  parentStepId?: string;
-  parentWorkflowId?: string;
+  workflowId: string | undefined;
   retriesLeft?: number;
 }): Promise<{ shouldEnd: boolean } | void> {
-  const workflow = ctx.workflows.find((w) => w.workflowId === workflowName);
-  const { stepId, onFailure, onSuccess, workflowId, parameters } = step;
+  const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
+  const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
   const failureActionsToRun = (onFailure || workflow?.failureActions || []).map(
     (action) => resolveReusableComponentItem(action, ctx) as OnFailureObject
@@ -57,15 +53,15 @@ export async function runStep({
     (parameter) => resolveReusableComponentItem(parameter, ctx) as ResolvedParameter
   );
 
-  if (workflowId) {
-    const resolvedWorkflow =
-      ctx.workflows.find((w) => w.workflowId === workflowId) ||
-      getValueFromContext(workflowId, ctx);
+  if (targetWorkflowRef) {
+    const targetWorkflow =
+      ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
+      getValueFromContext(targetWorkflowRef, ctx);
 
-    if (!resolvedWorkflow) {
+    if (!targetWorkflow) {
       const failedCall: Check = {
         name: CHECKS.UNEXPECTED_ERROR,
-        message: `Workflow ${red(workflowId)} not found.`,
+        message: `Workflow ${red(targetWorkflowRef)} not found.`,
         pass: false,
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
@@ -73,7 +69,7 @@ export async function runStep({
       return;
     }
 
-    const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+    const workflowCtx = await resolveWorkflowContext(targetWorkflowRef, targetWorkflow, ctx);
 
     if (resolvedParameters && resolvedParameters.length) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
@@ -85,14 +81,14 @@ export async function runStep({
           return acc;
         }, {} as Record<string, any>);
 
-      workflowCtx.$workflows[resolvedWorkflow.workflowId].inputs = workflowInputParameters;
+      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = workflowInputParameters;
     }
 
     const stepWorkflowResult = await runWorkflow({
-      workflowInput: resolvedWorkflow,
+      workflowInput: targetWorkflow,
       ctx: workflowCtx,
-      parentWorkflowId: workflowId || parentWorkflowId,
-      parentStepId: parentStepId || stepId,
+      parentWorkflowId: targetWorkflowRef,
+      parentStepId: stepId,
     });
 
     // FIXME
@@ -160,15 +156,15 @@ export async function runStep({
   let requestData: RequestData | undefined;
 
   try {
-    if (!workflowName) {
+    if (!workflowId) {
       throw new Error('Workflow name is required to run a step');
     }
 
-    requestData = await prepareRequest(ctx, step, workflowName);
+    requestData = await prepareRequest(ctx, step, workflowId);
 
     const checksResult = await callAPIAndAnalyzeResults({
       ctx,
-      workflowName,
+      workflowId,
       step,
       requestData,
     });
@@ -246,7 +242,7 @@ export async function runStep({
       }
 
       const matchesCriteria = checkCriteria({
-        workflowId: workflowName,
+        workflowId: workflowId,
         step,
         criteria,
         ctx,
@@ -279,27 +275,25 @@ export async function runStep({
             await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
-              parentWorkflowId: workflowName,
+              parentWorkflowId: workflowId,
               fromStepId: targetStep,
             });
           } else if (targetStep) {
             const stepToRun = workflow?.steps.find((s) => s.stepId === targetStep) as Step;
             if (!stepToRun) {
-              throw new Error(`Step ${targetStep} not found in workflow ${workflowName}`);
+              throw new Error(`Step ${targetStep} not found in workflow ${workflowId}`);
             }
             await runStep({
               step: stepToRun,
               ctx: targetCtx,
-              workflowName: workflowName as string,
+              workflowId,
             });
           }
           return {
             stepResult: await runStep({
               step,
               ctx,
-              workflowName,
-              parentStepId: stepId,
-              parentWorkflowId: workflowName,
+              workflowId,
               retriesLeft: retriesLeft - 1,
             }),
             retriesLeft,
@@ -313,7 +307,7 @@ export async function runStep({
           await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
-            parentWorkflowId: workflowName,
+            parentWorkflowId: workflowId,
             fromStepId: targetStep,
           });
           return { shouldEnd: true };

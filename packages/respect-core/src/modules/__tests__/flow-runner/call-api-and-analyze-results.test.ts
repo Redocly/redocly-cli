@@ -344,7 +344,7 @@ describe('callAPIAndAnalyzeResults', () => {
 
   it('should call API and return checks result', async () => {
     const serverUrl = 'https://catfact.ninja/';
-    const workflowName = 'get-breeds-workflow';
+    const workflowId = 'get-breeds-workflow';
     const step = ctx.workflows[0].steps[0];
 
     const mockResponse = {
@@ -359,7 +359,7 @@ describe('callAPIAndAnalyzeResults', () => {
 
     const result = await callAPIAndAnalyzeResults({
       ctx,
-      workflowName,
+      workflowId,
       step,
       requestData: {
         serverUrl: { url: serverUrl },
