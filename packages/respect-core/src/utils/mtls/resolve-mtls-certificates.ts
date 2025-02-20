@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { type TestContext } from '../../types';
-import path from 'node:path';
+import * as path from 'node:path';
 import { stripFileDecorator } from '../../modules/config-parser/parse-request-body';
 
 export function resolveMtlsCertificates(
