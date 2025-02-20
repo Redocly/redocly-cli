@@ -75,6 +75,11 @@ export async function getPageHTML(
     : redocOptions?.htmlTemplate
     ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
     : join(__dirname, './template.hbs');
+
+  const redocBundleURL =
+    redocOptions.redocBundleURL ||
+    'https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js';
+
   const template = compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
@@ -86,9 +91,7 @@ export async function getPageHTML(
       Redoc.${'hydrate(__redoc_state, container)'};
 
       </script>`,
-    redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
-      css,
+    redocHead: `<script src="${redocBundleURL}"></script>` + css,
     title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
