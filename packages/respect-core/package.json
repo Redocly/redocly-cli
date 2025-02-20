@@ -1,6 +1,6 @@
 {
   "name": "@redocly/respect-core",
-  "version": "1.29.0",
+  "version": "1.30.0",
   "description": "API TEST FRAMEWORK",
   "scripts": {
     "json-server": "json-server --watch api-samples/fake-db.json --port 3000 --host 0.0.0.0"
@@ -53,7 +53,7 @@
     "@faker-js/faker": "^7.6.0",
     "@jest/expect-utils": "^29.3.1",
     "@redocly/ajv": "8.11.2",
-    "@redocly/openapi-core": "1.29.0",
+    "@redocly/openapi-core": "1.30.0",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
     "concat-stream": "^2.0.0",
