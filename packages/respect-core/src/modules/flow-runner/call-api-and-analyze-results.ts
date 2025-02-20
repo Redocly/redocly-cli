@@ -43,31 +43,6 @@ export async function callAPIAndAnalyzeResults({
 
   const request = ctx.$workflows[workflowId].steps[step.stepId].request;
 
-  // store step level outputs
-  if (step.outputs) {
-    const runtimeExpressionContext = createRuntimeExpressionCtx({
-      ctx: {
-        ...ctx,
-        ...{
-          $request: request,
-          $response: step.response,
-          $inputs: ctx.$workflows[workflowId].inputs,
-        },
-      },
-      workflowId,
-      step,
-    });
-
-    if (step.outputs) {
-      for (const outputKey of Object.keys(step.outputs)) {
-        step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: step.outputs[outputKey],
-          context: runtimeExpressionContext,
-        });
-      }
-    }
-  }
-
   step.verboseLog = ctx.apiClient.getVerboseResponseLogs();
 
   if (step.successCriteria) {
@@ -102,6 +77,31 @@ export async function callAPIAndAnalyzeResults({
   if (schemaChecks.length) {
     checksResult.expectCheck = schemaChecks.every((check) => check.pass);
     step.checks.push(...schemaChecks);
+  }
+
+  // store step level outputs
+  if (step.outputs) {
+    const runtimeExpressionContext = createRuntimeExpressionCtx({
+      ctx: {
+        ...ctx,
+        ...{
+          $request: request,
+          $response: step.response,
+          $inputs: ctx.$workflows[workflowId].inputs,
+        },
+      },
+      workflowId,
+      step,
+    });
+
+    if (step.outputs) {
+      for (const outputKey of Object.keys(step.outputs)) {
+        step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          payload: step.outputs[outputKey],
+          context: runtimeExpressionContext,
+        });
+      }
+    }
   }
 
   // save local $steps context

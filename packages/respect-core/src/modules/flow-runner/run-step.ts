@@ -87,7 +87,7 @@ export async function runStep({
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
-      parentWorkflowId: workflowId,
+      parentWorkflowId: targetWorkflowRef,
       parentStepId: stepId,
     });
 
