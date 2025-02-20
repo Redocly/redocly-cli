@@ -1,15 +1,15 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum API Test Workflow
+  title: Redocly Museum API
   description: >-
-    Use the Museum API with Arazzo as an example of describing multi-step workflows.
-    Built with love by Redocly.
+    An imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
   version: 1.0.0
 
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: ../openapi.yaml
+    url: museum.yaml
   - name: tickets-from-museum-api
     type: arazzo
     url: museum-tickets.arazzo.yaml
@@ -25,7 +25,7 @@ workflows:
     steps:
       - stepId: get-museum-hours
         description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from openapi.yaml description.
+          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
         operationId: museum-api.getMuseumHours
         successCriteria:
           - condition: $statusCode == 200
@@ -48,36 +48,35 @@ workflows:
       - stepId: list-events
         description: >-
           Request the list of events.
-        operationPath: $sourceDescriptions.museum-api#/paths/~1special-events/get
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
         outputs:
           events: $response.body
       - stepId: create-event
         description: >-
           Create a new special event.
-        operationPath: $sourceDescriptions.museum-api#/paths/~1special-events/post
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
         requestBody:
           payload:
             name: 'Mermaid Treasure Identification and Analysis'
             location: 'Under the seaaa 🦀 🎶 🌊.'
             eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
             dates:
-              - '2023-09-05'
-              - '2023-09-08'
+              - $steps.list-events.outputs.events.0.dates.0
+              - $steps.list-events.outputs.events.0.dates.1
             price: 0
         successCriteria:
           - condition: $statusCode == 201
           - context: $response.body
             condition: $.name == 'Mermaid Treasure Identification and Analysis'
-            type:
-              type: jsonpath
-              version: draft-goessner-dispatch-jsonpath-00
+            type: jsonpath
         outputs:
-          createdEventId: $response.body.eventId
-          name: $response.body.name
+          createdEventId: $response.body#/eventId
+          name: $response.body#/name
+
       - stepId: get-event-by-id
         description: >-
           Get the details of the event that was created in the previous step.
-        operationPath: $sourceDescriptions.museum-api#/paths/~1special-events~1{eventId}/get
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/get'
         parameters:
           - name: eventId
             in: path
@@ -89,7 +88,7 @@ workflows:
       - stepId: update-event
         description: >-
           Update the created event with new details.
-        operationPath: $sourceDescriptions.museum-api#/paths/~1special-events~1{eventId}/patch
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/patch'
         parameters:
           - name: eventId
             in: path
@@ -106,13 +105,15 @@ workflows:
           - condition: $statusCode == 200
           - context: $response.body
             condition: $.name == 'Orca Identification and Analysis'
-            type: jsonpath
+            type:
+              type: jsonpath
+              version: draft-goessner-dispatch-jsonpath-00
         outputs:
-          updatedEventId: $response.body.eventId
+          updatedEventId: $response.body#/eventId
       - stepId: delete-event
         description: >-
           Delete the event that was updated in the previous step.
-        operationPath: $sourceDescriptions.museum-api#/paths/~1special-events~1{eventId}/delete
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/delete'
         parameters:
           - name: eventId
             in: path
