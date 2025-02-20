@@ -90,7 +90,7 @@ describe('generateTestConfig', () => {
     expect(
       await generateTestConfig({
         descriptionPath: 'description.yaml',
-        outputFile: './final-test-location/output.yaml',
+        'output-file': './final-test-location/output.yaml',
         extended: false,
       })
     ).toEqual({

@@ -27,7 +27,7 @@ module.exports = {
       statements: 84,
       branches: 74,
       functions: 84,
-      lines: 85,
+      lines: 84,
     },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],

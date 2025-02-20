@@ -47,8 +47,8 @@ export async function runTestFile(
     input,
     skip,
     server,
-    harOutput,
-    jsonOutput,
+    'har-output': harOutput,
+    'json-output': jsonOutput,
     severity,
   } = argv;
 
@@ -64,9 +64,9 @@ export async function runTestFile(
     server,
     severity,
     mutualTls: {
-      clientCert: argv?.clientCert,
-      clientKey: argv?.clientKey,
-      caCert: argv?.caCert,
+      clientCert: argv['client-cert'],
+      clientKey: argv['client-key'],
+      caCert: argv['ca-cert'],
     },
   };
 
@@ -98,7 +98,7 @@ export async function runTestFile(
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
-  const harLogs = options.metadata?.harOutput && createHarLog();
+  const harLogs = options?.harOutput && createHarLog();
   const apiClient = new ApiFetcher({
     harLogs,
   });
@@ -123,7 +123,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
   }
 
   // json logs should be composed after all workflows are run
-  const jsonLogs = options.jsonLogsFile ? composeJsonLogs(ctx) : undefined;
+  const jsonLogs = options.jsonOutput ? composeJsonLogs(ctx) : undefined;
 
   return { ...ctx, harLogs, jsonLogs };
 }

@@ -553,7 +553,7 @@ describe('createTestContext', () => {
     const options: AppOptions = {
       workflowPath: 'test.test.yaml',
       workflow: undefined,
-      harLogsFile: 'har-output',
+      harOutput: 'har-output',
       metadata: {},
       verbose: false,
     };
@@ -597,7 +597,7 @@ describe('createTestContext', () => {
       input: JSON.stringify({ testInput: 'testValue' }),
       workflow: undefined,
       skip: undefined,
-      harLogsFile: 'har-output',
+      harOutput: 'har-output',
       metadata: {},
       verbose: false,
     };

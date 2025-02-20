@@ -33,26 +33,29 @@ describe('resolveMtlsCertificates', () => {
     // Default successful mock implementations
     mockAccessSync.mockImplementation(() => undefined); // successful access returns undefined
     mockReadFileSync.mockImplementation((path: string) => {
-      switch (path) {
-        case 'clientCert.pem':
-          return '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----';
-        case 'clientKey.pem':
-          return '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----';
-        case 'caCert.pem':
-          return '-----BEGIN CERTIFICATE-----\ncaCert\n-----END CERTIFICATE-----';
-        default:
-          throw new Error('File not found');
+      if (path.includes('clientCert')) {
+        return '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----';
+      } else if (path.includes('clientKey')) {
+        return '-----BEGIN PRIVATE KEY-----\nclientKey\n-----END PRIVATE KEY-----';
+      } else if (path.includes('caCert')) {
+        return '-----BEGIN CERTIFICATE-----\ncaCert\n-----END CERTIFICATE-----';
+      } else {
+        throw new Error('File not found');
       }
     });
   });
 
   it('should resolve certificates', () => {
-    const certs = resolveMtlsCertificates({
-      clientCert:
-        '-----BEGIN CERTIFICATE-----\nMIICWDCCAd+gAwIBAgIJAP8L\n-----END CERTIFICATE-----',
-      clientKey: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0B\n-----END PRIVATE KEY-----',
-      caCert: '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK7P\n-----END CERTIFICATE-----',
-    });
+    const certs = resolveMtlsCertificates(
+      {
+        clientCert:
+          '-----BEGIN CERTIFICATE-----\nMIICWDCCAd+gAwIBAgIJAP8L\n-----END CERTIFICATE-----',
+        clientKey:
+          '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0B\n-----END PRIVATE KEY-----',
+        caCert: '-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAK7P\n-----END CERTIFICATE-----',
+      },
+      'test.yaml'
+    );
 
     expect(certs).toEqual({
       clientCert:
@@ -63,11 +66,14 @@ describe('resolveMtlsCertificates', () => {
   });
 
   it('should resolve certificates from file', () => {
-    const certs = resolveMtlsCertificates({
-      clientCert: 'clientCert.pem',
-      clientKey: 'clientKey.pem',
-      caCert: 'caCert.pem',
-    });
+    const certs = resolveMtlsCertificates(
+      {
+        clientCert: 'clientCert.pem',
+        clientKey: 'clientKey.pem',
+        caCert: 'caCert.pem',
+      },
+      'test.yaml'
+    );
 
     expect(certs).toEqual({
       clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
@@ -83,19 +89,25 @@ describe('resolveMtlsCertificates', () => {
     });
 
     expect(() =>
-      resolveMtlsCertificates({
-        clientCert: 'clientCert.pem',
-        clientKey: 'clientKey.pem',
-        caCert: 'caCert.pem',
-      })
+      resolveMtlsCertificates(
+        {
+          clientCert: 'clientCert.pem',
+          clientKey: 'clientKey.pem',
+          caCert: 'caCert.pem',
+        },
+        'test.yaml'
+      )
     ).toThrow('Failed to read certificate: File not found');
   });
 
   it('should resolve certificate content in case some cert is not provided', () => {
-    const certs = resolveMtlsCertificates({
-      clientCert: 'clientCert.pem',
-      clientKey: 'clientKey.pem',
-    });
+    const certs = resolveMtlsCertificates(
+      {
+        clientCert: 'clientCert.pem',
+        clientKey: 'clientKey.pem',
+      },
+      'test.yaml'
+    );
 
     expect(certs).toEqual({
       clientCert: '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----',
@@ -105,7 +117,7 @@ describe('resolveMtlsCertificates', () => {
   });
 
   it('should return undefined if cert is not provided', () => {
-    const certs = resolveMtlsCertificates({});
+    const certs = resolveMtlsCertificates({}, 'test.yaml');
 
     expect(certs).toEqual({
       clientCert: undefined,
@@ -116,9 +128,12 @@ describe('resolveMtlsCertificates', () => {
 
   it('should throw error if certificate is not valid', () => {
     expect(() =>
-      resolveMtlsCertificates({
-        clientCert: '-----BEGIN CERTIFICATE--22323-----END CERTIFICATE-----',
-      })
+      resolveMtlsCertificates(
+        {
+          clientCert: '-----BEGIN CERTIFICATE--22323-----END CERTIFICATE-----',
+        },
+        'test.yaml'
+      )
     ).toThrow('Invalid certificate format');
   });
 });
