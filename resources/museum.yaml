@@ -1,17 +1,19 @@
 openapi: 3.1.0
 info:
   title: Redocly Museum API
-  description: Imaginary, but delightful Museum API for interacting with museum services and information. Built with love by Redocly.
+  description: >-
+    Imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
   version: 1.1.1
-  termsOfService: 'https://redocly.com/subscription-agreement/'
+  termsOfService: https://redocly.com/subscription-agreement/
   contact:
     email: team@redocly.com
-    url: 'https://redocly.com/docs/cli/'
+    url: https://redocly.com/docs/cli/
   license:
     name: MIT
-    url: 'https://opensource.org/license/mit/'
+    url: https://opensource.org/license/mit/
 servers:
-  - url: 'https://redocly.com/_mock/docs/openapi/museum-api'
+  - url: https://redocly.com/_mock/demo/openapi/museum-api/
 paths:
   /museum-hours:
     get:
@@ -149,7 +151,9 @@ paths:
           $ref: '#/components/responses/NotFound'
     delete:
       summary: Delete special event
-      description: Delete a special event from the collection. Allows museum to cancel planned events.
+      description: >-
+        Delete a special event from the collection. Allows museum to cancel
+        planned events.
       operationId: deleteSpecialEvent
       tags:
         - Events
@@ -201,7 +205,9 @@ paths:
   /tickets/{ticketId}/qr:
     get:
       summary: Get ticket QR code
-      description: Return an image of your ticket with scannable QR code. Used for event entry.
+      description: >-
+        Return an image of your ticket with scannable QR code. Used for event
+        entry.
       operationId: getTicketCode
       tags:
         - Tickets
@@ -221,7 +227,9 @@ paths:
 components:
   schemas:
     TicketType:
-      description: Type of ticket being purchased. Use `general` for regular museum entry and `event` for tickets to special events.
+      description: >-
+        Type of ticket being purchased. Use `general` for regular museum entry
+        and `event` for tickets to special events.
       type: string
       enum:
         - event
@@ -239,7 +247,7 @@ components:
     Phone:
       description: Phone number for the ticket purchaser (optional).
       type: string
-      example: '+1(234)-567-8910'
+      example: +1(234)-567-8910
     BuyMuseumTicketsRequest:
       description: Request payload used for purchasing museum tickets.
       type: object
@@ -247,7 +255,9 @@ components:
         ticketType:
           $ref: '#/components/schemas/TicketType'
         eventId:
-          description: Unique identifier for a special event. Required if purchasing tickets for the museum's special events.
+          description: >-
+            Unique identifier for a special event. Required if purchasing
+            tickets for the museum's special events.
           $ref: '#/components/schemas/EventId'
         ticketDate:
           description: Date that the ticket is valid for.
@@ -272,7 +282,7 @@ components:
     TicketConfirmation:
       description: Unique confirmation code used to verify ticket purchase.
       type: string
-      example: 'ticket-event-a98c8f-7eb12'
+      example: ticket-event-a98c8f-7eb12
     BuyMuseumTicketsResponse:
       description: Details for a museum ticket after a successful purchase.
       type: object
@@ -315,14 +325,18 @@ components:
           example: '2024-12-31'
         timeOpen:
           type: string
-          pattern: '^([01]\d|2[0-3]):?([0-5]\d)$'
-          description: Time the museum opens on a specific date. Uses 24 hour time format (`HH:mm`).
-          example: 09:00
+          pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
+          description: >-
+            Time the museum opens on a specific date. Uses 24 hour time format
+            (`HH:mm`).
+          example: '09:00'
         timeClose:
-          description: Time the museum closes on a specific date. Uses 24 hour time format (`HH:mm`).
+          description: >-
+            Time the museum closes on a specific date. Uses 24 hour time format
+            (`HH:mm`).
           type: string
-          pattern: '^([01]\d|2[0-3]):?([0-5]\d)$'
-          example: 18:00
+          pattern: ^([01]\d|2[0-3]):?([0-5]\d)$
+          example: '18:00'
       required:
         - date
         - timeOpen
@@ -343,7 +357,9 @@ components:
     EventDescription:
       type: string
       description: Description of the special event.
-      example: Captain Blackbeard shares his love of the C...language. And possibly Arrrrr (R lang).
+      example: >-
+        Captain Blackbeard shares his love of the C...language. And possibly
+        Arrrrr (R lang).
     EventDates:
       type: array
       items:
@@ -375,7 +391,9 @@ components:
         - dates
         - price
     UpdateSpecialEventRequest:
-      description: Request payload for updating an existing special event. Only included fields are updated in the event.
+      description: >-
+        Request payload for updating an existing special event. Only included
+        fields are updated in the event.
       type: object
       properties:
         name:
@@ -425,7 +443,6 @@ components:
         title:
           type: string
           example: Validation failed
-
   securitySchemes:
     MuseumPlaceholderAuth:
       type: http
@@ -466,7 +483,10 @@ components:
       value:
         name: Mermaid Treasure Identification and Analysis
         location: Under the seaaa 🦀 🎶 🌊.
-        eventDescription: Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.
+        eventDescription: >-
+          Join us as we review and classify a rare collection of 20
+          thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated
+          by Ariel.
         dates:
           - '2023-09-05'
           - '2023-09-08'
@@ -477,7 +497,10 @@ components:
         eventId: dad4bce8-f5cb-4078-a211-995864315e39
         name: Mermaid Treasure Identification and Analysis
         location: Under the seaaa 🦀 🎶 🌊.
-        eventDescription: Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.
+        eventDescription: >-
+          Join us as we review and classify a rare collection of 20
+          thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated
+          by Ariel.
         dates:
           - '2023-09-05'
           - '2023-09-08'
@@ -500,7 +523,9 @@ components:
         - eventId: f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97
           name: Sasquatch Ballet
           location: Seattle... probably
-          eventDescription: They're big, they're hairy, but they're also graceful. Come learn how the biggest feet can have the lightest touch.
+          eventDescription: >-
+            They're big, they're hairy, but they're also graceful. Come learn
+            how the biggest feet can have the lightest touch.
           dates:
             - '2023-12-15'
             - '2023-12-22'
@@ -533,7 +558,10 @@ components:
         - eventId: dad4bce8-f5cb-4078-a211-995864315e39
           name: Mermaid Treasure Identification and Analysis
           location: Room Sea-12
-          eventDescription: Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits — kindly donated by Ariel.
+          eventDescription: >-
+            Join us as we review and classify a rare collection of 20
+            thingamabobs, gadgets, gizmos, whoosits, and whatsits — kindly
+            donated by Ariel.
           dates:
             - '2023-09-05'
             - '2023-09-08'
@@ -550,7 +578,9 @@ components:
         - eventId: 3be6453c-03eb-4357-ae5a-984a0e574a54
           name: Pirate Coding Workshop
           location: Computer Room
-          eventDescription: Captain Blackbeard shares his love of the C...language. And possibly Arrrrr (R lang).
+          eventDescription: >-
+            Captain Blackbeard shares his love of the C...language. And possibly
+            Arrrrr (R lang).
           dates:
             - '2023-10-29'
             - '2023-10-30'
@@ -593,7 +623,10 @@ components:
         eventId: dad4bce8-f5cb-4078-a211-995864315e39
         name: Mermaid Treasure Identification and Analysis
         location: On the beach.
-        eventDescription: Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.
+        eventDescription: >-
+          Join us as we review and classify a rare collection of 20
+          thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated
+          by Ariel.
         dates:
           - '2023-09-05'
           - '2023-09-08'
@@ -661,7 +694,9 @@ components:
     StartDate:
       name: startDate
       in: query
-      description: Starting date to retrieve future operating hours from. Defaults to today's date.
+      description: >-
+        Starting date to retrieve future operating hours from. Defaults to
+        today's date.
       schema:
         type: string
         format: date
@@ -669,7 +704,9 @@ components:
     EndDate:
       name: endDate
       in: query
-      description: End of a date range to retrieve special events for. Defaults to 7 days after `startDate`.
+      description: >-
+        End of a date range to retrieve special events for. Defaults to 7 days
+        after `startDate`.
       schema:
         type: string
         format: date
@@ -677,7 +714,9 @@ components:
     TicketId:
       name: ticketId
       in: path
-      description: Identifier for a ticket to a museum event. Used to generate ticket image.
+      description: >-
+        Identifier for a ticket to a museum event. Used to generate ticket
+        image.
       required: true
       schema:
         type: string

@@ -1,15 +1,15 @@
 arazzo: 1.0.1
 info:
-  title: Redocly Museum Tickets Workflow
+  title: Redocly Museum API Tickets
   description: >-
-    Use the Museum API as an example in a simple Arazzo workflow.
-    Built with love by Redocly.
+    A part of imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
   version: 1.0.0
 
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: ../openapi.yaml
+    url: museum.yaml
 
 workflows:
   - workflowId: get-museum-tickets
@@ -22,7 +22,7 @@ workflows:
     steps:
       - stepId: buy-tickets
         description: >-
-          Buy museum tickets resolving request details with buyMuseumTickets operationId from openapi.yaml description.
+          Buy museum tickets resolving request details with buyMuseumTickets operationId from museum-api.yaml description.
         operationId: buyMuseumTickets
         requestBody:
           payload:
@@ -32,6 +32,8 @@ workflows:
         successCriteria:
           - condition: $statusCode == 201
         outputs:
-          ticketId: $response.body.ticketId
+          ticketId: $response.body#/ticketId
+          fullBody: $response.body
     outputs:
       ticketId: $steps.buy-tickets.outputs.ticketId
+      stepFullBody: $steps.buy-tickets.outputs.fullBody
