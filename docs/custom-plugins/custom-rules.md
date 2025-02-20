@@ -91,6 +91,7 @@ The main method used is `context.report()`, which publishes a warning or error (
 - `location` - {Location} (optional) An object specifying the location of the problem. Can be constructed using location object methods.
 - `suggest` - {string[]} (optional) - "Did you mean" suggestion.
 - `from` - {Location} (optional) - Referenced by location.
+- `reference` - {string} (optional) - A URI reference to external documentation supporting the design decision of a particular rule.
 
 You may use the message alone:
 
