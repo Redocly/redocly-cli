@@ -2,13 +2,8 @@ import * as path from 'path';
 import { sortMethods } from '../../utils/sort';
 import { bundleOpenApi } from '../description-parser';
 
-import type {
-  OperationMethod,
-  TestDescription,
-  GenerateConfigFileArgv,
-  Workflow,
-  Step,
-} from '../../types';
+import type { OperationMethod, TestDescription, Workflow, Step } from '../../types';
+import type { GenerateArazzoFileOptions } from '../../handlers/generate';
 
 type WorkflowsFromDescriptionInput = {
   descriptionPaths: any;
@@ -102,9 +97,9 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
 
 export async function generateTestConfig({
   descriptionPath,
-  outputFile,
+  'output-file': outputFile,
   extended,
-}: GenerateConfigFileArgv) {
+}: GenerateArazzoFileOptions) {
   const { paths: pathsObject, info } = (await bundleOpenApi(descriptionPath, '')) || {};
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
   const resolvedDescriptionPath = outputFile

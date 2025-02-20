@@ -1,17 +1,21 @@
 import * as fs from 'node:fs';
 import { type TestContext } from '../../types';
+import * as path from 'node:path';
 
-export function resolveMtlsCertificates(mtlsCertificates: Partial<TestContext['mtlsCerts']> = {}) {
+export function resolveMtlsCertificates(
+  mtlsCertificates: Partial<TestContext['mtlsCerts']> = {},
+  arazzoFilePath: string
+) {
   const { clientCert, clientKey, caCert } = mtlsCertificates;
 
   return {
-    clientCert: resolveCertificate(clientCert),
-    clientKey: resolveCertificate(clientKey),
-    caCert: resolveCertificate(caCert),
+    clientCert: resolveCertificate(clientCert, arazzoFilePath),
+    clientKey: resolveCertificate(clientKey, arazzoFilePath),
+    caCert: resolveCertificate(caCert, arazzoFilePath),
   };
 }
 
-function resolveCertificate(cert: string | undefined): string | undefined {
+function resolveCertificate(cert: string | undefined, arazzoFilePath: string): string | undefined {
   if (!cert) return undefined;
 
   try {
@@ -19,9 +23,12 @@ function resolveCertificate(cert: string | undefined): string | undefined {
     const isCertContent = cert.includes('-----BEGIN') && cert.includes('-----END');
 
     if (!isCertContent) {
+      const currentArazzoFileFolder = path.dirname(arazzoFilePath);
+      const certPath = path.resolve(currentArazzoFileFolder, cert);
+
       // If not a certificate content, treat as file path
-      fs.accessSync(cert, fs.constants.R_OK);
-      return fs.readFileSync(cert, 'utf-8');
+      fs.accessSync(certPath, fs.constants.R_OK);
+      return fs.readFileSync(certPath, 'utf-8');
     }
 
     // Return the certificate content as-is

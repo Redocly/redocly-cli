@@ -18,6 +18,9 @@ import type { Faker } from './modules/faker';
 import type { OperationDetails } from './modules/description-parser';
 import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
 import type { ApiFetcher } from './utils/api-fetcher';
+import type { RespectOptions } from './handlers/run';
+import type { Config } from '@redocly/openapi-core';
+import type { CollectFn } from '@redocly/openapi-core/src/utils';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -73,20 +76,19 @@ type AdditionalStepProps = {
 };
 export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
-export type RunArgv = {
+export type RunArgv = Omit<RespectOptions, 'files'> & {
   file: string;
   testDescription?: TestDescription;
-  workflow?: string[];
-  skip?: string[];
-  verbose?: boolean;
-  harOutput?: string;
-  jsonOutput?: string;
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  clientCert?: NonNullable<TestContext['mtlsCerts']>['clientCert'];
-  clientKey?: NonNullable<TestContext['mtlsCerts']>['clientKey'];
-  caCert?: NonNullable<TestContext['mtlsCerts']>['caCert'];
+};
+
+export type CommandArgs<T> = {
+  argv: T;
+  config: Config;
+  version: string;
+  collectSpecData?: CollectFn;
 };
 
 export interface RequestContext {
@@ -108,8 +110,8 @@ export type AppOptions = {
   workflow?: string | string[];
   skip?: string | string[];
   verbose?: boolean;
-  harLogsFile?: string;
-  jsonLogsFile?: string;
+  harOutput?: string;
+  jsonOutput?: string;
   metadata?: Record<string, any>;
   input?: string | string[];
   server?: string | string[];
@@ -228,12 +230,6 @@ export type Check = {
   name: string;
   message?: string;
   additionalMessage?: string;
-};
-
-export type GenerateConfigFileArgv = {
-  descriptionPath: string;
-  outputFile?: string;
-  extended?: boolean;
 };
 
 export interface ResultsOfTests {

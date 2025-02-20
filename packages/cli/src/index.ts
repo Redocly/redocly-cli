@@ -19,7 +19,7 @@ import {
   notifyUpdateCliVersion,
   version,
 } from './utils/update-version-notifier';
-import { commandWrapper } from './wrapper';
+import { type CommandArgs, commandWrapper } from './wrapper';
 import { previewProject } from './commands/preview-project';
 import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
@@ -30,7 +30,7 @@ import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushStatusOptions } from './reunite/commands/push-status';
-import type { PushArguments } from './types';
+import type { CommandOptions, PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
@@ -914,11 +914,6 @@ yargs
             describe: 'JSON file output name',
             type: 'string',
           },
-          residency: {
-            describe: 'Residency of Reunite application. Defaults to US.',
-            type: 'string',
-            default: 'us',
-          },
           'client-cert': {
             describe: 'Mutual TLS client certificate',
             type: 'string',
@@ -964,21 +959,15 @@ yargs
               'Generate config with populated values from description using success criteria',
             type: 'boolean',
           },
-          residency: {
-            describe: 'Residency of Reunite application. Defaults to US.',
-            type: 'string',
-            default: 'us',
-          },
         });
+    },
+    async (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'generate-arazzo';
+      const { handleGenerate } = await import('@redocly/respect-core');
+      commandWrapper(
+        handleGenerate as (wrapperArgs: CommandArgs<CommandOptions>) => Promise<unknown>
+      )(argv);
     }
-    // async (argv) => {
-    //   try {
-    //     await handleGenerate(argv as GenerateConfigFileArgv);
-    //   } catch {
-    //     logger.error(`❌  Auto config generation failed.`);
-    //     process.exit(1);
-    //   }
-    // },
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
