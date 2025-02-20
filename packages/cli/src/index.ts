@@ -25,7 +25,6 @@ import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
 import { commonPushHandler } from './commands/push';
-import { handleRun } from '@redocly/respect-core';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
@@ -34,7 +33,7 @@ import type { PushStatusOptions } from './reunite/commands/push-status';
 import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -938,8 +937,9 @@ yargs
           },
         });
     },
-    (argv) => {
+    async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'respect';
+      const { handleRun } = await import('@redocly/respect-core');
       commandWrapper(handleRun)(argv);
     }
   )
