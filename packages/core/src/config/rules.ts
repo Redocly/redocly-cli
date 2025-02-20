@@ -6,6 +6,7 @@ import type {
   Async3RuleSet,
   Oas2RuleSet,
   Oas3RuleSet,
+  Overlay1RuleSet,
   SpecVersion,
 } from '../oas-types';
 import type { StyleguideConfig } from './config';
@@ -18,7 +19,14 @@ type InitializedRule = {
 };
 
 export function initRules(
-  rules: (Oas3RuleSet | Oas2RuleSet | Async2RuleSet | Async3RuleSet | Arazzo1RuleSet)[],
+  rules: (
+    | Oas3RuleSet
+    | Oas2RuleSet
+    | Async2RuleSet
+    | Async3RuleSet
+    | Arazzo1RuleSet
+    | Overlay1RuleSet
+  )[],
   config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: SpecVersion
