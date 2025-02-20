@@ -9,7 +9,7 @@ rbac:
 # `respect`
 
 Use this command to execute API tests described in an Arazzo description.
-In addition to the Arazzo specification, `respect` supports specification extensions for API testing: `x-operation` and `x-serverUrl`.
+In addition to the Arazzo specification, Respect supports specification extensions for API testing: `x-operation` and `x-serverUrl`.
 
 ## Usage
 
@@ -30,7 +30,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -w, --workflow
 - [string]
 - Workflow names from the test file to run.
-  For example, the following command runs "first-flow" and "second-flow" workflows from the "test-file.yaml" Arazzo description: `npx @redocly/cli respect test-file.yaml --workflow first-flow second-flow`
+  For example, the following command runs "first-flow" and "second-flow" workflows from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --workflow first-flow second-flow`
   {% admonition type="warning" %}
   The `--workflow` option can't be used with `--skip`.
   {% /admonition %}
@@ -40,7 +40,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -s, --skip
 - [string]
 - Workflow names from the test file to skip.
-  For example, the following command skips the "first-flow" workflow from the "test-file.yaml" Arazzo description: `npx @redocly/cli respect test-file.yaml --skip first-flow`
+  For example, the following command skips the "first-flow" workflow from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --skip first-flow`
   {% admonition type="warning" name="Warning" %}
   The `--skip` option can't be used with `--workflow`.
   {% /admonition %}
@@ -50,30 +50,30 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -v, --verbose
 - boolean
 - Runs the command in verbose mode to help with troubleshooting issues.
-  For example, the following command runs all workflows from the "test-file.yaml" Arazzo description in verbose mode: `npx @redocly/cli respect test-file.yaml --verbose`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description in verbose mode: `npx @redocly/cli respect test-file.yaml --verbose`
 
 ---
 
 - --har-output
 - string
 - Path for the `har` file for saving logs.
-  For example, the following command runs all workflows from the "test-file.yaml" Arazzo description and saves the logs to the "logs.har" file: `npx @redocly/cli respect test-file.yaml --har-output='logs.har'`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.har` file: `npx @redocly/cli respect test-file.yaml --har-output='logs.har'`
 
 ---
 
 - --json-output
 - string
-- Path for the JSON file for saving logs. For example, the following command runs all workflows from the "test-file.yaml" Arazzo description and saves the logs to the "logs.json" file:`npx @redocly/cli respect test-file.yaml --json-output='logs.json'`
+- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:`npx @redocly/cli respect test-file.yaml --json-output='logs.json'`
 
 ---
 
 - --input
 - string
 - Input parameters with values that are mapped to the workflow inputs description.
-  For example, the following command maps the "userEmail" and "userPassword" inputs and values to all workflows in the "test.yaml" Arazzo description: `npx @redocly/cli respect test.yaml --input userEmail=name@redocly.com --input userPassword=12345`.
+  For example, the following command maps the "userEmail" and "userPassword" inputs and values to all workflows in the `test.yaml` Arazzo description: `npx @redocly/cli respect test.yaml --input userEmail=name@redocly.com --input userPassword=12345`.
   You can also use an environment variable to set the input, as in the following example: `REDOCLY_CLI_RESPECT_INPUT='userEmail=name@redocly.com,userPassword=12345' npm run cli respect test.yaml`
 
-  You can even include nested values, as in the following example command that maps the "nestedKey" input and value to all workflows in the "test-file.yaml" Arazzo description: `npx @redocly/cli respect test-file.yaml --input '{"key": "value", "nested": {"nestedKey": "nestedValue"}}'`.
+  You can even include nested values, as in the following example command that maps the `nestedKey` input and value to all workflows in the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --input '{"key": "value", "nested": {"nestedKey": "nestedValue"}}'`.
   You can also use an environment variable to set the input, as in the following example: `REDOCLY_CLI_RESPECT_INPUT='{"key":"value","nested":{"nestedKey":"nestedValue"}}' npx @redocly/cli respect test-file.yaml`
 
 ---
@@ -81,7 +81,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - --server
 - string
 - Server overrides for the `sourceDescriptions` object.
-  For example, the following command runs all workflows from the "test-file.yaml" Arazzo description and instead of using the server listed in the API description, uses the server at "https://test.com": `npx @redocly/cli respect test-file.yaml --server test=https://test.com`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the server listed in the API description, uses the server at `https://test.com`: `npx @redocly/cli respect test-file.yaml --server test=https://test.com`
 
   You can also pass the server overrides as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`
@@ -90,7 +90,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 
 - --residency
 - string
-- Residency location of Reunite application to use if `login` command was not run before.
+- If not logged in already, use the residency location of the Reunite application.
   Default: `us`.
   You can also pass the residency as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_RESIDENCY='eu'`

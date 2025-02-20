@@ -35,7 +35,7 @@ Testing commands:
 
 Redocly platform commands:
 
-- [`login`](login.md) Login to the Redocly API registry with an access token or to the Reunite API.
+- [`login`](login.md) Log in to Reunite or to the Redocly API registry with an access token.
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to the Redocly API registry.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.

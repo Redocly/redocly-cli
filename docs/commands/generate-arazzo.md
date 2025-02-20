@@ -12,10 +12,10 @@ Auto-generate an Arazzo description based on an OpenAPI description file.
 
 If `examples` are provided in the OpenAPI description, they are used as input data for test requests.
 If `schema` is provided, the config generates fake data based on the description schema.
-By default, data for requests comes from the description at run-time.
+By default, data for requests comes from the description at runtime.
 To materialize tests with the data, use the `--extended` option.
 
-The `--extended` option also demonstrates how `respect` gets data from an OpenAPI description.
+The `--extended` option also demonstrates how Respect gets data from an OpenAPI description.
 
 {% admonition type="warning" %}
 
