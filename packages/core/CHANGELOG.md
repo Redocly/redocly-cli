@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.30.0
+
+### Patch Changes
+
+- Updated `operation-tag-defined` built-in rule to verify tags are defined on the operation prior to matching them to a global tag.
+
 ## 1.29.0
 
 ### Minor Changes
