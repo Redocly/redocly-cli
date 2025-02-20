@@ -42,56 +42,12 @@ const BUNDLED_DESCRIPTION_MOCK = {
 };
 
 describe('generateTestConfig', () => {
-  it('should generate test config', async () => {
-    (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
-    expect(
-      await generateTestConfig({
-        descriptionPath: 'description.yaml',
-        extended: false,
-      })
-    ).toEqual({
-      arazzo: '1.0.1',
-      info: {
-        title: 'Swagger Petstore',
-        version: '1.0.0',
-      },
-      sourceDescriptions: [
-        {
-          name: 'description',
-          type: 'openapi',
-          url: 'description.yaml',
-        },
-      ],
-      workflows: [
-        {
-          workflowId: 'get-pet-workflow',
-          steps: [
-            {
-              operationId: '$sourceDescriptions.description.getPet',
-              stepId: 'get-pet-step',
-            },
-          ],
-        },
-        {
-          workflowId: 'get-fact-workflow',
-          steps: [
-            {
-              operationId: '$sourceDescriptions.description.getFact',
-              stepId: 'get-fact-step',
-            },
-          ],
-        },
-      ],
-    });
-  });
-
   it('should generate test config when output file is provided', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     expect(
       await generateTestConfig({
         descriptionPath: 'description.yaml',
         'output-file': './final-test-location/output.yaml',
-        extended: false,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -113,6 +69,7 @@ describe('generateTestConfig', () => {
             {
               operationId: '$sourceDescriptions.description.getPet',
               stepId: 'get-pet-step',
+              successCriteria: [{ condition: '$statusCode == 200' }],
             },
           ],
         },
@@ -129,7 +86,7 @@ describe('generateTestConfig', () => {
     });
   });
 
-  it('should generate test config with extended', async () => {
+  it('should generate test config with', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     (getOperationFromDescription as jest.Mock).mockReturnValue({
       responses: {
@@ -154,7 +111,6 @@ describe('generateTestConfig', () => {
     expect(
       await generateTestConfig({
         descriptionPath: 'description.yaml',
-        extended: true,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -193,12 +149,11 @@ describe('generateTestConfig', () => {
     });
   });
 
-  it('should generate extended test config with not existing description', async () => {
+  it('should generate test config with not existing description', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(undefined);
     expect(
       await generateTestConfig({
         descriptionPath: 'description.yaml',
-        extended: false,
       })
     ).toEqual({
       arazzo: '1.0.1',
