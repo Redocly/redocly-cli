@@ -33,7 +33,7 @@ import type { PushStatusOptions } from './reunite/commands/push-status';
 import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
