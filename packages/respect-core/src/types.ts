@@ -209,21 +209,16 @@ export type TestContext = RuntimeExpressionContext & {
   };
   apiClient: ApiFetcher;
 };
+
 export type TestDescription = Partial<
   Pick<
     TestContext & WorkflowInnerContext & StepInnerContext,
     'workflows' | 'arazzo' | 'info' | 'sourceDescriptions' | '$outputs' | 'components'
   >
 >;
-export type CheckStepInfo = {
-  stepId: string;
-  workflowId?: string;
-  operationId?: string;
-  operationPath?: string;
-};
+
 export type Check = {
   severity: RuleSeverity;
-  stepInfo?: CheckStepInfo;
   pass: boolean;
   name: string;
   message?: string;

@@ -625,7 +625,7 @@ describe('runStep', () => {
       successCriteria: [{ condition: '$statusCode == 200' }],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -854,7 +854,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -982,7 +982,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
@@ -1103,7 +1103,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
@@ -1221,7 +1221,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1330,7 +1330,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1462,7 +1462,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
@@ -1578,7 +1578,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
@@ -1692,7 +1692,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
@@ -1820,7 +1820,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
@@ -1981,7 +1981,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
     (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
@@ -2090,7 +2090,7 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const workflowId= 'get-bird-workflow';
+    const workflowId = 'get-bird-workflow';
 
     const context = {
       ...basicCTX,

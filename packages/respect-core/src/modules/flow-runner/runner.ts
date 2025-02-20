@@ -218,9 +218,7 @@ export async function runWorkflow({
         ctx.$outputs[workflowId].outputs = workflow.outputs;
         ctx.$workflows[workflowId].outputs = workflow.outputs;
       } catch (error: any) {
-        throw new Error(
-          `Failed to resolve outputs in workflow "${workflowId}": ${error.message}`
-        );
+        throw new Error(`Failed to resolve outputs in workflow "${workflowId}": ${error.message}`);
       }
     }
   }
