@@ -82,7 +82,7 @@ export async function createTestContext(
     secretFields: new Set<string>(),
     mtlsCerts:
       options.mutualTls?.clientCert || options.mutualTls?.clientKey || options.mutualTls?.caCert
-        ? resolveMtlsCertificates(options.mutualTls)
+        ? resolveMtlsCertificates(options.mutualTls, options.workflowPath)
         : undefined,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,

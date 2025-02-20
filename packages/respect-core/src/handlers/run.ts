@@ -28,7 +28,6 @@ export type RespectOptions = {
   verbose?: boolean;
   'har-output'?: string;
   'json-output'?: string;
-  residency?: string;
   'client-cert'?: string;
   'client-key'?: string;
   'ca-cert'?: string;
