@@ -30,6 +30,8 @@ import type {
   SourceDescription,
   Check,
   RunWorkflowInput,
+  WorkflowExecutionResult,
+  // ArrazoItemExecutionResult,
 } from '../../types';
 
 const logger = DefaultLogger.getInstance();
@@ -109,22 +111,27 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
 
   const workflows = getWorkflowsToRun(ctx.workflows, workflowsToRun, workflowsToSkip);
 
+  const executedWorkflows: WorkflowExecutionResult[] = [];
+
   for (const workflow of workflows) {
+    ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
       await handleDependsOn({ workflow, ctx });
     }
 
-    await runWorkflow({
+    const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
     });
+
+    executedWorkflows.push(workflowExecutionResult);
   }
 
   // json logs should be composed after all workflows are run
   const jsonLogs = options.jsonOutput ? composeJsonLogs(ctx) : undefined;
 
-  return { ...ctx, harLogs, jsonLogs };
+  return { ...ctx, harLogs, jsonLogs, workflows: executedWorkflows };
 }
 
 export async function runWorkflow({
@@ -132,7 +139,9 @@ export async function runWorkflow({
   ctx,
   fromStepId,
   skipLineSeparator,
-}: RunWorkflowInput): Promise<Workflow | void> {
+  parentStepId,
+  invocationContext,
+}: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
   const workflow =
@@ -158,13 +167,14 @@ export async function runWorkflow({
 
   for (const step of workflowSteps) {
     try {
-      const stepResults = await runStep({
+      const stepResult = await runStep({
         step,
         ctx,
         workflowId,
       });
+
       // When `end` action is used, we should not continue with the next steps
-      if (stepResults?.shouldEnd) {
+      if (stepResult?.shouldEnd) {
         break;
       }
     } catch (err: any) {
@@ -175,7 +185,6 @@ export async function runWorkflow({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
-      return;
     }
   }
 
@@ -219,7 +228,18 @@ export async function runWorkflow({
   workflow.time = Math.ceil(performance.now() - workflowStartTime);
   logger.printNewLine();
 
-  return workflow;
+  const endTime = performance.now();
+
+  return {
+    type: 'workflow',
+    invocationContext,
+    workflowId,
+    stepId: parentStepId,
+    startTime: workflowStartTime,
+    endTime,
+    totalTimeMs: Math.ceil(endTime - workflowStartTime),
+    executedSteps: ctx.executedSteps,
+  };
 }
 
 async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
@@ -239,11 +259,7 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
     })
   );
 
-  if (dependenciesWorkflows.some((w) => !w)) {
-    throw new Error('Dependent workflows failed');
-  }
-
-  const totals = calculateTotals(dependenciesWorkflows as Workflow[]);
+  const totals = calculateTotals(dependenciesWorkflows);
   const hasProblems = totals.steps.failed > 0;
 
   if (hasProblems) {
@@ -279,7 +295,8 @@ export async function resolveWorkflowContext(
           severity: ctx.options.severity || undefined,
           verbose: ctx.options.verbose || undefined,
         },
-        ctx.apiClient
+        ctx.apiClient,
+        ctx
       )
     : await createTestContext(
         JSON.parse(JSON.stringify(ctx.testDescription)),

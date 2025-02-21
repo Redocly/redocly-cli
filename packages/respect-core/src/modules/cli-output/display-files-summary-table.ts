@@ -4,7 +4,7 @@ import { calculateTotals } from './calculate-tests-passed';
 import { RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
 
-import type { Workflow } from '../../types';
+import type { WorkflowExecutionResult } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 
@@ -12,7 +12,7 @@ export function displayFilesSummaryTable(
   filesResult: {
     file: string;
     hasProblems: boolean;
-    workflows: Workflow[];
+    workflows: WorkflowExecutionResult[];
     argv?: { workflow?: string[]; skip?: string[] };
   }[]
 ) {

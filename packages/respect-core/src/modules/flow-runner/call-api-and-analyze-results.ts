@@ -52,11 +52,9 @@ export async function callAPIAndAnalyzeResults({
       criteria: step.successCriteria,
       ctx: {
         ...ctx,
-        ...{
-          $request: request,
-          $response: step.response,
-          $inputs: ctx.$workflows[workflowId].inputs,
-        },
+        $request: request,
+        $response: step.response,
+        $inputs: ctx.$workflows[workflowId].inputs,
       },
     });
 

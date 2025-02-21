@@ -73,7 +73,9 @@ type AdditionalStepProps = {
   verboseLog?: VerboseLog;
   response: ResponseContext;
   checks: Check[];
+  children?: Step[];
 };
+
 export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
 export type RunArgv = Omit<RespectOptions, 'files'> & {
@@ -189,10 +191,53 @@ export type RunWorkflowInput = {
   workflowInput: Workflow | string;
   ctx: TestContext;
   fromStepId?: string;
+  parentStepId?: string;
   skipLineSeparator?: boolean;
+  invocationContext?: string;
 };
 
+// export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;
+
+// export interface StepExecutionResult {
+//   type: 'step';
+//   stepId: string;
+//   workflowId: string;
+//   // sourceDescriptionName: string;
+
+//   // description?: string;
+//   // startTime: string;
+//   // endTime: string;
+//   totalTimeMs: number;
+
+//   retriesLeft?: number; // number of retries
+
+//   // status: ExecutionStatus;
+
+//   invocationContext?: string;
+
+//   request?: RequestContext;
+//   response?: ResponseContext;
+//   // successCriteria?: CriteriaResult[];
+//   checks: Check[];
+//   // outputs?: Record<string, any>;
+// }
+
+export interface WorkflowExecutionResult {
+  type: 'workflow';
+  workflowId: string;
+  stepId?: string; // for child workflows
+  sourceDescriptionName?: string; // maybe drop for now
+
+  startTime: number;
+  endTime: number;
+  totalTimeMs: number;
+
+  executedSteps: (Step | WorkflowExecutionResult)[];
+  invocationContext?: string;
+}
+
 export type TestContext = RuntimeExpressionContext & {
+  executedSteps: (Step | WorkflowExecutionResult)[];
   arazzo: string;
   info: InfoObject & Record<string, any>;
   sourceDescriptions?: SourceDescription[];

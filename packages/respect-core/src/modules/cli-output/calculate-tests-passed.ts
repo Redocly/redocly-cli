@@ -1,7 +1,8 @@
 // import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
-import type { CalculatedResults, Workflow } from '../../types';
+import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types';
 
-export function calculateTotals(workflows: Workflow[]): CalculatedResults {
+export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
+  debugger;
   const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;
@@ -15,8 +16,10 @@ export function calculateTotals(workflows: Workflow[]): CalculatedResults {
   const skippedSteps = new Set();
   const warningsSteps = new Set();
 
+
   for (const workflow of workflows) {
-    for (const step of workflow.steps) {
+    const steps = flattenNestedSteps(workflow.executedSteps);
+    for (const step of steps) {
       totalSteps++;
       for (const check of step.checks) {
         totalChecks++;
@@ -65,4 +68,13 @@ export function calculateTotals(workflows: Workflow[]): CalculatedResults {
       total: totalChecks,
     },
   };
+}
+
+function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
+  return steps.flatMap((step) => {
+    if ('executedSteps' in step) {
+      return flattenNestedSteps((step as WorkflowExecutionResult).executedSteps);
+    }
+    return [step];
+  });
 }

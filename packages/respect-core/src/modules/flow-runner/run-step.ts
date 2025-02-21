@@ -43,6 +43,8 @@ export async function runStep({
   workflowId: string | undefined;
   retriesLeft?: number;
 }): Promise<{ shouldEnd: boolean } | void> {
+  ctx.executedSteps.push(step);
+
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -93,17 +95,14 @@ export async function runStep({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
       skipLineSeparator: true,
+      parentStepId: stepId,
+      invocationContext: `Child workflow of step ${stepId}`,
     });
 
-    // FIXME
-    if (stepWorkflowResult?.steps) {
-      const innerSteps = stepWorkflowResult.steps as Step[];
-      // merge all checks from all steps in executed workflow
-      step.checks = innerSteps.flatMap(({ checks }) => checks);
-    }
+    ctx.executedSteps.push(stepWorkflowResult);
 
     const outputs: Record<string, any> = {};
-    if (step?.outputs && stepWorkflowResult?.outputs) {
+    if (step?.outputs) {
       try {
         for (const [outputKey, outputValue] of Object.entries(step.outputs)) {
           // need to partially emulate $outputs context
@@ -122,7 +121,6 @@ export async function runStep({
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
-        return;
       }
 
       // save local $steps context
@@ -269,11 +267,13 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
-            await runWorkflow({
+            const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
               skipLineSeparator: true,
+              invocationContext: `Retry action for step ${stepId}`,
             });
+            ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
             const stepToRun = workflow?.steps.find((s) => s.stepId === targetStep) as Step;
             if (!stepToRun) {
@@ -310,12 +310,14 @@ export async function runStep({
             printActionsSeparator(stepId, action.name, kind);
           }
 
-          await runWorkflow({
+          const stepWorkflowResult = await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
             fromStepId: targetStep,
             skipLineSeparator: true,
+            invocationContext: `Goto from step ${stepId}`,
           });
+          ctx.executedSteps.push(stepWorkflowResult);
           return { shouldEnd: true };
         }
         // stop at first matching action

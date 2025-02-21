@@ -26,7 +26,8 @@ interface Descriptions {
 export async function createTestContext(
   testDescription: TestDescription,
   options: AppOptions,
-  apiClient: ApiFetcher
+  apiClient: ApiFetcher,
+  _parentCtx?: TestContext
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
@@ -71,6 +72,8 @@ export async function createTestContext(
     $steps: {},
     $components: testDescription.components || {},
     $outputs: {},
+
+    executedSteps: [],
 
     workflows: testDescription.workflows || [],
     harLogs: {},
