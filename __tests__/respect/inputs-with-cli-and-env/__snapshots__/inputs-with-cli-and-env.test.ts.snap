@@ -74,7 +74,8 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ content-type check
     ✓ schema check
 
-  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+  Running child workflow for the step buy-ticket
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
     ✓ success criteria check

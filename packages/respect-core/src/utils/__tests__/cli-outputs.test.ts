@@ -11,8 +11,9 @@ import {
   printWorkflowSeparator,
   printStepSeparatorLine,
   printConfigLintTotals,
-  printDependentWorkflowSeparator,
-  printStepWorkflowSeparator,
+  printRequiredWorkflowSeparator,
+  printChildWorkflowSeparator,
+  printActionsSeparator,
   indent,
   removeExtraIndentation,
   printStepDetails,
@@ -57,21 +58,29 @@ describe('cliOutputs', () => {
     });
   });
 
-  describe('printDependentWorkflowSeparator', () => {
+  describe('printRequiredWorkflowSeparator', () => {
     it('should print a separator', () => {
       const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
-      printDependentWorkflowSeparator('parentWorkflowId');
+      printRequiredWorkflowSeparator('parentWorkflowId');
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running required'));
       mockLogger.mockRestore();
     });
   });
 
-  describe('printStepWorkflowSeparator', () => {
+  describe('printChildWorkflowSeparator', () => {
     it('should print a separator', () => {
       const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
-      printStepWorkflowSeparator('parentStepId', 'parentWorkflowId');
-      expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running step'));
+      printChildWorkflowSeparator('parentStepId');
+      expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running child'));
       mockLogger.mockRestore();
+    });
+  });
+
+  describe('printActionsSeparator', () => {
+    it('should print a separator', () => {
+      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      printActionsSeparator('parentStepId', 'actionName', 'success');
+      expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running success action'));
     });
   });
 
