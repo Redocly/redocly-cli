@@ -1,4 +1,4 @@
-import { red } from 'colorette';
+import { blue, green, red } from 'colorette';
 import { type CollectFn } from '@redocly/openapi-core/src/utils';
 import { runTestFile } from '../modules/flow-runner';
 import {
@@ -6,10 +6,14 @@ import {
   displaySummary,
   displayFilesSummaryTable,
   calculateTotals,
+  composeJsonLogsFiles,
 } from '../modules/cli-output';
 import { DefaultLogger } from '../utils/logger/logger';
-import { type CommandArgs, type RunArgv } from '../types';
 import { exitWithError } from '../utils/exit-with-error';
+import { writeFileSync } from 'node:fs';
+import { indent } from '../utils/cli-outputs';
+
+import type { JsonLogs, CommandArgs, RunArgv } from '../types';
 
 export type RespectOptions = {
   files: string[];
@@ -63,10 +67,9 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
     for (const path of files) {
       const result = await runFile(
         { ...argv, file: path },
-        startedAt,
+        performance.now(),
         {
           harFile: harOutputFile,
-          jsonFile: jsonOutputFile,
         },
         collectSpecData
       );
@@ -74,11 +77,29 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
       runAllFilesResult.push(result);
     }
 
+    const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
+    const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
+
     logger.printNewLine();
     displayFilesSummaryTable(runAllFilesResult);
     logger.printNewLine();
 
-    if (testsRunProblemsStatus.some((problems) => problems)) {
+    if (jsonOutputFile) {
+      writeFileSync(
+        jsonOutputFile,
+        JSON.stringify({
+          files: composeJsonLogsFiles(runAllFilesResult),
+          status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
+          totalTime: performance.now() - startedAt,
+        } as JsonLogs),
+        'utf-8'
+      );
+      logger.log(blue(indent(`JSON logs saved in ${green(jsonOutputFile)}`, 2)));
+      logger.printNewLine();
+      logger.printNewLine();
+    }
+
+    if (hasProblems) {
       throw new Error(' Tests exited with error ');
     }
   } catch (err) {
@@ -89,19 +110,29 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
 async function runFile(
   argv: RunArgv,
   startedAt: number,
-  output: { harFile: string | undefined; jsonFile: string | undefined },
+  output: { harFile: string | undefined },
   collectSpecData?: CollectFn
 ) {
-  const { workflows } = await runTestFile(argv, output, collectSpecData);
+  const { executedWorkflows, ctx } = await runTestFile(argv, output, collectSpecData);
 
-  const totals = calculateTotals(workflows);
+  const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
+  const hasWarnings = totals.workflows.warnings > 0;
 
   if (totals.steps.failed > 0 || totals.steps.warnings > 0 || totals.steps.skipped > 0) {
-    displayErrors(workflows);
+    displayErrors(executedWorkflows);
   }
 
-  displaySummary(startedAt, workflows, argv);
+  displaySummary(startedAt, executedWorkflows, argv);
 
-  return { hasProblems, file: argv.file, workflows, argv };
+  return {
+    hasProblems,
+    hasWarnings,
+    file: argv.file,
+    executedWorkflows,
+    argv,
+    ctx,
+    totalTimeMs: performance.now() - startedAt,
+    totalRequests: totals.totalRequests,
+  };
 }

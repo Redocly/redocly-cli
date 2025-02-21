@@ -46,6 +46,7 @@ const basicCTX = {
     number: {},
     string: {},
   },
+  executedSteps: [],
   severity: DEFAULT_SEVERITY_CONFIGURATION,
   $sourceDescriptions: {
     'reusable-api': {
@@ -2140,6 +2141,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'test-workflow';
     const localCTX = {
+      executedSteps: [],
       $request: undefined,
       $response: undefined,
       $env: {},
@@ -2527,7 +2529,15 @@ describe('runStep', () => {
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
-      $outputs: {},
+      $outputs: {
+        'reusable-workflow': {
+          reusableWorkflowOutput: 'Hello, world!',
+        },
+      },
+      severity: {
+        UNEXPECTED_ERROR: 1,
+        STATUS_CODE_CHECK: 1,
+      },
     } as unknown as TestContext;
 
     // @ts-ignore
@@ -2563,6 +2573,8 @@ describe('runStep', () => {
       };
     });
 
+    (resolveWorkflowContext as jest.Mock).mockResolvedValueOnce(localCTX);
+
     await runStep({
       step,
       ctx: localCTX,
@@ -2579,9 +2591,8 @@ describe('runStep', () => {
       workflowId: '$sourceDescriptions.reusable-api.workflows.reusable-external-workflow',
       checks: [],
     } as unknown as Step;
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
     const localCTX = {
+      executedSteps: [],
       $request: undefined,
       $response: undefined,
       $env: {},
@@ -3032,6 +3043,7 @@ describe('runStep', () => {
         number: {},
         string: {},
       },
+      executedSteps: [],
       $sourceDescriptions: {
         'reusable-api': {
           arazzo: '1.0.1',
@@ -3527,13 +3539,14 @@ describe('runStep', () => {
       stepId: 'get-bird',
       workflowId: '$sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow',
       outputs: {
-        stepOutput: '$outputs.reusableWorkflowOutput',
+        stepOutput: '$outputs.reusableWorkflowOutput.stepOutput',
       },
       checks: [],
     } as unknown as Step;
     const workflowId = 'test-workflow';
     const localCTX = {
       apiClient,
+      executedSteps: [],
       $request: undefined,
       $response: undefined,
       $env: {},

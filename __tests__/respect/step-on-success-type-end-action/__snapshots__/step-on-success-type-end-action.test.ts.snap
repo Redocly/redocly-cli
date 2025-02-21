@@ -25,7 +25,7 @@ exports[`should end workflow execution, context returns to the caller with appli
   Summary for step-on-success-type-end-action.yaml
   
   Workflows: 2 passed, 2 total
-  Steps: 3 passed, 3 total
+  Steps: 2 passed, 2 total
   Checks: 8 passed, 8 total
   Time: <test>ms
 

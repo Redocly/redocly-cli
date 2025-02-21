@@ -4,7 +4,7 @@ import { calculateTotals } from './calculate-tests-passed';
 import { RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
 
-import type { Workflow } from '../../types';
+import type { WorkflowExecutionResult } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 
@@ -12,7 +12,7 @@ export function displayFilesSummaryTable(
   filesResult: {
     file: string;
     hasProblems: boolean;
-    workflows: Workflow[];
+    executedWorkflows: WorkflowExecutionResult[];
     argv?: { workflow?: string[]; skip?: string[] };
   }[]
 ) {
@@ -42,7 +42,7 @@ export function displayFilesSummaryTable(
   output += `${gray(`├${columns.map((col) => '─'.repeat(col.width + 2)).join('┼')}┤`)}\n`;
 
   // Data rows
-  filesResult.forEach(({ file, workflows, argv }) => {
+  filesResult.forEach(({ file, executedWorkflows: workflows, argv }) => {
     const fileName = path.basename(file);
     const workflowArgv = argv?.workflow || [];
     const skippedWorkflowArgv = argv?.skip || [];

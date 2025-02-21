@@ -1,11 +1,12 @@
 // import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
-import type { CalculatedResults, Workflow } from '../../types';
+import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types';
 
-export function calculateTotals(workflows: Workflow[]): CalculatedResults {
+export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
   const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;
   let totalSteps = 0;
+  let totalRequests = 0;
   let totalWarnings = 0;
   let totalSkipped = 0;
   const failedWorkflows = new Set();
@@ -16,8 +17,18 @@ export function calculateTotals(workflows: Workflow[]): CalculatedResults {
   const warningsSteps = new Set();
 
   for (const workflow of workflows) {
-    for (const step of workflow.steps) {
+    const steps = flattenNestedSteps(workflow.executedSteps);
+    for (const step of steps) {
+      if (step.response) {
+        // we count request only if we received a response to prevent counting network errors or step with broken inputs
+        totalRequests++;
+      }
+      if (step.retriesLeft && step.retriesLeft !== 0) {
+        continue; // do not count retried steps as a step
+      }
+
       totalSteps++;
+
       for (const check of step.checks) {
         totalChecks++;
         if (!check.pass) {
@@ -64,5 +75,15 @@ export function calculateTotals(workflows: Workflow[]): CalculatedResults {
       skipped: totalSkipped,
       total: totalChecks,
     },
+    totalRequests,
   };
+}
+
+function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
+  return steps.flatMap((step) => {
+    if ('executedSteps' in step) {
+      return flattenNestedSteps((step as WorkflowExecutionResult).executedSteps);
+    }
+    return [step];
+  });
 }

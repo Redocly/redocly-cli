@@ -52,11 +52,9 @@ export async function callAPIAndAnalyzeResults({
       criteria: step.successCriteria,
       ctx: {
         ...ctx,
-        ...{
-          $request: request,
-          $response: step.response,
-          $inputs: ctx.$workflows[workflowId].inputs,
-        },
+        $request: request,
+        $response: step.response,
+        $inputs: ctx.$workflows[workflowId].inputs,
       },
     });
 
@@ -80,6 +78,7 @@ export async function callAPIAndAnalyzeResults({
   }
 
   // store step level outputs
+  const outputs: Record<string, any> = {};
   if (step.outputs) {
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: {
@@ -92,25 +91,21 @@ export async function callAPIAndAnalyzeResults({
       step,
     });
 
-    if (step.outputs) {
-      for (const outputKey of Object.keys(step.outputs)) {
-        step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: step.outputs[outputKey],
-          context: runtimeExpressionContext,
-        });
-      }
+    for (const outputKey of Object.keys(step.outputs)) {
+      outputs[outputKey] = evaluateRuntimeExpressionPayload({
+        payload: step.outputs[outputKey],
+        context: runtimeExpressionContext,
+      });
     }
   }
 
   // save local $steps context
   ctx.$steps[step.stepId] = {
-    outputs: ctx.$steps[step.stepId].outputs
-      ? { ...ctx.$steps[step.stepId].outputs, ...step.outputs }
-      : step.outputs,
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
   };
   // save $workflows context
   ctx.$workflows[workflowId].steps[step.stepId] = {
-    outputs: ctx.$steps[step.stepId].outputs,
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
     request,
     response: step.response,
   };

@@ -1,31 +1,111 @@
 import { maskSecrets } from './mask-secrets';
 
-import type { TestContext, JsonLogs } from '../../types';
+import type {
+  TestContext,
+  JsonLogs,
+  WorkflowExecutionResult,
+  Step,
+  StepExecutionResult,
+  Check,
+} from '../../types';
 
-export function composeJsonLogs(ctx: TestContext): JsonLogs {
-  const { secretFields } = ctx;
-  const jsonLogs = { ...ctx.$workflows } as JsonLogs;
+export function composeJsonLogsFiles(
+  filesResult: {
+    file: string;
+    hasProblems: boolean;
+    hasWarnings?: boolean;
+    totalRequests: number;
+    totalTimeMs: number;
+    executedWorkflows: WorkflowExecutionResult[];
+    argv?: { workflow?: string[]; skip?: string[] };
+    ctx: TestContext;
+  }[]
+): JsonLogs['files'] {
+  const files: JsonLogs['files'] = {};
 
-  for (const workflow of ctx.workflows) {
-    const workflowId = workflow.workflowId;
-    jsonLogs[workflowId].time = workflow.time;
+  for (const fileResult of filesResult) {
+    const { executedWorkflows } = fileResult;
+    const { secretFields } = fileResult.ctx;
 
-    for (const step of workflow.steps) {
-      const stepId = step.stepId;
+    files[fileResult.file] = maskSecrets(
+      executedWorkflows.map((workflow) => {
+        const steps = workflow.executedSteps.map((step) =>
+          composeJsonSteps(step, workflow.workflowId, fileResult.ctx)
+        );
 
-      if (jsonLogs[workflowId] && jsonLogs[workflowId].steps[stepId]) {
-        jsonLogs[workflowId].steps[stepId].checks = step.checks;
+        const result = {
+          ...workflow,
+          executedSteps: steps,
+          status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
+          totalTimeMs: fileResult.totalTimeMs,
+          totalRequests: fileResult.totalRequests,
+        };
 
-        if (step.verboseLog) {
-          const { host, path } = step.verboseLog;
-          // Log resolved url
-          if (jsonLogs[workflowId].steps[stepId]?.request) {
-            jsonLogs[workflowId].steps[stepId].request.url = `${host}${path}`;
-          }
-        }
-      }
+        return result;
+      }),
+      secretFields || new Set()
+    );
+  }
+
+  return files;
+}
+
+function composeJsonSteps(
+  step: Step | WorkflowExecutionResult,
+  workflowId: string,
+  ctx: TestContext
+): StepExecutionResult | WorkflowExecutionResult {
+  if ('executedSteps' in step) {
+    return step as WorkflowExecutionResult;
+  }
+
+  const publicStep = ctx.$workflows[workflowId].steps[step.stepId];
+  return {
+    type: 'step',
+    stepId: step.stepId,
+    workflowId,
+    request: {
+      method: publicStep.request?.method || '',
+      url: step.response?.requestUrl || '',
+      headers: publicStep.request?.header || {},
+      body: publicStep.request?.body || {},
+    },
+    response: {
+      statusCode: step.response?.statusCode || 0,
+      body: publicStep.response?.body || {},
+      headers: step.response?.header || {},
+      time: step.response?.time || 0,
+    },
+    checks: step.checks.map((check) => ({
+      ...check,
+      status: calculateCheckStatus(check),
+    })),
+    totalTimeMs: publicStep.response?.time || 0,
+    retriesLeft: step.retriesLeft,
+    status: calculateStepStatus(step.checks),
+  };
+}
+
+function calculateCheckStatus(check: Check): 'success' | 'error' | 'warn' {
+  if (check.pass) {
+    return 'success';
+  }
+  if (check.severity === 'error') {
+    return 'error';
+  }
+  return 'warn';
+}
+
+function calculateStepStatus(checks: Check[]): 'success' | 'error' | 'warn' {
+  let hasWarning = false;
+  for (const check of checks) {
+    if (!check.pass && check.severity === 'error') {
+      return 'error';
+    }
+    if (!check.pass && check.severity === 'warn') {
+      hasWarning = true;
     }
   }
 
-  return maskSecrets(jsonLogs, secretFields || new Set());
+  return hasWarning ? 'warn' : 'success';
 }

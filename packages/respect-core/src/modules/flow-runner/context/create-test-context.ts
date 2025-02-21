@@ -72,6 +72,8 @@ export async function createTestContext(
     $components: testDescription.components || {},
     $outputs: {},
 
+    executedSteps: [],
+
     workflows: testDescription.workflows || [],
     harLogs: {},
     options,

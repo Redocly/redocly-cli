@@ -3,15 +3,28 @@ import { CHECKS } from '../checks';
 import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
 
-import type { Workflow } from '../../types';
+import type { Step, WorkflowExecutionResult } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 
-export function displayErrors(workflows: Workflow[]) {
+function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
+  return steps.flatMap((step) => {
+    if ('executedSteps' in step) {
+      return flattenNestedSteps((step as WorkflowExecutionResult).executedSteps);
+    }
+    return [step];
+  });
+}
+
+export function displayErrors(workflows: WorkflowExecutionResult[]) {
   logger.log(`${RESET_ESCAPE_CODE}\n${indent(red('Failed tests info:'), 2)}\n`);
 
   for (const workflow of workflows) {
-    const hasProblems = workflow.steps.some((step) => step.checks.some((check) => !check.pass));
+    const steps = flattenNestedSteps(workflow.executedSteps);
+    const hasProblems = steps.some(
+      (step) =>
+        step.checks.some((check) => !check.pass) && (!step.retriesLeft || step.retriesLeft === 0)
+    );
 
     if (!hasProblems) continue;
 
@@ -21,10 +34,11 @@ export function displayErrors(workflows: Workflow[]) {
       )}${RESET_ESCAPE_CODE}\n`
     );
 
-    for (const step of workflow.steps) {
+    for (const step of steps) {
       const failedStepChecks = step.checks.filter((check) => !check.pass);
 
       if (!failedStepChecks.length) continue;
+      if (step.retriesLeft && step.retriesLeft !== 0) continue;
 
       logger.printNewLine();
       logger.log(

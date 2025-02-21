@@ -7,16 +7,12 @@ import { createTestContext } from './context/create-test-context';
 import { getValueFromContext } from '../config-parser';
 import { getWorkflowsToRun } from './get-workflows-to-run';
 import { runStep } from './run-step';
-import {
-  printWorkflowSeparator,
-  indent,
-  printRequiredWorkflowSeparator,
-} from '../../utils/cli-outputs';
+import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs';
 import { bundleArazzo } from './get-test-description-from-file';
 import { CHECKS } from '../checks';
 import { createRuntimeExpressionCtx } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
-import { calculateTotals, composeJsonLogs, maskSecrets } from '../cli-output';
+import { calculateTotals, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
 
@@ -30,6 +26,7 @@ import type {
   SourceDescription,
   Check,
   RunWorkflowInput,
+  WorkflowExecutionResult,
 } from '../../types';
 
 const logger = DefaultLogger.getInstance();
@@ -71,29 +68,18 @@ export async function runTestFile(
 
   const bundledTestDescription = await bundleArazzo(filePath);
   collectSpecData?.(bundledTestDescription);
-  const descriptionCopy = JSON.parse(JSON.stringify(bundledTestDescription));
 
-  const { harLogs, jsonLogs, workflows, secretFields } = await runWorkflows(
-    bundledTestDescription,
-    options
-  );
+  const result = await runWorkflows(bundledTestDescription, options);
 
-  if (output?.harFile && Object.keys(harLogs).length) {
-    const parsedHarLogs = maskSecrets(harLogs, secretFields || new Set());
+  if (output?.harFile && Object.keys(result.harLogs).length) {
+    const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
     writeFileSync(output.harFile, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
     logger.log(blue(`Har logs saved in ${green(output.harFile)}`));
     logger.printNewLine();
     logger.printNewLine();
   }
 
-  if (output?.jsonFile && jsonLogs) {
-    writeFileSync(output.jsonFile, JSON.stringify(jsonLogs, null, 2), 'utf-8');
-    logger.log(blue(indent(`JSON logs saved in ${green(output.jsonFile)}`, 2)));
-    logger.printNewLine();
-    logger.printNewLine();
-  }
-
-  return { workflows, parsedYaml: descriptionCopy };
+  return result;
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
@@ -109,22 +95,24 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
 
   const workflows = getWorkflowsToRun(ctx.workflows, workflowsToRun, workflowsToSkip);
 
+  const executedWorkflows: WorkflowExecutionResult[] = [];
+
   for (const workflow of workflows) {
+    ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
       await handleDependsOn({ workflow, ctx });
     }
 
-    await runWorkflow({
+    const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
     });
+
+    executedWorkflows.push(workflowExecutionResult);
   }
 
-  // json logs should be composed after all workflows are run
-  const jsonLogs = options.jsonOutput ? composeJsonLogs(ctx) : undefined;
-
-  return { ...ctx, harLogs, jsonLogs };
+  return { ctx, harLogs, executedWorkflows };
 }
 
 export async function runWorkflow({
@@ -132,7 +120,9 @@ export async function runWorkflow({
   ctx,
   fromStepId,
   skipLineSeparator,
-}: RunWorkflowInput): Promise<Workflow | void> {
+  parentStepId,
+  invocationContext,
+}: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
   const workflow =
@@ -158,13 +148,14 @@ export async function runWorkflow({
 
   for (const step of workflowSteps) {
     try {
-      const stepResults = await runStep({
+      const stepResult = await runStep({
         step,
         ctx,
         workflowId,
       });
+
       // When `end` action is used, we should not continue with the next steps
-      if (stepResults?.shouldEnd) {
+      if (stepResult?.shouldEnd) {
         break;
       }
     } catch (err: any) {
@@ -175,7 +166,6 @@ export async function runWorkflow({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
-      return;
     }
   }
 
@@ -199,26 +189,38 @@ export async function runWorkflow({
       workflowId,
     });
 
+    const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
-        if (workflow.outputs) {
-          workflow.outputs[outputKey] = evaluateRuntimeExpressionPayload({
-            payload: workflow.outputs[outputKey],
-            context: runtimeExpressionContext,
-          });
-        }
-        ctx.$outputs[workflowId].outputs = workflow.outputs;
-        ctx.$workflows[workflowId].outputs = workflow.outputs;
+        outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          payload: workflow.outputs[outputKey],
+          context: runtimeExpressionContext,
+        });
       } catch (error: any) {
-        throw new Error(`Failed to resolve outputs in workflow "${workflowId}": ${error.message}`);
+        throw new Error(
+          `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
+        );
       }
     }
+    ctx.$outputs[workflowId] = outputs;
+    ctx.$workflows[workflowId].outputs = outputs;
   }
 
   workflow.time = Math.ceil(performance.now() - workflowStartTime);
   logger.printNewLine();
 
-  return workflow;
+  const endTime = performance.now();
+
+  return {
+    type: 'workflow',
+    invocationContext,
+    workflowId,
+    stepId: parentStepId,
+    startTime: workflowStartTime,
+    endTime,
+    totalTimeMs: Math.ceil(endTime - workflowStartTime),
+    executedSteps: ctx.executedSteps,
+  };
 }
 
 async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
@@ -238,11 +240,7 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
     })
   );
 
-  if (dependenciesWorkflows.some((w) => !w)) {
-    throw new Error('Dependent workflows failed');
-  }
-
-  const totals = calculateTotals(dependenciesWorkflows as Workflow[]);
+  const totals = calculateTotals(dependenciesWorkflows);
   const hasProblems = totals.steps.failed > 0;
 
   if (hasProblems) {
@@ -280,11 +278,10 @@ export async function resolveWorkflowContext(
         },
         ctx.apiClient
       )
-    : await createTestContext(
-        JSON.parse(JSON.stringify(ctx.testDescription)),
-        JSON.parse(JSON.stringify(ctx.options)),
-        ctx.apiClient
-      );
+    : {
+        ...ctx,
+        executedSteps: [],
+      };
 }
 
 function findSourceDescriptionUrl(

@@ -59,8 +59,8 @@ exports[`should execute successActions for each workflow step if it does not hav
   Summary for workflow-failure-actions.yaml
   
   Workflows: 1 failed, 1 total
-  Steps: 2 failed, 2 total
-  Checks: 6 passed, 2 failed, 8 total
+  Steps: 1 passed, 2 failed, 3 total
+  Checks: 10 passed, 2 failed, 12 total
   Time: <test>ms
 
 

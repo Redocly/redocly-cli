@@ -49,6 +49,7 @@ describe('runWorkflow', () => {
     } as unknown as Workflow;
 
     const ctx = {
+      executedSteps: [],
       apiClient,
       workflows: [workflow],
       $workflows: {
@@ -152,11 +153,10 @@ describe('runWorkflow', () => {
 
     const workflow = {
       workflowId: 'test',
-      outputs: [
-        {
-          test: 'test',
-        },
-      ],
+      outputs: {
+        test: 'test',
+      },
+
       steps: [
         {
           stepId: 'test',
@@ -176,13 +176,10 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      executedSteps: [],
       $workflows: {
         test: {
-          outputs: [
-            {
-              test: 'test',
-            },
-          ],
+          outputs: {},
           inputs: {},
           steps: {
             test: {
@@ -227,8 +224,8 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx });
 
-    expect(ctx.$outputs?.test).toEqual({ outputs: [{ test: 'test' }] });
-    expect(ctx.$workflows.test.outputs).toEqual([{ test: 'test' }]);
+    expect(ctx.$outputs?.test).toEqual({ test: 'test' });
+    expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 
   it('should return if workflow does not have steps', async () => {
@@ -242,11 +239,10 @@ describe('runWorkflow', () => {
 
     const workflow = {
       workflowId: 'test',
-      outputs: [
-        {
-          test: 'test',
-        },
-      ],
+      outputs: {
+        test: 'test',
+      },
+
       steps: [],
     } as unknown as Workflow;
 
@@ -255,11 +251,7 @@ describe('runWorkflow', () => {
       workflows: [workflow],
       $workflows: {
         test: {
-          outputs: [
-            {
-              test: 'test',
-            },
-          ],
+          outputs: {},
           inputs: {},
           steps: {
             test: {
@@ -318,11 +310,9 @@ describe('runWorkflow', () => {
 
     const workflow = {
       workflowId: 'test',
-      outputs: [
-        {
-          test: 'test',
-        },
-      ],
+      outputs: {
+        test: 'test',
+      },
       steps: [],
     } as unknown as Workflow;
 
@@ -331,20 +321,12 @@ describe('runWorkflow', () => {
       workflows: [workflow],
       $workflows: {
         test: {
-          outputs: [
-            {
-              test: 'test',
-            },
-          ],
+          outputs: {},
           inputs: {},
           steps: {},
         },
         parentWorkflowId: {
-          outputs: [
-            {
-              test: 'test',
-            },
-          ],
+          outputs: {},
           inputs: {},
           steps: {},
         },
@@ -386,11 +368,10 @@ describe('runWorkflow', () => {
 
     const workflow = {
       workflowId: 'test',
-      outputs: [
-        {
-          test: 'test',
-        },
-      ],
+      outputs: {
+        test: 'test',
+      },
+
       steps: [
         {
           stepId: 'test',
@@ -410,13 +391,13 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      executedSteps: [],
       $workflows: {
         test: {
-          outputs: [
-            {
-              test: 'test',
-            },
-          ],
+          outputs: {
+            test: 'test',
+          },
+
           inputs: {},
           steps: {
             test: {
@@ -433,7 +414,7 @@ describe('runWorkflow', () => {
         },
         parentWorkflowId: {
           inputs: {},
-          outputs: [],
+          outputs: {},
           steps: {},
         },
       },
@@ -469,7 +450,7 @@ describe('runWorkflow', () => {
       ctx,
     });
 
-    expect(ctx.$outputs?.test).toEqual({ outputs: [{ test: 'test' }] });
-    expect(ctx.$workflows.test.outputs).toEqual([{ test: 'test' }]);
+    expect(ctx.$outputs?.test).toEqual({ test: 'test' });
+    expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 });

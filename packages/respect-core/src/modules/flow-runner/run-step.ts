@@ -43,6 +43,8 @@ export async function runStep({
   workflowId: string | undefined;
   retriesLeft?: number;
 }): Promise<{ shouldEnd: boolean } | void> {
+  step = { ...step }; // shallow copy step to avoid mutating the original step
+  step.retriesLeft = retriesLeft;
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -93,23 +95,21 @@ export async function runStep({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
       skipLineSeparator: true,
+      parentStepId: stepId,
+      invocationContext: `Child workflow of step ${stepId}`,
     });
 
-    // FIXME
-    if (stepWorkflowResult?.steps) {
-      const innerSteps = stepWorkflowResult.steps as Step[];
-      // merge all checks from all steps in executed workflow
-      step.checks = innerSteps.flatMap(({ checks }) => checks);
-    }
+    ctx.executedSteps.push(stepWorkflowResult);
 
-    if (step?.outputs && stepWorkflowResult?.outputs) {
+    const outputs: Record<string, any> = {};
+    if (step?.outputs) {
       try {
         for (const [outputKey, outputValue] of Object.entries(step.outputs)) {
           // need to partially emulate $outputs context
-          step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          outputs[outputKey] = evaluateRuntimeExpressionPayload({
             payload: outputValue,
             context: {
-              $outputs: stepWorkflowResult.outputs,
+              $outputs: workflowCtx.$outputs?.[targetWorkflow.workflowId] || {},
             } as RuntimeExpressionContext,
           });
         }
@@ -121,18 +121,17 @@ export async function runStep({
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
-        return;
       }
 
       // save local $steps context
       ctx.$steps[stepId] = {
-        outputs: step?.outputs,
+        outputs,
       };
 
       // save local $steps context to parent workflow
       if (workflow?.workflowId) {
         ctx.$workflows[workflow.workflowId].steps[stepId] = {
-          outputs: step?.outputs,
+          outputs,
           request: undefined,
           response: undefined,
         };
@@ -141,6 +140,7 @@ export async function runStep({
 
     return { shouldEnd: false };
   }
+  ctx.executedSteps.push(step);
 
   if (resolvedParameters && resolvedParameters.length) {
     // When the step in context does not specify a workflowId the `in` field MUST be specified.
@@ -252,12 +252,14 @@ export async function runStep({
           : undefined;
         const targetCtx = action.workflowId
           ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx)
-          : ctx;
+          : { ...ctx, executedSteps: [] };
+
         const targetStep = action.stepId ? step.stepId : undefined;
 
         if (type === 'retry') {
           const { retryAfter, retryLimit = 0 } = action;
           retriesLeft = retriesLeft ?? retryLimit;
+          step.retriesLeft = retriesLeft;
           if (retriesLeft === 0) {
             return { retriesLeft: 0, shouldEnd: false };
           }
@@ -268,11 +270,13 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
-            await runWorkflow({
+            const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
               skipLineSeparator: true,
+              invocationContext: `Retry action for step ${stepId}`,
             });
+            ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
             const stepToRun = workflow?.steps.find((s) => s.stepId === targetStep) as Step;
             if (!stepToRun) {
@@ -309,12 +313,14 @@ export async function runStep({
             printActionsSeparator(stepId, action.name, kind);
           }
 
-          await runWorkflow({
+          const stepWorkflowResult = await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
             fromStepId: targetStep,
             skipLineSeparator: true,
+            invocationContext: `Goto from step ${stepId}`,
           });
+          ctx.executedSteps.push(stepWorkflowResult);
           return { shouldEnd: true };
         }
         // stop at first matching action

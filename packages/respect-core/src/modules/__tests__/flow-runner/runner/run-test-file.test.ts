@@ -1,7 +1,7 @@
 import { makeDocumentFromString, lint, bundle } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 
-import type { Step } from '../../../../types';
+import type { Step, TestContext } from '../../../../types';
 
 import { runTestFile, runStep } from '../../../flow-runner';
 import { readYaml } from '../../../../utils/yaml';
@@ -484,8 +484,9 @@ describe('runTestFile', () => {
       },
     });
 
-    (runStep as jest.Mock).mockImplementation(({ step }: { step: Step }) => {
+    (runStep as jest.Mock).mockImplementation(({ step, ctx }: { step: Step; ctx: TestContext }) => {
       step.checks = [{ name: step.stepId, pass: false, severity: 'error' }];
+      ctx.executedSteps.push(step);
     });
 
     await expect(

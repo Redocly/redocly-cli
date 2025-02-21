@@ -245,7 +245,7 @@ export class ApiFetcher implements IFetcher {
       ...(headers['content-type'] === 'application/octet-stream' && {
         duplex: 'half',
       }),
-      dispatcher: ctx.mtlsCerts ? createMtlsClient(resolvedPath, ctx.mtlsCerts) : undefined,
+      dispatcher: ctx.mtlsCerts ? createMtlsClient(urlToFetch, ctx.mtlsCerts) : undefined,
     });
     const responseTime = Math.ceil(performance.now() - startTime);
     const res = await result.text();
@@ -287,6 +287,7 @@ export class ApiFetcher implements IFetcher {
       time: responseTime,
       header: Object.fromEntries(result.headers?.entries() || []),
       contentType: responseContentType,
+      requestUrl: urlToFetch,
     };
   };
 }

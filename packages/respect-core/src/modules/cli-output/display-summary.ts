@@ -7,13 +7,13 @@ import { indent } from '../../utils/cli-outputs';
 import { resolveRunningWorkflows } from '../flow-runner';
 import { DefaultLogger } from '../../utils/logger/logger';
 
-import type { ResultsOfTests, Workflow } from '../../types';
+import type { ResultsOfTests, WorkflowExecutionResult } from '../../types';
 
 const logger = DefaultLogger.getInstance();
 
 export function displaySummary(
   startedAt: number,
-  workflows: Workflow[],
+  workflows: WorkflowExecutionResult[],
   argv?: { workflow?: string[]; skip?: string[]; file?: string }
 ) {
   const fileName = path.basename(argv?.file || '');

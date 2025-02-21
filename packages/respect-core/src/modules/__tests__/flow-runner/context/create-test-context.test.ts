@@ -63,9 +63,10 @@ describe('createTestContext', () => {
     });
     const context = await createTestContext(testDescription, options, apiClient);
 
-    expect(context).toMatchSnapshot({
+    expect(context).toMatchObject({
       $components: {},
       $faker: expect.any(Object),
+      executedSteps: [],
       $sourceDescriptions: {
         cats: {
           paths: {

@@ -44,8 +44,8 @@ exports[`should execute successActions for each workflow step if it does not hav
   Summary for workflow-success-actions.yaml
   
   Workflows: 2 passed, 2 total
-  Steps: 3 passed, 3 total
-  Checks: 7 passed, 7 total
+  Steps: 4 passed, 4 total
+  Checks: 15 passed, 15 total
   Time: <test>ms
 
 
