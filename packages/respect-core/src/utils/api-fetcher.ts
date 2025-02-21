@@ -153,15 +153,16 @@ export class ApiFetcher implements IFetcher {
         .join('; ');
     }
 
-    let resolvedPath = resolvePath(path, pathParams) || '';
+    const resolvedPath = resolvePath(path, pathParams) || '';
     const pathWithSearchParams = `${resolvedPath}${
       searchParams.toString() ? '?' + searchParams.toString() : ''
     }`;
-    const pathToFetch = `${trimTrailingSlash(serverUrl.url)}${pathWithSearchParams}`;
+    const resolvedServerUrl = resolvePath(serverUrl.url, pathParams) || '';
+    const urlToFetch = `${trimTrailingSlash(resolvedServerUrl)}${pathWithSearchParams}`;
 
-    if (pathToFetch.startsWith('/')) {
+    if (urlToFetch.startsWith('/')) {
       logger.error(
-        bgRed(` Wrong url: ${inverse(pathToFetch)} `) +
+        bgRed(` Wrong url: ${inverse(urlToFetch)} `) +
           ` Did you forget to provide a correct "serverUrl"?\n`
       );
     }
@@ -223,27 +224,16 @@ export class ApiFetcher implements IFetcher {
     // Start of the verbose logs
     this.initVerboseLogs({
       headerParams: maskedHeaderParams,
-      host: serverUrl.url,
+      host: resolvedServerUrl,
       method: (method || 'get').toUpperCase() as OperationMethod,
       path: maskedPathParams || '',
       body: maskedBody,
     });
 
     const wrappedFetch = this.harLogs ? withHar(this.fetch, { har: this.harLogs }) : fetch;
-    // Resolve pathToFetch with pathParams for the second time in order
-    // to handle described servers->variables in the OpenAPI spec.
-    // E.G.:
-    // servers:
-    //   - url: 'https://api-sandbox.redocly.com/organizations/{organizationId}'
-    // TODO: remove/update after the support of the described servers->variables in the Arazzo spec.
-    resolvedPath = resolvePath(pathToFetch, pathParams) || '';
-    if (!resolvedPath) {
-      throw new Error('Path to fetch is undefined');
-    }
-
     const startTime = performance.now();
 
-    const result = await wrappedFetch(resolvedPath, {
+    const result = await wrappedFetch(urlToFetch, {
       method: (method || 'get').toUpperCase() as OperationMethod,
       headers,
       ...(!isEmpty(requestBody) && {
@@ -297,8 +287,6 @@ export class ApiFetcher implements IFetcher {
       time: responseTime,
       header: Object.fromEntries(result.headers?.entries() || []),
       contentType: responseContentType,
-      query: Object.fromEntries(searchParams.entries()),
-      path: pathParams,
     };
   };
 }

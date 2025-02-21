@@ -14,6 +14,7 @@ export interface OpenApiRequestData {
   requestBody?: Record<string, unknown>;
   contentType?: string;
   parameters: ParameterWithIn[];
+  contentTypeParameters: ParameterWithIn[];
 }
 
 export function getRequestDataFromOpenApi(
@@ -30,13 +31,15 @@ export function getRequestDataFromOpenApi(
   const accept = getAcceptHeader(operation);
   const parameters = getUniqueParameters([
     ...transformParameters(operation.pathParameters),
-    { name: 'content-type', in: 'header' as const, value: contentType },
-    ...(accept ? [{ name: 'accept', in: 'header' as const, value: accept }] : []),
     ...transformParameters(operation.parameters),
   ]).filter(({ value }) => value);
 
   return {
     parameters,
+    contentTypeParameters: [
+      ...(contentType ? [{ name: 'content-type', in: 'header' as const, value: contentType }] : []),
+      ...(accept ? [{ name: 'accept', in: 'header' as const, value: accept }] : []),
+    ],
     requestBody,
     contentType,
   };

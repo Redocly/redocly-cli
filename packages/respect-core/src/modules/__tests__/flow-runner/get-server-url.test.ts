@@ -12,7 +12,7 @@ describe('getServerUrl', () => {
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
-    expect(result).toEqual({ url: 'https://example.com' });
+    expect(result).toEqual({ url: 'https://example.com', parameters: [] });
   });
 
   it('should return undefined when path does not include url and no servers provided', () => {
@@ -38,7 +38,7 @@ describe('getServerUrl', () => {
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
-    expect(result).toEqual({ url: 'https://example.com' });
+    expect(result).toEqual({ url: 'https://example.com', parameters: [] });
   });
 
   it('should return server url from sourceDescription x-serverUrl resolved from context', () => {
@@ -56,7 +56,7 @@ describe('getServerUrl', () => {
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
-    expect(result).toEqual({ url: 'https://example.com' });
+    expect(result).toEqual({ url: 'https://example.com', parameters: [] });
   });
 
   it('should return overwritten server url from sourceDescription x-serverUrl resolved from context', () => {
@@ -97,7 +97,7 @@ describe('getServerUrl', () => {
     } as unknown as OperationDetails & { servers: { url: string }[] };
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName, openapiOperation });
-    expect(result).toEqual({ url: 'https://example1.com' });
+    expect(result).toEqual({ url: 'https://example1.com', parameters: [] });
   });
 
   it('should return "x-operation" url as server url when descriptionName is not provided', () => {
@@ -156,7 +156,7 @@ describe('getServerUrl', () => {
     } as unknown as TestContext;
 
     const result = getServerUrl({ ctx, descriptionName: '' });
-    expect(result).toEqual({ url: 'https://api.example.com' });
+    expect(result).toEqual({ url: 'https://api.example.com', parameters: [] });
   });
 
   it('should return undefined when neither x-serverUrl nor $sourceDescriptions server is available when descriptionName is not provided and there is only one sourceDescription', () => {
@@ -211,7 +211,7 @@ describe('getServerUrl', () => {
       openapiOperation: mockDescriptionOperation,
     } as unknown as GetServerUrlInput);
 
-    expect(result).toEqual({ url: 'https://server1.com' });
+    expect(result).toEqual({ url: 'https://server1.com', parameters: [] });
   });
 
   it('should return undefined when descriptionOperation.servers is empty', () => {
@@ -284,5 +284,68 @@ describe('getServerUrl', () => {
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
     expect(result).toEqual({ url: 'https://cli.com' });
+  });
+
+  it('should return server url from openapi server with variables', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          paths: {
+            '/test': {
+              get: {
+                servers: [
+                  {
+                    url: 'https://{region}@{task}.{region}.openapi-server-with-vars.{domain}/v1?param={task}#fragment,param={task}',
+                    variables: {
+                      domain: {
+                        default: 'com',
+                        enum: ['com', 'net'],
+                      },
+                      region: {
+                        default: 'us',
+                        enum: ['us', 'eu', 'asia'],
+                      },
+                      task: {
+                        default: 'ping',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    } as unknown as TestContext;
+    const openapiOperation = {
+      servers: [
+        {
+          url: 'https://{region}@{task}.{region}.openapi-server-with-vars.{domain}/v1?param={task}#fragment,param={task}',
+          variables: {
+            domain: {
+              default: 'com',
+              enum: ['com', 'net'],
+            },
+            region: {
+              default: 'us',
+              enum: ['us', 'eu', 'asia'],
+            },
+            task: {
+              default: 'ping',
+            },
+          },
+        },
+      ],
+    } as unknown as OperationDetails;
+    const descriptionName = 'test';
+    const result = getServerUrl({ ctx, descriptionName, openapiOperation });
+    expect(result).toEqual({
+      url: 'https://{region}@{task}.{region}.openapi-server-with-vars.{domain}/v1?param={task}#fragment,param={task}',
+      parameters: [
+        { name: 'domain', value: 'com', in: 'path' },
+        { name: 'region', value: 'us', in: 'path' },
+        { name: 'task', value: 'ping', in: 'path' },
+      ],
+    });
   });
 });

@@ -50,7 +50,8 @@ export async function prepareRequest(
 
   let path = '';
   let method;
-  const serverUrl: { url: string; descriptionName?: string } | undefined = getServerUrl({
+
+  const serverUrl: { url: string; parameters?: ParameterWithIn[] } | undefined = getServerUrl({
     ctx,
     descriptionName: openapiOperation?.descriptionName,
     openapiOperation,
@@ -89,7 +90,10 @@ export async function prepareRequest(
     typeof requestBody === 'object'
       ? [{ in: 'header', name: 'content-type', value: 'application/json' }]
       : [],
-    requestDataFromOpenAPI?.parameters || [],
+    serverUrl?.parameters || [],
+    requestDataFromOpenAPI?.contentTypeParameters || [],
+    // if step.parameters is defined, we do not auto-populate parameters from the openapi operation
+    step.parameters ? [] : requestDataFromOpenAPI?.parameters || [],
     resolveParameters(workflowLevelParameters, ctx),
     stepRequestBodyContentType
       ? [{ in: 'header', name: 'content-type', value: stepRequestBodyContentType }]

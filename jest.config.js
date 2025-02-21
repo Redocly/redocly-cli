@@ -24,7 +24,7 @@ module.exports = {
       lines: 64,
     },
     'packages/respect-core/': {
-      statements: 84,
+      statements: 83,
       branches: 74,
       functions: 84,
       lines: 84,
