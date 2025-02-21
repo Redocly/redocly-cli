@@ -28,6 +28,7 @@
     "OpenAPI linter",
     "Swagger linter",
     "AsyncAPI linter",
+    "Arazzo linter",
     "oas"
   ],
   "contributors": [

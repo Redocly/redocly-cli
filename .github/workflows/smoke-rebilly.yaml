@@ -1,0 +1,25 @@
+name: Smoke tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+jobs:
+  run-smoke-rebilly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Rebilly smoke test
+        run: npm run smoke:rebilly
+        env:
+          SANDBOX_REBILLY_TOKEN: ${{ secrets.SANDBOX_REBILLY_TOKEN }}

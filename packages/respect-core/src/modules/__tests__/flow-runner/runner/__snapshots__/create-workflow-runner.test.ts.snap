@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`runWorkflow should run workflow within step execution 1`] = `
+[MockFunction] {
+  "calls": [
+    [
+      "  [1mRunning workflow[22m [34mtest.yaml / test[39m",
+    ],
+  ],
+  "results": [
+    {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;

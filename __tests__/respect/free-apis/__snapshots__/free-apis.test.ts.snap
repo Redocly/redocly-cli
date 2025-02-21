@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`free apis test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow free.yaml / json
+
+  ✓ GET https://jsonplaceholder.typicode.com/posts/1 - step get-first-post
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+
+  ✓ GET https://jsonplaceholder.typicode.com/posts/wrong-id - step get-wrong-post
+    ✓ success criteria check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow free.yaml / xml
+
+  ✗ POST http://restapi.adequateshop.com/api/Traveler - step post-traveler
+    ✓ success criteria check
+    ✓ success criteria check
+    ✗ success criteria check
+
+
+  Failed tests info:
+
+  Workflow name: xml
+
+    stepId - post-traveler
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'"}
+      
+  Summary for free.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 2 passed, 1 failed, 3 total
+  Checks: 8 passed, 1 failed, 9 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                          │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├───────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ x free.yaml                                       │ 2          │ 1       │ 1       │ -        │ -       │
+└───────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
+
+ Tests exited with error 
+"
+`;

@@ -3,7 +3,7 @@
     "composite": true,
     "declaration": true,
     "module": "commonjs",
-    "target": "ES2020",
+    "target": "ES2021",
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -13,7 +13,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "lib": ["es2020", "es2020.string", "dom"],
+    "lib": ["ES2021", "ES2021.String", "DOM"],
     "baseUrl": "./packages",
     "skipLibCheck": true
   }

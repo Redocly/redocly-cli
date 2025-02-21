@@ -1,0 +1,412 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should use warn severity level 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow severity-level.yaml / get-museum-hours
+
+  ✗ GET /museum-hours - step get-museum-hours
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: html/text, application/problem+json
+      authorization: Basic Og==
+      content-type: application/json
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ success criteria check
+    ⚠ status code check
+
+  Running child workflow for the step buy-ticket
+  Running workflow museum-tickets.yaml / get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "email": "todd@example.com"
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
+      {
+        "message": "Museum general entry ticket purchased",
+        "ticketId": "382c0820-0530-4f4b-99af-13811ad0f17a",
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "confirmationCode": "ticket-general-e5e5c6-dce78"
+      }
+
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow severity-level.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "eventId": "f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97",
+          "name": "Sasquatch Ballet",
+          "location": "Seattle... probably",
+          "eventDescription": "They're big, they're hairy, but they're also graceful. Come learn how the biggest feet can have the lightest touch.",
+          "dates": [
+            "2023-12-15",
+            "2023-12-22"
+          ],
+          "price": 40
+        },
+        {
+          "eventId": "2f14374a-9c65-4ee5-94b7-fba66d893483",
+          "name": "Solar Telescope Demonstration",
+          "location": "Far from the sun.",
+          "eventDescription": "Look at the sun without going blind!",
+          "dates": [
+            "2023-09-07",
+            "2023-09-14"
+          ],
+          "price": 50
+        },
+        {
+          "eventId": "6aaa61ba-b2aa-4868-b803-603dbbf7bfdb",
+          "name": "Cook like a Caveman",
+          "location": "Fire Pit on East side",
+          "eventDescription": "Learn to cook on an open flame.",
+          "dates": [
+            "2023-11-10",
+            "2023-11-17",
+            "2023-11-24"
+          ],
+          "price": 5
+        },
+        {
+          "eventId": "602b75e1-5696-4ab8-8c7a-f9e13580f910",
+          "name": "Underwater Basket Weaving",
+          "location": "Rec Center Pool next door.",
+          "eventDescription": "Learn to weave baskets underwater.",
+          "dates": [
+            "2023-09-12",
+            "2023-09-15"
+          ],
+          "price": 15
+        },
+        {
+          "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
+          "name": "Mermaid Treasure Identification and Analysis",
+          "location": "Room Sea-12",
+          "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits — kindly donated by Ariel.",
+          "dates": [
+            "2023-09-05",
+            "2023-09-08"
+          ],
+          "price": 30
+        },
+        {
+          "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
+          "name": "Time Traveler Tea Party",
+          "location": "Temporal Tearoom",
+          "eventDescription": "Sip tea with important historical figures.",
+          "dates": [
+            "2023-11-18",
+            "2023-11-25",
+            "2023-12-02"
+          ],
+          "price": 60
+        },
+        {
+          "eventId": "3be6453c-03eb-4357-ae5a-984a0e574a54",
+          "name": "Pirate Coding Workshop",
+          "location": "Computer Room",
+          "eventDescription": "Captain Blackbeard shares his love of the C...language. And possibly Arrrrr (R lang).",
+          "dates": [
+            "2023-10-29",
+            "2023-10-30",
+            "2023-10-31"
+          ],
+          "price": 45
+        },
+        {
+          "eventId": "9d90d29a-2af5-4206-97d9-9ea9ceadcb78",
+          "name": "Llama Street Art Through the Ages",
+          "location": "Auditorium",
+          "eventDescription": "Llama street art?! Alpaca my bags -- let's go!",
+          "dates": [
+            "2023-10-29",
+            "2023-10-30",
+            "2023-10-31"
+          ],
+          "price": 45
+        },
+        {
+          "eventId": "a3c7b2c4-b5fb-4ef7-9322-00a919864957",
+          "name": "The Great Parrot Debate",
+          "location": "Outdoor Amphitheatre",
+          "eventDescription": "See leading parrot minds discuss important geopolitical issues.",
+          "dates": [
+            "2023-11-03",
+            "2023-11-10"
+          ],
+          "price": 35
+        },
+        {
+          "eventId": "b92d46b7-4c5d-422b-87a5-287767e26f29",
+          "name": "Eat a Bunch of Corn",
+          "location": "Cafeteria",
+          "eventDescription": "We accidentally bought too much corn. Please come eat it.",
+          "dates": [
+            "2023-11-10",
+            "2023-11-17",
+            "2023-11-24"
+          ],
+          "price": 5
+        }
+      ]
+
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-12-15",
+          "2023-12-22"
+        ],
+        "price": 0
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
+      {
+        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-12-15",
+          "2023-12-22"
+        ],
+        "price": 0
+      }
+
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+
+  ✓ GET /special-events/{eventId} - step get-event-by-id
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      {
+        "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
+        "name": "Time Traveler Tea Party",
+        "location": "Temporal Tearoom",
+        "eventDescription": "Sip tea with important historical figures.",
+        "dates": [
+          "2023-11-18",
+          "2023-11-25",
+          "2023-12-02"
+        ],
+        "price": 60
+      }
+
+    ✓ success criteria check
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+
+  ✗ PATCH /special-events/{eventId} - step update-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      content-type: application/json
+      accept: json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "name": "Orca Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 0
+      }
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      {
+        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
+        "name": "Orca Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 0
+      }
+
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ⚠ content-type check
+
+  ✗ DELETE /special-events/{eventId} - step delete-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      accept: application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 204
+    Response time: <test> ms
+    Response Body:
+      {}
+
+    ⚠ success criteria check
+    ⚠ status code check
+
+
+  Failed tests info:
+
+  Workflow name: get-museum-hours
+
+    stepId - get-museum-hours
+    ⚠ status code check
+      
+      
+  Workflow name: events-crud
+
+    stepId - update-event
+    ⚠ content-type check
+      Content type application/json for 200 response is not described in the schema.
+      Expected content types: json.
+      
+    stepId - delete-event
+    ⚠ success criteria check
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+    ⚠ status code check
+      
+      
+  Summary for severity-level.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 7 passed, 3 warnings, 7 total
+  Checks: 24 passed, 4 warnings, 24 total
+  Time: <test>ms
+
+
+┌─────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├─────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ ✓ severity-level.yaml                                       │ 2          │ 2       │ -       │ 2        │ -       │
+└─────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
+"
+`;

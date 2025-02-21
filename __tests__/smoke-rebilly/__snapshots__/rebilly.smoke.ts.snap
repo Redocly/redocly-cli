@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rebilly test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow rebilly.yaml / crud
+
+  ✓ POST https://api-sandbox.rebilly.com/organizations/redocly/customers - step create-member
+    ✓ success criteria check
+
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-member
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+
+  ✓ PUT https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step update-member
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+    ✓ success criteria check
+
+  ✓ DELETE https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step delete-member
+    ✓ success criteria check
+
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-non-existing-member
+    ✓ success criteria check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow rebilly.yaml / inherited
+
+  ✓ POST /customers - step add-user
+    ✓ status code check (Response code 422 matches one of description codes: [201, 401, 403, 409, 422])
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for rebilly.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 6 passed, 6 total
+  Checks: 13 passed, 13 total
+  Time: <test>ms
+
+
+┌──────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                             │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├──────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ ✓ rebilly.yaml                                       │ 2          │ 2       │ -       │ -        │ -       │
+└──────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
+"
+`;
