@@ -1,4 +1,4 @@
-import { getParams, getCommandOutput, getFixturePath } from '../utils';
+import { getParams, getCommandOutput, getFixturePath } from '../respect/utils';
 import { join } from 'path';
 
 test('rebilly test case', () => {
