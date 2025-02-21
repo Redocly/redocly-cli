@@ -295,8 +295,12 @@ describe('getServerUrl', () => {
               get: {
                 servers: [
                   {
-                    url: 'https://{region}@{task}.{region}.openapi-server-with-vars.com/v1',
+                    url: 'https://{region}@{task}.{region}.openapi-server-with-vars.{domain}/v1?param={task}#fragment,param={task}',
                     variables: {
+                      domain: {
+                        default: 'com',
+                        enum: ['com', 'net'],
+                      },
                       region: {
                         default: 'us',
                         enum: ['us', 'eu', 'asia'],
