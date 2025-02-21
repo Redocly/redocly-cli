@@ -107,7 +107,9 @@ export function getServerUrl({
   }
 
   // Get first available server url from the description
-  return resolveOpenApiServerUrlWithVariables(ctx.$sourceDescriptions[descriptionName].servers?.[0]);
+  return resolveOpenApiServerUrlWithVariables(
+    ctx.$sourceDescriptions[descriptionName].servers?.[0]
+  );
 }
 
 function resolveOpenApiServerUrlWithVariables(server?: ServerObject) {
