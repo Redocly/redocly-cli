@@ -80,6 +80,7 @@ export async function callAPIAndAnalyzeResults({
   }
 
   // store step level outputs
+  const outputs: Record<string, any> = {};
   if (step.outputs) {
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: {
@@ -92,25 +93,22 @@ export async function callAPIAndAnalyzeResults({
       step,
     });
 
-    if (step.outputs) {
-      for (const outputKey of Object.keys(step.outputs)) {
-        step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: step.outputs[outputKey],
-          context: runtimeExpressionContext,
-        });
-      }
+    for (const outputKey of Object.keys(step.outputs)) {
+      outputs[outputKey] = evaluateRuntimeExpressionPayload({
+        payload: step.outputs[outputKey],
+        context: runtimeExpressionContext,
+      });
     }
   }
 
   // save local $steps context
   ctx.$steps[step.stepId] = {
-    outputs: ctx.$steps[step.stepId].outputs
-      ? { ...ctx.$steps[step.stepId].outputs, ...step.outputs }
-      : step.outputs,
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
+    // FIXME: should it also have request and response?
   };
   // save $workflows context
   ctx.$workflows[workflowId].steps[step.stepId] = {
-    outputs: ctx.$steps[step.stepId].outputs,
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
     request,
     response: step.response,
   };

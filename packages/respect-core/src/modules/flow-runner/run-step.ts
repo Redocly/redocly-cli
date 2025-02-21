@@ -102,14 +102,15 @@ export async function runStep({
       step.checks = innerSteps.flatMap(({ checks }) => checks);
     }
 
+    const outputs: Record<string, any> = {};
     if (step?.outputs && stepWorkflowResult?.outputs) {
       try {
         for (const [outputKey, outputValue] of Object.entries(step.outputs)) {
           // need to partially emulate $outputs context
-          step.outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          outputs[outputKey] = evaluateRuntimeExpressionPayload({
             payload: outputValue,
             context: {
-              $outputs: stepWorkflowResult.outputs,
+              $outputs: workflowCtx.$outputs?.[targetWorkflow.workflowId] || {},
             } as RuntimeExpressionContext,
           });
         }
@@ -126,13 +127,13 @@ export async function runStep({
 
       // save local $steps context
       ctx.$steps[stepId] = {
-        outputs: step?.outputs,
+        outputs,
       };
 
       // save local $steps context to parent workflow
       if (workflow?.workflowId) {
         ctx.$workflows[workflow.workflowId].steps[stepId] = {
-          outputs: step?.outputs,
+          outputs,
           request: undefined,
           response: undefined,
         };

@@ -56,7 +56,7 @@ exports[`should use server override from CLI and env 1`] = `
       
     stepId - buy-ticket
     ✗ unexpected error
-    Reason: Failed to resolve outputs in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
+    Reason: Failed to resolve output "ticketId" in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
     This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: events-crud
 

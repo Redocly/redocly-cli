@@ -199,20 +199,21 @@ export async function runWorkflow({
       workflowId,
     });
 
+    const outputs: Record<string, any> = {};
     for (const outputKey of Object.keys(workflow.outputs)) {
       try {
-        if (workflow.outputs) {
-          workflow.outputs[outputKey] = evaluateRuntimeExpressionPayload({
-            payload: workflow.outputs[outputKey],
-            context: runtimeExpressionContext,
-          });
-        }
-        ctx.$outputs[workflowId].outputs = workflow.outputs;
-        ctx.$workflows[workflowId].outputs = workflow.outputs;
+        outputs[outputKey] = evaluateRuntimeExpressionPayload({
+          payload: workflow.outputs[outputKey],
+          context: runtimeExpressionContext,
+        });
       } catch (error: any) {
-        throw new Error(`Failed to resolve outputs in workflow "${workflowId}": ${error.message}`);
+        throw new Error(
+          `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
+        );
       }
     }
+    ctx.$outputs[workflowId] = outputs;
+    ctx.$workflows[workflowId].outputs = outputs;
   }
 
   workflow.time = Math.ceil(performance.now() - workflowStartTime);
