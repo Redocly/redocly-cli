@@ -2,19 +2,16 @@
 slug:
   - /docs/cli/commands/respect
   - /docs/respect/commands/respect
-rbac:
-  authenticated: read
 ---
 
 # `respect`
 
 Use this command to execute API tests described in an Arazzo description.
-In addition to the Arazzo specification, Respect supports specification extensions for API testing: `x-operation` and `x-serverUrl`.
 
 ## Usage
 
 ```sh
-npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input]
+npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output]
 ```
 
 ## Options
@@ -30,7 +27,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -w, --workflow
 - [string]
 - Workflow names from the test file to run.
-  For example, the following command runs "first-flow" and "second-flow" workflows from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --workflow first-flow second-flow`
+  For example, the following command runs "first-flow" and "second-flow" workflows from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --workflow first-flow second-flow`.
   {% admonition type="warning" %}
   The `--workflow` option can't be used with `--skip`.
   {% /admonition %}
@@ -40,7 +37,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -s, --skip
 - [string]
 - Workflow names from the test file to skip.
-  For example, the following command skips the "first-flow" workflow from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --skip first-flow`
+  For example, the following command skips the "first-flow" workflow from the `test-file.yaml` Arazzo description: `npx @redocly/cli respect test-file.yaml --skip first-flow`.
   {% admonition type="warning" name="Warning" %}
   The `--skip` option can't be used with `--workflow`.
   {% /admonition %}
@@ -50,20 +47,20 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - -v, --verbose
 - boolean
 - Runs the command in verbose mode to help with troubleshooting issues.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description in verbose mode: `npx @redocly/cli respect test-file.yaml --verbose`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description in verbose mode: `npx @redocly/cli respect test-file.yaml --verbose`.
 
 ---
 
 - --har-output
 - string
 - Path for the `har` file for saving logs.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.har` file: `npx @redocly/cli respect test-file.yaml --har-output='logs.har'`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.har` file: `npx @redocly/cli respect test-file.yaml --har-output='logs.har'`.
 
 ---
 
 - --json-output
 - string
-- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:`npx @redocly/cli respect test-file.yaml --json-output='logs.json'`
+- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:`npx @redocly/cli respect test-file.yaml --json-output='logs.json'`.
 
 ---
 
@@ -81,19 +78,10 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - --server
 - string
 - Server overrides for the `sourceDescriptions` object.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the server listed in the API description, uses the server at `https://test.com`: `npx @redocly/cli respect test-file.yaml --server test=https://test.com`
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the server listed in the API description, uses the server at `https://test.com`: `npx @redocly/cli respect test-file.yaml --server test=https://test.com`.
 
   You can also pass the server overrides as an environment variable, as in the following example:
-  `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`
-
----
-
-- --residency
-- string
-- If not logged in already, use the residency location of the Reunite application.
-  Default: `us`.
-  You can also pass the residency as an environment variable, as in the following example:
-  `REDOCLY_CLI_RESPECT_RESIDENCY='eu'`
+  `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`.
 
 {% /table %}
 
@@ -158,7 +146,7 @@ Running workflow warp.arazzo.yaml / missionLostInvention
 
 ## Resources
 
-<!-- - Learn more about using mTLS with Respect in [Use mTLS](/docs/respect/guides/mtls-cli).
+- Learn more about using mTLS with Respect in [Use mTLS](/docs/respect/guides/mtls-cli).
 - Follow steps to test API sequences in [Test a sequence of API calls](/docs/respect/guides/test-api-sequences).
 - Learn what Respect is and how you can use it to test API in the [Respect](/docs/respect) concept document.
-- [Learn Arazzo](/learn/arazzo/what-is-arazzo). -->
+- [Learn Arazzo](/learn/arazzo/what-is-arazzo).

@@ -1,5 +1,5 @@
 # Ignore these links, we can't check them from this subproject
-ignore-links=["../../*", "/docs/*",
+ignore-links=["../../*", "/docs/*", "/learn/*",
 	# skip this, it redirects to user login
 	"https://github.com/Redocly/redocly-cli/issues/*"
 ]
