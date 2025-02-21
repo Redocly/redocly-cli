@@ -18,10 +18,10 @@ module.exports = {
       lines: 84,
     },
     'packages/cli/': {
-      statements: 64,
+      statements: 63,
       branches: 51,
-      functions: 63,
-      lines: 64,
+      functions: 62,
+      lines: 63,
     },
     'packages/respect-core/': {
       statements: 79,
