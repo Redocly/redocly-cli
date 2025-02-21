@@ -428,7 +428,7 @@ describe('prepareRequest', () => {
       summary: 'Get a list of breeds',
       tags: ['Breeds'],
     });
-    expect(serverUrl).toEqual({ url: 'https://catfact.ninja/' });
+    expect(serverUrl).toEqual({ url: 'https://catfact.ninja/', parameters: [] });
     expect(requestBody).toEqual(undefined);
   });
 

@@ -55,9 +55,9 @@ export function getServerUrl({
       };
     }
 
-    return {
-      url: getValueFromContext('$' + `sourceDescriptions.${descriptionName}.servers.0.url`, ctx),
-    };
+    return resolveOpenApiServerUrlWithVariables(
+      getValueFromContext('$' + `sourceDescriptions.${descriptionName}.servers.0`, ctx)
+    );
   }
 
   if (openapiOperation?.servers?.[0]) {
@@ -86,14 +86,15 @@ export function getServerUrl({
   if (!descriptionName && ctx?.sourceDescriptions && ctx.sourceDescriptions.length === 1) {
     const sourceDescription = ctx.sourceDescriptions[0];
 
-    let serverUrl = '';
     if ('x-serverUrl' in sourceDescription && sourceDescription['x-serverUrl']) {
-      serverUrl = sourceDescription['x-serverUrl'];
+      return { url: sourceDescription['x-serverUrl'] };
     } else {
-      serverUrl = ctx.$sourceDescriptions[sourceDescription.name]?.servers[0]?.url || undefined;
+      return (
+        resolveOpenApiServerUrlWithVariables(
+          ctx.$sourceDescriptions[sourceDescription.name]?.servers[0]
+        ) || undefined
+      );
     }
-
-    return serverUrl ? { url: serverUrl } : undefined;
   }
 
   if (
@@ -106,25 +107,38 @@ export function getServerUrl({
   }
 
   // Get first available server url from the description
-  return ctx.$sourceDescriptions[descriptionName].servers[0];
+  return resolveOpenApiServerUrlWithVariables(ctx.$sourceDescriptions[descriptionName].servers?.[0]);
 }
 
-function resolveOpenApiServerUrlWithVariables(server: ServerObject) {
-  if (!server.url) {
+function resolveOpenApiServerUrlWithVariables(server?: ServerObject) {
+  if (!server) {
     return undefined;
   }
+  return {
+    url: server.url,
+    parameters: Object.entries(server.variables || {})
+      .map(([key, value]) => ({
+        in: 'path',
+        name: key,
+        value: value.default,
+      }))
+      .filter(({ value }) => !!value),
+  };
+  // if (!server.url) {
+  //   return undefined;
+  // }
 
-  // If no variables in URL or no variables defined, return URL as is
-  if (!server.url.includes('{') || !server.variables) {
-    return { url: server.url };
-  }
+  // // If no variables in URL or no variables defined, return URL as is
+  // if (!server.url.includes('{') || !server.variables) {
+  //   return { url: server.url };
+  // }
 
-  // Replace all variables with their default values
-  let resolvedUrl = server.url;
-  for (const [varName, varConfig] of Object.entries(server.variables)) {
-    const variablePattern = new RegExp(`{${varName}}`, 'g');
-    resolvedUrl = resolvedUrl.replace(variablePattern, varConfig.default);
-  }
+  // // Replace all variables with their default values
+  // let resolvedUrl = server.url;
+  // for (const [varName, varConfig] of Object.entries(server.variables)) {
+  //   const variablePattern = new RegExp(`{${varName}}`, 'g');
+  //   resolvedUrl = resolvedUrl.replace(variablePattern, varConfig.default);
+  // }
 
-  return { url: resolvedUrl };
+  // return { url: resolvedUrl };
 }
