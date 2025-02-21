@@ -36,22 +36,42 @@ export function printWorkflowSeparatorLine() {
   logger.printNewLine();
 }
 
-export function printWorkflowSeparator(fileName: string, workflowName: string | undefined) {
-  printWorkflowSeparatorLine();
+export function printWorkflowSeparator(
+  fileName: string,
+  workflowName: string | undefined,
+  skipLineSeparator?: boolean
+) {
+  if (!skipLineSeparator) {
+    printWorkflowSeparatorLine();
+  }
   logger.log(`  ${bold('Running workflow')} ${blue(`${fileName} / ${workflowName}`)}`);
   logger.printNewLine();
 }
 
-export function printDependentWorkflowSeparator(parentWorkflowId: string) {
+export function printRequiredWorkflowSeparator(parentWorkflowId: string) {
   logger.printNewLine();
   logger.log(
-    `  ${bold('Running required')} workflows for ${blue(parentWorkflowId)} ${RESET_ESCAPE_CODE}\n`
+    `  ${bold('Running required')} workflow for ${blue(parentWorkflowId)}${RESET_ESCAPE_CODE}\n`
   );
 }
 
-export function printStepWorkflowSeparator(parentStepId: string, parentWorkflowId: string) {
+export function printChildWorkflowSeparator(parentStepId: string) {
   logger.printNewLine();
-  logger.log(`  ${bold('Running step')} ${blue(parentStepId)} workflow ${blue(parentWorkflowId)}`);
+  logger.log(`  ${bold('Running child')} workflow for the step ${blue(parentStepId)}${RESET_ESCAPE_CODE}`);
+  logger.printNewLine();
+}
+
+export function printActionsSeparator(
+  stepId: string,
+  actionName: string,
+  kind: 'failure' | 'success'
+) {
+  logger.printNewLine();
+  logger.log(
+    `  ${bold(`Running ${kind} action`)} ${blue(actionName)} for the step ${blue(
+      stepId
+    )}${RESET_ESCAPE_CODE}`
+  );
   logger.printNewLine();
 }
 

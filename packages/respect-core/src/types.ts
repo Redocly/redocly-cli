@@ -188,9 +188,8 @@ export type RuntimeExpressionContext = {
 export type RunWorkflowInput = {
   workflowInput: Workflow | string;
   ctx: TestContext;
-  parentStepId?: string;
-  parentWorkflowId?: string;
   fromStepId?: string;
+  skipLineSeparator?: boolean;
 };
 
 export type TestContext = RuntimeExpressionContext & {

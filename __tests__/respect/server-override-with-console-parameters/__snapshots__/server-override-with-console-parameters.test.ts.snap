@@ -14,7 +14,8 @@ exports[`should use server override from CLI and env 1`] = `
 
     ✗ failed network request
 
-  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+  Running child workflow for the step buy-ticket
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✗ POST /tickets - step buy-tickets
     ✗ failed network request

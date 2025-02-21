@@ -5,9 +5,14 @@ exports[`should execute successActions for each workflow step if it does not hav
 
   Running workflow workflow-failure-actions.yaml / get-museum-hours
 
-  Retrying step get-museum-hours attempt # 1
+  ✗ GET /museum-hours - step get-museum-hours
+    ✗ success criteria check
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
 
-  Running required workflows for get-museum-hours 
+  Running failure action repeated-failure-action-1 for the step get-museum-hours
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
@@ -16,13 +21,21 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ schema check
 
 
+  Retrying step get-museum-hours (1/1)
+
   ✗ GET /museum-hours - step get-museum-hours
     ✗ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
 
-  Retrying step get-museum-hours-2 attempt # 1
+  ✗ GET /museum-hours - step get-museum-hours-2
+    ✗ success criteria check
+    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ content-type check
+    ✓ schema check
+
+  Retrying step get-museum-hours-2 (1/1)
 
   ✗ GET /museum-hours - step get-museum-hours-2
     ✗ success criteria check

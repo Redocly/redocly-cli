@@ -5,7 +5,11 @@ import { delay } from '../../utils/delay';
 import { CHECKS } from '../checks';
 import { runWorkflow, resolveWorkflowContext } from './runner';
 import { prepareRequest, type RequestData } from './prepare-request';
-import { printStepDetails } from '../../utils/cli-outputs';
+import {
+  printChildWorkflowSeparator,
+  printStepDetails,
+  printActionsSeparator,
+} from '../../utils/cli-outputs';
 import {
   getValueFromContext,
   isParameterWithoutIn,
@@ -84,11 +88,11 @@ export async function runStep({
       workflowCtx.$workflows[targetWorkflow.workflowId].inputs = workflowInputParameters;
     }
 
+    printChildWorkflowSeparator(stepId);
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
-      parentWorkflowId: targetWorkflowRef,
-      parentStepId: stepId,
+      skipLineSeparator: true,
     });
 
     // FIXME
@@ -170,16 +174,6 @@ export async function runStep({
     });
 
     allChecksPassed = Object.values(checksResult).every((check) => check);
-
-    // we need to handle retry action separatelly as it should replace the current step state and should not log
-    if (failureActionsToRun.length && !allChecksPassed) {
-      const result = await runActions(failureActionsToRun, ['retry']);
-      if (result?.retriesLeft && result.retriesLeft > 0) {
-        // if retriesLeft > 0, it means that the step was retried successfully and we need
-        // to stop output logs and return step result to the outer workflow
-        return result.stepResult;
-      }
-    }
   } catch (e: any) {
     step.verboseLog = ctx.apiClient.getVerboseResponseLogs();
 
@@ -208,16 +202,20 @@ export async function runStep({
     });
   }
 
-  // onFailure handle 'goto' and 'end'.
   if (failureActionsToRun.length && !allChecksPassed) {
-    const result = await runActions(failureActionsToRun, ['end', 'goto']); // retry is handled earlier
+    const result = await runActions(failureActionsToRun, 'failure');
+    if (result?.retriesLeft && result.retriesLeft > 0) {
+      // if retriesLeft > 0, it means that the step was retried successfully and we need to
+      // return step result to the outer flow
+      return result.stepResult;
+    }
     if (result?.shouldEnd) {
       return { shouldEnd: true };
     }
   }
 
   if (successActionsToRun.length && allChecksPassed) {
-    const result = await runActions(successActionsToRun, ['end', 'goto']);
+    const result = await runActions(successActionsToRun, 'success');
     if (result?.shouldEnd) {
       return { shouldEnd: true };
     }
@@ -226,7 +224,7 @@ export async function runStep({
   // Internal function to run actions
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[],
-    onlyTypes?: ('end' | 'goto' | 'retry')[]
+    kind: 'failure' | 'success'
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
@@ -249,10 +247,6 @@ export async function runStep({
       }).every((check) => check.pass);
 
       if (matchesCriteria) {
-        if (onlyTypes && !onlyTypes.includes(type)) {
-          break;
-        }
-
         const targetWorkflow = action.workflowId
           ? getValueFromContext(action.workflowId, ctx)
           : undefined;
@@ -268,15 +262,16 @@ export async function runStep({
             return { retriesLeft: 0, shouldEnd: false };
           }
           await delay(retryAfter);
-          logger.log(
-            `\n  Retrying step ${blue(stepId)} attempt # ${retryLimit - retriesLeft + 1}\n`
-          );
+
+          if (targetWorkflow || targetStep) {
+            printActionsSeparator(stepId, action.name, kind);
+          }
+
           if (targetWorkflow) {
             await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
-              parentWorkflowId: workflowId,
-              fromStepId: targetStep,
+              skipLineSeparator: true,
             });
           } else if (targetStep) {
             const stepToRun = workflow?.steps.find((s) => s.stepId === targetStep) as Step;
@@ -289,6 +284,11 @@ export async function runStep({
               workflowId,
             });
           }
+
+          logger.log(
+            `\n  Retrying step ${blue(stepId)} (${retryLimit - retriesLeft + 1}/${retryLimit})\n`
+          );
+
           return {
             stepResult: await runStep({
               step,
@@ -304,11 +304,16 @@ export async function runStep({
           if (!targetWorkflow && !targetStep) {
             throw new Error('Either workflowId or stepId must be provided in goto action');
           }
+
+          if (targetWorkflow || targetStep) {
+            printActionsSeparator(stepId, action.name, kind);
+          }
+
           await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
-            parentWorkflowId: workflowId,
             fromStepId: targetStep,
+            skipLineSeparator: true,
           });
           return { shouldEnd: true };
         }

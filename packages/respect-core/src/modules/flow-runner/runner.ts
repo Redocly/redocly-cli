@@ -9,9 +9,8 @@ import { getWorkflowsToRun } from './get-workflows-to-run';
 import { runStep } from './run-step';
 import {
   printWorkflowSeparator,
-  printStepWorkflowSeparator,
-  printDependentWorkflowSeparator,
   indent,
+  printRequiredWorkflowSeparator,
 } from '../../utils/cli-outputs';
 import { bundleArazzo } from './get-test-description-from-file';
 import { CHECKS } from '../checks';
@@ -131,9 +130,8 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
 export async function runWorkflow({
   workflowInput,
   ctx,
-  parentStepId,
-  parentWorkflowId,
   fromStepId,
+  skipLineSeparator,
 }: RunWorkflowInput): Promise<Workflow | void> {
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
@@ -148,13 +146,7 @@ export async function runWorkflow({
 
   const workflowId = workflow.workflowId;
 
-  if (parentWorkflowId && parentStepId) {
-    printStepWorkflowSeparator(parentStepId, parentWorkflowId);
-  } else if (parentWorkflowId) {
-    printDependentWorkflowSeparator(parentWorkflowId);
-  } else {
-    printWorkflowSeparator(fileBaseName, workflowId);
-  }
+  printWorkflowSeparator(fileBaseName, workflowId, skipLineSeparator);
 
   const fromStepIndex = fromStepId
     ? workflow.steps.findIndex((step) => step.stepId === fromStepId)
@@ -237,10 +229,11 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
       const resolvedWorkflow = getValueFromContext(workflowId, ctx);
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
 
+      printRequiredWorkflowSeparator(workflow.workflowId);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
-        parentWorkflowId: workflow.workflowId,
         ctx: workflowCtx,
+        skipLineSeparator: true,
       });
     })
   );

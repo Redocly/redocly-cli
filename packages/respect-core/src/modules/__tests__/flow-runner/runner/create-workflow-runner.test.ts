@@ -366,8 +366,6 @@ describe('runWorkflow', () => {
 
     await runWorkflow({
       workflowInput: 'test',
-      parentStepId: 'parentStepId',
-      parentWorkflowId: 'parentWorkflowId',
       ctx,
     });
 
@@ -468,8 +466,6 @@ describe('runWorkflow', () => {
 
     await runWorkflow({
       workflowInput: workflow,
-      parentStepId: 'parentStepId',
-      parentWorkflowId: 'parentWorkflowId',
       ctx,
     });
 

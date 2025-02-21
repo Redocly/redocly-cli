@@ -145,7 +145,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✓ content-type check
     ✓ schema check
 
-  Running required workflows for get-museum-hours 
+  Running failure action get-museum-hours-failure-action for the step get-museum-hours-step-failure-action-goto
+  Running workflow reusable-components.yaml / final-workflow
 
   ✓ GET /museum-hours - step final-workflow-step
 

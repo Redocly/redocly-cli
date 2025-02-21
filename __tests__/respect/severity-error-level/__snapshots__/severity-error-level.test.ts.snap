@@ -73,7 +73,8 @@ exports[`should use error severity level 1`] = `
     ✓ success criteria check
     ✗ status code check
 
-  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+  Running child workflow for the step buy-ticket
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
     ✓ success criteria check

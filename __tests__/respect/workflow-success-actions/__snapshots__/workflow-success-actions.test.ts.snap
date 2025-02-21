@@ -11,7 +11,8 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ content-type check
     ✓ schema check
 
-  Running required workflows for get-museum-hours 
+  Running success action repeated-success-action-1 for the step get-museum-hours
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
@@ -29,7 +30,8 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ content-type check
     ✓ schema check
 
-  Running required workflows for events-crud 
+  Running success action step-onSuccess-action for the step list-events
+  Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
