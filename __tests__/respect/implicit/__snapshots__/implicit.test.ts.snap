@@ -74,7 +74,7 @@ exports[`should implicitly add content type header based on requestBody.content 
         "instance": "string"
       }
 
-    ✓ success criteria check
+    ✓ success criteria check - $request.header.content-type == 'application/origi...
     ✓ status code check (Response code 400 matches one of description codes: [201, 400])
     ✓ content-type check
     ✓ schema check

@@ -208,6 +208,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '^200$',
       },
       {
         message:
@@ -215,6 +216,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '/^organization-1/i',
       },
       {
         message:
@@ -222,6 +224,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '/respect-test-project-name/',
       },
     ]);
   });
@@ -309,6 +312,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '$statusCode == 200',
       },
       {
         message:
@@ -316,6 +320,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '$response.body#/items/0/sourceId == "rem_00h3hbrz9cce4drnctvtx62rzr"',
       },
     ]);
   });
@@ -378,6 +383,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
         severity: 'error',
+        criteriaCondition: '$.pets[?(@.length>3)] && $.access_token != null',
       },
     ]);
   });
@@ -459,12 +465,14 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '$.pets.length > 0',
       },
       {
         message: 'Checking jsonpath criteria: $.checks.length == 0',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: true,
         severity: 'error',
+        criteriaCondition: '$.checks.length == 0',
       },
     ]);
   });
@@ -524,6 +532,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
         severity: 'error',
+        criteriaCondition: '$.pets.length > 2',
       },
     ]);
   });
@@ -587,6 +596,7 @@ describe('checkSuccessCriteria', () => {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
         severity: 'error',
+        criteriaCondition: '$statusCode === () => {throw new Error("error")}',
       },
     ]);
   });

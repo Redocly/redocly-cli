@@ -271,6 +271,7 @@ export type Check = {
   name: string;
   message?: string;
   additionalMessage?: string;
+  criteriaCondition?: string;
 };
 
 export interface ResultsOfTests {

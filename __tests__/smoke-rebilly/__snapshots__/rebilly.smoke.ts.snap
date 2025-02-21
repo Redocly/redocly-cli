@@ -6,24 +6,24 @@ exports[`rebilly test case 1`] = `
   Running workflow rebilly.yaml / crud
 
   ✓ POST https://api-sandbox.rebilly.com/organizations/redocly/customers - step create-member
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 201
 
   ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-member
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/firstName == 'First'
+    ✓ success criteria check - $response.body#/lastName == 'Last'
 
   ✓ PUT https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step update-member
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/firstName == 'UpdatedName'
+    ✓ success criteria check - $response.body#/lastName == 'Last'
+    ✓ success criteria check - $response.body#/id == $steps.create-member.outputs...
 
   ✓ DELETE https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step delete-member
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 204
 
   ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-non-existing-member
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 404
 
 ────────────────────────────────────────────────────────────────────────────────
 
