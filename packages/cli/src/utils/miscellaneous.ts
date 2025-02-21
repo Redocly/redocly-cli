@@ -29,9 +29,7 @@ import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-conf
 import { outputExtensions } from '../types';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from '../commands/push';
-import { RedoclyOAuthClient } from '../auth/oauth-client';
 import { getReuniteUrl } from '../reunite/api';
-import { otelTelemetry } from '../otel';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -549,8 +547,6 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-otelTelemetry.init();
-
 export async function sendTelemetry(
   argv: Arguments | undefined,
   exit_code: ExitCode,
@@ -570,6 +566,7 @@ export async function sendTelemetry(
     } = argv;
     const event_time = new Date().toISOString();
     const redoclyClient = new RedoclyClient();
+    const { RedoclyOAuthClient } = await import('../auth/oauth-client');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
     const logged_in = redoclyClient.hasTokens() || (await oauthClient.isAuthorized(reuniteUrl));
@@ -592,6 +589,8 @@ export async function sendTelemetry(
       spec_keyword,
       spec_full_version,
     };
+    const { otelTelemetry } = await import('../otel');
+    otelTelemetry.init();
     otelTelemetry.send(data.command, data);
   } catch (err) {
     // Do nothing.
