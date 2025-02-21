@@ -18,6 +18,19 @@ exports[`should use server override from CLI and env 1`] = `
   Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✗ POST /tickets - step buy-tickets
+
+    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/tickets
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "email": "todd@example.com"
+      }
+
     ✗ failed network request
 ────────────────────────────────────────────────────────────────────────────────
 
