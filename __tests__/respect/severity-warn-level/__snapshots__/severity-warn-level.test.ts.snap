@@ -70,7 +70,7 @@ exports[`should use warn severity level 1`] = `
         }
       ]
 
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 200
     ⚠ status code check
 
   Running child workflow for the step buy-ticket
@@ -102,7 +102,7 @@ exports[`should use warn severity level 1`] = `
         "confirmationCode": "ticket-general-e5e5c6-dce78"
       }
 
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 201
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
@@ -280,8 +280,8 @@ exports[`should use warn severity level 1`] = `
         "price": 0
       }
 
-    ✓ success criteria check
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
@@ -310,7 +310,7 @@ exports[`should use warn severity level 1`] = `
         "price": 60
       }
 
-    ✓ success criteria check
+    ✓ success criteria check - ^200$
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
@@ -349,8 +349,8 @@ exports[`should use warn severity level 1`] = `
         "price": 0
       }
 
-    ✓ success criteria check
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $.name == 'Orca Identification and Analysis'
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ⚠ content-type check
 
@@ -367,7 +367,7 @@ exports[`should use warn severity level 1`] = `
     Response Body:
       {}
 
-    ⚠ success criteria check
+    ⚠ success criteria check - $statusCode == 200
     ⚠ status code check
 
 

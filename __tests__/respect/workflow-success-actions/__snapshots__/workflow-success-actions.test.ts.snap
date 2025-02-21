@@ -6,7 +6,7 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running workflow workflow-success-actions.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 200
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
@@ -15,7 +15,7 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 201
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
@@ -34,7 +34,7 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
-    ✓ success criteria check
+    ✓ success criteria check - $statusCode == 201
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check

@@ -9,6 +9,7 @@ import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
 import type { Check, VerboseLog } from '../../types';
 
 const logger = DefaultLogger.getInstance();
+const MAX_CRITERIA_CONDITION_DISPLAY_LENGTH = 50;
 
 export function displayChecks(
   testNameToDisplay: string,
@@ -35,13 +36,25 @@ export function displayChecks(
     const { name: checkName, pass, severity } = check;
     const passTestMessage = (checkName: string) =>
       `${green('✓')} ${gray(checkName.toLowerCase())}${
-        check?.additionalMessage ? ` (${check.additionalMessage})` : ''
-      }`;
+        check?.criteriaCondition
+          ? ` - ${green(
+              check.criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
+                ? check.criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
+                : check.criteriaCondition
+            )}`
+          : ''
+      }${check?.additionalMessage ? ` (${check.additionalMessage})` : ''}`;
 
     const failTestMessage = (checkName: string, severity?: RuleSeverity) =>
       `${severity === 'warn' ? yellow('⚠') : red('✗')} ${gray(checkName.toLowerCase())}${
-        check?.additionalMessage ? ' (' + check.additionalMessage + ')' : ''
-      }`;
+        check?.criteriaCondition
+          ? ` - ${red(
+              check.criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
+                ? check.criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
+                : check.criteriaCondition
+            )}`
+          : ''
+      }${check?.additionalMessage ? ' (' + check.additionalMessage + ')' : ''}`;
 
     logger.log(
       `${

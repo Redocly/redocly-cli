@@ -6,9 +6,9 @@ exports[`should send in request and proceed case-insensitive headers in runtime 
   Running workflow case-insensitive-headers.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ success criteria check
+    ✓ success criteria check - $request.header.content-type == 'third'
+    ✓ success criteria check - $request.header.CammelCasedHeader == 'custom-heade...
+    ✓ success criteria check - $response.header.X-Content-Type-Options == 'nosnif...
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check

@@ -48,11 +48,11 @@ export function checkCriteria({
     step,
   });
 
-  criteria.forEach((criteria: CriteriaObject) => {
-    const { condition } = criteria;
+  criteria.forEach((criteriaUnit: CriteriaObject) => {
+    const { condition } = criteriaUnit;
 
     try {
-      if (isRegexpSuccessCriteria(criteria)) {
+      if (isRegexpSuccessCriteria(criteriaUnit)) {
         const regexParts = condition.match(/^\/(.*)\/([gimsuy]*)$/);
 
         let regexPattern: string;
@@ -66,17 +66,18 @@ export function checkCriteria({
           flags = ''; // No flags in this case
         }
 
-        const { context } = criteria as RegexpSuccessCriteria;
+        const { context } = criteriaUnit as RegexpSuccessCriteria;
         const regex = new RegExp(regexPattern, flags);
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
           pass: regex.test(evaluateRuntimeExpression(context, criteriaContext)),
-          message: `Checking regex criteria: ${JSON.stringify(criteria)}`,
+          message: `Checking regex criteria: ${JSON.stringify(criteriaUnit)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          criteriaCondition: condition,
         });
-      } else if (isJSONPathSuccessCriteria(criteria)) {
-        const { context, condition } = criteria;
+      } else if (isJSONPathSuccessCriteria(criteriaUnit)) {
+        const { context } = criteriaUnit;
         const data = evaluateRuntimeExpression(context, criteriaContext);
 
         checks.push({
@@ -84,21 +85,24 @@ export function checkCriteria({
           pass: evaluateJSONPAthCondition(condition, data),
           message: `Checking jsonpath criteria: ${condition}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          criteriaCondition: condition,
         });
       } else {
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
           pass: evaluateRuntimeExpression(condition, criteriaContext),
-          message: `Checking simple criteria: ${JSON.stringify(criteria)}`,
+          message: `Checking simple criteria: ${JSON.stringify(criteriaUnit)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          criteriaCondition: condition,
         });
       }
     } catch (e: any) {
       checks.push({
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         pass: false,
-        message: `Failed to pass ${JSON.stringify(criteria)}: ${e.message}`,
+        message: `Failed to pass ${JSON.stringify(criteriaUnit)}: ${e.message}`,
         severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+        criteriaCondition: criteriaUnit.condition,
       });
     }
   });
