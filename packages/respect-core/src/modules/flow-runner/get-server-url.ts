@@ -11,6 +11,19 @@ export type GetServerUrlInput = {
   xOperation?: ExtendedOperation;
 };
 
+export type ServerObject = {
+  url: string;
+  description?: string;
+  variables?: Record<
+    string,
+    {
+      default: string;
+      enum?: string[];
+      description?: string;
+    }
+  >;
+};
+
 export function getServerUrl({
   ctx,
   descriptionName,
@@ -65,7 +78,9 @@ export function getServerUrl({
           : undefined;
     }
 
-    return serverUrlOverride ? { url: serverUrlOverride } : openapiOperation.servers[0];
+    return serverUrlOverride
+      ? { url: serverUrlOverride }
+      : resolveOpenApiServerUrlWithVariables(openapiOperation.servers[0]);
   }
 
   if (!descriptionName && ctx?.sourceDescriptions && ctx.sourceDescriptions.length === 1) {
@@ -92,4 +107,24 @@ export function getServerUrl({
 
   // Get first available server url from the description
   return ctx.$sourceDescriptions[descriptionName].servers[0];
+}
+
+function resolveOpenApiServerUrlWithVariables(server: ServerObject) {
+  if (!server.url) {
+    return undefined;
+  }
+
+  // If no variables in URL or no variables defined, return URL as is
+  if (!server.url.includes('{') || !server.variables) {
+    return { url: server.url };
+  }
+
+  // Replace all variables with their default values
+  let resolvedUrl = server.url;
+  for (const [varName, varConfig] of Object.entries(server.variables)) {
+    const variablePattern = new RegExp(`{${varName}}`, 'g');
+    resolvedUrl = resolvedUrl.replace(variablePattern, varConfig.default);
+  }
+
+  return { url: resolvedUrl };
 }

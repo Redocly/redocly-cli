@@ -285,4 +285,58 @@ describe('getServerUrl', () => {
     const result = getServerUrl({ ctx, descriptionName });
     expect(result).toEqual({ url: 'https://cli.com' });
   });
+
+  it('should return server url from openapi server with variables', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: {
+          paths: {
+            '/test': {
+              get: {
+                servers: [
+                  {
+                    url: 'https://{region}@{task}.{region}.openapi-server-with-vars.com/v1',
+                    variables: {
+                      region: {
+                        default: 'us',
+                        enum: ['us', 'eu', 'asia'],
+                      },
+                      task: {
+                        default: 'ping',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    } as unknown as TestContext;
+    const openapiOperation = {
+      servers: [
+        {
+          url: 'https://{region}@{task}.{region}.openapi-server-with-vars.{domain}/v1?param={task}#fragment,param={task}',
+          variables: {
+            domain: {
+              default: 'com',
+              enum: ['com', 'net'],
+            },
+            region: {
+              default: 'us',
+              enum: ['us', 'eu', 'asia'],
+            },
+            task: {
+              default: 'ping',
+            },
+          },
+        },
+      ],
+    } as unknown as OperationDetails;
+    const descriptionName = 'test';
+    const result = getServerUrl({ ctx, descriptionName, openapiOperation });
+    expect(result).toEqual({
+      url: 'https://us@ping.us.openapi-server-with-vars.com/v1?param=ping#fragment,param=ping',
+    });
+  });
 });
