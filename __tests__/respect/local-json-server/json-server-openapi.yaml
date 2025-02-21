@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Fake JSON Server
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+security: []
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        value:
+          type: number
+      required:
+        - id
+  parameters:
+    ContentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+      example: application/json
+    ItemId:
+      name: id
+      in: path
+      schema:
+        type: string
+        format: uuid
+      example: some-item-id
+      required: true
+
+paths:
+  /items:
+    get:
+      operationId: list-items
+      summary: Retrieve all items.
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+
+    post:
+      operationId: create-item
+      summary: Create a new item.
+      parameters:
+        - $ref: '#/components/parameters/ContentType'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              201:
+                value: { value: 42 }
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+
+  /items/{id}:
+    # TODO: make parameters inherited from the top level
+    # parameters:
+    #   - name: id
+    #     in: path
+    #     schema:
+    #       type: string
+    #       format: uuid
+    #     example: some-item-id
+    #     required: true
+
+    get:
+      operationId: get-by-id
+      summary: Get an item by id.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        200:
+          description: Found an item.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+
+        404:
+          description: Not found.
+          content:
+            text/plain:
+              examples:
+                response:
+                  value: OK
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+
+    delete:
+      operationId: remove-item
+      summary: Remove an item by id.
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      responses:
+        200:
+          description: Successfully deleted.

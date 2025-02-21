@@ -1,4 +1,4 @@
-name: Plugins smoke tests
+name: Smoke tests
 
 on:
   pull_request:
@@ -63,30 +63,4 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
-
-  run-smoke-plugins--npm--node-16:
-    needs: prepare-smoke-plugins
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke-plugins/
-          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
-
-  run-smoke-plugins--npm--node-14:
-    needs: prepare-smoke-plugins
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke-plugins/
-          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 14
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
