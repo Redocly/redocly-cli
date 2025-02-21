@@ -276,6 +276,7 @@ export async function resolveWorkflowContext(
           input: ctx.options.input || undefined,
           server: ctx.options.server || undefined,
           severity: ctx.options.severity || undefined,
+          verbose: ctx.options.verbose || undefined,
         },
         ctx.apiClient
       )

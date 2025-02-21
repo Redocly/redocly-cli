@@ -57,7 +57,9 @@ export function printRequiredWorkflowSeparator(parentWorkflowId: string) {
 
 export function printChildWorkflowSeparator(parentStepId: string) {
   logger.printNewLine();
-  logger.log(`  ${bold('Running child')} workflow for the step ${blue(parentStepId)}${RESET_ESCAPE_CODE}`);
+  logger.log(
+    `  ${bold('Running child')} workflow for the step ${blue(parentStepId)}${RESET_ESCAPE_CODE}`
+  );
   logger.printNewLine();
 }
 
