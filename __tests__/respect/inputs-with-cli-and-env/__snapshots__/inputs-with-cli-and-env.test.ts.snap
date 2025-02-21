@@ -78,6 +78,31 @@ exports[`should use inputs from CLI and env 1`] = `
   Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "email": "todd@example.com"
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
+      {
+        "message": "Museum general entry ticket purchased",
+        "ticketId": "382c0820-0530-4f4b-99af-13811ad0f17a",
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "confirmationCode": "ticket-general-e5e5c6-dce78"
+      }
+
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
