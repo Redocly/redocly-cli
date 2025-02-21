@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should use off severity level 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow severity-level.yaml / get-museum-hours[0m
-[0m
-  ✗ GET /museum-hours - step get-museum-hours[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: html/text, application/problem+json[0m
-      authorization: Basic Og==[0m
-      content-type: application/json[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow severity-level.yaml / get-museum-hours
+
+  ✗ GET /museum-hours - step get-museum-hours
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: html/text, application/problem+json
+      authorization: Basic Og==
+      content-type: application/json
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -68,35 +68,35 @@ exports[`should use off severity level 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✓ success criteria check
     ✗ status code check
-[0m
-  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets[0m
-[0m
-  ✓ POST /tickets - step buy-tickets[0m
+
+  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow severity-level.yaml / events-crud[0m
-[0m
-  ✓ GET /special-events - step list-events[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow severity-level.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "eventId": "f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97",
@@ -213,20 +213,20 @@ exports[`should use off severity level 1`] = `
           ],
           "price": 5
         }
-      ][0m
-[0m
+      ]
+
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ POST /special-events - step create-event[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      content-type: application/json[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-    Request Body:[0m
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
       {
         "name": "Mermaid Treasure Identification and Analysis",
         "location": "Under the seaaa 🦀 🎶 🌊.",
@@ -236,12 +236,12 @@ exports[`should use off severity level 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }[0m
-[0m
-[0m
-    Response status code: 201[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
         "name": "Mermaid Treasure Identification and Analysis",
@@ -252,25 +252,25 @@ exports[`should use off severity level 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ GET /special-events/{eventId} - step get-event-by-id[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+  ✓ GET /special-events/{eventId} - step get-event-by-id
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
         "name": "Time Traveler Tea Party",
@@ -282,21 +282,21 @@ exports[`should use off severity level 1`] = `
           "2023-12-02"
         ],
         "price": 60
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✗ PATCH /special-events/{eventId} - step update-event[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39[0m
-    Request Headers:[0m
-      content-type: application/json[0m
-      accept: json, application/problem+json[0m
-      authorization: Basic Og==[0m
-    Request Body:[0m
+
+  ✗ PATCH /special-events/{eventId} - step update-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      content-type: application/json
+      accept: json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
       {
         "name": "Orca Identification and Analysis",
         "location": "Under the seaaa 🦀 🎶 🌊.",
@@ -305,12 +305,12 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+      }
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
         "name": "Orca Identification and Analysis",
@@ -321,66 +321,66 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✗ content-type check
-[0m
-  ✗ DELETE /special-events/{eventId} - step delete-event[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39[0m
-    Request Headers:[0m
-      accept: application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 204[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
-      {}[0m
-[0m
+
+  ✗ DELETE /special-events/{eventId} - step delete-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      accept: application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 204
+    Response time: <test> ms
+    Response Body:
+      {}
+
     ✗ success criteria check
     ✗ status code check
-[0m
-[0m
+
+
   Failed tests info:
-[0m
-  Workflow name: get-museum-hours[0m
-[0m
-    stepId - get-museum-hours[0m
-    ○ status code check (skipped)[0m
-      [0m
-      [0m
-  Workflow name: events-crud[0m
-[0m
-    stepId - update-event[0m
-    ○ content-type check (skipped)[0m
+
+  Workflow name: get-museum-hours
+
+    stepId - get-museum-hours
+    ○ status code check (skipped)
+      
+      
+  Workflow name: events-crud
+
+    stepId - update-event
+    ○ content-type check (skipped)
       Content type application/json for 200 response is not described in the schema.
-      Expected content types: json.[0m
-      [0m
-    stepId - delete-event[0m
-    ○ success criteria check (skipped)[0m
-      Checking simple criteria: {"condition":"$statusCode == 200"}[0m
-      [0m
-    ○ status code check (skipped)[0m
-      [0m
-      [0m
+      Expected content types: json.
+      
+    stepId - delete-event
+    ○ success criteria check (skipped)
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+    ○ status code check (skipped)
+      
+      
   Summary for severity-level.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 7 passed, 3 ignored, 7 total
   Checks: 24 passed, 4 ignored, 24 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌─────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├─────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ ✓ severity-level.yaml                                       │ 2          │ 2       │ -       │ -        │ 2       │
-└─────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
+└─────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
 
 "
 `;

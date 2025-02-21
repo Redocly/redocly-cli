@@ -1,6 +1,6 @@
 import { gray } from 'colorette';
 
-const RESET_ESCAPE_CODE_IN_TERMINAL = '\x1B[0m';
+const RESET_ESCAPE_CODE_IN_TERMINAL = process.env.NO_COLOR ? '' : '\x1B[0m';
 
 export interface Logger {
   log(message: string): void;

@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should resolve outputs access syntax variations 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow outputs-access-syntax-variations.yaml / get-museum-hours[0m
-[0m
-  ✓ GET /museum-hours - step get-museum-hours[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow outputs-access-syntax-variations.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -67,37 +67,37 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets[0m
-[0m
-  ✓ POST /tickets - step buy-tickets[0m
+
+  Running step buy-ticket workflow $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow outputs-access-syntax-variations.yaml / events-crud[0m
-[0m
-  ✓ GET /special-events - step list-events[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow outputs-access-syntax-variations.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "eventId": "f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97",
@@ -214,20 +214,20 @@ exports[`should resolve outputs access syntax variations 1`] = `
           ],
           "price": 5
         }
-      ][0m
-[0m
+      ]
+
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ POST /special-events - step create-event[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      content-type: application/json[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-    Request Body:[0m
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
       {
         "name": "Mermaid Treasure Identification and Analysis",
         "location": "Under the seaaa 🦀 🎶 🌊.",
@@ -237,12 +237,12 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }[0m
-[0m
-[0m
-    Response status code: 201[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
         "name": "Mermaid Treasure Identification and Analysis",
@@ -253,30 +253,30 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ success criteria check
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow outputs-access-syntax-variations.yaml / get-event-by-id[0m
-[0m
-  ✓ GET /special-events/{eventId} - step get-event-by-id[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow outputs-access-syntax-variations.yaml / get-event-by-id
+
+  ✓ GET /special-events/{eventId} - step get-event-by-id
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
         "name": "Time Traveler Tea Party",
@@ -288,29 +288,29 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-02"
         ],
         "price": 60
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
+
+
   Summary for outputs-access-syntax-variations.yaml
   
   Workflows: 3 passed, 3 total
   Steps: 5 passed, 5 total
   Checks: 22 passed, 22 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ ✓ outputs-access-syntax-variations.yaml                                       │ 3          │ 3       │ -       │ -        │ -       │
-└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
+└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
 
 "
 `;

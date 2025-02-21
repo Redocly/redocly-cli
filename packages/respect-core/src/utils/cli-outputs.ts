@@ -7,7 +7,7 @@ import { DefaultLogger } from './logger/logger';
 
 const logger = DefaultLogger.getInstance();
 
-export const RESET_ESCAPE_CODE = '\x1B[0m';
+export const RESET_ESCAPE_CODE = process.env.NO_COLOR ? '' : '\x1B[0m';
 
 export function removeExtraIndentation(message: string | undefined): string {
   if (!message) {

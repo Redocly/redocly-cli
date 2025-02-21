@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should implicitly add content type header based on requestBody.content field (the first one) if such does not specified 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow implicit.yaml / implicit-content-type[0m
-[0m
-  ✓ POST /activities - step post-activities[0m
-[0m
-    Request URL: https://api.impossiblemissionsforce.com/activities[0m
-    Request Headers:[0m
-      content-type: application/json[0m
-      accept: application/problem+json[0m
-      imf-key: test-key[0m
-    Request Body:[0m
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow implicit.yaml / implicit-content-type
+
+  ✓ POST /activities - step post-activities
+
+    Request URL: https://api.impossiblemissionsforce.com/activities
+    Request Headers:
+      content-type: application/json
+      accept: application/problem+json
+      imf-key: test-key
+    Request Body:
       {
         "data": {
           "type": "quiz",
@@ -26,24 +26,24 @@ exports[`should implicitly add content type header based on requestBody.content 
           "path": "/security/network-security/",
           "timestamp": "2023-02-19T09:31:27Z"
         }
-      }[0m
-[0m
-[0m
-    Response status code: 204[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
-      {}[0m
-[0m
+      }
+
+
+    Response status code: 204
+    Response time: <test> ms
+    Response Body:
+      {}
+
     ✓ status code check (Response code 204 matches one of description codes: [204, 400])
-[0m
-  ✓ POST /quizzes - step post-quizzes[0m
-[0m
-    Request URL: https://api.impossiblemissionsforce.com/quizzes[0m
-    Request Headers:[0m
-      content-type: application/original[0m
-      accept: application/json, application/problem+json[0m
-      imf-key: test-key[0m
-    Request Body:[0m
+
+  ✓ POST /quizzes - step post-quizzes
+
+    Request URL: https://api.impossiblemissionsforce.com/quizzes
+    Request Headers:
+      content-type: application/original
+      accept: application/json, application/problem+json
+      imf-key: test-key
+    Request Body:
       {
         "name": "Who we are",
         "passingScore": 0.8,
@@ -60,40 +60,40 @@ exports[`should implicitly add content type header based on requestBody.content 
             "correctAnswer": "b"
           }
         ]
-      }[0m
-[0m
-[0m
-    Response status code: 400[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+      }
+
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Body:
       {
         "type": "http://example.com",
         "title": "Media type \\"application/original\\" is not supported",
         "status": 400,
         "detail": "string",
         "instance": "string"
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ status code check (Response code 400 matches one of description codes: [201, 400])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
+
+
   Summary for implicit.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 2 passed, 2 total
   Checks: 5 passed, 5 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌───────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                              │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├───────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ ✓ implicit.yaml                                       │ 1          │ 1       │ -       │ -        │ -       │
-└───────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
+└───────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
 
 "
 `;

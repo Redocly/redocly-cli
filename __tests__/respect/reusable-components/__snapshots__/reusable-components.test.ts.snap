@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow reusable-components.yaml / get-museum-hours[0m
-[0m
-  ✓ GET /museum-hours - step get-museum-hours-step-success-action[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow reusable-components.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours-step-success-action
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -68,25 +68,25 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+  ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -138,27 +138,27 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✗ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  Running required workflows for get-museum-hours [0m
-[0m
-  ✓ GET /museum-hours - step final-workflow-step[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+  Running required workflows for get-museum-hours 
+
+  ✓ GET /museum-hours - step final-workflow-step
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -210,31 +210,31 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow reusable-components.yaml / events-crud[0m
-[0m
-  ✓ GET /special-events - step list-events[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-      page: 1[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow reusable-components.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+      page: 1
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "eventId": "f3e0e76e-e4a8-466e-ab9c-ae36c15b8e97",
@@ -351,22 +351,22 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           ],
           "price": 5
         }
-      ][0m
-[0m
+      ]
+
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ POST /special-events - step create-event[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events[0m
-    Request Headers:[0m
-      content-type: application/json[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-      page: 42[0m
-    Request Body:[0m
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+      page: 42
+    Request Body:
       {
         "reusable": "\\"123\\"",
         "store_id": "42",
@@ -382,12 +382,12 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }[0m
-[0m
-[0m
-    Response status code: 201[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
         "name": "Mermaid Treasure Identification and Analysis",
@@ -398,29 +398,29 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }[0m
-[0m
+      }
+
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow reusable-components.yaml / final-workflow[0m
-[0m
-  ✓ GET /museum-hours - step final-workflow-step[0m
-[0m
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours[0m
-    Request Headers:[0m
-      accept: application/json, application/problem+json[0m
-      pagesize: 256[0m
-      authorization: Basic Og==[0m
-[0m
-[0m
-    Response status code: 200[0m
-    Response time: <test> ms[0m
-    Response Body:[0m
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow reusable-components.yaml / final-workflow
+
+  ✓ GET /museum-hours - step final-workflow-step
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      pagesize: 256
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
       [
         {
           "date": "2023-09-11",
@@ -472,37 +472,37 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ][0m
-[0m
+      ]
+
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
+
+
   Failed tests info:
-[0m
-  Workflow name: get-museum-hours[0m
-[0m
-    stepId - get-museum-hours-step-failure-action-goto[0m
-    ✗ success criteria check[0m
-      Checking simple criteria: {"condition":"$statusCode == 201"}[0m
-      [0m
+
+  Workflow name: get-museum-hours
+
+    stepId - get-museum-hours-step-failure-action-goto
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$statusCode == 201"}
+      
   Summary for reusable-components.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 5 passed, 1 failed, 6 total
   Checks: 18 passed, 1 failed, 19 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌──────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                                         │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├──────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ x reusable-components.yaml                                       │ 3          │ 2       │ 1       │ -        │ -       │
-└──────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
-[0m
+└──────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
 
  Tests exited with error 
 "

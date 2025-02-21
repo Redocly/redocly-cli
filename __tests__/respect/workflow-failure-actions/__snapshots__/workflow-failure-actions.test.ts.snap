@@ -1,63 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow workflow-failure-actions.yaml / get-museum-hours[0m
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow workflow-failure-actions.yaml / get-museum-hours
 
   Retrying step get-museum-hours attempt # 1
-[0m
-  Running required workflows for get-museum-hours [0m
-[0m
-  ✓ POST /tickets - step buy-tickets[0m
+
+  Running required workflows for get-museum-hours 
+
+  ✓ POST /tickets - step buy-tickets
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
-  ✗ GET /museum-hours - step get-museum-hours[0m
+
+
+  ✗ GET /museum-hours - step get-museum-hours
     ✗ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
 
   Retrying step get-museum-hours-2 attempt # 1
-[0m
-  ✗ GET /museum-hours - step get-museum-hours-2[0m
+
+  ✗ GET /museum-hours - step get-museum-hours-2
     ✗ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-[0m
+
+
   Failed tests info:
-[0m
-  Workflow name: get-museum-hours[0m
-[0m
-    stepId - get-museum-hours[0m
-    ✗ success criteria check[0m
-      Checking simple criteria: {"condition":"$statusCode == 201"}[0m
-      [0m
-    stepId - get-museum-hours-2[0m
-    ✗ success criteria check[0m
-      Checking simple criteria: {"condition":"$statusCode == 201"}[0m
-      [0m
+
+  Workflow name: get-museum-hours
+
+    stepId - get-museum-hours
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$statusCode == 201"}
+      
+    stepId - get-museum-hours-2
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$statusCode == 201"}
+      
   Summary for workflow-failure-actions.yaml
   
   Workflows: 1 failed, 1 total
   Steps: 2 failed, 2 total
   Checks: 6 passed, 2 failed, 8 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ x workflow-failure-actions.yaml                                       │ 1          │ 0       │ 1       │ -        │ -       │
-└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
-[0m
+└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
 
  Tests exited with error 
 "
