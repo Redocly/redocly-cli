@@ -1,4 +1,5 @@
 import type { BundleOutputFormat, Region, Config, RuleSeverity } from '@redocly/openapi-core';
+import type { RespectOptions, GenerateArazzoFileOptions } from '@redocly/respect-core';
 import type { ArgumentsCamelCase } from 'yargs';
 import type { LintOptions } from './commands/lint';
 import type { BundleOptions } from './commands/bundle';
@@ -43,7 +44,9 @@ export type CommandOptions =
   | PushStatusOptions
   | PreviewProjectOptions
   | TranslationsOptions
-  | EjectOptions;
+  | EjectOptions
+  | RespectOptions
+  | GenerateArazzoFileOptions;
 
 export type VerifyConfigOptions = {
   config?: string;

@@ -1,5 +1,8 @@
 import { isPlainObject } from '@redocly/openapi-core/lib/utils';
-import { generateTestDataFromJsonSchema, generateExampleValue } from '../test-config-generator';
+import {
+  generateTestDataFromJsonSchema,
+  generateExampleValue,
+} from '../arazzo-description-generator';
 import { extractFirstExample } from './extract-first-example';
 import { isParameterWithIn } from '../config-parser';
 

@@ -8,7 +8,7 @@ import {
 import { type ApiFetcher } from '../../../utils/api-fetcher';
 import { bundleOpenApi } from '../../description-parser';
 import { createFaker } from '../../faker';
-import { infoSubstitute } from '../../test-config-generator';
+import { infoSubstitute } from '../../arazzo-description-generator';
 import { formatCliInputs } from '../inputs';
 import { bundleArazzo } from '../get-test-description-from-file';
 import { readEnvVariables } from '../read-env-variables';

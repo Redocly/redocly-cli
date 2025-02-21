@@ -16,8 +16,7 @@ type CLICommands =
   | 'push'
   | 'split'
   | 'stats'
-  | 'build-docs'
-  | 'respect';
+  | 'build-docs';
 
 export function getParams(
   indexEntryPoint: string,

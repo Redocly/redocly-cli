@@ -19,7 +19,7 @@ import {
   notifyUpdateCliVersion,
   version,
 } from './utils/update-version-notifier';
-import { type CommandArgs, commandWrapper } from './wrapper';
+import { commandWrapper } from './wrapper';
 import { previewProject } from './commands/preview-project';
 import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
@@ -28,9 +28,10 @@ import { commonPushHandler } from './commands/push';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushStatusOptions } from './reunite/commands/push-status';
-import type { CommandOptions, PushArguments } from './types';
+import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
@@ -867,12 +868,12 @@ yargs
     }
   )
   .command(
-    'respect [files..]',
-    'Run workflow tests',
+    'respect [files...]',
+    'Run Arazzo tests.',
     (yargs) => {
       return yargs
         .positional('files', {
-          describe: 'Test files or glob pattern',
+          describe: 'Test files or glob pattern.',
           type: 'string',
           array: true,
           default: [],
@@ -881,53 +882,53 @@ yargs
         .options({
           input: {
             alias: 'i',
-            describe: 'Input parameters',
+            describe: 'Input parameters.',
             type: 'string',
           },
           server: {
             alias: 'S',
-            describe: 'Server parameters',
+            describe: 'Server parameters.',
             type: 'string',
           },
           workflow: {
             alias: 'w',
-            describe: 'Workflow name',
+            describe: 'Workflow name.',
             type: 'string',
             array: true,
           },
           skip: {
             alias: 's',
-            describe: 'Workflow to skip',
+            describe: 'Workflow to skip.',
             type: 'string',
             array: true,
           },
           verbose: {
             alias: 'v',
-            describe: 'Apply verbose mode',
+            describe: 'Apply verbose mode.',
             type: 'boolean',
           },
           'har-output': {
-            describe: 'Har file output name',
+            describe: 'Har file output name.',
             type: 'string',
           },
           'json-output': {
-            describe: 'JSON file output name',
+            describe: 'JSON file output name.',
             type: 'string',
           },
           'client-cert': {
-            describe: 'Mutual TLS client certificate',
+            describe: 'Mutual TLS client certificate.',
             type: 'string',
           },
           'client-key': {
-            describe: 'Mutual TLS client key',
+            describe: 'Mutual TLS client key.',
             type: 'string',
           },
           'ca-cert': {
-            describe: 'Mutual TLS CA certificate',
+            describe: 'Mutual TLS CA certificate.',
             type: 'string',
           },
           severity: {
-            describe: 'Severity of the check',
+            describe: 'Severity of the check.',
             type: 'string',
           },
         });
@@ -935,23 +936,23 @@ yargs
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'respect';
       const { handleRun } = await import('@redocly/respect-core');
-      commandWrapper(handleRun)(argv);
+      commandWrapper(handleRun)(argv as Arguments<RespectOptions>);
     }
   )
   .command(
     'generate-arazzo <descriptionPath>',
-    'Auto-generate test config file from description',
+    'Auto-generate arazzo description file from an API description.',
     (yargs) => {
       return yargs
         .positional('descriptionPath', {
-          describe: 'Description file path',
+          describe: 'Description file path.',
           type: 'string',
         })
         .env('REDOCLY_CLI_RESPECT')
         .options({
           'output-file': {
             alias: 'o',
-            describe: 'Output File name',
+            describe: 'Output File name.',
             type: 'string',
           },
         });
@@ -959,9 +960,7 @@ yargs
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'generate-arazzo';
       const { handleGenerate } = await import('@redocly/respect-core');
-      commandWrapper(
-        handleGenerate as (wrapperArgs: CommandArgs<CommandOptions>) => Promise<unknown>
-      )(argv);
+      commandWrapper(handleGenerate)(argv as Arguments<GenerateArazzoFileOptions>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

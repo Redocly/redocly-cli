@@ -1,6 +1,6 @@
 import type { Parameter } from '../../../types';
 
-import { generateExampleValue } from '../../test-config-generator';
+import { generateExampleValue } from '../../arazzo-description-generator';
 
 describe('generateExampleValue', () => {
   it('should generate example value from parameter example', () => {
