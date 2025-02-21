@@ -1,94 +1,94 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`local-json-server test case 1`] = `
-"────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow local-json-server.yaml / before[0m
-[0m
-  ✓ GET /items - step get-all-items-before[0m
+exports[`local-json-server local-json-server test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow local-json-server.yaml / before
+
+  ✓ GET /items - step get-all-items-before
     ✓ status code check (Response code 200 matches one of description codes: [200])
     ✓ content-type check
     ✓ schema check
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow local-json-server.yaml / crud-items[0m
-[0m
-  ✓ POST /items - step add-item[0m
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow local-json-server.yaml / crud-items
+
+  ✓ POST /items - step add-item
     ✓ success criteria check
     ✓ status code check (Response code 201 matches one of description codes: [201])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✗ GET /items - step get-all-items-again[0m
+
+  ✗ GET /items - step get-all-items-again
     ✗ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ GET /items/{id} - step get-item-by-id[0m
+
+  ✓ GET /items/{id} - step get-item-by-id
     ✓ success criteria check
     ✓ success criteria check
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200, 404])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ DELETE /items/{id} - step drop-item[0m
+
+  ✓ DELETE /items/{id} - step drop-item
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200])
-[0m
-  ✓ GET /items/{id} - step get-after-deleting[0m
+
+  ✓ GET /items/{id} - step get-after-deleting
     ✓ success criteria check
     ✓ status code check (Response code 404 matches one of description codes: [200, 404])
     ✓ content-type check
-[0m
-────────────────────────────────────────────────────────────────────────────────[0m
-[0m
-  Running workflow local-json-server.yaml / auto-inherit[0m
-[0m
-  ✓ POST /items - step add-item-auto-inherit[0m
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow local-json-server.yaml / auto-inherit
+
+  ✓ POST /items - step add-item-auto-inherit
     ✓ status code check (Response code 201 matches one of description codes: [201])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ GET /items - step get-all-items[0m
+
+  ✓ GET /items - step get-all-items
     ✓ status code check (Response code 200 matches one of description codes: [200])
     ✓ content-type check
     ✓ schema check
-[0m
-  ✓ GET /items/{id} - step get-item-by-id-auto-inherit[0m
+
+  ✓ GET /items/{id} - step get-item-by-id-auto-inherit
     ✓ status code check (Response code 404 matches one of description codes: [200, 404])
     ✓ content-type check
-[0m
-  ✓ DELETE /items/{id} - step drop-item-auto-inherit[0m
+
+  ✓ DELETE /items/{id} - step drop-item-auto-inherit
     ✓ success criteria check
     ✓ status code check (Response code 200 matches one of description codes: [200])
-[0m
-[0m
+
+
   Failed tests info:
-[0m
-  Workflow name: crud-items[0m
-[0m
-    stepId - get-all-items-again[0m
-    ✗ success criteria check[0m
-      Checking simple criteria: {"condition":"$response.body#/0/value == 100"}[0m
-      [0m
+
+  Workflow name: crud-items
+
+    stepId - get-all-items-again
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$response.body#/0/value == 100"}
+      
   Summary for local-json-server.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 9 passed, 1 failed, 10 total
   Checks: 31 passed, 1 failed, 32 total
-  Time: <test>ms[0m
-[0m
-[0m
+  Time: <test>ms
+
+
 ┌────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
 │ Filename                                                       │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
 ├────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
 │ x local-json-server.yaml                                       │ 3          │ 2       │ 1       │ -        │ -       │
-└────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘[0m
-[0m
-[0m
+└────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
 
  Tests exited with error 
 "
