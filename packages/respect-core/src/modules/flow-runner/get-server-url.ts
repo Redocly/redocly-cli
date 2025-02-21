@@ -126,21 +126,4 @@ function resolveOpenApiServerUrlWithVariables(server?: ServerObject) {
       }))
       .filter(({ value }) => !!value),
   };
-  // if (!server.url) {
-  //   return undefined;
-  // }
-
-  // // If no variables in URL or no variables defined, return URL as is
-  // if (!server.url.includes('{') || !server.variables) {
-  //   return { url: server.url };
-  // }
-
-  // // Replace all variables with their default values
-  // let resolvedUrl = server.url;
-  // for (const [varName, varConfig] of Object.entries(server.variables)) {
-  //   const variablePattern = new RegExp(`{${varName}}`, 'g');
-  //   resolvedUrl = resolvedUrl.replace(variablePattern, varConfig.default);
-  // }
-
-  // return { url: resolvedUrl };
 }
