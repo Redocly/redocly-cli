@@ -12,10 +12,10 @@ module.exports = {
   ],
   coverageThreshold: {
     'packages/core/': {
-      statements: 80,
+      statements: 84,
       branches: 72,
       functions: 76,
-      lines: 80,
+      lines: 84,
     },
     'packages/cli/': {
       statements: 64,

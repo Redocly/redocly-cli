@@ -1,10 +1,7 @@
 {
   "name": "@redocly/respect-core",
   "version": "1.30.0",
-  "description": "API TEST FRAMEWORK",
-  "scripts": {
-    "json-server": "json-server --watch api-samples/fake-db.json --port 3000 --host 0.0.0.0"
-  },
+  "description": "API testing framework core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "exports": {
@@ -25,7 +22,10 @@
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
-    "API Testing"
+    "API Testing",
+    "Arazzo",
+    "OpenAPI",
+    "contract testing"
   ],
   "contributors": [
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
