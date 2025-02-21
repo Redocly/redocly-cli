@@ -484,7 +484,7 @@ describe('runTestFile', () => {
       },
     });
 
-    (runStep as jest.Mock).mockImplementation(({ step, ctx }: { step: Step, ctx: TestContext }) => {
+    (runStep as jest.Mock).mockImplementation(({ step, ctx }: { step: Step; ctx: TestContext }) => {
       step.checks = [{ name: step.stepId, pass: false, severity: 'error' }];
       ctx.executedSteps.push(step);
     });

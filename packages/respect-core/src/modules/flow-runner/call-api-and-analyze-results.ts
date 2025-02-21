@@ -102,7 +102,6 @@ export async function callAPIAndAnalyzeResults({
   // save local $steps context
   ctx.$steps[step.stepId] = {
     outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
-    // FIXME: should it also have request and response?
   };
   // save $workflows context
   ctx.$workflows[workflowId].steps[step.stepId] = {

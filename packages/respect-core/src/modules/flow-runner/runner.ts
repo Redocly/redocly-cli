@@ -27,7 +27,6 @@ import type {
   Check,
   RunWorkflowInput,
   WorkflowExecutionResult,
-  // ArrazoItemExecutionResult,
 } from '../../types';
 
 const logger = DefaultLogger.getInstance();

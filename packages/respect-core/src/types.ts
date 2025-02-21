@@ -221,7 +221,6 @@ export interface StepExecutionResult {
     headers: Record<string, string | number | boolean>;
     time: number;
   };
-  // successCriteria?: CriteriaResult[];
   checks: (Check & { status: ExecutionStatus })[];
 }
 

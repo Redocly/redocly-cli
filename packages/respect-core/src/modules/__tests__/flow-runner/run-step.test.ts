@@ -2535,8 +2535,8 @@ describe('runStep', () => {
         },
       },
       severity: {
-        'UNEXPECTED_ERROR': 1,
-        'STATUS_CODE_CHECK': 1,
+        UNEXPECTED_ERROR: 1,
+        STATUS_CODE_CHECK: 1,
       },
     } as unknown as TestContext;
 
