@@ -27,9 +27,8 @@ export type ResponseContext = {
   statusCode: number;
   body: any;
   header: Record<string, string>;
-  query?: Record<string, string | number | boolean>;
-  path?: Record<string, string | number | boolean>;
   contentType?: string;
+  time?: number;
 } & Record<string, any>;
 export type SourceDescription = FromSchema<typeof sourceDescriptionSchema>;
 type ArazzoParameter = FromSchema<typeof parameter>;
@@ -73,7 +72,7 @@ type AdditionalStepProps = {
   verboseLog?: VerboseLog;
   response: ResponseContext;
   checks: Check[];
-  children?: Step[];
+  retriesLeft?: number;
 };
 
 export type Step = ArazzoStep & AdditionalStepProps;
@@ -196,31 +195,35 @@ export type RunWorkflowInput = {
   invocationContext?: string;
 };
 
-// export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;
+export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;
 
-// export interface StepExecutionResult {
-//   type: 'step';
-//   stepId: string;
-//   workflowId: string;
-//   // sourceDescriptionName: string;
+export type ExecutionStatus = 'success' | 'error' | 'warn';
+export interface StepExecutionResult {
+  type: 'step';
+  stepId: string;
+  workflowId: string;
+  totalTimeMs: number;
 
-//   // description?: string;
-//   // startTime: string;
-//   // endTime: string;
-//   totalTimeMs: number;
+  retriesLeft?: number; // number of retries
+  status: ExecutionStatus;
 
-//   retriesLeft?: number; // number of retries
+  invocationContext?: string;
 
-//   // status: ExecutionStatus;
-
-//   invocationContext?: string;
-
-//   request?: RequestContext;
-//   response?: ResponseContext;
-//   // successCriteria?: CriteriaResult[];
-//   checks: Check[];
-//   // outputs?: Record<string, any>;
-// }
+  request?: {
+    method: string;
+    url: string;
+    headers: Record<string, string | number | boolean>;
+    body: any;
+  };
+  response?: {
+    statusCode: number;
+    body: any;
+    headers: Record<string, string | number | boolean>;
+    time: number;
+  };
+  // successCriteria?: CriteriaResult[];
+  checks: (Check & { status: ExecutionStatus })[];
+}
 
 export interface WorkflowExecutionResult {
   type: 'workflow';
@@ -283,15 +286,20 @@ export type CalculatedResults = {
   workflows: ResultsOfTests;
   steps: ResultsOfTests;
   checks: ResultsOfTests;
+  totalRequests: number;
 };
 export type StepCallContext = {
   $response?: ResponseContext;
   $request?: RequestContext;
   $inputs?: Record<string, any>;
 };
-type StepWithChecks = PublicStep & { checks?: Check[] };
-type WorkflowWithChecks = PublicWorkflow & { steps: Record<string, StepWithChecks>; time?: number };
-export type JsonLogs = Record<string, WorkflowWithChecks>;
+
+export type JsonLogs = {
+  files: Record<string, ArrazoItemExecutionResult[]>;
+  status: string;
+  totalTime: number;
+};
+
 export type DescriptionChecks = {
   checks: Check[];
   descriptionOperation: OperationDetails;

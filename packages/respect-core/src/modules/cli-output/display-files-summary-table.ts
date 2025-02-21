@@ -12,7 +12,7 @@ export function displayFilesSummaryTable(
   filesResult: {
     file: string;
     hasProblems: boolean;
-    workflows: WorkflowExecutionResult[];
+    executedWorkflows: WorkflowExecutionResult[];
     argv?: { workflow?: string[]; skip?: string[] };
   }[]
 ) {
@@ -42,7 +42,7 @@ export function displayFilesSummaryTable(
   output += `${gray(`├${columns.map((col) => '─'.repeat(col.width + 2)).join('┼')}┤`)}\n`;
 
   // Data rows
-  filesResult.forEach(({ file, workflows, argv }) => {
+  filesResult.forEach(({ file, executedWorkflows: workflows, argv }) => {
     const fileName = path.basename(file);
     const workflowArgv = argv?.workflow || [];
     const skippedWorkflowArgv = argv?.skip || [];

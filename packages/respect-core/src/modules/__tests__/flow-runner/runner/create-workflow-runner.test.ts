@@ -49,6 +49,7 @@ describe('runWorkflow', () => {
     } as unknown as Workflow;
 
     const ctx = {
+      executedSteps: [],
       apiClient,
       workflows: [workflow],
       $workflows: {
@@ -175,6 +176,7 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      executedSteps: [],
       $workflows: {
         test: {
           outputs: {},
@@ -389,6 +391,7 @@ describe('runWorkflow', () => {
     const ctx = {
       apiClient,
       workflows: [workflow],
+      executedSteps: [],
       $workflows: {
         test: {
           outputs: {

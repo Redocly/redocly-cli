@@ -26,8 +26,7 @@ interface Descriptions {
 export async function createTestContext(
   testDescription: TestDescription,
   options: AppOptions,
-  apiClient: ApiFetcher,
-  _parentCtx?: TestContext
+  apiClient: ApiFetcher
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 

@@ -33,7 +33,7 @@ exports[`should end workflow execution, context returns to the caller with appli
   Summary for step-on-failure-type-end-action.yaml
   
   Workflows: 1 passed, 1 failed, 2 total
-  Steps: 2 passed, 1 failed, 3 total
+  Steps: 1 passed, 1 failed, 2 total
   Checks: 7 passed, 1 failed, 8 total
   Time: <test>ms
 

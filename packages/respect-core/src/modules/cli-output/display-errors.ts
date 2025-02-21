@@ -16,13 +16,15 @@ function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
   });
 }
 
-
 export function displayErrors(workflows: WorkflowExecutionResult[]) {
   logger.log(`${RESET_ESCAPE_CODE}\n${indent(red('Failed tests info:'), 2)}\n`);
 
   for (const workflow of workflows) {
     const steps = flattenNestedSteps(workflow.executedSteps);
-    const hasProblems = steps.some((step) => step.checks.some((check) => !check.pass));
+    const hasProblems = steps.some(
+      (step) =>
+        step.checks.some((check) => !check.pass) && (!step.retriesLeft || step.retriesLeft === 0)
+    );
 
     if (!hasProblems) continue;
 
@@ -36,6 +38,7 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
       const failedStepChecks = step.checks.filter((check) => !check.pass);
 
       if (!failedStepChecks.length) continue;
+      if (step.retriesLeft && step.retriesLeft !== 0) continue;
 
       logger.printNewLine();
       logger.log(

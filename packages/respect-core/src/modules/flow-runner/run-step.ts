@@ -43,8 +43,8 @@ export async function runStep({
   workflowId: string | undefined;
   retriesLeft?: number;
 }): Promise<{ shouldEnd: boolean } | void> {
-  ctx.executedSteps.push(step);
-
+  step = { ...step }; // shallow copy step to avoid mutating the original step
+  step.retriesLeft = retriesLeft;
   const workflow = ctx.workflows.find((w) => w.workflowId === workflowId);
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
@@ -140,6 +140,7 @@ export async function runStep({
 
     return { shouldEnd: false };
   }
+  ctx.executedSteps.push(step);
 
   if (resolvedParameters && resolvedParameters.length) {
     // When the step in context does not specify a workflowId the `in` field MUST be specified.
@@ -251,12 +252,14 @@ export async function runStep({
           : undefined;
         const targetCtx = action.workflowId
           ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx)
-          : ctx;
+          : { ...ctx, executedSteps: [] };
+
         const targetStep = action.stepId ? step.stepId : undefined;
 
         if (type === 'retry') {
           const { retryAfter, retryLimit = 0 } = action;
           retriesLeft = retriesLeft ?? retryLimit;
+          step.retriesLeft = retriesLeft;
           if (retriesLeft === 0) {
             return { retriesLeft: 0, shouldEnd: false };
           }

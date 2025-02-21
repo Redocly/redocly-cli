@@ -7,16 +7,12 @@ import { createTestContext } from './context/create-test-context';
 import { getValueFromContext } from '../config-parser';
 import { getWorkflowsToRun } from './get-workflows-to-run';
 import { runStep } from './run-step';
-import {
-  printWorkflowSeparator,
-  indent,
-  printRequiredWorkflowSeparator,
-} from '../../utils/cli-outputs';
+import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs';
 import { bundleArazzo } from './get-test-description-from-file';
 import { CHECKS } from '../checks';
 import { createRuntimeExpressionCtx } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
-import { calculateTotals, composeJsonLogs, maskSecrets } from '../cli-output';
+import { calculateTotals, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
 
@@ -73,29 +69,18 @@ export async function runTestFile(
 
   const bundledTestDescription = await bundleArazzo(filePath);
   collectSpecData?.(bundledTestDescription);
-  const descriptionCopy = JSON.parse(JSON.stringify(bundledTestDescription));
 
-  const { harLogs, jsonLogs, workflows, secretFields } = await runWorkflows(
-    bundledTestDescription,
-    options
-  );
+  const result = await runWorkflows(bundledTestDescription, options);
 
-  if (output?.harFile && Object.keys(harLogs).length) {
-    const parsedHarLogs = maskSecrets(harLogs, secretFields || new Set());
+  if (output?.harFile && Object.keys(result.harLogs).length) {
+    const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
     writeFileSync(output.harFile, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
     logger.log(blue(`Har logs saved in ${green(output.harFile)}`));
     logger.printNewLine();
     logger.printNewLine();
   }
 
-  if (output?.jsonFile && jsonLogs) {
-    writeFileSync(output.jsonFile, JSON.stringify(jsonLogs, null, 2), 'utf-8');
-    logger.log(blue(indent(`JSON logs saved in ${green(output.jsonFile)}`, 2)));
-    logger.printNewLine();
-    logger.printNewLine();
-  }
-
-  return { workflows, parsedYaml: descriptionCopy };
+  return result;
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
@@ -128,10 +113,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     executedWorkflows.push(workflowExecutionResult);
   }
 
-  // json logs should be composed after all workflows are run
-  const jsonLogs = options.jsonOutput ? composeJsonLogs(ctx) : undefined;
-
-  return { ...ctx, harLogs, jsonLogs, workflows: executedWorkflows };
+  return { ctx, harLogs, executedWorkflows };
 }
 
 export async function runWorkflow({
@@ -295,14 +277,12 @@ export async function resolveWorkflowContext(
           severity: ctx.options.severity || undefined,
           verbose: ctx.options.verbose || undefined,
         },
-        ctx.apiClient,
-        ctx
-      )
-    : await createTestContext(
-        JSON.parse(JSON.stringify(ctx.testDescription)),
-        JSON.parse(JSON.stringify(ctx.options)),
         ctx.apiClient
-      );
+      )
+    : {
+        ...ctx,
+        executedSteps: [],
+      };
 }
 
 function findSourceDescriptionUrl(

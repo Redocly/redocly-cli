@@ -493,7 +493,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 5 passed, 1 failed, 6 total
-  Checks: 18 passed, 1 failed, 19 total
+  Checks: 22 passed, 1 failed, 23 total
   Time: <test>ms
 
 

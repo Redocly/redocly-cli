@@ -32,6 +32,7 @@ exports[`should use server override from CLI and env 1`] = `
       }
 
     ✗ failed network request
+
 ────────────────────────────────────────────────────────────────────────────────
 
   Running workflow server-override-with-console-parameters.yaml / events-crud
@@ -54,10 +55,6 @@ exports[`should use server override from CLI and env 1`] = `
     ✗ failed network request
       fetch failed
       
-    stepId - buy-ticket
-    ✗ unexpected error
-    Reason: Failed to resolve output "ticketId" in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: events-crud
 
     stepId - list-events
@@ -83,8 +80,8 @@ exports[`should use server override from CLI and env 1`] = `
   Summary for server-override-with-console-parameters.yaml
   
   Workflows: 2 failed, 2 total
-  Steps: 7 failed, 7 total
-  Checks: 7 failed, 7 total
+  Steps: 6 failed, 6 total
+  Checks: 6 failed, 6 total
   Time: <test>ms
 
 

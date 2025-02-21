@@ -2,11 +2,11 @@
 import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types';
 
 export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
-  debugger;
   const totalWorkflows = workflows.length;
   let failedChecks = 0;
   let totalChecks = 0;
   let totalSteps = 0;
+  let totalRequests = 0;
   let totalWarnings = 0;
   let totalSkipped = 0;
   const failedWorkflows = new Set();
@@ -16,11 +16,19 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
   const skippedSteps = new Set();
   const warningsSteps = new Set();
 
-
   for (const workflow of workflows) {
     const steps = flattenNestedSteps(workflow.executedSteps);
     for (const step of steps) {
+      if (step.response) {
+        // we count request only if we received a response to prevent counting network errors or step with broken inputs
+        totalRequests++;
+      }
+      if (step.retriesLeft && step.retriesLeft !== 0) {
+        continue; // do not count retried steps as a step
+      }
+
       totalSteps++;
+
       for (const check of step.checks) {
         totalChecks++;
         if (!check.pass) {
@@ -67,6 +75,7 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
       skipped: totalSkipped,
       total: totalChecks,
     },
+    totalRequests,
   };
 }
 

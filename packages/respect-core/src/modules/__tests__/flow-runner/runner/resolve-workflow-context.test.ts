@@ -333,7 +333,7 @@ describe('resolveWorkflowContext', () => {
     apiClient,
   } as any;
 
-  it('should call createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
+  it('should not createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
     const apiClient = new ApiFetcher({
       harLogs: undefined,
     });
@@ -344,11 +344,12 @@ describe('resolveWorkflowContext', () => {
       options: {},
       testDescription: {},
       apiClient,
+      executedSteps: [],
     } as any;
 
     await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
 
-    expect(createTestContext).toHaveBeenCalledWith({}, {}, apiClient);
+    expect(createTestContext).not.toHaveBeenCalled();
   });
 
   it('should call createTestContext with the correct parameters when sourceDescriptionId is defined for arazzo type', async () => {
