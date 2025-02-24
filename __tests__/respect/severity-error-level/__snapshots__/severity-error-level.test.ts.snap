@@ -103,7 +103,7 @@ exports[`should use error severity level 1`] = `
       }
 
     ✓ success criteria check - $statusCode == 201
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -241,7 +241,7 @@ exports[`should use error severity level 1`] = `
         }
       ]
 
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -282,7 +282,7 @@ exports[`should use error severity level 1`] = `
 
     ✓ success criteria check - $statusCode == 201
     ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -311,7 +311,7 @@ exports[`should use error severity level 1`] = `
       }
 
     ✓ success criteria check - ^200$
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -351,7 +351,7 @@ exports[`should use error severity level 1`] = `
 
     ✓ success criteria check - $statusCode == 200
     ✓ success criteria check - $.name == 'Orca Identification and Analysis'
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✗ content-type check
 
   ✗ DELETE /special-events/{eventId} - step delete-event

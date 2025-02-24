@@ -146,24 +146,24 @@ describe('checkSchema', () => {
     });
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining(
           'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Content type "application/json" is described in the schema.',
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: expect.stringMatching(/TYPE[\s\S]*must be array/i),
         name: CHECKS.SCHEMA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);
@@ -178,22 +178,22 @@ describe('checkSchema', () => {
 
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining('200'),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Content type "application/json" is described in the schema.',
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: expect.stringMatching(/TYPE[\s\S]*must be array/i),
         name: CHECKS.SCHEMA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);
@@ -240,22 +240,22 @@ describe('checkSchema', () => {
 
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining('200'),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Content type "application/json" is described in the schema.',
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: '',
         name: CHECKS.SCHEMA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
     ]);
@@ -305,18 +305,18 @@ describe('checkSchema', () => {
 
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining(
           'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Content type "application/json" is described in the schema.',
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
     ]);
@@ -371,24 +371,24 @@ describe('checkSchema', () => {
 
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining(
           'List of valid response codes are inferred from description'
         ),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Content type "application/json" is described in the schema.',
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: 'Ajv error: ajvStrict.validate error',
         name: CHECKS.SCHEMA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);
@@ -488,16 +488,16 @@ describe('checkSchema', () => {
 
     expect(result).toEqual([
       {
-        additionalMessage: 'Response code 200 matches one of description codes: [200]',
+        condition: '$statusCode in [200]',
         message: expect.stringContaining('200'),
         name: CHECKS.STATUS_CODE_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
       },
       {
         message: expect.stringContaining('response is not described in the schema.'),
         name: CHECKS.CONTENT_TYPE_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);

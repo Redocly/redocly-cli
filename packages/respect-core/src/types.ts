@@ -267,11 +267,10 @@ export type TestDescription = Partial<
 
 export type Check = {
   severity: RuleSeverity;
-  pass: boolean;
+  passed: boolean;
   name: string;
   message?: string;
-  additionalMessage?: string;
-  criteriaCondition?: string;
+  condition?: string;
 };
 
 export interface ResultsOfTests {

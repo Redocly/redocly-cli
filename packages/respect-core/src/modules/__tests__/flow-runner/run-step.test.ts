@@ -633,13 +633,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
@@ -676,7 +676,7 @@ describe('runStep', () => {
       {
         message: 'Workflow name is required to run a step',
         name: CHECKS.UNEXPECTED_ERROR,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);
@@ -711,7 +711,7 @@ describe('runStep', () => {
       {
         message: 'No servers found in API description',
         name: CHECKS.UNEXPECTED_ERROR,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);
@@ -753,13 +753,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
@@ -772,7 +772,7 @@ describe('runStep', () => {
     checkCriteria.mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -862,13 +862,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: true,
+          passed: true,
           message: '',
           severity: 'error',
         },
@@ -881,7 +881,7 @@ describe('runStep', () => {
     checkCriteria.mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
       },
     ]);
@@ -990,13 +990,13 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
           {
             name: CHECKS.CONTENT_TYPE_CHECK,
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
@@ -1009,7 +1009,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
       },
     ]);
@@ -1111,13 +1111,13 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
           {
             name: 'MIME-TYPE CHECK',
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
@@ -1130,7 +1130,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
       },
     ]);
@@ -1230,13 +1230,13 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: false,
+            passed: false,
             message: '',
             severity: 'error',
           },
           {
             name: CHECKS.CONTENT_TYPE_CHECK,
-            pass: false,
+            passed: false,
             message: '',
             severity: 'error',
           },
@@ -1249,7 +1249,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1339,13 +1339,13 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: false,
+            passed: false,
             message: '',
             severity: 'error',
           },
           {
             name: CHECKS.CONTENT_TYPE_CHECK,
-            pass: false,
+            passed: false,
             message: '',
             severity: 'error',
           },
@@ -1358,7 +1358,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1469,13 +1469,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
@@ -1487,7 +1487,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1586,13 +1586,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
@@ -1605,7 +1605,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1699,13 +1699,13 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
         {
           name: CHECKS.CONTENT_TYPE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
@@ -1730,7 +1730,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1829,7 +1829,7 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: false,
+            passed: false,
             message: '',
             severity: 'error',
           },
@@ -1856,7 +1856,7 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
@@ -1871,7 +1871,7 @@ describe('runStep', () => {
         step.checks = [
           {
             name: CHECKS.STATUS_CODE_CHECK,
-            pass: true,
+            passed: true,
             message: '',
             severity: 'error',
           },
@@ -1896,7 +1896,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -1989,7 +1989,7 @@ describe('runStep', () => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
-          pass: false,
+          passed: false,
           message: '',
           severity: 'error',
         },
@@ -2013,7 +2013,7 @@ describe('runStep', () => {
     (checkCriteria as jest.Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         severity: 'error',
       },
@@ -2555,7 +2555,7 @@ describe('runStep', () => {
             checks: [
               {
                 name: CHECKS.STATUS_CODE_CHECK,
-                pass: true,
+                passed: true,
                 message: '',
               },
             ],
@@ -2991,7 +2991,7 @@ describe('runStep', () => {
             checks: [
               {
                 name: CHECKS.STATUS_CODE_CHECK,
-                pass: true,
+                passed: true,
                 message: '',
               },
             ],
@@ -3466,7 +3466,7 @@ describe('runStep', () => {
             checks: [
               {
                 name: CHECKS.STATUS_CODE_CHECK,
-                pass: true,
+                passed: true,
                 message: '',
               },
             ],
@@ -3954,7 +3954,7 @@ describe('runStep', () => {
               checks: [
                 {
                   name: CHECKS.STATUS_CODE_CHECK,
-                  pass: true,
+                  passed: true,
                   message: '',
                 },
               ],

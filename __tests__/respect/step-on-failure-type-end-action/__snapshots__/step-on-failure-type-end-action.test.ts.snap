@@ -7,7 +7,7 @@ exports[`should end workflow execution, context returns to the caller with appli
 
   ✗ GET /special-events - step list-events
     ✗ success criteria check - $statusCode == 201
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -17,7 +17,7 @@ exports[`should end workflow execution, context returns to the caller with appli
 
   ✓ GET /museum-hours - step get-museum-hours
     ✓ success criteria check - $statusCode == 200
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 

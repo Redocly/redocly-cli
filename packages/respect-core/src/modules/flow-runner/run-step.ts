@@ -68,7 +68,7 @@ export async function runStep({
       const failedCall: Check = {
         name: CHECKS.UNEXPECTED_ERROR,
         message: `Workflow ${red(targetWorkflowRef)} not found.`,
-        pass: false,
+        passed: false,
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
@@ -117,7 +117,7 @@ export async function runStep({
         const failedCall: Check = {
           name: CHECKS.UNEXPECTED_ERROR,
           message: error.message,
-          pass: false,
+          passed: false,
           severity: ctx.severity['UNEXPECTED_ERROR'],
         };
         step.checks.push(failedCall);
@@ -180,7 +180,7 @@ export async function runStep({
     const failedCall: Check = {
       name: CHECKS.UNEXPECTED_ERROR,
       message: e.message,
-      pass: false,
+      passed: false,
       severity: ctx.severity['UNEXPECTED_ERROR'],
     };
     step.checks.push(failedCall);
@@ -244,7 +244,7 @@ export async function runStep({
         step,
         criteria,
         ctx,
-      }).every((check) => check.pass);
+      }).every((check) => check.passed);
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId

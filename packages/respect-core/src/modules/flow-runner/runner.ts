@@ -162,7 +162,7 @@ export async function runWorkflow({
       const failedCall: Check = {
         name: CHECKS.UNEXPECTED_ERROR,
         message: err.message,
-        pass: false,
+        passed: false,
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);

@@ -140,7 +140,7 @@ describe('cliOutputs', () => {
         checks: [
           {
             name: 'CheckName',
-            pass: true,
+            passed: true,
             message: 'message',
             severity: 'error',
           },

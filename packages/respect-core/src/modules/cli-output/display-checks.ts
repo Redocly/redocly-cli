@@ -17,7 +17,7 @@ export function displayChecks(
   verboseLogs?: VerboseLog,
   verboseResponseLogs?: VerboseLog
 ) {
-  const allChecksPassed = checks.every(({ pass }) => pass);
+  const allChecksPassed = checks.every(({ passed }) => passed);
   logger.log(`  ${allChecksPassed ? green('✓') : red('✗')} ${blue(testNameToDisplay)}`);
 
   if (verboseLogs) {
@@ -38,20 +38,20 @@ export function displayChecks(
 }
 
 function displayCheckInfo(check: Check, severity: RuleSeverity): string {
-  const { name: checkName, pass, criteriaCondition, additionalMessage } = check;
+  const { name: checkName, passed, condition } = check;
 
-  const icon = pass ? green('✓') : severity === 'warn' ? yellow('⚠') : red('✗');
-  const color = pass ? green : red;
+  const icon = passed ? green('✓') : severity === 'warn' ? yellow('⚠') : red('✗');
+  const color = passed ? green : red;
 
   return `${icon} ${gray(checkName.toLowerCase())}${
-    criteriaCondition
+    condition
       ? ` - ${color(
-          criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
-            ? criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
-            : criteriaCondition
+          condition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
+            ? condition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
+            : condition
         )}`
       : ''
-  }${additionalMessage ? ` (${additionalMessage})` : ''}`;
+  }`;
 }
 
 function displayVerboseLogs(logs: VerboseLog, type: 'request' | 'response' = 'request'): string {

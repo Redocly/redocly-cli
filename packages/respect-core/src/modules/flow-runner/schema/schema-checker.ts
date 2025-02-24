@@ -83,7 +83,7 @@ function checkSchemaFromDescription({
     try {
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
-        pass: ajvStrict.validate(
+        passed: ajvStrict.validate(
           removeWriteOnlyProperties(schemaFromDescription as JSONSchemaType<unknown>),
           resultBody
         ),
@@ -99,7 +99,7 @@ function checkSchemaFromDescription({
     } catch (error: any) {
       checks.push({
         name: CHECKS.SCHEMA_CHECK,
-        pass: false,
+        passed: false,
         message: `Ajv error: ${error.message as string}`,
         severity: ctx.severity['SCHEMA_CHECK'],
       });
@@ -128,16 +128,14 @@ function checkStatusCodeFromDescription({
       diffLinesUnified(responseCodesFromDescription.map(String), [`${responseStatusCode}`])
     : ''; // NOTE: we don't show any diff if response code hits default response
 
-  const pass = matchesCodeFromDescription || matchesDefaultResponse;
+  const passed = matchesCodeFromDescription || matchesDefaultResponse;
 
   checks.push({
     name: CHECKS.STATUS_CODE_CHECK,
-    pass,
+    passed,
     message,
-    ...(pass && {
-      additionalMessage: `Response code ${responseStatusCode} matches one of description codes: [${responseCodesFromDescription.join(
-        ', '
-      )}]`,
+    ...(passed && {
+      condition: `$statusCode in [${responseCodesFromDescription.join(', ')}]`,
     }),
     severity: ctx.severity['STATUS_CODE_CHECK'],
   });
@@ -162,7 +160,7 @@ function checkContentTypeFromDescription({
   if (responseContentType && !possibleContentTypesFromDescription.includes(responseContentType)) {
     checks.push({
       name: CHECKS.CONTENT_TYPE_CHECK,
-      pass: false,
+      passed: false,
       message: `Content type ${red(responseContentType)} for ${blue(
         statusCode
       )} response is not described in the schema.
@@ -172,7 +170,7 @@ function checkContentTypeFromDescription({
   } else {
     checks.push({
       name: CHECKS.CONTENT_TYPE_CHECK,
-      pass: true,
+      passed: true,
       message: `Content type "${responseContentType}" is described in the schema.`,
       severity: ctx.severity['CONTENT_TYPE_CHECK'],
     });

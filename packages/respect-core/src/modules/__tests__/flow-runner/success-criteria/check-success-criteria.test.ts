@@ -206,25 +206,25 @@ describe('checkSuccessCriteria', () => {
         message:
           'Checking regex criteria: {"type":"regex","context":"$statusCode","condition":"^200$"}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '^200$',
+        condition: '^200$',
       },
       {
         message:
           'Checking regex criteria: {"type":"regex","context":"$response.body#/slug","condition":"/^organization-1/i"}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '/^organization-1/i',
+        condition: '/^organization-1/i',
       },
       {
         message:
           'Checking regex criteria: {"type":"regex","context":"$response.body#/name","condition":"/respect-test-project-name/"}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '/respect-test-project-name/',
+        condition: '/respect-test-project-name/',
       },
     ]);
   });
@@ -310,17 +310,17 @@ describe('checkSuccessCriteria', () => {
       {
         message: 'Checking simple criteria: {"condition":"$statusCode == 200"}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '$statusCode == 200',
+        condition: '$statusCode == 200',
       },
       {
         message:
           'Checking simple criteria: {"condition":"$response.body#/items/0/sourceId == \\"rem_00h3hbrz9cce4drnctvtx62rzr\\""}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '$response.body#/items/0/sourceId == "rem_00h3hbrz9cce4drnctvtx62rzr"',
+        condition: '$response.body#/items/0/sourceId == "rem_00h3hbrz9cce4drnctvtx62rzr"',
       },
     ]);
   });
@@ -381,9 +381,9 @@ describe('checkSuccessCriteria', () => {
       {
         message: 'Checking jsonpath criteria: $.pets[?(@.length>3)] && $.access_token != null',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
-        criteriaCondition: '$.pets[?(@.length>3)] && $.access_token != null',
+        condition: '$.pets[?(@.length>3)] && $.access_token != null',
       },
     ]);
   });
@@ -463,16 +463,16 @@ describe('checkSuccessCriteria', () => {
       {
         message: 'Checking jsonpath criteria: $.pets.length > 0',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '$.pets.length > 0',
+        condition: '$.pets.length > 0',
       },
       {
         message: 'Checking jsonpath criteria: $.checks.length == 0',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: true,
+        passed: true,
         severity: 'error',
-        criteriaCondition: '$.checks.length == 0',
+        condition: '$.checks.length == 0',
       },
     ]);
   });
@@ -530,9 +530,9 @@ describe('checkSuccessCriteria', () => {
       {
         message: 'Checking jsonpath criteria: $.pets.length > 2',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
-        criteriaCondition: '$.pets.length > 2',
+        condition: '$.pets.length > 2',
       },
     ]);
   });
@@ -594,9 +594,9 @@ describe('checkSuccessCriteria', () => {
         message:
           'Failed to pass {"condition":"$statusCode === () => {throw new Error(\\"error\\")}","type":"not_exist"}: Runtime expression is not valid: $statusCode === () => {throw new Error("error")}',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
-        criteriaCondition: '$statusCode === () => {throw new Error("error")}',
+        condition: '$statusCode === () => {throw new Error("error")}',
       },
     ]);
   });
@@ -657,7 +657,7 @@ describe('checkSuccessCriteria', () => {
       {
         message: 'Undefined workflowId for step stepId',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         severity: 'error',
       },
     ]);

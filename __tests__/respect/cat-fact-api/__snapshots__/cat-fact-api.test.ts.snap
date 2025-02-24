@@ -6,7 +6,7 @@ exports[`cats api test case 1`] = `
   Running workflow auto-cat.yaml / get-breeds-workflow
 
   ✗ GET /breeds - step get-breeds-step
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✗ schema check
 
@@ -15,7 +15,7 @@ exports[`cats api test case 1`] = `
   Running workflow auto-cat.yaml / get-fact-workflow
 
   ✓ GET /fact - step get-fact-step
-    ✓ status code check (Response code 200 matches one of description codes: [200, 404])
+    ✓ status code check - $statusCode in [200, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -24,7 +24,7 @@ exports[`cats api test case 1`] = `
   Running workflow auto-cat.yaml / get-facts-workflow
 
   ✗ GET /facts - step get-facts-step
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✗ schema check
 
