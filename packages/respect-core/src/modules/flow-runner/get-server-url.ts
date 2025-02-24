@@ -64,7 +64,7 @@ export function getServerUrl({
     }
 
     const serverObject = getValueFromContext(
-      '$' + `sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
+      `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
       ctx
     );
 
