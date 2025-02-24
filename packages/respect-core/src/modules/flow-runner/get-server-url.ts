@@ -55,9 +55,20 @@ export function getServerUrl({
       };
     }
 
-    return resolveOpenApiServerUrlWithVariables(
-      getValueFromContext('$' + `sourceDescriptions.${descriptionName}.servers.0`, ctx)
+    const serverIndexInDescription = sourceDescription['x-serverUrl'].startsWith('$servers.')
+      ? sourceDescription['x-serverUrl'].split('.')[1]
+      : undefined;
+
+    if (!serverIndexInDescription) {
+      return undefined;
+    }
+
+    const serverObject = getValueFromContext(
+      `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
+      ctx
     );
+
+    return resolveOpenApiServerUrlWithVariables(serverObject);
   }
 
   if (openapiOperation?.servers?.[0]) {
