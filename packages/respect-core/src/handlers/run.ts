@@ -27,6 +27,7 @@ export type RespectOptions = {
   'client-cert'?: string;
   'client-key'?: string;
   'ca-cert'?: string;
+  'max-steps'?: number;
   severity?: string;
   config?: never;
 };

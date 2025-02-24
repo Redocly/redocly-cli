@@ -13,7 +13,7 @@ test('should quit an infinite loop on RESPECT_MAX_STEPS', () => {
   ]);
 
   const result = getCommandOutput(args, {
-    REDOCLY_CLI_RESPECT_MAX_STEPS: '10',
+    RESPECT_MAX_STEPS: '10',
   });
 
   expect(result).toMatchSnapshot();
