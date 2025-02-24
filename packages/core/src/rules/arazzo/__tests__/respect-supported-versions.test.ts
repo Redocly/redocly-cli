@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Arazzo spot-supported-versions', () => {
+describe('Arazzo respect-supported-versions', () => {
   const documentWithUnsupportedVersion = parseYamlToDocument(
     outdent`
       arazzo: '1.0.2'
@@ -67,7 +67,7 @@ describe('Arazzo spot-supported-versions', () => {
       externalRefResolver: new BaseResolver(),
       document: documentWithUnsupportedVersion,
       config: await makeConfig({
-        rules: { 'spot-supported-versions': 'error' },
+        rules: { 'respect-supported-versions': 'error' },
       }),
     });
 
@@ -81,8 +81,8 @@ describe('Arazzo spot-supported-versions', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Only 1.0.1 Arazzo version is supported by Spot.",
-          "ruleId": "spot-supported-versions",
+          "message": "Only 1.0.1 Arazzo version is supported by Respect.",
+          "ruleId": "respect-supported-versions",
           "severity": "error",
           "suggest": [],
         },
@@ -95,7 +95,7 @@ describe('Arazzo spot-supported-versions', () => {
       externalRefResolver: new BaseResolver(),
       document: documentWithSupportedVersion,
       config: await makeConfig({
-        rules: { 'spot-supported-versions': 'error' },
+        rules: { 'respect-supported-versions': 'error' },
       }),
     });
 

@@ -34,7 +34,7 @@ export async function bundleArazzo(filePath: string) {
     extends: ['recommended-strict'],
     arazzo1Rules: {
       'no-criteria-xpath': 'error',
-      'spot-supported-versions': 'error',
+      'respect-supported-versions': 'error',
     },
   });
 

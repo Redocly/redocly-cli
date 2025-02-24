@@ -198,7 +198,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'step-onFailure-unique': 'off',
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'off',
-    'spot-supported-versions': 'off',
+    'respect-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'off',
   },

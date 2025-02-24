@@ -1,4 +1,4 @@
-# spot-supported-versions
+# respect-supported-versions
 
 The `version` property must be one of the supported values.
 

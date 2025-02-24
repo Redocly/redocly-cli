@@ -115,7 +115,7 @@ Other rules such as the `spec` and `info.*` rules also apply to AsyncAPI.
 
 ## Arazzo rules
 
-Within the Arazzo family of rules, there are rules for the main Arazzo specification format, and some additional rules for extensions supported by Spot, the Redocly testing utility.
+Within the Arazzo family of rules, there are rules for the main Arazzo specification format, and some additional rules for extensions supported by Respect, the Redocly testing utility.
 
 ### Arazzo
 
@@ -131,12 +131,12 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
 
-### Spot [ deprecated ]
+### Respect [ deprecated ]
 
-The below rules are being migrated to Spot:
+The below rules are being migrated to Respect:
 
-- [no-criteria-xpath](./spot/no-criteria-xpath.md): the `xpath` type criteria is not supported by Spot.
-- [spot-supported-versions](./spot/spot-supported-versions.md): the `version` property must be one of the supported values.
+- [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
+- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 
 ## Resources
 
