@@ -202,7 +202,7 @@ export async function runStep({
     });
   }
 
-  if (failureActionsToRun.length && !allChecksPassed) {
+  if (!allChecksPassed) {
     const result = await runActions(failureActionsToRun, 'failure');
     if (result?.retriesLeft && result.retriesLeft > 0) {
       // if retriesLeft > 0, it means that the step was retried successfully and we need to
@@ -223,7 +223,7 @@ export async function runStep({
 
   // Internal function to run actions
   async function runActions(
-    actions: OnFailureObject[] | OnSuccessObject[],
+    actions: OnFailureObject[] | OnSuccessObject[] = [],
     kind: 'failure' | 'success'
   ): Promise<{
     retriesLeft?: number;
@@ -254,7 +254,7 @@ export async function runStep({
           ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx)
           : { ...ctx, executedSteps: [] };
 
-        const targetStep = action.stepId ? step.stepId : undefined;
+        const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
           const { retryAfter, retryLimit = 0 } = action;
@@ -326,6 +326,10 @@ export async function runStep({
         // stop at first matching action
         break;
       }
+    }
+
+    if (kind === 'failure') {
+      return { shouldEnd: true };
     }
   }
 }

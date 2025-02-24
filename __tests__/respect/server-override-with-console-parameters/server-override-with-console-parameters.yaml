@@ -29,6 +29,10 @@ workflows:
         operationId: museum-api.getMuseumHours
         successCriteria:
           - condition: $statusCode == 200
+        onFailure:
+          - name: continue
+            type: goto
+            stepId: buy-ticket
         outputs:
           schedule: $response.body
       - stepId: buy-ticket

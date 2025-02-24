@@ -14,6 +14,8 @@ exports[`should use server override from CLI and env 1`] = `
 
     ✗ failed network request
 
+  Running failure action continue for the step get-museum-hours
+
   Running child workflow for the step buy-ticket
   Running workflow museum-tickets.yaml / get-museum-tickets
 
@@ -32,6 +34,7 @@ exports[`should use server override from CLI and env 1`] = `
       }
 
     ✗ failed network request
+
 
 ────────────────────────────────────────────────────────────────────────────────
 
@@ -61,27 +64,11 @@ exports[`should use server override from CLI and env 1`] = `
     ✗ failed network request
       fetch failed
       
-    stepId - create-event
-    ✗ unexpected error
-    Reason: Error in resolving runtime expression '$steps.list-events.outputs.events.0.dates.0'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
-    stepId - get-event-by-id
-    ✗ unexpected error
-    Reason: Error in resolving runtime expression '$steps.create-event.outputs.createdEventId'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
-    stepId - update-event
-    ✗ unexpected error
-    Reason: Error in resolving runtime expression '$steps.create-event.outputs.createdEventId'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
-    stepId - delete-event
-    ✗ unexpected error
-    Reason: Error in resolving runtime expression '$steps.update-event.outputs.updatedEventId'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Summary for server-override-with-console-parameters.yaml
   
   Workflows: 2 failed, 2 total
-  Steps: 6 failed, 6 total
-  Checks: 6 failed, 6 total
+  Steps: 2 failed, 2 total
+  Checks: 2 failed, 2 total
   Time: <test>ms
 
 

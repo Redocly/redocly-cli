@@ -26,23 +26,6 @@ exports[`local-json-server local-json-server test case 1`] = `
     ✓ content-type check
     ✓ schema check
 
-  ✓ GET /items/{id} - step get-item-by-id
-    ✓ success criteria check - $statusCode == 200
-    ✓ success criteria check - $response.body#/id == $steps.add-item.outputs.crea...
-    ✓ success criteria check - $response.body#/value == $steps.add-item.outputs.c...
-    ✓ status code check - $statusCode in [200, 404]
-    ✓ content-type check
-    ✓ schema check
-
-  ✓ DELETE /items/{id} - step drop-item
-    ✓ success criteria check - $statusCode == 200
-    ✓ status code check - $statusCode in [200]
-
-  ✓ GET /items/{id} - step get-after-deleting
-    ✓ success criteria check - $statusCode == 404
-    ✓ status code check - $statusCode in [200, 404]
-    ✓ content-type check
-
 ────────────────────────────────────────────────────────────────────────────────
 
   Running workflow local-json-server.yaml / auto-inherit
@@ -77,8 +60,8 @@ exports[`local-json-server local-json-server test case 1`] = `
   Summary for local-json-server.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
-  Steps: 9 passed, 1 failed, 10 total
-  Checks: 31 passed, 1 failed, 32 total
+  Steps: 6 passed, 1 failed, 7 total
+  Checks: 20 passed, 1 failed, 21 total
   Time: <test>ms
 
 
