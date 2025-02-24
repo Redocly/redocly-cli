@@ -4,6 +4,7 @@ import type {
   TestContext,
   JsonLogs,
   WorkflowExecutionResult,
+  WorkflowExecutionResultJson,
   Step,
   StepExecutionResult,
   Check,
@@ -28,21 +29,23 @@ export function composeJsonLogsFiles(
     const { secretFields } = fileResult.ctx;
 
     files[fileResult.file] = maskSecrets(
-      executedWorkflows.map((workflow) => {
-        const steps = workflow.executedSteps.map((step) =>
-          composeJsonSteps(step, workflow.workflowId, fileResult.ctx)
-        );
+      {
+        totalRequests: fileResult.totalRequests,
+        executedWorkflows: executedWorkflows.map((workflow) => {
+          const steps = workflow.executedSteps.map((step) =>
+            composeJsonSteps(step, workflow.workflowId, fileResult.ctx)
+          );
 
-        const result = {
-          ...workflow,
-          executedSteps: steps,
-          status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
-          totalTimeMs: fileResult.totalTimeMs,
-          totalRequests: fileResult.totalRequests,
-        };
+          const result: WorkflowExecutionResultJson = {
+            ...workflow,
+            executedSteps: steps,
+            status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
+            totalTimeMs: fileResult.totalTimeMs,
+          };
 
-        return result;
-      }),
+          return result;
+        }),
+      },
       secretFields || new Set()
     );
   }

@@ -9,26 +9,23 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
   let totalRequests = 0;
   let totalWarnings = 0;
   let totalSkipped = 0;
-  const failedWorkflows = new Set();
-  const workflowsWithSkippedStepsChecks = new Set();
+  let failedWorkflows = 0;
   const workflowsWithWarningsStepsChecks = new Set();
-  const failedSteps = new Set();
+  let failedSteps = 0;
   const skippedSteps = new Set();
   const warningsSteps = new Set();
 
   for (const workflow of workflows) {
     const steps = flattenNestedSteps(workflow.executedSteps);
+    let hasFailedSteps = false;
     for (const step of steps) {
-      if (step.response) {
-        // we count request only if we received a response to prevent counting network errors or step with broken inputs
-        totalRequests++;
-      }
+      totalRequests++;
       if (step.retriesLeft && step.retriesLeft !== 0) {
         continue; // do not count retried steps as a step
       }
 
       totalSteps++;
-
+      let hasFailedChecks = false;
       for (const check of step.checks) {
         totalChecks++;
         if (!check.passed) {
@@ -40,30 +37,35 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
               break;
             case 'off':
               totalSkipped++;
-              workflowsWithSkippedStepsChecks.add(workflow.workflowId);
               skippedSteps.add(workflow.workflowId + ':' + step.stepId);
               break;
             default:
               failedChecks++;
-              failedWorkflows.add(workflow.workflowId);
-              failedSteps.add(workflow.workflowId + ':' + step.stepId);
+              hasFailedChecks = true;
           }
         }
       }
+      if (hasFailedChecks) {
+        failedSteps++;
+        hasFailedSteps = true;
+      }
+    }
+    if (hasFailedSteps) {
+      failedWorkflows++;
     }
   }
 
   return {
     workflows: {
-      passed: totalWorkflows - failedWorkflows.size,
-      failed: failedWorkflows.size,
+      passed: totalWorkflows - failedWorkflows,
+      failed: failedWorkflows,
       warnings: workflowsWithWarningsStepsChecks.size,
-      skipped: workflowsWithSkippedStepsChecks.size,
+      skipped: 0,
       total: totalWorkflows,
     },
     steps: {
-      passed: totalSteps - failedSteps.size,
-      failed: failedSteps.size,
+      passed: totalSteps - failedSteps,
+      failed: failedSteps,
       warnings: warningsSteps.size,
       skipped: skippedSteps.size,
       total: totalSteps,

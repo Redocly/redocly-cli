@@ -87,11 +87,15 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
     if (jsonOutputFile) {
       writeFileSync(
         jsonOutputFile,
-        JSON.stringify({
-          files: composeJsonLogsFiles(runAllFilesResult),
-          status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
-          totalTime: performance.now() - startedAt,
-        } as JsonLogs),
+        JSON.stringify(
+          {
+            files: composeJsonLogsFiles(runAllFilesResult),
+            status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
+            totalTime: performance.now() - startedAt,
+          } as JsonLogs,
+          null,
+          2
+        ),
         'utf-8'
       );
       logger.log(blue(indent(`JSON logs saved in ${green(jsonOutputFile)}`, 2)));

@@ -238,6 +238,11 @@ export interface WorkflowExecutionResult {
   invocationContext?: string;
 }
 
+export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps'> & {
+  executedSteps: (StepExecutionResult | WorkflowExecutionResult)[];
+  status: ExecutionStatus;
+};
+
 export type TestContext = RuntimeExpressionContext & {
   executedSteps: (Step | WorkflowExecutionResult)[];
   arazzo: string;
@@ -294,7 +299,13 @@ export type StepCallContext = {
 };
 
 export type JsonLogs = {
-  files: Record<string, ArrazoItemExecutionResult[]>;
+  files: Record<
+    string,
+    {
+      totalRequests: number;
+      executedWorkflows: WorkflowExecutionResultJson[];
+    }
+  >;
   status: string;
   totalTime: number;
 };
