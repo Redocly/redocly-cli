@@ -33,37 +33,25 @@ export function displayChecks(
   logger.printNewLine();
 
   for (const check of checks) {
-    const { name: checkName, pass, severity } = check;
-    const passTestMessage = (checkName: string) =>
-      `${green('✓')} ${gray(checkName.toLowerCase())}${
-        check?.criteriaCondition
-          ? ` - ${green(
-              check.criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
-                ? check.criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
-                : check.criteriaCondition
-            )}`
-          : ''
-      }${check?.additionalMessage ? ` (${check.additionalMessage})` : ''}`;
-
-    const failTestMessage = (checkName: string, severity?: RuleSeverity) =>
-      `${severity === 'warn' ? yellow('⚠') : red('✗')} ${gray(checkName.toLowerCase())}${
-        check?.criteriaCondition
-          ? ` - ${red(
-              check.criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
-                ? check.criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
-                : check.criteriaCondition
-            )}`
-          : ''
-      }${check?.additionalMessage ? ' (' + check.additionalMessage + ')' : ''}`;
-
-    logger.log(
-      `${
-        pass
-          ? indent(passTestMessage(checkName), 4)
-          : indent(failTestMessage(checkName, severity), 4)
-      }\n`
-    );
+    logger.log(`${indent(displayCheckInfo(check, check.severity), 4)}\n`);
   }
+}
+
+function displayCheckInfo(check: Check, severity: RuleSeverity): string {
+  const { name: checkName, pass, criteriaCondition, additionalMessage } = check;
+
+  const icon = pass ? green('✓') : severity === 'warn' ? yellow('⚠') : red('✗');
+  const color = pass ? green : red;
+
+  return `${icon} ${gray(checkName.toLowerCase())}${
+    criteriaCondition
+      ? ` - ${color(
+          criteriaCondition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
+            ? criteriaCondition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
+            : criteriaCondition
+        )}`
+      : ''
+  }${additionalMessage ? ` (${additionalMessage})` : ''}`;
 }
 
 function displayVerboseLogs(logs: VerboseLog, type: 'request' | 'response' = 'request'): string {
