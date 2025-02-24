@@ -1,0 +1,165 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should quit an infinite loop on RESPECT_MAX_STEPS 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow arazzo.yaml / infinite
+
+  ✗ GET /ping - step pre-step
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action continue for the step pre-step
+
+  Running child workflow for the step with-nested
+  Running workflow arazzo.yaml / nested-workflow
+
+  ✗ GET /ping - step step-1
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action next-step for the step step-1
+
+  ✗ GET /ping - step step-2
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+  ✗ GET /ping - step ping
+
+    Request URL: https://bad-api-url.com/api/ping
+
+    ✗ failed network request
+
+  Running failure action infinite-loop for the step ping
+
+
+
+
+
+
+
+
+
+
+  Failed tests info:
+
+  Workflow name: infinite
+
+    stepId - pre-step
+    ✗ failed network request
+      fetch failed
+      
+    stepId - step-1
+    ✗ failed network request
+      fetch failed
+      
+    stepId - step-2
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ failed network request
+      fetch failed
+      
+    stepId - ping
+    ✗ unexpected error
+    Reason: Max steps (10) reached
+  Summary for arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 11 failed, 11 total
+  Checks: 11 failed, 11 total
+  Time: <test>ms
+
+
+┌─────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┬─────────┐
+│ Filename                                            │ Workflows  │ Passed  │ Failed  │ Warnings │ Skipped │
+├─────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┼─────────┤
+│ x arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │ -       │
+└─────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┴─────────┘
+
+
+
+ Tests exited with error 
+"
+`;

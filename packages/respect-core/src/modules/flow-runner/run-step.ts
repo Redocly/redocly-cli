@@ -32,6 +32,9 @@ import type { ParameterWithoutIn } from '../config-parser';
 
 const logger = DefaultLogger.getInstance();
 
+const MAX_STEPS = parseInt(process.env.RESPECT_MAX_STEPS || '500', 10);
+let stepsRun = 0;
+
 export async function runStep({
   step,
   ctx,
@@ -141,6 +144,17 @@ export async function runStep({
     return { shouldEnd: false };
   }
   ctx.executedSteps.push(step);
+
+  stepsRun++;
+  if (stepsRun > MAX_STEPS) {
+    step.checks.push({
+      name: CHECKS.UNEXPECTED_ERROR,
+      message: `Max steps (${MAX_STEPS}) reached`,
+      passed: false,
+      severity: ctx.severity['UNEXPECTED_ERROR'],
+    });
+    return { shouldEnd: true };
+  }
 
   if (resolvedParameters && resolvedParameters.length) {
     // When the step in context does not specify a workflowId the `in` field MUST be specified.
