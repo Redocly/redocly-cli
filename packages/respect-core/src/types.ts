@@ -233,7 +233,6 @@ export interface WorkflowExecutionResult {
   startTime: number;
   endTime: number;
   totalTimeMs: number;
-  status: ExecutionStatus;
 
   executedSteps: (Step | WorkflowExecutionResult)[];
   invocationContext?: string;
@@ -241,6 +240,7 @@ export interface WorkflowExecutionResult {
 
 export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps'> & {
   executedSteps: (StepExecutionResult | WorkflowExecutionResult)[];
+  status: ExecutionStatus;
 };
 
 export type TestContext = RuntimeExpressionContext & {
