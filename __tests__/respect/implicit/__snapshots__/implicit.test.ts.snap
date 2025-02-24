@@ -34,7 +34,7 @@ exports[`should implicitly add content type header based on requestBody.content 
     Response Body:
       {}
 
-    ✓ status code check (Response code 204 matches one of description codes: [204, 400])
+    ✓ status code check - $statusCode in [204, 400]
 
   ✓ POST /quizzes - step post-quizzes
 
@@ -74,8 +74,8 @@ exports[`should implicitly add content type header based on requestBody.content 
         "instance": "string"
       }
 
-    ✓ success criteria check
-    ✓ status code check (Response code 400 matches one of description codes: [201, 400])
+    ✓ success criteria check - $request.header.content-type == 'application/origi...
+    ✓ status code check - $statusCode in [201, 400]
     ✓ content-type check
     ✓ schema check
 

@@ -87,7 +87,7 @@ function composeJsonSteps(
 }
 
 function calculateCheckStatus(check: Check): 'success' | 'error' | 'warn' {
-  if (check.pass) {
+  if (check.passed) {
     return 'success';
   }
   if (check.severity === 'error') {
@@ -99,10 +99,10 @@ function calculateCheckStatus(check: Check): 'success' | 'error' | 'warn' {
 function calculateStepStatus(checks: Check[]): 'success' | 'error' | 'warn' {
   let hasWarning = false;
   for (const check of checks) {
-    if (!check.pass && check.severity === 'error') {
+    if (!check.passed && check.severity === 'error') {
       return 'error';
     }
-    if (!check.pass && check.severity === 'warn') {
+    if (!check.passed && check.severity === 'warn') {
       hasWarning = true;
     }
   }

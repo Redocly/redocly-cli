@@ -9,13 +9,13 @@ exports[`runStep should run step and display checks 1`] = `
         {
           "message": "",
           "name": "status code check",
-          "pass": true,
+          "passed": true,
           "severity": "error",
         },
         {
           "message": "",
           "name": "content-type check",
-          "pass": true,
+          "passed": true,
           "severity": "error",
         },
       ],

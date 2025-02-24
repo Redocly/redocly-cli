@@ -23,7 +23,7 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
     const steps = flattenNestedSteps(workflow.executedSteps);
     const hasProblems = steps.some(
       (step) =>
-        step.checks.some((check) => !check.pass) && (!step.retriesLeft || step.retriesLeft === 0)
+        step.checks.some((check) => !check.passed) && (!step.retriesLeft || step.retriesLeft === 0)
     );
 
     if (!hasProblems) continue;
@@ -35,7 +35,7 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
     );
 
     for (const step of steps) {
-      const failedStepChecks = step.checks.filter((check) => !check.pass);
+      const failedStepChecks = step.checks.filter((check) => !check.passed);
 
       if (!failedStepChecks.length) continue;
       if (step.retriesLeft && step.retriesLeft !== 0) continue;

@@ -6,7 +6,7 @@ exports[`local-json-server local-json-server test case 1`] = `
   Running workflow local-json-server.yaml / before
 
   ✓ GET /items - step get-all-items-before
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
 
@@ -15,32 +15,32 @@ exports[`local-json-server local-json-server test case 1`] = `
   Running workflow local-json-server.yaml / crud-items
 
   ✓ POST /items - step add-item
-    ✓ success criteria check
-    ✓ status code check (Response code 201 matches one of description codes: [201])
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201]
     ✓ content-type check
     ✓ schema check
 
   ✗ GET /items - step get-all-items-again
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✗ success criteria check - $response.body#/0/value == 100
+    ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
 
   ✓ GET /items/{id} - step get-item-by-id
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/id == $steps.add-item.outputs.crea...
+    ✓ success criteria check - $response.body#/value == $steps.add-item.outputs.c...
+    ✓ status code check - $statusCode in [200, 404]
     ✓ content-type check
     ✓ schema check
 
   ✓ DELETE /items/{id} - step drop-item
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
 
   ✓ GET /items/{id} - step get-after-deleting
-    ✓ success criteria check
-    ✓ status code check (Response code 404 matches one of description codes: [200, 404])
+    ✓ success criteria check - $statusCode == 404
+    ✓ status code check - $statusCode in [200, 404]
     ✓ content-type check
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -48,22 +48,22 @@ exports[`local-json-server local-json-server test case 1`] = `
   Running workflow local-json-server.yaml / auto-inherit
 
   ✓ POST /items - step add-item-auto-inherit
-    ✓ status code check (Response code 201 matches one of description codes: [201])
+    ✓ status code check - $statusCode in [201]
     ✓ content-type check
     ✓ schema check
 
   ✓ GET /items - step get-all-items
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
 
   ✓ GET /items/{id} - step get-item-by-id-auto-inherit
-    ✓ status code check (Response code 404 matches one of description codes: [200, 404])
+    ✓ status code check - $statusCode in [200, 404]
     ✓ content-type check
 
   ✓ DELETE /items/{id} - step drop-item-auto-inherit
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
 
 
   Failed tests info:

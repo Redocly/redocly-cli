@@ -19,7 +19,7 @@ import type {
 export function checkCriteria({
   workflowId,
   step,
-  criteria = [],
+  criteria: criteriaList = [],
   ctx,
 }: {
   workflowId?: string;
@@ -27,14 +27,14 @@ export function checkCriteria({
   criteria?: CriteriaObject[];
   ctx: TestContext;
 }): Check[] {
-  validateSuccessCriteria(criteria);
+  validateSuccessCriteria(criteriaList);
 
   const checks: Check[] = [];
 
   if (!workflowId) {
     checks.push({
       name: CHECKS.SUCCESS_CRITERIA_CHECK,
-      pass: false,
+      passed: false,
       message: `Undefined workflowId for step ${step.stepId}`,
       severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
     });
@@ -48,7 +48,7 @@ export function checkCriteria({
     step,
   });
 
-  criteria.forEach((criteria: CriteriaObject) => {
+  criteriaList.forEach((criteria: CriteriaObject) => {
     const { condition } = criteria;
 
     try {
@@ -71,34 +71,38 @@ export function checkCriteria({
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          pass: regex.test(evaluateRuntimeExpression(context, criteriaContext)),
+          passed: regex.test(evaluateRuntimeExpression(context, criteriaContext)),
           message: `Checking regex criteria: ${JSON.stringify(criteria)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          condition: condition,
         });
       } else if (isJSONPathSuccessCriteria(criteria)) {
-        const { context, condition } = criteria;
+        const { context } = criteria;
         const data = evaluateRuntimeExpression(context, criteriaContext);
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          pass: evaluateJSONPAthCondition(condition, data),
+          passed: evaluateJSONPAthCondition(condition, data),
           message: `Checking jsonpath criteria: ${condition}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          condition: condition,
         });
       } else {
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          pass: evaluateRuntimeExpression(condition, criteriaContext),
+          passed: evaluateRuntimeExpression(condition, criteriaContext),
           message: `Checking simple criteria: ${JSON.stringify(criteria)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+          condition: condition,
         });
       }
     } catch (e: any) {
       checks.push({
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        pass: false,
+        passed: false,
         message: `Failed to pass ${JSON.stringify(criteria)}: ${e.message}`,
         severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
+        condition: criteria.condition,
       });
     }
   });

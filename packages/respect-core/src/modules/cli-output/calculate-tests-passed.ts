@@ -31,7 +31,7 @@ export function calculateTotals(workflows: WorkflowExecutionResult[]): Calculate
 
       for (const check of step.checks) {
         totalChecks++;
-        if (!check.pass) {
+        if (!check.passed) {
           switch (check.severity) {
             case 'warn':
               totalWarnings++;

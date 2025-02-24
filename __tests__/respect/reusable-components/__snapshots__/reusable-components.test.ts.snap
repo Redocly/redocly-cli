@@ -70,8 +70,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         }
       ]
 
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -140,8 +140,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         }
       ]
 
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -213,8 +213,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         }
       ]
 
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -354,7 +354,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         }
       ]
 
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -401,8 +401,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         "price": 0
       }
 
-    ✓ success criteria check
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -475,8 +475,8 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
         }
       ]
 
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 

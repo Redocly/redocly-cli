@@ -33,7 +33,7 @@ export async function callAPIAndAnalyzeResults({
   } catch (error: any) {
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
-      pass: false,
+      passed: false,
       message: error.message,
       severity: ctx.severity['NETWORK_ERROR'],
     });
@@ -58,7 +58,7 @@ export async function callAPIAndAnalyzeResults({
       },
     });
 
-    checksResult.successCriteriaCheck = successCriteriaChecks.every((check) => check.pass);
+    checksResult.successCriteriaCheck = successCriteriaChecks.every((check) => check.passed);
     step.checks.push(...successCriteriaChecks);
   }
 
@@ -73,7 +73,7 @@ export async function callAPIAndAnalyzeResults({
   });
 
   if (schemaChecks.length) {
-    checksResult.expectCheck = schemaChecks.every((check) => check.pass);
+    checksResult.expectCheck = schemaChecks.every((check) => check.passed);
     step.checks.push(...schemaChecks);
   }
 

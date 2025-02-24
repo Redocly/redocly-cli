@@ -6,8 +6,8 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running workflow workflow-failure-actions.yaml / get-museum-hours
 
   ✗ GET /museum-hours - step get-museum-hours
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -15,8 +15,8 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running workflow museum-tickets.yaml / get-museum-tickets
 
   ✓ POST /tickets - step buy-tickets
-    ✓ success criteria check
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -24,22 +24,22 @@ exports[`should execute successActions for each workflow step if it does not hav
   Retrying step get-museum-hours (1/1)
 
   ✗ GET /museum-hours - step get-museum-hours
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
   ✗ GET /museum-hours - step get-museum-hours-2
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
   Retrying step get-museum-hours-2 (1/1)
 
   ✗ GET /museum-hours - step get-museum-hours-2
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 

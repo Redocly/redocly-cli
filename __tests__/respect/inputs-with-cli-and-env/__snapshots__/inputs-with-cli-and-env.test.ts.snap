@@ -69,8 +69,8 @@ exports[`should use inputs from CLI and env 1`] = `
         }
       ]
 
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -103,8 +103,8 @@ exports[`should use inputs from CLI and env 1`] = `
         "confirmationCode": "ticket-general-e5e5c6-dce78"
       }
 
-    ✓ success criteria check
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -152,9 +152,9 @@ exports[`should use inputs from CLI and env 1`] = `
         "price": 0
       }
 
-    ✓ success criteria check
-    ✓ success criteria check
-    ✓ status code check (Response code 201 matches one of description codes: [201, 400, 404])
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
+    ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 

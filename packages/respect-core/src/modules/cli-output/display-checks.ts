@@ -9,6 +9,7 @@ import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
 import type { Check, VerboseLog } from '../../types';
 
 const logger = DefaultLogger.getInstance();
+const MAX_CRITERIA_CONDITION_DISPLAY_LENGTH = 50;
 
 export function displayChecks(
   testNameToDisplay: string,
@@ -16,7 +17,7 @@ export function displayChecks(
   verboseLogs?: VerboseLog,
   verboseResponseLogs?: VerboseLog
 ) {
-  const allChecksPassed = checks.every(({ pass }) => pass);
+  const allChecksPassed = checks.every(({ passed }) => passed);
   logger.log(`  ${allChecksPassed ? green('✓') : red('✗')} ${blue(testNameToDisplay)}`);
 
   if (verboseLogs) {
@@ -32,25 +33,25 @@ export function displayChecks(
   logger.printNewLine();
 
   for (const check of checks) {
-    const { name: checkName, pass, severity } = check;
-    const passTestMessage = (checkName: string) =>
-      `${green('✓')} ${gray(checkName.toLowerCase())}${
-        check?.additionalMessage ? ` (${check.additionalMessage})` : ''
-      }`;
-
-    const failTestMessage = (checkName: string, severity?: RuleSeverity) =>
-      `${severity === 'warn' ? yellow('⚠') : red('✗')} ${gray(checkName.toLowerCase())}${
-        check?.additionalMessage ? ' (' + check.additionalMessage + ')' : ''
-      }`;
-
-    logger.log(
-      `${
-        pass
-          ? indent(passTestMessage(checkName), 4)
-          : indent(failTestMessage(checkName, severity), 4)
-      }\n`
-    );
+    logger.log(`${indent(displayCheckInfo(check, check.severity), 4)}\n`);
   }
+}
+
+function displayCheckInfo(check: Check, severity: RuleSeverity): string {
+  const { name: checkName, passed, condition } = check;
+
+  const icon = passed ? green('✓') : severity === 'warn' ? yellow('⚠') : red('✗');
+  const color = passed ? green : red;
+
+  return `${icon} ${gray(checkName.toLowerCase())}${
+    condition
+      ? ` - ${color(
+          condition.length > MAX_CRITERIA_CONDITION_DISPLAY_LENGTH
+            ? condition.slice(0, MAX_CRITERIA_CONDITION_DISPLAY_LENGTH) + '...'
+            : condition
+        )}`
+      : ''
+  }`;
 }
 
 function displayVerboseLogs(logs: VerboseLog, type: 'request' | 'response' = 'request'): string {

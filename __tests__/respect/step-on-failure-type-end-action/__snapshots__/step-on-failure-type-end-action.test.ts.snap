@@ -6,8 +6,8 @@ exports[`should end workflow execution, context returns to the caller with appli
   Running workflow step-on-failure-type-end-action.yaml / events-crud
 
   ✗ GET /special-events - step list-events
-    ✗ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
@@ -16,8 +16,8 @@ exports[`should end workflow execution, context returns to the caller with appli
   Running workflow step-on-failure-type-end-action.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
-    ✓ success criteria check
-    ✓ status code check (Response code 200 matches one of description codes: [200, 400, 404])
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
