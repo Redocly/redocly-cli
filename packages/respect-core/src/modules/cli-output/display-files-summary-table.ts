@@ -27,7 +27,6 @@ export function displayFilesSummaryTable(
     { name: 'Passed', width: 7 },
     { name: 'Failed', width: 7 },
     { name: 'Warnings', width: 8 },
-    { name: 'Skipped', width: 7 },
   ];
 
   let output = '';
@@ -68,10 +67,6 @@ export function displayFilesSummaryTable(
       testWorkflows.warnings > 0
         ? yellow(testWorkflows.warnings.toString().padEnd(9))
         : gray('-'.padEnd(9));
-    const skipped =
-      testWorkflows.skipped > 0
-        ? gray(testWorkflows.skipped.toString().padEnd(8))
-        : gray('-'.padEnd(8));
 
     // First pad the content, then add colors
     const statusSymbol = testWorkflows.failed > 0 ? 'x' : '✓';
@@ -89,8 +84,6 @@ export function displayFilesSummaryTable(
       ` ${failed}` +
       gray('│') +
       ` ${warnings}` +
-      gray('│') +
-      ` ${skipped}` +
       gray('│') +
       '\n';
   });
