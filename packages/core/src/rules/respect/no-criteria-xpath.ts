@@ -10,7 +10,7 @@ export const NoCriteriaXpath: Arazzo1Rule = () => {
         }
         if (criteria?.type?.type === 'xpath' || criteria?.type === 'xpath') {
           report({
-            message: 'The `xpath` type criteria is not supported by Spot.',
+            message: 'The `xpath` type criteria is not supported by Respect.',
             location: location.child(['type']),
           });
         }

@@ -12,7 +12,7 @@ const spec: PluginStyleguideConfig<'built-in'> = {
   async3Rules: {},
   arazzo1Rules: {
     'sourceDescription-type': 'error',
-    'spot-supported-versions': 'off',
+    'respect-supported-versions': 'off',
     'workflowId-unique': 'error',
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',

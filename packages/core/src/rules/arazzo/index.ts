@@ -2,7 +2,7 @@ import { Struct } from '../common/struct';
 import { Assertions } from '../common/assertions';
 import { SourceDescriptionType } from '../arazzo/sourceDescription-type';
 import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty';
-import { SpotSupportedVersions } from '../spot/spot-supported-versions';
+import { RespectSupportedVersions } from '../respect/respect-supported-versions';
 import { WorkflowIdUnique } from './workflowId-unique';
 import { StepIdUnique } from './stepId-unique';
 import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique';
@@ -11,7 +11,7 @@ import { ParametersUnique } from './parameters-unique';
 import { StepOnSuccessUnique } from './step-onSuccess-unique';
 import { StepOnFailureUnique } from './step-onFailure-unique';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique';
-import { NoCriteriaXpath } from '../spot/no-criteria-xpath';
+import { NoCriteriaXpath } from '../respect/no-criteria-xpath';
 import { CriteriaUnique } from './criteria-unique';
 
 import type { Arazzo1Rule } from '../../visitors';
@@ -21,7 +21,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   struct: Struct as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
   'sourceDescription-type': SourceDescriptionType,
-  'spot-supported-versions': SpotSupportedVersions,
+  'respect-supported-versions': RespectSupportedVersions,
   'workflowId-unique': WorkflowIdUnique,
   'stepId-unique': StepIdUnique,
   'sourceDescription-name-unique': SourceDescriptionsNameUnique,

@@ -152,7 +152,7 @@ const builtInArazzo1Rules = [
   'parameters-unique',
   'step-onSuccess-unique',
   'step-onFailure-unique',
-  'spot-supported-versions',
+  'respect-supported-versions',
   'requestBody-replacements-unique',
   'no-criteria-xpath',
   'criteria-unique',

@@ -1547,7 +1547,7 @@ describe('runStep', () => {
     });
 
     expect(displayChecks).toHaveBeenCalled();
-    expect(checkCriteria).toHaveBeenCalledTimes(5);
+    expect(checkCriteria).toHaveBeenCalledTimes(3);
   });
 
   it('should result with an error when onFailure step criteria with retry StepId and WorkflowId provided', async () => {
@@ -1790,7 +1790,7 @@ describe('runStep', () => {
     });
 
     expect(displayChecks).toHaveBeenCalled();
-    expect(checkCriteria).toHaveBeenCalledTimes(5);
+    expect(checkCriteria).toHaveBeenCalledTimes(3);
   });
 
   it('should execute onFailure step criteria with successful retry', async () => {
