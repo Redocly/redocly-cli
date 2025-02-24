@@ -32,7 +32,7 @@ import type { ParameterWithoutIn } from '../config-parser';
 
 const logger = DefaultLogger.getInstance();
 
-const MAX_STEPS = parseInt(process.env.RESPECT_MAX_STEPS || '2000', 10);
+const MAX_STEPS = parseInt(process.env.REDOCLY_CLI_RESPECT_MAX_STEPS || '2000', 10);
 let stepsRun = 0;
 
 export async function runStep({
