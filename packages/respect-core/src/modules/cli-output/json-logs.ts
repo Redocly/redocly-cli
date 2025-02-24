@@ -71,11 +71,11 @@ function composeJsonSteps(
       method: publicStep.request?.method || '',
       url: step.response?.requestUrl || '',
       headers: publicStep.request?.header || {},
-      body: publicStep.request?.body || {},
+      body: publicStep.request?.body,
     },
     response: {
       statusCode: step.response?.statusCode || 0,
-      body: publicStep.response?.body || {},
+      body: publicStep.response?.body,
       headers: step.response?.header || {},
       time: step.response?.time || 0,
     },
