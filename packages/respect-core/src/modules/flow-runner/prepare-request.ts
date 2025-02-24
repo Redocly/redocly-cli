@@ -109,6 +109,11 @@ export async function prepareRequest(
   if (!ctx.$workflows[workflowName].steps[stepId]) {
     ctx.$workflows[workflowName].steps[stepId] = {} as PublicStep;
   }
+  // Supporting temporal extension of query method https://httpwg.org/http-extensions/draft-ietf-httpbis-safe-method-w-body.html
+  if (method?.toLowerCase() === 'x-query') {
+    method = 'query' as const;
+  }
+
   ctx.$workflows[workflowName].steps[stepId].request = {
     body: requestBody,
     header: groupParametersValuesByName(parameters, 'header'),
@@ -159,10 +164,15 @@ export async function prepareRequest(
     collectSecretFields(ctx, requestBodySchema, requestBody);
   }
 
-  // Supporting temporal extension of query method https://httpwg.org/http-extensions/draft-ietf-httpbis-safe-method-w-body.html
-  if (method?.toLowerCase() === 'x-query') {
-    method = 'query' as const;
-  }
+  // set evaluated values to the context
+  ctx.$workflows[workflowName].steps[stepId].request = {
+    body: evaluatedBody,
+    header: groupParametersValuesByName(evaluatedParameters, 'header'),
+    path: groupParametersValuesByName(evaluatedParameters, 'path'),
+    query: groupParametersValuesByName(evaluatedParameters, 'query'),
+    url: serverUrl?.url && path ? `${serverUrl?.url}${path}` : serverUrl?.url,
+    method,
+  };
 
   return {
     serverUrl,

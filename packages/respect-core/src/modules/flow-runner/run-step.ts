@@ -9,6 +9,7 @@ import {
   printChildWorkflowSeparator,
   printStepDetails,
   printActionsSeparator,
+  printUnknownStep,
 } from '../../utils/cli-outputs';
 import {
   getValueFromContext,
@@ -214,6 +215,8 @@ export async function runStep({
       verboseLogs,
       verboseResponseLogs,
     });
+  } else {
+    printUnknownStep(step);
   }
 
   if (!allChecksPassed) {

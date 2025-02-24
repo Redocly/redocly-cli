@@ -1,7 +1,7 @@
 import { pluralize } from 'jest-matcher-utils';
 import { red, yellow, bold, blue } from 'colorette';
 import { type Totals } from '@redocly/openapi-core';
-import { type Check, type VerboseLog } from '../types';
+import { type Check, type VerboseLog, type Step } from '../types';
 import { displayChecks } from '../modules/cli-output';
 import { DefaultLogger } from './logger/logger';
 
@@ -116,4 +116,9 @@ export function printStepDetails({
 }) {
   printStepSeparatorLine();
   displayChecks(testNameToDisplay, checks, verboseLogs, verboseResponseLogs);
+}
+
+export function printUnknownStep(step: Step) {
+  printStepSeparatorLine();
+  displayChecks(step.stepId, step.checks);
 }
