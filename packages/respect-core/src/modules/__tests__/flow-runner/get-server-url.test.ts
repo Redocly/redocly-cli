@@ -46,17 +46,34 @@ describe('getServerUrl', () => {
       sourceDescriptions: [
         {
           name: 'test',
-          'x-serverUrl': '$servers.0.url',
+          'x-serverUrl': '$servers.2.url',
           type: 'openapi',
         },
       ],
       $sourceDescriptions: {
-        test: { servers: [{ url: 'https://example.com' }] },
+        test: {
+          servers: [
+            { url: 'https://example.com' },
+            { url: 'https://example2.com' },
+            {
+              url: 'https://example3.{domain}',
+              variables: {
+                domain: {
+                  default: 'com',
+                  enum: ['com', 'net'],
+                },
+              },
+            },
+          ],
+        },
       },
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
-    expect(result).toEqual({ url: 'https://example.com', parameters: [] });
+    expect(result).toEqual({
+      url: 'https://example3.{domain}',
+      parameters: [{ name: 'domain', value: 'com', in: 'path' }],
+    });
   });
 
   it('should return overwritten server url from sourceDescription x-serverUrl resolved from context', () => {
