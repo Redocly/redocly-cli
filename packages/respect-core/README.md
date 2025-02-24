@@ -2,7 +2,9 @@
 
 ## `@redocly/respect-core`
 
-Continuous API monitoring powered by OpenAPI Arazzo workflows. Get real-time insights, detect issues early, and receive automated alerts via email or Slack.
+Continuous API monitoring powered by OpenAPI Arazzo workflows.
+
+This package cannot be used standalone. Please install and use [@redocly/cli](https://github.com/Redocly/redocly-cli) to run API tests.
 
 The key benefits of `respect`:
 
@@ -13,13 +15,3 @@ The key benefits of `respect`:
 - Shift left to catch problems fast before they are costly. Run on developer laptops and CICD.
 
 You **MUST** have a working API server running in order to run the tests because it sends real HTTP requests.
-
-## License
-
-See LICENSE included with package.
-
-For more details and beta access, contact team@redocly.com
-
-## Get started
-
-Contact team@redocly.com to request beta access.
