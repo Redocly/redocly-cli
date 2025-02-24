@@ -1,12 +1,15 @@
-export function maskSecrets(target: { [x: string]: any } | string, secretValues: Set<string>) {
+export function maskSecrets<T extends { [x: string]: any } | string>(
+  target: T,
+  secretValues: Set<string>
+): T {
   const maskValue = (): string => '*'.repeat(8);
 
   if (typeof target === 'string') {
-    let maskedString = target;
+    let maskedString = target as string;
     secretValues.forEach((secret) => {
       maskedString = maskedString.split(secret).join('*'.repeat(secret.length));
     });
-    return maskedString;
+    return maskedString as T;
   }
 
   const masked = JSON.parse(JSON.stringify(target));

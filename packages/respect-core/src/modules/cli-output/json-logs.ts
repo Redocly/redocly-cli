@@ -4,6 +4,7 @@ import type {
   TestContext,
   JsonLogs,
   WorkflowExecutionResult,
+  WorkflowExecutionResultJson,
   Step,
   StepExecutionResult,
   Check,
@@ -35,7 +36,7 @@ export function composeJsonLogsFiles(
             composeJsonSteps(step, workflow.workflowId, fileResult.ctx)
           );
 
-          const result = {
+          const result: WorkflowExecutionResultJson = {
             ...workflow,
             executedSteps: steps,
             status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
