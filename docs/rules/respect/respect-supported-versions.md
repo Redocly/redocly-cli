@@ -8,8 +8,8 @@ The `version` property must be one of the supported values.
 
 ## API design principles
 
-This rule is used with Spot.
-The `version` property must be one of the Spot-supported values which may be different from the latest `Arazzo` version.
+This rule is used with Respect.
+The `version` property must be one of the Respect-supported values which may be different from the latest `Arazzo` version.
 
 ## Configuration
 
@@ -21,7 +21,7 @@ An example configuration:
 
 ```yaml
 arazzoRules:
-  spot-supported-versions: error
+  respect-supported-versions: error
 ```
 
 ## Examples
@@ -30,7 +30,7 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  spot-supported-versions: error
+  respect-supported-versions: error
 ```
 
 Example of a **correct** entry:
@@ -45,4 +45,4 @@ arazzo: 1.0.1
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/spot-supported-versions.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/respect-supported-versions.ts)

@@ -1,10 +1,10 @@
 ---
-slug: /docs/cli/rules/spot/no-criteria-xpath
+slug: /docs/cli/rules/respect/no-criteria-xpath
 ---
 
 # no-criteria-xpath
 
-The `xpath` type criteria is not supported by Spot.
+The `xpath` type criteria is not supported by Respect.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -12,8 +12,8 @@ The `xpath` type criteria is not supported by Spot.
 
 ## API design principles
 
-This is `Spot` specific rule.
-The `xpath` type criteria is not supported by Spot.
+This is `Respect` specific rule.
+The `xpath` type criteria is not supported by Respect.
 
 ## Configuration
 
@@ -51,4 +51,4 @@ successCriteria:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/spot/no-criteria-xpath.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/no-criteria-xpath.ts)
