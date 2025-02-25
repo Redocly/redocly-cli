@@ -33,7 +33,7 @@ exports[`should replace values in the request body 1`] = `
     ✓ content-type check
     ✓ schema check
 
-  ✓ POST /tickets - step second-step
+  ✓ POST /tickets - step step-with-json-replacements
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
     Request Headers:
@@ -65,12 +65,58 @@ exports[`should replace values in the request body 1`] = `
     ✓ content-type check
     ✓ schema check
 
+  ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      content-type: application/x-www-form-urlencoded
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      "name=Time+Traveler+Tea+Party&location=New+York"
+
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Body:
+      {
+        "type": "object",
+        "title": "Media type \\"application/x-www-form-urlencoded\\" is not supported"
+      }
+
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+  ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements-2
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request Headers:
+      content-type: application/x-www-form-urlencoded
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      "name=Time+Traveler+Tea+Party&location=Jakarta"
+
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Body:
+      {
+        "type": "object",
+        "title": "Media type \\"application/x-www-form-urlencoded\\" is not supported"
+      }
+
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
 
   Summary for replacements.arazzo.yaml
   
   Workflows: 1 passed, 1 total
-  Steps: 2 passed, 2 total
-  Checks: 6 passed, 6 total
+  Steps: 4 passed, 4 total
+  Checks: 12 passed, 12 total
   Time: <test>ms
 
 

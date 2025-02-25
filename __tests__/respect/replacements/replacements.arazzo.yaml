@@ -22,7 +22,7 @@ workflows:
         operationId: getSpecialEvent
         outputs:
           event: $response.body
-      - stepId: second-step
+      - stepId: step-with-json-replacements
         operationId: buyMuseumTickets
         requestBody:
           contentType: application/json
@@ -35,3 +35,22 @@ workflows:
             - target: /dates
               value:
                 - '2025-01-01'
+
+      - stepId: step-with-form-urlencoded-replacements
+        operationId: updateSpecialEvent
+        requestBody:
+          contentType: application/x-www-form-urlencoded
+          payload: name={$steps.first-step.outputs.event#/name}&location=Lviv"
+          replacements:
+            - target: /location
+              value: 'New York'
+      - stepId: step-with-form-urlencoded-replacements-2
+        operationId: updateSpecialEvent
+        requestBody:
+          contentType: application/x-www-form-urlencoded
+          payload:
+            name: $steps.first-step.outputs.event#/name
+            location: Lviv
+          replacements:
+            - target: /location
+              value: 'Jakarta'

@@ -10,7 +10,6 @@ import {
   handlePayloadReplacements,
 } from '../config-parser';
 import { getServerUrl } from './get-server-url';
-import * as querystring from 'node:querystring';
 import { createRuntimeExpressionCtx, collectSecretFields } from './context';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 
@@ -156,23 +155,14 @@ export async function prepareRequest(
     collectSecretFields(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
   }
 
-  let evaluatedBody = evaluateRuntimeExpressionPayload({
+  const evaluatedBody = evaluateRuntimeExpressionPayload({
     payload: requestBody,
     context: expressionContext,
     contentType,
   });
 
-  if (replacements) {
-    // To handle string replacement properly with variables it's better to parse
-    // the string into an object and process the replacement.
-    // Also resolves query string variables before sending.
-    if (typeof evaluatedBody === 'string') {
-      evaluatedBody = querystring.parse(evaluatedBody);
-    }
-
-    if (typeof evaluatedBody === 'object') {
-      handlePayloadReplacements(evaluatedBody, replacements, expressionContext);
-    }
+  if (replacements && typeof evaluatedBody === 'object') {
+    handlePayloadReplacements(evaluatedBody, replacements, expressionContext);
   }
 
   if (contentType && openapiOperation?.requestBody) {

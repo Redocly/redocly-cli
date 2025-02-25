@@ -1,4 +1,5 @@
 import { createReadStream, constants, access, type ReadStream } from 'node:fs';
+import * as querystring from 'node:querystring';
 import * as path from 'node:path';
 import FormData = require('form-data');
 import { type TestContext, type RequestBody } from '../../types';
@@ -131,6 +132,12 @@ export async function parseRequestBody(
       ...stepRequestBody,
       payload: await getRequestBodyOctetStream(payload),
       contentType: 'application/octet-stream',
+    };
+  } else if (contentType === 'application/x-www-form-urlencoded' && typeof payload === 'string') {
+    return {
+      ...stepRequestBody,
+      payload: querystring.parse(payload),
+      contentType: 'application/x-www-form-urlencoded',
     };
   }
 
