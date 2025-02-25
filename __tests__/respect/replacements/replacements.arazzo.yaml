@@ -8,9 +8,6 @@ sourceDescriptions:
   - name: museum-api
     type: openapi
     url: museum-api.yaml
-  - name: tickets-from-museum-api
-    type: arazzo
-    url: museum-tickets.yaml
 
 workflows:
   - workflowId: replacements
