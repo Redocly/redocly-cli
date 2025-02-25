@@ -241,6 +241,7 @@ export interface WorkflowExecutionResult {
 export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps'> & {
   executedSteps: (StepExecutionResult | WorkflowExecutionResultJson)[];
   status: ExecutionStatus;
+  totalRequests: number;
 };
 
 export type TestContext = RuntimeExpressionContext & {

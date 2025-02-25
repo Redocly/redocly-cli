@@ -1,4 +1,5 @@
 import { maskSecrets } from './mask-secrets';
+import { calculateTotals } from './calculate-tests-passed';
 
 import type {
   TestContext,
@@ -40,6 +41,7 @@ export function composeJsonLogsFiles(
             ...workflow,
             executedSteps: steps,
             status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
+            totalRequests: calculateTotals([workflow]).totalRequests,
             totalTimeMs: fileResult.totalTimeMs,
           };
 
