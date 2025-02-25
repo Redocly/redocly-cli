@@ -53,62 +53,62 @@ info:
   title: Warp API
   version: 1.0.0
 sourceDescriptions:
-  - name: warp.openapi
+  - name: warp
     type: openapi
-    url: warp.openapi.yaml
+    url: /Users/romanhotsiy/Downloads/warp.yaml
 workflows:
   - workflowId: post-timelines-workflow
     steps:
       - stepId: post-timelines-step
-        operationId: $sourceDescriptions.warp.openapi.createTimeline
+        operationId: $sourceDescriptions.warp.createTimeline
         successCriteria:
           - condition: $statusCode == 201
   - workflowId: get-timelines-workflow
     steps:
       - stepId: get-timelines-step
-        operationId: $sourceDescriptions.warp.openapi.listTimelines
+        operationId: $sourceDescriptions.warp.listTimelines
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: delete-timeline-{timeline_id}-workflow
     steps:
       - stepId: delete-timeline-{timeline_id}-step
-        operationId: $sourceDescriptions.warp.openapi.deleteTimeline
+        operationId: $sourceDescriptions.warp.deleteTimeline
         successCriteria:
           - condition: $statusCode == 204
   - workflowId: post-travels-workflow
     steps:
       - stepId: post-travels-step
-        operationId: $sourceDescriptions.warp.openapi.timeTravel
+        operationId: $sourceDescriptions.warp.timeTravel
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: post-items-workflow
     steps:
       - stepId: post-items-step
-        operationId: $sourceDescriptions.warp.openapi.registerItem
+        operationId: $sourceDescriptions.warp.registerItem
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: post-events-workflow
     steps:
       - stepId: post-events-step
-        operationId: $sourceDescriptions.warp.openapi.manipulateEvent
+        operationId: $sourceDescriptions.warp.manipulateEvent
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: post-anchors-workflow
     steps:
       - stepId: post-anchors-step
-        operationId: $sourceDescriptions.warp.openapi.setAnchor
+        operationId: $sourceDescriptions.warp.setAnchor
         successCriteria:
           - condition: $statusCode == 201
   - workflowId: post-paradox-checks-workflow
     steps:
       - stepId: post-paradox-checks-step
-        operationId: $sourceDescriptions.warp.openapi.checkParadox
+        operationId: $sourceDescriptions.warp.checkParadox
         successCriteria:
           - condition: $statusCode == 200
   - workflowId: get-monitor-timeline-workflow
     steps:
       - stepId: get-monitor-timeline-step
-        operationId: $sourceDescriptions.warp.openapi.monitorTimeline
+        operationId: $sourceDescriptions.warp.monitorTimeline
         successCriteria:
           - condition: $statusCode == 200
 ```
