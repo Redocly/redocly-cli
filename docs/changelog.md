@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.31.0 (2025-02-25)
+
+### Minor Changes
+
+- Added the `generate-arazzo` command to scaffold Arazzo description templates out of OpenAPI descriptions.
+- Added the `respect` command to test APIs against Arazzo description files.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.31.0.
+
 ## 1.30.0 (2025-02-18)
 
 ### Minor Changes
