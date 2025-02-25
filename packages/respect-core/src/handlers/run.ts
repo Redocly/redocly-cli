@@ -58,10 +58,10 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
     const { files } = argv;
     const runAllFilesResult = [];
 
-    if (files.length > 1 && (jsonOutputFile || harOutputFile)) {
-      // TODO: implement multiple run files logs output
+    if (files.length > 1 && harOutputFile) {
+      // TODO: implement multiple run files HAR output
       throw new Error(
-        'Currently only a single file can be run with --har-output or --json-output. Please run a single file at a time.'
+        'Currently only a single file can be run with --har-output. Please run a single file at a time.'
       );
     }
 
