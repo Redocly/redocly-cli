@@ -47,7 +47,7 @@ The command generates a `auto-generate.arazzo.yaml` file in the current director
 
 The contents of the generated file are:
 
-```yaml {% name="auto-generate.arazzo.yaml" %}
+```yaml {% title="auto-generate.arazzo.yaml" %}
 arazzo: 1.0.1
 info:
   title: Warp API
