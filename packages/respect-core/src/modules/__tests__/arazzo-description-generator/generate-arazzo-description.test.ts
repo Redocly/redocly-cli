@@ -46,7 +46,7 @@ describe('generateArazzoDescription', () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     expect(
       await generateArazzoDescription({
-        descriptionPath: 'description.yaml',
+        descriptionPath: 'description@35.oas.yaml',
         'output-file': './final-test-location/output.yaml',
       })
     ).toEqual({
@@ -57,9 +57,9 @@ describe('generateArazzoDescription', () => {
       },
       sourceDescriptions: [
         {
-          name: 'description',
+          name: 'description35-oas',
           type: 'openapi',
-          url: '../description.yaml',
+          url: '../description@35.oas.yaml',
         },
       ],
       workflows: [
@@ -67,7 +67,7 @@ describe('generateArazzoDescription', () => {
           workflowId: 'get-pet-workflow',
           steps: [
             {
-              operationId: '$sourceDescriptions.description.getPet',
+              operationId: '$sourceDescriptions.description35-oas.getPet',
               stepId: 'get-pet-step',
               successCriteria: [{ condition: '$statusCode == 200' }],
             },
@@ -77,7 +77,7 @@ describe('generateArazzoDescription', () => {
           workflowId: 'get-fact-workflow',
           steps: [
             {
-              operationId: '$sourceDescriptions.description.getFact',
+              operationId: '$sourceDescriptions.description35-oas.getFact',
               stepId: 'get-fact-step',
             },
           ],
