@@ -1,0 +1,40 @@
+arazzo: 1.0.1
+info:
+  title: Test `successActions` in workflows
+  description: Testing functionality of `end` action in `onFailure` action.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: museum-api.yaml
+  - name: tickets-from-museum-api
+    type: arazzo
+    url: museum-tickets.yaml
+
+workflows:
+  - workflowId: replacements
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    description: >-
+      This workflow demonstrates how to replace values in the request body.
+    steps:
+      - stepId: first-step
+        operationId: getSpecialEvent
+        outputs:
+          event: $response.body
+      - stepId: second-step
+        operationId: buyMuseumTickets
+        requestBody:
+          contentType: application/json
+          payload: $steps.first-step.outputs.event
+          replacements:
+            - target: /eventId
+              value: 'my-custom-event-id'
+            - target: /location
+              value: $steps.first-step.outputs.event#/name
+            - target: /dates
+              value:
+                - '2025-01-01'

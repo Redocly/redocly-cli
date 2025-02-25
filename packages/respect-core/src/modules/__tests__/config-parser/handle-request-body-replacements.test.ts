@@ -1,3 +1,4 @@
+import { RuntimeExpressionContext } from 'respect-core/lib/types';
 import { handlePayloadReplacements } from '../../config-parser';
 
 describe('handlePayloadReplacements', () => {
@@ -11,8 +12,15 @@ describe('handlePayloadReplacements', () => {
         value: 'baz',
       },
     ];
+    const expressionContext = {
+      step: {
+        outputs: {
+          event: payload,
+        },
+      },
+    } as unknown as RuntimeExpressionContext;
 
-    handlePayloadReplacements(payload, replacements);
+    handlePayloadReplacements(payload, replacements, expressionContext);
 
     expect(payload).toEqual({
       foo: 'baz',
@@ -29,8 +37,15 @@ describe('handlePayloadReplacements', () => {
         value: 'baz',
       },
     ];
+    const expressionContext = {
+      step: {
+        outputs: {
+          event: payload,
+        },
+      },
+    } as unknown as RuntimeExpressionContext;
 
-    expect(() => handlePayloadReplacements(payload, replacements)).toThrowError(
+    expect(() => handlePayloadReplacements(payload, replacements, expressionContext)).toThrowError(
       'Invalid JSON Pointer: /bar'
     );
   });
@@ -40,9 +55,15 @@ describe('handlePayloadReplacements', () => {
       foo: 'bar',
     };
     const replacements = [{ target: 1, value: 'baz' }];
-
+    const expressionContext = {
+      step: {
+        outputs: {
+          event: payload,
+        },
+      },
+    } as unknown as RuntimeExpressionContext;
     // @ts-expect-error
-    expect(() => handlePayloadReplacements(payload, replacements)).toThrowError(
+    expect(() => handlePayloadReplacements(payload, replacements, expressionContext)).toThrowError(
       'Invalid JSON Pointer: 1'
     );
   });

@@ -32,6 +32,7 @@ describe('parseRequestBody', () => {
       payload: { test: 'test' },
       contentType: undefined,
       encoding: undefined,
+      replacements: undefined,
     });
   });
 
@@ -51,12 +52,15 @@ describe('parseRequestBody', () => {
         ctx
       )
     ).toEqual({
-      payload: {
-        clientId: '123',
-        grant_type: '12',
-      },
+      payload: 'clientId={$input.clientID}&grant_type=12',
       contentType: 'application/x-www-form-urlencoded',
       encoding: undefined,
+      replacements: [
+        {
+          target: '/clientId',
+          value: '123',
+        },
+      ],
     });
   });
 
@@ -76,6 +80,7 @@ describe('parseRequestBody', () => {
       payload: { test: 'test' },
       contentType: 'application/json',
       encoding: 'utf-8',
+      replacements: undefined,
     });
   });
 
@@ -97,6 +102,7 @@ describe('parseRequestBody', () => {
         'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
+      replacements: undefined,
     });
   });
 
@@ -124,6 +130,7 @@ describe('parseRequestBody', () => {
         'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
+      replacements: undefined,
     });
 
     jest.resetAllMocks();
@@ -172,6 +179,7 @@ describe('parseRequestBody', () => {
         'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
+      replacements: undefined,
     });
   });
 
@@ -199,6 +207,7 @@ describe('parseRequestBody', () => {
         'multipart/form-data; boundary=--------------------------'
       ),
       encoding: 'utf-8',
+      replacements: undefined,
     });
     jest.resetAllMocks();
   });
@@ -245,6 +254,7 @@ describe('parseRequestBody', () => {
       payload: 'readStream',
       contentType: 'application/octet-stream',
       encoding: 'utf-8',
+      replacements: undefined,
     });
     jest.resetAllMocks();
   });
@@ -263,6 +273,7 @@ describe('parseRequestBody', () => {
       payload: new Buffer('test'),
       contentType: 'application/octet-stream',
       encoding: 'utf-8',
+      replacements: undefined,
     });
   });
 
