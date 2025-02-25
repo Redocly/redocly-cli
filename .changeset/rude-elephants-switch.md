@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added the `generate-arazzo` command to scaffold Arazzo specification templates out of OpenAPI descriptions.
+Added the `generate-arazzo` command to scaffold Arazzo description templates out of OpenAPI descriptions.

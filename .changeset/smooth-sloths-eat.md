@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added the `respect` command to test APIs against Arazzo specification files.
+Added the `respect` command to test APIs against Arazzo description files.
