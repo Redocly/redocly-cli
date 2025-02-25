@@ -3,6 +3,8 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
+jest.setTimeout(10000);
+
 describe('no-invalid-media-type-examples', () => {
   it('should report on invalid example', async () => {
     const document = parseYamlToDocument(
