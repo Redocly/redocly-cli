@@ -239,7 +239,7 @@ export interface WorkflowExecutionResult {
 }
 
 export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps'> & {
-  executedSteps: (StepExecutionResult | WorkflowExecutionResult)[];
+  executedSteps: (StepExecutionResult | WorkflowExecutionResultJson)[];
   status: ExecutionStatus;
 };
 

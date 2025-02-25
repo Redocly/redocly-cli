@@ -57,9 +57,9 @@ function composeJsonSteps(
   step: Step | WorkflowExecutionResult,
   workflowId: string,
   ctx: TestContext
-): StepExecutionResult | WorkflowExecutionResult {
+): StepExecutionResult | WorkflowExecutionResultJson {
   if ('executedSteps' in step) {
-    return step as WorkflowExecutionResult;
+    return step as WorkflowExecutionResultJson;
   }
 
   const publicStep = ctx.$workflows[workflowId].steps[step.stepId];
