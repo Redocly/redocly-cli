@@ -7,6 +7,7 @@ import {
   parseRequestBody,
   resolveReusableComponentItem,
   isParameterWithIn,
+  handlePayloadReplacements,
 } from '../config-parser';
 import { getServerUrl } from './get-server-url';
 import { createRuntimeExpressionCtx, collectSecretFields } from './context';
@@ -81,6 +82,7 @@ export async function prepareRequest(
     payload: stepRequestBodyPayload,
     // encoding: stepRequestBodyEncoding,
     contentType: stepRequestBodyContentType,
+    replacements,
   } = await parseRequestBody(step['requestBody'], ctx);
 
   const requestBody = stepRequestBodyPayload || requestDataFromOpenAPI?.requestBody;
@@ -159,9 +161,15 @@ export async function prepareRequest(
     contentType,
   });
 
+  if (replacements && typeof evaluatedBody === 'object') {
+    handlePayloadReplacements(evaluatedBody, replacements, expressionContext);
+  }
+
   if (contentType && openapiOperation?.requestBody) {
     const requestBodySchema = getRequestBodySchema(contentType, openapiOperation);
-    collectSecretFields(ctx, requestBodySchema, requestBody);
+    if (typeof requestBody === 'object') {
+      collectSecretFields(ctx, requestBodySchema, requestBody);
+    }
   }
 
   // set evaluated values to the context

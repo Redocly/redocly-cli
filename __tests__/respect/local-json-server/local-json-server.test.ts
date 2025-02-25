@@ -1,18 +1,30 @@
 import { spawn } from 'child_process';
 import { getParams, getCommandOutput } from '../utils';
 import { join } from 'path';
+import * as fs from 'fs';
+
+const dbPath = join(__dirname, 'fake-db.json');
 
 describe('local-json-server', () => {
   let serverProcess: any;
+  let originalData: string | undefined;
 
   beforeAll(async () => {
     // Start json-server
     serverProcess = spawn('npm', ['run', 'json-server'], { detached: true });
+
+    // Store original state of fake-bd.json
+    originalData = fs.readFileSync(dbPath, 'utf8');
   });
 
   afterAll(() => {
     // Kill the process group to ensure child processes are cleaned up
     process.kill(-serverProcess.pid);
+
+    // Restore original state
+    if (originalData) {
+      fs.writeFileSync(dbPath, originalData);
+    }
   });
 
   test('local-json-server test case', () => {

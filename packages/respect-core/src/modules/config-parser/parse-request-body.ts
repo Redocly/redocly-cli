@@ -1,8 +1,7 @@
-import { createReadStream, constants, access } from 'node:fs';
+import { createReadStream, constants, access, type ReadStream } from 'node:fs';
+import * as querystring from 'node:querystring';
 import * as path from 'node:path';
 import FormData = require('form-data');
-import { handlePayloadReplacements } from './handle-request-body-replacements';
-import * as querystring from 'node:querystring';
 import { type TestContext, type RequestBody } from '../../types';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
@@ -98,20 +97,21 @@ const getRequestBodyOctetStream = async (payload: RequestBody['payload']) => {
 export async function parseRequestBody(
   stepRequestBody: RequestBody | undefined,
   ctx: TestContext
-): Promise<{
-  payload: any | undefined;
-  contentType: string | undefined;
-  encoding: string | undefined;
-}> {
+): Promise<
+  Omit<RequestBody, 'payload'> & {
+    payload: string | number | boolean | Record<string, any> | ReadStream | FormData | undefined;
+  }
+> {
   if (!stepRequestBody) {
     return {
       payload: undefined,
       contentType: undefined,
       encoding: undefined,
+      replacements: undefined,
     };
   }
 
-  const { payload, encoding, contentType, replacements } = stepRequestBody;
+  const { payload, contentType } = stepRequestBody;
 
   if (contentType === 'multipart/form-data') {
     const formData = new FormData();
@@ -120,39 +120,26 @@ export async function parseRequestBody(
     await getRequestBodyMultipartFormData(payload, formData, workflowFilePath);
 
     return {
+      ...stepRequestBody,
       payload: formData,
       contentType: `multipart/form-data; boundary=${formData.getBoundary()}`,
-      encoding,
     };
   } else if (
     contentType === 'application/octet-stream' ||
     (typeof contentType === 'string' && KNOWN_BINARY_CONTENT_TYPES_REGEX.test(contentType))
   ) {
     return {
+      ...stepRequestBody,
       payload: await getRequestBodyOctetStream(payload),
       contentType: 'application/octet-stream',
-      encoding,
+    };
+  } else if (contentType === 'application/x-www-form-urlencoded' && typeof payload === 'string') {
+    return {
+      ...stepRequestBody,
+      payload: querystring.parse(payload),
+      contentType: 'application/x-www-form-urlencoded',
     };
   }
 
-  let resolvedPayload = payload;
-
-  if (replacements) {
-    // To handle string replacement properly with variables it's better to parse
-    // the string into an object and process the replacement.
-    // Also resolves query string variables before sending.
-    if (typeof resolvedPayload === 'string') {
-      resolvedPayload = querystring.parse(resolvedPayload);
-    }
-
-    if (typeof resolvedPayload === 'object') {
-      handlePayloadReplacements(resolvedPayload, replacements);
-    }
-  }
-
-  return {
-    payload: resolvedPayload,
-    contentType,
-    encoding,
-  };
+  return stepRequestBody;
 }

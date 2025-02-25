@@ -109,6 +109,74 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ schema check
 
 
+  ✓ GET /museum-hours - step test-default-input
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
 ────────────────────────────────────────────────────────────────────────────────
 
   Running workflow inputs-with-cli-and-env.yaml / events-crud
@@ -162,8 +230,8 @@ exports[`should use inputs from CLI and env 1`] = `
   Summary for inputs-with-cli-and-env.yaml
   
   Workflows: 2 passed, 2 total
-  Steps: 3 passed, 3 total
-  Checks: 13 passed, 13 total
+  Steps: 4 passed, 4 total
+  Checks: 16 passed, 16 total
   Time: <test>ms
 
 

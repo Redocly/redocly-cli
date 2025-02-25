@@ -23,6 +23,9 @@ workflows:
           properties:
             AUTH_TOKEN:
               type: string
+            organizationId:
+              type: string
+              default: acme-inc
     description: >-
       This workflow demonstrates how to get the museum opening hours and buy tickets.
     parameters:
@@ -44,6 +47,12 @@ workflows:
         workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
         outputs:
           ticketId: $outputs.ticketId
+      - stepId: test-default-input
+        operationId: museum-api.getMuseumHours
+        parameters:
+          - in: query
+            name: organizationId
+            value: $inputs.env.organizationId
   - workflowId: events-crud
     inputs:
       type: object
