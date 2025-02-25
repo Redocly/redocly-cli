@@ -14,12 +14,9 @@ import type {
 export function composeJsonLogsFiles(
   filesResult: {
     file: string;
-    hasProblems: boolean;
-    hasWarnings?: boolean;
     totalRequests: number;
     totalTimeMs: number;
     executedWorkflows: WorkflowExecutionResult[];
-    argv?: { workflow?: string[]; skip?: string[] };
     ctx: TestContext;
   }[]
 ): JsonLogs['files'] {
@@ -32,21 +29,10 @@ export function composeJsonLogsFiles(
     files[fileResult.file] = maskSecrets(
       {
         totalRequests: fileResult.totalRequests,
-        executedWorkflows: executedWorkflows.map((workflow) => {
-          const steps = workflow.executedSteps.map((step) =>
-            composeJsonSteps(step, workflow.workflowId, fileResult.ctx)
-          );
-
-          const result: WorkflowExecutionResultJson = {
-            ...workflow,
-            executedSteps: steps,
-            status: fileResult.hasProblems ? 'error' : fileResult.hasWarnings ? 'warn' : 'success',
-            totalRequests: calculateTotals([workflow]).totalRequests,
-            totalTimeMs: fileResult.totalTimeMs,
-          };
-
-          return result;
-        }),
+        executedWorkflows: executedWorkflows.map((workflow) =>
+          mapJsonWorkflow(workflow, fileResult.ctx)
+        ),
+        totalTimeMs: fileResult.totalTimeMs,
       },
       secretFields || new Set()
     );
@@ -55,13 +41,32 @@ export function composeJsonLogsFiles(
   return files;
 }
 
-function composeJsonSteps(
+function mapJsonWorkflow(
+  workflow: WorkflowExecutionResult,
+  ctx: TestContext
+): WorkflowExecutionResultJson {
+  const steps = workflow.executedSteps.map((step) => mapJsonStep(step, workflow.workflowId, ctx));
+
+  const totals = calculateTotals([workflow]);
+
+  const result: WorkflowExecutionResultJson = {
+    ...workflow,
+    executedSteps: steps,
+    status: totals.steps.failed > 0 ? 'error' : totals.steps.warnings > 0 ? 'warn' : 'success',
+    totalRequests: totals.totalRequests,
+    totalTimeMs: workflow.totalTimeMs,
+  };
+
+  return result;
+}
+
+function mapJsonStep(
   step: Step | WorkflowExecutionResult,
   workflowId: string,
   ctx: TestContext
 ): StepExecutionResult | WorkflowExecutionResultJson {
   if ('executedSteps' in step) {
-    return step as WorkflowExecutionResultJson;
+    return mapJsonWorkflow(step as WorkflowExecutionResult, ctx);
   }
 
   const publicStep = ctx.$workflows[workflowId].steps[step.stepId];
