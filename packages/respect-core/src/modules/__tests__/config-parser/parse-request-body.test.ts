@@ -52,7 +52,10 @@ describe('parseRequestBody', () => {
         ctx
       )
     ).toEqual({
-      payload: 'clientId={$input.clientID}&grant_type=12',
+      payload: {
+        clientId: '123',
+        grant_type: '12',
+      },
       contentType: 'application/x-www-form-urlencoded',
       encoding: undefined,
       replacements: [
