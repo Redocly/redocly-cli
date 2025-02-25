@@ -86,7 +86,10 @@ export const infoSubstitute = {
 };
 
 function resolveDescriptionNameFromPath(descriptionPath: string): string {
-  return path.parse(descriptionPath).name;
+  return path
+    .parse(descriptionPath)
+    .name.replace(/\./g, '-')
+    .replace(/[^A-Za-z0-9_-]/g, '');
 }
 
 export async function generateArazzoDescription({
