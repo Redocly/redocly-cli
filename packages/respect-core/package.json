@@ -1,6 +1,6 @@
 {
   "name": "@redocly/respect-core",
-  "version": "1.31.0",
+  "version": "1.31.1",
   "description": "API testing framework core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -43,7 +43,7 @@
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
     "@redocly/ajv": "8.11.2",
-    "@redocly/openapi-core": "1.31.0",
+    "@redocly/openapi-core": "1.31.1",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
     "concat-stream": "^2.0.0",

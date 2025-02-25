@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.31.1
+
+### Patch Changes
+
+- Added the missing `respect-core` import in Redocly CLI package.
+- Updated @redocly/openapi-core to v1.31.1.
+
 ## 1.31.0
 
 ### Minor Changes
