@@ -55,7 +55,7 @@ info:
 sourceDescriptions:
   - name: warp
     type: openapi
-    url: /Users/romanhotsiy/Downloads/warp.yaml
+    url: warp.yaml
 workflows:
   - workflowId: post-timelines-workflow
     steps:
