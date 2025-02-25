@@ -1,5 +1,0 @@
-node_modules
-lib
-lib-internal
-build
-src/modules/runtime-expressions/abnf-parser.js
