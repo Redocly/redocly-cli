@@ -1,0 +1,764 @@
+openapi: 3.1.0
+servers:
+  - url: https://api.impossiblemissionsforce.com
+info:
+  title: Learning API Demo
+  version: v1
+  termsOfService: https://impossiblemissionsforce.com/terms
+  description: This is a mock API. It is for demo and learning purposes. The server URL is powered by a Remockly mock server. You can send curl requests and use the try it console to interact with the mock API.
+tags:
+  - name: Activities
+    description: Endpoints related to learning activities, such as lessons, videos, and interactive exercises. Use these APIs to create, update, retrieve, and delete learning activities.
+  - name: Quizzes
+    description: Endpoints for managing quizzes and quiz questions. These APIs enable you to create, update, retrieve, and delete quizzes, as well as manage questions and options within quizzes.
+  - name: Badges
+    description: Endpoints for badge management, including creating, updating, retrieving, and deleting badges. Badges are awarded to learners based on their performance or progress in the learning system.
+  - name: Scores
+    description: Endpoints for handling learner scores on quizzes, activities, and assignments. Use these APIs to submit, retrieve, update, and delete scores for individual learners or groups.
+  - name: Checklists
+    description: Endpoints for managing checklists, which are lists of tasks or objectives learners must complete. These APIs enable you to create, update, retrieve, and delete checklists, as well as manage checklist items.
+  - name: Assignments
+    description: Endpoints related to assignments, including creating, updating, retrieving, and deleting assignments. Assignments may include projects, essays, or other tasks that learners are required to complete.
+  - name: Reports
+    description: Endpoints for generating and retrieving reports on learner progress, activity completion, and overall performance. Use these APIs to access and analyze data on individual learners or groups, as well as export reports for further analysis.
+  - name: Other
+    description: Other endpoints are described here.
+paths:
+  /:
+    get:
+      tags:
+        - Other
+      operationId: GetRoot
+      summary: Get API info
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              example: This is a demo API.
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /activities:
+    post:
+      tags:
+        - Activities
+      operationId: PostActivity
+      summary: Record activity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/activity'
+      responses:
+        '204':
+          description: OK (no content).
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /quizzes:
+    post:
+      tags:
+        - Quizzes
+      operationId: PostQuiz
+      summary: Create quiz
+      parameters: # Added for implicit content type headers test
+        - name: Content-Type
+          in: header
+          required: true
+          example: application/original
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/quiz'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/quiz'
+        '400':
+          $ref: '#/components/responses/badRequest'
+    get:
+      tags:
+        - Quizzes
+      operationId: GetQuizzes
+      summary: Get quizzes
+      responses:
+        '200':
+          description: Retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/quiz'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /checklists:
+    post:
+      tags:
+        - Checklists
+      operationId: PostChecklist
+      summary: Create checklist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checklist'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checklist'
+        '400':
+          $ref: '#/components/responses/badRequest'
+    get:
+      tags:
+        - Checklists
+      operationId: GetChecklists
+      summary: Get checklists
+      responses:
+        '200':
+          description: Retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/checklist'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /badges:
+    post:
+      tags:
+        - Badges
+      operationId: PostBadge
+      summary: Create badge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/badge'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/badge'
+        '400':
+          $ref: '#/components/responses/badRequest'
+    get:
+      tags:
+        - Badges
+      operationId: GetBadges
+      summary: Get badges
+      responses:
+        '200':
+          description: Retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/badge'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /assignments:
+    post:
+      tags:
+        - Assignments
+      operationId: PostAssignment
+      summary: Create assignment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/assignment'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/assignment'
+        '400':
+          $ref: '#/components/responses/badRequest'
+    get:
+      tags:
+        - Assignments
+      operationId: GetAssignments
+      summary: Get assignments
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/assignment'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /scores:
+    get:
+      tags:
+        - Scores
+      operationId: GetScores
+      summary: Get scores
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+            examples:
+              - abc123
+        - name: quiz
+          in: query
+          schema:
+            type: string
+            examples:
+              - Who we are
+      responses:
+        '200':
+          description: Retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/score'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /users:
+    get:
+      tags:
+        - Reports
+      operationId: GetUserList
+      summary: Get users
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/userSummary'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /users/{id}:
+    get:
+      tags:
+        - Reports
+      operationId: GetUserActivity
+      summary: Get user activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            examples:
+              - abc123
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userDetail'
+        '400':
+          $ref: '#/components/responses/badRequest'
+  /reports/summaries:
+    get:
+      tags:
+        - Reports
+      operationId: GetSummaryReport
+      summary: Get summary report
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            examples:
+              - '2023-01-01T00:00:00Z'
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+            examples:
+              - '2023-02-01T00:00:00Z'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/summaryReport'
+        '400':
+          $ref: '#/components/responses/badRequest'
+security:
+  - imfKey: []
+components:
+  responses:
+    badRequest:
+      description: Bad request.
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            additionalProperties: true
+            minProperties: 1
+            description: Problem Details JSON Object [[RFC7807](https://tools.ietf.org/html/rfc7807)].
+            properties:
+              type:
+                type: string
+                description: URI reference [[RFC3986](https://tools.ietf.org/html/rfc3986)] that identifies the problem type. It should provide human-readable documentation for the problem type. When this member is not present, its value is assumed to be "about:blank".
+                format: uri
+              title:
+                type: string
+                description: Short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+              status:
+                type: integer
+                description: HTTP status code.
+                minimum: 400
+                maximum: 599
+              detail:
+                type: string
+                description: Human-readable explanation specific to this occurrence of the problem.
+              instance:
+                type: string
+                description: URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.
+  securitySchemes:
+    imfKey:
+      type: apiKey
+      in: header
+      name: IMF-KEY
+  schemas:
+    activity:
+      type: object
+      title: Activity
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - id_abc987def123
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              examples:
+                - quiz
+            name:
+              type: string
+              examples:
+                - Onboarding Part 1
+                - Who we are
+            item:
+              type: string
+              examples:
+                - Sign agreements
+                - What is our mission?
+            answer:
+              type:
+                - string
+                - 'null'
+              examples:
+                - a
+          additionalProperties: false
+        metadata:
+          type: object
+          properties:
+            user:
+              type: string
+              examples:
+                - abc123
+            domain:
+              type: string
+              examples:
+                - https://impossiblemissionsforce.com
+              format: url
+            path:
+              type: string
+              examples:
+                - /security/network-security/
+            timestamp:
+              type: string
+              examples:
+                - '2023-02-19T09:31:27Z'
+              format: date-time
+          additionalProperties: false
+      additionalProperties: false
+    checklist:
+      type: object
+      title: Checklist
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - cklst_abc987def123
+        name:
+          type: string
+          examples:
+            - Onboarding Part 1
+        items:
+          type: array
+          items:
+            type: string
+            examples:
+              - Sign agreements
+              - Set up accounts
+              - Set up meetings with colleagues
+              - Learn who we are
+        createdAt:
+          type: string
+          examples:
+            - '2023-02-19T09:31:27Z'
+          format: date-time
+        updatedAt:
+          type: string
+          examples:
+            - '2023-02-19T09:31:27Z'
+          format: date-time
+      additionalProperties: false
+    quiz:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - quiz_abc987def123
+        name:
+          type: string
+          examples:
+            - Who we are
+        passingScore:
+          type: number
+          examples:
+            - 0.8
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - choice
+                  - blank
+                examples:
+                  - choice
+              question:
+                type: string
+                examples:
+                  - What is our mission?
+                  - What year were we founded?
+              choices:
+                type:
+                  - object
+                  - 'null'
+                properties:
+                  a:
+                    type: string
+                    examples:
+                      - Multinational espionage agency
+                      - '1848'
+                  b:
+                    type: string
+                    examples:
+                      - Prevent manmade catastrophes
+                      - '1945'
+                  c:
+                    type: string
+                    examples:
+                      - Do amazing stunts
+                      - '1977'
+                  d:
+                    type: string
+                    examples:
+                      - '2023'
+                additionalProperties: false
+              correctAnswer:
+                type: string
+                examples:
+                  - b
+                  - b
+            additionalProperties: false
+        createdAt:
+          type: string
+          readOnly: true
+          examples:
+            - '2023-02-19T10:13:21Z'
+          format: date-time
+        updatedAt:
+          type: string
+          readOnly: true
+          examples:
+            - '2023-02-20T02:36:02Z'
+          format: date-time
+      additionalProperties: false
+    assignment:
+      type: object
+      required:
+        - user
+        - type
+        - name
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - asmt_atskthask23498uas2
+        user:
+          type: string
+          examples:
+            - abc123
+        type:
+          type: string
+          examples:
+            - quiz
+        name:
+          type: string
+          examples:
+            - Who we are
+        maxAttempts:
+          type: integer
+          examples:
+            - 3
+        status:
+          type: string
+          readOnly: true
+          examples:
+            - done
+        assignedAt:
+          type: string
+          readOnly: true
+          examples:
+            - '2023-02-19T10:56:21Z'
+          format: date-time
+        deadline:
+          type: string
+          examples:
+            - '2023-02-25T00:00:00Z'
+          format: date-time
+        completedAt:
+          type: string
+          readOnly: true
+          examples:
+            - '2023-02-19T14:52:21Z'
+          format: date-time
+        progress:
+          type: number
+          readOnly: true
+          examples:
+            - 1
+        data:
+          type: object
+          readOnly: true
+      additionalProperties: false
+    score:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - score_abc987def123
+        user:
+          type: string
+          examples:
+            - abc123
+        score:
+          type: number
+          examples:
+            - 0.85
+        quiz:
+          type: string
+          examples:
+            - Who we are
+        attempts:
+          type: integer
+          examples:
+            - 1
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+                examples:
+                  - What is our mission?
+              choices:
+                type: object
+                properties:
+                  a:
+                    type: string
+                    examples:
+                      - Multinational espionage agency
+                  b:
+                    type: string
+                    examples:
+                      - Prevent manmade catastrophes
+                  c:
+                    type: string
+                    examples:
+                      - Do amazing stunts
+                additionalProperties: false
+              correctAnswer:
+                type: string
+                examples:
+                  - b
+              answer:
+                type: string
+                examples:
+                  - a
+              answeredAt:
+                type: string
+                format: date-time
+                examples:
+                  - '2023-02-20T03:45:08Z'
+            additionalProperties: false
+      additionalProperties: false
+    badge:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - badge_abc987def123
+        name:
+          type: string
+          examples:
+            - Explorer
+        icon:
+          type: string
+          examples:
+            - /images/explorer-icon.png
+        requirements:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                examples:
+                  - quiz
+                  - checklist
+              name:
+                type: string
+                examples:
+                  - Who we are
+                  - Onboarding Part 1
+              minScore:
+                type: number
+                examples:
+                  - 0.85
+              maxAttempts:
+                type: integer
+                examples:
+                  - 1
+              status:
+                type: string
+                examples:
+                  - done
+            additionalProperties: false
+        createdAt:
+          type: string
+          examples:
+            - '2023-02-19T11:21:36Z'
+          format: date-time
+        updatedAt:
+          type: string
+          examples:
+            - '2023-02-19T11:21:36Z'
+          format: date-time
+      additionalProperties: false
+    userDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          examples:
+            - usr_abc123
+        badges:
+          type: array
+          items:
+            $ref: '#/components/schemas/badge'
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/assignment'
+        activity:
+          type: array
+          items:
+            $ref: '#/components/schemas/activity'
+      additionalProperties: false
+    userSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          examples:
+            - usr_abc123
+        badgesCount:
+          type: integer
+        assignments:
+          type: integer
+        activity:
+          type: integer
+      additionalProperties: false
+    summaryReport:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          examples:
+            - rpt_abc987def123
+        startDate:
+          type: string
+          examples:
+            - '2023-01-01T00:00:00Z'
+          format: date-time
+        endDate:
+          type: string
+          examples:
+            - '2023-02-01T00:00:00Z'
+          format: date-time
+        users:
+          type: integer
+          examples:
+            - 35
+        attempts:
+          type: integer
+          examples:
+            - 45
+        quizzes:
+          type: integer
+          examples:
+            - 3
+        passRate:
+          type: number
+          examples:
+            - 0.73
+        checklists:
+          type: integer
+          examples:
+            - 2
+      additionalProperties: false

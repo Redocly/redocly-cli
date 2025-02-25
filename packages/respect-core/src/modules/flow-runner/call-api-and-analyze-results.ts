@@ -1,0 +1,114 @@
+import { checkCriteria } from './success-criteria';
+import { checkSchema } from './schema';
+import { CHECKS } from '../checks';
+import { createRuntimeExpressionCtx } from './context';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
+
+import type { RequestData } from './prepare-request';
+import type { TestContext, Step } from '../../types';
+
+// TODO: split into two functions
+export async function callAPIAndAnalyzeResults({
+  ctx,
+  workflowId,
+  step,
+  requestData,
+}: {
+  ctx: TestContext;
+  workflowId: string;
+  step: Step;
+  requestData: RequestData;
+}) {
+  // clear checks in case of retry
+  step.checks = [];
+
+  const checksResult = {
+    successCriteriaCheck: true,
+    expectCheck: true,
+    networkCheck: true,
+  };
+
+  try {
+    step.response = await ctx.apiClient.fetchResult(ctx, requestData);
+  } catch (error: any) {
+    step.checks.push({
+      name: CHECKS.NETWORK_ERROR,
+      passed: false,
+      message: error.message,
+      severity: ctx.severity['NETWORK_ERROR'],
+    });
+    checksResult.networkCheck = false;
+    return checksResult;
+  }
+
+  const request = ctx.$workflows[workflowId].steps[step.stepId].request;
+
+  step.verboseLog = ctx.apiClient.getVerboseResponseLogs();
+
+  if (step.successCriteria) {
+    const successCriteriaChecks = checkCriteria({
+      workflowId,
+      step,
+      criteria: step.successCriteria,
+      ctx: {
+        ...ctx,
+        $request: request,
+        $response: step.response,
+        $inputs: ctx.$workflows[workflowId].inputs,
+      },
+    });
+
+    checksResult.successCriteriaCheck = successCriteriaChecks.every((check) => check.passed);
+    step.checks.push(...successCriteriaChecks);
+  }
+
+  const schemaChecks = checkSchema({
+    stepCallCtx: {
+      $request: request,
+      $response: step.response,
+      $inputs: ctx.$workflows[workflowId].inputs,
+    },
+    descriptionOperation: requestData.openapiOperation,
+    ctx,
+  });
+
+  if (schemaChecks.length) {
+    checksResult.expectCheck = schemaChecks.every((check) => check.passed);
+    step.checks.push(...schemaChecks);
+  }
+
+  // store step level outputs
+  const outputs: Record<string, any> = {};
+  if (step.outputs) {
+    const runtimeExpressionContext = createRuntimeExpressionCtx({
+      ctx: {
+        ...ctx,
+        $request: request,
+        $response: step.response,
+        $inputs: ctx.$workflows[workflowId].inputs,
+      },
+      workflowId,
+      step,
+    });
+
+    for (const outputKey of Object.keys(step.outputs)) {
+      outputs[outputKey] = evaluateRuntimeExpressionPayload({
+        payload: step.outputs[outputKey],
+        context: runtimeExpressionContext,
+      });
+    }
+  }
+
+  // save local $steps context
+  ctx.$steps[step.stepId] = {
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
+  };
+  // save $workflows context
+  ctx.$workflows[workflowId].steps[step.stepId] = {
+    outputs: { ...ctx.$steps[step.stepId].outputs, ...outputs },
+    request,
+    response: step.response,
+  };
+
+  return checksResult;
+}

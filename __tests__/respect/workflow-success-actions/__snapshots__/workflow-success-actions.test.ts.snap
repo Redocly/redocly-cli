@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow workflow-success-actions.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+  Running success action repeated-success-action-1 for the step get-museum-hours
+  Running workflow museum-tickets.yaml / get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow workflow-success-actions.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+  Running success action step-onSuccess-action for the step list-events
+  Running workflow museum-tickets.yaml / get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+
+  Summary for workflow-success-actions.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 4 passed, 4 total
+  Checks: 15 passed, 15 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ workflow-success-actions.yaml                                       │ 2          │ 2       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

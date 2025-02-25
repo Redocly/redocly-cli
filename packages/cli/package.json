@@ -4,8 +4,8 @@
   "description": "",
   "license": "MIT",
   "bin": {
-    "openapi": "bin/cli.js",
-    "redocly": "bin/cli.js"
+    "redocly": "bin/cli.js",
+    "openapi": "bin/cli.js"
   },
   "engines": {
     "node": ">=18.17.0",
@@ -30,6 +30,7 @@
     "OpenAPI linter",
     "Swagger linter",
     "AsyncAPI linter",
+    "Arazzo linter",
     "oas"
   ],
   "contributors": [
@@ -41,6 +42,7 @@
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "core-js": "^3.32.1",
+    "dotenv": "^16.4.7",
     "form-data": "^4.0.0",
     "get-port-please": "^3.0.1",
     "glob": "^7.1.6",

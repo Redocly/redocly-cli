@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should end workflow execution, context returns to the caller with applicable outputs, when step passes and onSuccess action is of type \`end\` 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow step-on-success-type-end-action.yaml / events-crud
+
+  ✓ GET /special-events - step list-events
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow step-on-success-type-end-action.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for step-on-success-type-end-action.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 2 passed, 2 total
+  Checks: 8 passed, 8 total
+  Time: <test>ms
+
+
+┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ step-on-success-type-end-action.yaml                                       │ 2          │ 2       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

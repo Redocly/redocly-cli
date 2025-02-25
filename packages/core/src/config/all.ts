@@ -222,7 +222,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'stepId-unique': 'error',
     'sourceDescription-name-unique': 'error',
     'sourceDescriptions-not-empty': 'error',
-    'spot-supported-versions': 'off',
+    'respect-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
   },

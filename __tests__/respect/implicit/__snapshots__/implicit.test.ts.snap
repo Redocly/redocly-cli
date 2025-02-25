@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should implicitly add content type header based on requestBody.content field (the first one) if such does not specified 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow implicit.yaml / implicit-content-type
+
+  ✓ POST /activities - step post-activities
+
+    Request URL: https://api.impossiblemissionsforce.com/activities
+    Request Headers:
+      content-type: application/json
+      accept: application/problem+json
+      imf-key: test-key
+    Request Body:
+      {
+        "data": {
+          "type": "quiz",
+          "name": "Onboarding Part 1",
+          "item": "Sign agreements",
+          "answer": "a"
+        },
+        "metadata": {
+          "user": "abc123",
+          "domain": "https://impossiblemissionsforce.com",
+          "path": "/security/network-security/",
+          "timestamp": "2023-02-19T09:31:27Z"
+        }
+      }
+
+
+    Response status code: 204
+    Response time: <test> ms
+    Response Body:
+      {}
+
+    ✓ status code check - $statusCode in [204, 400]
+
+  ✓ POST /quizzes - step post-quizzes
+
+    Request URL: https://api.impossiblemissionsforce.com/quizzes
+    Request Headers:
+      content-type: application/original
+      accept: application/json, application/problem+json
+      imf-key: test-key
+    Request Body:
+      {
+        "name": "Who we are",
+        "passingScore": 0.8,
+        "questions": [
+          {
+            "type": "choice",
+            "question": "What is our mission?",
+            "choices": {
+              "a": "Multinational espionage agency",
+              "b": "Prevent manmade catastrophes",
+              "c": "Do amazing stunts",
+              "d": "2023"
+            },
+            "correctAnswer": "b"
+          }
+        ]
+      }
+
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Body:
+      {
+        "type": "http://example.com",
+        "title": "Media type \\"application/original\\" is not supported",
+        "status": 400,
+        "detail": "string",
+        "instance": "string"
+      }
+
+    ✓ success criteria check - $request.header.content-type == 'application/origi...
+    ✓ status code check - $statusCode in [201, 400]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for implicit.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ implicit.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

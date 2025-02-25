@@ -237,7 +237,7 @@
 
 ### Minor Changes
 
-- Added Spot and Arazzo rules: `no-criteria-xpath`, `no-actions-type-end`, `criteria-unique`.
+- Added Respect and Arazzo rules: `no-criteria-xpath`, `no-actions-type-end`, `criteria-unique`.
 
 ### Patch Changes
 

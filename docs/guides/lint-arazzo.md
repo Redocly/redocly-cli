@@ -82,7 +82,7 @@ extends:
 
 arazzoRules:
   sourceDescription-name-unique: warn
-  spot-supported-versions: error
+  respect-supported-versions: error
 ```
 
 The configuration shown here gives some good entry-level linting using the `minimal` standard, and adds checks that we're using a supported version of Arazzo, and warns if each source description doesn't have a unique name.

@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should end workflow execution, context returns to the caller with applicable outputs, when step fails and onFailure action is of type \`end\` 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow step-on-failure-type-end-action.yaml / events-crud
+
+  ✗ GET /special-events - step list-events
+    ✗ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow step-on-failure-type-end-action.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Failed tests info:
+
+  Workflow name: events-crud
+
+    stepId - list-events
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$statusCode == 201"}
+      
+  Summary for step-on-failure-type-end-action.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 passed, 1 failed, 2 total
+  Checks: 7 passed, 1 failed, 8 total
+  Time: <test>ms
+
+
+┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x step-on-failure-type-end-action.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+
+ Tests exited with error 
+"
+`;

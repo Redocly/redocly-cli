@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
 jobs:
   latest-vs-next:
     runs-on: ubuntu-latest
@@ -29,9 +33,6 @@ jobs:
       - run: redocly --version
       - name: Run Benchmark
         run: hyperfine -i --warmup 3 'redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
-        env:
-          CI: true
-          REDOCLY_TELEMETRY: off
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
@@ -67,9 +68,6 @@ jobs:
           npm test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
-        env:
-          CI: true
-          REDOCLY_TELEMETRY: off
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
