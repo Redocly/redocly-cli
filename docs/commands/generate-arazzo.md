@@ -41,7 +41,7 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 
 ## Examples
 
-Run the command: `npx @redocly/cli generate-arazzo warp.openapi.yaml`
+Run the command: `npx @redocly/cli generate-arazzo 'https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml'`
 
 The command generates a `auto-generate.arazzo.yaml` file in the current directory.
 
@@ -53,9 +53,9 @@ info:
   title: Warp API
   version: 1.0.0
 sourceDescriptions:
-  - name: warp
+  - name: index
     type: openapi
-    url: warp.yaml
+    url: https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml
 workflows:
   - workflowId: post-timelines-workflow
     steps:
