@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`free apis test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow free.yaml / json
+
+  ✓ GET https://jsonplaceholder.typicode.com/posts/1 - step get-first-post
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/id == 1
+    ✓ success criteria check - $response.body#/title == 'sunt aut facere repellat...
+    ✓ success criteria check - $response.body#/body == "quia et suscipit\\nsuscipi...
+    ✓ success criteria check - $response.body#/userId == 1
+
+  ✓ GET https://jsonplaceholder.typicode.com/posts/wrong-id - step get-wrong-post
+    ✓ success criteria check - $statusCode == 404
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow free.yaml / xml
+
+  ✗ POST http://restapi.adequateshop.com/api/Traveler - step post-traveler
+    ✓ success criteria check - $statusCode == 404
+    ✓ success criteria check - $response.header.content-type == 'text/html; chars...
+    ✗ success criteria check - $response.body == '<Error><Message>Pleae try with ...
+
+
+  Failed tests info:
+
+  Workflow name: xml
+
+    stepId - post-traveler
+    ✗ success criteria check
+      Checking simple criteria: {"condition":"$response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'"}
+      
+  Summary for free.yaml
+  
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 2 passed, 1 failed, 3 total
+  Checks: 8 passed, 1 failed, 9 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x free.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└───────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+
+ Tests exited with error 
+"
+`;

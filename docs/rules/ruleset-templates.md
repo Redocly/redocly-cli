@@ -229,7 +229,7 @@ rules:
   parameters-unique: off
   step-onSuccess-unique: off
   step-onFailure-unique: off
-  spot-supported-versions: off
+  respect-supported-versions: off
   requestBody-replacements-unique: off
   no-criteria-xpath: off
   no-actions-type-end: off
@@ -498,7 +498,7 @@ rules:
   parameters-unique: error
   step-onSuccess-unique: warn
   step-onFailure-unique: warn
-  spot-supported-versions: off
+  respect-supported-versions: off
   requestBody-replacements-unique: warn
   no-criteria-xpath: off
   no-actions-type-end: warn

@@ -1,0 +1,47 @@
+arazzo: 1.0.1
+info:
+  title: Arazzo
+  version: 1.0.0
+  description: Test infinite loop
+sourceDescriptions:
+  - name: oas
+    type: openapi
+    url: ./oas.yaml
+workflows:
+  - workflowId: infinite
+    steps:
+      - stepId: pre-step
+        description: Pre-step
+        operationId: ping
+        onFailure:
+          - name: continue
+            type: goto
+            stepId: with-nested
+
+      - stepId: with-nested
+        description: With nested workflow
+        workflowId: nested-workflow
+
+      - stepId: ping
+        description: Ping the API
+        operationId: ping
+        onFailure:
+          - name: infinite-loop
+            type: goto
+            stepId: ping
+
+  - workflowId: nested-workflow
+    steps:
+      - stepId: step-1
+        description: Step 1
+        operationId: ping
+        onFailure:
+          - name: next-step
+            type: goto
+            stepId: step-2
+      - stepId: step-2
+        description: Step 2
+        operationId: ping
+        onFailure:
+          - name: end
+            type: end

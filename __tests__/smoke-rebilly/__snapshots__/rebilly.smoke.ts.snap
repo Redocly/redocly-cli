@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rebilly test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow rebilly.yaml / crud
+
+  ✓ POST https://api-sandbox.rebilly.com/organizations/redocly/customers - step create-member
+    ✓ success criteria check - $statusCode == 201
+
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-member
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/firstName == 'First'
+    ✓ success criteria check - $response.body#/lastName == 'Last'
+
+  ✓ PUT https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step update-member
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/firstName == 'UpdatedName'
+    ✓ success criteria check - $response.body#/lastName == 'Last'
+    ✓ success criteria check - $response.body#/id == $steps.create-member.outputs...
+
+  ✓ DELETE https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step delete-member
+    ✓ success criteria check - $statusCode == 204
+
+  ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-non-existing-member
+    ✓ success criteria check - $statusCode == 404
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow rebilly.yaml / inherited
+
+  ✓ POST /customers - step add-user
+    ✓ status code check - $statusCode in [201, 401, 403, 409, 422]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for rebilly.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 6 passed, 6 total
+  Checks: 13 passed, 13 total
+  Time: <test>ms
+
+
+┌──────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ rebilly.yaml                                       │ 2          │ 2       │ -       │ -        │
+└──────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

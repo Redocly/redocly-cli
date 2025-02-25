@@ -1,0 +1,246 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should use inputs from CLI and env 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow inputs-with-cli-and-env.yaml / get-museum-hours
+
+  ✓ GET /museum-hours - step get-museum-hours
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+  Running child workflow for the step buy-ticket
+  Running workflow museum-tickets.yaml / get-museum-tickets
+
+  ✓ POST /tickets - step buy-tickets
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+    Request Body:
+      {
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "email": "todd@example.com"
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
+      {
+        "message": "Museum general entry ticket purchased",
+        "ticketId": "382c0820-0530-4f4b-99af-13811ad0f17a",
+        "ticketType": "general",
+        "ticketDate": "2023-09-07",
+        "confirmationCode": "ticket-general-e5e5c6-dce78"
+      }
+
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  ✓ GET /museum-hours - step test-default-input
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow inputs-with-cli-and-env.yaml / events-crud
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+      username-token: Basic Og==
+    Request Body:
+      {
+        "additionalName": "John",
+        "additionalPassword": "password",
+        "additionalEnv": "Basic Og==",
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 0
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Body:
+      {
+        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 0
+      }
+
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
+    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for inputs-with-cli-and-env.yaml
+  
+  Workflows: 2 passed, 2 total
+  Steps: 4 passed, 4 total
+  Checks: 16 passed, 16 total
+  Time: <test>ms
+
+
+┌──────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ inputs-with-cli-and-env.yaml                                       │ 2          │ 2       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

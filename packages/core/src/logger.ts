@@ -2,7 +2,9 @@ import * as colorette from 'colorette';
 import { isBrowser } from './env';
 import { identity } from './utils';
 
-export { options as colorOptions } from 'colorette';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore this works but some types are not working
+export const colorOptions = colorette.options;
 
 export const colorize = new Proxy(colorette, {
   get(target: typeof colorette, prop: string): typeof identity {

@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
 jobs:
   build-and-unit:
     runs-on: ubuntu-latest
@@ -18,16 +22,12 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-        env:
-          CI: true
       - name: Typecheck
         run: npm run typecheck
       - name: Unit Tests
         run: npm run unit
       - name: E2E Tests
         run: npm run e2e
-        env:
-          CI: true
 
   cli-package-test:
     runs-on: ubuntu-latest
@@ -39,8 +39,6 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-        env:
-          CI: true
       - name: Prepare CLI and Core packages
         run: npm run pack:prepare
       - name: Install CLI Package
@@ -76,7 +74,5 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-        env:
-          CI: true
       - run: npm run eslint
       - run: npm run prettier:check

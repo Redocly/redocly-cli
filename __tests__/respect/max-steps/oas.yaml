@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: Arazzo
+  version: 1.0.0
+  description: Arazzo API
+  license:
+    name: MIT
+servers:
+  - url: https://bad-api-url.com/api
+paths:
+  /ping:
+    get:
+      security: []
+      summary: Ping
+      operationId: ping
+      responses:
+        '200':
+          description: A list of users

@@ -1,0 +1,204 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cats api test case 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow auto-cat.yaml / get-breeds-workflow
+
+  ✗ GET /breeds - step get-breeds-step
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✗ schema check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow auto-cat.yaml / get-fact-workflow
+
+  ✓ GET /fact - step get-fact-step
+    ✓ status code check - $statusCode in [200, 404]
+    ✓ content-type check
+    ✓ schema check
+
+────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow auto-cat.yaml / get-facts-workflow
+
+  ✗ GET /facts - step get-facts-step
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✗ schema check
+
+
+  Failed tests info:
+
+  Workflow name: get-breeds-workflow
+
+    stepId - get-breeds-step
+    ✗ schema check
+      
+      TYPE must be array
+      
+      >  1 | {
+      | ^
+      >  2 |   "current_page": 1,
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  3 |   "data": [
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  4 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  5 |       "breed": "Abyssinian",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  6 |       "country": "Ethiopia",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  7 |       "origin": "Natural/Standard",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  8 |       "coat": "Short",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  9 |       "pattern": "Ticked"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  10 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  11 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  12 |       "breed": "Aegean",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  13 |       "country": "Greece",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  14 |       "origin": "Natural/Standard",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  15 |       "coat": "Semi-long",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  16 |       "pattern": "Bi- or tri-colored"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  17 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  18 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  19 |       "breed": "American Curl",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  20 |       "country": "United States",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  21 |       "origin": "Mutation",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  22 |       "coat": "Short/Long",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  23 |       "pattern": "All"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  24 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  25 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  26 |       "breed": "American Bobtail",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  27 |       "country": "United States",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  28 |       "origin": "Mutation",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  29 |       "coat": "Short/Long",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  30 |       "pattern": "All"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  31 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  32 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  33 |       "breed": "American Shorthair",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  34 |       "country": "United States",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  35 |       "origin": "Natural",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  36 |       "coat": "Short",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  37 |       "pattern": "All but colorpoint"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  38 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  39 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  40 |       "breed": "American Wirehair",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  41 |       "country": "United States",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  42 |       "origin": "Mutation",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  43 |       "coat": "Rex",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  44 |       "pattern": "All but colorpoint"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  45 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  46 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  47 |       "breed": "Arabian Mau",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  48 |       "country": "Arabian Peninsula",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  49 |       "origin": "Natural",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  50 |       "coat": "Short",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  51 |       "pattern": ""
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  52 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  53 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  54 |       "breed": "Australian Mist",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  55 |       "country": "Australia",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  56 |       "origin": "Crossbreed",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  57 |       "coat": "Short",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  58 |       "pattern": "Spotted and Classic tabby"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  59 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  60 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  61 |       "breed": "Asian",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  62 |       "country": "developed in the United Kingdom (founding stock from Asia)",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  63 |       "origin": "",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  64 |       "coat": "Short",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  65 |       "pattern": "Evenly solid"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  66 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  67 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  68 |       "breed": "Asian Semi-longhair",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  69 |       "country": "United Kingdom",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  70 |       "origin": "Crossbreed",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  71 |       "coat": "Semi-long",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  72 |       "pattern": "Solid"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  73 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  74 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  75 |       "breed": "Balinese",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  76 |       "country": "developed in the United States (founding stock from Thailand)",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  77 |       "origin": "Crossbreed",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  78 |       "coat": "Long",
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  79 |       "pattern": "Colorpoint"
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  80 |     },
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  81 |     {
+      | ^^^^^^^^^^^^^^^^^^^^
+      >  82 |       "breed": "Bambino","
+`;
