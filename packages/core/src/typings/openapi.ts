@@ -292,12 +292,12 @@ export interface Oas3SecurityRequirement {
 }
 
 export interface Oas3SecurityScheme {
-  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect';
+  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect' | 'mutualTLS';
   description?: string;
   name?: string;
   in?: 'query' | 'header' | 'cookie';
   scheme?: string;
-  bearerFormat: string;
+  bearerFormat?: string;
   flows: {
     implicit?: {
       refreshUrl?: string;
