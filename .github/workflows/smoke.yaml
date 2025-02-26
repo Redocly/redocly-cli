@@ -292,7 +292,7 @@ jobs:
       - name: Run docker image
         run: |
           # Prepare
-          cp resources/pets.yaml resources/museum.yaml __tests__/smoke/
+          cp resources/pets.yaml resources/museum.yaml resources/museum-tickets.arazzo.yaml __tests__/smoke/
           cd __tests__/smoke/
 
           # Run commands
@@ -301,6 +301,7 @@ jobs:
           docker run --rm -v $PWD:/spec redocly/cli:latest bundle openapi.yaml --ext json
           docker run --rm -v $PWD:/spec redocly/cli:latest build-docs openapi.yaml
           docker run --rm -v $PWD:/spec redocly/cli:latest split pets.yaml --outDir output/split/petstore && docker run --rm -v $PWD:/spec redocly/cli:latest split museum.yaml --outDir output/split/museum
+          docker run --rm -v $PWD:/spec redocly/cli:latest respect museum-tickets.arazzo.yaml
 
           # Check for broken styles when building docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
           echo "Checking docs for issues..."
