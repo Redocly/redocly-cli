@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.31.2
+
+### Patch Changes
+
+- Fixed `sourceDescription` name generation in `generate-arazzo` command when using OpenAPI files that contain multiple periods "." in their filenames.
+- Updated @redocly/respect-core to v1.31.2.
+
 ## 1.31.1
 
 ### Patch Changes
