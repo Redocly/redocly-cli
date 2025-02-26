@@ -182,6 +182,23 @@ jobs:
           node-version: 18
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
 
+  run-smoke--pnpm--node-22:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - run: bash ./__tests__/smoke/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
+
   run-smoke--webpack--node-22:
     needs: prepare-smoke
     runs-on: ubuntu-latest
