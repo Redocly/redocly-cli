@@ -55,7 +55,7 @@ export async function bundleArazzo(filePath: string) {
 
     const errorLintProblems = lintProblems.filter((problem) => problem.severity === 'error');
     if (errorLintProblems.length) {
-      throw new Error(`${red('Invalid file configuration')} ${bold(fileName)}`);
+      throw new Error(`${red('Found errors in Arazzo description')} ${bold(fileName)}`);
     }
   }
 
