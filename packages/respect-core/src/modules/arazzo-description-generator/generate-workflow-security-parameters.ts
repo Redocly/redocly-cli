@@ -46,8 +46,6 @@ export function generateWorkflowSecurityParameters(
           value: `Basic {$inputs.${securityName}}`,
           in: inputsComponents?.inputs?.[securityName]?.in || 'header',
         });
-      } else {
-        continue;
       }
     }
   }
