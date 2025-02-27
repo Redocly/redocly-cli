@@ -17,6 +17,7 @@ $2 redocly-lint
 $2 redocly-bundle
 $2 redocly-build-docs
 $2 redocly-split
+$2 redocly-respect
 
 # Check for broken styles when building docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 echo "Checking docs for issues..."

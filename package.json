@@ -27,6 +27,7 @@
     "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
+    "precli": "npm run compile",
     "lint": "npm run cli lint resources/pets.yaml -- --format stylish",
     "bundle": "npm run cli bundle resources/pets.yaml",
     "stats": "npm run cli stats resources/pets.yaml",
@@ -73,11 +74,13 @@
     "@typescript-eslint/parser": "^6.8.0",
     "eslint": "^8.22.0",
     "eslint-plugin-import": "^2.29.1",
+    "husky": "^9.1.7",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-snapshot": "^29.3.1",
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
+    "lint-staged": "^15.4.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
     "pegjs": "0.10.0",
@@ -89,5 +92,13 @@
     "typescript": "5.5.3",
     "webpack": "^5.94.0",
     "webpack-cli": "^4.10.0"
+  },
+  "lint-staged": {
+    "**/*.{ts,js,yaml,yml,json,md}": [
+      "prettier --write"
+    ],
+    "packages/**/*": [
+      "eslint --fix"
+    ]
   }
 }

@@ -9,7 +9,8 @@
     "redocly-lint": "redocly lint openapi.yaml",
     "redocly-bundle": "redocly bundle openapi.yaml --ext json",
     "redocly-build-docs": "redocly build-docs openapi.yaml",
-    "redocly-split": "redocly split pets.yaml --outDir output/split/petstore && redocly split museum.yaml --outDir output/split/museum"
+    "redocly-split": "redocly split pets.yaml --outDir output/split/petstore && redocly split museum.yaml --outDir output/split/museum",
+    "redocly-respect": "redocly respect museum-tickets.arazzo.yaml"
   },
   "author": "redocly",
   "license": "ISC"
