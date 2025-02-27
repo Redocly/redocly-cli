@@ -11,37 +11,41 @@ export function generateSecurityInputsArazzoComponents(
 
   for (const [name, securityScheme] of Object.entries(securitySchemes)) {
     if (securityScheme.type !== 'http' && securityScheme.type !== 'apiKey') {
-      return;
+      continue;
     }
 
     if (securityScheme?.scheme?.toLowerCase() === 'basic') {
       inputs[name] = {
         type: 'object',
         properties: {
-          username: {
+          [name]: {
             type: 'string',
-            description: 'Username for basic authentication',
-          },
-          password: {
-            type: 'string',
-            description: 'Password for basic authentication',
+            description: 'Basic authentication',
             format: 'password',
           },
         },
-        required: ['username', 'password'],
       };
     } else if (securityScheme?.scheme?.toLowerCase() === 'bearer') {
       inputs[name] = {
-        type: 'string',
-        description: securityScheme?.description || `JWT Authentication token for ${name}`,
-        format: 'password',
+        type: 'object',
+        properties: {
+          [name]: {
+            type: 'string',
+            description: 'JWT Authentication token for ${name}',
+            format: 'password',
+          },
+        },
       };
     } else {
-      // TODO: clarify this
       inputs[name] = {
-        type: 'string',
-        description: securityScheme?.description || `Authentication token for ${name}`,
-        format: 'password',
+        type: 'object',
+        properties: {
+          [name]: {
+            type: 'string',
+            description: securityScheme?.description || `Authentication token for ${name}`,
+            format: 'password',
+          },
+        },
       };
     }
   }

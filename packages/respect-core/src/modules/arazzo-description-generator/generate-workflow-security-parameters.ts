@@ -26,18 +26,24 @@ export function generateWorkflowSecurityParameters(
         continue;
       }
 
+      if (securityScheme?.type === 'apiKey') {
+        parameters.push({
+          name: securityScheme?.name,
+          value: `$inputs.${securityName}`,
+          in: inputsComponents?.inputs?.[securityName]?.in || 'header',
+        });
+      }
+
       if (securityScheme?.scheme === 'bearer') {
         parameters.push({
-          // TODO: clarify parameter name
           name: 'Authorization',
           value: `Bearer {$inputs.${securityName}}`,
           in: inputsComponents?.inputs?.[securityName]?.in || 'header',
         });
       } else if (securityScheme?.scheme === 'basic') {
         parameters.push({
-          // TODO: clarify parameter name
           name: 'Authorization',
-          value: `Basic ....`,
+          value: `Basic {$inputs.${securityName}}`,
           in: inputsComponents?.inputs?.[securityName]?.in || 'header',
         });
       } else {

@@ -7,13 +7,9 @@ describe('generateWorkflowSecurityParameters', () => {
         basicAuth: {
           type: 'object',
           properties: {
-            username: {
+            basicAuth: {
               type: 'string',
-              description: 'Username for basic authentication',
-            },
-            password: {
-              type: 'string',
-              description: 'Password for basic authentication',
+              description: 'Basic authentication',
               format: 'password',
             },
           },
@@ -35,7 +31,7 @@ describe('generateWorkflowSecurityParameters', () => {
     expect(result).toEqual([
       {
         name: 'Authorization',
-        value: `Basic ....`,
+        value: `Basic {$inputs.basicAuth}`,
         in: 'header',
       },
     ]);
@@ -67,6 +63,38 @@ describe('generateWorkflowSecurityParameters', () => {
       {
         name: 'Authorization',
         value: `Bearer {$inputs.bearerAuth}`,
+        in: 'header',
+      },
+    ]);
+  });
+
+  it('should return the correct workflow security parameters for ApiKey authentication', () => {
+    const inputsComponents = {
+      inputs: {
+        apiKey: {
+          type: 'string',
+          description: 'ApiKey token',
+          format: 'password',
+        },
+      },
+    };
+
+    const security = [{ apiKey: [] }];
+
+    const securitySchemes = {
+      apiKey: {
+        type: 'apiKey',
+        name: 'X-API-Key',
+        in: 'header',
+      },
+    } as any;
+
+    const result = generateWorkflowSecurityParameters(inputsComponents, security, securitySchemes);
+
+    expect(result).toEqual([
+      {
+        name: 'X-API-Key',
+        value: `$inputs.apiKey`,
         in: 'header',
       },
     ]);

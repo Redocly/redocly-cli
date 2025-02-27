@@ -21,14 +21,61 @@ describe('generateSecurityInputsArazzoComponents', () => {
         basicAuth: {
           type: 'object',
           properties: {
-            username: { type: 'string', description: 'Username for basic authentication' },
-            password: {
+            basicAuth: {
               type: 'string',
+              description: 'Basic authentication',
               format: 'password',
-              description: 'Password for basic authentication',
             },
           },
-          required: ['username', 'password'],
+        },
+      },
+    });
+  });
+
+  it('should generate the correct inputs for the Bearer auth security scheme', () => {
+    const securitySchemes = {
+      bearerAuth: {
+        type: 'http' as const,
+        scheme: 'bearer',
+      } as Oas3SecurityScheme,
+    };
+    const result = generateSecurityInputsArazzoComponents(securitySchemes);
+    expect(result).toEqual({
+      inputs: {
+        bearerAuth: {
+          type: 'object',
+          properties: {
+            bearerAuth: {
+              type: 'string',
+              description: 'JWT Authentication token for ${name}',
+              format: 'password',
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('should generate the correct inputs for the ApiKey auth security scheme', () => {
+    const securitySchemes = {
+      apiKey: {
+        type: 'apiKey' as const,
+        name: 'X-API-Key',
+        in: 'header',
+      } as Oas3SecurityScheme,
+    };
+    const result = generateSecurityInputsArazzoComponents(securitySchemes);
+    expect(result).toEqual({
+      inputs: {
+        apiKey: {
+          type: 'object',
+          properties: {
+            apiKey: {
+              type: 'string',
+              description: 'Authentication token for apiKey',
+              format: 'password',
+            },
+          },
         },
       },
     });
