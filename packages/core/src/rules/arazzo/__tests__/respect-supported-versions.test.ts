@@ -81,7 +81,7 @@ describe('Arazzo respect-supported-versions', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "Only 1.0.0, 1.0.1 Arazzo versions are supported by Respect.",
+          "message": "Only 1.0.1 Arazzo version is fully supported by Respect.",
           "ruleId": "respect-supported-versions",
           "severity": "error",
           "suggest": [],

@@ -34,7 +34,7 @@ export async function bundleArazzo(filePath: string) {
     extends: ['recommended-strict'],
     arazzo1Rules: {
       'no-criteria-xpath': 'error',
-      'respect-supported-versions': 'error',
+      'respect-supported-versions': 'warn',
     },
   });
 
@@ -53,7 +53,10 @@ export async function bundleArazzo(filePath: string) {
 
     printConfigLintTotals(fileTotals);
 
-    throw new Error(`${red('Invalid file configuration')} ${bold(fileName)}`);
+    const errorLintProblems = lintProblems.filter((problem) => problem.severity === 'error');
+    if (errorLintProblems.length) {
+      throw new Error(`${red('Invalid file configuration')} ${bold(fileName)}`);
+    }
   }
 
   const bundledDocument = await bundle({

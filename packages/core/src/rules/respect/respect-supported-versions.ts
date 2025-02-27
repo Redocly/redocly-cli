@@ -14,7 +14,7 @@ export const RespectSupportedVersions: Arazzo1Rule = () => {
             message: `Only ${supportedVersions} Arazzo ${pluralize(
               'version is',
               ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT.length
-            )} supported by Respect.`,
+            )} fully supported by Respect.`,
             location: location.child('arazzo'),
           });
         }
