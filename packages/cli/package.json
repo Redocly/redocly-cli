@@ -37,6 +37,7 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
+    "@redocly/config": "^0.21.0",
     "@redocly/openapi-core": "1.31.2",
     "@redocly/respect-core": "1.31.2",
     "abort-controller": "^3.0.0",
