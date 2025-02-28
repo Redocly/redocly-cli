@@ -11,7 +11,7 @@ const testDescription = {
     {
       name: 'externalWorkflow',
       type: 'arazzo',
-      url: '__tests__/respect/cat-fact-api/auto-cat.yaml',
+      url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
     },
   ],
   workflows: [

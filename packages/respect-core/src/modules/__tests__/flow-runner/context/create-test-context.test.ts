@@ -21,7 +21,7 @@ describe('createTestContext', () => {
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.yaml',
+          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       workflows: [
@@ -527,7 +527,7 @@ describe('createTestContext', () => {
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.yaml',
+          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       apiClient: expect.any(ApiFetcher),
