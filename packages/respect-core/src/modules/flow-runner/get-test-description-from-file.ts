@@ -1,5 +1,6 @@
 import { bold, red } from 'colorette';
 import { getTotals, formatProblems, lint, bundle, createConfig } from '@redocly/openapi-core';
+import { type CollectFn } from '@redocly/openapi-core/src/utils';
 import * as path from 'node:path';
 import { existsSync } from 'node:fs';
 import { type TestDescription } from '../../types';
@@ -8,7 +9,7 @@ import { version } from '../../../package.json';
 import { isTestFile } from '../../utils/file';
 import { readYaml } from '../../utils/yaml';
 
-export async function bundleArazzo(filePath: string) {
+export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn) {
   const fileName = path.basename(filePath);
 
   if (!fileName) {
@@ -34,7 +35,7 @@ export async function bundleArazzo(filePath: string) {
     extends: ['recommended-strict'],
     arazzo1Rules: {
       'no-criteria-xpath': 'error',
-      'respect-supported-versions': 'error',
+      'respect-supported-versions': 'warn',
     },
   });
 
@@ -52,8 +53,6 @@ export async function bundleArazzo(filePath: string) {
     });
 
     printConfigLintTotals(fileTotals);
-
-    throw new Error(`${red('Invalid file configuration')} ${bold(fileName)}`);
   }
 
   const bundledDocument = await bundle({
@@ -61,6 +60,13 @@ export async function bundleArazzo(filePath: string) {
     config,
     dereference: true,
   });
+
+  collectSpecData?.(bundledDocument.bundle.parsed || {});
+
+  const errorLintProblems = lintProblems.filter((problem) => problem.severity === 'error');
+  if (errorLintProblems.length) {
+    throw new Error(`${red('Found errors in Arazzo description')} ${bold(fileName)}`);
+  }
 
   return (bundledDocument.bundle.parsed || {}) as TestDescription;
 }

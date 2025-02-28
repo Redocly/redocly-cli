@@ -94,7 +94,7 @@ describe('runTestFile', () => {
     );
   });
 
-  it('should throw Invalid file configuration error when contains lint errors', async () => {
+  it('should throw Found errors in Arazzo description error when contains lint errors', async () => {
     const testDescription = {
       workflows: [],
     };
