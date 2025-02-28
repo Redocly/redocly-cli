@@ -30,21 +30,19 @@ export function generateWorkflowSecurityParameters(
         parameters.push({
           name: securityScheme?.name,
           value: `$inputs.${securityName}`,
-          in: inputsComponents?.inputs?.[securityName]?.in || 'header',
+          in: securityScheme?.in || 'header',
         });
-      }
-
-      if (securityScheme?.scheme === 'bearer') {
+      } else if (securityScheme?.scheme === 'bearer') {
         parameters.push({
           name: 'Authorization',
           value: `Bearer {$inputs.${securityName}}`,
-          in: inputsComponents?.inputs?.[securityName]?.in || 'header',
+          in: securityScheme?.in || 'header',
         });
       } else if (securityScheme?.scheme === 'basic') {
         parameters.push({
           name: 'Authorization',
           value: `Basic {$inputs.${securityName}}`,
-          in: inputsComponents?.inputs?.[securityName]?.in || 'header',
+          in: securityScheme?.in || 'header',
         });
       }
     }
