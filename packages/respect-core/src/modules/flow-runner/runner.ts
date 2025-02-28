@@ -66,8 +66,7 @@ export async function runTestFile(
     },
   };
 
-  const bundledTestDescription = await bundleArazzo(filePath);
-  collectSpecData?.(bundledTestDescription);
+  const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
 
   const result = await runWorkflows(bundledTestDescription, options);
 
