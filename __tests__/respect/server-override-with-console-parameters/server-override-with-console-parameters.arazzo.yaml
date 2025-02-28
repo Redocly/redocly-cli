@@ -41,5 +41,3 @@ workflows:
         description: >-
           Request the list of events.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
-        outputs:
-          events: $response.body
