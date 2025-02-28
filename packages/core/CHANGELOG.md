@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.31.3
+
+### Patch Changes
+
+- Changed validation to ensure both (1.0.0 or 1.0.1) Arazzo version works with Respect.
+
 ## 1.31.2
 
 ### Patch Changes
