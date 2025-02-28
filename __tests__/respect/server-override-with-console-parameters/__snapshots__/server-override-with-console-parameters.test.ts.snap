@@ -3,18 +3,7 @@
 exports[`should use server override from CLI and env 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow server-override-with-console-parameters.yaml / get-museum-hours
-
-  ✗ GET /museum-hours - step get-museum-hours
-
-    Request URL: https://museum-api-bad-endpoint.com/museum-api-bad-endpoint/museum-hours
-    Request Headers:
-      accept: application/json, application/problem+json
-      authorization: Basic Og==
-
-    ✗ failed network request
-
-  Running failure action continue for the step get-museum-hours
+  Running workflow server-override-with-console-parameters.arazzo.yaml / get-museum-hours
 
   Running child workflow for the step buy-ticket
   Running workflow museum-tickets.yaml / get-museum-tickets
@@ -35,10 +24,9 @@ exports[`should use server override from CLI and env 1`] = `
 
     ✗ failed network request
 
-
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow server-override-with-console-parameters.yaml / events-crud
+  Running workflow server-override-with-console-parameters.arazzo.yaml / events-crud
 
   ✗ GET /special-events - step list-events
 
@@ -52,31 +40,25 @@ exports[`should use server override from CLI and env 1`] = `
 
   Failed tests info:
 
-  Workflow name: get-museum-hours
-
-    stepId - get-museum-hours
-    ✗ failed network request
-      fetch failed
-      
   Workflow name: events-crud
 
     stepId - list-events
     ✗ failed network request
       fetch failed
       
-  Summary for server-override-with-console-parameters.yaml
+  Summary for server-override-with-console-parameters.arazzo.yaml
   
-  Workflows: 2 failed, 2 total
-  Steps: 2 failed, 2 total
-  Checks: 2 failed, 2 total
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 1 failed, 1 total
+  Checks: 1 failed, 1 total
   Time: <test>ms
 
 
-┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
-├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x server-override-with-console-parameters.yaml                                       │ 2          │ 0       │ 2       │ -        │
-└──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x server-override-with-console-parameters.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

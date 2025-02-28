@@ -3,7 +3,7 @@
 exports[`should implicitly add content type header based on requestBody.content field (the first one) if such does not specified 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow implicit.yaml / implicit-content-type
+  Running workflow implicit.arazzo.yaml / implicit-content-type
 
   ✓ POST /activities - step post-activities
 
@@ -80,7 +80,7 @@ exports[`should implicitly add content type header based on requestBody.content 
     ✓ schema check
 
 
-  Summary for implicit.yaml
+  Summary for implicit.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 2 passed, 2 total
@@ -88,11 +88,11 @@ exports[`should implicitly add content type header based on requestBody.content 
   Time: <test>ms
 
 
-┌───────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
-├───────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ implicit.yaml                                       │ 1          │ 1       │ -       │ -        │
-└───────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌──────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ implicit.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 "

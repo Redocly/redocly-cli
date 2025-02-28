@@ -9,10 +9,7 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api.yaml
-  - name: tickets-from-museum-api
-    type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-api-with-errors.yaml
 
 workflows:
   - workflowId: get-museum-hours
@@ -24,6 +21,10 @@ workflows:
         value: Basic Og==
     steps:
       - stepId: get-museum-hours
+        parameters:
+          - in: header
+            name: Content-Type
+            value: application/json
         description: >-
           Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
         operationId: museum-api.getMuseumHours
@@ -31,16 +32,6 @@ workflows:
           - condition: $statusCode == 200
         outputs:
           schedule: $response.body
-          firstEventData: $response.body#/0/date
-      - stepId: buy-ticket
-        description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
-        outputs:
-          ticketId: $outputs.ticketId
-          message: $outputs.stepFullBody#/message
-    outputs:
-      message: $steps.buy-ticket.outputs.message
   - workflowId: events-crud
     description: >-
       This workflow demonstrates how to list, create, update, and delete special events at the museum.
@@ -49,12 +40,6 @@ workflows:
         name: Authorization
         value: Basic Og==
     steps:
-      - stepId: list-events
-        description: >-
-          Request the list of events.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
-        outputs:
-          events: $response.body
       - stepId: create-event
         description: >-
           Create a new special event.
@@ -65,36 +50,40 @@ workflows:
             location: 'Under the seaaa 🦀 🎶 🌊.'
             eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
             dates:
-              - $steps.list-events.outputs.events.0.dates.0
-              - $steps.list-events.outputs.events#/0/dates/1
+              - '2023-09-05'
+              - '2023-09-08'
             price: 0
         successCriteria:
           - condition: $statusCode == 201
-          - condition: $workflows.get-museum-hours.outputs.message == 'Museum general entry ticket purchased'
           - context: $response.body
             condition: $.name == 'Mermaid Treasure Identification and Analysis'
             type: jsonpath
         outputs:
           createdEventId: $response.body#/eventId
-          crearedEventData: $response.body
-    outputs:
-      createdEventData: $steps.create-event.outputs.crearedEventData
-  - workflowId: get-event-by-id
-    parameters:
-      - in: header
-        name: Authorization
-        value: Basic Og==
-    steps:
-      - stepId: get-event-by-id
+          name: $response.body#/name
+
+      - stepId: update-event
         description: >-
-          Get the details of the event that was created in the previous step.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/get'
+          Update the created event with new details.
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/patch'
         parameters:
           - name: eventId
             in: path
-            value: $workflows.events-crud.outputs.createdEventData#/eventId
+            value: $steps.create-event.outputs.createdEventId
+        requestBody:
+          payload:
+            name: 'Orca Identification and Analysis'
+            location: 'Under the seaaa 🦀 🎶 🌊.'
+            dates:
+              - '2023-09-05'
+              - '2023-09-08'
+            price: 0
         successCriteria:
-          - condition: $workflows.events-crud.outputs.createdEventData#/price == 0
-          - context: $statusCode
-            condition: '^200$'
-            type: regex
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $.name == 'Orca Identification and Analysis'
+            type:
+              type: jsonpath
+              version: draft-goessner-dispatch-jsonpath-00
+        outputs:
+          updatedEventId: $response.body#/eventId

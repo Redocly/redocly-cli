@@ -3,7 +3,7 @@ import { join } from 'path';
 
 test('should use error severity level', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
-  const fixturesPath = join(__dirname, 'severity-level.yaml');
+  const fixturesPath = join(__dirname, 'severity-level.arazzo.yaml');
   const args = getParams(indexEntryPoint, [
     'respect',
     fixturesPath,

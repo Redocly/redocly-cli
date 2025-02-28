@@ -3,7 +3,7 @@
 exports[`local-json-server local-json-server test case 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow local-json-server.yaml / before
+  Running workflow local-json-server.arazzo.yaml / before
 
   ✓ GET /items - step get-all-items-before
     ✓ status code check - $statusCode in [200]
@@ -12,7 +12,7 @@ exports[`local-json-server local-json-server test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow local-json-server.yaml / crud-items
+  Running workflow local-json-server.arazzo.yaml / crud-items
 
   ✓ POST /items - step add-item
     ✓ success criteria check - $statusCode == 201
@@ -28,7 +28,7 @@ exports[`local-json-server local-json-server test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow local-json-server.yaml / auto-inherit
+  Running workflow local-json-server.arazzo.yaml / auto-inherit
 
   ✓ POST /items - step add-item-auto-inherit
     ✓ status code check - $statusCode in [201]
@@ -57,7 +57,7 @@ exports[`local-json-server local-json-server test case 1`] = `
     ✗ success criteria check
       Checking simple criteria: {"condition":"$response.body#/0/value == 100"}
       
-  Summary for local-json-server.yaml
+  Summary for local-json-server.arazzo.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 6 passed, 1 failed, 7 total
@@ -65,11 +65,11 @@ exports[`local-json-server local-json-server test case 1`] = `
   Time: <test>ms
 
 
-┌────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                       │ Workflows  │ Passed  │ Failed  │ Warnings │
-├────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x local-json-server.yaml                                       │ 3          │ 2       │ 1       │ -        │
-└────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x local-json-server.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
+└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

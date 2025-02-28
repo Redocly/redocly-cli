@@ -3,7 +3,7 @@
 exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow reusable-components.yaml / get-museum-hours
+  Running workflow reusable-components.arazzo.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours-step-success-action
 
@@ -146,7 +146,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✓ schema check
 
   Running failure action get-museum-hours-failure-action for the step get-museum-hours-step-failure-action-goto
-  Running workflow reusable-components.yaml / final-workflow
+  Running workflow reusable-components.arazzo.yaml / final-workflow
 
   ✓ GET /museum-hours - step final-workflow-step
 
@@ -221,7 +221,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow reusable-components.yaml / events-crud
+  Running workflow reusable-components.arazzo.yaml / events-crud
 
   ✓ GET /special-events - step list-events
 
@@ -408,7 +408,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow reusable-components.yaml / final-workflow
+  Running workflow reusable-components.arazzo.yaml / final-workflow
 
   ✓ GET /museum-hours - step final-workflow-step
 
@@ -489,7 +489,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
     ✗ success criteria check
       Checking simple criteria: {"condition":"$statusCode == 201"}
       
-  Summary for reusable-components.yaml
+  Summary for reusable-components.arazzo.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 5 passed, 1 failed, 6 total
@@ -497,11 +497,11 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
   Time: <test>ms
 
 
-┌──────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                         │ Workflows  │ Passed  │ Failed  │ Warnings │
-├──────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x reusable-components.yaml                                       │ 3          │ 2       │ 1       │ -        │
-└──────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌─────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x reusable-components.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

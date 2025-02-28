@@ -3,7 +3,7 @@
 exports[`cats api test case 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow auto-cat.yaml / get-breeds-workflow
+  Running workflow auto-cat.arazzo.yaml / get-breeds-workflow
 
   ✗ GET /breeds - step get-breeds-step
     ✓ status code check - $statusCode in [200]
@@ -12,7 +12,7 @@ exports[`cats api test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow auto-cat.yaml / get-fact-workflow
+  Running workflow auto-cat.arazzo.yaml / get-fact-workflow
 
   ✓ GET /fact - step get-fact-step
     ✓ status code check - $statusCode in [200, 404]
@@ -21,7 +21,7 @@ exports[`cats api test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow auto-cat.yaml / get-facts-workflow
+  Running workflow auto-cat.arazzo.yaml / get-facts-workflow
 
   ✗ GET /facts - step get-facts-step
     ✓ status code check - $statusCode in [200]

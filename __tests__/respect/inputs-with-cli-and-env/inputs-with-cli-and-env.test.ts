@@ -5,7 +5,7 @@ test('should use inputs from CLI and env', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
 
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
-  const fixturesPath = join(__dirname, 'inputs-with-cli-and-env.yaml');
+  const fixturesPath = join(__dirname, 'inputs-with-cli-and-env.arazzo.yaml');
   const args = getParams(indexEntryPoint, [
     'respect',
     fixturesPath,

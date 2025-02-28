@@ -29,7 +29,7 @@ describe('local-json-server', () => {
 
   test('local-json-server test case', () => {
     const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
-    const fixturesPath = join(__dirname, 'local-json-server.yaml');
+    const fixturesPath = join(__dirname, 'local-json-server.arazzo.yaml');
     const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
 
     const result = getCommandOutput(args);

@@ -3,7 +3,7 @@
 exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow workflow-failure-actions.yaml / get-museum-hours
+  Running workflow workflow-failure-actions.arazzo.yaml / get-museum-hours
 
   ✗ GET /museum-hours - step get-museum-hours
     ✗ success criteria check - $statusCode == 201
@@ -56,7 +56,7 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✗ success criteria check
       Checking simple criteria: {"condition":"$statusCode == 201"}
       
-  Summary for workflow-failure-actions.yaml
+  Summary for workflow-failure-actions.arazzo.yaml
   
   Workflows: 1 failed, 1 total
   Steps: 1 passed, 2 failed, 3 total
@@ -64,11 +64,11 @@ exports[`should execute successActions for each workflow step if it does not hav
   Time: <test>ms
 
 
-┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
-├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x workflow-failure-actions.yaml                                       │ 1          │ 0       │ 1       │ -        │
-└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x workflow-failure-actions.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

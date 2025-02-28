@@ -3,7 +3,7 @@
 exports[`rebilly test case 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow rebilly.yaml / crud
+  Running workflow rebilly.arazzo.yaml / crud
 
   ✓ POST https://api-sandbox.rebilly.com/organizations/redocly/customers - step create-member
     ✓ success criteria check - $statusCode == 201
@@ -27,7 +27,7 @@ exports[`rebilly test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow rebilly.yaml / inherited
+  Running workflow rebilly.arazzo.yaml / inherited
 
   ✓ POST /customers - step add-user
     ✓ status code check - $statusCode in [201, 401, 403, 409, 422]
@@ -35,7 +35,7 @@ exports[`rebilly test case 1`] = `
     ✓ schema check
 
 
-  Summary for rebilly.yaml
+  Summary for rebilly.arazzo.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 6 passed, 6 total
@@ -46,7 +46,7 @@ exports[`rebilly test case 1`] = `
 ┌──────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ rebilly.yaml                                       │ 2          │ 2       │ -       │ -        │
+│ ✓ rebilly.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
 └──────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 

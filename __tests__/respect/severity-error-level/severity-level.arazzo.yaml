@@ -1,39 +1,30 @@
 arazzo: 1.0.1
 info:
-  title: Test inputs with CLI and env
+  title: Redocly Museum API
   description: >-
-    This test demonstrates how to use inputs and environment variables in an API test.
+    An imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
   version: 1.0.0
 
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api.yaml
-  - name: tickets-from-museum-api
-    type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-api-with-errors.yaml
 
 workflows:
   - workflowId: get-museum-hours
-    inputs:
-      type: object
-      properties:
-        env:
-          type: object
-          properties:
-            AUTH_TOKEN:
-              type: string
-            organizationId:
-              type: string
-              default: acme-inc
     description: >-
       This workflow demonstrates how to get the museum opening hours and buy tickets.
     parameters:
       - in: header
         name: Authorization
-        value: $inputs.env.AUTH_TOKEN
+        value: Basic Og==
     steps:
       - stepId: get-museum-hours
+        parameters:
+          - in: header
+            name: Content-Type
+            value: application/json
         description: >-
           Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
         operationId: museum-api.getMuseumHours
@@ -41,31 +32,7 @@ workflows:
           - condition: $statusCode == 200
         outputs:
           schedule: $response.body
-      - stepId: buy-ticket
-        description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
-        outputs:
-          ticketId: $outputs.ticketId
-      - stepId: test-default-input
-        operationId: museum-api.getMuseumHours
-        parameters:
-          - in: query
-            name: organizationId
-            value: $inputs.env.organizationId
   - workflowId: events-crud
-    inputs:
-      type: object
-      properties:
-        env:
-          type: object
-          properties:
-            AUTH_TOKEN:
-              type: string
-        username:
-          type: string
-        password:
-          type: string
     description: >-
       This workflow demonstrates how to list, create, update, and delete special events at the museum.
     parameters:
@@ -74,18 +41,11 @@ workflows:
         value: Basic Og==
     steps:
       - stepId: create-event
-        parameters:
-          - in: header
-            name: username-token
-            value: $inputs.env.AUTH_TOKEN
         description: >-
           Create a new special event.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
         requestBody:
           payload:
-            additionalName: $inputs.username
-            additionalPassword: $inputs.password
-            additionalEnv: $inputs.env.AUTH_TOKEN
             name: 'Mermaid Treasure Identification and Analysis'
             location: 'Under the seaaa 🦀 🎶 🌊.'
             eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
@@ -101,3 +61,29 @@ workflows:
         outputs:
           createdEventId: $response.body#/eventId
           name: $response.body#/name
+
+      - stepId: update-event
+        description: >-
+          Update the created event with new details.
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/patch'
+        parameters:
+          - name: eventId
+            in: path
+            value: $steps.create-event.outputs.createdEventId
+        requestBody:
+          payload:
+            name: 'Orca Identification and Analysis'
+            location: 'Under the seaaa 🦀 🎶 🌊.'
+            dates:
+              - '2023-09-05'
+              - '2023-09-08'
+            price: 0
+        successCriteria:
+          - condition: $statusCode == 200
+          - context: $response.body
+            condition: $.name == 'Orca Identification and Analysis'
+            type:
+              type: jsonpath
+              version: draft-goessner-dispatch-jsonpath-00
+        outputs:
+          updatedEventId: $response.body#/eventId

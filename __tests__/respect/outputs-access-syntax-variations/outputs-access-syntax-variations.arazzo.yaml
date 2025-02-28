@@ -1,0 +1,80 @@
+arazzo: 1.0.1
+info:
+  title: Redocly Museum API
+  description: >-
+    An imaginary, but delightful Museum API for interacting with museum services
+    and information. Built with love by Redocly.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../museum-api.yaml
+  - name: tickets-from-museum-api
+    type: arazzo
+    url: ../museum-tickets.yaml
+
+workflows:
+  - workflowId: get-museum-hours
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    steps:
+      - stepId: get-museum-hours
+        operationId: museum-api.getMuseumHours
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          schedule: $response.body
+          firstEventData: $response.body#/0/date
+      - stepId: buy-ticket
+        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
+        outputs:
+          ticketId: $outputs.ticketId
+          message: $outputs.stepFullBody#/message
+    outputs:
+      message: $steps.buy-ticket.outputs.message
+  - workflowId: events-crud
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    steps:
+      - stepId: list-events
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
+        outputs:
+          events: $response.body
+      - stepId: create-event
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+        requestBody:
+          payload:
+            name: 'Mermaid Treasure Identification and Analysis'
+            location: 'Under the seaaa 🦀 🎶 🌊.'
+            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
+            dates:
+              - $steps.list-events.outputs.events.0.dates.0
+              - $steps.list-events.outputs.events#/0/dates/1
+            price: 0
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $workflows.get-museum-hours.outputs.message == 'Museum general entry ticket purchased'
+        outputs:
+          createdEventId: $response.body#/eventId
+          crearedEventData: $response.body
+    outputs:
+      createdEventData: $steps.create-event.outputs.crearedEventData
+  - workflowId: get-event-by-id
+    parameters:
+      - in: header
+        name: Authorization
+        value: Basic Og==
+    steps:
+      - stepId: get-event-by-id
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/get'
+        parameters:
+          - name: eventId
+            in: path
+            value: $workflows.events-crud.outputs.createdEventData#/eventId
+        successCriteria:
+          - condition: $workflows.events-crud.outputs.createdEventData#/price == 0
