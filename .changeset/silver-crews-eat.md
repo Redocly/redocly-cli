@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Add support for basic, bearer, and apiKey security schemes in workflow generation with `generate-arazzo` command.
+Added support for `basic`, `bearer`, and `apiKey` security schemes in workflow generation with `generate-arazzo` command.
