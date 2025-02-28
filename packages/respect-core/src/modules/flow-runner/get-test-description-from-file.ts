@@ -61,7 +61,7 @@ export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn
     dereference: true,
   });
 
-  collectSpecData?.(bundledDocument.bundle.parsed);
+  collectSpecData?.(bundledDocument.bundle.parsed || {});
 
   const errorLintProblems = lintProblems.filter((problem) => problem.severity === 'error');
   if (errorLintProblems.length) {
