@@ -332,7 +332,7 @@ const Schema: NodeType = {
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
     type: {
-      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
+      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean'],
     },
     allOf: listOf('Schema'),
     anyOf: listOf('Schema'),
