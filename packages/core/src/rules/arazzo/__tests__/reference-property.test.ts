@@ -29,6 +29,7 @@ describe('Arazzo reference-property', () => {
               operationId: museum-api.getMuseumHours
               successCriteria:
                 - condition: $statusCode == 200
+                  reference: invalid-url
     `,
     'arazzo.yaml'
   );
@@ -47,7 +48,7 @@ describe('Arazzo reference-property', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/successCriteria/0",
+              "pointer": "#/workflows/0/steps/0/get-museum-hours/successCriteria/0",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
