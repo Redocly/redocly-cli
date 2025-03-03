@@ -8,6 +8,7 @@ import type {
   Async3Visitor,
   Oas2Visitor,
   Oas3Visitor,
+  Overlay1Visitor,
 } from '../../../visitors';
 import type { RuleSeverity } from '../../../config';
 
@@ -35,8 +36,14 @@ export type RawAssertion = AssertionDefinition & {
 export type Assertion = RawAssertion & { assertionId: string };
 
 export const Assertions = (opts: Record<string, Assertion>) => {
-  const visitors: (Oas2Visitor | Oas3Visitor | Async2Visitor | Async3Visitor | Arazzo1Visitor)[] =
-    [];
+  const visitors: (
+    | Oas2Visitor
+    | Oas3Visitor
+    | Async2Visitor
+    | Async3Visitor
+    | Arazzo1Visitor
+    | Overlay1Visitor
+  )[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here

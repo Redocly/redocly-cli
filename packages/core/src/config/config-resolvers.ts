@@ -250,9 +250,16 @@ export async function resolvePlugins(
       };
 
       if (pluginModule.rules) {
-        if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2 && !pluginModule.rules.async2) {
+        if (
+          !pluginModule.rules.oas3 &&
+          !pluginModule.rules.oas2 &&
+          !pluginModule.rules.async2 &&
+          !pluginModule.rules.async3 &&
+          !pluginModule.rules.arazzo1 &&
+          !pluginModule.rules.overlay1
+        ) {
           throw new Error(
-            `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\` or \`arazzo\` rules "${p}.`
+            `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, or \`overlay1\` rules "${p}.`
           );
         }
         plugin.rules = {};
@@ -271,6 +278,9 @@ export async function resolvePlugins(
         if (pluginModule.rules.arazzo1) {
           plugin.rules.arazzo1 = prefixRules(pluginModule.rules.arazzo1, id);
         }
+        if (pluginModule.rules.overlay1) {
+          plugin.rules.overlay1 = prefixRules(pluginModule.rules.overlay1, id);
+        }
       }
       if (pluginModule.preprocessors) {
         if (
@@ -278,10 +288,11 @@ export async function resolvePlugins(
           !pluginModule.preprocessors.oas2 &&
           !pluginModule.preprocessors.async2 &&
           !pluginModule.preprocessors.async3 &&
-          !pluginModule.preprocessors.arazzo1
+          !pluginModule.preprocessors.arazzo1 &&
+          !pluginModule.preprocessors.overlay1
         ) {
           throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\` or \`async2\` preprocessors "${p}.`
+            `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` preprocessors "${p}.`
           );
         }
         plugin.preprocessors = {};
@@ -300,6 +311,9 @@ export async function resolvePlugins(
         if (pluginModule.preprocessors.arazzo1) {
           plugin.preprocessors.arazzo1 = prefixRules(pluginModule.preprocessors.arazzo1, id);
         }
+        if (pluginModule.preprocessors.overlay1) {
+          plugin.preprocessors.overlay1 = prefixRules(pluginModule.preprocessors.overlay1, id);
+        }
       }
 
       if (pluginModule.decorators) {
@@ -308,10 +322,11 @@ export async function resolvePlugins(
           !pluginModule.decorators.oas2 &&
           !pluginModule.decorators.async2 &&
           !pluginModule.decorators.async3 &&
-          !pluginModule.decorators.arazzo1
+          !pluginModule.decorators.arazzo1 &&
+          !pluginModule.decorators.overlay1
         ) {
           throw new Error(
-            `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\` or \`async3\` decorators "${p}.`
+            `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` decorators "${p}.`
           );
         }
         plugin.decorators = {};
@@ -329,6 +344,9 @@ export async function resolvePlugins(
         }
         if (pluginModule.decorators.arazzo1) {
           plugin.decorators.arazzo1 = prefixRules(pluginModule.decorators.arazzo1, id);
+        }
+        if (pluginModule.decorators.overlay1) {
+          plugin.decorators.overlay1 = prefixRules(pluginModule.decorators.overlay1, id);
         }
       }
 
@@ -520,6 +538,10 @@ function getMergedRawStyleguideConfig(
     async2Rules: { ...rootStyleguideConfig?.async2Rules, ...apiStyleguideConfig?.async2Rules },
     async3Rules: { ...rootStyleguideConfig?.async3Rules, ...apiStyleguideConfig?.async3Rules },
     arazzo1Rules: { ...rootStyleguideConfig?.arazzo1Rules, ...apiStyleguideConfig?.arazzo1Rules },
+    overlay1Rules: {
+      ...rootStyleguideConfig?.overlay1Rules,
+      ...apiStyleguideConfig?.overlay1Rules,
+    },
     preprocessors: {
       ...rootStyleguideConfig?.preprocessors,
       ...apiStyleguideConfig?.preprocessors,
@@ -536,6 +558,10 @@ function getMergedRawStyleguideConfig(
       ...rootStyleguideConfig?.oas3_1Preprocessors,
       ...apiStyleguideConfig?.oas3_1Preprocessors,
     },
+    overlay1Preprocessors: {
+      ...rootStyleguideConfig?.overlay1Preprocessors,
+      ...apiStyleguideConfig?.overlay1Preprocessors,
+    },
     decorators: { ...rootStyleguideConfig?.decorators, ...apiStyleguideConfig?.decorators },
     oas2Decorators: {
       ...rootStyleguideConfig?.oas2Decorators,
@@ -548,6 +574,10 @@ function getMergedRawStyleguideConfig(
     oas3_1Decorators: {
       ...rootStyleguideConfig?.oas3_1Decorators,
       ...apiStyleguideConfig?.oas3_1Decorators,
+    },
+    overlay1Decorators: {
+      ...rootStyleguideConfig?.overlay1Decorators,
+      ...apiStyleguideConfig?.overlay1Decorators,
     },
     recommendedFallback: apiStyleguideConfig?.extends
       ? false

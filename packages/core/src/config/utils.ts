@@ -62,6 +62,7 @@ function extractFlatConfig<
   async2Rules,
   async3Rules,
   arazzo1Rules,
+  overlay1Rules,
 
   preprocessors,
   oas2Preprocessors,
@@ -70,6 +71,7 @@ function extractFlatConfig<
   async2Preprocessors,
   async3Preprocessors,
   arazzo1Preprocessors,
+  overlay1Preprocessors,
 
   decorators,
   oas2Decorators,
@@ -78,6 +80,7 @@ function extractFlatConfig<
   async2Decorators,
   async3Decorators,
   arazzo1Decorators,
+  overlay1Decorators,
 
   ...rawConfigRest
 }: T): {
@@ -95,6 +98,7 @@ function extractFlatConfig<
     async2Rules,
     async3Rules,
     arazzo1Rules,
+    overlay1Rules,
 
     preprocessors,
     oas2Preprocessors,
@@ -103,6 +107,7 @@ function extractFlatConfig<
     async2Preprocessors,
     async3Preprocessors,
     arazzo1Preprocessors,
+    overlay1Preprocessors,
 
     decorators,
     oas2Decorators,
@@ -111,6 +116,7 @@ function extractFlatConfig<
     async2Decorators,
     async3Decorators,
     arazzo1Decorators,
+    overlay1Decorators,
 
     doNotResolveExamples: rawConfigRest.resolve?.doNotResolveExamples,
   };
@@ -170,6 +176,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     async2Rules: {},
     async3Rules: {},
     arazzo1Rules: {},
+    overlay1Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -178,6 +185,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     async2Preprocessors: {},
     async3Preprocessors: {},
     arazzo1Preprocessors: {},
+    overlay1Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
@@ -186,6 +194,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     async2Decorators: {},
     async3Decorators: {},
     arazzo1Decorators: {},
+    overlay1Decorators: {},
 
     plugins: [],
     pluginPaths: [],
@@ -212,6 +221,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async3Rules, rulesConf.rules);
     assignConfig(result.arazzo1Rules, rulesConf.arazzo1Rules);
     assignOnlyExistingConfig(result.arazzo1Rules, rulesConf.rules);
+    assignConfig(result.overlay1Rules, rulesConf.overlay1Rules);
+    assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -226,6 +237,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async3Preprocessors, rulesConf.preprocessors);
     assignConfig(result.arazzo1Preprocessors, rulesConf.arazzo1Preprocessors);
     assignOnlyExistingConfig(result.arazzo1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.overlay1Preprocessors, rulesConf.overlay1Preprocessors);
+    assignOnlyExistingConfig(result.overlay1Preprocessors, rulesConf.preprocessors);
 
     assignConfig(result.decorators, rulesConf.decorators);
     assignConfig(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -240,6 +253,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignOnlyExistingConfig(result.async3Decorators, rulesConf.decorators);
     assignConfig(result.arazzo1Decorators, rulesConf.arazzo1Decorators);
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
+    assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
+    assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
 
     result.plugins!.push(...(rulesConf.plugins || []));
     result.pluginPaths!.push(...(rulesConf.pluginPaths || []));

@@ -160,12 +160,17 @@ const builtInArazzo1Rules = [
 
 export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
 
+const builtInOverlay1Rules = ['info-contact'] as const;
+
+export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
+
 const builtInRules = [
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
   ...builtInAsync2Rules,
   ...builtInAsync3Rules,
   ...builtInArazzo1Rules,
+  ...builtInOverlay1Rules,
   'spec', // TODO: depricated in favor of struct
   'struct',
 ] as const;

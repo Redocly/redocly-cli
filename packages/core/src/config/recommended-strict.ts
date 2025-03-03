@@ -202,6 +202,9 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
   },
+  overlay1Rules: {
+    'info-contact': 'off',
+  },
 };
 
 export default recommendedStrict;

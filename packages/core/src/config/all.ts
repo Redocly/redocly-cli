@@ -226,6 +226,9 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
   },
+  overlay1Rules: {
+    'info-contact': 'error',
+  },
 };
 
 export default all;

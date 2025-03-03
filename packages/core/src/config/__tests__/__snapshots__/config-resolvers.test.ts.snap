@@ -214,6 +214,11 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
     "tag-description": "warn",
     "tags-alphabetical": "off",
   },
+  "overlay1Decorators": {},
+  "overlay1Preprocessors": {},
+  "overlay1Rules": {
+    "info-contact": "off",
+  },
   "preprocessors": {},
   "recommendedFallback": false,
   "rules": {
@@ -442,6 +447,11 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
     "spec-strict-refs": "off",
     "tag-description": "warn",
     "tags-alphabetical": "off",
+  },
+  "overlay1Decorators": {},
+  "overlay1Preprocessors": {},
+  "overlay1Rules": {
+    "info-contact": "off",
   },
   "preprocessors": {},
   "recommendedFallback": undefined,

@@ -1,0 +1,13 @@
+overlay: 1.0.0
+info:
+  title: Overlay base
+  version: 1.0.0
+extends: 'openapi.yaml'
+actions:
+  - target: $.info.title
+    description: Update title in openapi.yaml
+    update:
+      title: Overwritten by Overlay
+  - target: $.paths.['/things'].get.responses.['200'].content.['application/json'].schema.*
+    description: 'Remove the schema definition of /things'
+    remove: true

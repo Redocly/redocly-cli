@@ -123,6 +123,7 @@ describe('getMergedConfig', () => {
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
+            "overlay1": {},
           },
           "doNotResolveExamples": false,
           "extendPaths": [],
@@ -136,6 +137,7 @@ describe('getMergedConfig', () => {
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
+            "overlay1": {},
           },
           "rawConfig": {
             "extendPaths": [],
@@ -162,6 +164,9 @@ describe('getMergedConfig', () => {
               "operation-summary": "warn",
             },
             "oas3_1": {
+              "operation-summary": "warn",
+            },
+            "overlay1": {
               "operation-summary": "warn",
             },
           },
@@ -238,6 +243,7 @@ describe('getMergedConfig', () => {
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
+            "overlay1": {},
           },
           "doNotResolveExamples": false,
           "extendPaths": [],
@@ -251,6 +257,7 @@ describe('getMergedConfig', () => {
             "oas2": {},
             "oas3_0": {},
             "oas3_1": {},
+            "overlay1": {},
           },
           "rawConfig": {
             "extendPaths": [],
@@ -284,6 +291,10 @@ describe('getMergedConfig', () => {
               "operation-summary": "error",
             },
             "oas3_1": {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
+            "overlay1": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
