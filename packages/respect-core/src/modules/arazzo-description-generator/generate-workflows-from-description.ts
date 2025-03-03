@@ -88,9 +88,9 @@ export function generateWorkflowsFromDescription({
               ...generateParametersWithSuccessCriteria(
                 descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod]?.responses
               ),
-            } as unknown as Step,
+            } as Step,
           ],
-        } as unknown as Workflow);
+        } as Workflow);
       }
     }
   }
