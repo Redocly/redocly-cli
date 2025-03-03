@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed: JSON logs now properly capture data from nested external workflows.
+Fixed an issue where JSON logs did not properly capture data from nested external workflows.
