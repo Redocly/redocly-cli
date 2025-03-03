@@ -1,13 +1,10 @@
+import { type ArazzoDefinition } from 'core/src/typings/arazzo';
 import { type Oas3SecurityScheme } from 'core/src/typings/openapi';
 
 export function generateSecurityInputsArazzoComponents(
   securitySchemes: Record<string, Oas3SecurityScheme>
 ) {
-  const inputs: {
-    [key: string]: {
-      [key: string]: any;
-    };
-  } = {};
+  const inputs: NonNullable<ArazzoDefinition['components']>['inputs'] = {};
 
   for (const [name, securityScheme] of Object.entries(securitySchemes)) {
     if (securityScheme.type !== 'http' && securityScheme.type !== 'apiKey') {

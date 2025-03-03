@@ -1,14 +1,32 @@
 import { sortMethods } from '../../utils/sort';
 import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs';
-import { type OperationMethod, type Workflow, type Step } from '../../types';
 import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters';
+import {
+  type Oas3SecurityScheme,
+  type Oas3SecurityRequirement,
+  type Oas3PathItem,
+  type Oas3_1Schema,
+  type Oas3Operation,
+} from 'core/src/typings/openapi';
+import { type OperationMethod, type Workflow, type Step } from '../../types';
+import {
+  type ArazzoDefinition,
+  type ExtendedOperation,
+} from '@redocly/openapi-core/lib/typings/arazzo';
+
+type HttpMethod = Lowercase<ExtendedOperation['method']>;
 
 export type WorkflowsFromDescriptionInput = {
-  descriptionPaths: any;
+  descriptionPaths: {
+    [name: string]: Oas3PathItem<Oas3_1Schema> & {
+      connect?: Oas3Operation<Oas3_1Schema>;
+      query?: Oas3Operation<Oas3_1Schema>;
+    };
+  };
   sourceDescriptionName: string;
-  rootSecurity: any;
-  inputsComponents: any;
-  securitySchemes: any;
+  rootSecurity: Oas3SecurityRequirement[];
+  inputsComponents: NonNullable<ArazzoDefinition['components']>;
+  securitySchemes: Record<string, Oas3SecurityScheme>;
 };
 
 export function generateWorkflowsFromDescription({
@@ -22,7 +40,7 @@ export function generateWorkflowsFromDescription({
 
   for (const pathItemKey in descriptionPaths) {
     for (const pathItemObjectKey of Object.keys(descriptionPaths[pathItemKey]).sort(sortMethods)) {
-      const methodToCheck = pathItemObjectKey.toLocaleLowerCase();
+      const methodToCheck = pathItemObjectKey.toLocaleLowerCase() as HttpMethod;
 
       if (
         [
@@ -44,7 +62,7 @@ export function generateWorkflowsFromDescription({
           .split('/')
           .join('-');
 
-        const operation = descriptionPaths[pathItemKey][method];
+        const operation = descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod];
         const operationSecurity = operation?.security || undefined;
         const operationId = operation?.operationId || generateOperationId(pathItemKey, method);
         const workflowSecurityInputs = generateWorkflowSecurityInputs(
@@ -68,7 +86,7 @@ export function generateWorkflowsFromDescription({
               stepId: pathKey ? `${method}-${pathKey}-step` : `${method}-step`,
               operationId: `$sourceDescriptions.${sourceDescriptionName}.${operationId}`,
               ...generateParametersWithSuccessCriteria(
-                descriptionPaths[pathItemKey][method].responses
+                descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod]?.responses
               ),
             } as unknown as Step,
           ],

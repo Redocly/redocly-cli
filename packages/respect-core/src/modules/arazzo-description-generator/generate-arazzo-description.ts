@@ -54,13 +54,11 @@ export async function generateArazzoDescription({
       descriptionPaths: pathsObject,
       sourceDescriptionName,
       rootSecurity,
-      inputsComponents,
+      inputsComponents: inputsComponents || {},
       securitySchemes: components?.securitySchemes,
     }),
     ...(inputsComponents && {
-      components: {
-        ...inputsComponents,
-      },
+      components: inputsComponents,
     }),
   };
 
