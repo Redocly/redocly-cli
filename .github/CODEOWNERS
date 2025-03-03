@@ -1,4 +1,6 @@
 * @Redocly/dark-side
-.changeset/ @Redocly/technical-writers @Redocly/dark-side
-README.md @Redocly/technical-writers @Redocly/dark-side
+.changeset/ @Redocly/dark-side
+.changeset/ @Redocly/technical-writers
+README.md @Redocly/dark-side
+README.md @Redocly/technical-writers
 docs/ @Redocly/technical-writers
