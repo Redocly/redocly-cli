@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.32.0
+
+### Patch Changes
+
+- Fixed an issue where JSON logs did not properly capture data from nested external workflows.
+- Updated @redocly/openapi-core to v1.32.0.
+
 ## 1.31.3
 
 ### Patch Changes

@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.32.0 (2025-03-03)
+
+### Minor Changes
+
+- Added support for linting, preprocessors, decorators, and type extensions for Overlay v1 documents.
+
+### Patch Changes
+
+- Updated OAS3 Schema type definition to correct `type` keyword enum, removed `null`.
+- Fixed an issue where JSON logs did not properly capture data from nested external workflows.
+- Updated @redocly/openapi-core to v1.32.0.
+
 ## 1.31.3 (2025-02-28)
 
 ### Patch Changes
