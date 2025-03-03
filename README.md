@@ -65,8 +65,8 @@ Your API reference docs are in `redoc-static.html` by default.
 You can customize this in many ways.
 [Read the main docs](https://redocly.com/docs/cli/commands/build-docs) for more information.
 
-> :bulb: Redocly also has [hosted API reference docs](https://redocly.com/docs/api-registry/guides/api-registry-quickstart/), a (commercial) alternative to Redoc.
-> Both Redoc and Redocly API reference docs can be worked on locally using the `preview-docs` command.
+> :bulb: Redocly also has [hosted API management solution](https://redocly.com/reunite/), a (commercial) alternative to Redoc.
+> Redoc, Revel, Reef, and Realm can be worked on locally using the `preview` command.
 
 ### Bundle multiple OpenAPI documents
 
@@ -95,7 +95,7 @@ Other API Linters use complicated identifiers like JSONPath, but Redocly makes l
 You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to build your own.
 
 **Format the output** in whatever way you need.
-The `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, the `lint` command can output those too.
+The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Checkstyle and other outputs to integrate with other tools, the `lint` command can output those too.
 
 **Multiple files supported** so you don't need to bundle your API description to lint it; just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
 
