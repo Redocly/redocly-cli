@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.32.1
+
+### Patch Changes
+
+- Added support for `basic`, `bearer`, and `apiKey` security schemes in workflow generation with `generate-arazzo` command.
+- Updated @redocly/openapi-core to v1.32.1.
+
 ## 1.32.0
 
 ### Minor Changes
