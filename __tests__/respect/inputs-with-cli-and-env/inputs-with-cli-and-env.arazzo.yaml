@@ -8,10 +8,10 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api.yaml
+    url: ../museum-api.yaml
   - name: tickets-from-museum-api
     type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-tickets.yaml
 
 workflows:
   - workflowId: get-museum-hours
@@ -98,6 +98,3 @@ workflows:
           - context: $response.body
             condition: $.name == 'Mermaid Treasure Identification and Analysis'
             type: jsonpath
-        outputs:
-          createdEventId: $response.body#/eventId
-          name: $response.body#/name

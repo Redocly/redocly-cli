@@ -3,7 +3,7 @@
 exports[`should use inputs from CLI and env 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow inputs-with-cli-and-env.yaml / get-museum-hours
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
 
@@ -179,7 +179,7 @@ exports[`should use inputs from CLI and env 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow inputs-with-cli-and-env.yaml / events-crud
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / events-crud
 
   ✓ POST /special-events - step create-event
 
@@ -227,7 +227,7 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ schema check
 
 
-  Summary for inputs-with-cli-and-env.yaml
+  Summary for inputs-with-cli-and-env.arazzo.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 4 passed, 4 total
@@ -235,11 +235,11 @@ exports[`should use inputs from CLI and env 1`] = `
   Time: <test>ms
 
 
-┌──────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
-├──────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ inputs-with-cli-and-env.yaml                                       │ 2          │ 2       │ -       │ -        │
-└──────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ inputs-with-cli-and-env.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 "

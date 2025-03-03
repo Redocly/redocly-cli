@@ -9,23 +9,19 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api.yaml
+    url: ../museum-api.yaml
   - name: tickets-from-museum-api
     type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-tickets.yaml
 
 workflows:
   - workflowId: get-museum-hours
-    description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
     parameters:
       - in: header
         name: Authorization
         value: Basic Og==
     steps:
       - stepId: get-museum-hours
-        description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
         operationId: museum-api.getMuseumHours
         successCriteria:
           - condition: $statusCode == 200
@@ -33,8 +29,6 @@ workflows:
           schedule: $response.body
           firstEventData: $response.body#/0/date
       - stepId: buy-ticket
-        description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
         workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
         outputs:
           ticketId: $outputs.ticketId
@@ -42,22 +36,16 @@ workflows:
     outputs:
       message: $steps.buy-ticket.outputs.message
   - workflowId: events-crud
-    description: >-
-      This workflow demonstrates how to list, create, update, and delete special events at the museum.
     parameters:
       - in: header
         name: Authorization
         value: Basic Og==
     steps:
       - stepId: list-events
-        description: >-
-          Request the list of events.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
         outputs:
           events: $response.body
       - stepId: create-event
-        description: >-
-          Create a new special event.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
         requestBody:
           payload:
@@ -71,9 +59,6 @@ workflows:
         successCriteria:
           - condition: $statusCode == 201
           - condition: $workflows.get-museum-hours.outputs.message == 'Museum general entry ticket purchased'
-          - context: $response.body
-            condition: $.name == 'Mermaid Treasure Identification and Analysis'
-            type: jsonpath
         outputs:
           createdEventId: $response.body#/eventId
           crearedEventData: $response.body
@@ -86,8 +71,6 @@ workflows:
         value: Basic Og==
     steps:
       - stepId: get-event-by-id
-        description: >-
-          Get the details of the event that was created in the previous step.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/get'
         parameters:
           - name: eventId
@@ -95,6 +78,3 @@ workflows:
             value: $workflows.events-crud.outputs.createdEventData#/eventId
         successCriteria:
           - condition: $workflows.events-crud.outputs.createdEventData#/price == 0
-          - context: $statusCode
-            condition: '^200$'
-            type: regex

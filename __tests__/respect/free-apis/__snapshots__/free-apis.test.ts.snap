@@ -3,7 +3,7 @@
 exports[`free apis test case 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow free.yaml / json
+  Running workflow free.arazzo.yaml / json
 
   ✓ GET https://jsonplaceholder.typicode.com/posts/1 - step get-first-post
     ✓ success criteria check - $statusCode == 200
@@ -17,7 +17,7 @@ exports[`free apis test case 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow free.yaml / xml
+  Running workflow free.arazzo.yaml / xml
 
   ✗ POST http://restapi.adequateshop.com/api/Traveler - step post-traveler
     ✓ success criteria check - $statusCode == 404
@@ -33,7 +33,7 @@ exports[`free apis test case 1`] = `
     ✗ success criteria check
       Checking simple criteria: {"condition":"$response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'"}
       
-  Summary for free.yaml
+  Summary for free.arazzo.yaml
   
   Workflows: 1 passed, 1 failed, 2 total
   Steps: 2 passed, 1 failed, 3 total
@@ -41,11 +41,11 @@ exports[`free apis test case 1`] = `
   Time: <test>ms
 
 
-┌───────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
-├───────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x free.yaml                                       │ 2          │ 1       │ 1       │ -        │
-└───────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌──────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                 │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x free.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└──────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

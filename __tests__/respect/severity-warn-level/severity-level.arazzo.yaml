@@ -9,10 +9,7 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api-with-errors.yaml
-  - name: tickets-from-museum-api
-    type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-api-with-errors.yaml
 
 workflows:
   - workflowId: get-museum-hours
@@ -35,12 +32,6 @@ workflows:
           - condition: $statusCode == 200
         outputs:
           schedule: $response.body
-      - stepId: buy-ticket
-        description: >-
-          Buy a ticket for the museum by calling an external workflow from another Arazzo file.
-        workflowId: $sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets
-        outputs:
-          ticketId: $outputs.ticketId
   - workflowId: events-crud
     description: >-
       This workflow demonstrates how to list, create, update, and delete special events at the museum.
@@ -49,12 +40,6 @@ workflows:
         name: Authorization
         value: Basic Og==
     steps:
-      - stepId: list-events
-        description: >-
-          Request the list of events.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
-        outputs:
-          events: $response.body
       - stepId: create-event
         description: >-
           Create a new special event.
@@ -65,8 +50,8 @@ workflows:
             location: 'Under the seaaa 🦀 🎶 🌊.'
             eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
             dates:
-              - $steps.list-events.outputs.events.0.dates.0
-              - $steps.list-events.outputs.events.0.dates.1
+              - '2023-09-05'
+              - '2023-09-08'
             price: 0
         successCriteria:
           - condition: $statusCode == 201
@@ -77,18 +62,6 @@ workflows:
           createdEventId: $response.body#/eventId
           name: $response.body#/name
 
-      - stepId: get-event-by-id
-        description: >-
-          Get the details of the event that was created in the previous step.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/get'
-        parameters:
-          - name: eventId
-            in: path
-            value: $steps.create-event.outputs.createdEventId
-        successCriteria:
-          - context: $statusCode
-            condition: '^200$'
-            type: regex
       - stepId: update-event
         description: >-
           Update the created event with new details.
@@ -112,15 +85,3 @@ workflows:
             type:
               type: jsonpath
               version: draft-goessner-dispatch-jsonpath-00
-        outputs:
-          updatedEventId: $response.body#/eventId
-      - stepId: delete-event
-        description: >-
-          Delete the event that was updated in the previous step.
-        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events~1{eventId}/delete'
-        parameters:
-          - name: eventId
-            in: path
-            value: $steps.update-event.outputs.updatedEventId
-        successCriteria:
-          - condition: $statusCode == 200

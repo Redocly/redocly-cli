@@ -3,7 +3,7 @@
 exports[`should resolve outputs access syntax variations 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow outputs-access-syntax-variations.yaml / get-museum-hours
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
 
@@ -111,7 +111,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow outputs-access-syntax-variations.yaml / events-crud
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / events-crud
 
   ✓ GET /special-events - step list-events
 
@@ -283,14 +283,13 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     ✓ success criteria check - $statusCode == 201
     ✓ success criteria check - $workflows.get-museum-hours.outputs.message == 'Mu...
-    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow outputs-access-syntax-variations.yaml / get-event-by-id
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-event-by-id
 
   ✓ GET /special-events/{eventId} - step get-event-by-id
 
@@ -317,25 +316,24 @@ exports[`should resolve outputs access syntax variations 1`] = `
       }
 
     ✓ success criteria check - $workflows.events-crud.outputs.createdEventData#/p...
-    ✓ success criteria check - ^200$
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
 
-  Summary for outputs-access-syntax-variations.yaml
+  Summary for outputs-access-syntax-variations.arazzo.yaml
   
   Workflows: 3 passed, 3 total
   Steps: 5 passed, 5 total
-  Checks: 22 passed, 22 total
+  Checks: 20 passed, 20 total
   Time: <test>ms
 
 
-┌───────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                                      │ Workflows  │ Passed  │ Failed  │ Warnings │
-├───────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ outputs-access-syntax-variations.yaml                                       │ 3          │ 3       │ -       │ -        │
-└───────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ outputs-access-syntax-variations.arazzo.yaml                                       │ 3          │ 3       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 "

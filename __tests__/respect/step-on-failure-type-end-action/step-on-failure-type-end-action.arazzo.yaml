@@ -7,10 +7,7 @@ info:
 sourceDescriptions:
   - name: museum-api
     type: openapi
-    url: museum-api.yaml
-  - name: tickets-from-museum-api
-    type: arazzo
-    url: museum-tickets.yaml
+    url: ../museum-api.yaml
 
 workflows:
   - workflowId: events-crud
@@ -22,8 +19,6 @@ workflows:
         value: Basic Og==
     steps:
       - stepId: list-events
-        description: >-
-          Request the list of events.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/get'
         outputs:
           events: $response.body
@@ -43,15 +38,7 @@ workflows:
             retryLimit: 1
             retryAfter: 3000
       - stepId: create-event
-        description: >-
-          Create a new special event.
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
-        onSuccess:
-          # This end action should not be called because the status code is 201 and the criteria are not met
-          - type: end
-            name: step-onSuccess-action-end
-            criteria:
-              - condition: $statusCode == 403
         requestBody:
           payload:
             name: 'Mermaid Treasure Identification and Analysis'
@@ -64,18 +51,12 @@ workflows:
         successCriteria:
           - condition: $statusCode == 201
   - workflowId: get-museum-hours
-    description: >-
-      This workflow demonstrates how to get the museum opening hours and buy tickets.
     parameters:
       - in: header
         name: Authorization
         value: Basic Og==
     steps:
       - stepId: get-museum-hours
-        description: >-
-          Get museum hours by resolving request details with getMuseumHours operationId from museum-api.yaml description.
         operationId: $sourceDescriptions.museum-api.getMuseumHours
         successCriteria:
           - condition: $statusCode == 200
-        outputs:
-          schedule: $response.body

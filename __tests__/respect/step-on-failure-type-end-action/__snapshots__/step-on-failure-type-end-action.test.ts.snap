@@ -3,7 +3,7 @@
 exports[`should end workflow execution, context returns to the caller with applicable outputs, when step fails and onFailure action is of type \`end\` 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow step-on-failure-type-end-action.yaml / events-crud
+  Running workflow step-on-failure-type-end-action.arazzo.yaml / events-crud
 
   ✗ GET /special-events - step list-events
     ✗ success criteria check - $statusCode == 201
@@ -13,7 +13,7 @@ exports[`should end workflow execution, context returns to the caller with appli
 
 ────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow step-on-failure-type-end-action.yaml / get-museum-hours
+  Running workflow step-on-failure-type-end-action.arazzo.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
     ✓ success criteria check - $statusCode == 200
@@ -30,7 +30,7 @@ exports[`should end workflow execution, context returns to the caller with appli
     ✗ success criteria check
       Checking simple criteria: {"condition":"$statusCode == 201"}
       
-  Summary for step-on-failure-type-end-action.yaml
+  Summary for step-on-failure-type-end-action.arazzo.yaml
   
   Workflows: 1 passed, 1 failed, 2 total
   Steps: 1 passed, 1 failed, 2 total
@@ -38,11 +38,11 @@ exports[`should end workflow execution, context returns to the caller with appli
   Time: <test>ms
 
 
-┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
-├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x step-on-failure-type-end-action.yaml                                       │ 2          │ 1       │ 1       │ -        │
-└──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                            │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x step-on-failure-type-end-action.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 

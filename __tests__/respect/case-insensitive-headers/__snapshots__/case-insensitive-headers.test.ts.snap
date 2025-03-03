@@ -3,7 +3,7 @@
 exports[`should send in request and proceed case-insensitive headers in runtime expressions 1`] = `
 "────────────────────────────────────────────────────────────────────────────────
 
-  Running workflow case-insensitive-headers.yaml / get-museum-hours
+  Running workflow case-insensitive-headers.arazzo.yaml / get-museum-hours
 
   ✓ GET /museum-hours - step get-museum-hours
     ✓ success criteria check - $request.header.content-type == 'third'
@@ -14,7 +14,7 @@ exports[`should send in request and proceed case-insensitive headers in runtime 
     ✓ schema check
 
 
-  Summary for case-insensitive-headers.yaml
+  Summary for case-insensitive-headers.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 1 passed, 1 total
@@ -22,11 +22,11 @@ exports[`should send in request and proceed case-insensitive headers in runtime 
   Time: <test>ms
 
 
-┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
-├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ case-insensitive-headers.yaml                                       │ 1          │ 1       │ -       │ -        │
-└───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ case-insensitive-headers.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
 "
