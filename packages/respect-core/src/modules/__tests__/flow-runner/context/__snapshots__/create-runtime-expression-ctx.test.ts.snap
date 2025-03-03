@@ -37,6 +37,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
   "$response": undefined,
   "$sourceDescriptions": {
     "cats": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -230,6 +290,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
@@ -237,6 +298,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
       ],
     },
     "catsTwo": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -430,6 +551,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
@@ -547,6 +669,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
   },
   "$sourceDescriptions": {
     "cats": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -740,6 +922,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
@@ -747,6 +930,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
       ],
     },
     "catsTwo": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -940,6 +1183,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
@@ -1047,6 +1291,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
   "$response": undefined,
   "$sourceDescriptions": {
     "cats": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -1240,6 +1544,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
@@ -1247,6 +1552,66 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
       ],
     },
     "catsTwo": {
+      "components": {
+        "schemas": {
+          "Breed": {
+            "description": "Breed",
+            "properties": {
+              "breed": {
+                "description": "Breed",
+                "format": "string",
+                "title": "Breed",
+                "type": "string",
+              },
+              "coat": {
+                "description": "Coat",
+                "format": "string",
+                "title": "Coat",
+                "type": "string",
+              },
+              "country": {
+                "description": "Country",
+                "format": "string",
+                "title": "Country",
+                "type": "string",
+              },
+              "origin": {
+                "description": "Origin",
+                "format": "string",
+                "title": "Origin",
+                "type": "string",
+              },
+              "pattern": {
+                "description": "Pattern",
+                "format": "string",
+                "title": "Pattern",
+                "type": "string",
+              },
+            },
+            "title": "Breed model",
+            "type": "object",
+          },
+          "CatFact": {
+            "description": "CatFact",
+            "properties": {
+              "fact": {
+                "description": "Fact",
+                "format": "string",
+                "title": "Fact",
+                "type": "string",
+              },
+              "length": {
+                "description": "Length",
+                "format": "int32",
+                "title": "Length",
+                "type": "integer",
+              },
+            },
+            "title": "CatFact model",
+            "type": "object",
+          },
+        },
+      },
       "info": {
         "title": "Cat Facts API",
         "version": "1.0",
@@ -1440,6 +1805,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
           },
         },
       },
+      "security": undefined,
       "servers": [
         {
           "url": "https://catfact.ninja/",
