@@ -166,7 +166,7 @@ const Parameter: NodeType = {
     uniqueItems: { type: 'boolean' },
     enum: { type: 'array' },
     multipleOf: { type: 'number' },
-    'x-example': 'Example',
+    'x-example': {}, // any
     'x-examples': 'ExamplesMap',
   },
   required(value) {
