@@ -1,5 +1,4 @@
 ---
-"@redocly/respect-core": patch
 "@redocly/openapi-core": patch
 "@redocly/cli": patch
 ---
