@@ -14,7 +14,7 @@ If duplicates are present, unexpected parameter overrides could cause problems.
 This ruled checks parameter lists in the following locations:
 
 - `workflows.[workflow].parameters`
-- `workflows.[workflow[.steps.[step].parameters`
+- `workflows.[workflow].steps.[step].parameters`
 - `x-parameters`
 
 ## Configuration
