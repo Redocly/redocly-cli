@@ -29,9 +29,7 @@ export function composeJsonLogsFiles(
     files[fileResult.file] = maskSecrets(
       {
         totalRequests: fileResult.totalRequests,
-        executedWorkflows: executedWorkflows.map((workflow) =>
-          mapJsonWorkflow(workflow, fileResult.ctx)
-        ),
+        executedWorkflows: executedWorkflows.map((workflow) => mapJsonWorkflow(workflow)),
         totalTimeMs: fileResult.totalTimeMs,
       },
       secretFields || new Set()
@@ -41,16 +39,14 @@ export function composeJsonLogsFiles(
   return files;
 }
 
-function mapJsonWorkflow(
-  workflow: WorkflowExecutionResult,
-  ctx: TestContext
-): WorkflowExecutionResultJson {
+function mapJsonWorkflow(workflow: WorkflowExecutionResult): WorkflowExecutionResultJson {
+  const { ctx, ...rest } = workflow;
   const steps = workflow.executedSteps.map((step) => mapJsonStep(step, workflow.workflowId, ctx));
 
   const totals = calculateTotals([workflow]);
 
   const result: WorkflowExecutionResultJson = {
-    ...workflow,
+    ...rest,
     executedSteps: steps,
     status: totals.steps.failed > 0 ? 'error' : totals.steps.warnings > 0 ? 'warn' : 'success',
     totalRequests: totals.totalRequests,
@@ -66,7 +62,7 @@ function mapJsonStep(
   ctx: TestContext
 ): StepExecutionResult | WorkflowExecutionResultJson {
   if ('executedSteps' in step) {
-    return mapJsonWorkflow(step as WorkflowExecutionResult, ctx);
+    return mapJsonWorkflow(step as WorkflowExecutionResult);
   }
 
   const publicStep = ctx.$workflows[workflowId].steps[step.stepId];

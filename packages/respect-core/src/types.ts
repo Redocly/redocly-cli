@@ -236,9 +236,10 @@ export interface WorkflowExecutionResult {
 
   executedSteps: (Step | WorkflowExecutionResult)[];
   invocationContext?: string;
+  ctx: TestContext;
 }
 
-export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps'> & {
+export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps' | 'ctx'> & {
   executedSteps: (StepExecutionResult | WorkflowExecutionResultJson)[];
   status: ExecutionStatus;
   totalRequests: number;

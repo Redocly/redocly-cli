@@ -67,7 +67,6 @@ export async function runTestFile(
   };
 
   const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
-
   const result = await runWorkflows(bundledTestDescription, options);
 
   if (output?.harFile && Object.keys(result.harLogs).length) {
@@ -226,6 +225,7 @@ export async function runWorkflow({
     endTime,
     totalTimeMs: Math.ceil(endTime - workflowStartTime),
     executedSteps: ctx.executedSteps,
+    ctx,
   };
 }
 
