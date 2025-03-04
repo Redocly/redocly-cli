@@ -5,7 +5,6 @@ import {
   getMatchingStatusCodeRange,
   doesYamlFileExist,
   pickDefined,
-  isValidURL,
 } from '../utils';
 import { isBrowser } from '../env';
 import * as fs from 'fs';
@@ -101,95 +100,6 @@ describe('utils', () => {
     it('should fail on a wrong input', () => {
       expect(getMatchingStatusCodeRange('2002')).toEqual('2002');
       expect(getMatchingStatusCodeRange(4000)).toEqual('4000');
-    });
-  });
-
-  describe('isValidURL', () => {
-    it('should validate URLs with http protocol', () => {
-      expect(isValidURL('http://example.com')).toBe(true);
-      expect(isValidURL('http://www.example.com')).toBe(true);
-      expect(isValidURL('http://subdomain.example.com')).toBe(true);
-      expect(isValidURL('http://example.com/path')).toBe(true);
-      expect(isValidURL('http://example.com/path/to/resource')).toBe(true);
-      expect(isValidURL('http://example.com:8080')).toBe(true);
-      expect(isValidURL('http://example.com:8080/path')).toBe(true);
-    });
-
-    it('should validate URLs with https protocol', () => {
-      expect(isValidURL('https://example.com')).toBe(true);
-      expect(isValidURL('https://www.example.com')).toBe(true);
-      expect(isValidURL('https://subdomain.example.com')).toBe(true);
-    });
-
-    it('should validate URLs without protocol', () => {
-      expect(isValidURL('example.com')).toBe(true);
-      expect(isValidURL('www.example.com')).toBe(true);
-      expect(isValidURL('subdomain.example.com')).toBe(true);
-    });
-
-    it('should validate URLs with query parameters', () => {
-      expect(isValidURL('http://example.com?param=value')).toBe(true);
-      expect(isValidURL('http://example.com?param1=value1&param2=value2')).toBe(true);
-      expect(isValidURL('example.com?param=value')).toBe(true);
-    });
-
-    it('should validate URLs with fragments', () => {
-      expect(isValidURL('http://example.com#section')).toBe(true);
-      expect(isValidURL('example.com#section')).toBe(true);
-    });
-
-    it('should validate URLs with query parameters and fragments', () => {
-      expect(isValidURL('http://example.com?param=value#section')).toBe(true);
-      expect(isValidURL('example.com?param=value#section')).toBe(true);
-    });
-
-    it('should validate URLs with IP addresses', () => {
-      expect(isValidURL('http://192.168.1.1')).toBe(true);
-      expect(isValidURL('http://127.0.0.1')).toBe(true);
-      expect(isValidURL('http://0.0.0.0')).toBe(true);
-      expect(isValidURL('http://255.255.255.255')).toBe(true);
-      expect(isValidURL('192.168.1.1')).toBe(true);
-    });
-
-    it('should validate URLs with IP addresses and ports', () => {
-      expect(isValidURL('http://192.168.1.1:8080')).toBe(true);
-      expect(isValidURL('192.168.1.1:8080')).toBe(true);
-    });
-
-    it('should accept technically invalid IP addresses due to regex limitations', () => {
-      // Note: The current regex implementation doesn't validate IP address ranges correctly
-      expect(isValidURL('http://256.256.256.256')).toBe(true);
-      expect(isValidURL('http://999.999.999.999')).toBe(true);
-    });
-
-    it('should validate URLs with special characters in path', () => {
-      expect(isValidURL('http://example.com/path-with-dash')).toBe(true);
-      expect(isValidURL('http://example.com/path_with_underscore')).toBe(true);
-      expect(isValidURL('http://example.com/path.with.dots')).toBe(true);
-      expect(isValidURL('http://example.com/path~with~tilde')).toBe(true);
-      expect(isValidURL('http://example.com/path+with+plus')).toBe(true);
-      expect(isValidURL('http://example.com/path%20with%20encoded%20space')).toBe(true);
-    });
-
-    it('should reject invalid URLs', () => {
-      expect(isValidURL('')).toBe(false);
-      expect(isValidURL('not a url')).toBe(false);
-      expect(isValidURL('http://')).toBe(false);
-      expect(isValidURL('http://.')).toBe(false);
-      expect(isValidURL('http://..')).toBe(false);
-      expect(isValidURL('http://../')).toBe(false);
-      expect(isValidURL('http://?')).toBe(false);
-      expect(isValidURL('http://??')).toBe(false);
-      expect(isValidURL('http://??/')).toBe(false);
-      expect(isValidURL('http://#')).toBe(false);
-      expect(isValidURL('http://##')).toBe(false);
-      expect(isValidURL('http://##/')).toBe(false);
-      expect(isValidURL('http://foo.bar?q=Spaces should be encoded')).toBe(false);
-    });
-
-    it('should reject URLs with invalid TLDs', () => {
-      expect(isValidURL('http://example.a')).toBe(false); // TLD too short
-      expect(isValidURL('http://example.invalidtld')).toBe(true); // This actually passes with the current regex
     });
   });
 

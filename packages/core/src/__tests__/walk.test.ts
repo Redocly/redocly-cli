@@ -8,6 +8,7 @@ import {
   parseYamlToDocument,
   replaceSourceWithRef,
   makeConfigForRuleset,
+  makeConfig,
 } from '../../__tests__/utils';
 import { BaseResolver, Document } from '../resolve';
 import { listOf } from '../types';
@@ -1353,7 +1354,7 @@ describe('context.report', () => {
 
     const config = await createConfig(`
       rules:
-        info-contact: 
+        info-contact:
           message: "MY ERR DESCRIPTION: {{message}}"
           severity: "error"
     `);
@@ -1388,6 +1389,51 @@ describe('context.report', () => {
         },
       ]
     `);
+  });
+
+  it('should report with reference if provided', async () => {
+    const yaml = outdent`
+      openapi: 3.0.0
+      info:
+        title: Test API
+        version: 1.0.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      items:
+                        type: string
+    `;
+
+    const document = parseYamlToDocument(yaml, 'test.yaml');
+    const results = await lintDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([
+      {
+        location: [
+          {
+            pointer: '#/paths/~1test/get/responses/200/content/application~1json/schema/items',
+            reportOnKey: false,
+            source: 'test.yaml',
+          },
+        ],
+        message: "Schema type mismatch: 'object' type should not contain 'items' field.",
+        ruleId: 'no-schema-type-mismatch',
+        severity: 'warn',
+        suggest: [],
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-schema-type-mismatch',
+      },
+    ]);
   });
 });
 
