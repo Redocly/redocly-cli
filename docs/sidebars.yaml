@@ -98,6 +98,7 @@
             - page: rules/oas/no-invalid-schema-examples.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-required-schema-properties-undefined.md
+            - page: rules/oas/no-schema-type-mismatch.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
             - page: rules/oas/no-server-variables-empty-enum.md
