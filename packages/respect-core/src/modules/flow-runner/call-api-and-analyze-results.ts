@@ -59,7 +59,7 @@ export async function callAPIAndAnalyzeResults({
     });
 
     checksResult.successCriteriaCheck = successCriteriaChecks.every(
-      (check) => check.passed || (['off', 'warn'].includes(check.severity) && !check.passed)
+      (check) => check.passed || ['off', 'warn'].includes(check.severity)
     );
     step.checks.push(...successCriteriaChecks);
   }
@@ -76,7 +76,7 @@ export async function callAPIAndAnalyzeResults({
 
   if (schemaChecks.length) {
     checksResult.schemaCheck = schemaChecks.every(
-      (check) => check.passed || (['off', 'warn'].includes(check.severity) && !check.passed)
+      (check) => check.passed || ['off', 'warn'].includes(check.severity)
     );
     step.checks.push(...schemaChecks);
   }
