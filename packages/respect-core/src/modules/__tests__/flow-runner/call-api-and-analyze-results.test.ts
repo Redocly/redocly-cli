@@ -371,7 +371,7 @@ describe('callAPIAndAnalyzeResults', () => {
       },
     });
     expect(result).toEqual({
-      expectCheck: true,
+      schemaCheck: true,
       networkCheck: true,
       successCriteriaCheck: true,
     });

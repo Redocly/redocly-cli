@@ -645,7 +645,7 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, expectCheck: true };
+      return { successCriteriaCheck: true, schemaCheck: true };
     });
 
     await runStep({
@@ -698,7 +698,7 @@ describe('runStep', () => {
     callAPIAndAnalyzeResults.mockImplementationOnce(async ({ step }: { step: Step }) => {
       step.checks = [];
 
-      return { successCriteriaCheck: true, expectCheck: true };
+      return { successCriteriaCheck: true, schemaCheck: true };
     });
     await runStep({
       step,
@@ -765,7 +765,7 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, expectCheck: true };
+      return { successCriteriaCheck: true, schemaCheck: true };
     });
 
     // @ts-ignore
@@ -874,7 +874,7 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, expectCheck: true };
+      return { successCriteriaCheck: true, schemaCheck: true };
     });
 
     // @ts-ignore
@@ -1002,7 +1002,7 @@ describe('runStep', () => {
           },
         ];
 
-        return { successCriteriaCheck: true, expectCheck: true };
+        return { successCriteriaCheck: true, schemaCheck: true };
       }
     );
 
@@ -1123,7 +1123,7 @@ describe('runStep', () => {
           },
         ];
 
-        return { successCriteriaCheck: true, expectCheck: true };
+        return { successCriteriaCheck: true, schemaCheck: true };
       }
     );
 
@@ -1242,7 +1242,7 @@ describe('runStep', () => {
           },
         ];
 
-        return { successCriteriaCheck: false, expectCheck: true };
+        return { successCriteriaCheck: false, schemaCheck: true };
       }
     );
 
@@ -1351,7 +1351,7 @@ describe('runStep', () => {
           },
         ];
 
-        return { successCriteriaCheck: false, expectCheck: true };
+        return { successCriteriaCheck: false, schemaCheck: true };
       }
     );
 
@@ -1481,7 +1481,7 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, expectCheck: true };
+      return { successCriteriaCheck: false, schemaCheck: true };
     });
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
@@ -1598,7 +1598,7 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, expectCheck: true };
+      return { successCriteriaCheck: false, schemaCheck: true };
     });
 
     // @ts-ignore
@@ -1723,7 +1723,7 @@ describe('runStep', () => {
         } as unknown as ResponseContext;
       }
 
-      return { successCriteriaCheck: false, expectCheck: true };
+      return { successCriteriaCheck: false, schemaCheck: true };
     });
 
     // @ts-ignore
@@ -1847,7 +1847,7 @@ describe('runStep', () => {
           } as unknown as ResponseContext;
         }
 
-        return { successCriteriaCheck: false, expectCheck: true };
+        return { successCriteriaCheck: false, schemaCheck: true };
       }
     );
 
@@ -1862,7 +1862,7 @@ describe('runStep', () => {
           },
         ];
 
-        return { successCriteriaCheck: true, expectCheck: true };
+        return { successCriteriaCheck: true, schemaCheck: true };
       }
     );
 
@@ -1889,7 +1889,7 @@ describe('runStep', () => {
           } as unknown as ResponseContext;
         }
 
-        return { successCriteriaCheck: true, expectCheck: true };
+        return { successCriteriaCheck: true, schemaCheck: true };
       }
     );
 
@@ -2007,7 +2007,7 @@ describe('runStep', () => {
         } as unknown as ResponseContext;
       }
 
-      return { successCriteriaCheck: false, expectCheck: true };
+      return { successCriteriaCheck: false, schemaCheck: true };
     });
 
     (checkCriteria as jest.Mock).mockImplementation(() => [
