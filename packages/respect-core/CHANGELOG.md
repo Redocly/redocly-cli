@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.32.2
+
+### Patch Changes
+
+- Fixed step execution to respect severity levels when handling step failures. Previously, steps would always break workflow execution on failure when onFailure is omitted, but now they properly consider the configured severity level (e.g., `warn` | `off` severity allows subsequent steps to execute).
+- Updated @redocly/openapi-core to v1.32.2.
+
 ## 1.32.1
 
 ### Patch Changes

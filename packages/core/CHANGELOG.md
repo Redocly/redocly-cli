@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 1.32.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.22.0.
+- Fixed the `no-invalid-schema-examples` rule that incorrectly validated nullable OpenAPI 3.0 schemas.
+
 ## 1.32.1
 
 ### Patch Changes
