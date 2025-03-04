@@ -48,4 +48,39 @@ describe('no-invalid-schema-examples', () => {
       ]
     `);
   });
+
+  it('should not report on nullable example for OAS3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.3
+        info: {}
+        paths:
+          /subscriptions:
+            get:
+              responses:
+                "200":
+                  content:
+                    application/json:
+                      schema:
+                        nullable: true
+                        type: object
+                        example: null
+                        allOf:
+                          - $ref: "#/components/schemas/RiskMetadata"
+        components:
+          schemas:
+            RiskMetadata:
+              type: object
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });

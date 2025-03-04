@@ -52,7 +52,7 @@ export const rules: Oas2RuleSet<'built-in'> = {
   //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
   spec: Struct as Oas2Rule,
   struct: Struct as Oas2Rule,
-  'no-invalid-schema-examples': NoInvalidSchemaExamples,
+  'no-invalid-schema-examples': NoInvalidSchemaExamples as Oas2Rule,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,

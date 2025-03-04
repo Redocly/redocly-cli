@@ -109,7 +109,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural as Oas3Rule,
-  'no-invalid-schema-examples': NoInvalidSchemaExamples,
+  'no-invalid-schema-examples': NoInvalidSchemaExamples as Oas3Rule,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'response-contains-header': ResponseContainsHeader as Oas3Rule,
   'response-contains-property': ResponseContainsProperty,
