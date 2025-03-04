@@ -24,7 +24,7 @@ export async function callAPIAndAnalyzeResults({
 
   const checksResult = {
     successCriteriaCheck: true,
-    expectCheck: true,
+    schemaCheck: true,
     networkCheck: true,
   };
 
@@ -58,7 +58,9 @@ export async function callAPIAndAnalyzeResults({
       },
     });
 
-    checksResult.successCriteriaCheck = successCriteriaChecks.every((check) => check.passed);
+    checksResult.successCriteriaCheck = successCriteriaChecks.every(
+      (check) => check.passed || (['off', 'warn'].includes(check.severity) && !check.passed)
+    );
     step.checks.push(...successCriteriaChecks);
   }
 
@@ -73,7 +75,9 @@ export async function callAPIAndAnalyzeResults({
   });
 
   if (schemaChecks.length) {
-    checksResult.expectCheck = schemaChecks.every((check) => check.passed);
+    checksResult.schemaCheck = schemaChecks.every(
+      (check) => check.passed || (['off', 'warn'].includes(check.severity) && !check.passed)
+    );
     step.checks.push(...schemaChecks);
   }
 
