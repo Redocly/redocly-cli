@@ -41,8 +41,36 @@ const BUNDLED_DESCRIPTION_MOCK = {
   },
 };
 
+const BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID = {
+  paths: {
+    '/pet': {
+      get: {
+        responses: {
+          200: {
+            description: 'OK',
+          },
+        },
+      },
+    },
+    '/fact': {
+      get: {
+        responses: {},
+      },
+    },
+  },
+  servers: [
+    {
+      url: 'https://petstore.swagger.io/v1',
+    },
+  ],
+  info: {
+    title: 'Swagger Petstore',
+    version: '1.0.0',
+  },
+};
+
 describe('generateArazzoDescription', () => {
-  it('should generate test config when output file is provided', async () => {
+  it('should generate arazzo description when output file is provided', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     expect(
       await generateArazzoDescription({
@@ -86,7 +114,7 @@ describe('generateArazzoDescription', () => {
     });
   });
 
-  it('should generate test config with', async () => {
+  it('should generate arazzo description with operationId', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     (getOperationFromDescription as jest.Mock).mockReturnValue({
       responses: {
@@ -149,7 +177,7 @@ describe('generateArazzoDescription', () => {
     });
   });
 
-  it('should generate test config with not existing description', async () => {
+  it('should generate arazzo description with not existing description', async () => {
     (bundleOpenApi as jest.Mock).mockReturnValue(undefined);
     expect(
       await generateArazzoDescription({
@@ -170,6 +198,69 @@ describe('generateArazzoDescription', () => {
         },
       ],
       workflows: [],
+    });
+  });
+
+  it('should generate arazzo description with operationPath', async () => {
+    (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID);
+    (getOperationFromDescription as jest.Mock).mockReturnValue({
+      responses: {
+        200: {
+          description: 'OK',
+        },
+      },
+    });
+    (getRequestDataFromOpenApi as jest.Mock).mockReturnValue({
+      parameters: [
+        {
+          in: 'query',
+          name: 'limit',
+          schema: {
+            type: 'integer',
+            format: 'int32',
+          },
+        },
+      ],
+    });
+
+    expect(
+      await generateArazzoDescription({
+        descriptionPath: 'description.yaml',
+      })
+    ).toEqual({
+      arazzo: '1.0.1',
+      info: {
+        title: 'Swagger Petstore',
+        version: '1.0.0',
+      },
+      sourceDescriptions: [
+        {
+          name: 'description',
+          type: 'openapi',
+          url: 'description.yaml',
+        },
+      ],
+      workflows: [
+        {
+          workflowId: 'get-pet-workflow',
+          steps: [
+            {
+              operationPath: '{$sourceDescriptions.description.url}#/paths/~1pet/get',
+              stepId: 'get-pet-step',
+              successCriteria: [{ condition: '$statusCode == 200' }],
+            },
+          ],
+        },
+        {
+          workflowId: 'get-fact-workflow',
+          steps: [
+            {
+              operationPath: '{$sourceDescriptions.description.url}#/paths/~1fact/get',
+              stepId: 'get-fact-step',
+            },
+          ],
+        },
+      ],
     });
   });
 });
