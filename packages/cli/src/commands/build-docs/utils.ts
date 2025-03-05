@@ -39,7 +39,7 @@ export function getObjectOrJSON(
       if (config) {
         process.stdout.write(`Found ${config.configFile} and using theme.openapi options\n`);
 
-        return config.theme.openapi ? config.theme.openapi : {};
+        return config.theme.openapi ? config.theme.openapi : {}; // FIXME: ? theme is deprecated
       }
       return {};
     }
