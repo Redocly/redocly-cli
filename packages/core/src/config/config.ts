@@ -21,7 +21,6 @@ import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
-  Region,
   ResolveConfig,
   ResolvedApi,
   ResolvedConfig,
@@ -405,19 +404,13 @@ export class Config {
   styleguide: StyleguideConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
-  region?: Region;
-  theme: ThemeRawConfig;
-  organization?: string;
-  files: string[];
+  theme: ThemeRawConfig; // FIXME: theme is deprecated
   telemetry?: Telemetry;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
-    this.theme = rawConfig.theme || {};
+    this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated
     this.resolve = getResolveConfig(rawConfig?.resolve);
-    this.region = rawConfig.region;
-    this.organization = rawConfig.organization;
-    this.files = rawConfig.files || [];
     this.telemetry = rawConfig.telemetry;
   }
 }

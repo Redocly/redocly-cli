@@ -146,10 +146,10 @@ export async function resolvePlugins(
           let requiredPlugin: ImportedPlugin | undefined;
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-ignore FIXME: remove?
           if (typeof __webpack_require__ === 'function') {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
             // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
