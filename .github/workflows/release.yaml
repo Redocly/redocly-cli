@@ -45,37 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  deploy:
-    needs: [release]
-    if: needs.release.outputs.published == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
-
-      - name: Bundle into single file
-        run: npm run webpack-bundle
-
-      - name: Upload to AWS S3 bucket
-        run: npm run upload
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_S3_PATH: openapi-cli-dist
-
-      - name: Upload to AWS sandbox S3 bucket
-        run: npm run upload
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SANDBOX_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_S3_PATH: redocly-sandbox-openapi-cli-dist
-
   dockerhub:
     needs: [release]
     if: needs.release.outputs.published == 'true'
@@ -135,7 +104,6 @@ jobs:
   post-release-smoke-checks:
     needs:
       - release
-      - deploy
       - dockerhub
     name: Test released version
     continue-on-error: true
