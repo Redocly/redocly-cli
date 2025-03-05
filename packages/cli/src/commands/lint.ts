@@ -26,7 +26,7 @@ import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { CommandOptions, Skips, Totals, VerifyConfigOptions } from '../types';
+import type { CommandOptions, Totals, VerifyConfigOptions } from '../types';
 import type { CommandArgs } from '../wrapper';
 
 export type LintOptions = {
@@ -35,8 +35,9 @@ export type LintOptions = {
   extends?: string[];
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
-} & Omit<Skips, 'skip-decorator'> &
-  VerifyConfigOptions;
+  'skip-rule'?: string[];
+  'skip-preprocessor'?: string[]; // FIXME: do we need this?
+} & VerifyConfigOptions;
 
 export async function handleLint({
   argv,
