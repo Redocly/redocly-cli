@@ -146,7 +146,7 @@ export async function previewDocs({
     styleguide.skipPreprocessors(argv['skip-preprocessor']);
     styleguide.skipDecorators(argv['skip-decorator']);
 
-    const referenceDocs = resolvedConfig.theme?.openapi;
+    const referenceDocs = resolvedConfig.theme?.openapi; // FIXME: ? theme is deprecated
     redocOptions = {
       ...referenceDocs,
       useCommunityEdition: argv['use-community-edition'] || referenceDocs?.useCommunityEdition,
