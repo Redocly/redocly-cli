@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 1.33.0
+
+### Minor Changes
+
+- Added support for generating workflows from OpenAPI operations without operationIds. The `generate-arazzo` command now automatically generates operationPaths using the URL pattern: `{$sourceDescriptions.<name>.url}#/paths/<path>/<method>`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.33.0.
+
 ## 1.32.2
 
 ### Patch Changes
