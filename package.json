@@ -32,7 +32,6 @@
     "bundle": "npm run cli bundle resources/pets.yaml",
     "stats": "npm run cli stats resources/pets.yaml",
     "split": "npm run cli split resources/pets.yaml -- --outDir output",
-    "preview": "npm run cli preview-docs resources/pets.yaml",
     "build-docs": "npm run cli build-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "release": "changeset publish",
