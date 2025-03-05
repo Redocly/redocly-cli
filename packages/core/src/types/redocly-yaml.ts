@@ -339,19 +339,11 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     apis: 'ConfigApis', // Override apis with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    organization: { type: 'string' },
-    region: { enum: ['us', 'eu'] },
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
         http: 'ConfigHTTP',
         doNotResolveExamples: { type: 'boolean' },
-      },
-    },
-    files: {
-      type: 'array',
-      items: {
-        type: 'string',
       },
     },
   },
@@ -375,12 +367,6 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    files: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
   },
 });
 
@@ -505,7 +491,7 @@ const AssertionDefinitionAssertions: NodeType = {
     },
   },
   additionalProperties: (_value: unknown, key: string) => {
-    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
+    if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
 };
@@ -1008,7 +994,7 @@ const GenerateCodeSamples: NodeType = {
 // TODO: deprecated
 const ConfigReferenceDocs: NodeType = {
   properties: {
-    theme: 'ConfigTheme',
+    theme: 'ConfigTheme', // FIXME: ? theme is deprecated
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
