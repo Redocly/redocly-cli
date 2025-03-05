@@ -64,7 +64,10 @@ export function generateWorkflowsFromDescription({
 
         const operation = descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod];
         const operationSecurity = operation?.security || undefined;
-        const operationId = operation?.operationId || generateOperationId(pathItemKey, method);
+        const operationId = generateOperationId(sourceDescriptionName, operation?.operationId);
+        const operationPath = !operationId
+          ? generateOperationPath(sourceDescriptionName, pathItemKey, method)
+          : undefined;
         const workflowSecurityInputs = generateWorkflowSecurityInputs(
           inputsComponents,
           operationSecurity || rootSecurity || []
@@ -84,7 +87,7 @@ export function generateWorkflowsFromDescription({
           steps: [
             {
               stepId: pathKey ? `${method}-${pathKey}-step` : `${method}-step`,
-              operationId: `$sourceDescriptions.${sourceDescriptionName}.${operationId}`,
+              ...(operationId ? { operationId } : { operationPath }),
               ...generateParametersWithSuccessCriteria(
                 descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod]?.responses
               ),
@@ -111,6 +114,21 @@ function generateParametersWithSuccessCriteria(
   return { successCriteria: [{ condition: `$statusCode == ${firstResponseCode}` }] };
 }
 
-function generateOperationId(path: string, method: OperationMethod) {
-  return `${method}@${path}`;
+function generateOperationId(sourceDescriptionName: string, operationId?: string) {
+  if (!operationId) {
+    return undefined;
+  }
+
+  return `$sourceDescriptions.${sourceDescriptionName}.${operationId}`;
+}
+
+function generateOperationPath(
+  sourceDescriptionName: string,
+  path: string,
+  method: OperationMethod
+) {
+  return `{$sourceDescriptions.${sourceDescriptionName}.url}#/paths/~1${path.replace(
+    /^\//,
+    ''
+  )}/${method}`;
 }
