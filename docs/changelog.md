@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.33.0 (2025-03-05)
+
+### Minor Changes
+
+- Added support for generating workflows from OpenAPI operations without operationIds. The `generate-arazzo` command now automatically generates operationPaths using the URL pattern: `{$sourceDescriptions.<name>.url}#/paths/<path>/<method>`.
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v1.33.0.
+
 ## 1.32.2 (2025-03-04)
 
 ### Patch Changes
