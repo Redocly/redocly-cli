@@ -150,48 +150,8 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-          lint: {
-            hidden: true,
-            deprecated: true,
-          },
-          decorate: {
-            hidden: true,
-            deprecated: true,
-          },
-          preprocess: {
-            hidden: true,
-            deprecated: true,
-          },
         }),
     (argv) => {
-      const DEPRECATED_OPTIONS = ['lint', 'preprocess', 'decorate'];
-      const DECORATORS_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/decorators/#decorators';
-      const JOIN_COMMAND_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/commands/join/#join';
-
-      DEPRECATED_OPTIONS.forEach((option) => {
-        if (argv[option]) {
-          process.stdout.write(
-            `${colors.red(
-              `Option --${option} is no longer supported. Please review join command documentation ${JOIN_COMMAND_DOCUMENTATION_LINK}.`
-            )}`
-          );
-          process.stdout.write('\n\n');
-
-          if (['preprocess', 'decorate'].includes(option)) {
-            process.stdout.write(
-              `${colors.red(
-                `If you are looking for decorators, please review the decorators documentation ${DECORATORS_DOCUMENTATION_LINK}.`
-              )}`
-            );
-            process.stdout.write('\n\n');
-          }
-
-          yargs.showHelp();
-          process.exit(1);
-        }
-      });
-
-      process.env.REDOCLY_CLI_COMMAND = 'join';
       commandWrapper(handleJoin)(argv);
     }
   )
@@ -538,24 +498,6 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-          format: {
-            hidden: true,
-            deprecated: true,
-          },
-          lint: {
-            hidden: true,
-            deprecated: true,
-          },
-          'skip-rule': {
-            hidden: true,
-            deprecated: true,
-            array: true,
-            type: 'string',
-          },
-          'max-problems': {
-            hidden: true,
-            deprecated: true,
-          },
         })
         .check((argv) => {
           if (argv.output && (!argv.apis || argv.apis.length === 0)) {
@@ -564,24 +506,6 @@ yargs
           return true;
         }),
     (argv) => {
-      const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
-      const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
-        'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
-
-      DEPRECATED_OPTIONS.forEach((option) => {
-        if (argv[option]) {
-          process.stdout.write(
-            `${colors.red(
-              `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
-            )}`
-          );
-          process.stdout.write('\n\n');
-          yargs.showHelp();
-          process.exit(1);
-        }
-      });
-
-      process.env.REDOCLY_CLI_COMMAND = 'bundle';
       commandWrapper(handleBundle)(argv);
     }
   )
