@@ -5,7 +5,6 @@ import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
 import { outputExtensions, regionChoices } from './types';
-import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
@@ -688,57 +687,6 @@ yargs
         );
       }
       commandWrapper(previewProject)(argv);
-    }
-  )
-  .command(
-    'preview-docs [api]',
-    'Preview API reference docs for an API description.',
-    (yargs) =>
-      yargs.positional('api', { type: 'string' }).options({
-        port: {
-          alias: 'p',
-          type: 'number',
-          default: 8080,
-          description: 'Preview port.',
-        },
-        host: {
-          alias: 'h',
-          type: 'string',
-          default: '127.0.0.1',
-          description: 'Preview host.',
-        },
-        'skip-preprocessor': {
-          description: 'Ignore certain preprocessors.',
-          array: true,
-          type: 'string',
-        },
-        'skip-decorator': {
-          description: 'Ignore certain decorators.',
-          array: true,
-          type: 'string',
-        },
-        'use-community-edition': {
-          description: 'Use Redoc CE for documentation preview.',
-          type: 'boolean',
-        },
-        force: {
-          alias: 'f',
-          type: 'boolean',
-          description: 'Produce bundle output even when errors occur.',
-        },
-        config: {
-          description: 'Path to the config file.',
-          type: 'string',
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-      }),
-    (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
-      commandWrapper(previewDocs)(argv);
     }
   )
   .command(

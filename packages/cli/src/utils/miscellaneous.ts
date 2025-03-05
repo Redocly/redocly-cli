@@ -1,4 +1,4 @@
-import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
+import { basename, dirname, extname, join, resolve, relative } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob';
@@ -439,14 +439,6 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 export function exitWithError(message: string) {
   process.stderr.write(red(message) + '\n\n');
   throw new HandledError(message);
-}
-
-/**
- * Checks if dir is subdir of parent
- */
-export function isSubdir(parent: string, dir: string): boolean {
-  const relativePath = relative(parent, dir);
-  return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
 }
 
 export async function loadConfigAndHandleErrors(
