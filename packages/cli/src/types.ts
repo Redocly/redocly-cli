@@ -51,12 +51,6 @@ export type VerifyConfigOptions = {
   'lint-config'?: RuleSeverity;
 };
 
-export type Skips = {
-  'skip-rule'?: string[];
-  'skip-decorator'?: string[];
-  'skip-preprocessor'?: string[];
-};
-
 export type ConfigApis = Pick<Config, 'apis' | 'configFile'>;
 
 export type PushArguments = ArgumentsCamelCase<PushOptions & CMSPushOptions & { apis: string[] }>;
