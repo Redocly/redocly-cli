@@ -5,7 +5,6 @@ nodejs/
 coverage/
 .vscode/
 yarn.lock
-dist/
 lib/
 output/
 *.tar.gz
