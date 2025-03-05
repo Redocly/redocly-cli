@@ -505,7 +505,7 @@ const AssertionDefinitionAssertions: NodeType = {
     },
   },
   additionalProperties: (_value: unknown, key: string) => {
-    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
+    if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
 };
@@ -1008,7 +1008,7 @@ const GenerateCodeSamples: NodeType = {
 // TODO: deprecated
 const ConfigReferenceDocs: NodeType = {
   properties: {
-    theme: 'ConfigTheme',
+    theme: 'ConfigTheme', // FIXME: ? theme is deprecated
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
