@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "private": true,
   "engines": {
@@ -28,14 +28,7 @@
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
     "precli": "npm run compile",
-    "lint": "npm run cli lint resources/pets.yaml -- --format stylish",
-    "bundle": "npm run cli bundle resources/pets.yaml",
-    "stats": "npm run cli stats resources/pets.yaml",
-    "split": "npm run cli split resources/pets.yaml -- --outDir output",
-    "build-docs": "npm run cli build-docs resources/pets.yaml",
-    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "release": "changeset publish",
-    "upload": "node scripts/archive-and-upload-bundle.js",
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
@@ -78,7 +71,6 @@
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
-    "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
     "pegjs": "0.10.0",
     "prettier": "^2.1.2",
