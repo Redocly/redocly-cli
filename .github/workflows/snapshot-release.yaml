@@ -65,20 +65,18 @@ jobs:
         run: npm run compile
 
       - name: Publish snapshot packages
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
-          npm run pack:prepare # FIXME: remove this
+          cd packages/core
+          npm publish --tag snapshot
+          sleep 10
 
-          # cd packages/core
-          # npm publish --tag snapshot
-          # sleep 10
+          cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
 
-          # cd ../respect-core
-          # npm publish --tag snapshot
-          # sleep 10
-
-          # cd ../cli
-          # npm publish --tag snapshot
+          cd ../cli
+          npm publish --tag snapshot
