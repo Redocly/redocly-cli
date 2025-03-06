@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`bundle should add to meta ref from redocly registry 1`] = `
+exports[`bundle > should add to meta ref from redocly registry 1`] = `
 fileDependencies: {}
 rootType:
   properties:
@@ -182,7 +182,7 @@ visitorsData:
 
 `;
 
-exports[`bundle should bundle external refs 1`] = `
+exports[`bundle > should bundle external refs 1`] = `
 openapi: 3.0.0
 paths:
   /pet:
@@ -233,7 +233,7 @@ components:
 
 `;
 
-exports[`bundle should bundle external refs and warn for conflicting names 1`] = `
+exports[`bundle > should bundle external refs and warn for conflicting names 1`] = `
 openapi: 3.0.0
 paths:
   /pet:
@@ -262,7 +262,7 @@ components:
 
 `;
 
-exports[`bundle should bundle schemas with properties named $ref and externalValues correctly 1`] = `
+exports[`bundle > should bundle schemas with properties named $ref and externalValues correctly 1`] = `
 openapi: 3.1.0
 info: {}
 paths:
@@ -286,7 +286,7 @@ components: {}
 
 `;
 
-exports[`bundle should dereferenced correctly when used with dereference 1`] = `
+exports[`bundle > should dereferenced correctly when used with dereference 1`] = `
 openapi: 3.0.0
 paths:
   /pet:
@@ -306,7 +306,7 @@ components:
 
 `;
 
-exports[`bundle should not bundle url refs if used with keepUrlRefs 1`] = `
+exports[`bundle > should not bundle url refs if used with keepUrlRefs 1`] = `
 openapi: 3.0.0
 paths:
   /pet:
@@ -332,7 +332,7 @@ components:
 
 `;
 
-exports[`bundle should not place referenced schema inline when component in question is not of type "schemas" 1`] = `
+exports[`bundle > should not place referenced schema inline when component in question is not of type "schemas" 1`] = `
 openapi: 3.0.0
 paths:
   /pet:
@@ -357,7 +357,7 @@ components:
 
 `;
 
-exports[`bundle should place referenced schema inline when referenced schema name resolves to original schema name 1`] = `
+exports[`bundle > should place referenced schema inline when referenced schema name resolves to original schema name 1`] = `
 openapi: 3.1.0
 info:
   title: My API
@@ -420,7 +420,7 @@ components:
 
 `;
 
-exports[`bundle should pull hosted schema 1`] = `
+exports[`bundle > should pull hosted schema 1`] = `
 openapi: 3.0.3
 info:
   title: bugtest

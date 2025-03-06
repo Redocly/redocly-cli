@@ -1,45 +1,47 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import * as path from 'path';
 import { handlePush } from '../push';
 import { ReuniteApi, ReuniteApiError } from '../../api';
 
+import type { SpyInstance } from 'vitest';
+
 const remotes = {
-  push: jest.fn(),
-  upsert: jest.fn(),
-  getDefaultBranch: jest.fn(),
+  push: vi.fn(),
+  upsert: vi.fn(),
+  getDefaultBranch: vi.fn(),
 };
 
-jest.mock('@redocly/openapi-core', () => ({
-  slash: jest.fn().mockImplementation((p) => p),
+vi.mock('@redocly/openapi-core', () => ({
+  slash: vi.fn().mockImplementation((p) => p),
 }));
 
-jest.mock('../../api', () => ({
-  ...jest.requireActual('../../api'),
-  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
+vi.mock('../../api', () => ({
+  ...vi.importActual('../../api'),
+  ReuniteApi: vi.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
-    this.reportSunsetWarnings = jest.fn();
+    this.reportSunsetWarnings = vi.fn();
   }),
 }));
 
 describe('handlePush()', () => {
-  let pathResolveSpy: jest.SpyInstance;
-  let pathRelativeSpy: jest.SpyInstance;
-  let pathDirnameSpy: jest.SpyInstance;
-  let fsStatSyncSpy: jest.SpyInstance;
-  let fsReaddirSyncSpy: jest.SpyInstance;
+  let pathResolveSpy: SpyInstance;
+  let pathRelativeSpy: SpyInstance;
+  let pathDirnameSpy: SpyInstance;
+  let fsStatSyncSpy: SpyInstance;
+  let fsReaddirSyncSpy: SpyInstance;
 
   beforeEach(() => {
     remotes.getDefaultBranch.mockResolvedValueOnce('test-default-branch');
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
 
-    jest.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
+    vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
 
-    pathResolveSpy = jest.spyOn(path, 'resolve');
-    pathRelativeSpy = jest.spyOn(path, 'relative');
-    pathDirnameSpy = jest.spyOn(path, 'dirname');
-    fsStatSyncSpy = jest.spyOn(fs, 'statSync');
-    fsReaddirSyncSpy = jest.spyOn(fs, 'readdirSync');
+    pathResolveSpy = vi.spyOn(path, 'resolve');
+    pathRelativeSpy = vi.spyOn(path, 'relative');
+    pathDirnameSpy = vi.spyOn(path, 'dirname');
+    fsStatSyncSpy = vi.spyOn(fs, 'statSync');
+    fsReaddirSyncSpy = vi.spyOn(fs, 'readdirSync');
   });
 
   afterEach(() => {
@@ -60,8 +62,8 @@ describe('handlePush()', () => {
       },
     } as any);
 
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathResolveSpy.mockImplementationOnce((p: any) => p);
+    pathRelativeSpy.mockImplementationOnce((_: any, p: any) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
     await handlePush({
@@ -130,8 +132,8 @@ describe('handlePush()', () => {
       },
     } as any);
 
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathResolveSpy.mockImplementationOnce((p: any) => p);
+    pathRelativeSpy.mockImplementationOnce((_: any, p: any) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
     const result = await handlePush({
@@ -171,7 +173,7 @@ describe('handlePush()', () => {
     */
 
     fsStatSyncSpy.mockImplementation(
-      (filePath) =>
+      (filePath: string) =>
         ({
           isDirectory() {
             return filePath === 'test-folder' || filePath === 'test-folder/app';
@@ -179,7 +181,7 @@ describe('handlePush()', () => {
         } as any)
     );
 
-    fsReaddirSyncSpy.mockImplementation((dirPath): any => {
+    fsReaddirSyncSpy.mockImplementation((dirPath: string) => {
       if (dirPath === 'test-folder') {
         return ['app', 'another-ref.yaml', 'openapi.yaml'];
       }
@@ -266,8 +268,8 @@ describe('handlePush()', () => {
       },
     } as any);
 
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathResolveSpy.mockImplementationOnce((p: any) => p);
+    pathRelativeSpy.mockImplementationOnce((_: any, p: any) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
     await handlePush({
@@ -314,8 +316,8 @@ describe('handlePush()', () => {
       },
     } as any);
 
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathResolveSpy.mockImplementationOnce((p: any) => p);
+    pathRelativeSpy.mockImplementationOnce((_: any, p: any) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
     await handlePush({
@@ -354,8 +356,8 @@ describe('handlePush()', () => {
       },
     } as any);
 
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
+    pathResolveSpy.mockImplementationOnce((p: any) => p);
+    pathRelativeSpy.mockImplementationOnce((_: any, p: any) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
     expect(

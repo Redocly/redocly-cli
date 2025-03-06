@@ -7,7 +7,9 @@ import { logger, colorize } from '../logger';
 
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
-    const error = jest.spyOn(console, 'error').mockImplementation();
+    const error = vi.spyOn(console, 'error').mockImplementation((...args) => {
+      console.log('error', ...args);
+    });
 
     logger.error('error');
 
@@ -18,7 +20,9 @@ describe('Logger in Browser', () => {
   });
 
   it('should call "console.log"', () => {
-    const log = jest.spyOn(console, 'log').mockImplementation();
+    const log = vi.spyOn(console, 'log').mockImplementation((...args) => {
+      console.log('log', ...args);
+    });
 
     logger.info('info');
 
@@ -29,7 +33,9 @@ describe('Logger in Browser', () => {
   });
 
   it('should call "console.warn"', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    const warn = vi.spyOn(console, 'warn').mockImplementation((...args) => {
+      console.log('warn', ...args);
+    });
 
     logger.warn('warn');
 
@@ -43,7 +49,7 @@ describe('Logger in Browser', () => {
 describe('colorize in Browser', () => {
   it('should not call original colorette lib', () => {
     const color = 'cyan';
-    const spyingCyan = jest.spyOn(colorette, color);
+    const spyingCyan = vi.spyOn(colorette, color);
 
     const colorized = colorize.cyan(color);
 

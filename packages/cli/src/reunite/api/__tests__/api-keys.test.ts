@@ -1,9 +1,9 @@
 import { getApiKeys } from '../api-keys';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 describe('getApiKeys()', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return api key from environment variable', () => {
@@ -15,8 +15,8 @@ describe('getApiKeys()', () => {
   it('should return api key from credentials file', () => {
     process.env.REDOCLY_AUTHORIZATION = '';
 
-    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(
+    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+    vi.spyOn(fs, 'readFileSync').mockReturnValue(
       JSON.stringify({
         ['test-domain']: 'test-api-key-from-credentials-file',
       })
@@ -28,7 +28,7 @@ describe('getApiKeys()', () => {
   it('should throw an error if no api key provided', () => {
     process.env.REDOCLY_AUTHORIZATION = '';
 
-    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     expect(() => getApiKeys('test-domain')).toThrowError(
       'No api key provided, please use environment variable REDOCLY_AUTHORIZATION.'

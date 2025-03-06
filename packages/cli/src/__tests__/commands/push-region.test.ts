@@ -3,10 +3,11 @@ import { handlePush } from '../../commands/push';
 import { promptClientToken } from '../../commands/auth';
 import { ConfigFixture } from '../fixtures/config';
 import { Readable } from 'node:stream';
+import type { MockedFunction, Mock } from 'vitest';
 
 // Mock fs operations
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
+vi.mock('fs', () => ({
+  ...vi.importActual('fs'),
   createReadStream: () => {
     const readable = new Readable();
     readable.push('test data');
@@ -19,24 +20,24 @@ jest.mock('fs', () => ({
   readdirSync: () => [],
 }));
 
-(getMergedConfig as jest.Mock).mockImplementation((config) => config);
+(getMergedConfig as Mock).mockImplementation((config) => config);
 
 // Mock OpenAPI core
-jest.mock('@redocly/openapi-core');
-jest.mock('../../commands/auth');
-jest.mock('../../utils/miscellaneous');
+vi.mock('@redocly/openapi-core');
+vi.mock('../../commands/auth');
+vi.mock('../../utils/miscellaneous');
 
-const mockPromptClientToken = promptClientToken as jest.MockedFunction<typeof promptClientToken>;
+const mockPromptClientToken = promptClientToken as MockedFunction<typeof promptClientToken>;
 
 describe('push-with-region', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
-  redoclyClient.isAuthorizedWithRedoclyByRegion = jest.fn().mockResolvedValue(false);
+  redoclyClient.isAuthorizedWithRedoclyByRegion = vi.fn().mockResolvedValue(false);
 
   const originalFetch = fetch;
 
   beforeAll(() => {
     // Mock global fetch
-    global.fetch = jest.fn(() =>
+    global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
         status: 200,
@@ -62,7 +63,7 @@ describe('push-with-region', () => {
   });
 
   beforeEach(() => {
-    jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   it('should call login with default domain when region is US', async () => {

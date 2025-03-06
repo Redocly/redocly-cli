@@ -1,31 +1,31 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { Config, getMergedConfig } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/miscellaneous';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
 import { Readable } from 'node:stream';
-
+import type { Mock } from 'vitest';
 // Mock fs operations
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  createReadStream: jest.fn(() => {
+vi.mock('fs', () => ({
+  ...vi.importActual('fs'),
+  createReadStream: vi.fn(() => {
     const readable = new Readable();
     readable.push('test data');
     readable.push(null);
     return readable;
   }),
-  statSync: jest.fn(() => ({ isDirectory: () => false, size: 10 })),
-  readFileSync: jest.fn(() => Buffer.from('test data')),
-  existsSync: jest.fn(() => false),
-  readdirSync: jest.fn(() => []),
+  statSync: vi.fn(() => ({ isDirectory: () => false, size: 10 })),
+  readFileSync: vi.fn(() => Buffer.from('test data')),
+  existsSync: vi.fn(() => false),
+  readdirSync: vi.fn(() => []),
 }));
 
-jest.mock('@redocly/openapi-core');
-jest.mock('../../utils/miscellaneous');
+vi.mock('@redocly/openapi-core');
+vi.mock('../../utils/miscellaneous');
 
 // Mock fetch
-const mockFetch = jest.fn(() =>
+const mockFetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
@@ -47,7 +47,7 @@ const mockFetch = jest.fn(() =>
 
 const originalFetch = global.fetch;
 
-(getMergedConfig as jest.Mock).mockImplementation((config) => config);
+(getMergedConfig as Mock).mockImplementation((config) => config);
 
 describe('push', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
@@ -57,7 +57,7 @@ describe('push', () => {
   });
 
   beforeEach(() => {
-    jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterAll(() => {
@@ -134,7 +134,7 @@ describe('push', () => {
   it('push with --files', async () => {
     const mockConfig = { ...ConfigFixture, files: ['./resouces/1.md', './resouces/2.md'] } as any;
 
-    (fs.statSync as jest.Mock).mockImplementation(() => {
+    (fs.statSync as Mock).mockImplementation(() => {
       return { isDirectory: () => false, size: 10 };
     });
 
@@ -303,7 +303,7 @@ describe('push', () => {
   });
 
   it('push should work and encode name with spaces', async () => {
-    const encodeURIComponentSpy = jest.spyOn(global, 'encodeURIComponent');
+    const encodeURIComponentSpy = vi.spyOn(global, 'encodeURIComponent');
 
     const mockConfig = {
       ...ConfigFixture,
@@ -331,7 +331,7 @@ describe('push', () => {
 
 describe('transformPush', () => {
   it('should adapt the existing syntax', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['openapi.yaml', '@testing_org/main@v1'],
@@ -349,7 +349,7 @@ describe('transformPush', () => {
     });
   });
   it('should adapt the existing syntax (including branchName)', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
@@ -368,7 +368,7 @@ describe('transformPush', () => {
     });
   });
   it('should use --branch option firstly', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
@@ -388,7 +388,7 @@ describe('transformPush', () => {
     });
   });
   it('should work for a destination only', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['main@v1'],
@@ -405,7 +405,7 @@ describe('transformPush', () => {
     });
   });
   it('should work for a api only', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['test.yaml'],
@@ -423,7 +423,7 @@ describe('transformPush', () => {
   });
 
   it('should use destination from option', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         apis: ['test.yaml', 'test@v1'],
@@ -443,7 +443,7 @@ describe('transformPush', () => {
   });
 
   it('should use --job-id option firstly', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({
       argv: {
         'batch-id': 'b-123',
@@ -467,7 +467,7 @@ describe('transformPush', () => {
     });
   });
   it('should accept no arguments at all', () => {
-    const cb = jest.fn();
+    const cb = vi.fn();
     transformPush(cb)({ argv: {}, config: {} as any, version: 'cli-version' });
     expect(cb).toBeCalledWith({ argv: {}, config: {}, version: 'cli-version' });
   });

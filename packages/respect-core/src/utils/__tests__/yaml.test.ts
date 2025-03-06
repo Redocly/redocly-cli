@@ -1,8 +1,9 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 import { parseYaml, stringifyYaml, readYaml } from '../yaml';
+import { type Mock } from 'vitest';
 
-jest.mock('fs');
+vi.mock('fs');
 
 describe('yaml', () => {
   describe('parseYaml', () => {
@@ -46,7 +47,7 @@ describe('yaml', () => {
     const path = './test.yaml';
 
     it('should read yaml', () => {
-      (readFileSync as jest.Mock).mockReturnValue(yaml);
+      (readFileSync as Mock).mockReturnValue(yaml);
 
       expect(readYaml(path)).toEqual({
         name: 'test',
@@ -56,7 +57,7 @@ describe('yaml', () => {
     });
 
     it('should read yaml with options', () => {
-      (readFileSync as jest.Mock).mockReturnValue(yaml);
+      (readFileSync as Mock).mockReturnValue(yaml);
 
       expect(readYaml(path)).toEqual({
         name: 'test',

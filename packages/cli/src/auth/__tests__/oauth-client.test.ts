@@ -4,9 +4,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
-jest.mock('node:fs');
-jest.mock('node:os');
-jest.mock('../device-flow');
+import type { Mock } from 'vitest';
+
+vi.mock('node:fs');
+vi.mock('node:os');
+vi.mock('../device-flow');
 
 describe('RedoclyOAuthClient', () => {
   const mockClientName = 'test-client';
@@ -17,8 +19,8 @@ describe('RedoclyOAuthClient', () => {
   let client: RedoclyOAuthClient;
 
   beforeEach(() => {
-    jest.resetAllMocks();
-    (os.homedir as jest.Mock).mockReturnValue(mockHomeDir);
+    vi.resetAllMocks();
+    (os.homedir as Mock).mockReturnValue(mockHomeDir);
     process.env.HOME = mockHomeDir;
     client = new RedoclyOAuthClient(mockClientName, mockVersion);
   });
@@ -27,9 +29,9 @@ describe('RedoclyOAuthClient', () => {
     it('successfully logs in and saves token', async () => {
       const mockToken = { access_token: 'test-token' };
       const mockDeviceFlow = {
-        run: jest.fn().mockResolvedValue(mockToken),
+        run: vi.fn().mockResolvedValue(mockToken),
       };
-      (RedoclyOAuthDeviceFlow as jest.Mock).mockImplementation(() => mockDeviceFlow);
+      (RedoclyOAuthDeviceFlow as Mock).mockImplementation(() => mockDeviceFlow);
 
       await client.login(mockBaseUrl);
 
@@ -39,9 +41,9 @@ describe('RedoclyOAuthClient', () => {
 
     it('throws error when login fails', async () => {
       const mockDeviceFlow = {
-        run: jest.fn().mockResolvedValue(null),
+        run: vi.fn().mockResolvedValue(null),
       };
-      (RedoclyOAuthDeviceFlow as jest.Mock).mockImplementation(() => mockDeviceFlow);
+      (RedoclyOAuthDeviceFlow as Mock).mockImplementation(() => mockDeviceFlow);
 
       await expect(client.login(mockBaseUrl)).rejects.toThrow('Failed to login');
     });
@@ -49,7 +51,7 @@ describe('RedoclyOAuthClient', () => {
 
   describe('logout', () => {
     it('removes token file if it exists', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.existsSync as Mock).mockReturnValue(true);
 
       await client.logout();
 
@@ -57,7 +59,7 @@ describe('RedoclyOAuthClient', () => {
     });
 
     it('silently fails if token file does not exist', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      (fs.existsSync as Mock).mockReturnValue(false);
 
       await expect(client.logout()).resolves.not.toThrow();
       expect(fs.rmSync).not.toHaveBeenCalled();
@@ -67,9 +69,9 @@ describe('RedoclyOAuthClient', () => {
   describe('isAuthorized', () => {
     it('verifies API key if provided', async () => {
       const mockDeviceFlow = {
-        verifyApiKey: jest.fn().mockResolvedValue(true),
+        verifyApiKey: vi.fn().mockResolvedValue(true),
       };
-      (RedoclyOAuthDeviceFlow as jest.Mock).mockImplementation(() => mockDeviceFlow);
+      (RedoclyOAuthDeviceFlow as Mock).mockImplementation(() => mockDeviceFlow);
 
       const result = await client.isAuthorized(mockBaseUrl, 'test-api-key');
 
@@ -80,10 +82,10 @@ describe('RedoclyOAuthClient', () => {
     it('verifies access token if no API key provided', async () => {
       const mockToken = { access_token: 'test-token' };
       const mockDeviceFlow = {
-        verifyToken: jest.fn().mockResolvedValue(true),
+        verifyToken: vi.fn().mockResolvedValue(true),
       };
-      (RedoclyOAuthDeviceFlow as jest.Mock).mockImplementation(() => mockDeviceFlow);
-      (fs.readFileSync as jest.Mock).mockReturnValue(
+      (RedoclyOAuthDeviceFlow as Mock).mockImplementation(() => mockDeviceFlow);
+      (fs.readFileSync as Mock).mockReturnValue(
         client['cipher'].update(JSON.stringify(mockToken), 'utf8', 'hex') +
           client['cipher'].final('hex')
       );
@@ -100,11 +102,11 @@ describe('RedoclyOAuthClient', () => {
         refresh_token: 'refresh-token',
       };
       const mockDeviceFlow = {
-        verifyToken: jest.fn().mockResolvedValue(false),
-        refreshToken: jest.fn().mockRejectedValue(new Error('Refresh failed')),
+        verifyToken: vi.fn().mockResolvedValue(false),
+        refreshToken: vi.fn().mockRejectedValue(new Error('Refresh failed')),
       };
-      (RedoclyOAuthDeviceFlow as jest.Mock).mockImplementation(() => mockDeviceFlow);
-      (fs.readFileSync as jest.Mock).mockReturnValue(
+      (RedoclyOAuthDeviceFlow as Mock).mockImplementation(() => mockDeviceFlow);
+      (fs.readFileSync as Mock).mockReturnValue(
         client['cipher'].update(JSON.stringify(mockToken), 'utf8', 'hex') +
           client['cipher'].final('hex')
       );

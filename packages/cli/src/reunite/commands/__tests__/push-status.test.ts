@@ -2,11 +2,11 @@ import { handlePushStatus } from '../push-status';
 import { PushResponse } from '../../api/types';
 
 const remotes = {
-  getPush: jest.fn(),
-  getRemotesList: jest.fn(),
+  getPush: vi.fn(),
+  getRemotesList: vi.fn(),
 };
 
-jest.mock('colorette', () => ({
+vi.mock('colorette', () => ({
   green: (str: string) => str,
   yellow: (str: string) => str,
   red: (str: string) => str,
@@ -15,17 +15,23 @@ jest.mock('colorette', () => ({
   cyan: (str: string) => str,
 }));
 
-jest.mock('../../api', () => ({
-  ...jest.requireActual('../../api'),
-  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
+vi.mock('../../api', () => ({
+  ...vi.importActual('../../api'),
+  ReuniteApi: vi.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
-    this.reportSunsetWarnings = jest.fn();
+    this.reportSunsetWarnings = vi.fn();
   }),
 }));
 
-jest.mock('@redocly/openapi-core', () => ({
-  pause: jest.requireActual('@redocly/openapi-core').pause,
-}));
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
+    '@redocly/openapi-core'
+  );
+  return {
+    ...actual,
+    pause: vi.fn(),
+  };
+});
 
 describe('handlePushStatus()', () => {
   const mockConfig = { apis: {} } as any;
@@ -76,12 +82,12 @@ describe('handlePushStatus()', () => {
   };
 
   beforeEach(() => {
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should throw error if organization not provided', async () => {
@@ -556,7 +562,7 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      const onRetrySpy = jest.fn();
+      const onRetrySpy = vi.fn();
 
       const result = await handlePushStatus({
         argv: {

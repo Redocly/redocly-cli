@@ -1,4 +1,4 @@
-import { readdirSync, statSync, existsSync } from 'fs';
+import { readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'path';
 //@ts-ignore
 import { toMatchSpecificSnapshot } from './specific-snapshot';
@@ -9,7 +9,7 @@ import {
   getParams,
   cleanupOutput,
 } from './helpers';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { spawnSync } from 'child_process';
 
 expect.extend({

@@ -4,44 +4,44 @@ import { firstDocument, secondDocument, thirdDocument } from '../documents';
 import type { Document } from '@redocly/openapi-core';
 
 export const __redoclyClient = {
-  isAuthorizedWithRedocly: jest.fn().mockResolvedValue(true),
-  isAuthorizedWithRedoclyByRegion: jest.fn().mockResolvedValue(true),
-  login: jest.fn(),
+  isAuthorizedWithRedocly: vi.fn().mockResolvedValue(true),
+  isAuthorizedWithRedoclyByRegion: vi.fn().mockResolvedValue(true),
+  login: vi.fn(),
   registryApi: {
-    setAccessTokens: jest.fn(),
-    authStatus: jest.fn(),
-    prepareFileUpload: jest.fn().mockResolvedValue({
+    setAccessTokens: vi.fn(),
+    authStatus: vi.fn(),
+    prepareFileUpload: vi.fn().mockResolvedValue({
       signedUploadUrl: 'signedUploadUrl',
       filePath: 'filePath',
     }),
-    pushApi: jest.fn(),
+    pushApi: vi.fn(),
   },
 };
 
-export const RedoclyClient = jest.fn(() => __redoclyClient);
-export const loadConfig = jest.fn(() => ConfigFixture);
-export const getMergedConfig = jest.fn();
-export const getProxyAgent = jest.fn();
-export const lint = jest.fn();
-export const bundle = jest.fn(() => ({ bundle: { parsed: null }, problems: null }));
-export const getTotals = jest.fn(() => ({ errors: 0 }));
-export const formatProblems = jest.fn();
-export const slash = jest.fn();
-export const findConfig = jest.fn();
-export const doesYamlFileExist = jest.fn();
-export const bundleDocument = jest.fn(() => Promise.resolve({ problems: {} }));
-export const detectSpec = jest.fn();
-export const isAbsoluteUrl = jest.fn();
-export const stringifyYaml = jest.fn((data) => data);
+export const RedoclyClient = vi.fn(() => __redoclyClient);
+export const loadConfig = vi.fn(() => ConfigFixture);
+export const getMergedConfig = vi.fn();
+export const getProxyAgent = vi.fn();
+export const lint = vi.fn();
+export const bundle = vi.fn(() => ({ bundle: { parsed: null }, problems: null }));
+export const getTotals = vi.fn(() => ({ errors: 0 }));
+export const formatProblems = vi.fn();
+export const slash = vi.fn();
+export const findConfig = vi.fn();
+export const doesYamlFileExist = vi.fn();
+export const bundleDocument = vi.fn(() => Promise.resolve({ problems: {} }));
+export const detectSpec = vi.fn();
+export const isAbsoluteUrl = vi.fn();
+export const stringifyYaml = vi.fn((data) => data);
 
 export class BaseResolver {
   cache = new Map<string, Promise<Document | ResolveError>>();
 
-  getFiles = jest.fn();
-  resolveExternalRef = jest.fn();
-  loadExternalRef = jest.fn;
-  parseDocument = jest.fn();
-  resolveDocument = jest
+  getFiles = vi.fn();
+  resolveExternalRef = vi.fn();
+  loadExternalRef = vi.fn;
+  parseDocument = vi.fn();
+  resolveDocument = vi
     .fn()
     .mockImplementationOnce(() =>
       Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument })

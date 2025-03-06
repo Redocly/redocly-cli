@@ -7,7 +7,7 @@ import {
   pickDefined,
 } from '../utils';
 import { isBrowser } from '../env';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import * as path from 'path';
 
 describe('utils', () => {
@@ -104,10 +104,10 @@ describe('utils', () => {
 
     describe('isConfigFileExist', () => {
       beforeEach(() => {
-        jest
-          .spyOn(fs, 'existsSync')
-          .mockImplementation((path) => path === 'redocly.yaml' || path === 'redocly.yml');
-        jest.spyOn(path, 'extname').mockImplementation((path) => {
+        vi.spyOn(fs, 'existsSync').mockImplementation(
+          (path) => path === 'redocly.yaml' || path === 'redocly.yml'
+        );
+        vi.spyOn(path, 'extname').mockImplementation((path) => {
           if (path.endsWith('.yaml')) {
             return '.yaml';
           } else if (path.endsWith('.yml')) {

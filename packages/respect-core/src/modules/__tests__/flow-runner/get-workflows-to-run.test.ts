@@ -47,7 +47,9 @@ describe('getWorkflowsToRun', () => {
   });
 
   it('should return only the workflows that match the workflowIds and ignore the one does not exist', () => {
-    const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+    const mockLogger = vi.spyOn(logger, 'log').mockImplementation((...args) => {
+      console.log('log', ...args);
+    });
     const workflowIds = ['flow1', 'flow2', 'flow3'];
     const result = getWorkflowsToRun(workflows, workflowIds, undefined);
 
@@ -59,7 +61,9 @@ describe('getWorkflowsToRun', () => {
   });
 
   it('should return not skipped workflows when skip option is provided', () => {
-    const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+    const mockLogger = vi.spyOn(logger, 'log').mockImplementation((...args) => {
+      console.log('log', ...args);
+    });
 
     const workflowToRun = undefined;
     const workflowsToSkip = ['flow1'];
@@ -80,7 +84,9 @@ describe('getWorkflowsToRun', () => {
   });
 
   it('should return empty workflows list and write warning when all workflows are skipped', () => {
-    const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+    const mockLogger = vi.spyOn(logger, 'log').mockImplementation((...args) => {
+      console.log('log', ...args);
+    });
 
     const workflowToRun = undefined;
     const workflowsToSkip = ['flow1', 'flow2'];

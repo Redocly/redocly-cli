@@ -94,7 +94,7 @@ describe('resolveStyleguideConfig', () => {
 
   it('should instantiate the plugin once', async () => {
     // Called by plugin during init
-    const deprecateSpy = jest.spyOn(util, 'deprecate');
+    const deprecateSpy = vi.spyOn(util, 'deprecate');
 
     const config = {
       ...baseStyleguideConfig,

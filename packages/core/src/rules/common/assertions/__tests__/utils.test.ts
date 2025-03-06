@@ -116,8 +116,8 @@ describe('Oas3 assertions', () => {
     });
 
     describe('runAssertion', () => {
-      const baseLocation = new Location(jest.fn() as any as Source, 'pointer');
-      const rawLocation = new Location(jest.fn() as any as Source, 'raw-pointer');
+      const baseLocation = new Location(vi.fn() as any as Source, 'pointer');
+      const rawLocation = new Location(vi.fn() as any as Source, 'raw-pointer');
       // { $ref: 'text' }, true, {...assertionProperties, rawValue:  { $ref: 'text' }}
 
       const ctxStub = {
@@ -143,7 +143,7 @@ describe('Oas3 assertions', () => {
           assertionProperty: 'property',
         });
 
-        const expectedLocation = new Location(jest.fn() as any as Source, 'pointer/property');
+        const expectedLocation = new Location(vi.fn() as any as Source, 'pointer/property');
 
         expect(JSON.stringify(result)).toEqual(
           JSON.stringify([

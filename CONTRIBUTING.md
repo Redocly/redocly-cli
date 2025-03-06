@@ -196,6 +196,12 @@ To update snapshots, run `npm run e2e -- -u`.
 
 If you made any changes, make sure to compile the code before running the tests.
 
+### Smoke tests
+
+Smoke tests are being run in CI pipelines.
+
+If Rebilly smoke test fails, you can update snapshots by running `npm run smoke:rebilly -- -u`.
+
 ### Performance benchmark
 
 To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.

@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { generateArazzoDescription } from '../../arazzo-description-generator';
 import {
   bundleOpenApi,
@@ -5,10 +6,10 @@ import {
   getRequestDataFromOpenApi,
 } from '../../description-parser';
 
-jest.mock('../../description-parser', () => ({
-  bundleOpenApi: jest.fn(),
-  getOperationFromDescription: jest.fn(),
-  getRequestDataFromOpenApi: jest.fn(),
+vi.mock('../../description-parser', () => ({
+  bundleOpenApi: vi.fn(),
+  getOperationFromDescription: vi.fn(),
+  getRequestDataFromOpenApi: vi.fn(),
 }));
 
 const BUNDLED_DESCRIPTION_MOCK = {
@@ -71,7 +72,7 @@ const BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID = {
 
 describe('generateArazzoDescription', () => {
   it('should generate arazzo description when output file is provided', async () => {
-    (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
+    (bundleOpenApi as Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description@35.oas.yaml',
@@ -115,15 +116,15 @@ describe('generateArazzoDescription', () => {
   });
 
   it('should generate arazzo description with operationId', async () => {
-    (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
-    (getOperationFromDescription as jest.Mock).mockReturnValue({
+    (bundleOpenApi as Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK);
+    (getOperationFromDescription as Mock).mockReturnValue({
       responses: {
         200: {
           description: 'OK',
         },
       },
     });
-    (getRequestDataFromOpenApi as jest.Mock).mockReturnValue({
+    (getRequestDataFromOpenApi as Mock).mockReturnValue({
       parameters: [
         {
           in: 'query',
@@ -178,7 +179,7 @@ describe('generateArazzoDescription', () => {
   });
 
   it('should generate arazzo description with not existing description', async () => {
-    (bundleOpenApi as jest.Mock).mockReturnValue(undefined);
+    (bundleOpenApi as Mock).mockReturnValue(undefined);
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
@@ -202,15 +203,15 @@ describe('generateArazzoDescription', () => {
   });
 
   it('should generate arazzo description with operationPath', async () => {
-    (bundleOpenApi as jest.Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID);
-    (getOperationFromDescription as jest.Mock).mockReturnValue({
+    (bundleOpenApi as Mock).mockReturnValue(BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID);
+    (getOperationFromDescription as Mock).mockReturnValue({
       responses: {
         200: {
           description: 'OK',
         },
       },
     });
-    (getRequestDataFromOpenApi as jest.Mock).mockReturnValue({
+    (getRequestDataFromOpenApi as Mock).mockReturnValue({
       parameters: [
         {
           in: 'query',

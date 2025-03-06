@@ -5,8 +5,8 @@ describe.skip('login', () => {
     const client = new RedoclyClient();
     Object.defineProperty(client, 'registryApi', {
       value: {
-        setAccessTokens: jest.fn(),
-        authStatus: jest.fn(() => true),
+        setAccessTokens: vi.fn(),
+        authStatus: vi.fn(() => true),
       },
       writable: true,
       configurable: true,

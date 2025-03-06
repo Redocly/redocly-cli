@@ -5,9 +5,9 @@ import { BuildDocsArgv } from '../../commands/build-docs/types';
 import { getPageHTML } from '../../commands/build-docs/utils';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous';
 
-jest.mock('redoc');
-jest.mock('fs');
-jest.mock('../../utils/miscellaneous');
+vi.mock('redoc');
+vi.mock('fs');
+vi.mock('../../utils/miscellaneous');
 
 const config = {
   output: '',
@@ -18,12 +18,12 @@ const config = {
   redocOptions: {},
 };
 
-jest.mock('react-dom/server', () => ({
-  renderToString: jest.fn(),
+vi.mock('react-dom/server', () => ({
+  renderToString: vi.fn(),
 }));
 
-jest.mock('handlebars', () => ({
-  compile: jest.fn(() => jest.fn(() => '<html></html>')),
+vi.mock('handlebars', () => ({
+  compile: vi.fn(() => vi.fn(() => '<html></html>')),
 }));
 
 describe('build-docs', () => {
@@ -38,7 +38,7 @@ describe('build-docs', () => {
   });
 
   it('should work correctly when calling handlerBuildCommand', async () => {
-    const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
+    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
     await handlerBuildCommand({
       argv: {
         o: '',

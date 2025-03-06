@@ -1,6 +1,6 @@
-export const existsSync = jest.fn();
-export const readFileSync = jest.fn(() => '');
-export const statSync = jest.fn(() => ({ size: 0 }));
-export const createReadStream = jest.fn();
-export const writeFileSync = jest.fn();
-export const mkdirSync = jest.fn();
+export const existsSync = vi.fn();
+export const readFileSync = vi.fn(() => '');
+export const statSync = vi.fn(() => ({ size: 0 }));
+export const createReadStream = vi.fn();
+export const writeFileSync = vi.fn();
+export const mkdirSync = vi.fn();

@@ -1,3 +1,3 @@
 export const performance = {
-  now: jest.fn(),
+  now: vi.fn(),
 };

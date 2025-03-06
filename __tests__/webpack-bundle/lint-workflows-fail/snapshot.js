@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`webpack-bundle test lint-workflows-fail 1`] = `
+exports[`__tests__/webpack-bundle.test.ts > webpack-bundle test > lint-workflows-fail 1`] = `
 {
   "totals": {
     "errors": 1,

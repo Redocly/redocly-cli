@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`webpack-bundle test bundle-workflows 1`] = `
+exports[`__tests__/webpack-bundle.test.ts > webpack-bundle test > bundle-workflows 1`] = `
 openapi: 3.0.0
 info:
   version: 1.0.0

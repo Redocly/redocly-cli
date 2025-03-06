@@ -8,13 +8,14 @@ import {
 } from '../../utils/miscellaneous';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 import { ConfigFixture } from '../fixtures/config';
+import type { Mock } from 'vitest';
 
-jest.mock('../../utils/miscellaneous');
+vi.mock('../../utils/miscellaneous');
 
-jest.mock('colorette');
+vi.mock('colorette');
 
 describe('handleJoin', () => {
-  const colloreteYellowMock = yellow as jest.Mock<any, any>;
+  const colloreteYellowMock = yellow as Mock<any, any>;
   colloreteYellowMock.mockImplementation((string: string) => string);
 
   it('should call exitWithError because only one entrypoint', async () => {
@@ -23,7 +24,7 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError if glob expands to less than 2 APIs', async () => {
-    (getFallbackApisOrExit as jest.Mock).mockResolvedValueOnce([{ path: 'first.yaml' }]);
+    (getFallbackApisOrExit as Mock).mockResolvedValueOnce([{ path: 'first.yaml' }]);
 
     await handleJoin({
       argv: { apis: ['*.yaml'] },
@@ -35,8 +36,8 @@ describe('handleJoin', () => {
   });
 
   it('should proceed if glob expands to 2 or more APIs', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_1');
-    (getFallbackApisOrExit as jest.Mock).mockResolvedValueOnce([
+    (detectSpec as Mock).mockReturnValue('oas3_1');
+    (getFallbackApisOrExit as Mock).mockResolvedValueOnce([
       { path: 'first.yaml' },
       { path: 'second.yaml' },
     ]);
@@ -84,7 +85,7 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
-    (detectSpec as jest.Mock).mockReturnValueOnce('oas2_0');
+    (detectSpec as Mock).mockReturnValueOnce('oas2_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -98,7 +99,7 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
-    (detectSpec as jest.Mock)
+    (detectSpec as Mock)
       .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1');
     await handleJoin({
@@ -115,7 +116,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as Mock).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -132,7 +133,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_1');
+    (detectSpec as Mock).mockReturnValue('oas3_1');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -149,7 +150,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with custom output file', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as Mock).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -167,7 +168,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with json file extension', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as Mock).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.json', 'second.yaml'],
@@ -184,7 +185,7 @@ describe('handleJoin', () => {
   });
 
   it('should call skipDecorators and skipPreprocessors', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as Mock).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -199,7 +200,7 @@ describe('handleJoin', () => {
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as Mock).mockReturnValue('oas3_0');
 
     await handleJoin({
       argv: {

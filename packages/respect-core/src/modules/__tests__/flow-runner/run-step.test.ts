@@ -13,22 +13,22 @@ import { createHarLog } from '../../../utils/har-logs';
 import { ApiFetcher } from '../../../utils/api-fetcher';
 import { displayChecks } from '../../cli-output';
 import { cleanColors } from '../../../utils/clean-colors';
-
-jest.mock('../../flow-runner/call-api-and-analyze-results', () => ({
-  callAPIAndAnalyzeResults: jest.fn(),
+import { type Mock } from 'vitest';
+vi.mock('../../flow-runner/call-api-and-analyze-results', () => ({
+  callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-jest.mock('../../cli-output', () => ({
-  displayChecks: jest.fn(),
+vi.mock('../../cli-output', () => ({
+  displayChecks: vi.fn(),
 }));
 
-jest.mock('../../flow-runner/success-criteria', () => ({
-  checkCriteria: jest.fn(),
+vi.mock('../../flow-runner/success-criteria', () => ({
+  checkCriteria: vi.fn(),
 }));
 
-jest.mock('../../flow-runner/runner', () => ({
-  runWorkflow: jest.fn(),
-  resolveWorkflowContext: jest.fn(),
+vi.mock('../../flow-runner/runner', () => ({
+  runWorkflow: vi.fn(),
+  resolveWorkflowContext: vi.fn(),
 }));
 
 const harLogs = createHarLog();
@@ -615,8 +615,8 @@ const basicCTX = {
 
 describe('runStep', () => {
   afterEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should run step and display checks', async () => {
@@ -985,28 +985,26 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1106,28 +1104,26 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: 'MIME-TYPE CHECK',
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: 'MIME-TYPE CHECK',
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1225,28 +1221,26 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: false, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -1334,28 +1328,26 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: false, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -1465,7 +1457,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1484,7 +1476,7 @@ describe('runStep', () => {
       return { successCriteriaCheck: false, schemaCheck: true };
     });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1582,7 +1574,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1602,7 +1594,7 @@ describe('runStep', () => {
     });
 
     // @ts-ignore
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1695,7 +1687,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1727,7 +1719,7 @@ describe('runStep', () => {
     });
 
     // @ts-ignore
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1823,77 +1815,70 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      if (step.stepId === 'get-bird') {
+        step.response = {
+          body: {
+            bird: '🐦',
+            name: 'hawk',
           },
-        ];
-
-        if (step.stepId === 'get-bird') {
-          step.response = {
-            body: {
-              bird: '🐦',
-              name: 'hawk',
-            },
-            statusCode: 200,
-            headers: new Headers(),
-            contentType: 'application/json',
-          } as unknown as ResponseContext;
-        }
-
-        return { successCriteriaCheck: false, schemaCheck: true };
+          statusCode: 200,
+          headers: new Headers(),
+          contentType: 'application/json',
+        } as unknown as ResponseContext;
       }
-    );
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
+
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
+
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      if (step.stepId === 'get-bird') {
+        step.response = {
+          body: {
+            bird: '🐦',
+            name: 'hawk',
           },
-        ];
-
-        return { successCriteriaCheck: true, schemaCheck: true };
+          statusCode: 200,
+          headers: new Headers(),
+          contentType: 'application/json',
+        } as unknown as ResponseContext;
       }
-    );
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
-        if (step.stepId === 'get-bird') {
-          step.response = {
-            body: {
-              bird: '🐦',
-              name: 'hawk',
-            },
-            statusCode: 200,
-            headers: new Headers(),
-            contentType: 'application/json',
-          } as unknown as ResponseContext;
-        }
-
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
-
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1985,7 +1970,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -2010,7 +1995,7 @@ describe('runStep', () => {
       return { successCriteriaCheck: false, schemaCheck: true };
     });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -2573,7 +2558,7 @@ describe('runStep', () => {
       };
     });
 
-    (resolveWorkflowContext as jest.Mock).mockResolvedValueOnce(localCTX);
+    (resolveWorkflowContext as Mock).mockResolvedValueOnce(localCTX);
 
     await runStep({
       step,
@@ -3447,7 +3432,7 @@ describe('runStep', () => {
       $inputs: {},
     } as unknown as TestContext;
 
-    (resolveWorkflowContext as jest.Mock).mockImplementation(() => {
+    (resolveWorkflowContext as Mock).mockImplementation(() => {
       return { ...localCTX };
     });
 

@@ -20,12 +20,13 @@ import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper';
 import { Arguments } from 'yargs';
 import { blue } from 'colorette';
+import type { Mock, SpyInstance } from 'vitest';
 
-jest.mock('@redocly/openapi-core');
-jest.mock('../../utils/miscellaneous');
-jest.mock('perf_hooks');
+vi.mock('@redocly/openapi-core');
+vi.mock('../../utils/miscellaneous');
+vi.mock('perf_hooks');
 
-jest.mock('../../utils/update-version-notifier', () => ({
+vi.mock('../../utils/update-version-notifier', () => ({
   version: '1.0.0',
 }));
 
@@ -36,22 +37,20 @@ const argvMock = {
 } as Arguments<LintOptions>;
 
 describe('handleLint', () => {
-  let processExitMock: jest.SpyInstance;
+  let processExitMock: SpyInstance;
   let exitCb: any;
-  const getMergedConfigMock = getMergedConfig as jest.Mock<any, any>;
+  const getMergedConfigMock = getMergedConfig as Mock<any, any>;
 
   beforeEach(() => {
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    (performance.now as jest.Mock<any, any>).mockImplementation(() => 42);
-    processExitMock = jest.spyOn(process, 'exit').mockImplementation();
-    jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    (performance.now as Mock<any, any>).mockImplementation(() => 42);
+    processExitMock = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never) as any; // FIXME: !
+    vi.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesYamlFileExist as jest.Mock<any, any>).mockImplementation(
-      (path) => path === 'redocly.yaml'
-    );
+    (doesYamlFileExist as Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml');
   });
 
   afterEach(() => {
@@ -115,7 +114,7 @@ describe('handleLint', () => {
     });
 
     it('should call skipRules,skipPreprocessors and addIgnore with argv', async () => {
-      (lint as jest.Mock<any, any>).mockResolvedValueOnce(['problem']);
+      (lint as Mock<any, any>).mockResolvedValueOnce(['problem']);
       await commandWrapper(handleLint)({
         ...argvMock,
         'skip-preprocessor': ['preprocessor'],
@@ -127,7 +126,7 @@ describe('handleLint', () => {
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
-      (lint as jest.Mock<any, any>).mockResolvedValueOnce(['problem']);
+      (lint as Mock<any, any>).mockResolvedValueOnce(['problem']);
       await commandWrapper(handleLint)({ ...argvMock, 'max-problems': 2, format: 'stylish' });
       expect(getTotals).toHaveBeenCalledWith(['problem']);
       expect(formatProblems).toHaveBeenCalledWith(['problem'], {
@@ -140,7 +139,7 @@ describe('handleLint', () => {
     });
 
     it('should catch error in handleError if something fails', async () => {
-      (lint as jest.Mock<any, any>).mockRejectedValueOnce('error');
+      (lint as Mock<any, any>).mockRejectedValueOnce('error');
       await commandWrapper(handleLint)(argvMock);
       expect(handleError).toHaveBeenCalledWith('error', 'openapi.yaml');
     });
@@ -153,7 +152,7 @@ describe('handleLint', () => {
     });
 
     it('should call exit with 0 if no errors', async () => {
-      (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      (loadConfigAndHandleErrors as Mock).mockImplementation(() => {
         return { ...ConfigFixture };
       });
       await commandWrapper(handleLint)(argvMock);
@@ -162,20 +161,20 @@ describe('handleLint', () => {
     });
 
     it('should exit with 1 if total errors > 0', async () => {
-      (getTotals as jest.Mock<any, any>).mockReturnValueOnce({ errors: 1 });
+      (getTotals as Mock<any, any>).mockReturnValueOnce({ errors: 1 });
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();
       expect(processExitMock).toHaveBeenCalledWith(1);
     });
 
     it('should use recommended fallback if no config', async () => {
-      (getMergedConfig as jest.Mock).mockImplementation(() => {
+      (getMergedConfig as Mock).mockImplementation(() => {
         return {
           styleguide: {
             recommendedFallback: true,
             rules: {},
-            skipRules: jest.fn(),
-            skipPreprocessors: jest.fn(),
+            skipRules: vi.fn(),
+            skipPreprocessors: vi.fn(),
           },
         };
       });

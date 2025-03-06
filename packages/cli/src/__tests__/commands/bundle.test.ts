@@ -8,16 +8,16 @@ import {
   saveBundle,
 } from '../../utils/miscellaneous';
 import { commandWrapper } from '../../wrapper';
-import SpyInstance = jest.SpyInstance;
-import { Arguments } from 'yargs';
+import type { Arguments } from 'yargs';
+import type { SpyInstance, Mock } from 'vitest';
 
-jest.mock('@redocly/openapi-core');
-jest.mock('../../utils/miscellaneous');
+vi.mock('@redocly/openapi-core');
+vi.mock('../../utils/miscellaneous');
 
 // @ts-ignore
-getOutputFileName = jest.requireActual('../../utils/miscellaneous').getOutputFileName;
+getOutputFileName = vi.importActual('../../utils/miscellaneous').getOutputFileName;
 
-(getMergedConfig as jest.Mock).mockImplementation((config) => config);
+(getMergedConfig as Mock).mockImplementation((config) => config);
 
 describe('bundle', () => {
   let processExitMock: SpyInstance;
@@ -25,18 +25,18 @@ describe('bundle', () => {
   let stderrWriteMock: any;
   let stdoutWriteMock: any;
   beforeEach(() => {
-    processExitMock = jest.spyOn(process, 'exit').mockImplementation();
-    jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
+    processExitMock = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never) as any; // FIXME: !
+    vi.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
       return process.on(_e, cb);
     });
-    stderrWriteMock = jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
-    stdoutWriteMock = jest.spyOn(process.stdout, 'write').mockImplementation(jest.fn());
+    stderrWriteMock = vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
+    stdoutWriteMock = vi.spyOn(process.stdout, 'write').mockImplementation(vi.fn());
   });
 
   afterEach(() => {
-    (bundle as jest.Mock).mockClear();
-    (getTotals as jest.Mock).mockReset();
+    (bundle as Mock).mockClear();
+    (getTotals as Mock).mockReset();
     stderrWriteMock.mockRestore();
     stdoutWriteMock.mockRestore();
   });
@@ -79,7 +79,7 @@ describe('bundle', () => {
   it('exits with code 1 when bundles definitions w/errors', async () => {
     const apis = ['foo.yaml'];
 
-    (getTotals as jest.Mock).mockReturnValue({
+    (getTotals as Mock).mockReturnValue({
       errors: 1,
       warnings: 0,
       ignored: 0,
@@ -97,7 +97,7 @@ describe('bundle', () => {
   it('handleError is called when bundles an invalid definition', async () => {
     const apis = ['invalid.json'];
 
-    (bundle as jest.Mock).mockImplementationOnce(() => {
+    (bundle as Mock).mockImplementationOnce(() => {
       throw new Error('Invalid definition');
     });
 
@@ -113,7 +113,7 @@ describe('bundle', () => {
   it("handleError isn't called when bundles a valid definition", async () => {
     const apis = ['foo.yaml'];
 
-    (getTotals as jest.Mock).mockReturnValue({
+    (getTotals as Mock).mockReturnValue({
       errors: 0,
       warnings: 0,
       ignored: 0,
@@ -142,8 +142,8 @@ describe('bundle', () => {
       const config = {
         apis,
         styleguide: {
-          skipPreprocessors: jest.fn(),
-          skipDecorators: jest.fn(),
+          skipPreprocessors: vi.fn(),
+          skipDecorators: vi.fn(),
         },
       } as unknown as Config;
       // @ts-ignore
@@ -152,7 +152,7 @@ describe('bundle', () => {
         .mockResolvedValueOnce(
           Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
         );
-      (getTotals as jest.Mock).mockReturnValue({
+      (getTotals as Mock).mockReturnValue({
         errors: 0,
         warnings: 0,
         ignored: 0,
@@ -182,8 +182,8 @@ describe('bundle', () => {
       const config = {
         apis,
         styleguide: {
-          skipPreprocessors: jest.fn(),
-          skipDecorators: jest.fn(),
+          skipPreprocessors: vi.fn(),
+          skipDecorators: vi.fn(),
         },
       } as unknown as Config;
       // @ts-ignore
@@ -192,7 +192,7 @@ describe('bundle', () => {
         .mockResolvedValueOnce(
           Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
         );
-      (getTotals as jest.Mock).mockReturnValue({
+      (getTotals as Mock).mockReturnValue({
         errors: 0,
         warnings: 0,
         ignored: 0,
@@ -219,13 +219,13 @@ describe('bundle', () => {
       const config = {
         apis,
         styleguide: {
-          skipPreprocessors: jest.fn(),
-          skipDecorators: jest.fn(),
+          skipPreprocessors: vi.fn(),
+          skipDecorators: vi.fn(),
         },
       } as unknown as Config;
       // @ts-ignore
-      getFallbackApisOrExit = jest.fn().mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
-      (getTotals as jest.Mock).mockReturnValue({
+      getFallbackApisOrExit = vi.fn().mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
+      (getTotals as Mock).mockReturnValue({
         errors: 0,
         warnings: 0,
         ignored: 0,
@@ -255,8 +255,8 @@ describe('bundle', () => {
       const config = {
         apis,
         styleguide: {
-          skipPreprocessors: jest.fn(),
-          skipDecorators: jest.fn(),
+          skipPreprocessors: vi.fn(),
+          skipDecorators: vi.fn(),
         },
       } as unknown as Config;
       // @ts-ignore
@@ -265,7 +265,7 @@ describe('bundle', () => {
         .mockResolvedValueOnce(
           Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
         );
-      (getTotals as jest.Mock).mockReturnValue({
+      (getTotals as Mock).mockReturnValue({
         errors: 0,
         warnings: 0,
         ignored: 0,
