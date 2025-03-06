@@ -7,7 +7,7 @@ seo:
 
 Good quality API documentation is the most important factor for a good developer experience. Redocly offers two options for web-based API reference documentation, so you can choose what fits your needs.
 
-<!-- FIXME: needs to be updated as we removing Workflows & preview-docs -->
+<!-- FIXME: needs to be updated as we removing Workflows & preview-docs? At least we could add a section about Reunite -->
 
 ## API reference
 
