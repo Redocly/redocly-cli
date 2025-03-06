@@ -24,9 +24,6 @@ export const builtInConfigs: Record<string, StyleguideRawConfig> = {
   minimal,
   all,
   spec,
-  'redocly-registry': {
-    decorators: { 'registry-dependencies': 'on' },
-  },
 };
 
 export const defaultPlugin: Plugin<'built-in'> = {
