@@ -35,7 +35,7 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 
 - -o, --output-file
 - string
-- Path to the OAS description file. If the file name is not provided, the default name is used - `auto-generate.arazzo.yaml`. Example: `npx @redocly/cli generate-arazzo OAS-file.yaml -o=example.arazzo.yaml`
+- Name for the generated output file. Defaults to `auto-generated.arazzo.yaml` **If the file already exists, it's overwritten.** See the [specify output file](#specify-output-file) section.
 
 {% /table %}
 
@@ -43,11 +43,11 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 
 Run the command: `npx @redocly/cli generate-arazzo 'https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml'`
 
-The command generates a `auto-generate.arazzo.yaml` file in the current directory.
+The command generates an `auto-generated.arazzo.yaml` file in the current directory.
 
 The contents of the generated file are:
 
-```yaml {% title="auto-generate.arazzo.yaml" %}
+```yaml {% title="auto-generated.arazzo.yaml" %}
 arazzo: 1.0.1
 info:
   title: Warp API
@@ -114,6 +114,14 @@ workflows:
 ```
 
 The generated file is not a complete test file and needs to be extended to be functional.
+
+### Specify output file
+
+By default, the CLI tool writes the generated file as `auto-generated.arazzo.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
+
+```bash Command
+redocly generate-arazzo <your-OAS-description-file> --output=arazzo-custom.yaml
+```
 
 ## Resources
 
