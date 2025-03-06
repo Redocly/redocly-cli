@@ -2,17 +2,16 @@ name: Snapshot Release
 
 on:
   pull_request:
-    types: [closed]
-    branches:
-      - snapshot
+    types: [labeled]
 
 jobs:
   release-snapshot:
-    if: github.event.pull_request.merged == true
+    if: github.event.label.name == 'snapshot'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -41,13 +40,15 @@ jobs:
           jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
           # Add comment with installation instructions
-          COMMENT="📦 A new experimental version **v$VERSION** of Redocly CLI has been published for testing.
+          COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
 
           Install with NPM:
           \`\`\`bash
           npm install @redocly/cli@$VERSION
           # or
           npm install @redocly/openapi-core@$VERSION
+          # or
+          npm install @redocly/respect-core@$VERSION
           \`\`\`
 
           ⚠️ Note: This is a development build and may contain unstable features."
@@ -64,18 +65,20 @@ jobs:
         run: npm run compile
 
       - name: Publish snapshot packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
-          cd packages/core
-          npm publish --tag snapshot
-          sleep 10
+          npm run pack:prepare # FIXME: remove this
 
-          cd ../respect-core
-          npm publish --tag snapshot
-          sleep 10
+          # cd packages/core
+          # npm publish --tag snapshot
+          # sleep 10
 
-          cd ../cli
-          npm publish --tag snapshot
+          # cd ../respect-core
+          # npm publish --tag snapshot
+          # sleep 10
+
+          # cd ../cli
+          # npm publish --tag snapshot
