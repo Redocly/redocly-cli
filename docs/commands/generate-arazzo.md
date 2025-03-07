@@ -117,10 +117,10 @@ The generated file is not a complete test file and needs to be extended to be fu
 
 ### Specify output file
 
-By default, the CLI tool writes the generated file as `auto-generated.arazzo.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
+By default, the CLI tool writes the generated file as `auto-generated.arazzo.yaml` in the current working directory. Use the optional `--output-file` argument to provide an alternative output file path.
 
 ```bash Command
-redocly generate-arazzo <your-OAS-description-file> --output=arazzo-custom.yaml
+redocly generate-arazzo <your-OAS-description-file> --output-file=arazzo-custom.yaml
 ```
 
 ## Resources
