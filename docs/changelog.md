@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.33.1 (2025-03-07)
+
+### Patch Changes
+
+- Updated `output` flag docs for `generate-arazzo` command.
+- Updated @redocly/respect-core to v1.33.1.
+
 ## 1.33.0 (2025-03-05)
 
 ### Minor Changes
