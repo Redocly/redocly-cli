@@ -1,13 +1,15 @@
+import { Mock } from 'vitest';
+
 import AbortController from 'abort-controller';
 import fetchWithTimeout from '../utils/fetch-with-timeout';
 import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-jest.mock('@redocly/openapi-core');
+vi.mock('@redocly/openapi-core');
 
 const signalInstance = new AbortController().signal;
 
-const mockFetch = jest.fn(() =>
+const mockFetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
@@ -35,12 +37,12 @@ global.fetch = mockFetch;
 describe('fetchWithTimeout', () => {
   beforeAll(() => {
     // @ts-ignore
-    global.setTimeout = jest.fn();
-    global.clearTimeout = jest.fn();
+    global.setTimeout = vi.fn();
+    global.clearTimeout = vi.fn();
   });
 
   beforeEach(() => {
-    (getProxyAgent as jest.Mock).mockReturnValueOnce(undefined);
+    (getProxyAgent as Mock).mockReturnValueOnce(undefined);
   });
 
   afterAll(() => {
@@ -62,9 +64,9 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    (getProxyAgent as jest.Mock).mockRestore();
+    (getProxyAgent as Mock).mockRestore();
     const proxyAgent = new HttpsProxyAgent('http://localhost');
-    (getProxyAgent as jest.Mock).mockReturnValueOnce(proxyAgent);
+    (getProxyAgent as Mock).mockReturnValueOnce(proxyAgent);
 
     await fetchWithTimeout('url');
 

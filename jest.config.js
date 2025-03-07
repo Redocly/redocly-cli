@@ -1,8 +1,14 @@
+const { readFileSync } = require('fs');
+const path = require('path');
+
+const migratedSuites = JSON.parse(readFileSync(path.resolve(__dirname, 'migrated-suites.json'), 'utf-8'));
+
 module.exports = {
   clearMocks: true,
   restoreMocks: true,
   preset: 'ts-jest',
   testEnvironment: 'node',
+  testPathIgnorePatterns: migratedSuites,
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
     '!packages/**/__tests__/**/*',

@@ -1,0 +1,14 @@
+[
+    "packages/cli/src/__tests__/fetch-with-timeout.test.ts",
+    "packages/cli/src/__tests__/spinner.test.ts",
+
+    "packages/core/src/__tests__/bundle.test.ts",
+    "packages/core/src/__tests__/codeframes.test.ts",
+    "packages/core/src/__tests__/format.test.ts",
+    "packages/core/src/__tests__/js-yaml.test.ts",
+    "packages/core/src/__tests__/lint.test.ts",
+    "packages/core/src/__tests__/logger-browser.test.ts",
+    "packages/core/src/__tests__/logger.test.ts",
+    "packages/core/src/__tests__/normalizeVisitors.test.ts",
+    "packages/core/src/__tests__/output-browser.test.ts"
+]
