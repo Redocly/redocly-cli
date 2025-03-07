@@ -209,10 +209,7 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
-export type Region = 'us' | 'eu';
 export type Telemetry = 'on' | 'off';
-
-export type AccessTokens = { [region in Region]?: string };
 
 export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
@@ -234,16 +231,12 @@ export type DeprecatedInApi = {
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
-  files?: string[];
 };
 
 export type RawConfig = {
   apis?: Record<string, Api>;
   styleguide?: StyleguideRawConfig;
   resolve?: RawResolveConfig;
-  region?: Region;
-  organization?: string;
-  files?: string[];
   telemetry?: Telemetry;
 } & ThemeConfig;
 

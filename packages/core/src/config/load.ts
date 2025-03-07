@@ -1,35 +1,25 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { RedoclyClient } from '../redocly';
 import { isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { ConfigValidationError, transformConfig, deepCloneMapWithJSON } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import { bundleConfig } from '../bundle';
 import { BaseResolver } from '../resolve';
-import { isBrowser } from '../env';
-import { DOMAINS } from '../redocly/domains';
 
 import type { Config } from './config';
 import type { Document, ResolvedRefMap } from '../resolve';
-import type { RegionalToken, RegionalTokenWithValidity } from '../redocly/redocly-client-types';
-import type { RawConfig, RawUniversalConfig, Region } from './types';
+import type { RawConfig, RawUniversalConfig } from './types';
 
 async function addConfigMetadata({
   rawConfig,
   customExtends,
   configPath,
-  tokens,
-  files,
-  region,
   externalRefResolver,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  tokens?: RegionalToken[];
-  files?: string[];
-  region?: Region;
   externalRefResolver?: BaseResolver;
 }): Promise<Config> {
   if (customExtends !== undefined) {
@@ -39,41 +29,8 @@ async function addConfigMetadata({
     rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
-  if (tokens?.length) {
-    if (!rawConfig.resolve) rawConfig.resolve = {};
-    if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
-    rawConfig.resolve.http.headers = [...(rawConfig.resolve.http.headers ?? [])];
-
-    for (const item of tokens) {
-      const domain = DOMAINS[item.region as Region];
-      rawConfig.resolve.http.headers.push(
-        {
-          matches: `https://api.${domain}/registry/**`,
-          name: 'Authorization',
-          envVariable: undefined,
-          value: item.token,
-        },
-        //support redocly.com domain for future compatibility
-        ...(item.region === 'us'
-          ? [
-              {
-                matches: `https://api.redoc.ly/registry/**`,
-                name: 'Authorization',
-                envVariable: undefined,
-                value: item.token,
-              },
-            ]
-          : [])
-      );
-    }
-  }
-
   return resolveConfig({
-    rawConfig: {
-      ...rawConfig,
-      files: files ?? rawConfig.files,
-      region: region ?? rawConfig.region,
-    },
+    rawConfig,
     configPath,
     externalRefResolver,
   });
@@ -92,16 +49,12 @@ export async function loadConfig(
     customExtends?: string[];
     processRawConfig?: RawConfigProcessor;
     externalRefResolver?: BaseResolver;
-    files?: string[];
-    region?: Region;
   } = {}
 ): Promise<Config> {
   const {
     configPath = findConfig(),
     customExtends,
     processRawConfig,
-    files,
-    region,
     externalRefResolver,
   } = options;
 
@@ -110,16 +63,10 @@ export async function loadConfig(
     externalRefResolver,
   });
 
-  const redoclyClient = isBrowser ? undefined : new RedoclyClient();
-  const tokens = redoclyClient && redoclyClient.hasTokens() ? redoclyClient.getAllTokens() : [];
-
   const config = await addConfigMetadata({
     rawConfig,
     customExtends,
     configPath,
-    tokens,
-    files,
-    region,
     externalRefResolver,
   });
 
@@ -195,7 +142,6 @@ export async function getConfig(
 
 type CreateConfigOptions = {
   extends?: string[];
-  tokens?: RegionalTokenWithValidity[];
   configPath?: string;
   externalRefResolver?: BaseResolver;
 };
