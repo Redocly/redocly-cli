@@ -12,5 +12,6 @@
     "packages/core/src/__tests__/normalizeVisitors.test.ts",
     "packages/core/src/__tests__/output-browser.test.ts",
     "packages/core/src/__tests__/output.test.ts",
-    "packages/core/src/__tests__/ref-utils.test.ts"
+    "packages/core/src/__tests__/ref-utils.test.ts",
+    "packages/core/src/__tests__/resolve-http.test.ts"
 ]

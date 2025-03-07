@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { extname } from 'path';
-import * as minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import { parseYaml } from './js-yaml';
 import { env } from './env';
 import { logger, colorize } from './logger';

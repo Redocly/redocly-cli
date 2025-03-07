@@ -41,14 +41,14 @@
     "https-proxy-agent": "^7.0.5",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
-    "minimatch": "^5.0.1",
+    "minimatch": "^10.0.1",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
     "@types/js-levenshtein": "^1.1.0",
     "@types/js-yaml": "^4.0.3",
-    "@types/minimatch": "^3.0.5",
+    "@types/minimatch": "^5.1.2",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
     "typescript": "5.5.3"
