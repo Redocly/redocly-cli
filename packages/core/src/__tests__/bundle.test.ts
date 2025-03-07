@@ -141,52 +141,6 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should add to meta ref from redocly registry', async () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /pet:
-            get:
-              operationId: get
-              parameters:
-                - $ref: '#/components/parameters/shared_a'
-                - name: get_b
-            post:
-              operationId: post
-              parameters:
-                - $ref: 'https://api.redocly.com/registry/params'
-        components:
-          parameters:
-            shared_a:
-              name: shared-a
-      `,
-      ''
-    );
-
-    const config = await makeConfig({ rules: {}, decorators: { 'registry-dependencies': 'on' } });
-
-    const {
-      bundle: result,
-      problems,
-      ...meta
-    } = await bundleDocument({
-      document: testDocument,
-      config: config,
-      externalRefResolver: new BaseResolver({
-        http: {
-          customFetch: fetchMock,
-          headers: [],
-        },
-      }),
-    });
-
-    const parsedMeta = JSON.parse(JSON.stringify(meta));
-
-    expect(problems).toHaveLength(0);
-    expect(parsedMeta).toMatchSnapshot();
-  });
-
   it('should bundle refs using $anchors', async () => {
     const testDocument = parseYamlToDocument(
       outdent`

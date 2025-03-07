@@ -1,7 +1,0 @@
-apis:
-  main:
-    root: ./openapi.yaml
-
-rules:
-  operation-operationId: warn
-  operation-summary: error

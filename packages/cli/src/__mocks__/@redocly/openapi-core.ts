@@ -18,7 +18,6 @@ export const __redoclyClient = {
   },
 };
 
-export const RedoclyClient = jest.fn(() => __redoclyClient);
 export const loadConfig = jest.fn(() => ConfigFixture);
 export const getMergedConfig = jest.fn();
 export const getProxyAgent = jest.fn();

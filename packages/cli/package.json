@@ -14,7 +14,7 @@
   "engineStrict": true,
   "scripts": {
     "compile": "tsc",
-    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js && cp src/commands/preview-docs/preview-server/oauth2-redirect.html lib/commands/preview-docs/preview-server/oauth2-redirect.html && cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs ",
+    "copy-assets": "cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs ",
     "prepack": "npm run copy-assets",
     "prepublishOnly": "npm run copy-assets && cp ../../README.md ."
   },
@@ -46,7 +46,6 @@
     "core-js": "^3.32.1",
     "dotenv": "^16.4.7",
     "form-data": "^4.0.0",
-    "get-port-please": "^3.0.1",
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
     "mobx": "^6.0.4",
