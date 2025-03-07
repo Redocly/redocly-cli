@@ -6,6 +6,12 @@
 This is done as the main vitest config has a whitelist of tests to run and every new file that we migrate does not exist there.
 2. Add the PATH_TO_TEST_FILE to the `migrated-suites.json` file
 
+To run a specific suite with `jest`
+
+```
+npx jest --testPathPattern PATH_TO_TEST_FILE
+```
+
 ## use-cases
 
 ### jest.fn
