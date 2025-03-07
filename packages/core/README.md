@@ -12,7 +12,7 @@ See https://github.com/Redocly/redocly-cli
 
 ### Lint from file system
 
-[Lint](https://redocly.com/docs/cli/commands/lint/) a file, optionally with a [config file](https://redocly.com/docs/cli/configuration/).
+[Lint](https://redocly.com/docs/cli/commands/lint/) a file.
 
 ```js
 import { lint, loadConfig } from '@redocly/openapi-core';
@@ -28,7 +28,7 @@ To learn more, [check the `lint` function section](#lint).
 
 ### Bundle from file system
 
-[Bundle](https://redocly.com/docs/cli/commands/bundle/) an API description into a single structure, optionally with a [config file](https://redocly.com/docs/cli/configuration/).
+[Bundle](https://redocly.com/docs/cli/commands/bundle/) an API description into a single structure.
 
 ```js
 import { bundle, loadConfig } from '@redocly/openapi-core';
