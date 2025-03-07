@@ -5,7 +5,7 @@ import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils
 import { lintConfigCallback } from './commands/lint';
 
 import type { Arguments } from 'yargs';
-import type { Config, Region } from '@redocly/openapi-core';
+import type { Config } from '@redocly/openapi-core';
 import type { CollectFn } from '@redocly/openapi-core/lib/utils';
 import type { ExitCode } from './utils/miscellaneous';
 import type { CommandOptions } from './types';
@@ -52,8 +52,6 @@ export function commandWrapper<T extends CommandOptions>(
       const config: Config = (await loadConfigAndHandleErrors({
         configPath: argv.config,
         customExtends: argv.extends as string[] | undefined,
-        region: argv.region as Region,
-        files: argv.files as string[] | undefined,
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       })) as Config;
       telemetry = config.telemetry;

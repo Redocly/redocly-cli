@@ -84,28 +84,6 @@ describe('handlePushStatus()', () => {
     jest.clearAllMocks();
   });
 
-  it('should throw error if organization not provided', async () => {
-    await expect(
-      handlePushStatus({
-        argv: {
-          domain: 'test-domain',
-          organization: '',
-          project: 'test-project',
-          pushId: 'test-push-id',
-        },
-        config: mockConfig,
-        version: 'cli-version',
-      })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"No organization provided, please use --organization option or specify the 'organization' field in the config file."`
-    );
-
-    expect(process.stderr.write).toHaveBeenCalledWith(
-      `No organization provided, please use --organization option or specify the 'organization' field in the config file.` +
-        '\n\n'
-    );
-  });
-
   it('should print success push status for preview-build', async () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     remotes.getPush.mockResolvedValueOnce(pushResponseStub);

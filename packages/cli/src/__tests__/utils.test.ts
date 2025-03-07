@@ -27,7 +27,6 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import { ConfigApis } from '../types';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -512,20 +511,12 @@ describe('cleanArgs', () => {
     };
     expect(cleanArgs(testArgs)).toEqual({
       config: 'file-yaml',
-      apis: ['api-name@api-version', 'file-yaml', 'http://url'],
+      apis: ['main@v1', 'file-yaml', 'http://url'],
       format: 'codeframe',
       input: '***',
       'client-cert': '***',
       'client-key': '***',
       'ca-cert': '***',
-    });
-  });
-  it('should remove potentially sensitive data from a push destination', () => {
-    const testArgs = {
-      destination: '@org/name@version',
-    };
-    expect(cleanArgs(testArgs)).toEqual({
-      destination: '@organization/api-name@api-version',
     });
   });
 });

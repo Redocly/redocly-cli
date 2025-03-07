@@ -290,12 +290,11 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             extendPaths,
             pluginPaths,
           },
-          // FIXME: ? theme is deprecated
+          // FIXME: theme is deprecated
           theme: {
             ...config.rawConfig.theme,
             ...config.apis[apiName]?.theme,
           },
-          files: [...config.files, ...(config.apis?.[apiName]?.files ?? [])],
           // TODO: merge everything else here
         },
         config.configFile

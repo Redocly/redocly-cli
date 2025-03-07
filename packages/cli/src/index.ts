@@ -4,10 +4,11 @@ import * as dotenv from 'dotenv';
 import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
-import { outputExtensions, regionChoices } from './types';
+import { outputExtensions } from './types';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
+import { handlePush } from './reunite/commands/push';
 import { handlePushStatus } from './reunite/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
@@ -23,14 +24,11 @@ import { previewProject } from './commands/preview-project';
 import { handleTranslations } from './commands/translations';
 import { handleEject } from './commands/eject';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
-import { commonPushHandler } from './commands/push';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushStatusOptions } from './reunite/commands/push-status';
-import type { PushArguments } from './types';
 import type { EjectOptions } from './commands/eject';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
@@ -163,7 +161,7 @@ yargs
         .positional('pushId', {
           description: 'Push id.',
           type: 'string',
-          required: true,
+          demandOption: true,
         })
         .implies('max-execution-time', 'wait')
         .option({
@@ -171,6 +169,7 @@ yargs
             description: 'Name of the organization to push to.',
             type: 'string',
             alias: 'o',
+            required: true,
           },
           project: {
             description: 'Name of the project to push to.',
@@ -201,88 +200,25 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
-      commandWrapper(handlePushStatus)(argv as Arguments<PushStatusOptions>);
+      commandWrapper(handlePushStatus)(argv);
     }
   )
   .command(
-    'push [apis...]',
-    'Push an API description to the Redocly API registry.',
+    'push [files...]',
+    'Push documents to Reunite.',
     (yargs) =>
       yargs
-        .positional('apis', {
+        .positional('files', {
           type: 'string',
           array: true,
-          required: true,
-          default: [],
+          demandOption: true,
         })
-        .hide('project')
-        .hide('domain')
-        .hide('mount-path')
-        .hide('author')
-        .hide('message')
-        .hide('default-branch')
-        .hide('verbose')
-        .hide('commit-sha')
-        .hide('commit-url')
-        .hide('namespace')
-        .hide('repository')
-        .hide('wait-for-deployment')
-        .hide('created-at')
-        .hide('max-execution-time')
-        .deprecateOption('batch-id', 'use --job-id')
-        .implies('job-id', 'batch-size')
-        .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'job-id')
-        .implies('max-execution-time', 'wait-for-deployment')
         .option({
-          destination: {
-            description: 'API name and version in the format `name@version`.',
-            type: 'string',
-            alias: 'd',
-          },
           branch: {
             description: 'Branch name to push to.',
             type: 'string',
             alias: 'b',
-          },
-          upsert: {
-            description:
-              "Create the specified API version if it doesn't exist, update if it does exist.",
-            type: 'boolean',
-            alias: 'u',
-          },
-          'batch-id': {
-            description:
-              'Specifies the ID of the CI job that the current push will be associated with.',
-            type: 'string',
-            requiresArg: true,
-            deprecated: true,
-            hidden: true,
-          },
-          'job-id': {
-            description: 'ID of the CI job that the current push will be associated with.',
-            type: 'string',
-            requiresArg: true,
-          },
-          'batch-size': {
-            description: 'Number of CI pushes to expect in a batch.',
-            type: 'number',
-            requiresArg: true,
-          },
-          region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
-          'skip-decorator': {
-            description: 'Ignore certain decorators.',
-            array: true,
-            type: 'string',
-          },
-          public: {
-            description: 'Make the API description available to the public',
-            type: 'boolean',
-          },
-          files: {
-            description: 'List of other folders and files to upload',
-            array: true,
-            type: 'string',
+            required: true,
           },
           'lint-config': {
             description: 'Severity level for config file linting.',
@@ -293,26 +229,31 @@ yargs
             description: 'Name of the organization to push to.',
             type: 'string',
             alias: 'o',
+            required: true,
           },
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
             alias: 'p',
+            required: true,
           },
           'mount-path': {
             description: 'The path files should be pushed to.',
             type: 'string',
             alias: 'mp',
+            required: true,
           },
           author: {
             description: 'Author of the commit.',
             type: 'string',
             alias: 'a',
+            required: true,
           },
           message: {
             description: 'Commit message.',
             type: 'string',
             alias: 'm',
+            required: true,
           },
           'commit-sha': {
             description: 'Commit SHA.',
@@ -367,7 +308,7 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(commonPushHandler(argv))(argv as Arguments<PushArguments>);
+      commandWrapper(handlePush)(argv);
     }
   )
   .command(
@@ -534,23 +475,15 @@ yargs
     'Log in to Redocly.',
     async (yargs) =>
       yargs.options({
-        verbose: {
-          description: 'Include additional output.',
-          type: 'boolean',
-        },
         residency: {
           description: 'Residency of the application. Defaults to `us`.',
-          alias: ['r', 'region'],
+          alias: ['r'],
           type: 'string',
         },
         config: {
           description: 'Path to the config file.',
           requiresArg: true,
           type: 'string',
-        },
-        next: {
-          description: 'Use Reunite application to login.',
-          type: 'boolean',
         },
       }),
     (argv) => {
@@ -560,7 +493,7 @@ yargs
   )
   .command(
     'logout',
-    'Clear your stored credentials for the Redocly API registry.',
+    'Clear your stored credentials.',
     (yargs) => yargs,
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'logout';
