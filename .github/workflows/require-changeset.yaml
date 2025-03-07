@@ -2,6 +2,8 @@ name: Require Either a Changeset or a Label 'no changeset needed'
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches:
+      - main
 
 jobs:
   require-changeset-or-label:
