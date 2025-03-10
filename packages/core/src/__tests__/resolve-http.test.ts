@@ -25,7 +25,7 @@ describe('Resolve http-headers', () => {
     const fetchMock = vi.fn(() => {
       // print the stack trace
       console.log(new Error().stack);
-      process.exit(1);
+      process.exit(1); // FIXME: why exit?
     });
 
     await resolveDocument({

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { extname } from 'path';
+import * as fs from 'node:fs';
+import { extname } from 'node:path';
 import { minimatch } from 'minimatch';
 import { parseYaml } from './js-yaml';
 import { env } from './env';

@@ -1,17 +1,46 @@
 [
-    "packages/cli/src/__tests__/fetch-with-timeout.test.ts",
-    "packages/cli/src/__tests__/spinner.test.ts",
+  "packages/cli/src/__tests__/fetch-with-timeout.test.ts",
+  "packages/cli/src/__tests__/spinner.test.ts",
 
-    "packages/core/src/__tests__/bundle.test.ts",
-    "packages/core/src/__tests__/codeframes.test.ts",
-    "packages/core/src/__tests__/format.test.ts",
-    "packages/core/src/__tests__/js-yaml.test.ts",
-    "packages/core/src/__tests__/lint.test.ts",
-    "packages/core/src/__tests__/logger-browser.test.ts",
-    "packages/core/src/__tests__/logger.test.ts",
-    "packages/core/src/__tests__/normalizeVisitors.test.ts",
-    "packages/core/src/__tests__/output-browser.test.ts",
-    "packages/core/src/__tests__/output.test.ts",
-    "packages/core/src/__tests__/ref-utils.test.ts",
-    "packages/core/src/__tests__/resolve-http.test.ts"
+  "packages/core/src/__tests__/bundle.test.ts",
+  "packages/core/src/__tests__/codeframes.test.ts",
+  "packages/core/src/__tests__/format.test.ts",
+  "packages/core/src/__tests__/js-yaml.test.ts",
+  "packages/core/src/__tests__/lint.test.ts",
+  "packages/core/src/__tests__/logger-browser.test.ts",
+  "packages/core/src/__tests__/logger.test.ts",
+  "packages/core/src/__tests__/normalizeVisitors.test.ts",
+  "packages/core/src/__tests__/output-browser.test.ts",
+  "packages/core/src/__tests__/output.test.ts",
+  "packages/core/src/__tests__/ref-utils.test.ts",
+  "packages/core/src/__tests__/resolve-http.test.ts",
+  "packages/core/src/config/__tests__/utils.test.ts",
+  "packages/core/src/decorators/oas3/__tests__/remove-unused-components.test.ts",
+  "packages/core/src/rules/common/assertions/__tests__/utils.test.ts",
+  "packages/core/src/rules/__tests__/no-unresolved-refs.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/workflow-dependsOn.test.ts",
+  "packages/core/src/rules/common/__tests__/operation-4xx-response.test.ts",
+
+  "packages/core/src/rules/common/__tests__/no-enum-type-mismatch.test.ts",
+
+  "packages/core/src/rules/oas3/__tests__/no-empty-enum-servers.com.test.ts",
+
+  "packages/core/src/rules/arazzo/__tests__/criteria-unique.test.ts",
+
+  "packages/core/src/rules/oas3/__tests__/spec/paths.test.ts ",
+  "packages/core/src/rules/common/__tests__/path-params-defined.test.ts",
+  "packages/core/src/rules/oas2/__tests__/response-contains-header.test.ts",
+
+  "packages/core/src/decorators/oas2/__tests__/remove-unused-components.test.ts",
+
+  "packages/core/src/rules/__tests__/utils.test.ts ",
+  "packages/core/src/__tests__/normalizeVisitors.test.t",
+
+  "packages/core/src/rules/oas2/__tests__/spec/paths.test.ts ",
+  "packages/core/src/rules/common/__tests__/operation-2xx-response.test.ts",
+
+  "packages/core/src/rules/oas3/__tests__/spec/operation.test.ts",
+
+  "packages/core/src/rules/oas2/__tests__/response-contains-property.test.ts",
+  "packages/core/src/__tests__/utils.test.ts"
 ]
