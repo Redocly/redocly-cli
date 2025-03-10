@@ -5,7 +5,8 @@ import { parseYaml } from './js-yaml';
 import { env } from './env';
 import { logger, colorize } from './logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import * as pluralizeOne from 'pluralize';
+import * as pluralize1 from 'pluralize'; // FIXME: use correct import after migration to ESM
+const pluralizeOne = (pluralize1 as any).default || pluralize1; // FIXME: use correct import after migration to ESM
 
 import type { HttpResolveConfig } from './config';
 import type { UserContext } from './walk';

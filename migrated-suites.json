@@ -20,27 +20,49 @@
   "packages/core/src/rules/__tests__/no-unresolved-refs.test.ts",
   "packages/core/src/rules/arazzo/__tests__/workflow-dependsOn.test.ts",
   "packages/core/src/rules/common/__tests__/operation-4xx-response.test.ts",
-
   "packages/core/src/rules/common/__tests__/no-enum-type-mismatch.test.ts",
-
   "packages/core/src/rules/oas3/__tests__/no-empty-enum-servers.com.test.ts",
-
   "packages/core/src/rules/arazzo/__tests__/criteria-unique.test.ts",
-
   "packages/core/src/rules/oas3/__tests__/spec/paths.test.ts ",
   "packages/core/src/rules/common/__tests__/path-params-defined.test.ts",
   "packages/core/src/rules/oas2/__tests__/response-contains-header.test.ts",
-
   "packages/core/src/decorators/oas2/__tests__/remove-unused-components.test.ts",
-
   "packages/core/src/rules/__tests__/utils.test.ts ",
   "packages/core/src/__tests__/normalizeVisitors.test.t",
-
   "packages/core/src/rules/oas2/__tests__/spec/paths.test.ts ",
   "packages/core/src/rules/common/__tests__/operation-2xx-response.test.ts",
-
   "packages/core/src/rules/oas3/__tests__/spec/operation.test.ts",
-
   "packages/core/src/rules/oas2/__tests__/response-contains-property.test.ts",
-  "packages/core/src/__tests__/utils.test.ts"
+  "packages/core/src/__tests__/utils.test.ts",
+  "packages/core/src/rules/common/__tests__/operation-parameters-unique.test.ts",
+  "packages/core/src/rules/oas3/__tests__/operation-4xx-problem-details-rfc7807.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/no-criteria-xpath.test.ts",
+  "packages/core/src/__tests__/ref-utils.test.ts ",
+  "packages/core/src/rules/arazzo/__tests__/requestBody-replacements-unique.test.ts",
+  "packages/core/src/rules/common/__tests__/info-license-strict.test.ts",
+  "packages/core/src/rules/async2/__tests__/channels-kebab-case.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/step-onFailure-unique.test.ts",
+  "packages/core/src/rules/async3/__tests__/channels-kebab-case.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/step-onSuccess-unique.test.ts",
+  "packages/core/src/__tests__/format.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/respect-supported-versions.test.ts",
+  "packages/core/src/rules/common/__tests__/no-schema-type-mismatch.test.ts",
+  "packages/core/src/rules/oas3/__tests__/no-unused-components.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/parameters-unique.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/sourceDescriptions-not-empty.test.ts",
+  "packages/core/src/rules/common/__tests__/no-path-trailing-slash.test.ts",
+  "packages/core/src/rules/common/__tests__/tags-alphabetical.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/stepId-unique.test.ts",
+  "packages/core/src/rules/oas3/__tests__/boolean-parameter-prefixes.test.ts",
+  "packages/core/src/rules/overlay1/__tests__/info-contact.test.ts",
+  "packages/core/src/rules/common/__tests__/paths-kebab-case.test.ts",
+  "packages/core/src/rules/oas2/__tests__/boolean-parameter-prefixes.test.ts",
+  "packages/core/src/rules/oas2/__tests__/spec/operation.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/workflowId-unique.test.ts",
+  "packages/core/src/rules/common/__tests__/no-ambiguous-paths.test.ts",
+  "packages/core/src/rules/oas3/__tests__/no-server-example.com.test.ts",
+  "packages/core/src/rules/common/__tests__/no-invalid-schema-examples.test.ts",
+  "packages/core/src/rules/async2/__tests__/no-channel-trailing-slash.test.ts",
+  "packages/core/src/rules/async3/__tests__/no-channel-trailing-slash.test.ts",
+  "packages/core/src/rules/arazzo/__tests__/sourceDescription-name-unique.test.ts"
 ]
