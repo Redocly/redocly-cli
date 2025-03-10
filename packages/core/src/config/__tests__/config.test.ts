@@ -3,15 +3,18 @@ import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 import { doesYamlFileExist } from '../../utils';
 import { parseYaml } from '../../js-yaml';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file';
-import * as path from 'path';
-import { NormalizedProblem } from '../../walk';
-import { Source } from '../../resolve';
+import * as path from 'node:path';
+import { type Mock } from 'vitest';
 
-jest.mock('../../utils');
-jest.mock('../../js-yaml');
-jest.mock('fs');
+vi.mock('../../utils');
+vi.mock('../../js-yaml');
+vi.mock('node:fs');
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
 
 const testConfig: Config = {
   rawConfig: {
@@ -295,8 +298,8 @@ describe('getMergedConfig', () => {
 });
 
 describe('StyleguideConfig.extendTypes', () => {
-  let oas3 = jest.fn();
-  let oas2 = jest.fn();
+  let oas3 = vi.fn();
+  let oas2 = vi.fn();
   let testRawConfigStyleguide = {
     plugins: [
       {
@@ -330,11 +333,11 @@ describe('StyleguideConfig.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    (readFileSync as jest.Mock<any, any>).mockImplementationOnce(() => '');
-    (parseYaml as jest.Mock<any, any>).mockImplementationOnce(() => ignoredFileStub);
-    (doesYamlFileExist as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    (readFileSync as Mock).mockImplementationOnce(() => '');
+    (parseYaml as Mock).mockImplementationOnce(() => ignoredFileStub);
+    (doesYamlFileExist as Mock).mockImplementationOnce(() => true);
 
-    jest.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
+    vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 
     const styleguideConfig = new StyleguideConfig(testConfig.styleguide);
 

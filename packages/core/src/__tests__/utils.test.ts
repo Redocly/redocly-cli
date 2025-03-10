@@ -10,8 +10,8 @@ import { isBrowser } from '../env';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-vi.mock('fs');
-vi.mock('path');
+vi.mock('node:fs');
+vi.mock('node:path');
 
 describe('utils', () => {
   const testObject = {

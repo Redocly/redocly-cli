@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generation ignore object should generate config with absoluteUri for ignore 1`] = `
+exports[`generation ignore object > should generate config with absoluteUri for ignore 1`] = `
 StyleguideConfig {
   "_usedRules": Set {},
   "_usedVersions": Set {},
