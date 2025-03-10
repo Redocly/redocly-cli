@@ -24,8 +24,10 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
-      - name: Unit Tests
+      - name: Unit Tests (Jest)
         run: npm run unit
+      - name: Unit tests (Vitest)
+        run: npx vitest run
       - name: E2E Tests
         run: npm run e2e
 
@@ -63,6 +65,8 @@ jobs:
           skip-step: none
           annotations: none
           test-script: npm run jest
+
+      # FIXME: add vitest coverage report
 
   code-style-check:
     runs-on: ubuntu-latest
