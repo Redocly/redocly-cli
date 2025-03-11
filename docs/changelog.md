@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.33.1 (2025-03-11)
+
+### Patch Changes
+
+- Fixed `generate-arazzo` command to properly handle output file paths. The `output-file` parameter must have a value when provided.
+- Updated @redocly/respect-core to v1.33.1.
+
 ## 1.33.0 (2025-03-05)
 
 ### Minor Changes
