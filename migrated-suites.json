@@ -73,5 +73,6 @@
   "packages/respect-core/src/modules/__tests__/flow-runner/runner/resolve-workflow-context.test.ts",
   "packages/respect-core/src/modules/__tests__/flow-runner/runner/run-test-file.test.ts",
   "packages/respect-core/src/modules/__tests__/flow-runner/call-api-and-analyze-results.test.ts",
-  "packages/respect-core/src/modules/__tests__/flow-runner/call-api-and-analyze-results.test.ts"
+  "packages/respect-core/src/modules/__tests__/flow-runner/call-api-and-analyze-results.test.ts",
+  "packages/respect-core/src/modules/__tests__/flow-runner/run-step.test.ts"
 ]

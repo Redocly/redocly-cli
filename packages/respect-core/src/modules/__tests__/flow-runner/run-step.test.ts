@@ -1,3 +1,5 @@
+import { Mock } from 'vitest';
+
 import type { Step, TestContext, ResponseContext } from '../../../types';
 
 import {
@@ -14,21 +16,25 @@ import { ApiFetcher } from '../../../utils/api-fetcher';
 import { displayChecks } from '../../cli-output';
 import { cleanColors } from '../../../utils/clean-colors';
 
-jest.mock('../../flow-runner/call-api-and-analyze-results', () => ({
-  callAPIAndAnalyzeResults: jest.fn(),
+vi.mock('../../flow-runner/call-api-and-analyze-results', () => ({
+  callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-jest.mock('../../cli-output', () => ({
-  displayChecks: jest.fn(),
+vi.mock(import("../../cli-output"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    displayChecks: vi.fn(),
+  };
+});
+
+vi.mock('../../flow-runner/success-criteria', () => ({
+  checkCriteria: vi.fn(),
 }));
 
-jest.mock('../../flow-runner/success-criteria', () => ({
-  checkCriteria: jest.fn(),
-}));
-
-jest.mock('../../flow-runner/runner', () => ({
-  runWorkflow: jest.fn(),
-  resolveWorkflowContext: jest.fn(),
+vi.mock('../../flow-runner/runner', () => ({
+  runWorkflow: vi.fn(),
+  resolveWorkflowContext: vi.fn(),
 }));
 
 const harLogs = createHarLog();
@@ -615,8 +621,8 @@ const basicCTX = {
 
 describe('runStep', () => {
   afterEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should run step and display checks', async () => {
@@ -985,7 +991,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1006,7 +1012,7 @@ describe('runStep', () => {
       }
     );
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1106,7 +1112,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1127,7 +1133,7 @@ describe('runStep', () => {
       }
     );
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1225,7 +1231,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1246,7 +1252,7 @@ describe('runStep', () => {
       }
     );
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -1334,7 +1340,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1355,7 +1361,7 @@ describe('runStep', () => {
       }
     );
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -1465,7 +1471,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1484,7 +1490,7 @@ describe('runStep', () => {
       return { successCriteriaCheck: false, schemaCheck: true };
     });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1582,7 +1588,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1602,7 +1608,7 @@ describe('runStep', () => {
     });
 
     // @ts-ignore
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1695,7 +1701,7 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -1727,7 +1733,7 @@ describe('runStep', () => {
     });
 
     // @ts-ignore
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1824,7 +1830,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1851,7 +1857,7 @@ describe('runStep', () => {
       }
     );
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1866,7 +1872,7 @@ describe('runStep', () => {
       }
     );
 
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementationOnce(
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
       async ({ step }: { step: Step }) => {
         step.checks = [
           {
@@ -1893,7 +1899,7 @@ describe('runStep', () => {
       }
     );
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: true,
@@ -1985,7 +1991,7 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as jest.Mock).mockImplementation(async ({ step }: { step: Step }) => {
+    (callAPIAndAnalyzeResults as Mock).mockImplementation(async ({ step }: { step: Step }) => {
       step.checks = [
         {
           name: CHECKS.STATUS_CODE_CHECK,
@@ -2010,7 +2016,7 @@ describe('runStep', () => {
       return { successCriteriaCheck: false, schemaCheck: true };
     });
 
-    (checkCriteria as jest.Mock).mockImplementation(() => [
+    (checkCriteria as Mock).mockImplementation(() => [
       {
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
@@ -2573,7 +2579,7 @@ describe('runStep', () => {
       };
     });
 
-    (resolveWorkflowContext as jest.Mock).mockResolvedValueOnce(localCTX);
+    (resolveWorkflowContext as Mock).mockResolvedValueOnce(localCTX);
 
     await runStep({
       step,
@@ -3447,7 +3453,7 @@ describe('runStep', () => {
       $inputs: {},
     } as unknown as TestContext;
 
-    (resolveWorkflowContext as jest.Mock).mockImplementation(() => {
+    (resolveWorkflowContext as Mock).mockImplementation(() => {
       return { ...localCTX };
     });
 
