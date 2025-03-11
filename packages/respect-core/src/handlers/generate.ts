@@ -26,13 +26,13 @@ export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOpt
     const fileName = argv['output-file'] || 'auto-generated.arazzo.yaml';
     writeFileSync(fileName, content);
 
-
-
-    
     logger.log(
       '\n' + blue(`Arazzo description ${yellow(fileName)} successfully generated.`) + '\n'
     );
   } catch (_err) {
-    exitWithError('\n' + '❌  Arazzo description generation failed. Please check the provided output file path or the OpenAPI file content.');
+    exitWithError(
+      '\n' +
+        '❌  Arazzo description generation failed. Please check the provided output file path or the OpenAPI file content.'
+    );
   }
 }
