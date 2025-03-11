@@ -18,6 +18,8 @@ vi.mock('node:fs', async () => {
       readFileSync: mockReadFileSync,
     },
     constants: {
+      // FIXME: this is a temporary fix to make the test pass
+      // @ts-expect-error
       ...actual.constants,
       R_OK: 4,
     },
