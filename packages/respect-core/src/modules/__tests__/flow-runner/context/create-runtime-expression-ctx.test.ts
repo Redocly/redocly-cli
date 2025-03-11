@@ -50,7 +50,7 @@ const options = {
 process.env.AUTH_TOKEN = '1234567890';
 
 // Unmock @redocly/openapi-core
-jest.unmock('@redocly/openapi-core');
+vi.unmock('@redocly/openapi-core');
 
 describe('createRuntimeExpressionCtx', () => {
   it('should create limited runtime expression context when workflowId and step provided', async () => {

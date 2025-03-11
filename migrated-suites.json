@@ -163,5 +163,7 @@
   "packages/respect-core/src/modules/__tests__/arazzo-description-generator/generate-arazzo-description.test.ts",
   "packages/respect-core/src/utils/__tests__/mtls/resolve-mtls-certificates.test.ts",
   "packages/respect-core/src/modules/__tests__/config-parser/get-value-from-context.test.ts",
-  "packages/respect-core/src/modules/__tests__/flow-runner/runner/create-workflow-runner.test.ts"
+  "packages/respect-core/src/modules/__tests__/flow-runner/runner/create-workflow-runner.test.ts",
+  "packages/respect-core/src/utils/__tests__/cli-outputs.test.ts",
+  "packages/respect-core/src/modules/__tests__/flow-runner/context/create-runtime-expression-ctx.test.ts"
 ]
