@@ -28,6 +28,9 @@ export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOpt
       '\n' + blue(`Arazzo description ${yellow(fileName)} successfully generated.`) + '\n'
     );
   } catch (_err) {
-    exitWithError('\n' + '❌  Arazzo description generation failed.');
+    exitWithError(
+      '\n' +
+        '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'
+    );
   }
 }
