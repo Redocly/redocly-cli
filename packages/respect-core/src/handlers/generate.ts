@@ -5,6 +5,8 @@ import { generateArazzoDescription } from '../modules/arazzo-description-generat
 import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { type CommandArgs } from '../types';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export type GenerateArazzoFileOptions = {
   descriptionPath: string;
@@ -21,11 +23,19 @@ export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOpt
     const generatedConfig = await generateArazzoDescription(argv);
     const content = stringifyYaml(generatedConfig);
 
-    const fileName = argv['output-file'] || 'auto-generated.arazzo.yaml';
-    writeFileSync(fileName, content);
+    let outputPath = argv['output-file'] || 'auto-generated.arazzo.yaml';
+
+    if (fs.existsSync(outputPath) && fs.statSync(outputPath).isDirectory()) {
+      outputPath = path.join(outputPath, 'auto-generated.arazzo.yaml');
+    } else if (!path.extname(outputPath)) {
+      fs.mkdirSync(outputPath, { recursive: true });
+      outputPath = path.join(outputPath, 'auto-generated.arazzo.yaml');
+    }
+
+    writeFileSync(outputPath, content);
 
     logger.log(
-      '\n' + blue(`Arazzo description ${yellow(fileName)} successfully generated.`) + '\n'
+      '\n' + blue(`Arazzo description ${yellow(outputPath)} successfully generated.`) + '\n'
     );
   } catch (_err) {
     exitWithError('\n' + '❌  Arazzo description generation failed.');
