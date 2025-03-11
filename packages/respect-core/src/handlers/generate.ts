@@ -5,8 +5,6 @@ import { generateArazzoDescription } from '../modules/arazzo-description-generat
 import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { type CommandArgs } from '../types';
-import * as path from 'path';
-import * as fs from 'fs';
 
 export type GenerateArazzoFileOptions = {
   descriptionPath: string;
