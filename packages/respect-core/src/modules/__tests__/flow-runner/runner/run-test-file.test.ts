@@ -1,3 +1,4 @@
+import { Mock } from 'vitest';
 import { makeDocumentFromString, lint, bundle } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 
@@ -7,29 +8,34 @@ import { runTestFile, runStep } from '../../../flow-runner';
 import { readYaml } from '../../../../utils/yaml';
 import { writeFileSync } from 'node:fs';
 
-jest.mock('../../../../utils/yaml', () => {
-  const originalModule = jest.requireActual('../../../../utils/yaml');
+vi.mock('../../../../utils/yaml', () => {
+  const originalModule = vi.importActual('../../../../utils/yaml');
+
   return {
     ...originalModule, // In case there are other exports you want to preserve
-    readYaml: jest.fn(),
+    readYaml: vi.fn(),
   };
 });
 
-jest.mock('@redocly/openapi-core', () => ({
-  ...jest.requireActual('@redocly/openapi-core'), // Preserve other exports
-  formatProblems: jest.fn(), // Mock formatProblems to do nothing
-  lint: jest.fn(),
-  bundle: jest.fn(),
+vi.mock(import('@redocly/openapi-core'), async (importOriginal) => {
+  const originalModule = await importOriginal();
+
+  return {
+    ...originalModule, // Preserve other exports
+    formatProblems: vi.fn(), // Mock formatProblems to do nothing
+    lint: vi.fn(),
+    bundle: vi.fn(),
+  };
+});
+
+vi.mock('../../../flow-runner/run-step', () => ({
+  runStep: vi.fn(),
 }));
 
-jest.mock('../../../flow-runner/run-step', () => ({
-  runStep: jest.fn(),
-}));
-
-jest.mock('node:fs', () => {
-  const actual = jest.requireActual('node:fs');
-  const mockExistsSync = jest.fn();
-  const mockWriteFileSync = jest.fn();
+vi.mock('node:fs', () => {
+  const actual = vi.importActual('node:fs');
+  const mockExistsSync = vi.fn();
+  const mockWriteFileSync = vi.fn();
 
   return {
     __esModule: true,
@@ -41,7 +47,7 @@ jest.mock('node:fs', () => {
   };
 });
 
-const mockExistsSync = fs.existsSync as jest.Mock;
+const mockExistsSync = fs.existsSync as Mock;
 
 describe('runTestFile', () => {
   beforeEach(() => {
@@ -61,17 +67,17 @@ describe('runTestFile', () => {
       }
       return false;
     });
-    (readYaml as jest.Mock).mockReset().mockResolvedValue({
+    (readYaml as Mock).mockReset().mockResolvedValue({
       openapi: '1.0.0',
       info: { title: 'Cat Facts API', version: '1.0' },
     });
-    (lint as jest.Mock).mockReset().mockResolvedValue([]);
-    (bundle as jest.Mock).mockReset();
-    (runStep as jest.Mock).mockReset();
+    (lint as Mock).mockReset().mockResolvedValue([]);
+    (bundle as Mock).mockReset();
+    (runStep as Mock).mockReset();
   });
 
   afterAll(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it(`should trow error if filename is not correct`, async () => {
@@ -87,7 +93,7 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
 
     await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
@@ -113,7 +119,7 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (lint as jest.Mock).mockResolvedValueOnce([
+    (lint as Mock).mockResolvedValueOnce([
       {
         ruleId: 'spec',
         severity: 'error',
@@ -132,7 +138,7 @@ describe('runTestFile', () => {
       },
     ]);
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
 
     await expect(
       runTestFile(
@@ -198,9 +204,9 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
@@ -291,9 +297,9 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
@@ -385,9 +391,9 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
@@ -476,15 +482,15 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
     });
 
-    (runStep as jest.Mock).mockImplementation(({ step, ctx }: { step: Step; ctx: TestContext }) => {
+    (runStep as Mock).mockImplementation(({ step, ctx }: { step: Step; ctx: TestContext }) => {
       step.checks = [{ name: step.stepId, passed: false, severity: 'error' }];
       ctx.executedSteps.push(step);
     });
@@ -537,9 +543,9 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
@@ -592,9 +598,9 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as jest.Mock).mockResolvedValueOnce([]);
-    (bundle as jest.Mock).mockResolvedValueOnce({
+    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    (lint as Mock).mockResolvedValueOnce([]);
+    (bundle as Mock).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
