@@ -1,10 +1,10 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`runWorkflow should run workflow within step execution 1`] = `
-[MockFunction] {
+exports[`runWorkflow > should run workflow within step execution 1`] = `
+[MockFunction log] {
   "calls": [
     [
-      "  [1mRunning workflow[22m [34mtest.yaml / test[39m",
+      "  Running workflow test.yaml / test",
     ],
   ],
   "results": [
