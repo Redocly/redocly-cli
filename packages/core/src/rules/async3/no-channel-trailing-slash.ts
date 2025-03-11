@@ -7,7 +7,7 @@ export const NoChannelTrailingSlash: Async3Rule = () => {
     Channel(channel: Channel, { report, location }: UserContext) {
       if (channel?.address?.endsWith('/') && channel?.address !== '/') {
         report({
-          message: `\`${channel?.address}\` should not have a trailing slash.`,
+          message: `\`${channel.address}\` should not have a trailing slash.`,
           location: location.key(),
         });
       }

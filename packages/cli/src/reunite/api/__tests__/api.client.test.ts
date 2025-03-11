@@ -1,12 +1,12 @@
 import { red, yellow } from 'colorette';
-
+import { MockedFunction, type Mock } from 'vitest';
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
 const originalFetch = global.fetch;
 
 beforeAll(() => {
   // Reset fetch mock before each test
-  global.fetch = jest.fn();
+  global.fetch = vi.fn();
 });
 
 afterAll(() => {
@@ -15,7 +15,7 @@ afterAll(() => {
 });
 
 function mockFetchResponse(response: any) {
-  (global.fetch as jest.Mock).mockResolvedValue(response);
+  (global.fetch as Mock).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -37,7 +37,7 @@ describe('ApiClient', () => {
     it('should get default project branch', async () => {
       mockFetchResponse({
         ok: true,
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           branchName: 'test-branch',
         }),
       });
@@ -63,10 +63,10 @@ describe('ApiClient', () => {
     it('should throw parsed error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
-        json: jest.fn().mockResolvedValue({
+        status: 404,
+        json: vi.fn().mockResolvedValue({
           type: 'about:blank',
           title: 'Project source not found',
-          status: 404,
           detail: 'Not Found',
           object: 'problem',
         }),
@@ -80,8 +80,9 @@ describe('ApiClient', () => {
     it('should throw statusText error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
+        status: 404,
         statusText: 'Not found',
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
       });
@@ -116,7 +117,7 @@ describe('ApiClient', () => {
     it('should upsert remote', async () => {
       mockFetchResponse({
         ok: true,
-        json: jest.fn().mockResolvedValue(responseMock),
+        json: vi.fn().mockResolvedValue(responseMock),
       });
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
@@ -147,10 +148,10 @@ describe('ApiClient', () => {
     it('should throw parsed error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
-        json: jest.fn().mockResolvedValue({
+        status: 403,
+        json: vi.fn().mockResolvedValue({
           type: 'about:blank',
           title: 'Not allowed to mount remote outside of project content path: /docs',
-          status: 403,
           detail: 'Forbidden',
           object: 'problem',
         }),
@@ -169,7 +170,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 404,
         statusText: 'Not found',
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
       });
@@ -221,12 +222,12 @@ describe('ApiClient', () => {
     it('should push to remote', async () => {
       let passedFormData: FormData = new FormData();
 
-      (fetch as jest.MockedFunction<typeof fetch>).mockImplementationOnce(
+      (fetch as MockedFunction<typeof fetch>).mockImplementationOnce(
         async (_: any, options: any): Promise<Response> => {
           passedFormData = options.body as FormData;
           return {
             ok: true,
-            json: jest.fn().mockResolvedValue(responseMock),
+            json: vi.fn().mockResolvedValue(responseMock),
           } as unknown as Response;
         }
       );
@@ -259,10 +260,10 @@ describe('ApiClient', () => {
     it('should throw parsed error if response is not ok', async () => {
       mockFetchResponse({
         ok: false,
-        json: jest.fn().mockResolvedValue({
+        status: 403,
+        json: vi.fn().mockResolvedValue({
           type: 'about:blank',
           title: 'Cannot push to remote',
-          status: 403,
           detail: 'Forbidden',
           object: 'problem',
         }),
@@ -278,7 +279,7 @@ describe('ApiClient', () => {
         ok: false,
         status: 404,
         statusText: 'Not found',
-        json: jest.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({
           unknownField: 'unknown-error',
         }),
       });
@@ -359,12 +360,12 @@ describe('ApiClient', () => {
     it.each(endpointMocks)(
       'should report endpoint sunset in the past',
       async ({ responseBody, requestFn }) => {
-        jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
         const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
 
         mockFetchResponse({
           ok: true,
-          json: jest.fn().mockResolvedValue(responseBody),
+          json: vi.fn().mockResolvedValue(responseBody),
           headers: new Headers({
             Sunset: sunsetDate.toISOString(),
           }),
@@ -384,12 +385,12 @@ describe('ApiClient', () => {
     it.each(endpointMocks)(
       'should report endpoint sunset in the future',
       async ({ responseBody, requestFn }) => {
-        jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
         const sunsetDate = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
         mockFetchResponse({
           ok: true,
-          json: jest.fn().mockResolvedValue(responseBody),
+          json: vi.fn().mockResolvedValue(responseBody),
           headers: new Headers({
             Sunset: sunsetDate.toISOString(),
           }),
@@ -407,11 +408,11 @@ describe('ApiClient', () => {
     );
 
     it('should report only expired resource', async () => {
-      jest.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+      vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
 
       mockFetchResponse({
         ok: true,
-        json: jest.fn().mockResolvedValue(upsertRemoteMock.responseBody),
+        json: vi.fn().mockResolvedValue(upsertRemoteMock.responseBody),
         headers: new Headers({
           Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
         }),
@@ -421,7 +422,7 @@ describe('ApiClient', () => {
 
       mockFetchResponse({
         ok: true,
-        json: jest.fn().mockResolvedValue(getDefaultBranchMock.responseBody),
+        json: vi.fn().mockResolvedValue(getDefaultBranchMock.responseBody),
         headers: new Headers({
           Sunset: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
         }),
@@ -431,7 +432,7 @@ describe('ApiClient', () => {
 
       mockFetchResponse({
         ok: true,
-        json: jest.fn().mockResolvedValue(pushMock.responseBody),
+        json: vi.fn().mockResolvedValue(pushMock.responseBody),
         headers: new Headers({
           Sunset: new Date('2024-08-06T12:30:32.456Z').toISOString(),
         }),
