@@ -170,5 +170,6 @@
   "packages/respect-core/src/utils/__tests__/yaml.test.ts",
   "packages/respect-core/src/modules/__tests__/arazzo-description-generator/generate-test-data-from-json-schema.test.ts",
   "packages/respect-core/src/modules/__tests__/flow-runner/read-env-variables.test.ts",
-  "packages/respect-core/src/utils/__tests__/har-logs/create-har-log.test.ts"
+  "packages/respect-core/src/utils/__tests__/har-logs/create-har-log.test.ts",
+  "packages/respect-core/src/modules/__tests__/flow-runner/outputs/print-message.test.ts"
 ]

@@ -6,5 +6,8 @@ export default defineConfig({
     restoreMocks: true,
     clearMocks: true,
     environment: 'node',
+    env: {
+      FORCE_COLOR: '1',
+    },
   },
 });

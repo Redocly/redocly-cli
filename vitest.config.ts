@@ -13,5 +13,8 @@ export default defineConfig({
     clearMocks: true,
     environment: 'node',
     include: migratedSuites,
+    env: {
+      FORCE_COLOR: '1',
+    },
   },
 });

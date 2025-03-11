@@ -4,7 +4,7 @@ exports[`runWorkflow > should run workflow within step execution 1`] = `
 [MockFunction log] {
   "calls": [
     [
-      "  Running workflow test.yaml / test",
+      "  [1mRunning workflow[22m [34mtest.yaml / test[39m",
     ],
   ],
   "results": [
