@@ -159,5 +159,6 @@
   "packages/respect-core/src/utils/__tests__/sort.test.ts",
   "packages/respect-core/src/utils/__tests__/time.test.ts",
   "packages/respect-core/src/utils/__tests__/url.test.ts",
-  "packages/respect-core/src/modules/__tests__/config-parser/parse-request-body.test.ts"
+  "packages/respect-core/src/modules/__tests__/config-parser/parse-request-body.test.ts",
+  "packages/respect-core/src/modules/__tests__/arazzo-description-generator/generate-arazzo-description.test.ts"
 ]
