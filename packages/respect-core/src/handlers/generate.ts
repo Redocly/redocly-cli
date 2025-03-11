@@ -30,7 +30,7 @@ export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOpt
   } catch (_err) {
     exitWithError(
       '\n' +
-        '❌  Failed to generate Arazzo description. Check the output file path you provided or the OpenAPI file content.'
+        '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'
     );
   }
 }
