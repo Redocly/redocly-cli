@@ -75,5 +75,6 @@
   "packages/respect-core/src/modules/__tests__/flow-runner/call-api-and-analyze-results.test.ts",
   "packages/respect-core/src/modules/__tests__/flow-runner/call-api-and-analyze-results.test.ts",
   "packages/respect-core/src/modules/__tests__/flow-runner/run-step.test.ts",
-  "packages/respect-core/src/modules/__tests__/flow-runner/schema/schema-checker.test.ts"
+  "packages/respect-core/src/modules/__tests__/flow-runner/schema/schema-checker.test.ts",
+  "packages/respect-core/src/modules/__tests__/flow-runner/context/create-test-context.test.ts"
 ]
