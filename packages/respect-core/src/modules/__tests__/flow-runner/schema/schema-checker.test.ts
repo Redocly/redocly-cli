@@ -262,7 +262,7 @@ describe('checkSchema', () => {
   });
 
   it('should check circular referenced schema', () => {
-    jest.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
+    vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
       throw new Error('circular reference');
     });
     const result = checkSchema({
@@ -321,12 +321,11 @@ describe('checkSchema', () => {
       },
     ]);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should catch ajvStrict.validate error', () => {
-    jest
-      .spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate')
+    vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate')
       .mockImplementationOnce(() => {
         throw new Error('ajvStrict.validate error');
       });
@@ -393,7 +392,7 @@ describe('checkSchema', () => {
       },
     ]);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return empty checks if no response available', () => {
