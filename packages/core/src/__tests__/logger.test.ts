@@ -8,8 +8,8 @@ vi.mock('colorette', async () => {
   return {
     ...actual,
     cyan: vi.fn(),
-  }
-})
+  };
+});
 
 describe('Logger in nodejs', () => {
   let spyingStderr: MockInstance;

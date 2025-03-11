@@ -992,26 +992,24 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
     (checkCriteria as Mock).mockImplementation(() => [
       {
@@ -1113,26 +1111,24 @@ describe('runStep', () => {
     } as unknown as Step;
     const workflowId = 'get-bird-workflow';
 
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: 'MIME-TYPE CHECK',
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: 'MIME-TYPE CHECK',
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
     (checkCriteria as Mock).mockImplementation(() => [
       {
@@ -1232,26 +1228,24 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: false, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
 
     (checkCriteria as Mock).mockImplementation(() => [
       {
@@ -1341,26 +1335,24 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-          {
-            name: CHECKS.CONTENT_TYPE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
-          },
-        ];
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+        {
+          name: CHECKS.CONTENT_TYPE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
 
-        return { successCriteriaCheck: false, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
 
     (checkCriteria as Mock).mockImplementation(() => [
       {
@@ -1831,74 +1823,68 @@ describe('runStep', () => {
     const workflowId = 'get-bird-workflow';
 
     // @ts-ignore
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: false,
-            message: '',
-            severity: 'error',
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: false,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      if (step.stepId === 'get-bird') {
+        step.response = {
+          body: {
+            bird: '🐦',
+            name: 'hawk',
           },
-        ];
-
-        if (step.stepId === 'get-bird') {
-          step.response = {
-            body: {
-              bird: '🐦',
-              name: 'hawk',
-            },
-            statusCode: 200,
-            headers: new Headers(),
-            contentType: 'application/json',
-          } as unknown as ResponseContext;
-        }
-
-        return { successCriteriaCheck: false, schemaCheck: true };
+          statusCode: 200,
+          headers: new Headers(),
+          contentType: 'application/json',
+        } as unknown as ResponseContext;
       }
-    );
 
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
+      return { successCriteriaCheck: false, schemaCheck: true };
+    });
+
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
+
+    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(async ({ step }: { step: Step }) => {
+      step.checks = [
+        {
+          name: CHECKS.STATUS_CODE_CHECK,
+          passed: true,
+          message: '',
+          severity: 'error',
+        },
+      ];
+
+      if (step.stepId === 'get-bird') {
+        step.response = {
+          body: {
+            bird: '🐦',
+            name: 'hawk',
           },
-        ];
-
-        return { successCriteriaCheck: true, schemaCheck: true };
+          statusCode: 200,
+          headers: new Headers(),
+          contentType: 'application/json',
+        } as unknown as ResponseContext;
       }
-    );
 
-    (callAPIAndAnalyzeResults as Mock).mockImplementationOnce(
-      async ({ step }: { step: Step }) => {
-        step.checks = [
-          {
-            name: CHECKS.STATUS_CODE_CHECK,
-            passed: true,
-            message: '',
-            severity: 'error',
-          },
-        ];
-
-        if (step.stepId === 'get-bird') {
-          step.response = {
-            body: {
-              bird: '🐦',
-              name: 'hawk',
-            },
-            statusCode: 200,
-            headers: new Headers(),
-            contentType: 'application/json',
-          } as unknown as ResponseContext;
-        }
-
-        return { successCriteriaCheck: true, schemaCheck: true };
-      }
-    );
+      return { successCriteriaCheck: true, schemaCheck: true };
+    });
 
     (checkCriteria as Mock).mockImplementation(() => [
       {

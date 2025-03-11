@@ -10,8 +10,8 @@ vi.mock('colorette', async () => {
   return {
     ...actual,
     cyan: vi.fn(),
-  }
-})
+  };
+});
 
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
