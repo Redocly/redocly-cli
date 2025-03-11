@@ -4,5 +4,6 @@ export const CHECKS = {
   SCHEMA_CHECK: 'schema check',
   CONTENT_TYPE_CHECK: 'content-type check',
   UNEXPECTED_ERROR: 'unexpected error',
+  GLOBAL_TIMEOUT_ERROR: 'global timeout error',
   NETWORK_ERROR: 'failed network request',
 };

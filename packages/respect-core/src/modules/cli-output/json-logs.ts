@@ -1,5 +1,6 @@
 import { maskSecrets } from './mask-secrets';
 import { calculateTotals } from './calculate-tests-passed';
+import { Timer } from '../timeout-timer';
 
 import type {
   TestContext,
@@ -18,12 +19,13 @@ export function composeJsonLogsFiles(
     totalTimeMs: number;
     executedWorkflows: WorkflowExecutionResult[];
     ctx: TestContext;
+    globalTimeoutError: boolean;
   }[]
 ): JsonLogs['files'] {
   const files: JsonLogs['files'] = {};
 
   for (const fileResult of filesResult) {
-    const { executedWorkflows } = fileResult;
+    const { executedWorkflows, globalTimeoutError: fileGlobalTimeoutError } = fileResult;
     const { secretFields } = fileResult.ctx;
 
     files[fileResult.file] = maskSecrets(
@@ -31,6 +33,7 @@ export function composeJsonLogsFiles(
         totalRequests: fileResult.totalRequests,
         executedWorkflows: executedWorkflows.map((workflow) => mapJsonWorkflow(workflow)),
         totalTimeMs: fileResult.totalTimeMs,
+        globalTimeoutError: fileGlobalTimeoutError,
       },
       secretFields || new Set()
     );

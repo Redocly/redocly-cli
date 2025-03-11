@@ -12,8 +12,8 @@ import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs';
-
-import type { JsonLogs, CommandArgs, RunArgv } from '../types';
+import { Timer } from '../modules/timeout-timer';
+import { type JsonLogs, type CommandArgs, type RunArgv } from '../types';
 
 export type RespectOptions = {
   files: string[];
@@ -53,6 +53,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   }
 
   try {
+    Timer.getInstance();
     const startedAt = performance.now();
     const testsRunProblemsStatus: boolean[] = [];
     const { files } = argv;
@@ -93,6 +94,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
             files: composeJsonLogsFiles(runAllFilesResult),
             status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
             totalTime: performance.now() - startedAt,
+            globalTimeoutError: Timer.getInstance().isTimedOut(),
           } as JsonLogs,
           null,
           2
@@ -139,5 +141,6 @@ async function runFile(
     ctx,
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
+    globalTimeoutError: Timer.getInstance().isTimedOut(),
   };
 }
