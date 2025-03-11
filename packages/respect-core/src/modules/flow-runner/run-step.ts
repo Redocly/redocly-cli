@@ -18,6 +18,8 @@ import {
 } from '../config-parser';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
+import { MAX_STEPS } from '../../consts';
+import { Timer } from '../timeout-timer';
 
 import type {
   Check,
@@ -31,9 +33,8 @@ import type {
 } from '../../types';
 import type { ParameterWithoutIn } from '../config-parser';
 
-const logger = DefaultLogger.getInstance();
 
-const MAX_STEPS = parseInt(process.env.RESPECT_MAX_STEPS || '2000', 10);
+const logger = DefaultLogger.getInstance();
 let stepsRun = 0;
 
 export async function runStep({
@@ -153,6 +154,16 @@ export async function runStep({
       message: `Max steps (${MAX_STEPS}) reached`,
       passed: false,
       severity: ctx.severity['UNEXPECTED_ERROR'],
+    });
+    return { shouldEnd: true };
+  }
+
+  if (Timer.getInstance().isTimedOut()) {
+    step.checks.push({
+      name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+      message: `Global Respect timer reached`,
+      passed: false,
+      severity: ctx.severity['GLOBAL_TIMEOUT_ERROR'],
     });
     return { shouldEnd: true };
   }

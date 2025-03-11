@@ -28,6 +28,7 @@ import type {
   RunWorkflowInput,
   WorkflowExecutionResult,
 } from '../../types';
+import { Timer } from '../timeout-timer';
 
 const logger = DefaultLogger.getInstance();
 
@@ -102,6 +103,9 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
       await handleDependsOn({ workflow, ctx });
     }
 
+    if (Timer.getInstance().isTimedOut()) {
+      break;
+    }
     const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
