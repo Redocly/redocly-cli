@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.33.1
+
+### Patch Changes
+
+- Fixed `generate-arazzo` command to properly handle output file paths. The `output-file` parameter must have a value when provided.
+- Updated @redocly/openapi-core to v1.33.1.
+
 ## 1.33.0
 
 ### Minor Changes
