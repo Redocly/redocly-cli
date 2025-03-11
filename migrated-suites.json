@@ -5,6 +5,7 @@
   "packages/cli/src/reunite/api/__tests__/api-keys.test.ts",
   "packages/cli/src/reunite/api/__tests__/api.client.test.ts",
   "packages/cli/src/__tests__/utils.test.ts",
+  "packages/cli/src/reunite/commands/__tests__/utils.test.ts",
 
   "packages/core/src/__tests__/bundle.test.ts",
   "packages/core/src/__tests__/codeframes.test.ts",
