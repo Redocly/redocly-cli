@@ -38,6 +38,11 @@
           page: commands/stats.md
         - label: translate
           page: commands/translate.md
+        - label: generate-arazzo
+          page: commands/generate-arazzo.md
+        - label: respect
+          page: commands/respect.md
+
     - group: Guides
       page: guides/index.md
       items:
