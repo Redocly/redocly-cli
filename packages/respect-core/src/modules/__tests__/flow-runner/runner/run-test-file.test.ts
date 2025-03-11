@@ -17,8 +17,8 @@ vi.mock('../../../../utils/yaml', () => {
   };
 });
 
-vi.mock(import('@redocly/openapi-core'), async (importOriginal) => {
-  const originalModule = await importOriginal();
+vi.mock('@redocly/openapi-core', async () => {
+  const originalModule = await vi.importActual('@redocly/openapi-core');
 
   return {
     ...originalModule, // Preserve other exports
