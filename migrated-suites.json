@@ -68,5 +68,7 @@
   "packages/core/src/rules/oas3/__tests__/response-contains-property.test.ts",
   "packages/core/src/__tests__/bundle.test.ts",
   "packages/core/src/decorators/__tests__/remove-x-internal.test.ts",
-  "packages/core/src/config/__tests__/config.test.ts"
+  "packages/core/src/config/__tests__/config.test.ts",
+
+  "packages/respect-core/src/modules/__tests__/flow-runner/runner/resolve-workflow-context.test.ts"
 ]
