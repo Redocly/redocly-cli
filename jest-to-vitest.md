@@ -33,3 +33,17 @@ vi.mock('node:path', async () => {
   return { ...actual };
 });
 ```
+
+### vi.mocked
+
+1. Replace this:
+
+```js
+existsSync as jest.Mock<any, any>
+```
+
+with this:
+
+```js
+vi.mocked(existsSync)
+```
