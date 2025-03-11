@@ -22,11 +22,7 @@ describe('Resolve http-headers', () => {
       'foobar.yaml'
     );
 
-    const fetchMock = vi.fn(() => {
-      // print the stack trace
-      console.log(new Error().stack);
-      process.exit(1); // FIXME: why exit?
-    });
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true, text: Promise.resolve('') }));
 
     await resolveDocument({
       rootDocument,
