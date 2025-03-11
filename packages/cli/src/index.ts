@@ -954,6 +954,7 @@ yargs
             alias: 'o',
             describe: 'Output File name.',
             type: 'string',
+            requiresArg: true,
           },
         });
     },
