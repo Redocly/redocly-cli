@@ -142,8 +142,9 @@ exports[`should quit an infinite loop on RESPECT_MAX_STEPS 1`] = `
       fetch failed
       
     stepId - ping
-    ✗ unexpected error
-    Reason: Max steps (10) reached
+    ✗ maximum steps reached
+      Max steps (10) reached
+      
   Summary for arazzo.yaml
   
   Workflows: 1 failed, 1 total

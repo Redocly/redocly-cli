@@ -6,4 +6,5 @@ export const CHECKS = {
   UNEXPECTED_ERROR: 'unexpected error',
   GLOBAL_TIMEOUT_ERROR: 'global timeout error',
   NETWORK_ERROR: 'failed network request',
+  MAX_STEPS_REACHED_ERROR: 'maximum steps reached',
 };

@@ -33,7 +33,6 @@ import type {
 } from '../../types';
 import type { ParameterWithoutIn } from '../config-parser';
 
-
 const logger = DefaultLogger.getInstance();
 let stepsRun = 0;
 
@@ -150,10 +149,10 @@ export async function runStep({
   stepsRun++;
   if (stepsRun > MAX_STEPS) {
     step.checks.push({
-      name: CHECKS.UNEXPECTED_ERROR,
+      name: CHECKS.MAX_STEPS_REACHED_ERROR,
       message: `Max steps (${MAX_STEPS}) reached`,
       passed: false,
-      severity: ctx.severity['UNEXPECTED_ERROR'],
+      severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
     });
     return { shouldEnd: true };
   }
