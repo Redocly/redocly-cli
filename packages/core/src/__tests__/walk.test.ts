@@ -18,25 +18,25 @@ describe('walk order', () => {
   it('should run visitors', async () => {
     const visitors = {
       Root: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       Info: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       Contact: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       License: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
     };
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return visitors;
       }),
     };
@@ -67,33 +67,33 @@ describe('walk order', () => {
   it('should run legacy visitors', async () => {
     const visitors = {
       DefinitionRoot: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       PathMap: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       ServerVariableMap: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       MediaTypeMap: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       ExampleMap: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
       HeaderMap: {
-        enter: jest.fn(),
-        leave: jest.fn(),
+        enter: vi.fn(),
+        leave: vi.fn(),
       },
     };
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return visitors;
       }),
     };
@@ -136,23 +136,23 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
-            leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
+            enter: vi.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
+            leave: vi.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
-              leave: jest.fn((param, _ctx, parents) =>
+              leave: vi.fn((param, _ctx, parents) =>
                 calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
           Parameter: {
-            enter: jest.fn((param) => calls.push(`enter param ${param.name}`)),
-            leave: jest.fn((param) => calls.push(`leave param ${param.name}`)),
+            enter: vi.fn((param) => calls.push(`enter param ${param.name}`)),
+            leave: vi.fn((param) => calls.push(`leave param ${param.name}`)),
           },
         };
       }),
@@ -216,23 +216,23 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
-            leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
+            enter: vi.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
+            leave: vi.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
-              leave: jest.fn((param, _ctx, parents) =>
+              leave: vi.fn((param, _ctx, parents) =>
                 calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
           Parameter: {
-            enter: jest.fn((param) => calls.push(`enter param ${param.name}`)),
-            leave: jest.fn((param) => calls.push(`leave param ${param.name}`)),
+            enter: vi.fn((param) => calls.push(`enter param ${param.name}`)),
+            leave: vi.fn((param) => calls.push(`leave param ${param.name}`)),
           },
         };
       }),
@@ -296,23 +296,23 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
-            leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
+            enter: vi.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
+            leave: vi.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
-              leave: jest.fn((param, _ctx, parents) =>
+              leave: vi.fn((param, _ctx, parents) =>
                 calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
           Parameter: {
-            enter: jest.fn((param) => calls.push(`enter param ${param.name}`)),
-            leave: jest.fn((param) => calls.push(`leave param ${param.name}`)),
+            enter: vi.fn((param) => calls.push(`enter param ${param.name}`)),
+            leave: vi.fn((param) => calls.push(`leave param ${param.name}`)),
           },
         };
       }),
@@ -373,11 +373,11 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
@@ -435,17 +435,17 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
             Operation: {
               Parameter: {
-                enter: jest.fn((param, _ctx, parents) =>
+                enter: vi.fn((param, _ctx, parents) =>
                   calls.push(
                     `enter operation ${parents.Operation.operationId} > param ${param.name}`
                   )
@@ -508,18 +508,18 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
-              leave: jest.fn((param, _ctx, parents) =>
+              leave: vi.fn((param, _ctx, parents) =>
                 calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
-            Operation(op, _ctx, parents) {
+            Operation(op: any, _ctx: any, parents: any) {
               calls.push(`enter path ${parents.PathItem.id} > op ${op.operationId}`);
             },
           },
@@ -580,9 +580,9 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
-          Schema: jest.fn((schema: any) => calls.push(`enter schema ${schema.id}`)),
+          Schema: vi.fn((schema: any) => calls.push(`enter schema ${schema.id}`)),
         };
       }),
     };
@@ -626,10 +626,10 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Parameter: {
-            Schema: jest.fn((schema: any, _ctx, parents) =>
+            Schema: vi.fn((schema: any, _ctx, parents) =>
               calls.push(`enter param ${parents.Parameter.name} > schema ${schema.id}`)
             ),
           },
@@ -682,12 +682,12 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            skip: (op) => op.operationId === 'put',
-            enter: jest.fn((op) => calls.push(`enter operation ${op.operationId}`)),
-            leave: jest.fn((op) => calls.push(`leave operation ${op.operationId}`)),
+            skip: (op: any) => op.operationId === 'put',
+            enter: vi.fn((op: any) => calls.push(`enter operation ${op.operationId}`)),
+            leave: vi.fn((op: any) => calls.push(`leave operation ${op.operationId}`)),
           },
         };
       }),
@@ -724,11 +724,11 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            skip: (op) => op.operationId === 'put',
-            Parameter: jest.fn((param, _ctx, parents) =>
+            skip: (op: any) => op.operationId === 'put',
+            Parameter: vi.fn((param, _ctx, parents) =>
               calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
             ),
           },
@@ -780,26 +780,26 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, _ctx, parents) =>
+              enter: vi.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
-              leave: jest.fn((param, _ctx, parents) =>
+              leave: vi.fn((param, _ctx, parents) =>
                 calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
             Operation: {
-              skip: (op) => op.operationId === 'put',
+              skip: (op: any) => op.operationId === 'put',
               Parameter: {
-                enter: jest.fn((param, _ctx, parents) =>
+                enter: vi.fn((param, _ctx, parents) =>
                   calls.push(
                     `enter operation ${parents.Operation.operationId} > param ${param.name}`
                   )
                 ),
-                leave: jest.fn((param, _ctx, parents) =>
+                leave: vi.fn((param, _ctx, parents) =>
                   calls.push(
                     `leave operation ${parents.Operation.operationId} > param ${param.name}`
                   )
@@ -873,14 +873,14 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Schema: {
             Schema: {
-              enter: jest.fn((schema: any, _ctx, parents) =>
+              enter: vi.fn((schema: any, _ctx, parents) =>
                 calls.push(`enter nested schema ${parents.Schema.id} > ${schema.id}`)
               ),
-              leave: jest.fn((schema: any, _ctx, parents) =>
+              leave: vi.fn((schema: any, _ctx, parents) =>
                 calls.push(`leave nested schema ${parents.Schema.id} > ${schema.id}`)
               ),
             },
@@ -952,9 +952,9 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
-          ref(node, _, { node: target }) {
+          ref(node: any, _: any, { node: target }: any) {
             calls.push(`enter $ref ${node.$ref} with target ${target?.name}`);
           },
         };
@@ -1018,10 +1018,10 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           NamedSchemas: {
-            Schema(node, { key }) {
+            Schema(node: any, { key }: any) {
               calls.push(`enter schema ${key}: ${node.type}`);
             },
           },
@@ -1060,21 +1060,21 @@ describe('walk order', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           ref: {
             enter(ref: any) {
               calls.push(`enter ref ${ref.$ref}`);
             },
-            leave(ref) {
+            leave(ref: any) {
               calls.push(`leave ref ${ref.$ref}`);
             },
           },
           any: {
-            enter(_node: any, { type }) {
+            enter(_node: any, { type }: any) {
               calls.push(`enter ${type.name}`);
             },
-            leave(_node, { type }) {
+            leave(_node: any, { type }: any) {
               calls.push(`leave ${type.name}`);
             },
           },
@@ -1153,10 +1153,10 @@ describe('walk order', () => {
 describe('context.report', () => {
   it('should report errors correctly', async () => {
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Parameter: {
-            enter: jest.fn((param, ctx) => {
+            enter: vi.fn((param, ctx) => {
               if (param.name.indexOf('_') > -1) {
                 ctx.report({
                   message: `Parameter name shouldn't contain '_: ${param.name}`,
@@ -1249,10 +1249,10 @@ describe('context.report', () => {
 
   it('should report errors correctly', async () => {
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Parameter: {
-            enter: jest.fn((param, ctx) => {
+            enter: vi.fn((param, ctx) => {
               if (param.name.indexOf('_') > -1) {
                 ctx.report({
                   message: `Parameter name shouldn't contain '_: ${param.name}`,
@@ -1394,9 +1394,9 @@ describe('context.report', () => {
 describe('context.resolve', () => {
   it('should resolve refs correctly', async () => {
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
-          Schema: jest.fn((schema, { resolve }) => {
+          Schema: vi.fn((schema, { resolve }) => {
             if (schema.properties) {
               expect(schema.properties.a.$ref).toBeDefined();
               const { location, node } = resolve(schema.properties.a);
@@ -1449,13 +1449,13 @@ describe('type extensions', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           any: {
-            enter(_node: any, { type }) {
+            enter(_node: any, { type }: any) {
               calls.push(`enter ${type.name}`);
             },
-            leave(_node, { type }) {
+            leave(_node: any, { type }: any) {
               calls.push(`leave ${type.name}`);
             },
           },
@@ -1463,7 +1463,7 @@ describe('type extensions', () => {
             enter(hook: any) {
               calls.push(`enter hook ${hook.name}`);
             },
-            leave(hook) {
+            leave(hook: any) {
               calls.push(`leave hook ${hook.name}`);
             },
           },
@@ -1532,10 +1532,10 @@ describe('ignoreNextRules', () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
-      skip: jest.fn(() => {
+      skip: vi.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op, ctx) => {
+            enter: vi.fn((op, ctx) => {
               if (op.operationId === 'get') {
                 ctx.ignoreNextVisitorsOnNode();
                 calls.push(`enter and skip operation ${op.operationId}`);
@@ -1543,7 +1543,7 @@ describe('ignoreNextRules', () => {
                 calls.push(`enter and not skip operation ${op.operationId}`);
               }
             }),
-            leave: jest.fn((op) => {
+            leave: vi.fn((op) => {
               if (op.operationId === 'get') {
                 calls.push(`leave skipped operation ${op.operationId}`);
               } else {
@@ -1553,11 +1553,11 @@ describe('ignoreNextRules', () => {
           },
         };
       }),
-      test: jest.fn(() => {
+      test: vi.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op) => calls.push(`enter operation ${op.operationId}`)),
-            leave: jest.fn((op) => calls.push(`leave operation ${op.operationId}`)),
+            enter: vi.fn((op) => calls.push(`enter operation ${op.operationId}`)),
+            leave: vi.fn((op) => calls.push(`leave operation ${op.operationId}`)),
           },
         };
       }),
