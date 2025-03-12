@@ -81,11 +81,7 @@ export async function runStep({
       return;
     }
 
-    const workflowCtx = await resolveWorkflowContext(
-      targetWorkflowRef,
-      targetWorkflow,
-      ctx
-    );
+    const workflowCtx = await resolveWorkflowContext(targetWorkflowRef, targetWorkflow, ctx);
 
     if (resolvedParameters && resolvedParameters.length) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.

@@ -255,11 +255,7 @@ async function handleDependsOn({
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
       const resolvedWorkflow = getValueFromContext(workflowId, ctx);
-      const workflowCtx = await resolveWorkflowContext(
-        workflowId,
-        resolvedWorkflow,
-        ctx
-      );
+      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
 
       printRequiredWorkflowSeparator(workflow.workflowId);
       return runWorkflow({
@@ -282,7 +278,7 @@ async function handleDependsOn({
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext,
+  ctx: TestContext
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];

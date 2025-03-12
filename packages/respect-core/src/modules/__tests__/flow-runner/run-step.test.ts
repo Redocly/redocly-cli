@@ -3545,8 +3545,7 @@ describe('runStep', () => {
           },
         ],
       },
-      localCTX,
-      expect.any(Number)
+      localCTX
     );
     expect(runWorkflow).toHaveBeenCalledTimes(1);
   });
