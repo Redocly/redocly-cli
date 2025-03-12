@@ -15,9 +15,14 @@ export class Timer {
     return Timer.instance;
   }
 
+  private getTimeout(): number {
+    return parseInt(process.env.RESPECT_TIMEOUT || RESPECT_TIMEOUT.toString(), 10);
+  }
+
   public getRemainingTime(): number {
     const elapsedTime = Date.now() - this.startTime;
-    return Math.max(0, Number(RESPECT_TIMEOUT) - elapsedTime);
+    const timeout = this.getTimeout();
+    return Math.max(0, timeout - elapsedTime);
   }
 
   public isTimedOut(): boolean {

@@ -18,7 +18,6 @@ import {
 } from '../config-parser';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
-import { MAX_STEPS } from '../../consts';
 import { Timer } from '../timeout-timer';
 
 import type {
@@ -34,6 +33,7 @@ import type {
 import type { ParameterWithoutIn } from '../config-parser';
 
 const logger = DefaultLogger.getInstance();
+const MAX_STEPS = parseInt(process.env.RESPECT_MAX_STEPS || '2000', 10);
 let stepsRun = 0;
 
 export async function runStep({
