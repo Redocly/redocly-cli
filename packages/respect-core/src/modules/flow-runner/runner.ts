@@ -15,6 +15,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { calculateTotals, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
+import { Timer } from '../timeout-timer';
 
 import type { CollectFn } from '@redocly/openapi-core/src/utils';
 import type {
@@ -28,7 +29,6 @@ import type {
   RunWorkflowInput,
   WorkflowExecutionResult,
 } from '../../types';
-import { Timer } from '../timeout-timer';
 
 const logger = DefaultLogger.getInstance();
 
