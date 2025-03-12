@@ -13,6 +13,7 @@ export const DEFAULT_SEVERITY_CONFIGURATION: {
   UNEXPECTED_ERROR: 'error',
   NETWORK_ERROR: 'error',
   GLOBAL_TIMEOUT_ERROR: 'error',
+  MAX_STEPS_REACHED_ERROR: 'error',
 };
 
 export function resolveSeverityConfiguration(severityArgument: string | string[] | undefined): {

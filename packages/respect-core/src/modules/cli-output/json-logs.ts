@@ -1,6 +1,5 @@
 import { maskSecrets } from './mask-secrets';
 import { calculateTotals } from './calculate-tests-passed';
-import { Timer } from '../timeout-timer';
 
 import type {
   TestContext,
