@@ -258,8 +258,7 @@ async function handleDependsOn({
       const workflowCtx = await resolveWorkflowContext(
         workflowId,
         resolvedWorkflow,
-        ctx,
-        sessionStartTime
+        ctx
       );
 
       printRequiredWorkflowSeparator(workflow.workflowId);
@@ -284,7 +283,6 @@ export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
   ctx: TestContext,
-  sessionStartTime: number
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];

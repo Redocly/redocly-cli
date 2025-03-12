@@ -84,8 +84,7 @@ export async function runStep({
     const workflowCtx = await resolveWorkflowContext(
       targetWorkflowRef,
       targetWorkflow,
-      ctx,
-      sessionStartTime
+      ctx
     );
 
     if (resolvedParameters && resolvedParameters.length) {
@@ -286,7 +285,7 @@ export async function runStep({
           ? getValueFromContext(action.workflowId, ctx)
           : undefined;
         const targetCtx = action.workflowId
-          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx, sessionStartTime)
+          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx)
           : { ...ctx, executedSteps: [] };
 
         const targetStep = action.stepId ? action.stepId : undefined;
