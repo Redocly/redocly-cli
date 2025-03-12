@@ -18,7 +18,7 @@ import {
 } from '../config-parser';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
-import { Timer } from '../timeout-timer';
+import { isTimedOut } from '../timeout-timer';
 
 import type {
   Check,
@@ -41,11 +41,13 @@ export async function runStep({
   ctx,
   workflowId,
   retriesLeft,
+  sessionStartTime,
 }: {
   step: Step;
   ctx: TestContext;
   workflowId: string | undefined;
   retriesLeft?: number;
+  sessionStartTime: number;
 }): Promise<{ shouldEnd: boolean } | void> {
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
@@ -79,7 +81,12 @@ export async function runStep({
       return;
     }
 
-    const workflowCtx = await resolveWorkflowContext(targetWorkflowRef, targetWorkflow, ctx);
+    const workflowCtx = await resolveWorkflowContext(
+      targetWorkflowRef,
+      targetWorkflow,
+      ctx,
+      sessionStartTime
+    );
 
     if (resolvedParameters && resolvedParameters.length) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
@@ -101,6 +108,7 @@ export async function runStep({
       skipLineSeparator: true,
       parentStepId: stepId,
       invocationContext: `Child workflow of step ${stepId}`,
+      sessionStartTime,
     });
 
     ctx.executedSteps.push(stepWorkflowResult);
@@ -157,7 +165,7 @@ export async function runStep({
     return { shouldEnd: true };
   }
 
-  if (Timer.getInstance().isTimedOut()) {
+  if (isTimedOut(sessionStartTime)) {
     step.checks.push({
       name: CHECKS.GLOBAL_TIMEOUT_ERROR,
       message: `Global Respect timer reached`,
@@ -278,7 +286,7 @@ export async function runStep({
           ? getValueFromContext(action.workflowId, ctx)
           : undefined;
         const targetCtx = action.workflowId
-          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx)
+          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx, sessionStartTime)
           : { ...ctx, executedSteps: [] };
 
         const targetStep = action.stepId ? action.stepId : undefined;
@@ -302,6 +310,7 @@ export async function runStep({
               ctx: targetCtx,
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
+              sessionStartTime,
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
@@ -313,6 +322,7 @@ export async function runStep({
               step: stepToRun,
               ctx: targetCtx,
               workflowId,
+              sessionStartTime,
             });
           }
 
@@ -326,6 +336,7 @@ export async function runStep({
               ctx,
               workflowId,
               retriesLeft: retriesLeft - 1,
+              sessionStartTime,
             }),
             retriesLeft,
           };
@@ -346,6 +357,7 @@ export async function runStep({
             fromStepId: targetStep,
             skipLineSeparator: true,
             invocationContext: `Goto from step ${stepId}`,
+            sessionStartTime,
           });
           ctx.executedSteps.push(stepWorkflowResult);
           return { shouldEnd: true };

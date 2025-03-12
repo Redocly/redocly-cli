@@ -652,6 +652,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toMatchSnapshot();
@@ -670,6 +671,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(step.checks).toEqual([
@@ -704,6 +706,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     // @ts-ignore
@@ -830,6 +833,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -951,6 +955,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1070,6 +1075,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1187,6 +1193,7 @@ describe('runStep', () => {
         step: stepOne,
         ctx: context,
         workflowId,
+        sessionStartTime: performance.now(),
       })
     ).rejects.toThrowError(
       'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
@@ -1306,6 +1313,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1429,6 +1437,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1544,6 +1553,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1659,6 +1669,7 @@ describe('runStep', () => {
           step: stepOne,
           ctx: context,
           workflowId,
+          sessionStartTime: performance.now(),
         })
     ).rejects.toThrow(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
@@ -1787,6 +1798,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1948,6 +1960,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2065,6 +2078,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2126,6 +2140,7 @@ describe('runStep', () => {
         step: stepOne,
         ctx: context,
         workflowId,
+        sessionStartTime: performance.now(),
       })
     ).rejects.toThrow(`Parameter "in" is required for ${stepOne.stepId} step`);
   });
@@ -2579,6 +2594,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(runWorkflow).toHaveBeenCalled();
@@ -3013,6 +3029,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId: 'test-workflow',
+      sessionStartTime: performance.now(),
     });
 
     // @ts-ignore
@@ -3031,8 +3048,6 @@ describe('runStep', () => {
       ],
       checks: [],
     } as unknown as Step;
-    const parentWorkflowId = undefined;
-    const parentStepId = undefined;
     const localCTX = {
       $request: undefined,
       $response: undefined,
@@ -3488,6 +3503,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId: 'test-workflow',
+      sessionStartTime: performance.now(),
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
@@ -3529,7 +3545,8 @@ describe('runStep', () => {
           },
         ],
       },
-      localCTX
+      localCTX,
+      expect.any(Number)
     );
     expect(runWorkflow).toHaveBeenCalledTimes(1);
   });
@@ -3977,6 +3994,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId,
+      sessionStartTime: performance.now(),
     });
 
     expect(runWorkflow).not.toHaveBeenCalled();
@@ -3986,11 +4004,9 @@ describe('runStep', () => {
   });
 
   it('should report global timeout error and end execution', async () => {
-    // Mock Timer only for this test
-    const mockTimer = {
-      isTimedOut: jest.fn().mockReturnValue(true),
-    };
-    jest.spyOn(require('../../timeout-timer').Timer, 'getInstance').mockReturnValue(mockTimer);
+    // Mock performance.now() only for this test
+    const mockNow = jest.spyOn(performance, 'now').mockReturnValue(5000000);
+    process.env.RESPECT_TIMEOUT = '1000';
 
     const checks: Check[] = [];
     const step = {
@@ -4005,6 +4021,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      sessionStartTime: 0,
     });
 
     expect(result).toEqual({ shouldEnd: true });
@@ -4017,7 +4034,7 @@ describe('runStep', () => {
       },
     ]);
 
-    // Clean up the mock after test
-    jest.restoreAllMocks();
+    mockNow.mockRestore();
+    delete process.env.RESPECT_TIMEOUT;
   });
 });

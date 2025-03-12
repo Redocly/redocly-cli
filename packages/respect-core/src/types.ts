@@ -193,6 +193,7 @@ export type RunWorkflowInput = {
   parentStepId?: string;
   skipLineSeparator?: boolean;
   invocationContext?: string;
+  sessionStartTime: number;
 };
 
 export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;

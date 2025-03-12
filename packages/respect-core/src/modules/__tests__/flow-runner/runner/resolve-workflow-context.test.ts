@@ -347,13 +347,13 @@ describe('resolveWorkflowContext', () => {
       executedSteps: [],
     } as any;
 
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, performance.now());
 
     expect(createTestContext).not.toHaveBeenCalled();
   });
 
   it('should call createTestContext with the correct parameters when sourceDescriptionId is defined for arazzo type', async () => {
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, performance.now());
 
     expect(createTestContext).toHaveBeenCalledWith(
       commonCtx.$sourceDescriptions['tickets-from-museum-api'],
@@ -373,7 +373,7 @@ describe('resolveWorkflowContext', () => {
       ...{ sourceDescriptions: [] },
     } as any;
 
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, performance.now());
 
     expect(createTestContext).toHaveBeenCalledWith(
       ctx.$sourceDescriptions['tickets-from-museum-api'],
@@ -389,7 +389,7 @@ describe('resolveWorkflowContext', () => {
 
   it('should call createTestContext with the correct parameters when sourceDescriptionId is defined for openapi type', async () => {
     const workflowId = '$sourceDescriptions.museum-api';
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, performance.now());
 
     expect(createTestContext).toHaveBeenCalledWith(
       commonCtx.$sourceDescriptions['museum-api'],
@@ -528,8 +528,8 @@ describe('resolveWorkflowContext', () => {
     } as any;
     const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
 
-    await expect(resolveWorkflowContext(workflowId, resolvedWorkflow, ctx)).rejects.toThrowError(
-      'Unknown source description type invalid'
-    );
+    await expect(
+      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, performance.now())
+    ).rejects.toThrowError('Unknown source description type invalid');
   });
 });

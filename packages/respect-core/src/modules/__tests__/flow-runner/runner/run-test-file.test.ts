@@ -75,7 +75,9 @@ describe('runTestFile', () => {
   });
 
   it(`should trow error if filename is not correct`, async () => {
-    await expect(runTestFile({ file: '' }, {})).rejects.toThrowError('Invalid file name');
+    await expect(runTestFile({ file: '' }, {}, performance.now())).rejects.toThrowError(
+      'Invalid file name'
+    );
   });
 
   it(`should trow error if file is not valid Arazzo test file`, async () => {
@@ -89,7 +91,7 @@ describe('runTestFile', () => {
 
     (readYaml as jest.Mock).mockResolvedValue(mockDocument.parsed);
 
-    await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
+    await expect(runTestFile({ file: 'test.yaml' }, {}, performance.now())).rejects.toThrowError(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
     );
   });
@@ -140,7 +142,8 @@ describe('runTestFile', () => {
           file: 'test.yaml',
           testDescription,
         },
-        {}
+        {},
+        performance.now()
       )
     ).rejects.toMatchSnapshot();
   });
@@ -210,7 +213,8 @@ describe('runTestFile', () => {
       {
         file: 'test.yaml',
       },
-      {}
+      {},
+      performance.now()
     );
 
     expect(runStep).toHaveBeenCalledTimes(1);
@@ -303,7 +307,8 @@ describe('runTestFile', () => {
       {
         file: 'test.yaml',
       },
-      {}
+      {},
+      performance.now()
     );
 
     // called 3 times, one for each step from each workflow and one from dependsOn
@@ -393,7 +398,7 @@ describe('runTestFile', () => {
       },
     });
 
-    await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrow(
+    await expect(runTestFile({ file: 'test.yaml' }, {}, performance.now())).rejects.toThrow(
       expect.objectContaining({
         // @ts-ignore
         message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
@@ -494,7 +499,8 @@ describe('runTestFile', () => {
         {
           file: 'test.yaml',
         },
-        {}
+        {},
+        performance.now()
       )
     ).rejects.toThrowError('Dependent workflows has failed steps');
   }, 8000);
@@ -544,7 +550,7 @@ describe('runTestFile', () => {
         parsed: mockDocument.parsed,
       },
     });
-    await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
+    await expect(runTestFile({ file: 'test.yaml' }, {}, performance.now())).rejects.toThrowError(
       `Could not find source description file 'api-samples/not-existing.yaml' at path 'test.yaml'`
     );
   });
@@ -599,7 +605,7 @@ describe('runTestFile', () => {
         parsed: mockDocument.parsed,
       },
     });
-    await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
+    await expect(runTestFile({ file: 'test.yaml' }, {}, performance.now())).rejects.toThrowError(
       `Could not find source description file 'not-existing-arazzo.yaml' at path 'api-samples/not-existing-arazzo.yaml'`
     );
   });

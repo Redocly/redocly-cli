@@ -15,7 +15,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { calculateTotals, maskSecrets } from '../cli-output';
 import { resolveRunningWorkflows } from './resolve-running-workflows';
 import { DefaultLogger } from '../../utils/logger/logger';
-import { Timer } from '../timeout-timer';
+import { isTimedOut } from '../timeout-timer';
 
 import type { CollectFn } from '@redocly/openapi-core/src/utils';
 import type {
@@ -35,6 +35,7 @@ const logger = DefaultLogger.getInstance();
 export async function runTestFile(
   argv: RunArgv,
   output: { harFile?: string; jsonFile?: string },
+  sessionStartTime: number,
   collectSpecData?: CollectFn
 ) {
   const {
@@ -68,7 +69,7 @@ export async function runTestFile(
   };
 
   const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
-  const result = await runWorkflows(bundledTestDescription, options);
+  const result = await runWorkflows(bundledTestDescription, options, sessionStartTime);
 
   if (output?.harFile && Object.keys(result.harLogs).length) {
     const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
@@ -81,7 +82,11 @@ export async function runTestFile(
   return result;
 }
 
-async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
+async function runWorkflows(
+  testDescription: TestDescription,
+  options: AppOptions,
+  sessionStartTime: number
+) {
   const harLogs = options?.harOutput && createHarLog();
   const apiClient = new ApiFetcher({
     harLogs,
@@ -100,15 +105,16 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx });
+      await handleDependsOn({ workflow, ctx, sessionStartTime });
     }
 
-    if (Timer.getInstance().isTimedOut()) {
+    if (isTimedOut(sessionStartTime)) {
       break;
     }
     const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
+      sessionStartTime: sessionStartTime,
     });
 
     executedWorkflows.push(workflowExecutionResult);
@@ -124,6 +130,7 @@ export async function runWorkflow({
   skipLineSeparator,
   parentStepId,
   invocationContext,
+  sessionStartTime,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
@@ -161,6 +168,7 @@ export async function runWorkflow({
         step,
         ctx,
         workflowId,
+        sessionStartTime,
       });
 
       // When `end` action is used, we should not continue with the next steps
@@ -233,19 +241,33 @@ export async function runWorkflow({
   };
 }
 
-async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
+async function handleDependsOn({
+  workflow,
+  ctx,
+  sessionStartTime,
+}: {
+  workflow: Workflow;
+  ctx: TestContext;
+  sessionStartTime: number;
+}) {
   if (!workflow.dependsOn?.length) return;
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
       const resolvedWorkflow = getValueFromContext(workflowId, ctx);
-      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+      const workflowCtx = await resolveWorkflowContext(
+        workflowId,
+        resolvedWorkflow,
+        ctx,
+        sessionStartTime
+      );
 
       printRequiredWorkflowSeparator(workflow.workflowId);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
         skipLineSeparator: true,
+        sessionStartTime,
       });
     })
   );
@@ -261,7 +283,8 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext
+  ctx: TestContext,
+  sessionStartTime: number
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
