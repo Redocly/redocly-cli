@@ -108,6 +108,7 @@
   "packages/core/src/rules/common/assertions/__tests__/asserts.test.ts",
   "packages/core/src/__tests__/walk.test.ts",
   "packages/core/src/config/__tests__/load.test.ts",
+  "packages/core/src/rules/oas3/__tests__/no-invalid-media-type-examples.test.ts",
 
   "packages/respect-core/src/modules/__tests__/arazzo-description-generator/cleanup-test-description.test.ts",
   "packages/respect-core/src/modules/__tests__/arazzo-description-generator/generate-example-value.test.ts",
