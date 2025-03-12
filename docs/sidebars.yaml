@@ -42,7 +42,6 @@
           page: commands/stats.md
         - label: translate
           page: commands/translate.md
-
     - group: Guides
       page: guides/index.md
       items:
