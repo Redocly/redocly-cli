@@ -10,6 +10,7 @@
   "packages/cli/src/__tests__/commands/lint.test.ts",
   "packages/cli/src/reunite/commands/__tests__/push.test.ts",
   "packages/cli/src/__tests__/wrapper.test.ts",
+  "packages/cli/src/auth/__tests__/device-flow.test.ts",
 
   "packages/core/src/__tests__/bundle.test.ts",
   "packages/core/src/__tests__/codeframes.test.ts",

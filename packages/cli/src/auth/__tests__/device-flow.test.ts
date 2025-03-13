@@ -1,7 +1,5 @@
 import { RedoclyOAuthDeviceFlow } from '../device-flow';
 
-jest.mock('child_process');
-
 describe('RedoclyOAuthDeviceFlow', () => {
   const mockBaseUrl = 'https://test.redocly.com';
   const mockClientName = 'test-client';
@@ -10,12 +8,15 @@ describe('RedoclyOAuthDeviceFlow', () => {
 
   beforeEach(() => {
     flow = new RedoclyOAuthDeviceFlow(mockBaseUrl, mockClientName, mockVersion);
-    jest.resetAllMocks();
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   describe('verifyToken', () => {
     it('returns true for valid token', async () => {
-      jest.spyOn(flow['apiClient'], 'request').mockResolvedValue({
+      vi.spyOn(flow['apiClient'], 'request').mockResolvedValue({
         json: () => Promise.resolve({ user: { id: '123' } }),
       } as Response);
 
@@ -24,7 +25,7 @@ describe('RedoclyOAuthDeviceFlow', () => {
     });
 
     it('returns false for invalid token', async () => {
-      jest.spyOn(flow['apiClient'], 'request').mockRejectedValue(new Error('Invalid token'));
+      vi.spyOn(flow['apiClient'], 'request').mockRejectedValue(new Error('Invalid token'));
       const result = await flow.verifyToken('invalid-token');
       expect(result).toBe(false);
     });
@@ -32,7 +33,7 @@ describe('RedoclyOAuthDeviceFlow', () => {
 
   describe('verifyApiKey', () => {
     it('returns true for valid API key', async () => {
-      jest.spyOn(flow['apiClient'], 'request').mockResolvedValue({
+      vi.spyOn(flow['apiClient'], 'request').mockResolvedValue({
         json: () => Promise.resolve({ success: true }),
       } as Response);
 
@@ -41,7 +42,7 @@ describe('RedoclyOAuthDeviceFlow', () => {
     });
 
     it('returns false for invalid API key', async () => {
-      jest.spyOn(flow['apiClient'], 'request').mockRejectedValue(new Error('Invalid API key'));
+      vi.spyOn(flow['apiClient'], 'request').mockRejectedValue(new Error('Invalid API key'));
       const result = await flow.verifyApiKey('invalid-key');
       expect(result).toBe(false);
     });
@@ -54,7 +55,7 @@ describe('RedoclyOAuthDeviceFlow', () => {
         refresh_token: 'new-refresh',
         expires_in: 3600,
       };
-      jest.spyOn(flow['apiClient'], 'request').mockResolvedValue({
+      vi.spyOn(flow['apiClient'], 'request').mockResolvedValue({
         json: () => Promise.resolve(mockResponse),
       } as Response);
 
@@ -63,7 +64,7 @@ describe('RedoclyOAuthDeviceFlow', () => {
     });
 
     it('throws error when refresh fails', async () => {
-      jest.spyOn(flow['apiClient'], 'request').mockResolvedValue({
+      vi.spyOn(flow['apiClient'], 'request').mockResolvedValue({
         json: () => Promise.resolve({}),
       } as Response);
 
