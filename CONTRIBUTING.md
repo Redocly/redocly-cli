@@ -209,7 +209,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 ## Project structure
 
-- **`__mocks__`**: contains basic mocks for e2e tests.
+<!-- - **`__mocks__`**: contains basic mocks for e2e tests. -->
 
 - **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/).
 
@@ -221,7 +221,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
     - **`packages/cli/src`**: contains CLI package source code.
 
-      - **`packages/cli/src/__mocks__`**: contains basic mocks for unit tests.
+      - **`packages/cli/src/__mocks__`**: contains basic mocks for unit tests. <!-- FIXME: -->
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 

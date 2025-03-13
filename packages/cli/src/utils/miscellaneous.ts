@@ -1,13 +1,14 @@
-import { basename, dirname, extname, join, resolve, relative } from 'path';
+import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as readline from 'readline';
-import { Writable } from 'stream';
-import { execSync } from 'child_process';
-import { promisify } from 'util';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as readline from 'node:readline';
+import { Writable } from 'node:stream';
+import { execSync } from 'node:child_process';
+import { promisify } from 'node:util';
+import * as process from 'node:process';
 import {
   ResolveError,
   YamlParseError,
@@ -169,6 +170,8 @@ export function langToExt(lang: string) {
     swift: '.swift',
     typescript: '.ts',
     tsx: '.tsx',
+    'visual basic': '.vb',
+    'c/al': '.al',
   };
   return langObj[lang.toLowerCase()];
 }

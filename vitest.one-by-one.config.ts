@@ -8,6 +8,7 @@ export default defineConfig({
     environment: 'node',
     env: {
       FORCE_COLOR: '1',
+      REDOCLY_TELEMETRY: 'off',
     },
   },
 });

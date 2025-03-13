@@ -1,31 +1,51 @@
 import { iteratePathItems, handleSplit } from '../index';
-import * as path from 'path';
+import * as path from 'node:path';
+import * as process from 'node:process';
 import * as openapiCore from '@redocly/openapi-core';
-import { ComponentsFiles } from '../types';
+import { type ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
-import { loadConfigAndHandleErrors } from '../../../utils/__mocks__/miscellaneous';
+import { loadConfigAndHandleErrors } from '../../../utils/_22222_mocks__/miscellaneous';
 
 import type { Config } from '@redocly/openapi-core';
 
-const utils = require('../../../utils/miscellaneous');
+import * as utils from '../../../utils/miscellaneous';
 
-jest.mock('../../../utils/miscellaneous', () => ({
-  ...jest.requireActual('../../../utils/miscellaneous'),
-  writeToFileByExtension: jest.fn(),
-}));
-
-jest.mock('@redocly/openapi-core', () => ({
-  ...jest.requireActual('@redocly/openapi-core'),
-  isRef: jest.fn(),
-}));
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
+vi.mock('node:process', async () => {
+  const actual = await vi.importActual('node:process');
+  return {
+    ...actual,
+    stderr: { write: vi.fn() },
+  };
+});
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return {
+    ...actual,
+    writeFileSync: vi.fn(),
+  };
+});
+vi.mock('../../../utils/miscellaneous', async () => {
+  const actual = await vi.importActual('../../../utils/miscellaneous');
+  return {
+    ...actual,
+    writeToFileByExtension: vi.fn(),
+  };
+});
 
 describe('#split', () => {
   const openapiDir = 'test';
   const componentsFiles: ComponentsFiles = {};
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should split the file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit({
       argv: {
@@ -38,11 +58,11 @@ describe('#split', () => {
     });
 
     expect(process.stderr.write).toBeCalledTimes(2);
-    expect((process.stderr.write as jest.Mock).mock.calls[0][0]).toBe(
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
       `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(openapiDir)} \n`
     );
-    expect((process.stderr.write as jest.Mock).mock.calls[1][0]).toContain(
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
       `${filePath}: split processed in <test>ms`
     );
   });
@@ -50,7 +70,7 @@ describe('#split', () => {
   it('should use the correct separator', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
-    jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
+    vi.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
 
     await handleSplit({
       argv: {
@@ -63,14 +83,13 @@ describe('#split', () => {
     });
 
     expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');
-    utils.pathToFilename.mockRestore();
   });
 
   it('should have correct path with paths', () => {
     const openapi = require('./fixtures/spec.json');
 
-    jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
-    jest.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
+    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
+    vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     iteratePathItems(
       openapi.paths,
       openapiDir,
@@ -88,8 +107,8 @@ describe('#split', () => {
   it('should have correct path with webhooks', () => {
     const openapi = require('./fixtures/webhooks.json');
 
-    jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
-    jest.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
+    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
+    vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi.webhooks,
       openapiDir,
@@ -107,8 +126,8 @@ describe('#split', () => {
   it('should have correct path with x-webhooks', () => {
     const openapi = require('./fixtures/spec.json');
 
-    jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
-    jest.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
+    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
+    vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi['x-webhooks'],
       openapiDir,
@@ -126,10 +145,7 @@ describe('#split', () => {
   it('should create correct folder name for code samples', async () => {
     const openapi = require('./fixtures/samples.json');
 
-    const fs = require('fs');
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-
-    jest.spyOn(utils, 'escapeLanguageName');
+    vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
       openapi.paths,
       openapiDir,
@@ -150,7 +166,5 @@ describe('#split', () => {
     expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
 
     expect(utils.escapeLanguageName).toBeCalledTimes(3);
-
-    utils.escapeLanguageName.mockRestore();
   });
 });
