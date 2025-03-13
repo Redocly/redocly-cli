@@ -12,7 +12,7 @@ import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs';
-import { Timer } from '../modules/timeout-timer';
+import { isTimedOut } from '../modules/timeout-timer';
 import { type JsonLogs, type CommandArgs, type RunArgv } from '../types';
 
 export type RespectOptions = {
@@ -53,7 +53,6 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   }
 
   try {
-    Timer.getInstance();
     const startedAt = performance.now();
     const testsRunProblemsStatus: boolean[] = [];
     const { files } = argv;
@@ -73,6 +72,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
         {
           harFile: harOutputFile,
         },
+        startedAt,
         collectSpecData
       );
       testsRunProblemsStatus.push(result.hasProblems);
@@ -94,7 +94,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
             files: composeJsonLogsFiles(runAllFilesResult),
             status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
             totalTime: performance.now() - startedAt,
-            globalTimeoutError: Timer.getInstance().isTimedOut(),
+            globalTimeoutError: isTimedOut(startedAt),
           } as JsonLogs,
           null,
           2
@@ -118,10 +118,15 @@ async function runFile(
   argv: RunArgv,
   startedAt: number,
   output: { harFile: string | undefined },
+  sessionStartTime: number,
   collectSpecData?: CollectFn
 ) {
-  const { executedWorkflows, ctx } = await runTestFile(argv, output, collectSpecData);
-
+  const { executedWorkflows, ctx } = await runTestFile(
+    argv,
+    output,
+    sessionStartTime,
+    collectSpecData
+  );
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
@@ -141,6 +146,6 @@ async function runFile(
     ctx,
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
-    globalTimeoutError: Timer.getInstance().isTimedOut(),
+    globalTimeoutError: isTimedOut(sessionStartTime),
   };
 }

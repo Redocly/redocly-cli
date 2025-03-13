@@ -95,7 +95,7 @@ describe('runWorkflow', () => {
       },
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, sessionStartTime: performance.now() });
 
     expect(apiClient.fetchResult).toBeCalled();
   });
@@ -119,7 +119,7 @@ describe('runWorkflow', () => {
       },
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, sessionStartTime: performance.now() });
 
     expect(apiClient.fetchResult).not.toBeCalled();
   });
@@ -137,7 +137,9 @@ describe('runWorkflow', () => {
         workflowPath: fileName,
       },
     } as unknown as TestContext;
-    await expect(runWorkflow({ workflowInput: 'test', ctx })).rejects.toThrowError();
+    await expect(
+      runWorkflow({ workflowInput: 'test', ctx, sessionStartTime: performance.now() })
+    ).rejects.toThrowError();
     expect(apiClient.fetchResult).not.toBeCalled();
   });
 
@@ -222,7 +224,7 @@ describe('runWorkflow', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, sessionStartTime: performance.now() });
 
     expect(ctx.$outputs?.test).toEqual({ test: 'test' });
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
@@ -293,7 +295,7 @@ describe('runWorkflow', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, sessionStartTime: performance.now() });
 
     expect(apiClient.fetchResult).not.toBeCalled();
   });
@@ -349,6 +351,7 @@ describe('runWorkflow', () => {
     await runWorkflow({
       workflowInput: 'test',
       ctx,
+      sessionStartTime: performance.now(),
     });
 
     expect(mockLogger).toMatchSnapshot();
@@ -448,6 +451,7 @@ describe('runWorkflow', () => {
     await runWorkflow({
       workflowInput: workflow,
       ctx,
+      sessionStartTime: performance.now(),
     });
 
     expect(ctx.$outputs?.test).toEqual({ test: 'test' });
