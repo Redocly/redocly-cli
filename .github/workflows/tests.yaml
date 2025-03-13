@@ -27,9 +27,11 @@ jobs:
       - name: Unit Tests (Jest)
         run: npm run unit
       - name: Unit tests (Vitest)
-        run: npx vitest run
-      - name: E2E Tests
+        run: npm run vitest:unit
+      - name: E2E Tests (Jest)
         run: npm run e2e
+      - name: E2E Tests (Vitest)
+        run: npm run vitest:e2e
 
   cli-package-test:
     runs-on: ubuntu-latest

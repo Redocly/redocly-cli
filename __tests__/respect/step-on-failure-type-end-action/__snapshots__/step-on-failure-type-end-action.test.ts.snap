@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should end workflow execution, context returns to the caller with applicable outputs, when step fails and onFailure action is of type \`end\` 1`] = `
 "────────────────────────────────────────────────────────────────────────────────

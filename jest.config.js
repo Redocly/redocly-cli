@@ -10,7 +10,7 @@ module.exports = {
   restoreMocks: true,
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testPathIgnorePatterns: migratedSuites,
+  testPathIgnorePatterns: [...migratedSuites, '__tests__/respect/*'],
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
     '!packages/**/__tests__/**/*',
