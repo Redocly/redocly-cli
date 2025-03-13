@@ -11,7 +11,6 @@ type CLICommands =
   | 'join'
   | 'login'
   | 'logout'
-  | 'preview-docs'
   | 'check-config'
   | 'push'
   | 'split'

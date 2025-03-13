@@ -1,6 +1,5 @@
 import {
   getFallbackApisOrExit,
-  isSubdir,
   pathToFilename,
   printConfigLintTotals,
   langToExt,
@@ -28,51 +27,11 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import { ConfigApis } from '../types';
 
 jest.mock('os');
 jest.mock('colorette');
 
 jest.mock('fs');
-
-describe('isSubdir', () => {
-  it('can correctly determine if subdir', () => {
-    (
-      [
-        ['/foo', '/foo', false],
-        ['/foo', '/bar', false],
-        ['/foo', '/foobar', false],
-        ['/foo', '/foo/bar', true],
-        ['/foo', '/foo/../bar', false],
-        ['/foo', '/foo/./bar', true],
-        ['/bar/../foo', '/foo/bar', true],
-        ['/foo', './bar', false],
-        ['/foo', '/foo/..bar', true],
-      ] as [string, string, boolean][]
-    ).forEach(([parent, child, expectRes]) => {
-      expect(isSubdir(parent, child)).toBe(expectRes);
-    });
-  });
-
-  it('can correctly determine if subdir for windows-based paths', () => {
-    const os = require('os');
-    os.platform.mockImplementation(() => 'win32');
-
-    (
-      [
-        ['C:/Foo', 'C:/Foo/Bar', true],
-        ['C:\\Foo', 'C:\\Bar', false],
-        ['C:\\Foo', 'D:\\Foo\\Bar', false],
-      ] as [string, string, boolean][]
-    ).forEach(([parent, child, expectRes]) => {
-      expect(isSubdir(parent, child)).toBe(expectRes);
-    });
-  });
-
-  afterEach(() => {
-    jest.resetModules();
-  });
-});
 
 describe('pathToFilename', () => {
   it('should use correct path separator', () => {
@@ -548,16 +507,8 @@ describe('cleanArgs', () => {
     };
     expect(cleanArgs(testArgs)).toEqual({
       config: 'file-yaml',
-      apis: ['api-name@api-version', 'file-yaml', 'http://url'],
+      apis: ['main@v1', 'file-yaml', 'http://url'],
       format: 'codeframe',
-    });
-  });
-  it('should remove potentially sensitive data from a push destination', () => {
-    const testArgs = {
-      destination: '@org/name@version',
-    };
-    expect(cleanArgs(testArgs)).toEqual({
-      destination: '@organization/api-name@api-version',
     });
   });
 });

@@ -1,5 +1,4 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load';
-import { RedoclyClient } from '../../redocly';
 import { Config } from '../config';
 import { lintConfig } from '../../lint';
 import { replaceSourceWithRef } from '../../../__tests__/utils';
@@ -11,44 +10,6 @@ const fs = require('fs');
 const path = require('path');
 
 describe('loadConfig', () => {
-  it('should resolve config http header by US region', async () => {
-    jest
-      .spyOn(RedoclyClient.prototype, 'getAllTokens')
-      .mockImplementation(() => [{ region: 'us', token: 'accessToken' }]);
-    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
-    const config = await loadConfig();
-    expect(config.resolve.http.headers).toStrictEqual([
-      {
-        matches: 'https://api.redocly.com/registry/**',
-        name: 'Authorization',
-        envVariable: undefined,
-        value: 'accessToken',
-      },
-      {
-        matches: 'https://api.redoc.ly/registry/**',
-        name: 'Authorization',
-        envVariable: undefined,
-        value: 'accessToken',
-      },
-    ]);
-  });
-
-  it('should resolve config http header by EU region', async () => {
-    jest
-      .spyOn(RedoclyClient.prototype, 'getAllTokens')
-      .mockImplementation(() => [{ region: 'eu', token: 'accessToken' }]);
-    jest.spyOn(RedoclyClient.prototype, 'hasTokens').mockImplementation(() => true);
-    const config = await loadConfig();
-    expect(config.resolve.http.headers).toStrictEqual([
-      {
-        matches: 'https://api.eu.redocly.com/registry/**',
-        name: 'Authorization',
-        envVariable: undefined,
-        value: 'accessToken',
-      },
-    ]);
-  });
-
   it('should call callback if such passed', async () => {
     const mockFn = jest.fn();
     await loadConfig({

@@ -256,53 +256,6 @@ describe('handlePush()', () => {
     expect(remotes.push).not.toHaveBeenCalled();
   });
 
-  it('should get organization from config if not passed', async () => {
-    const mockConfig = { organization: 'test-org-from-config', apis: {} } as any;
-    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-
-    fsStatSyncSpy.mockReturnValueOnce({
-      isDirectory() {
-        return false;
-      },
-    } as any);
-
-    pathResolveSpy.mockImplementationOnce((p) => p);
-    pathRelativeSpy.mockImplementationOnce((_, p) => p);
-    pathDirnameSpy.mockImplementation((_: string) => '.');
-
-    await handlePush({
-      argv: {
-        domain: 'test-domain',
-        'mount-path': 'test-mount-path',
-        project: 'test-project',
-        branch: 'test-branch',
-        author: 'TestAuthor <test-author@mail.com>',
-        message: 'Test message',
-        files: ['test-file'],
-        'default-branch': 'main',
-        'max-execution-time': 10,
-      },
-      config: mockConfig,
-      version: 'cli-version',
-    });
-
-    expect(remotes.getDefaultBranch).toHaveBeenCalledWith(
-      'test-org-from-config',
-      expect.anything()
-    );
-    expect(remotes.upsert).toHaveBeenCalledWith(
-      'test-org-from-config',
-      expect.anything(),
-      expect.anything()
-    );
-    expect(remotes.push).toHaveBeenCalledWith(
-      'test-org-from-config',
-      expect.anything(),
-      expect.anything(),
-      expect.anything()
-    );
-  });
-
   it('should get domain from env if not passed', async () => {
     const mockConfig = { organization: 'test-org-from-config', apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
@@ -328,6 +281,7 @@ describe('handlePush()', () => {
         message: 'Test message',
         files: ['test-file'],
         'max-execution-time': 10,
+        organization: 'redocly-test',
       },
       config: mockConfig,
       version: 'cli-version',

@@ -21,7 +21,6 @@ const testConfig: Config = {
         styleguide: { rules: { 'operation-summary': 'warn' } },
       },
     },
-    organization: 'redocly-test',
     telemetry: 'on',
     styleguide: {
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
@@ -61,8 +60,6 @@ const testConfig: Config = {
     mockServer: {},
   },
   resolve: { http: { headers: [] } },
-  organization: 'redocly-test',
-  files: [],
 };
 
 describe('getMergedConfig', () => {
@@ -80,8 +77,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "files": [],
-        "organization": "redocly-test",
         "rawConfig": {
           "apis": {
             "test@v1": {
@@ -93,8 +88,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "files": [],
-          "organization": "redocly-test",
           "styleguide": {
             "extendPaths": [],
             "pluginPaths": [],
@@ -105,7 +98,6 @@ describe('getMergedConfig', () => {
           "telemetry": "on",
           "theme": {},
         },
-        "region": undefined,
         "resolve": {
           "http": {
             "customFetch": undefined,
@@ -198,8 +190,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "files": [],
-        "organization": "redocly-test",
         "rawConfig": {
           "apis": {
             "test@v1": {
@@ -211,8 +201,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "files": [],
-          "organization": "redocly-test",
           "styleguide": {
             "extendPaths": [],
             "pluginPaths": [],
@@ -225,7 +213,6 @@ describe('getMergedConfig', () => {
           "telemetry": "on",
           "theme": {},
         },
-        "region": undefined,
         "resolve": {
           "http": {
             "customFetch": undefined,

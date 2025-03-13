@@ -236,7 +236,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
       - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.
       - **`packages/core/src/format`**: contains the format options.
       - **`packages/core/src/js-yaml`**: contains the [JS-YAML](https://www.npmjs.com/package/js-yaml) based functions.
-      - **`packages/core/src/redocly`**: contains the Redocly API registry integration setup.
+      <!-- - **`packages/core/src/redocly`**: contains the Redocly API registry integration setup. FIXME: update the structure description -->
       - **`packages/core/src/rules`**: contains the built-in [rules](../docs/resources/built-in-rules.md) code.
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.

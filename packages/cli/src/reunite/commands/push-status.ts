@@ -1,5 +1,5 @@
 import * as colors from 'colorette';
-import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
+import { printExecutionTime } from '../../utils/miscellaneous';
 import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { ReuniteApi, getApiKeys, getDomain } from '../api';
@@ -14,6 +14,7 @@ import type {
   PushResponse,
   ScorecardItem,
 } from '../api/types';
+import type { VerifyConfigOptions } from '../../types';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 
@@ -22,7 +23,6 @@ export type PushStatusOptions = {
   project: string;
   pushId: string;
   domain?: string;
-  config?: string;
   format?: Extract<OutputFormat, 'stylish'>;
   wait?: boolean;
   'max-execution-time'?: number; // in seconds
@@ -30,7 +30,7 @@ export type PushStatusOptions = {
   'start-time'?: number; // in milliseconds
   'continue-on-deploy-failures'?: boolean;
   onRetry?: (lasSummary: PushStatusSummary) => void;
-};
+} & VerifyConfigOptions;
 
 export interface PushStatusSummary {
   preview: DeploymentStatusResponse;
@@ -40,22 +40,12 @@ export interface PushStatusSummary {
 
 export async function handlePushStatus({
   argv,
-  config,
   version,
 }: CommandArgs<PushStatusOptions>): Promise<PushStatusSummary | void> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 
   const { organization, project: projectId, pushId, wait } = argv;
-
-  const orgId = organization || config.organization;
-
-  if (!orgId) {
-    exitWithError(
-      `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
-    );
-    return;
-  }
 
   const domain = argv.domain || getDomain();
   const maxExecutionTime = argv['max-execution-time'] || 1200; // 20 min
@@ -67,7 +57,7 @@ export async function handlePushStatus({
   const continueOnDeployFailures = argv['continue-on-deploy-failures'] || false;
 
   try {
-    const apiKey = getApiKeys(domain);
+    const apiKey = getApiKeys();
     const client = new ReuniteApi({ domain, apiKey, version, command: 'push-status' });
 
     let pushResponse: PushResponse;
@@ -75,7 +65,7 @@ export async function handlePushStatus({
     pushResponse = await retryUntilConditionMet({
       operation: () =>
         client.remotes.getPush({
-          organizationId: orgId,
+          organizationId: organization,
           projectId,
           pushId,
         }),
@@ -124,7 +114,7 @@ export async function handlePushStatus({
       pushResponse = await retryUntilConditionMet({
         operation: () =>
           client.remotes.getPush({
-            organizationId: orgId,
+            organizationId: organization,
             projectId,
             pushId,
           }),
@@ -167,7 +157,7 @@ export async function handlePushStatus({
       });
       printScorecard(pushResponse.status.production.scorecard);
     }
-    printPushStatusInfo({ orgId, projectId, pushId, startedAt });
+    printPushStatusInfo({ organization, projectId, pushId, startedAt });
 
     client.reportSunsetWarnings();
 
@@ -188,18 +178,18 @@ export async function handlePushStatus({
 }
 
 function printPushStatusInfo({
-  orgId,
+  organization,
   projectId,
   pushId,
   startedAt,
 }: {
-  orgId: string;
+  organization: string;
   projectId: string;
   pushId: string;
   startedAt: number;
 }) {
   process.stderr.write(
-    `\nProcessed push-status for ${colors.yellow(orgId!)}, ${colors.yellow(
+    `\nProcessed push-status for ${colors.yellow(organization)}, ${colors.yellow(
       projectId
     )} and pushID ${colors.yellow(pushId)}.\n`
   );
