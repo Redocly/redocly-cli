@@ -94,7 +94,6 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
             files: composeJsonLogsFiles(runAllFilesResult),
             status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
             totalTime: performance.now() - startedAt,
-            globalTimeoutError: Timer.getInstance().isTimedOut(),
           } as JsonLogs,
           null,
           2
@@ -125,6 +124,7 @@ async function runFile(
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
+  const hasGlobalTimeoutError = executedWorkflows.some((workflow) => workflow.globalTimeoutError);
 
   if (totals.steps.failed > 0 || totals.steps.warnings > 0 || totals.steps.skipped > 0) {
     displayErrors(executedWorkflows);
@@ -141,6 +141,6 @@ async function runFile(
     ctx,
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
-    globalTimeoutError: Timer.getInstance().isTimedOut(),
+    globalTimeoutError: hasGlobalTimeoutError,
   };
 }
