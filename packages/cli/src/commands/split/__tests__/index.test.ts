@@ -4,9 +4,7 @@ import * as process from 'node:process';
 import * as openapiCore from '@redocly/openapi-core';
 import { type ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
-import { loadConfigAndHandleErrors } from '../../../utils/_22222_mocks__/miscellaneous';
-
-import type { Config } from '@redocly/openapi-core';
+import { ConfigFixture } from '../../../__tests__/fixtures/config';
 
 import * as utils from '../../../utils/miscellaneous';
 
@@ -53,7 +51,7 @@ describe('#split', () => {
         outDir: openapiDir,
         separator: '_',
       },
-      config: loadConfigAndHandleErrors() as any as Config,
+      config: ConfigFixture,
       version: 'cli-version',
     });
 
@@ -78,7 +76,7 @@ describe('#split', () => {
         outDir: openapiDir,
         separator: '_',
       },
-      config: loadConfigAndHandleErrors() as any as Config,
+      config: ConfigFixture,
       version: 'cli-version',
     });
 
