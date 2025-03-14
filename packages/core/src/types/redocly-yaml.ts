@@ -156,6 +156,7 @@ const builtInArazzo1Rules = [
   'requestBody-replacements-unique',
   'no-criteria-xpath',
   'criteria-unique',
+  'reference-property',
 ] as const;
 
 export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
