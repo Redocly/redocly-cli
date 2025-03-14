@@ -212,79 +212,6 @@ exports[`should not follow the default behavior to break and return if onFailure
     ✓ content-type check
     ✓ schema check
 
-  Running child workflow for the step call-first-workflow
-  Running workflow consider-severity-in-next-step-execution.arazzo.yaml / first-workflow
-
-  ✓ GET /museum-hours - step first-step
-
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
-    Request Headers:
-      accept: application/json, application/problem+json
-      authorization: Basic Og==
-
-
-    Response status code: 200
-    Response time: <test> ms
-    Response Body:
-      [
-        {
-          "date": "2023-09-11",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-12",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-13",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-14",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-15",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        },
-        {
-          "date": "2023-09-18",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-19",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-20",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-21",
-          "timeOpen": "09:00",
-          "timeClose": "18:00"
-        },
-        {
-          "date": "2023-09-22",
-          "timeOpen": "10:00",
-          "timeClose": "16:00"
-        }
-      ]
-
-    ✓ success criteria check - $statusCode == 200
-    ✓ status code check - $statusCode in [200, 400, 404]
-    ✓ content-type check
-    ✓ schema check
-
-
 
   Failed tests info:
 
@@ -297,8 +224,8 @@ exports[`should not follow the default behavior to break and return if onFailure
   Summary for consider-severity-in-next-step-execution.arazzo.yaml
   
   Workflows: 2 passed, 2 total
-  Steps: 3 passed, 1 warnings, 3 total
-  Checks: 12 passed, 1 warnings, 12 total
+  Steps: 2 passed, 1 warnings, 2 total
+  Checks: 8 passed, 1 warnings, 8 total
   Time: <test>ms
 
 
