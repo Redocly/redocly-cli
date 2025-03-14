@@ -545,11 +545,19 @@ describe('cleanArgs', () => {
       config: './fixtures/redocly.yaml',
       apis: ['main@v1', 'fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       format: 'codeframe',
+      input: 'some-input',
+      'client-cert': 'some-client-cert',
+      'client-key': 'some-client-key',
+      'ca-cert': 'some-ca-cert',
     };
     expect(cleanArgs(testArgs)).toEqual({
       config: 'file-yaml',
       apis: ['api-name@api-version', 'file-yaml', 'http://url'],
       format: 'codeframe',
+      input: '***',
+      'client-cert': '***',
+      'client-key': '***',
+      'ca-cert': '***',
     });
   });
   it('should remove potentially sensitive data from a push destination', () => {
