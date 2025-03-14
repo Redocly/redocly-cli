@@ -38,17 +38,12 @@ describe('build-docs', () => {
 
     vi.mock('@redocly/openapi-core');
     vi.mocked(getMergedConfig).mockImplementation((config) => config);
-    // vi.mocked(getAndValidateFileExtension).mockImplementation(
-    //   (fileName) => fileName.split('.').pop() as any
-    // );
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
-    // vi.mocked(sortTopLevelKeysForOas).mockImplementation((document) => document);
-    // vi.mocked(writeToFileByExtension).mockImplementation(() => {});
   });
 
-  it.only('should return correct html and call function for ssr', async () => {
+  it('should return correct html and call function for ssr', async () => {
     const result = await getPageHTML({}, '../some-path/openapi.yaml', {
       ...config,
       redocCurrentVersion: '2.0.0',
