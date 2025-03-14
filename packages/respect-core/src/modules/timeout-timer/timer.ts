@@ -15,17 +15,11 @@ export class Timer {
     return Timer.instance;
   }
 
-  private getTimeout(): number {
-    return parseInt(process.env.RESPECT_TIMEOUT || RESPECT_TIMEOUT.toString(), 10);
-  }
-
-  public getRemainingTime(): number {
-    const elapsedTime = Date.now() - this.startTime;
-    const timeout = this.getTimeout();
-    return Math.max(0, timeout - elapsedTime);
-  }
-
   public isTimedOut(): boolean {
-    return this.getRemainingTime() <= 0;
+    const elapsedTime = Date.now() - this.startTime;
+    const timeout = parseInt(process.env.RESPECT_TIMEOUT || RESPECT_TIMEOUT.toString(), 10);
+    const remainingTime = Math.max(0, timeout - elapsedTime);
+
+    return remainingTime <= 0;
   }
 }

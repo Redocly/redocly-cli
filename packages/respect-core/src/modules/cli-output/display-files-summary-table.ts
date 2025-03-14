@@ -14,7 +14,6 @@ export function displayFilesSummaryTable(
     hasProblems: boolean;
     executedWorkflows: WorkflowExecutionResult[];
     argv?: { workflow?: string[]; skip?: string[] };
-    globalTimeoutError: boolean;
   }[]
 ) {
   const DEFAULT_FILENAME_PADDING = 40;
@@ -42,7 +41,7 @@ export function displayFilesSummaryTable(
   output += `${gray(`├${columns.map((col) => '─'.repeat(col.width + 2)).join('┼')}┤`)}\n`;
 
   // Data rows
-  filesResult.forEach(({ file, executedWorkflows: workflows, argv, globalTimeoutError }) => {
+  filesResult.forEach(({ file, executedWorkflows: workflows, argv }) => {
     const fileName = path.basename(file);
     const workflowArgv = argv?.workflow || [];
     const skippedWorkflowArgv = argv?.skip || [];
@@ -70,10 +69,9 @@ export function displayFilesSummaryTable(
         : gray('-'.padEnd(9));
 
     // First pad the content, then add colors
-    const statusSymbol = testWorkflows.failed > 0 || globalTimeoutError ? 'x' : '✓';
+    const statusSymbol = testWorkflows.failed > 0 ? 'x' : '✓';
     const paddedContent = `${statusSymbol} ${fileName}`.padEnd(maxFilenameLength + 1);
-    const fileNameWithStatus =
-      testWorkflows.failed > 0 || globalTimeoutError ? red(paddedContent) : green(paddedContent);
+    const fileNameWithStatus = testWorkflows.failed > 0 ? red(paddedContent) : green(paddedContent);
 
     output +=
       gray('│') +
