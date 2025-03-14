@@ -14,9 +14,6 @@ import { ConfigFixture } from '../fixtures/config';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
-vi.mock('@redocly/openapi-core');
-vi.mock('../../utils/miscellaneous');
-
 describe('bundle', () => {
   let processExitMock: MockInstance;
   let exitCb: any;
@@ -31,6 +28,7 @@ describe('bundle', () => {
     stderrWriteMock = vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
     stdoutWriteMock = vi.spyOn(process.stdout, 'write').mockImplementation(vi.fn());
 
+    vi.mock('@redocly/openapi-core');
     vi.mocked(bundle).mockImplementation(
       async (): Promise<any> => ({
         bundle: { parsed: null },
@@ -39,6 +37,7 @@ describe('bundle', () => {
     );
     vi.mocked(getMergedConfig).mockImplementation((config) => config);
 
+    vi.mock('../../utils/miscellaneous');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(ConfigFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
