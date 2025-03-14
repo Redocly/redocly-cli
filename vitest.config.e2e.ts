@@ -9,6 +9,7 @@ export default defineConfig({
     include: ['__tests__/respect/**/*.test.ts'],
     env: {
       FORCE_COLOR: '1',
+      REDOCLY_TELEMETRY: 'off',
     },
   },
 });
