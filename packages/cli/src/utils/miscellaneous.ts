@@ -647,7 +647,7 @@ function cleanString(value?: string): string | undefined {
 }
 
 export function cleanArgs(args: CommandOptions) {
-  const keysToClean = ['organization', 'o'];
+  const keysToClean = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
 
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(args)) {
@@ -661,6 +661,7 @@ export function cleanArgs(args: CommandOptions) {
       result[key] = value;
     }
   }
+
   return result;
 }
 
