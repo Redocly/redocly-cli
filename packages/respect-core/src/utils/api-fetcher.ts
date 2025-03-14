@@ -17,12 +17,11 @@ import { getResponseSchema } from '../modules/description-parser';
 import { collectSecretFields } from '../modules/flow-runner';
 import { createMtlsClient } from './mtls/create-mtls-client';
 import { DefaultLogger } from './logger/logger';
+import { MAX_FETCH_TIMEOUT } from '../consts';
 
 import type { RequestData } from '../modules/flow-runner';
 
 const logger = DefaultLogger.getInstance();
-
-const MAX_FETCH_TIMEOUT = 20000;
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
