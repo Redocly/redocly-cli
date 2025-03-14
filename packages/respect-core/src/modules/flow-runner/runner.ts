@@ -174,8 +174,12 @@ export async function runWorkflow({
     }
   }
 
+  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
+    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+  );
+
   // workflow level outputs
-  if (workflow.outputs && workflowId) {
+  if (workflow.outputs && workflowId && !hasFailedTimeoutSteps) {
     if (!ctx.$outputs) {
       ctx.$outputs = {};
     }
@@ -226,6 +230,7 @@ export async function runWorkflow({
     totalTimeMs: Math.ceil(endTime - workflowStartTime),
     executedSteps: ctx.executedSteps,
     ctx,
+    globalTimeoutError: hasFailedTimeoutSteps,
   };
 }
 

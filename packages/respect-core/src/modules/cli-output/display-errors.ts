@@ -48,7 +48,11 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
 
       for (const failedCheckIndex in failedStepChecks) {
         const { name, message, severity } = failedStepChecks[failedCheckIndex];
-        const showErrorMessage = name !== CHECKS.UNEXPECTED_ERROR;
+        const showErrorMessage = ![
+          CHECKS.UNEXPECTED_ERROR,
+          CHECKS.GLOBAL_TIMEOUT_ERROR,
+          CHECKS.MAX_STEPS_REACHED_ERROR,
+        ].includes(name);
         const messageToDisplay = showErrorMessage
           ? indent(`${removeExtraIndentation(message)}${RESET_ESCAPE_CODE}\n`, 6)
           : indent(`Reason: ${message}`, 4);
