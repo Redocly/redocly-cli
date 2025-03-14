@@ -4,42 +4,39 @@ import * as process from 'node:process';
 import * as openapiCore from '@redocly/openapi-core';
 import { type ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
+import * as utils from '../../../utils/miscellaneous';
 import { ConfigFixture } from '../../../__tests__/fixtures/config';
 
-import * as utils from '../../../utils/miscellaneous';
-
-vi.mock('node:path', async () => {
-  const actual = await vi.importActual('node:path');
-  return { ...actual };
-});
-vi.mock('node:process', async () => {
-  const actual = await vi.importActual('node:process');
-  return {
-    ...actual,
-    stderr: { write: vi.fn() },
-  };
-});
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual('node:fs');
-  return {
-    ...actual,
-    writeFileSync: vi.fn(),
-  };
-});
-vi.mock('../../../utils/miscellaneous', async () => {
-  const actual = await vi.importActual('../../../utils/miscellaneous');
-  return {
-    ...actual,
-    writeToFileByExtension: vi.fn(),
-  };
-});
-
-describe('#split', () => {
+describe('split', () => {
   const openapiDir = 'test';
   const componentsFiles: ComponentsFiles = {};
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(() => {
+    vi.mock('node:path', async () => {
+      const actual = await vi.importActual('node:path');
+      return { ...actual };
+    });
+    vi.mock('node:process', async () => {
+      const actual = await vi.importActual('node:process');
+      return {
+        ...actual,
+        stderr: { write: vi.fn() },
+      };
+    });
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual('node:fs');
+      return {
+        ...actual,
+        writeFileSync: vi.fn(),
+      };
+    });
+    vi.mock('../../../utils/miscellaneous', async () => {
+      const actual = await vi.importActual('../../../utils/miscellaneous');
+      return {
+        ...actual,
+        writeToFileByExtension: vi.fn(),
+      };
+    });
   });
 
   it('should split the file and show the success message', async () => {
