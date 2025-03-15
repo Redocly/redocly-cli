@@ -10,7 +10,6 @@ export default defineConfig({
   test: {
     globals: true,
     restoreMocks: true,
-    clearMocks: true,
     environment: 'node',
     include: migratedSuites,
     env: {

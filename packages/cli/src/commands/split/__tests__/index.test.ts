@@ -5,7 +5,7 @@ import * as openapiCore from '@redocly/openapi-core';
 import { type ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
 import * as utils from '../../../utils/miscellaneous';
-import { ConfigFixture } from '../../../__tests__/fixtures/config';
+import { configFixture } from '../../../__tests__/fixtures/config';
 
 describe('split', () => {
   const openapiDir = 'test';
@@ -48,7 +48,7 @@ describe('split', () => {
         outDir: openapiDir,
         separator: '_',
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -73,7 +73,7 @@ describe('split', () => {
         outDir: openapiDir,
         separator: '_',
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 

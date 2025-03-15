@@ -11,23 +11,6 @@ const remotes = {
   getDefaultBranch: vi.fn(),
 };
 
-vi.mock('@redocly/openapi-core');
-vi.mock('../../api', async () => {
-  const actual = await vi.importActual('../../api');
-  return {
-    ...actual,
-    ReuniteApi: vi.fn(),
-  };
-});
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual('node:fs');
-  return { ...actual };
-});
-vi.mock('node:path', async () => {
-  const actual = await vi.importActual('node:path');
-  return { ...actual };
-});
-
 describe('handlePush()', () => {
   let pathResolveSpy: MockInstance;
   let pathRelativeSpy: MockInstance;
@@ -40,22 +23,42 @@ describe('handlePush()', () => {
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
 
-    vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
+    vi.mock('../../api', async () => {
+      const actual = await vi.importActual('../../api');
+      return {
+        ...actual,
+        ReuniteApi: vi.fn(),
+      };
+    });
     vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
       this.remotes = remotes;
       this.reportSunsetWarnings = vi.fn();
     });
+
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return { ...actual, slash: vi.fn() };
+    });
     vi.mocked(slash).mockImplementation((p) => p);
 
+    vi.mock('node:path', async () => {
+      const actual = await vi.importActual('node:path');
+      return { ...actual };
+    });
     pathResolveSpy = vi.spyOn(path, 'resolve');
     pathRelativeSpy = vi.spyOn(path, 'relative');
     pathDirnameSpy = vi.spyOn(path, 'dirname');
+
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual('node:fs');
+      return { ...actual };
+    });
+    vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
     fsStatSyncSpy = vi.spyOn(fs, 'statSync');
     fsReaddirSyncSpy = vi.spyOn(fs, 'readdirSync');
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     process.env.REDOCLY_AUTHORIZATION = undefined;
   });
 

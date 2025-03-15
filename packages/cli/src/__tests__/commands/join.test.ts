@@ -16,7 +16,7 @@ import {
   sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous';
-import { ConfigFixture } from '../fixtures/config';
+import { configFixture } from '../fixtures/config';
 import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents';
 
 describe('handleJoin', () => {
@@ -37,7 +37,7 @@ describe('handleJoin', () => {
     vi.mock('@redocly/openapi-core');
     vi.mocked(bundleDocument).mockResolvedValue({ problems: [] } as any);
     vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });
-    vi.mocked(loadConfig).mockResolvedValue(ConfigFixture);
+    vi.mocked(loadConfig).mockResolvedValue(configFixture);
     vi.mocked(BaseResolver.prototype.resolveDocument)
       .mockImplementationOnce(() =>
         Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
@@ -76,7 +76,7 @@ describe('handleJoin', () => {
 
     await handleJoin({
       argv: { apis: ['*.yaml'] },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -122,7 +122,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
     expect(exitWithError).toHaveBeenCalledWith(
@@ -138,7 +138,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -153,7 +153,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -170,7 +170,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -188,7 +188,7 @@ describe('handleJoin', () => {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -205,7 +205,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.json', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -222,7 +222,7 @@ describe('handleJoin', () => {
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -240,7 +240,7 @@ describe('handleJoin', () => {
         'prefix-components-with-info-prop': 'title',
         output: 'join-result.yaml',
       },
-      config: ConfigFixture,
+      config: configFixture,
       version: 'cli-version',
     });
 

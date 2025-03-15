@@ -1,9 +1,6 @@
-import { MockInstance } from 'vitest';
-
+import { type MockInstance } from 'vitest';
 import { Spinner } from '../utils/spinner';
-import * as process from 'process';
-
-vi.useFakeTimers();
+import * as process from 'node:process';
 
 describe('Spinner', () => {
   const IS_TTY = process.stdout.isTTY;
@@ -12,13 +9,13 @@ describe('Spinner', () => {
   let spinner: Spinner;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     process.stdout.isTTY = true;
     writeMock = vi.spyOn(process.stdout, 'write').mockImplementation(vi.fn());
     spinner = new Spinner();
   });
 
   afterEach(() => {
-    writeMock.mockRestore();
     vi.clearAllTimers();
   });
 

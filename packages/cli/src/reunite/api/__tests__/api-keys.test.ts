@@ -1,12 +1,14 @@
 import { getApiKeys } from '../api-keys';
 
 describe('getApiKeys()', () => {
+  afterEach(() => {
+    process.env.REDOCLY_AUTHORIZATION = undefined;
+  });
+
   it('should return api key from environment variable', () => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     expect(getApiKeys()).toEqual('test-api-key');
-
-    process.env.REDOCLY_AUTHORIZATION = '';
   });
 
   it('should throw an error if no api key provided', () => {

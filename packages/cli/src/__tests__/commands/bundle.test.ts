@@ -10,7 +10,7 @@ import {
   saveBundle,
 } from '../../utils/miscellaneous';
 import { commandWrapper } from '../../wrapper';
-import { ConfigFixture } from '../fixtures/config';
+import { configFixture } from '../fixtures/config';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
@@ -38,7 +38,7 @@ describe('bundle', () => {
     vi.mocked(getMergedConfig).mockImplementation((config) => config);
 
     vi.mock('../../utils/miscellaneous');
-    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(ConfigFixture);
+    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );

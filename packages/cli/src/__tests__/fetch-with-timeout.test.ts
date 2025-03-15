@@ -1,11 +1,7 @@
-import { Mock } from 'vitest';
-
 import AbortController from 'abort-controller';
 import fetchWithTimeout from '../utils/fetch-with-timeout';
 import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-
-vi.mock('@redocly/openapi-core');
 
 const signalInstance = new AbortController().signal;
 
@@ -27,6 +23,7 @@ const mockFetch = vi.fn(() =>
     formData: async () => new FormData(),
     text: async () => '',
     signal: signalInstance,
+    bytes: async () => new Uint8Array(),
     dispatcher: undefined,
   } as Response)
 );
@@ -36,13 +33,12 @@ global.fetch = mockFetch;
 
 describe('fetchWithTimeout', () => {
   beforeAll(() => {
-    // @ts-ignore
-    global.setTimeout = vi.fn();
+    global.setTimeout = vi.fn() as any;
     global.clearTimeout = vi.fn();
   });
 
   beforeEach(() => {
-    (getProxyAgent as Mock).mockReturnValueOnce(undefined);
+    vi.mock('@redocly/openapi-core');
   });
 
   afterAll(() => {
@@ -64,9 +60,8 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    (getProxyAgent as Mock).mockRestore();
     const proxyAgent = new HttpsProxyAgent('http://localhost');
-    (getProxyAgent as Mock).mockReturnValueOnce(proxyAgent);
+    vi.mocked(getProxyAgent).mockReturnValueOnce(proxyAgent as any);
 
     await fetchWithTimeout('url');
 

@@ -16,19 +16,12 @@ import {
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous';
-import { ConfigFixture } from '../fixtures/config';
+import { configFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper';
 import { Arguments } from 'yargs';
 import { blue } from 'colorette';
 import { type MockInstance } from 'vitest';
-
-vi.mock('@redocly/openapi-core');
-vi.mock('../../utils/miscellaneous');
-vi.mock('perf_hooks');
-vi.mock('../../utils/update-version-notifier', () => ({
-  version: '1.0.0',
-}));
 
 const argvMock = {
   apis: ['openapi.yaml'],
@@ -43,23 +36,29 @@ describe('handleLint', () => {
 
   beforeEach(() => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(performance, 'now').mockImplementation(() => 42);
     processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     vi.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
       return process.on(_e, cb);
     });
-    getMergedConfigMock.mockReturnValue(ConfigFixture);
+
+    vi.mock('perf_hooks');
+    vi.spyOn(performance, 'now').mockImplementation(() => 42);
+
+    vi.mock('@redocly/openapi-core');
+    getMergedConfigMock.mockReturnValue(configFixture);
     vi.mocked(doesYamlFileExist).mockImplementation((path) => path === 'redocly.yaml');
-    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(ConfigFixture);
+    vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
+
+    vi.mock('../../utils/miscellaneous');
+    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
-    vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
-  });
 
-  afterEach(() => {
-    vi.resetAllMocks();
+    vi.mock('../../utils/update-version-notifier', () => ({
+      version: '1.0.0',
+    }));
   });
 
   describe('loadConfig and getEntrypoints stage', () => {
@@ -126,8 +125,8 @@ describe('handleLint', () => {
         'skip-rule': ['rule'],
         'generate-ignore-file': true,
       });
-      expect(ConfigFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(ConfigFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(configFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(configFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
@@ -158,7 +157,7 @@ describe('handleLint', () => {
 
     it('should call exit with 0 if no errors', async () => {
       vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-        return { ...ConfigFixture };
+        return { ...configFixture };
       });
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();

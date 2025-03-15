@@ -1,5 +1,4 @@
 import { red, yellow } from 'colorette';
-import { MockedFunction, type Mock } from 'vitest';
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client';
 
 const originalFetch = global.fetch;
@@ -15,7 +14,7 @@ afterAll(() => {
 });
 
 function mockFetchResponse(response: any) {
-  (global.fetch as Mock).mockResolvedValue(response);
+  vi.mocked(global.fetch).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -222,15 +221,13 @@ describe('ApiClient', () => {
     it('should push to remote', async () => {
       let passedFormData: FormData = new FormData();
 
-      (fetch as MockedFunction<typeof fetch>).mockImplementationOnce(
-        async (_: any, options: any): Promise<Response> => {
-          passedFormData = options.body as FormData;
-          return {
-            ok: true,
-            json: vi.fn().mockResolvedValue(responseMock),
-          } as unknown as Response;
-        }
-      );
+      vi.mocked(fetch).mockImplementationOnce(async (_: any, options: any): Promise<Response> => {
+        passedFormData = options.body as FormData;
+        return {
+          ok: true,
+          json: vi.fn().mockResolvedValue(responseMock),
+        } as unknown as Response;
+      });
 
       const formData = new globalThis.FormData();
 

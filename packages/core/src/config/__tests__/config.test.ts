@@ -6,7 +6,6 @@ import { parseYaml } from '../../js-yaml';
 import { readFileSync } from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file';
 import * as path from 'node:path';
-import { type Mock } from 'vitest';
 
 vi.mock('../../utils');
 vi.mock('../../js-yaml');
@@ -333,9 +332,9 @@ describe('StyleguideConfig.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    (readFileSync as Mock).mockImplementationOnce(() => '');
-    (parseYaml as Mock).mockImplementationOnce(() => ignoredFileStub);
-    (doesYamlFileExist as Mock).mockImplementationOnce(() => true);
+    vi.mocked(readFileSync).mockImplementationOnce(() => '');
+    vi.mocked(parseYaml).mockImplementationOnce(() => ignoredFileStub);
+    vi.mocked(doesYamlFileExist).mockImplementationOnce(() => true);
 
     vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 

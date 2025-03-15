@@ -1,6 +1,6 @@
 import { type StyleguideConfig, type Config } from '@redocly/openapi-core';
 
-export const ConfigFixture: Config = {
+export const configFixture: Config = {
   apis: {},
   resolve: {
     http: {

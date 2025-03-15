@@ -35,7 +35,10 @@ vi.mock('node:path', async () => {
 });
 vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
-  return { ...actual, stringifyYaml: vi.fn((data, opts) => data as string) };
+  return {
+    ...actual,
+    stringifyYaml: vi.fn((data, opts) => data as string),
+  };
 });
 
 describe('pathToFilename', () => {
@@ -527,9 +530,6 @@ describe('cleanRawInput', () => {
       realFs.statSync(path.resolve(__dirname, value as string))
     );
   });
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
   it('should remove  potentially sensitive data from raw CLI input', () => {
     const rawInput = [
       'redocly',
@@ -582,10 +582,6 @@ describe('writeToFileByExtension', () => {
     vi.mocked(yellow).mockImplementation((text) => text as string);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should call stringifyYaml function', () => {
     writeToFileByExtension('test data', 'test.yaml');
     expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
@@ -632,10 +628,6 @@ describe('runtime platform', () => {
   });
 
   describe('getPlatformSpawnArgs', () => {
-    afterEach(() => {
-      vi.clearAllMocks();
-    });
-
     it('should return args for Windows platform', () => {
       vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('win32');
 

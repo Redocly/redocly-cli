@@ -10,10 +10,6 @@ describe('RedoclyOAuthDeviceFlow', () => {
     flow = new RedoclyOAuthDeviceFlow(mockBaseUrl, mockClientName, mockVersion);
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
   describe('verifyToken', () => {
     it('returns true for valid token', async () => {
       vi.spyOn(flow['apiClient'], 'request').mockResolvedValue({

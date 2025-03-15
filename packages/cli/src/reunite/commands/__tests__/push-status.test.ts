@@ -7,30 +7,6 @@ const remotes = {
   getRemotesList: vi.fn(),
 };
 
-vi.mock('colorette', () => ({
-  green: (str: string) => str,
-  yellow: (str: string) => str,
-  red: (str: string) => str,
-  gray: (str: string) => str,
-  magenta: (str: string) => str,
-  cyan: (str: string) => str,
-}));
-
-vi.mock('../../api', async () => {
-  const actual = await vi.importActual('../../api');
-  return {
-    ...actual,
-    ReuniteApi: vi.fn(),
-  };
-});
-
-vi.mock('@redocly/openapi-core', async () => {
-  const actual = await vi.importActual('@redocly/openapi-core');
-  return {
-    pause: actual.pause,
-  };
-});
-
 describe('handlePushStatus()', () => {
   const mockConfig = { apis: {} } as any;
 
@@ -82,14 +58,37 @@ describe('handlePushStatus()', () => {
   beforeEach(() => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+
+    vi.mock('colorette', () => ({
+      green: (str: string) => str,
+      yellow: (str: string) => str,
+      red: (str: string) => str,
+      gray: (str: string) => str,
+      magenta: (str: string) => str,
+      cyan: (str: string) => str,
+    }));
+
+    vi.mock('../../api', async () => {
+      const actual = await vi.importActual('../../api');
+      return {
+        ...actual,
+        ReuniteApi: vi.fn(),
+      };
+    });
     vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
       this.remotes = remotes;
       this.reportSunsetWarnings = vi.fn();
     });
+
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return {
+        pause: actual.pause,
+      };
+    });
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     process.env.REDOCLY_AUTHORIZATION = undefined;
   });
 
