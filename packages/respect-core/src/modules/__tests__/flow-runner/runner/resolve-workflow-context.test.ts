@@ -1,7 +1,7 @@
 import { resolveWorkflowContext, createTestContext } from '../../../flow-runner';
 import { ApiFetcher } from '../../../../utils/api-fetcher';
 
-jest.mock('../../../flow-runner/context/create-test-context');
+vi.mock('../../../flow-runner/context/create-test-context');
 
 describe('resolveWorkflowContext', () => {
   const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';

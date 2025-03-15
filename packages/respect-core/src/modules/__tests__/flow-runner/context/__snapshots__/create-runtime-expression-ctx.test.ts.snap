@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`createRuntimeExpressionCtx should create limited runtime expression context when step is not provided 1`] = `
+exports[`createRuntimeExpressionCtx > should create limited runtime expression context when step is not provided 1`] = `
 {
   "$components": {},
   "$faker": {
@@ -622,7 +622,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
 }
 `;
 
-exports[`createRuntimeExpressionCtx should create limited runtime expression context when workflowId and step provided 1`] = `
+exports[`createRuntimeExpressionCtx > should create limited runtime expression context when workflowId and step provided 1`] = `
 {
   "$components": {},
   "$faker": {
@@ -1254,7 +1254,7 @@ exports[`createRuntimeExpressionCtx should create limited runtime expression con
 }
 `;
 
-exports[`createRuntimeExpressionCtx should create limited runtime expression context when workflowId is not provided 1`] = `
+exports[`createRuntimeExpressionCtx > should create limited runtime expression context when workflowId is not provided 1`] = `
 {
   "$components": {},
   "$faker": {

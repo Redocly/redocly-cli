@@ -1,12 +1,8 @@
 import { retryUntilConditionMet } from '../utils';
 
-jest.mock('@redocly/openapi-core', () => ({
-  pause: jest.requireActual('@redocly/openapi-core').pause,
-}));
-
 describe('retryUntilConditionMet()', () => {
   it('should retry until condition meet and return result', async () => {
-    const operation = jest
+    const operation = vi
       .fn()
       .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({ status: 'pending' })
@@ -23,7 +19,7 @@ describe('retryUntilConditionMet()', () => {
   });
 
   it('should throw error if condition not meet for desired timeout', async () => {
-    const operation = jest.fn().mockResolvedValue({ status: 'pending' });
+    const operation = vi.fn().mockResolvedValue({ status: 'pending' });
 
     await expect(
       retryUntilConditionMet({
@@ -36,14 +32,14 @@ describe('retryUntilConditionMet()', () => {
   });
 
   it('should call "onConditionNotMet" and "onRetry" callbacks', async () => {
-    const operation = jest
+    const operation = vi
       .fn()
       .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({ status: 'pending' })
       .mockResolvedValueOnce({ status: 'done' });
 
-    const onConditionNotMet = jest.fn();
-    const onRetry = jest.fn();
+    const onConditionNotMet = vi.fn();
+    const onRetry = vi.fn();
 
     const data = await retryUntilConditionMet({
       operation,

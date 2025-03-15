@@ -4,10 +4,9 @@ import { handlerBuildCommand } from '../../commands/build-docs';
 import { BuildDocsArgv } from '../../commands/build-docs/types';
 import { getPageHTML } from '../../commands/build-docs/utils';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous';
-
-jest.mock('redoc');
-jest.mock('fs');
-jest.mock('../../utils/miscellaneous');
+import { type OpenAPISpec } from 'redoc/typings/types';
+import { getMergedConfig } from '@redocly/openapi-core';
+import * as fs from 'node:fs';
 
 const config = {
   output: '',
@@ -18,15 +17,32 @@ const config = {
   redocOptions: {},
 };
 
-jest.mock('react-dom/server', () => ({
-  renderToString: jest.fn(),
-}));
-
-jest.mock('handlebars', () => ({
-  compile: jest.fn(() => jest.fn(() => '<html></html>')),
-}));
-
 describe('build-docs', () => {
+  beforeEach(() => {
+    vi.mock('redoc');
+    vi.mocked(loadAndBundleSpec).mockResolvedValue({ openapi: '3.0.0' } as OpenAPISpec);
+    vi.mocked(createStore).mockResolvedValue({ toJS: vi.fn(async () => '{}' as any) } as any);
+
+    vi.mock('node:fs');
+    vi.mocked(fs.readFileSync).mockImplementation(() => '');
+
+    vi.mock('../../utils/miscellaneous');
+
+    vi.mock('react-dom/server', () => ({
+      renderToString: vi.fn(),
+    }));
+
+    vi.mock('handlebars', () => ({
+      compile: vi.fn(() => vi.fn(() => '<html></html>')),
+    }));
+
+    vi.mock('@redocly/openapi-core');
+    vi.mocked(getMergedConfig).mockImplementation((config) => config);
+    vi.mocked(getFallbackApisOrExit).mockImplementation(
+      async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
+    );
+  });
+
   it('should return correct html and call function for ssr', async () => {
     const result = await getPageHTML({}, '../some-path/openapi.yaml', {
       ...config,
@@ -38,7 +54,7 @@ describe('build-docs', () => {
   });
 
   it('should work correctly when calling handlerBuildCommand', async () => {
-    const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
+    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     await handlerBuildCommand({
       argv: {
         o: '',

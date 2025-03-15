@@ -31,7 +31,9 @@
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
-    "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
+    "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0",
+    "vitest:unit": "vitest run --config=vitest.config.ts",
+    "vitest:e2e": "vitest run --config=vitest.config.e2e.ts"
   },
   "workspaces": [
     "packages/*"
@@ -78,7 +80,8 @@
     "ts-jest": "^29.1.1",
     "ts-loader": "^8.0.2",
     "ts-node": "^9.0.0",
-    "typescript": "5.5.3"
+    "typescript": "5.5.3",
+    "vitest": "^3.0.8"
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [

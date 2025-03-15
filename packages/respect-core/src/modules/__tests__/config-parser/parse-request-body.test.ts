@@ -1,3 +1,5 @@
+import { Mock } from 'vitest';
+
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 
@@ -5,7 +7,7 @@ import type { RequestBody, TestContext } from '../../../types';
 
 import { parseRequestBody, stripFileDecorator } from '../../config-parser';
 
-jest.mock('node:fs');
+vi.mock('node:fs');
 
 describe('parseRequestBody', () => {
   const ctx = {
@@ -110,9 +112,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with file', async () => {
-    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
+    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
+    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -136,7 +138,7 @@ describe('parseRequestBody', () => {
       replacements: undefined,
     });
 
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data with nested object', async () => {
@@ -187,9 +189,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with array with file', async () => {
-    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
+    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
+    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -212,13 +214,13 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data and return error reading file', async () => {
-    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
+    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
+    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     try {
@@ -239,9 +241,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream', async () => {
-    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
+    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
+    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -259,7 +261,7 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should handle application/octet-stream with string payload', async () => {
@@ -281,9 +283,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream and return error reading file', async () => {
-    (fs.createReadStream as jest.Mock).mockReturnValueOnce('readStream');
+    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
     // @ts-ignore
-    (fs.access as jest.Mock).mockImplementation((_filePath, _mode, callback) => {
+    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     await expect(

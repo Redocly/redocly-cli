@@ -5,7 +5,7 @@ import { getValueFromContext, resolvePath } from '../../config-parser';
 
 describe('getValueFromContext', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return value from context', () => {

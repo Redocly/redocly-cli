@@ -1,11 +1,12 @@
-import * as fs from 'fs';
-import { extname } from 'path';
-import * as minimatch from 'minimatch';
+import * as fs from 'node:fs';
+import { extname } from 'node:path';
+import { minimatch } from 'minimatch';
 import { parseYaml } from './js-yaml';
 import { env } from './env';
 import { logger, colorize } from './logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import * as pluralizeOne from 'pluralize';
+import * as pluralize1 from 'pluralize'; // FIXME: use correct import after migration to ESM
+const pluralizeOne = (pluralize1 as any).default || pluralize1; // FIXME: use correct import after migration to ESM
 
 import type { HttpResolveConfig } from './config';
 import type { UserContext } from './walk';
@@ -234,9 +235,7 @@ export function isCustomRuleId(id: string) {
 
 export function doesYamlFileExist(filePath: string): boolean {
   return (
-    (extname(filePath) === '.yaml' || extname(filePath) === '.yml') &&
-    fs?.hasOwnProperty?.('existsSync') &&
-    fs.existsSync(filePath)
+    (extname(filePath) === '.yaml' || extname(filePath) === '.yml') && !!fs?.existsSync?.(filePath)
   );
 }
 

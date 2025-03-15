@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should not follow the default behavior to break and return if onFailure omitted with warn severity and continue execution of the next step 1`] = `
 "────────────────────────────────────────────────────────────────────────────────

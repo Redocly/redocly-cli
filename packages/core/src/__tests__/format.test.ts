@@ -38,11 +38,11 @@ describe('format', () => {
   let output = '';
   beforeEach(() => {
     output = '';
-    jest.spyOn(process.stderr, 'write').mockImplementation((str: string | Uint8Array) => {
+    vi.spyOn(process.stderr, 'write').mockImplementation((str: string | Uint8Array) => {
       output += str;
       return true;
     });
-    jest.spyOn(process.stdout, 'write').mockImplementation((str: string | Uint8Array) => {
+    vi.spyOn(process.stdout, 'write').mockImplementation((str: string | Uint8Array) => {
       output += str;
       return true;
     });

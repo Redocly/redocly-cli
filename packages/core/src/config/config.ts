@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist, isPlainObject, showWarningForDeprecatedField } from '../utils';
 import { SpecVersion, SpecMajorVersion } from '../oas-types';
@@ -124,7 +124,7 @@ export class StyleguideConfig {
         Record<string, Set<string>>
       >) || {};
 
-    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore);
+    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore); // FIXME: remove this
 
     // resolve ignore paths
     for (const fileName of Object.keys(this.ignore)) {

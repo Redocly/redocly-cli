@@ -42,11 +42,11 @@ const jsObject = {
 };
 
 describe('js-yaml', () => {
-  test('parseYaml', () => {
+  it('parseYaml', () => {
     expect(parseYaml(yaml)).toEqual(jsObject);
   });
 
-  test('should correctly dump date and string', () => {
+  it('should correctly dump date and string', () => {
     expect(stringifyYaml(parseYaml(yamlToDump))).toMatchInlineSnapshot(
       `
     "date: '2022-01-21T11:29:56.694Z'
@@ -61,11 +61,11 @@ describe('js-yaml', () => {
     );
   });
 
-  test('parse and stringify', () => {
+  it('parse and stringify', () => {
     expect(parseYaml(stringifyYaml(jsObject))).toEqual(jsObject);
   });
 
-  test('should throw an error for unsupported types', () => {
+  it('should throw an error for unsupported types', () => {
     expect(() => stringifyYaml({ foo: () => {} })).toThrow(
       'unacceptable kind of an object to dump [object Function]'
     );
