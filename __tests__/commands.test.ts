@@ -630,7 +630,7 @@ describe('E2E', () => {
         'test@fs',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
     test('lint a specific api (when the api is specified as an alias and it points to an external URL)', () => {
@@ -640,7 +640,7 @@ describe('E2E', () => {
         'test@external-url',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_3.js'));
     });
   });
 
