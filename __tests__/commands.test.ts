@@ -568,7 +568,9 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['test.yaml']);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot_2.js')
+      );
     });
   });
 
