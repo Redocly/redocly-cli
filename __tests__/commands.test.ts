@@ -94,7 +94,7 @@ describe('E2E', () => {
 
       const result = getCommandOutput(args, folderPath);
       (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
+        join(folderPath, 'snapshot_2.js')
       );
     });
   });
