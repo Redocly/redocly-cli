@@ -6,3 +6,4 @@ packages/core/src/rules/__tests__/fixtures/invalid-yaml.yaml
 packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
 benchmark/api-definitions/
 LICENSE.md
+__tests__/**/*snapshot*.js
