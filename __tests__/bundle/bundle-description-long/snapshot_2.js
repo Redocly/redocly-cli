@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E bundle bundle-description-long 1`] = `
+exports[`E2E bundle with long description description should not be in folded mode 1`] = `
 openapi: 3.1.0
 info:
   version: 1.0.0
