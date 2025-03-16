@@ -654,16 +654,16 @@ describe('E2E', () => {
   describe('build-docs', () => {
     const folderPath = join(__dirname, 'build-docs');
 
-    test('simple build-docs', () => {
+    test('simple build-docs', async () => {
       const testPath = join(folderPath, 'simple-build-docs');
       const args = getParams('../../../packages/cli/src/index.ts', 'build-docs', ['pets.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
 
       expect(fs.existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
     });
 
-    test('build docs with config option', () => {
+    test('build docs with config option', async () => {
       const testPath = join(folderPath, 'build-docs-with-config-option');
       const args = getParams('../../../packages/cli/src/index.ts', 'build-docs', [
         'nested/openapi.yaml',
@@ -671,7 +671,7 @@ describe('E2E', () => {
         '-o=nested/redoc-static.html',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
 
       expect(fs.existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
       expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36238);
