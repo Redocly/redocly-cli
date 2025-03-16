@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E miscellaneous lint with a rule from a plugin 1`] = `
 
 Deprecated plugin format detected: test-plugin
 validating openapi.yaml...
@@ -22,5 +19,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

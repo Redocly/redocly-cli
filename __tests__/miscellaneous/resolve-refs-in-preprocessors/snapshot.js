@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E miscellaneous bundle should resolve $refs in preprocessors 1`] = `
 openapi: 3.0.1
 info:
   title: Test
@@ -54,5 +51,3 @@ components:
 
 bundling openapi.yaml...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
-
-`;
