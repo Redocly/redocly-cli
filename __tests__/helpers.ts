@@ -1,9 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
-//@ts-ignore
-import { addSerializer } from './specific-snapshot';
 import { spawnSync } from 'child_process';
+import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
 
 type CLICommands =
   | 'lint'
@@ -49,14 +47,14 @@ function cleanUpVersion(str: string): string {
   return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
 }
 
-export function callSerializer() {
-  addSerializer({
-    test: (val: any) => typeof val === 'string',
-    print: (v: any) => cleanUpVersion(v),
-  });
-}
-
+// Vitest serializer does not modify strings, so we need to do it manually
+// https://github.com/vitest-dev/vitest/issues/5426
 export function cleanupOutput(message: string) {
   const cwdRegexp = new RegExp(process.cwd(), 'g');
-  return message.replace(cwdRegexp, '.');
+
+  const cleanedFromCwd = message.replace(cwdRegexp, '.');
+  const cleanedFromVersion = cleanUpVersion(cleanedFromCwd);
+  const cleanedFromUnescapedQuotes = cleanedFromVersion.replace(/`/g, '\\`');
+
+  return cleanedFromUnescapedQuotes;
 }
