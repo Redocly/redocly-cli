@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E bundle bundle-description-dereferenced 1`] = `
+exports[`E2E bundle with option: dereferenced description should not be from $ref 1`] = `
 openapi: 3.1.0
 security: []
 paths:
@@ -18,7 +18,14 @@ paths:
           application/json:
             schema:
               description: Names (specific)
-              $ref: '#/components/schemas/Names'
+              type: object
+              properties: &ref_0
+                oneName:
+                  description: One name (specific).
+                  type: string
+                otherName:
+                  description: Other name (specific).
+                  type: string
         required: true
 components:
   schemas:
@@ -28,13 +35,7 @@ components:
     Names:
       type: object
       description: names description
-      properties:
-        oneName:
-          $ref: '#/components/schemas/Name'
-          description: One name (specific).
-        otherName:
-          $ref: '#/components/schemas/Name'
-          description: Other name (specific).
+      properties: *ref_0
 
 bundling test.yaml...
 📦 Created a bundle for test.yaml at stdout <test>ms.
