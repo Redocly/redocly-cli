@@ -492,7 +492,7 @@ describe('E2E', () => {
   });
 
   describe('bundle with option: remove-unused-components', () => {
-    test.each(['oas2', 'oas3'])('%s: should remove unused components', (type) => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', async (type) => {
       const folderPath = join(__dirname, `bundle/bundle-remove-unused-components/${type}`);
       const entryPoints = getEntrypoints(folderPath);
       const args = [
@@ -502,7 +502,7 @@ describe('E2E', () => {
         ...entryPoints,
       ];
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(
         join(folderPath, 'remove-unused-components-snapshot.js')
       );
     });
