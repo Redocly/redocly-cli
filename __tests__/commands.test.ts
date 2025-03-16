@@ -584,14 +584,14 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
     test('stat should print the correct summary with $refs in preprocessors', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_3.js'));
     });
 
     test('lint with a rule from a plugin', () => {
