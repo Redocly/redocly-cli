@@ -540,7 +540,7 @@ describe('E2E', () => {
   });
 
   describe('bundle with option: dereferenced', () => {
-    it('description should not be from $ref', () => {
+    it('description should not be from $ref', async () => {
       const folderPath = join(__dirname, `bundle/bundle-description-dereferenced`);
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'test.yaml',
@@ -548,12 +548,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot_2.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
     });
 
-    it('discriminator mapping should be replaced with correct references to components', () => {
+    it('discriminator mapping should be replaced with correct references to components', async () => {
       const folderPath = join(__dirname, `bundle/discriminator-mapping`);
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'main.yaml',
@@ -561,9 +559,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot_2.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
     });
   });
 

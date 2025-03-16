@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle with option: dereferenced description should not be from $ref 1`] = `
 openapi: 3.1.0
 security: []
 paths:
@@ -39,5 +36,3 @@ components:
 
 bundling test.yaml...
 📦 Created a bundle for test.yaml at stdout <test>ms.
-
-`;
