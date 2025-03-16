@@ -611,7 +611,7 @@ describe('E2E', () => {
         '--config=plugin-config.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
     test('apply a decorator to a specific api (without specifying the api)', () => {
