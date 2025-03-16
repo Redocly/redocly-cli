@@ -509,7 +509,7 @@ describe('E2E', () => {
   });
 
   describe('bundle with option in config: remove-unused-components', () => {
-    test.each(['oas2', 'oas3'])('%s: should remove unused components', (type) => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', async (type) => {
       const folderPath = join(
         __dirname,
         `bundle/bundle-remove-unused-components-from-config/${type}`
@@ -517,14 +517,14 @@ describe('E2E', () => {
       const entryPoints = getEntrypoints(folderPath);
       const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(
         join(folderPath, 'remove-unused-components-snapshot.js')
       );
     });
 
     test.each(['oas2-without-option', 'oas3-without-option'])(
       "%s: shouldn't remove unused components",
-      (type) => {
+      async (type) => {
         const folderPath = join(
           __dirname,
           `bundle/bundle-remove-unused-components-from-config/${type}`
@@ -532,7 +532,7 @@ describe('E2E', () => {
         const entryPoints = getEntrypoints(folderPath);
         const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
         const result = getCommandOutput(args, folderPath);
-        (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(
           join(folderPath, 'without-remove-unused-components-snapshot.js')
         );
       }
