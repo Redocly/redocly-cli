@@ -38,13 +38,3 @@ run \`redocly lint --generate-ignore-file\` to add all problems to the ignore fi
 
 
 `;
-
-exports[`E2E lint skip-rules 2`] = `
-
-validating openapi.yaml...
-openapi.yaml: validated in <test>ms
-
-Woohoo! Your API description is valid. 🎉
-
-
-`;
