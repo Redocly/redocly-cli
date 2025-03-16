@@ -1,24 +1,15 @@
+import * as fs from 'fs';
 import { readdirSync, statSync, existsSync } from 'fs';
 import { join, relative } from 'path';
-//@ts-ignore
-import { toMatchSpecificSnapshot } from './specific-snapshot';
-import {
-  getCommandOutput,
-  getEntrypoints,
-  callSerializer,
-  getParams,
-  cleanupOutput,
-} from './helpers';
-import * as fs from 'fs';
 import { spawnSync } from 'child_process';
+import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers';
 
 expect.extend({
-  toMatchExtendedSpecificSnapshot(received, snapshotFile) {
-    return toMatchSpecificSnapshot.call(this, received + 1, snapshotFile);
-  },
+  toMatchSpecificSnapshot: () => ({
+    pass: false,
+    message: () => 'mock',
+  }),
 });
-
-callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
