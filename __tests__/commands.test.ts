@@ -681,31 +681,31 @@ describe('E2E', () => {
   describe('stats', () => {
     const folderPath = join(__dirname, 'stats');
 
-    test('stats should produce correct output (stylish format)', () => {
+    test('stats should produce correct output (stylish format)', async () => {
       const testPath = join(folderPath, 'stats-stylish');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['museum.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('stats should produce correct JSON output', () => {
+    test('stats should produce correct JSON output', async () => {
       const testPath = join(folderPath, 'stats-json');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', [
         'museum.yaml',
         '--format=json',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('stats should produce correct Markdown format', () => {
+    test('stats should produce correct Markdown format', async () => {
       const testPath = join(folderPath, 'stats-markdown');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', [
         'museum.yaml',
         '--format=markdown',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
   });
 });
