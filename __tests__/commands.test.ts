@@ -137,7 +137,9 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
     });
 
     test('run with config option', () => {
@@ -149,7 +151,9 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
     });
 
     test('config type extension in assertions', () => {
@@ -161,7 +165,9 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
     });
 
     test('wrong config type extension in assertions', () => {
@@ -173,7 +179,9 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
     });
   });
 
@@ -209,7 +217,9 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
+        join(folderPath, 'snapshot.js')
+      );
     });
 
     const configSeverityOptions: { dirName: string; option: string | null; snapshot: string }[] = [
@@ -234,7 +244,7 @@ describe('E2E', () => {
 
       const result = getCommandOutput(passedArgs, folderPath);
 
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, snapshot));
+      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(join(folderPath, snapshot));
     });
   });
 
@@ -324,8 +334,8 @@ describe('E2E', () => {
       const lintArgs = getParams('../../../packages/cli/src/index.ts', 'lint', [
         join(folderPath, 'output/openapi.json'),
       ]);
-      const lintResult = getCommandOutput(lintArgs, folderPath);
-      (<any>expect(lintResult)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      const result = getCommandOutput(lintArgs, folderPath);
+      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
 
     test('openapi json file with discriminator', () => {
