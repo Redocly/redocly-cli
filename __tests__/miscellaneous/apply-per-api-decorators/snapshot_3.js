@@ -1,8 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[
-  `E2E miscellaneous lint a specific api (when the api is specified as an alias and it points to an external URL) 1`
-] = `
 
 validating https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml...
 [1] https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml:2:1 at #/info/contact
@@ -23,5 +18,3 @@ https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

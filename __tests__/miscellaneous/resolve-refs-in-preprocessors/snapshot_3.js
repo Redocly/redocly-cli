@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E miscellaneous stat should print the correct summary with $refs in preprocessors 1`] = `
 
 Document: openapi.yaml stats:
 
@@ -16,5 +13,3 @@ Document: openapi.yaml stats:
 
 openapi.yaml: stats processed in <test>ms
 
-
-`;

@@ -580,74 +580,74 @@ describe('E2E', () => {
   describe('miscellaneous', () => {
     const folderPath = join(__dirname, 'miscellaneous');
 
-    test('bundle should resolve $refs in preprocessors', () => {
+    test('bundle should resolve $refs in preprocessors', async () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('lint should resolve $refs in preprocessors', () => {
+    test('lint should resolve $refs in preprocessors', async () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
-    test('stat should print the correct summary with $refs in preprocessors', () => {
+    test('stat should print the correct summary with $refs in preprocessors', async () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_3.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.js'));
     });
 
-    test('lint with a rule from a plugin', () => {
+    test('lint with a rule from a plugin', async () => {
       const testPath = join(folderPath, 'resolve-plugins');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
         'openapi.yaml',
         '--config=plugin-config.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('decorate with a decorator from a plugin', () => {
+    test('decorate with a decorator from a plugin', async () => {
       const testPath = join(folderPath, 'resolve-plugins');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'openapi.yaml',
         '--config=plugin-config.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
-    test('apply a decorator to a specific api (without specifying the api)', () => {
+    test('apply a decorator to a specific api (without specifying the api)', async () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         '--config=nested/redocly.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('apply a decorator to a specific api (when the api is specified as an alias)', () => {
+    test('apply a decorator to a specific api (when the api is specified as an alias)', async () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         '--config=nested/redocly.yaml',
         'test@fs',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
     });
 
-    test('lint a specific api (when the api is specified as an alias and it points to an external URL)', () => {
+    test('lint a specific api (when the api is specified as an alias and it points to an external URL)', async () => {
       const testPath = join(folderPath, 'apply-per-api-decorators');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
         '--config=nested/redocly.yaml',
         'test@external-url',
       ]);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot_3.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.js'));
     });
   });
 
