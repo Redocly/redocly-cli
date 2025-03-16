@@ -395,13 +395,15 @@ describe('E2E', () => {
     });
 
     describe('with metadata', () => {
-      const testPath = join(__dirname, `join/with-metadata`);
-      const args = getParams('../../../packages/cli/src/index.ts', 'join', [
-        'test.yaml',
-        'pet.yaml',
-      ]);
-      const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      test('with metadata', async () => {
+        const testPath = join(__dirname, `join/with-metadata`);
+        const args = getParams('../../../packages/cli/src/index.ts', 'join', [
+          'test.yaml',
+          'pet.yaml',
+        ]);
+        const result = getCommandOutput(args, testPath);
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      });
     });
 
     describe('files with different extensions', () => {
