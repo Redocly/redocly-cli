@@ -7,8 +7,6 @@ import {
   collectSecretFields,
 } from '../../../../modules/flow-runner';
 
-vi.unmock('@redocly/openapi-core');
-
 describe('createTestContext', () => {
   it('should create context', async () => {
     const testDescription = {

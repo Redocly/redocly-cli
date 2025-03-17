@@ -142,10 +142,6 @@ export async function runWorkflow({
     ? workflow.steps.findIndex((step) => step.stepId === fromStepId)
     : 0;
 
-  // if (fromStepId && fromStepIndex === -1) {
-  //   throw new Error(`\n ${blue('Step')} ${fromStepId} ${blue('not found')} \n`);
-  // }
-
   const workflowSteps = workflow.steps.slice(fromStepIndex);
 
   // clean $steps ctx before running workflow steps

@@ -320,8 +320,6 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
-
-    vi.restoreAllMocks();
   });
 
   it('should catch ajvStrict.validate error', () => {
@@ -390,8 +388,6 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
-
-    vi.restoreAllMocks();
   });
 
   it('should return empty checks if no response available', () => {

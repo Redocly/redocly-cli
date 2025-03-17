@@ -1,12 +1,9 @@
-import { Mock } from 'vitest';
-
 import { fetch } from 'undici';
 import type { TestContext } from '../../../types';
 
 import { callAPIAndAnalyzeResults, DEFAULT_SEVERITY_CONFIGURATION } from '../../flow-runner';
 import { ApiFetcher } from '../../../utils/api-fetcher';
 
-// @ts-ignore
 vi.mock('undici');
 
 describe('callAPIAndAnalyzeResults', () => {
@@ -355,8 +352,7 @@ describe('callAPIAndAnalyzeResults', () => {
       headers: new Headers(),
     };
 
-    // @ts-ignore
-    (fetch as Mock).mockResolvedValue(mockResponse);
+    vi.mocked(fetch).mockResolvedValue(mockResponse as any);
 
     const result = await callAPIAndAnalyzeResults({
       ctx,
@@ -376,8 +372,5 @@ describe('callAPIAndAnalyzeResults', () => {
       networkCheck: true,
       successCriteriaCheck: true,
     });
-
-    // @ts-ignore
-    (fetch as Mock).mockRestore();
   });
 });

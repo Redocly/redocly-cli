@@ -1,8 +1,6 @@
-import { Mock } from 'vitest';
-
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import { readEnvVariables } from '../../flow-runner';
 
@@ -10,18 +8,14 @@ vi.mock('dotenv');
 vi.mock('node:fs');
 
 describe('readEnvVariables', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should load environment variables from the correct .env file', () => {
     const mockExecutionFilePath = '/some/folder/executionFile.js';
     const mockEnvPath = path.resolve(path.dirname(mockExecutionFilePath), '.env');
 
-    (fs.existsSync as Mock).mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockReturnValue(true);
 
     // Mock dotenv.config to simulate loading of environment variables
-    (dotenv.config as Mock).mockImplementation(({ path }) => {
+    vi.mocked(dotenv.config).mockImplementation(({ path }: any) => {
       if (path === mockEnvPath) {
         process.env.MOCK_VAR = 'mock_value';
         return { parsed: { MOCK_VAR: 'mock_value' } };
@@ -33,7 +27,6 @@ describe('readEnvVariables', () => {
 
     expect(fs.existsSync).toHaveBeenCalledWith(mockEnvPath);
     expect(dotenv.config).toHaveBeenCalledWith({ path: mockEnvPath });
-    // @ts-ignore
     expect(result?.MOCK_VAR).toBe('mock_value');
 
     // Cleanup
@@ -43,7 +36,7 @@ describe('readEnvVariables', () => {
   it('should return process.env when .env file does not exist', () => {
     const mockExecutionFilePath = '/some/folder/executionFile.js';
 
-    (fs.existsSync as Mock).mockReturnValue(false);
+    vi.mocked(fs.existsSync).mockReturnValue(false);
 
     const result = readEnvVariables(mockExecutionFilePath);
 

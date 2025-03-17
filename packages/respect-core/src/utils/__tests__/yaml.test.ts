@@ -1,7 +1,4 @@
-import { Mock } from 'vitest';
-
 import { readFileSync } from 'fs';
-
 import { parseYaml, stringifyYaml, readYaml } from '../yaml';
 
 vi.mock('node:fs');
@@ -48,7 +45,7 @@ describe('yaml', () => {
     const path = './test.yaml';
 
     it('should read yaml', () => {
-      (readFileSync as Mock).mockReturnValue(yaml);
+      vi.mocked(readFileSync).mockReturnValue(yaml);
 
       expect(readYaml(path)).toEqual({
         name: 'test',
@@ -58,7 +55,7 @@ describe('yaml', () => {
     });
 
     it('should read yaml with options', () => {
-      (readFileSync as Mock).mockReturnValue(yaml);
+      vi.mocked(readFileSync).mockReturnValue(yaml);
 
       expect(readYaml(path)).toEqual({
         name: 'test',

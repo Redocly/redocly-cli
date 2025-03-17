@@ -47,3 +47,5 @@ with this:
 ```js
 vi.mocked(existsSync)
 ```
+
+This passes the actual types down to the mocked function and helps maintain consistency.

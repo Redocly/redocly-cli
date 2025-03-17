@@ -1,10 +1,9 @@
-import { Mock } from 'vitest';
-
 import type { ApiFetcher } from '../../../../utils/api-fetcher';
 import type { Workflow, TestContext } from '../../../../types';
 
 import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner';
 import { DefaultLogger } from '../../../../utils/logger/logger';
+import { type ResponseContext } from '../../../../types';
 
 const logger = DefaultLogger.getInstance();
 describe('runWorkflow', () => {
@@ -28,9 +27,9 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -149,9 +148,9 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -235,9 +234,9 @@ describe('runWorkflow', () => {
       fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -306,9 +305,9 @@ describe('runWorkflow', () => {
       fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -364,9 +363,9 @@ describe('runWorkflow', () => {
       getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',

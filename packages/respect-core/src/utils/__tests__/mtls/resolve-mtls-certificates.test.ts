@@ -1,7 +1,4 @@
-import { Mock } from 'vitest';
-
 import * as fs from 'node:fs';
-
 import { resolveMtlsCertificates } from '../../mtls/resolve-mtls-certificates';
 
 // vi.mock must come before any variable declarations
@@ -28,15 +25,15 @@ vi.mock('node:fs', async () => {
   };
 });
 
-const mockReadFileSync = fs.readFileSync as Mock;
-const mockAccessSync = fs.accessSync as Mock;
+const mockReadFileSync = vi.mocked(fs.readFileSync);
+const mockAccessSync = vi.mocked(fs.accessSync);
 
 describe('resolveMtlsCertificates', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default successful mock implementations
     mockAccessSync.mockImplementation(() => undefined); // successful access returns undefined
-    mockReadFileSync.mockImplementation((path: string) => {
+    mockReadFileSync.mockImplementation((path: any) => {
       if (path.includes('clientCert')) {
         return '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----';
       } else if (path.includes('clientKey')) {

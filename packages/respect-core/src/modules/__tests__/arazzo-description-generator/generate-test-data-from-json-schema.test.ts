@@ -1,5 +1,3 @@
-import { Mocked } from 'vitest';
-
 import * as Sampler from 'openapi-sampler';
 
 import { DefaultLogger } from '../../../utils/logger/logger';
@@ -14,7 +12,7 @@ describe('generateTestDataFromJsonSchema', () => {
     vi.resetAllMocks();
   });
   it('should generate test data from JSON Schema', () => {
-    (Sampler as Mocked<typeof Sampler>).sample.mockReturnValue({ name: 'string' });
+    vi.mocked(Sampler.sample).mockReturnValue({ name: 'string' });
 
     expect(
       generateTestDataFromJsonSchema({
@@ -35,7 +33,7 @@ describe('generateTestDataFromJsonSchema', () => {
   });
 
   it('should return null if schema is not valid', () => {
-    (Sampler as Mocked<typeof Sampler>).sample.mockReturnValue(null);
+    vi.mocked(Sampler.sample).mockReturnValue(null);
     expect(
       generateTestDataFromJsonSchema({
         type: 'unknown',
@@ -51,7 +49,7 @@ describe('generateTestDataFromJsonSchema', () => {
   it('should log error if schema is not valid', () => {
     const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-    (Sampler as Mocked<typeof Sampler>).sample.mockImplementation(() => {
+    vi.mocked(Sampler.sample).mockImplementation(() => {
       throw new Error('Mocked error from openapi-sampler');
     });
 

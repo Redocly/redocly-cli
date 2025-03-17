@@ -1,5 +1,3 @@
-import { Mock } from 'vitest';
-
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 
@@ -112,9 +110,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with file', async () => {
-    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
+    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
-    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -189,9 +187,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data with array with file', async () => {
-    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
+    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
-    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -218,9 +216,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle multipart/form-data and return error reading file', async () => {
-    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
+    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
-    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     try {
@@ -241,9 +239,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream', async () => {
-    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
+    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
-    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
     expect(
@@ -283,9 +281,9 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream and return error reading file', async () => {
-    (fs.createReadStream as Mock).mockReturnValueOnce('readStream');
+    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
-    (fs.access as Mock).mockImplementation((_filePath, _mode, callback) => {
+    vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
     await expect(

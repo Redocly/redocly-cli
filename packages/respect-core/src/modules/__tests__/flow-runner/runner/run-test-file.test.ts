@@ -1,12 +1,8 @@
-import { Mock } from 'vitest';
-import { makeDocumentFromString, lint, bundle } from '@redocly/openapi-core';
+import { makeDocumentFromString, lint, bundle, type LocationObject } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
-
-import type { Step, TestContext } from '../../../../types';
-
+import { type Step, type TestContext } from '../../../../types';
 import { runTestFile, runStep } from '../../../flow-runner';
 import { readYaml } from '../../../../utils/yaml';
-import { writeFileSync } from 'node:fs';
 
 vi.mock('../../../../utils/yaml', () => {
   const originalModule = vi.importActual('../../../../utils/yaml');
@@ -35,7 +31,6 @@ vi.mock('../../../flow-runner/run-step', () => ({
 vi.mock('node:fs', () => {
   const actual = vi.importActual('node:fs');
   const mockExistsSync = vi.fn();
-  const mockWriteFileSync = vi.fn();
 
   return {
     __esModule: true,
@@ -47,11 +42,11 @@ vi.mock('node:fs', () => {
   };
 });
 
-const mockExistsSync = fs.existsSync as Mock;
+const mockExistsSync = vi.mocked(fs.existsSync); //as Mock;
 
 describe('runTestFile', () => {
   beforeEach(() => {
-    mockExistsSync.mockImplementation((path: string) => {
+    mockExistsSync.mockImplementation((path: any) => {
       // Always return true for test files to allow readYaml to be called
       if (path.includes('test.yaml') || path.includes('test.yml')) {
         return true;
@@ -67,13 +62,15 @@ describe('runTestFile', () => {
       }
       return false;
     });
-    (readYaml as Mock).mockReset().mockResolvedValue({
-      openapi: '1.0.0',
-      info: { title: 'Cat Facts API', version: '1.0' },
-    });
-    (lint as Mock).mockReset().mockResolvedValue([]);
-    (bundle as Mock).mockReset();
-    (runStep as Mock).mockReset();
+    vi.mocked(readYaml)
+      .mockReset()
+      .mockResolvedValue({
+        openapi: '1.0.0',
+        info: { title: 'Cat Facts API', version: '1.0' },
+      });
+    vi.mocked(lint).mockReset().mockResolvedValue([]);
+    vi.mocked(bundle).mockReset();
+    vi.mocked(runStep).mockReset();
   });
 
   afterAll(() => {
@@ -93,7 +90,7 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
 
     await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
@@ -119,13 +116,13 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (lint as Mock).mockResolvedValueOnce([
+    vi.mocked(lint).mockResolvedValueOnce([
       {
         ruleId: 'spec',
         severity: 'error',
         message: 'The field `sourceDescriptions` must be present on this level.',
         from: undefined,
-        location: [{}],
+        location: [{} as LocationObject],
         suggest: [],
       },
       {
@@ -134,11 +131,11 @@ describe('runTestFile', () => {
         message: 'Property `sourceDescriptionsd` is not expected here.',
         suggest: ['sourceDescriptions'],
         from: undefined,
-        location: [{}],
+        location: [{} as LocationObject],
       },
     ]);
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
 
     await expect(
       runTestFile(
@@ -204,13 +201,13 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
 
     await runTestFile(
       {
@@ -297,13 +294,13 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
 
     await runTestFile(
       {
@@ -391,13 +388,13 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
 
     await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrow(
       expect.objectContaining({
@@ -482,18 +479,20 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
 
-    (runStep as Mock).mockImplementation(({ step, ctx }: { step: Step; ctx: TestContext }) => {
-      step.checks = [{ name: step.stepId, passed: false, severity: 'error' }];
-      ctx.executedSteps.push(step);
-    });
+    vi.mocked(runStep).mockImplementation(
+      async ({ step, ctx }: { step: Step; ctx: TestContext }) => {
+        step.checks = [{ name: step.stepId, passed: false, severity: 'error' }];
+        ctx.executedSteps.push(step);
+      }
+    );
 
     await expect(
       runTestFile(
@@ -543,13 +542,13 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
     await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
       `Could not find source description file 'api-samples/not-existing.yaml' at path 'test.yaml'`
     );
@@ -598,13 +597,13 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    (readYaml as Mock).mockResolvedValue(mockDocument.parsed);
-    (lint as Mock).mockResolvedValueOnce([]);
-    (bundle as Mock).mockResolvedValueOnce({
+    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(lint).mockResolvedValueOnce([]);
+    vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
         parsed: mockDocument.parsed,
       },
-    });
+    } as any);
     await expect(runTestFile({ file: 'test.yaml' }, {})).rejects.toThrowError(
       `Could not find source description file 'not-existing-arazzo.yaml' at path 'api-samples/not-existing-arazzo.yaml'`
     );
