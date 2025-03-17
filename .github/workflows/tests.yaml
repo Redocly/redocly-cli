@@ -26,10 +26,8 @@ jobs:
         run: npm run typecheck
       - name: Unit Tests
         run: npm run unit
-      - name: E2E Tests (Jest)
+      - name: E2E Tests
         run: npm run e2e
-      - name: E2E Tests (Vitest)
-        run: npm run vitest:e2e
 
   cli-package-test:
     runs-on: ubuntu-latest

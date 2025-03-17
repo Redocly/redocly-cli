@@ -14,7 +14,7 @@
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "coverage:respect-core": "npm run jest -- --roots packages/respect-core/src --coverage",
-    "e2e": "REDOCLY_TELEMETRY=off NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\"  jest --roots=./__tests__/",
+    "e2e": "vitest run --config=vitest.config.e2e.ts",
     "smoke:rebilly": "REDOCLY_TELEMETRY=off NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\"  jest --roots=__tests__/smoke-rebilly/ --testMatch='**/rebilly.smoke.ts'",
     "prettier": "      npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
     "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
@@ -28,8 +28,7 @@
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
-    "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0",
-    "vitest:e2e": "vitest run --config=vitest.config.e2e.ts"
+    "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [
     "packages/*"
