@@ -6,7 +6,7 @@ export default defineConfig({
     restoreMocks: true,
     clearMocks: true,
     environment: 'node',
-    include: ['__tests__/respect/**/*.test.ts'],
+    include: ['__tests__/respect/**/*.test.ts', '__tests__/commands.test.ts'],
     env: {
       FORCE_COLOR: '1',
     },
