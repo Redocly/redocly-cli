@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint assertions-non-empty-warn 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:20:7 at #/paths/~1pet~1findByStatus/get/summary
@@ -22,5 +19,3 @@ openapi.yaml: validated in <test>ms
 Woohoo! Your API description is valid. 🎉
 You have 1 warning.
 
-
-`;

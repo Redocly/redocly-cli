@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint no-invalid-schema-examples-string-number-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:30:28 at #/paths/~1my_post/post/requestBody/content/application~1json/schema/properties/prop_string/example
@@ -56,5 +53,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 3 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

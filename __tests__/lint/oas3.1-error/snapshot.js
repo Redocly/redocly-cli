@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint oas3.1-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:1:1 at #/
@@ -24,5 +21,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

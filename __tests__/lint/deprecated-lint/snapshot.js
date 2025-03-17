@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint deprecated-lint 1`] = `
 
 The 'lint' field is deprecated. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
 [1] redocly.yaml:8:1 at #/lint
@@ -73,5 +70,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error and 1 warning.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;
