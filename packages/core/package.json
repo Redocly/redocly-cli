@@ -4,8 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=18.17.0",
-    "npm": ">=9.5.0"
+    "node": ">=22.13.0",
+    "npm": ">=10.9.2"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -17,6 +17,9 @@
     "fs": false,
     "path": "path-browserify",
     "os": false,
+    "node:fs": false,
+    "node:path": "path-browserify",
+    "node:os": false,
     "colorette": false,
     "https-proxy-agent": false
   },
