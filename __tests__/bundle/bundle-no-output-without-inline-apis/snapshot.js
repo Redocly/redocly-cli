@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle bundle should NOT be invoked IF no positional apis provided AND --output specified 1`] = `
 
 index.ts bundle [apis...]
 
@@ -29,5 +26,3 @@ Options:
                              [choices: "warn", "error", "off"] [default: "warn"]
 
 At least one inline API must be specified when using --output.
-
-`;

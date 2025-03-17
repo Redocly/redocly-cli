@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle oas3_1-pattern-porperties 1`] = `
 openapi: 3.1.0
 info:
   title: Test
@@ -25,5 +22,3 @@ components:
 
 bundling test.yaml...
 📦 Created a bundle for test.yaml at stdout <test>ms.
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle no-self-referenced-components 1`] = `
 openapi: 3.0.3
 paths:
   /pets/{petId}:
@@ -26,5 +23,3 @@ components:
 
 bundling openapi.yaml...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
-
-`;
