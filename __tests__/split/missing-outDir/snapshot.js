@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E split without option: outDir 1`] = `
 
 index.ts split [api]
 
@@ -20,5 +17,3 @@ Options:
                              [choices: "warn", "error", "off"] [default: "warn"]
 
 Missing required argument: outDir
-
-`;
