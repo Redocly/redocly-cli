@@ -469,25 +469,25 @@ describe('E2E', () => {
 
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [...entryPoints]);
 
-      test(file, () => {
+      test(file, async () => {
         const result = getCommandOutput(args, testPath);
-        (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
       });
     }
 
-    test('bundle-arazzo-valid-test-description', () => {
+    test('bundle-arazzo-valid-test-description', async () => {
       const testPath = join(folderPath, 'bundle-arazzo-valid-test-description');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['museum.yaml']);
 
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('bundle should NOT be invoked IF no positional apis provided AND --output specified', () => {
+    test('bundle should NOT be invoked IF no positional apis provided AND --output specified', async () => {
       const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['--output=dist']);
       const result = getCommandOutput(args, testPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
     });
   });
 
