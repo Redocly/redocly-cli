@@ -194,7 +194,7 @@ describe('E2E', () => {
     const validOpenapiFile = join(__dirname, 'lint-config/__fixtures__/valid-openapi.yaml');
     const invalidOpenapiFile = join(__dirname, 'lint-config/__fixtures__/invalid-openapi.yaml');
 
-    test.each(lintOptions)('test with option: %s', (lintOptions) => {
+    test.each(lintOptions)('test with option: %s', async (lintOptions) => {
       const { dirName, option, format } = lintOptions;
       const folderPath = join(__dirname, `lint-config/${dirName}`);
       const relativeValidOpenapiFile = relative(folderPath, validOpenapiFile);
@@ -208,9 +208,7 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
     const configSeverityOptions: { dirName: string; option: string | null; snapshot: string }[] = [
@@ -226,17 +224,20 @@ describe('E2E', () => {
       },
     ];
 
-    test.each(configSeverityOptions)('invalid-definition-and-config: %s', (severityOption) => {
-      const { dirName, option, snapshot } = severityOption;
-      const folderPath = join(__dirname, `lint-config/${dirName}`);
-      const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
-      const args = [relativeInvalidOpenapiFile, `--lint-config=${option}`];
-      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
+    test.each(configSeverityOptions)(
+      'invalid-definition-and-config: %s',
+      async (severityOption) => {
+        const { dirName, option, snapshot } = severityOption;
+        const folderPath = join(__dirname, `lint-config/${dirName}`);
+        const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
+        const args = [relativeInvalidOpenapiFile, `--lint-config=${option}`];
+        const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
-      const result = getCommandOutput(passedArgs, folderPath);
+        const result = getCommandOutput(passedArgs, folderPath);
 
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(join(folderPath, snapshot));
-    });
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, snapshot));
+      }
+    );
   });
 
   describe('split', () => {

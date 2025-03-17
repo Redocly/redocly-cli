@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint-config test with option: { dirName: 'invalid-lint-config-severity', option: 'something' } 1`] = `
 
 index.ts lint [apis...]
 
@@ -28,5 +25,3 @@ Options:
 
 Invalid values:
   Argument: lint-config, Given: "something", Choices: "warn", "error", "off"
-
-`;

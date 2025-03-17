@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint-config test with option: { dirName: 'invalid-config--no-option', option: null } 1`] = `
 
 [1] .redocly.yaml:6:3 at #/rules/context
 
@@ -23,5 +20,3 @@ Woohoo! Your API description is valid. 🎉
 
 [WARNING] Unused rules found in .redocly.yaml: context.
 Check the spelling and verify the added plugin prefix.
-
-`;

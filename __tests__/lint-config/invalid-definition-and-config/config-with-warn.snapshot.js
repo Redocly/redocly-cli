@@ -1,10 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint-config invalid-definition-and-config: {
-  dirName: 'invalid-definition-and-config',
-  option: 'warn',
-  snapshot: 'config-with-warn.snapshot.js'
-} 1`] = `
 
 [1] .redocly.yaml:6:3 at #/rules/context
 
@@ -98,5 +91,3 @@ run \`redocly lint --generate-ignore-file\` to add all problems to the ignore fi
 
 [WARNING] Unused rules found in .redocly.yaml: context.
 Check the spelling and verify the added plugin prefix.
-
-`;
