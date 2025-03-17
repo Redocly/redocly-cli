@@ -1,11 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E join files with different extensions test with option: {
-  name: 'first entrypoint is a json file',
-  folder: 'json-and-yaml-input',
-  entrypoints: [Array],
-  snapshot: 'json-output.snapshot.js'
-} 1`] = `
 
 {
   "openapi": "3.0.0",
@@ -113,5 +105,3 @@ exports[`E2E join files with different extensions test with option: {
 }
 openapi.json: join processed in <test>ms
 
-
-`;

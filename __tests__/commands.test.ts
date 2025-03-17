@@ -369,11 +369,11 @@ describe('E2E', () => {
         'multi-references-to-one-file',
       ];
 
-      test.each(testDirNames)('test: %s', (dir) => {
+      test.each(testDirNames)('test: %s', async (dir) => {
         const testPath = join(__dirname, `join/${dir}`);
         const args = getParams('../../../packages/cli/src/index.ts', 'join', entrypoints);
         const result = getCommandOutput(args, testPath);
-        (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
       });
     });
 
@@ -385,12 +385,12 @@ describe('E2E', () => {
         { name: 'prefix-components-with-info-prop', value: 'title' },
       ];
 
-      test.each(options)('test with option: %s', (option) => {
+      test.each(options)('test with option: %s', async (option) => {
         const testPath = join(__dirname, `join/${option.name}`);
         const argsWithOptions = [...entrypoints, ...[`--${option.name}=${option.value}`]];
         const args = getParams('../../../packages/cli/src/index.ts', 'join', argsWithOptions);
         const result = getCommandOutput(args, testPath);
-        (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
       });
     });
 
@@ -435,14 +435,14 @@ describe('E2E', () => {
         },
       ];
 
-      test.each(joinParameters)('test with option: %s', (parameters) => {
+      test.each(joinParameters)('test with option: %s', async (parameters) => {
         const testPath = join(__dirname, `join/${parameters.folder}`);
         const argsWithOption = parameters.output
           ? [...parameters.entrypoints, ...[`-o=${parameters.output}`]]
           : parameters.entrypoints;
         const args = getParams('../../../packages/cli/src/index.ts', 'join', argsWithOption);
         const result = getCommandOutput(args, testPath);
-        (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(
           join(testPath, parameters.snapshot)
         );
       });
