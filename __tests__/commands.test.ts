@@ -1,15 +1,7 @@
-import * as fs from 'fs';
-import { readdirSync, statSync, existsSync } from 'fs';
-import { join, relative } from 'path';
-import { spawnSync } from 'child_process';
+import { readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers';
-
-expect.extend({
-  toMatchSpecificSnapshot: () => ({
-    pass: false,
-    message: () => 'mock',
-  }),
-});
 
 describe('E2E', () => {
   describe('lint', () => {
@@ -641,7 +633,7 @@ describe('E2E', () => {
       const result = getCommandOutput(args, testPath);
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
 
-      expect(fs.existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
+      expect(existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
     });
 
     test('build docs with config option', async () => {
@@ -654,8 +646,8 @@ describe('E2E', () => {
       const result = getCommandOutput(args, testPath);
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
 
-      expect(fs.existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36238);
+      expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
+      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36238);
     });
   });
 
