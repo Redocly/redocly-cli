@@ -4,15 +4,13 @@
   "description": "",
   "private": true,
   "engines": {
-    "node": ">=22.13.0",
-    "npm": ">=10.9.2"
+    "node": ">=18.20.7",
+    "npm": ">=10.8.2"
   },
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run compile && npm run unit && npm run e2e",
-    "jest": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" REDOCLY_TELEMETRY=off jest ./packages",
-    "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
-    "unit:watch": "REDOCLY_TELEMETRY=off jest --watch",
+    "unit": "vitest run --config=vitest.config.ts",
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
     "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "coverage:respect-core": "npm run jest -- --roots packages/respect-core/src --coverage",
@@ -23,7 +21,6 @@
     "eslint": "eslint packages/**",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "watch": "npm run respect:parser:generate && tsc -b tsconfig.build.json --watch",
     "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
@@ -32,7 +29,6 @@
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0",
-    "vitest:unit": "vitest run --config=vitest.config.ts",
     "vitest:e2e": "vitest run --config=vitest.config.e2e.ts"
   },
   "workspaces": [

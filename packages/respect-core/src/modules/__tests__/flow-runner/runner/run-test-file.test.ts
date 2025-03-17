@@ -62,19 +62,11 @@ describe('runTestFile', () => {
       }
       return false;
     });
-    vi.mocked(readYaml)
-      .mockReset()
-      .mockResolvedValue({
-        openapi: '1.0.0',
-        info: { title: 'Cat Facts API', version: '1.0' },
-      });
-    vi.mocked(lint).mockReset().mockResolvedValue([]);
-    vi.mocked(bundle).mockReset();
-    vi.mocked(runStep).mockReset();
-  });
-
-  afterAll(() => {
-    vi.resetAllMocks();
+    vi.mocked(readYaml).mockResolvedValue({
+      openapi: '1.0.0',
+      info: { title: 'Cat Facts API', version: '1.0' },
+    });
+    vi.mocked(lint).mockResolvedValue([]);
   });
 
   it(`should trow error if filename is not correct`, async () => {

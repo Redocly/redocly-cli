@@ -211,7 +211,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 <!-- - **`__mocks__`**: contains basic mocks for e2e tests. -->
 
-- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/).
+- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/) / [Vitest](https://vitest.dev/).
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
@@ -266,7 +266,7 @@ Merge the PR and cut a release according to the [Release flow](#release-flow).
 To release an experimental version to the **NPM** registry, follow these steps:
 
 1. Create a new PR to **main**.
-2. Add the `snapshot` label to the PR. This creates a new PR with to the `snapshot` branch (which is a copy of the `main` branch).
-3. Merging the second PR triggers release to the **NPM** registry under the `snapshot` tag.
+2. Add the `snapshot` label to the PR.
+   This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
 The released version can be installed with `npm install @redocly/cli@snapshot`.

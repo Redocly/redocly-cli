@@ -7,11 +7,7 @@ import {
   type OpenApiRequestData,
 } from '../../description-parser';
 
-vi.mock('../../description-parser', () => ({
-  bundleOpenApi: vi.fn(),
-  getOperationFromDescription: vi.fn(),
-  getRequestDataFromOpenApi: vi.fn(),
-}));
+vi.mock('../../description-parser');
 
 const BUNDLED_DESCRIPTION_MOCK = {
   paths: {
