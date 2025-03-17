@@ -5,7 +5,7 @@ export default defineConfig({
     globals: true,
     restoreMocks: true,
     environment: 'node',
-    include: ['__tests__/respect/**/*.test.ts'],
+    include: ['__tests__/respect/**/*.test.ts', '__tests__/commands.test.ts'],
     env: {
       FORCE_COLOR: '1',
       REDOCLY_TELEMETRY: 'off',
