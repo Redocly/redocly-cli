@@ -120,7 +120,7 @@ describe('E2E', () => {
       { dirName: 'valid-config', option: null },
     ];
 
-    test.each(folderPathWithOptions)('test with option: %s', (folderPathWithOptions) => {
+    test.each(folderPathWithOptions)('test with option: %s', async (folderPathWithOptions) => {
       const { dirName, option } = folderPathWithOptions;
       const folderPath = join(__dirname, `check-config/${dirName}`);
       const args = [...([option && `--lint-config=${option}`].filter(Boolean) as string[])];
@@ -128,12 +128,10 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('run with config option', () => {
+    test('run with config option', async () => {
       const dirName = 'valid-config-with-config-option';
       const folderPath = join(__dirname, `check-config/${dirName}`);
 
@@ -142,12 +140,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('config type extension in assertions', () => {
+    test('config type extension in assertions', async () => {
       const dirName = 'config-type-extensions-in-assertions';
       const folderPath = join(__dirname, `check-config/${dirName}`);
 
@@ -156,12 +152,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('wrong config type extension in assertions', () => {
+    test('wrong config type extension in assertions', async () => {
       const dirName = 'wrong-config-type-extensions-in-assertions';
       const folderPath = join(__dirname, `check-config/${dirName}`);
 
@@ -170,9 +164,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      (expect(cleanupOutput(result)) as any).toMatchSpecificSnapshot(
-        join(folderPath, 'snapshot.js')
-      );
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
 
