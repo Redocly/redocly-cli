@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint arazzo-type-extensions-with-plugin 1`] = `
 
 Deprecated plugin format detected: type-extension
 validating museum.yaml...
@@ -23,5 +20,3 @@ museum.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

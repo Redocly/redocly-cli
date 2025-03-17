@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint operation-security-scheme-oas2-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:14:5 at #/securityDefinitions/basicAuth/name
@@ -108,5 +105,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 7 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint oas3.1 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:179:5 at #/components/schemas/Problem
@@ -22,5 +19,3 @@ openapi.yaml: validated in <test>ms
 Woohoo! Your API description is valid. 🎉
 You have 1 warning.
 
-
-`;

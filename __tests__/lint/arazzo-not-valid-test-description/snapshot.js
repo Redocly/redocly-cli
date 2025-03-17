@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint lint not valid Arazzo description 1`] = `
 
 No configurations were provided -- using built in recommended configuration by default.
 
@@ -44,5 +41,3 @@ museum.yaml: validated in <test>ms
 ❌ Validation failed with 2 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

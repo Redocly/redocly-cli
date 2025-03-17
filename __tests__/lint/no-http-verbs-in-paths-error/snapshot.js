@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint no-http-verbs-in-paths-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:18:3 at #/paths/~1pet~1findByPut
@@ -106,5 +103,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 7 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

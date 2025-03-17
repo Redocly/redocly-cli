@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint nested-extends 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:13:17 at #/paths/~1ping~1{id}~1{test}/get/parameters/0/name
@@ -63,5 +60,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 3 errors and 1 warning.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;
