@@ -24,10 +24,8 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
-      - name: Unit Tests (Jest)
+      - name: Unit Tests
         run: npm run unit
-      - name: Unit tests (Vitest)
-        run: npm run vitest:unit
       - name: E2E Tests (Jest)
         run: npm run e2e
       - name: E2E Tests (Vitest)
@@ -60,14 +58,6 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - name: Coverage Report
-        uses: artiomtr/jest-coverage-report-action@v2.0.8
-        continue-on-error: true
-        with:
-          skip-step: none
-          annotations: none
-          test-script: npm run jest
-
       # FIXME: add vitest coverage report
 
   code-style-check:
