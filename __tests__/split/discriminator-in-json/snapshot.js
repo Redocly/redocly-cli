@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E split openapi json file with discriminator 1`] = `
 
 {
   "type": "string",
@@ -91,5 +88,3 @@ exports[`E2E split openapi json file with discriminator 1`] = `
 
 ../../../__tests__/split/discriminator-in-json/openapi.json: split processed in <test>ms
 
-
-`;

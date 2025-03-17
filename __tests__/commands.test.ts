@@ -240,7 +240,7 @@ describe('E2E', () => {
   });
 
   describe('split', () => {
-    test('without option: outDir', () => {
+    test('without option: outDir', async () => {
       const folderPath = join(__dirname, `split/missing-outDir`);
 
       const args = getParams('../../../packages/cli/src/index.ts', 'split', [
@@ -248,10 +248,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('swagger', () => {
+    test('swagger', async () => {
       const folderPath = join(__dirname, `split/oas2`);
 
       const args = getParams('../../../packages/cli/src/index.ts', 'split', [
@@ -260,10 +260,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('openapi with no errors', () => {
+    test('openapi with no errors', async () => {
       const folderPath = join(__dirname, `split/oas3-no-errors`);
       const file = '../../../__tests__/split/oas3-no-errors/openapi.yaml';
 
@@ -273,10 +273,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('with separator: /', () => {
+    test('with separator: /', async () => {
       const folderPath = join(__dirname, `split/slash-separator`);
       const file = '../../../__tests__/split/slash-separator/openapi.yaml';
 
@@ -287,10 +287,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('openapi json file', () => {
+    test('openapi json file', async () => {
       const folderPath = join(__dirname, `split/openapi-json-file`);
       const file = '../../../__tests__/split/openapi-json-file/openapi.json';
 
@@ -300,10 +300,10 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('openapi json file refs validation', () => {
+    test('openapi json file refs validation', async () => {
       const folderPath = join(__dirname, `split/refs-in-json`);
       const file = '../../../__tests__/split/refs-in-json/openapi.json';
 
@@ -326,10 +326,10 @@ describe('E2E', () => {
         join(folderPath, 'output/openapi.json'),
       ]);
       const result = getCommandOutput(lintArgs, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('openapi json file with discriminator', () => {
+    test('openapi json file with discriminator', async () => {
       const folderPath = join(__dirname, `split/discriminator-in-json`);
       const file = '../../../__tests__/split/discriminator-in-json/openapi.json';
 
@@ -349,7 +349,7 @@ describe('E2E', () => {
       });
 
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(cleanupOutput(result))).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
 

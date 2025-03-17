@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E split openapi with no errors 1`] = `
 
 type: object
 required:
@@ -115,5 +112,3 @@ paths:
 
 ../../../__tests__/split/oas3-no-errors/openapi.yaml: split processed in <test>ms
 
-
-`;
