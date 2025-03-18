@@ -16,9 +16,8 @@ export class Timer {
   }
 
   public isTimedOut(): boolean {
-    const timeout = isNaN(+(process.env.RESPECT_TIMEOUT as string))
-      ? DEFAULT_RESPECT_TIMEOUT
-      : +(process.env.RESPECT_TIMEOUT as string);
+    const parsedTimeout = parseInt(process.env.RESPECT_TIMEOUT as string, 10);
+    const timeout = isNaN(parsedTimeout) ? DEFAULT_RESPECT_TIMEOUT : parsedTimeout;
     return Date.now() - this.startTime > timeout;
   }
 }
