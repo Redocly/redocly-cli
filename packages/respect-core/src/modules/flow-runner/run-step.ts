@@ -19,7 +19,7 @@ import {
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
 import { Timer } from '../timeout-timer/timer';
-import { DEFAULT_RESPECT_MAX_STEPS } from 'respect-core/src/consts';
+import { DEFAULT_RESPECT_MAX_STEPS } from '../../consts';
 
 import type {
   Check,
