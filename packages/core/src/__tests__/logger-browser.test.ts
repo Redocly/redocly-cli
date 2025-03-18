@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import * as colorette from 'colorette';
 import { logger, colorize } from '../logger';
 

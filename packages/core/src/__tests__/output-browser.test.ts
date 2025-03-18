@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { output } from '../output';
 
 describe('output', () => {

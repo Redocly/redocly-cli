@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { isBrowser } from '../env';
 
 describe('isBrowser', () => {

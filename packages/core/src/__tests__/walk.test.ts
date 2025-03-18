@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import each from 'jest-each';
+import each from 'jest-each'; // FIXME: shall we use each from vitest instead?
 import * as path from 'path';
 
 import { lintDocument } from '../lint';

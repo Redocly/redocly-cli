@@ -211,7 +211,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 <!-- - **`__mocks__`**: contains basic mocks for e2e tests. -->
 
-- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/) / [Vitest](https://vitest.dev/).
+- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Vitest](https://vitest.dev/).
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
