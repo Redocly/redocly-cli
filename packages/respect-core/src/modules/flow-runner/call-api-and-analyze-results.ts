@@ -31,6 +31,13 @@ export async function callAPIAndAnalyzeResults({
   try {
     step.response = await ctx.apiClient.fetchResult(ctx, requestData);
   } catch (error: any) {
+    console.log('DEBUG_ERROR ===> ', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      cause: error.cause,
+      ...error
+    });
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
       passed: false,
