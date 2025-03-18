@@ -3990,7 +3990,9 @@ describe('runStep', () => {
     const mockTimer = {
       isTimedOut: jest.fn().mockReturnValue(true),
     };
-    jest.spyOn(require('../../timeout-timer').Timer, 'getInstance').mockReturnValue(mockTimer);
+    jest
+      .spyOn(require('../../timeout-timer/timer').Timer, 'getInstance')
+      .mockReturnValue(mockTimer);
 
     const checks: Check[] = [];
     const step = {

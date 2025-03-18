@@ -12,8 +12,9 @@ import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs';
-import { Timer } from '../modules/timeout-timer';
-import { type JsonLogs, type CommandArgs, type RunArgv } from '../types';
+import { Timer } from '../modules/timeout-timer/timer';
+
+import type { JsonLogs, CommandArgs, RunArgv } from '../types';
 
 export type RespectOptions = {
   files: string[];

@@ -1,4 +1,4 @@
-import { RESPECT_TIMEOUT } from '../../consts';
+import { DEFAULT_RESPECT_TIMEOUT } from '../../consts';
 
 export class Timer {
   private static instance: Timer;
@@ -16,10 +16,9 @@ export class Timer {
   }
 
   public isTimedOut(): boolean {
-    const elapsedTime = Date.now() - this.startTime;
-    const timeout = parseInt(process.env.RESPECT_TIMEOUT || RESPECT_TIMEOUT.toString(), 10);
-    const remainingTime = Math.max(0, timeout - elapsedTime);
-
-    return remainingTime <= 0;
+    const timeout = isNaN(+(process.env.RESPECT_TIMEOUT as string))
+      ? DEFAULT_RESPECT_TIMEOUT
+      : +(process.env.RESPECT_TIMEOUT as string);
+    return Date.now() - this.startTime > timeout;
   }
 }

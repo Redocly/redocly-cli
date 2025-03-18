@@ -18,7 +18,7 @@ import {
 } from '../config-parser';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
-import { Timer } from '../timeout-timer';
+import { Timer } from '../timeout-timer/timer';
 
 import type {
   Check,
