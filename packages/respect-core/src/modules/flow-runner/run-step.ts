@@ -19,6 +19,7 @@ import {
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
 import { DefaultLogger } from '../../utils/logger/logger';
 import { Timer } from '../timeout-timer/timer';
+import { DEFAULT_RESPECT_MAX_STEPS } from 'respect-core/src/consts';
 
 import type {
   Check,
@@ -33,7 +34,8 @@ import type {
 import type { ParameterWithoutIn } from '../config-parser';
 
 const logger = DefaultLogger.getInstance();
-const MAX_STEPS = parseInt(process.env.RESPECT_MAX_STEPS || '2000', 10);
+const parsedMaxSteps = parseInt(process.env.RESPECT_MAX_STEPS as string, 10);
+const maxSteps = isNaN(parsedMaxSteps) ? DEFAULT_RESPECT_MAX_STEPS : parsedMaxSteps;
 let stepsRun = 0;
 
 export async function runStep({
@@ -147,10 +149,10 @@ export async function runStep({
   ctx.executedSteps.push(step);
 
   stepsRun++;
-  if (stepsRun > MAX_STEPS) {
+  if (stepsRun > maxSteps) {
     step.checks.push({
       name: CHECKS.MAX_STEPS_REACHED_ERROR,
-      message: `Max steps (${MAX_STEPS}) reached`,
+      message: `Max steps (${maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
     });
