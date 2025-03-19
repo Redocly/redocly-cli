@@ -18,6 +18,33 @@ const configExtension: { [key: string]: ViteUserConfig } = {
       include: ['__tests__/smoke-rebilly/**/*.smoke.ts'],
     },
   }),
+  'coverage-cli': defineConfig({
+    test: {
+      include: ['packages/cli/src/**/*.test.ts'],
+      coverage: {
+        enabled: true,
+        include: ['packages/cli/src/**/*.ts'],
+      },
+    },
+  }),
+  'coverage-core': defineConfig({
+    test: {
+      include: ['packages/core/src/**/*.test.ts'],
+      coverage: {
+        enabled: true,
+        include: ['packages/core/src/**/*.ts'],
+      },
+    },
+  }),
+  'coverage-respect-core': defineConfig({
+    test: {
+      include: ['packages/respect-core/src/**/*.test.ts'],
+      coverage: {
+        enabled: true,
+        include: ['packages/respect-core/src/**/*.ts'],
+      },
+    },
+  }),
   default: defineConfig({}),
 };
 
@@ -30,6 +57,15 @@ export default mergeConfig(
       env: {
         FORCE_COLOR: '1',
         REDOCLY_TELEMETRY: 'off',
+      },
+      coverage: {
+        provider: 'istanbul',
+        exclude: [
+          'packages/**/__tests__/**/*',
+          'packages/core/src/benchmark/**/*',
+          'packages/cli/src/index.ts',
+          'packages/cli/src/utils/assert-node-version.ts',
+        ],
       },
     },
   }),
