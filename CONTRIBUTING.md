@@ -37,7 +37,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v18.17.0+ and NPM v10.8.2+ are required.
+[Node.js](http://nodejs.org) at v22.13.0+ and NPM v10.9.2+ are required.
 
 After forking the repo, run:
 
@@ -47,7 +47,7 @@ npm install # or npm i
 
 ### Commonly used NPM scripts
 
-To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
+To compile the code, run `npm run compile`.
 
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
 Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
@@ -179,9 +179,8 @@ Run unit tests with this command: `npm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
+To run single file in watch mode, run: `npm run unit -- <path/to/your/file.test.ts>`
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
-To run tests in watch mode, run: `npm run unit:watch`
-To run single file in watch mode, run: `npm run unit:watch -- <path/to/your/file.test.ts>`
 To update snapshots, run `npm run unit -- -u`.
 
 To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
@@ -196,6 +195,16 @@ To update snapshots, run `npm run e2e -- -u`.
 
 If you made any changes, make sure to compile the code before running the tests.
 
+The e2e tests are written and run with [Vitest](https://vitest.dev/).
+Most of them are encapsulated inside the `commands.test.ts` file.
+However, when adding new e2e tests, it's best to follow the approach of the `respect` command tests.
+
+### Smoke tests
+
+Smokes are for testing the CLI in different environments.
+
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+
 ### Performance benchmark
 
 To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
@@ -209,19 +218,18 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 ## Project structure
 
-<!-- - **`__mocks__`**: contains basic mocks for e2e tests. -->
+- **`__tests__`**: contains e2e and smoke tests.
 
-- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Vitest](https://vitest.dev/).
+- **`benchmark`**: contains the performance benchmark. <!-- TODO: move it under the __tests__ folder -->
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. Сonsists of two packages - CLI and core. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of two packages - CLI and core. The codebase is written in Typescript.
 
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
 
     - **`packages/cli/src`**: contains CLI package source code.
 
-      - **`packages/cli/src/__mocks__`**: contains basic mocks for unit tests. <!-- FIXME: -->
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
@@ -231,12 +239,10 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
     - **`packages/cli/core`**: contains core package source code.
 
       - **`packages/core/src/__tests__`**: contains unit tests.
-      - **`packages/core/src/benchmark`**: contains basic perf benchmark. Not fully ready yet.
       - **`packages/core/src/config`**: contains the base configuration options.
       - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.
       - **`packages/core/src/format`**: contains the format options.
       - **`packages/core/src/js-yaml`**: contains the [JS-YAML](https://www.npmjs.com/package/js-yaml) based functions.
-      <!-- - **`packages/core/src/redocly`**: contains the Redocly API registry integration setup. FIXME: update the structure description -->
       - **`packages/core/src/rules`**: contains the built-in [rules](../docs/resources/built-in-rules.md) code.
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.
