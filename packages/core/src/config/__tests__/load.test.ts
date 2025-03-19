@@ -154,8 +154,6 @@ describe('findConfig', () => {
 
 describe('getConfig', () => {
   it('should return empty object if there is no configPath and config file is not found', () => {
-    vi.spyOn(Object.prototype, 'hasOwnProperty').mockImplementation(() => false);
-
     expect(getConfig()).toEqual(Promise.resolve({ rawConfig: {} }));
   });
 
