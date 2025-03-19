@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.0 (2025-03-19)
+
+### Minor Changes
+
+- Added global execution timeout timer to `respect` command execution to prevent infinite test runs. You can configure this timer using the `RESPECT_TIMEOUT` environment variable (defaults to 1 hour).
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v1.34.0.
+
 ## 1.33.1 (2025-03-11)
 
 ### Patch Changes
