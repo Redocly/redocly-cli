@@ -18,6 +18,7 @@ import { createHarLog } from '../../../utils/har-logs';
 import { ApiFetcher } from '../../../utils/api-fetcher';
 import { displayChecks } from '../../cli-output';
 import { cleanColors } from '../../../utils/clean-colors';
+import { Timer } from '../../timeout-timer/timer';
 
 vi.mock('../../flow-runner/call-api-and-analyze-results', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
@@ -40,6 +41,13 @@ vi.mock('../../flow-runner/runner', () => ({
   runWorkflow: vi.fn(),
   resolveWorkflowContext: vi.fn(),
 }));
+
+vi.mock('../../timeout-timer/timer', async () => {
+  const actual = await vi.importActual('../../timeout-timer/timer');
+  return {
+    ...actual,
+  };
+});
 
 const harLogs = createHarLog();
 const apiClient = new ApiFetcher({
@@ -3815,11 +3823,9 @@ describe('runStep', () => {
   it('should report global timeout error and end execution', async () => {
     // Mock Timer only for this test
     const mockTimer = {
-      isTimedOut: jest.fn().mockReturnValue(true),
+      isTimedOut: vi.fn().mockReturnValue(true),
     };
-    jest
-      .spyOn(require('../../timeout-timer/timer').Timer, 'getInstance')
-      .mockReturnValue(mockTimer);
+    vi.spyOn(Timer, 'getInstance').mockReturnValue(mockTimer as any);
 
     const checks: Check[] = [];
     const step = {
@@ -3845,8 +3851,5 @@ describe('runStep', () => {
         severity: 'error',
       },
     ]);
-
-    // Clean up the mock after test
-    jest.restoreAllMocks();
   });
 });
