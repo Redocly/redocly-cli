@@ -7,11 +7,6 @@ import { Oas3Types } from '../types/oas3';
 import { normalizeTypes } from '../types';
 import * as fs from 'node:fs';
 
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual('node:fs');
-  return { ...actual };
-});
-
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
     const rootDocument = parseYamlToDocument(
@@ -423,6 +418,10 @@ describe('collect refs', () => {
       `,
       path.join(cwd, 'foobar')
     );
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual('node:fs');
+      return { ...actual };
+    });
     vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
 
     const resolvedRefs = await resolveDocument({

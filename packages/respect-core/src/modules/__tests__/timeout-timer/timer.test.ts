@@ -1,3 +1,4 @@
+import { pause } from '@redocly/openapi-core';
 import { Timer } from '../../timeout-timer/timer';
 
 describe('Timer', () => {
@@ -11,10 +12,11 @@ describe('Timer', () => {
     expect(timer1).toBe(timer2);
   });
 
-  it('should return true if the timer is timed out', () => {
-    process.env.RESPECT_TIMEOUT = '0';
+  it('should return true if the timer is timed out', async () => {
+    process.env.RESPECT_TIMEOUT = '100';
 
     const timer = Timer.getInstance();
+    await pause(200);
     expect(timer.isTimedOut()).toBe(true);
   });
 

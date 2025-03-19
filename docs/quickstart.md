@@ -14,8 +14,6 @@ There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) re
 
 ## Preview API documentation
 
-<!-- FIXME: needs to be updated as we removing preview-docs and changing Redoc to openapi-docs -->
-
 Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc/) rendering your API docs, which updates when the API description updates.
 Run the command:
 
