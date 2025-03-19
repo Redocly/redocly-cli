@@ -44,14 +44,14 @@ describe('cliOutputs', () => {
 
   describe('printWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       printWorkflowSeparator('file', 'workflow');
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
       mockLogger.mockRestore();
     });
 
     it('should print a separator', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       printWorkflowSeparator('file', undefined);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
       mockLogger.mockRestore();
@@ -60,7 +60,7 @@ describe('cliOutputs', () => {
 
   describe('printRequiredWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       printRequiredWorkflowSeparator('parentWorkflowId');
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running required'));
       mockLogger.mockRestore();
@@ -69,7 +69,7 @@ describe('cliOutputs', () => {
 
   describe('printChildWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       printChildWorkflowSeparator('parentStepId');
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running child'));
       mockLogger.mockRestore();
@@ -78,15 +78,16 @@ describe('cliOutputs', () => {
 
   describe('printActionsSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       printActionsSeparator('parentStepId', 'actionName', 'success');
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running success action'));
+      mockLogger.mockRestore();
     });
   });
 
   describe('printWorkflowSeparatorLine', () => {
     it('should print a separator line', () => {
-      const mockLogger = jest.spyOn(logger, 'printSeparator').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
       printWorkflowSeparatorLine();
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('\u2500'));
       mockLogger.mockRestore();
@@ -95,7 +96,7 @@ describe('cliOutputs', () => {
 
   describe('printStepSeparatorLine', () => {
     it('should print a separator line', () => {
-      const mockLogger = jest.spyOn(logger, 'printNewLine').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
       printStepSeparatorLine();
       expect(mockLogger).toHaveBeenCalled();
       mockLogger.mockRestore();
@@ -104,7 +105,7 @@ describe('cliOutputs', () => {
 
   describe('printConfigLintTotals', () => {
     it('should print the number of errors', () => {
-      const mockLogger = jest.spyOn(logger, 'error').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
       printConfigLintTotals({ errors: 1, warnings: 0, ignored: 0 } as Totals);
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('❌  Your config has 1 one error.')
@@ -113,7 +114,7 @@ describe('cliOutputs', () => {
     });
 
     it('should print the number of warnings', () => {
-      const mockLogger = jest.spyOn(logger, 'error').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
       printConfigLintTotals({ errors: 0, warnings: 1, ignored: 0 } as Totals);
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('⚠️  Your config has 1 one warning.')
@@ -124,7 +125,7 @@ describe('cliOutputs', () => {
 
   describe('printStepDetails', () => {
     it('should print step details', () => {
-      const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
       const verboseLogs = {
         method: 'GET',
         path: 'path',

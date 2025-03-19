@@ -1,5 +1,6 @@
-import { join } from 'path';
-import { getParams, getCommandOutput, cleanColors } from '../utils';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { cleanColors } from '../utils';
 
 test('cats api test case', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -11,4 +12,4 @@ test('cats api test case', () => {
   const relevantPart = lines.slice(0, 200).join('\n'); // Extract the relevant lines
 
   expect(relevantPart).toMatchSnapshot();
-});
+}, 60_000);

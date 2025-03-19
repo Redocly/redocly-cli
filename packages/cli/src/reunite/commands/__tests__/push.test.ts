@@ -1,53 +1,65 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { handlePush } from '../push';
 import { ReuniteApi, ReuniteApiError } from '../../api';
+import { MockInstance } from 'vitest';
+import { slash } from '@redocly/openapi-core';
 
 const remotes = {
-  push: jest.fn(),
-  upsert: jest.fn(),
-  getDefaultBranch: jest.fn(),
+  push: vi.fn(),
+  upsert: vi.fn(),
+  getDefaultBranch: vi.fn(),
 };
 
-jest.mock('@redocly/openapi-core', () => ({
-  slash: jest.fn().mockImplementation((p) => p),
-}));
-
-jest.mock('../../api', () => ({
-  ...jest.requireActual('../../api'),
-  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
-    this.remotes = remotes;
-    this.reportSunsetWarnings = jest.fn();
-  }),
-}));
-
 describe('handlePush()', () => {
-  let pathResolveSpy: jest.SpyInstance;
-  let pathRelativeSpy: jest.SpyInstance;
-  let pathDirnameSpy: jest.SpyInstance;
-  let fsStatSyncSpy: jest.SpyInstance;
-  let fsReaddirSyncSpy: jest.SpyInstance;
+  let pathResolveSpy: MockInstance;
+  let pathRelativeSpy: MockInstance;
+  let pathDirnameSpy: MockInstance;
+  let fsStatSyncSpy: MockInstance;
+  let fsReaddirSyncSpy: MockInstance;
 
   beforeEach(() => {
     remotes.getDefaultBranch.mockResolvedValueOnce('test-default-branch');
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
 
-    jest.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
+    vi.mock('../../api', async () => {
+      const actual = await vi.importActual('../../api');
+      return {
+        ...actual,
+        ReuniteApi: vi.fn(),
+      };
+    });
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
+      this.remotes = remotes;
+      this.reportSunsetWarnings = vi.fn();
+    });
 
-    pathResolveSpy = jest.spyOn(path, 'resolve');
-    pathRelativeSpy = jest.spyOn(path, 'relative');
-    pathDirnameSpy = jest.spyOn(path, 'dirname');
-    fsStatSyncSpy = jest.spyOn(fs, 'statSync');
-    fsReaddirSyncSpy = jest.spyOn(fs, 'readdirSync');
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return { ...actual, slash: vi.fn() };
+    });
+    vi.mocked(slash).mockImplementation((p) => p);
+
+    vi.mock('node:path', async () => {
+      const actual = await vi.importActual('node:path');
+      return { ...actual };
+    });
+    pathResolveSpy = vi.spyOn(path, 'resolve');
+    pathRelativeSpy = vi.spyOn(path, 'relative');
+    pathDirnameSpy = vi.spyOn(path, 'dirname');
+
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual('node:fs');
+      return { ...actual };
+    });
+    vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
+    fsStatSyncSpy = vi.spyOn(fs, 'statSync');
+    fsReaddirSyncSpy = vi.spyOn(fs, 'readdirSync');
   });
 
   afterEach(() => {
-    pathResolveSpy.mockRestore();
-    pathRelativeSpy.mockRestore();
-    pathDirnameSpy.mockRestore();
-    fsStatSyncSpy.mockRestore();
-    fsReaddirSyncSpy.mockRestore();
+    process.env.REDOCLY_AUTHORIZATION = undefined;
   });
 
   it('should upload files', async () => {

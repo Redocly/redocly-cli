@@ -1,6 +1,7 @@
-import { tmpdir } from 'os';
-import { join } from 'path';
-import { existsSync, writeFileSync, readFileSync, statSync } from 'fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import * as process from 'node:process';
+import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { compare } from 'semver';
 import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout';
 import { cyan, green, yellow } from 'colorette';

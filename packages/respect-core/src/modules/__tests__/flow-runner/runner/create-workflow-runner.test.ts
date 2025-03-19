@@ -3,32 +3,33 @@ import type { Workflow, TestContext } from '../../../../types';
 
 import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner';
 import { DefaultLogger } from '../../../../utils/logger/logger';
+import { type ResponseContext } from '../../../../types';
 
 const logger = DefaultLogger.getInstance();
 describe('runWorkflow', () => {
   const fileName = 'test.yaml';
   it('should run workflow', async () => {
     const apiClient = {
-      setDescriptionParameters: jest.fn(),
-      getRequestHeaderParams: jest.fn(),
-      getRequestParams: jest.fn(),
-      setDefaultsParameters: jest.fn(),
-      setDisconnectDescription: jest.fn(),
-      setPath: jest.fn(),
-      setDescriptionRequestBody: jest.fn(),
-      setDescriptionResponses: jest.fn(),
-      setDescriptionContentType: jest.fn(),
-      setParameters: jest.fn(),
-      setTestCaseRequestBody: jest.fn(),
-      setMethod: jest.fn(),
-      setApiBase: jest.fn(),
-      fetchResult: jest.fn(),
-      getVerboseResponseLogs: jest.fn(),
+      setDescriptionParameters: vi.fn(),
+      getRequestHeaderParams: vi.fn(),
+      getRequestParams: vi.fn(),
+      setDefaultsParameters: vi.fn(),
+      setDisconnectDescription: vi.fn(),
+      setPath: vi.fn(),
+      setDescriptionRequestBody: vi.fn(),
+      setDescriptionResponses: vi.fn(),
+      setDescriptionContentType: vi.fn(),
+      setParameters: vi.fn(),
+      setTestCaseRequestBody: vi.fn(),
+      setMethod: vi.fn(),
+      setApiBase: vi.fn(),
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -102,7 +103,7 @@ describe('runWorkflow', () => {
 
   it('should return if no steps', async () => {
     const apiClient = {
-      fetchResult: jest.fn(),
+      fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
     const workflow = {
@@ -126,7 +127,7 @@ describe('runWorkflow', () => {
 
   it('should throw an error if no workflow exists', async () => {
     const apiClient = {
-      fetchResult: jest.fn(),
+      fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
     const ctx = {
@@ -143,13 +144,13 @@ describe('runWorkflow', () => {
 
   it('should set workflow outputs', async () => {
     const apiClient = {
-      fetchResult: jest.fn(),
-      getVerboseResponseLogs: jest.fn(),
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -230,12 +231,12 @@ describe('runWorkflow', () => {
 
   it('should return if workflow does not have steps', async () => {
     const apiClient = {
-      fetchResult: jest.fn(),
+      fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -299,14 +300,14 @@ describe('runWorkflow', () => {
   });
 
   it('should run workflow within step execution', async () => {
-    const mockLogger = jest.spyOn(logger, 'log').mockImplementation();
+    const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
     const apiClient = {
-      fetchResult: jest.fn(),
+      fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',
@@ -358,13 +359,13 @@ describe('runWorkflow', () => {
 
   it('should accept workflow as an input', async () => {
     const apiClient = {
-      fetchResult: jest.fn(),
-      getVerboseResponseLogs: jest.fn(),
+      fetchResult: vi.fn(),
+      getVerboseResponseLogs: vi.fn(),
     } as unknown as ApiFetcher;
 
-    (apiClient.fetchResult as jest.Mock).mockResolvedValue({
+    vi.mocked(apiClient.fetchResult).mockResolvedValue({
       statusCode: 200,
-    });
+    } as ResponseContext);
 
     const workflow = {
       workflowId: 'test',

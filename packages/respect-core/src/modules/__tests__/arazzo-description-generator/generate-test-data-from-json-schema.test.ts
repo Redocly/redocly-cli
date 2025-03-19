@@ -5,14 +5,14 @@ import { generateTestDataFromJsonSchema } from '../../arazzo-description-generat
 
 const logger = DefaultLogger.getInstance();
 
-jest.mock('openapi-sampler');
+vi.mock('openapi-sampler');
 
 describe('generateTestDataFromJsonSchema', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   it('should generate test data from JSON Schema', () => {
-    (Sampler as jest.Mocked<typeof Sampler>).sample.mockReturnValue({ name: 'string' });
+    vi.mocked(Sampler.sample).mockReturnValue({ name: 'string' });
 
     expect(
       generateTestDataFromJsonSchema({
@@ -33,7 +33,7 @@ describe('generateTestDataFromJsonSchema', () => {
   });
 
   it('should return null if schema is not valid', () => {
-    (Sampler as jest.Mocked<typeof Sampler>).sample.mockReturnValue(null);
+    vi.mocked(Sampler.sample).mockReturnValue(null);
     expect(
       generateTestDataFromJsonSchema({
         type: 'unknown',
@@ -47,9 +47,9 @@ describe('generateTestDataFromJsonSchema', () => {
   });
 
   it('should log error if schema is not valid', () => {
-    const mockLogger = jest.spyOn(logger, 'error').mockImplementation();
+    const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-    (Sampler as jest.Mocked<typeof Sampler>).sample.mockImplementation(() => {
+    vi.mocked(Sampler.sample).mockImplementation(() => {
       throw new Error('Mocked error from openapi-sampler');
     });
 

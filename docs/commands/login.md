@@ -1,7 +1,5 @@
 # `login`
 
-<!-- FIXME: needs to be updated as we removing the old login & preview-docs -->
-
 ## Introduction
 
 Use the `login` command to authenticate to the API registry.

@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { join } from 'node:path';
 
 test('should use off severity level', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -20,4 +20,4 @@ test('should use off severity level', () => {
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);
