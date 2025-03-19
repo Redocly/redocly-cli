@@ -237,12 +237,14 @@ export interface WorkflowExecutionResult {
   executedSteps: (Step | WorkflowExecutionResult)[];
   invocationContext?: string;
   ctx: TestContext;
+  globalTimeoutError: boolean;
 }
 
 export type WorkflowExecutionResultJson = Omit<WorkflowExecutionResult, 'executedSteps' | 'ctx'> & {
   executedSteps: (StepExecutionResult | WorkflowExecutionResultJson)[];
   status: ExecutionStatus;
   totalRequests: number;
+  globalTimeoutError: boolean;
 };
 
 export type TestContext = RuntimeExpressionContext & {
@@ -310,6 +312,7 @@ export type JsonLogs = {
   >;
   status: string;
   totalTime: number;
+  globalTimeoutError: boolean;
 };
 
 export type DescriptionChecks = {

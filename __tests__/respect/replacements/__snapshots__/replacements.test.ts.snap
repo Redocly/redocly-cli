@@ -7,7 +7,7 @@ exports[`should replace values in the request body 1`] = `
 
   ✓ GET /special-events/{eventId} - step first-step
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==
@@ -35,7 +35,7 @@ exports[`should replace values in the request body 1`] = `
 
   ✓ POST /tickets - step step-with-json-replacements
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/tickets
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -67,7 +67,7 @@ exports[`should replace values in the request body 1`] = `
 
   ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
       content-type: application/x-www-form-urlencoded
       accept: application/json, application/problem+json
@@ -90,7 +90,7 @@ exports[`should replace values in the request body 1`] = `
 
   ✓ PATCH /special-events/{eventId} - step step-with-form-urlencoded-replacements-2
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
       content-type: application/x-www-form-urlencoded
       accept: application/json, application/problem+json

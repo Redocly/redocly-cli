@@ -12,6 +12,7 @@ import { DefaultLogger } from '../utils/logger/logger';
 import { exitWithError } from '../utils/exit-with-error';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs';
+import { Timer } from '../modules/timeout-timer/timer';
 
 import type { JsonLogs, CommandArgs, RunArgv } from '../types';
 
@@ -53,6 +54,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   }
 
   try {
+    Timer.getInstance();
     const startedAt = performance.now();
     const testsRunProblemsStatus: boolean[] = [];
     const { files } = argv;
@@ -123,6 +125,7 @@ async function runFile(
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
+  const hasGlobalTimeoutError = executedWorkflows.some((workflow) => workflow.globalTimeoutError);
 
   if (totals.steps.failed > 0 || totals.steps.warnings > 0 || totals.steps.skipped > 0) {
     displayErrors(executedWorkflows);
@@ -139,5 +142,6 @@ async function runFile(
     ctx,
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
+    globalTimeoutError: hasGlobalTimeoutError,
   };
 }

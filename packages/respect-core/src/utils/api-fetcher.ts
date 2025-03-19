@@ -17,12 +17,11 @@ import { getResponseSchema } from '../modules/description-parser';
 import { collectSecretFields } from '../modules/flow-runner';
 import { createMtlsClient } from './mtls/create-mtls-client';
 import { DefaultLogger } from './logger/logger';
+import { DEFAULT_RESPECT_MAX_FETCH_TIMEOUT } from '../consts';
 
 import type { RequestData } from '../modules/flow-runner';
 
 const logger = DefaultLogger.getInstance();
-
-const MAX_FETCH_TIMEOUT = 20000;
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -240,7 +239,7 @@ export class ApiFetcher implements IFetcher {
         body: encodedBody,
       }),
       redirect: 'follow',
-      signal: AbortSignal.timeout(MAX_FETCH_TIMEOUT),
+      signal: AbortSignal.timeout(DEFAULT_RESPECT_MAX_FETCH_TIMEOUT),
       // Required for application/octet-stream content type requests
       ...(headers['content-type'] === 'application/octet-stream' && {
         duplex: 'half',

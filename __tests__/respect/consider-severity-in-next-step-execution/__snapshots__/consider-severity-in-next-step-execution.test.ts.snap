@@ -7,7 +7,7 @@ exports[`should not follow the default behavior to break and return if onFailure
 
   ✓ GET /museum-hours - step first-step
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==
@@ -80,7 +80,7 @@ exports[`should not follow the default behavior to break and return if onFailure
 
   ✗ GET /special-events - step list-events
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==
@@ -217,7 +217,7 @@ exports[`should not follow the default behavior to break and return if onFailure
 
   ✓ GET /museum-hours - step first-step
 
-    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==

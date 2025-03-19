@@ -1,4 +1,4 @@
-import type { Step, TestContext, ResponseContext } from '../../../types';
+import type { Step, TestContext, ResponseContext, Check } from '../../../types';
 
 import {
   runStep,
@@ -3983,5 +3983,43 @@ describe('runStep', () => {
     expect(cleanColors(step?.checks[0]?.message || '')).toEqual(
       'Workflow $sourceDescriptions.wrong-reusable-api.workflows.reusable-external-workflow not found.'
     );
+  });
+
+  it('should report global timeout error and end execution', async () => {
+    // Mock Timer only for this test
+    const mockTimer = {
+      isTimedOut: jest.fn().mockReturnValue(true),
+    };
+    jest
+      .spyOn(require('../../timeout-timer/timer').Timer, 'getInstance')
+      .mockReturnValue(mockTimer);
+
+    const checks: Check[] = [];
+    const step = {
+      stepId: 'get-bird',
+      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      checks,
+    } as unknown as Step;
+    const workflowId = 'get-bird-workflow';
+
+    const result = await runStep({
+      step,
+      ctx: basicCTX,
+      workflowId,
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    expect(checks).toEqual([
+      {
+        name: CHECKS.GLOBAL_TIMEOUT_ERROR,
+        passed: false,
+        message: 'Global Respect timer reached',
+        severity: 'error',
+      },
+    ]);
+
+    // Clean up the mock after test
+    jest.restoreAllMocks();
   });
 });
