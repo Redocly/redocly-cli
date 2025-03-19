@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint spec-json-schema-validation-dependentRequired 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:22:26 at #/paths/~1thing/get/responses/200/content/application~1json/examples/dependentRequired_failing/value
@@ -24,5 +21,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle tag-description-override 1`] = `
 openapi: 3.1.0
 info:
   description: some description
@@ -45,5 +42,3 @@ components: {}
 
 bundling main.yaml...
 📦 Created a bundle for main.yaml at stdout <test>ms.
-
-`;

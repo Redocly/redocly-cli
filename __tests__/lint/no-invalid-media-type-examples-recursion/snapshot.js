@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint no-invalid-media-type-examples-recursion 1`] = `
 
 validating openapi.json...
 [1] openapi.json:29:28 at #/paths/~1test/get/responses/202/content/application~1json/example
@@ -45,5 +42,3 @@ openapi.json: validated in <test>ms
 Woohoo! Your API description is valid. 🎉
 You have 2 warnings.
 
-
-`;

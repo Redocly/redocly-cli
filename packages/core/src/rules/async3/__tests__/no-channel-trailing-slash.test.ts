@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../
 import { BaseResolver } from '../../../resolve';
 
 describe('no-channel-trailing-slash', () => {
-  it.only('should report on trailing slash in a channel path', async () => {
+  it('should report on trailing slash in a channel path', async () => {
     const document = parseYamlToDocument(
       outdent`
           asyncapi: '3.0.0'

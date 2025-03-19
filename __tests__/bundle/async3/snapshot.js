@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle async3 1`] = `
 info:
   title: Account Service
   version: 1.0.0
@@ -56,5 +53,3 @@ operations:
 
 bundling simple.yml...
 📦 Created a bundle for simple.yml at stdout <test>ms.
-
-`;

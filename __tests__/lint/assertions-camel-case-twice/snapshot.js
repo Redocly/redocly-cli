@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint assertions-camel-case-twice 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:26:5 at #/components/parameters/header_roleCode
@@ -36,5 +33,3 @@ openapi.yaml: validated in <test>ms
 Woohoo! Your API description is valid. 🎉
 You have 2 warnings.
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint operation-operationId-unique-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:16:7 at #/paths/~1pong/get/getUserById
@@ -26,5 +23,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

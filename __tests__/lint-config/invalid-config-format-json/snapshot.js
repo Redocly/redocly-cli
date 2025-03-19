@@ -1,10 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint-config test with option: {
-  dirName: 'invalid-config-format-json',
-  option: 'warn',
-  format: 'json'
-} 1`] = `
 {
   "totals": {
     "errors": 0,
@@ -19,5 +12,3 @@ validating ../__fixtures__/valid-openapi.yaml...
 
 Woohoo! Your API description is valid. 🎉
 
-
-`;

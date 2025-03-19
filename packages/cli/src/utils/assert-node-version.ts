@@ -1,6 +1,6 @@
 import * as semver from 'semver';
-import * as path from 'path';
-import * as process from 'process';
+import * as path from 'node:path';
+import * as process from 'node:process';
 import { yellow } from 'colorette';
 
 try {

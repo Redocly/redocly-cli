@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E stats stats should produce correct JSON output 1`] = `
 {
   "refs": {
     "metric": "🚗 References",
@@ -39,5 +36,3 @@ exports[`E2E stats stats should produce correct JSON output 1`] = `
     "total": 3
   }
 }
-
-`;

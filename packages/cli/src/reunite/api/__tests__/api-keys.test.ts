@@ -2,7 +2,7 @@ import { getApiKeys } from '../api-keys';
 
 describe('getApiKeys()', () => {
   afterEach(() => {
-    jest.resetAllMocks();
+    process.env.REDOCLY_AUTHORIZATION = undefined;
   });
 
   it('should return api key from environment variable', () => {

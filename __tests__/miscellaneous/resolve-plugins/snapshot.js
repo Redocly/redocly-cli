@@ -1,25 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E miscellaneous decorate with a decorator from a plugin 1`] = `
-openapi: 3.1.0
-info:
-  title: Test
-  x-stats:
-    test: 1
-paths: {}
-components:
-  securitySchemes:
-    OpenID:
-      type: openIdConnect
-      openIdConnectUrl: https://example.com/missing-well-known-configuration
-
-Deprecated plugin format detected: test-plugin
-bundling openapi.yaml...
-📦 Created a bundle for openapi.yaml at stdout <test>ms.
-
-`;
-
-exports[`E2E miscellaneous lint with a rule from a plugin 1`] = `
 
 Deprecated plugin format detected: test-plugin
 validating openapi.yaml...
@@ -41,5 +19,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

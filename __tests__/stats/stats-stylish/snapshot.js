@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E stats stats should produce correct output (stylish format) 1`] = `
 
 Document: museum.yaml stats:
 
@@ -16,5 +13,3 @@ Document: museum.yaml stats:
 
 museum.yaml: stats processed in <test>ms
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint required-string-property-missing-min-length 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:37:19 at #/paths/~1pet~1findByStatus/get/responses/200/content/application~1json/schema/properties/a
@@ -36,5 +33,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 2 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

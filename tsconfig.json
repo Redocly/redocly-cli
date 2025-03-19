@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["vitest/globals"],
     "composite": true,
     "declaration": true,
     "module": "commonjs",

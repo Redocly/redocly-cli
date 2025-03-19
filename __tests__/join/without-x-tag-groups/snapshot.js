@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E join with options test with option: { name: 'without-x-tag-groups', value: true } 1`] = `
 
 
 warning: 1 conflict(s) on the \`Pet\` tags description.
@@ -53,5 +50,3 @@ components: {}
 
 openapi.yaml: join processed in <test>ms
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint-config test with option: { dirName: 'invalid-config-assertation-config-type', option: 'warn' } 1`] = `
 
 
 The 'assert/' syntax in assert/path-item-mutually-required is deprecated. Update your configuration to use 'rule/' instead. Examples and more information: https://redocly.com/docs/cli/rules/configurable-rules/
@@ -24,5 +21,3 @@ validating ../__fixtures__/valid-openapi.yaml...
 
 Woohoo! Your API description is valid. 🎉
 
-
-`;

@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint no-undefined-server-variable-error-recommended-config 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:7:5 at #/servers/0/url
@@ -49,5 +46,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error and 2 warnings.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;
