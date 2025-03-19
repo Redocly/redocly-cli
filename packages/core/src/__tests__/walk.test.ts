@@ -1,5 +1,4 @@
 import outdent from 'outdent';
-import each from 'jest-each'; // FIXME: shall we use each from vitest instead?
 import * as path from 'path';
 
 import { lintDocument } from '../lint';
@@ -1442,10 +1441,10 @@ describe('context.resolve', () => {
 });
 
 describe('type extensions', () => {
-  each([
+  test.each([
     ['3.0.0', 'oas3_0'],
     ['3.1.0', 'oas3_1'],
-  ]).it('should correctly visit OpenAPI %s extended types', async (openapi, oas) => {
+  ])('should correctly visit OpenAPI %s extended types', async (openapi, oas) => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
@@ -1510,20 +1509,18 @@ describe('type extensions', () => {
       }),
     });
 
-    expect(calls).toMatchInlineSnapshot(`
-      [
-        "enter Root",
-        "enter XWebHooks",
-        "enter hook test",
-        "enter ParameterList",
-        "enter Parameter",
-        "leave Parameter",
-        "leave ParameterList",
-        "leave hook test",
-        "leave XWebHooks",
-        "leave Root",
-      ]
-    `);
+    expect(calls).toEqual([
+      'enter Root',
+      'enter XWebHooks',
+      'enter hook test',
+      'enter ParameterList',
+      'enter Parameter',
+      'leave Parameter',
+      'leave ParameterList',
+      'leave hook test',
+      'leave XWebHooks',
+      'leave Root',
+    ]);
   });
 });
 
