@@ -4,5 +4,6 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "references": [{ "path": "../core" }, { "path": "../respect-core" }]
+  "references": [{ "path": "../core" }, { "path": "../respect-core" }],
+  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }

@@ -17,6 +17,5 @@
     "lib": ["ES2021", "ES2021.String", "DOM"],
     "baseUrl": "./packages",
     "skipLibCheck": true
-  },
-  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
+  }
 }

@@ -22,5 +22,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.js" // Add this line
-  ]
+  ],
+  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }
