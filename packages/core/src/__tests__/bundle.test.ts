@@ -28,7 +28,7 @@ const stringDocument = outdent`
 const testDocument = parseYamlToDocument(stringDocument, '');
 
 describe('bundle', () => {
-  const fetchMock = jest.fn(() =>
+  const fetchMock = vi.fn(() =>
     Promise.resolve({
       ok: true,
       text: () => 'External schema content',

@@ -5,13 +5,21 @@ import { replaceSourceWithRef } from '../../../__tests__/utils';
 import type { RuleConfig, FlatRawConfig } from './../types';
 import type { NormalizedProblem } from '../../walk';
 import { BaseResolver } from '../../resolve';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-const fs = require('fs');
-const path = require('path');
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return { ...actual };
+});
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
 
 describe('loadConfig', () => {
   it('should call callback if such passed', async () => {
-    const mockFn = jest.fn();
+    const mockFn = vi.fn();
     await loadConfig({
       configPath: path.join(__dirname, './fixtures/load-redocly.yaml'),
       processRawConfig: mockFn,
@@ -103,7 +111,7 @@ describe('loadConfig', () => {
 
   it('should call externalRefResolver if such passed', async () => {
     const externalRefResolver = new BaseResolver();
-    const resolverSpy = jest.spyOn(externalRefResolver, 'resolveDocument');
+    const resolverSpy = vi.spyOn(externalRefResolver, 'resolveDocument');
     await loadConfig({
       configPath: path.join(__dirname, './fixtures/load-external.yaml'),
       externalRefResolver: externalRefResolver as any,
@@ -117,19 +125,19 @@ describe('loadConfig', () => {
 
 describe('findConfig', () => {
   it('should find redocly.yaml', async () => {
-    jest.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'redocly.yaml');
+    vi.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'redocly.yaml');
     const configName = findConfig();
     expect(configName).toStrictEqual('redocly.yaml');
   });
   it('should find .redocly.yaml', async () => {
-    jest.spyOn(fs, 'existsSync').mockImplementation((name) => name === '.redocly.yaml');
+    vi.spyOn(fs, 'existsSync').mockImplementation((name) => name === '.redocly.yaml');
     const configName = findConfig();
     expect(configName).toStrictEqual('.redocly.yaml');
   });
   it('should throw an error when found multiple config files', async () => {
-    jest
-      .spyOn(fs, 'existsSync')
-      .mockImplementation((name) => name === 'redocly.yaml' || name === '.redocly.yaml');
+    vi.spyOn(fs, 'existsSync').mockImplementation(
+      (name) => name === 'redocly.yaml' || name === '.redocly.yaml'
+    );
     expect(findConfig).toThrow(`
       Multiple configuration files are not allowed.
       Found the following files: redocly.yaml, .redocly.yaml.
@@ -137,22 +145,19 @@ describe('findConfig', () => {
     `);
   });
   it('should find a nested config ', async () => {
-    jest.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'dir/redocly.yaml');
-    jest.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
+    vi.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'dir/redocly.yaml');
+    vi.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
     const configName = findConfig('dir');
     expect(configName).toStrictEqual('dir/redocly.yaml');
   });
 });
 
 describe('getConfig', () => {
-  jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
   it('should return empty object if there is no configPath and config file is not found', () => {
     expect(getConfig()).toEqual(Promise.resolve({ rawConfig: {} }));
   });
 
   it('should resolve refs in config', async () => {
-    let problems: NormalizedProblem[];
-
     const { rawConfig } = await getConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
     });
@@ -203,7 +208,7 @@ describe('createConfig', () => {
   });
 
   it('should create config from object with a custom plugin', async () => {
-    const testCustomRule = jest.fn();
+    const testCustomRule = vi.fn();
     const rawConfig: FlatRawConfig = {
       extends: [],
       plugins: [

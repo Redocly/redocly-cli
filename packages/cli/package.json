@@ -8,8 +8,8 @@
     "openapi": "bin/cli.js"
   },
   "engines": {
-    "node": ">=18.17.0",
-    "npm": ">=9.5.0"
+    "node": ">=18.20.7",
+    "npm": ">=10.8.2"
   },
   "engineStrict": true,
   "scripts": {

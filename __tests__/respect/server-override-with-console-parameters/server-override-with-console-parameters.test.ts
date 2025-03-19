@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { join } from 'node:path';
 
 // Snapshot is intentionally should show failed request to museum-api-bad-endpoint
 test('should use server override from CLI and env', () => {
@@ -14,4 +14,4 @@ test('should use server override from CLI and env', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.REDOCLY_CLI_RESPECT_SERVER;
-});
+}, 60_000);
