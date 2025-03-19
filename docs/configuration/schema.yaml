@@ -1,6 +1,6 @@
 type: object
 properties:
-  organization:
+  organization: # FIXME: removed!
     type: string
     description: |-
       Stores your Redocly Workflows organization ID that the `push` command uses to push API description files to the API registry.
@@ -247,7 +247,7 @@ properties:
                 - off
               description: The severity level if the problem occurs.
           additionalProperties: true
-  theme:
+  theme: # FIXME: deprecated
     type: object
     properties:
       mockServer:
@@ -273,7 +273,7 @@ properties:
           Configuration options supported by Redocly for rendering OpenAPI into web pages.
           Used when previewing or building the docs.
           See the [list of options supported](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
-  region:
+  region: # FIXME: removed!
     type: string
     enum:
       - us

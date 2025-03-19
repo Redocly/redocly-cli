@@ -7,6 +7,8 @@ seo:
 
 Good quality API documentation is the most important factor for a good developer experience. Redocly offers two options for web-based API reference documentation, so you can choose what fits your needs.
 
+<!-- FIXME: needs to be updated as we removing Workflows & preview-docs? At least we could add a section about Reunite -->
+
 ## API reference
 
 Use the Redocly platform to produce beautiful API documentation, and automatically update it every time your OpenAPI description changes. Change the theme to fit your brand, and make your API consumers very happy with clear documentation, code examples, and the all-important ability to try API calls from within the documentation itself.
