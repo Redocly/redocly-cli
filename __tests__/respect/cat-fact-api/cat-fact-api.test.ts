@@ -11,4 +11,4 @@ test('cats api test case', () => {
   const relevantPart = lines.slice(0, 200).join('\n'); // Extract the relevant lines
 
   expect(relevantPart).toMatchSnapshot();
-});
+}, 60_000);

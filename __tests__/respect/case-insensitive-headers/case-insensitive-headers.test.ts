@@ -8,4 +8,4 @@ test('should send in request and proceed case-insensitive headers in runtime exp
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

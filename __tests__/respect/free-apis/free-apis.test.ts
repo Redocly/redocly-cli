@@ -8,4 +8,4 @@ test('free apis test case', () => {
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

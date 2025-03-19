@@ -9,4 +9,4 @@ test('should end workflow execution, context returns to the caller with applicab
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

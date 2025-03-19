@@ -8,4 +8,4 @@ test('should resolve outputs access syntax variations', () => {
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

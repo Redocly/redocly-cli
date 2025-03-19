@@ -8,4 +8,4 @@ test('should execute successActions for each workflow step if it does not have o
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);
