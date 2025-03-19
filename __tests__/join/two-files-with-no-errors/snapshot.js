@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E join without options test: two-files-with-no-errors 1`] = `
 
 openapi: 3.0.0
 info:
@@ -55,5 +52,3 @@ x-tagGroups:
 
 openapi.yaml: join processed in <test>ms
 
-
-`;

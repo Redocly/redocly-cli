@@ -1,4 +1,4 @@
-import * as util from 'util';
+import * as util from 'node:util';
 import { colorize } from '../../logger';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
@@ -94,7 +94,8 @@ describe('resolveStyleguideConfig', () => {
 
   it('should instantiate the plugin once', async () => {
     // Called by plugin during init
-    const deprecateSpy = jest.spyOn(util, 'deprecate');
+    // @ts-expect-error
+    const deprecateSpy = vi.spyOn(util.default, 'deprecate');
 
     const config = {
       ...baseStyleguideConfig,

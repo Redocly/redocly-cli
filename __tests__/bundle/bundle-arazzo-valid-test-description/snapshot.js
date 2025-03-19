@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle bundle-arazzo-valid-test-description 1`] = `
 info:
   title: Redocly Museum API Tickets
   description: A part of imaginary, but delightful Museum API for interacting with museum services and information. Built with love by Redocly.
@@ -36,5 +33,3 @@ workflows:
 
 bundling museum.yaml...
 📦 Created a bundle for museum.yaml at stdout <test>ms.
-
-`;

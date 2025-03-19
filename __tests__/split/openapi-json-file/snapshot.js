@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E split openapi json file 1`] = `
 
 {
   "type": "object",
@@ -180,5 +177,3 @@ exports[`E2E split openapi json file 1`] = `
 
 ../../../__tests__/split/openapi-json-file/openapi.json: split processed in <test>ms
 
-
-`;

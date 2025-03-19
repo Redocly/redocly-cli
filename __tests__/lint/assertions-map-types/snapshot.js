@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint assertions-map-types 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:12:7 at #/servers/0/variables/Port
@@ -82,5 +79,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 5 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

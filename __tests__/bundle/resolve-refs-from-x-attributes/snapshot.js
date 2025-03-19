@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E bundle resolve-refs-from-x-attributes 1`] = `
 openapi: 3.0.3
 info:
   title: foo
@@ -21,5 +18,3 @@ components: {}
 Deprecated plugin format detected: plugin
 bundling openapi.yaml...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
-
-`;

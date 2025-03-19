@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E zero-config default-recommended-fallback 1`] = `
 
 No configurations were provided -- using built in recommended configuration by default.
 
@@ -121,5 +118,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 8 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

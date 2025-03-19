@@ -1,11 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint path-excludes-patterns 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:25:3 at #/paths/~1getUsers
 
-path \`/getUsers\` should not match regex pattern: \`^\\/[a-z]\`
+path \`/getUsers\` should not match regex pattern: \`^\/[a-z]\`
 
 23 |       '200':
 24 |         description: example description
@@ -22,5 +19,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

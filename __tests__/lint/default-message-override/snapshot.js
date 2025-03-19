@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint default-message-override 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:7:5 at #/paths/~1test/get
@@ -105,5 +102,3 @@ split/openapi.yaml: validated in <test>ms
 ❌ Validation failed with 5 errors and 2 warnings.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;

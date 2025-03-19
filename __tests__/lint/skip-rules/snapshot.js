@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint skip-rules 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:10:20 at #/paths/~1users/get/operationId
@@ -36,15 +33,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 2 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;
-
-exports[`E2E lint skip-rules 2`] = `
-
-validating openapi.yaml...
-openapi.yaml: validated in <test>ms
-
-Woohoo! Your API description is valid. 🎉
-
-
-`;

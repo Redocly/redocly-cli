@@ -56,13 +56,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - name: Coverage Report
-        uses: artiomtr/jest-coverage-report-action@v2.0.8
-        continue-on-error: true
-        with:
-          skip-step: none
-          annotations: none
-          test-script: npm run jest
+      # FIXME: add vitest coverage report
 
   code-style-check:
     runs-on: ubuntu-latest

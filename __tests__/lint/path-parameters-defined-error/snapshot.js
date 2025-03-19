@@ -1,6 +1,3 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`E2E lint path-parameters-defined-error 1`] = `
 
 validating openapi.yaml...
 [1] openapi.yaml:11:17 at #/paths/~1user~1{id}/get/parameters/0/name
@@ -36,5 +33,3 @@ openapi.yaml: validated in <test>ms
 ❌ Validation failed with 2 errors.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
-
-`;
