@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 1.34.0
+
+### Minor Changes
+
+- Added global execution timeout timer to `respect` command execution to prevent infinite test runs. You can configure this timer using the `RESPECT_TIMEOUT` environment variable (defaults to 1 hour).
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.34.0.
+
 ## 1.33.1
 
 ### Patch Changes
