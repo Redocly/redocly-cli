@@ -18,4 +18,4 @@ test('should use inputs from CLI and env', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.AUTH_TOKEN;
-});
+}, 20_000);

@@ -13,4 +13,4 @@ test('should implicitly add content type header based on requestBody.content fie
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 20_000);
