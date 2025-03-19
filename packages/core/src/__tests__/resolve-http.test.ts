@@ -22,7 +22,7 @@ describe('Resolve http-headers', () => {
       'foobar.yaml'
     );
 
-    const fetchMock = jest.fn(() => Promise.resolve({ ok: true, text: Promise.resolve('') }));
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true, text: Promise.resolve('') }));
 
     await resolveDocument({
       rootDocument,

@@ -18,10 +18,10 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = true;
     const handler: Dispatcher.DispatchHandlers = {
-      onConnect: jest.fn(),
-      onHeaders: jest.fn(),
-      onData: jest.fn(),
-      onComplete: jest.fn(),
+      onConnect: vi.fn(),
+      onHeaders: vi.fn(),
+      onData: vi.fn(),
+      onComplete: vi.fn(),
     };
 
     handleRequest({ input, handler, harLog, isUndici });
@@ -40,8 +40,8 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = false;
     const handler = new EventEmitter();
-    handler.on = jest.fn();
-    handler.emit = jest.fn();
+    handler.on = vi.fn();
+    handler.emit = vi.fn();
 
     handleRequest({ input, handler, harLog, isUndici });
   });
@@ -59,10 +59,10 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = true;
     const handler: Dispatcher.DispatchHandlers = {
-      onConnect: jest.fn(),
-      onHeaders: jest.fn(),
-      onData: jest.fn(),
-      onComplete: jest.fn(),
+      onConnect: vi.fn(),
+      onHeaders: vi.fn(),
+      onData: vi.fn(),
+      onComplete: vi.fn(),
     };
 
     // Mock response data
@@ -98,9 +98,9 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = false;
     const handler = new EventEmitter();
-    const onSpy = jest.fn();
+    const onSpy = vi.fn();
     handler.on = onSpy;
-    handler.emit = jest.fn();
+    handler.emit = vi.fn();
 
     handleRequest({ input, handler, harLog, isUndici });
 
@@ -141,11 +141,11 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = true;
     const handler: Dispatcher.DispatchHandlers = {
-      onConnect: jest.fn(),
-      onHeaders: jest.fn(),
-      onData: jest.fn(),
-      onComplete: jest.fn(),
-      onError: jest.fn(),
+      onConnect: vi.fn(),
+      onHeaders: vi.fn(),
+      onData: vi.fn(),
+      onComplete: vi.fn(),
+      onError: vi.fn(),
     };
 
     handleRequest({ input, handler, harLog, isUndici });
@@ -166,9 +166,9 @@ describe('handleRequest', () => {
     const harLog = new Map();
     const isUndici = false;
     const handler = new EventEmitter();
-    const onSpy = jest.fn();
+    const onSpy = vi.fn();
     handler.on = onSpy;
-    handler.emit = jest.fn();
+    handler.emit = vi.fn();
 
     handleRequest({ input, handler, harLog, isUndici });
 

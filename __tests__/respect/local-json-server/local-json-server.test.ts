@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
-import * as fs from 'fs';
+import { join } from 'node:path';
+import * as fs from 'node:fs';
+import { getCommandOutput, getParams } from '../../helpers';
 
 const dbPath = join(__dirname, 'fake-db.json');
 
