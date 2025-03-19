@@ -1,10 +1,7 @@
 import * as path from 'path';
 import { loadConfig } from '../load';
 
-// FIXME: skipping due to the 'Test environment has been torn down' Jest error.
-// Covered the below in the `miscellaneous/resolve-plugins` e2e tests.
-// Unskip when Jest gets this fixed.
-describe.skip('resolving a plugin', () => {
+describe('resolving a plugin', () => {
   const configPath = path.join(__dirname, 'fixtures/plugin-config.yaml');
 
   it('should prefix rule names with the plugin id', async () => {

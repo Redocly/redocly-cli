@@ -1,5 +1,5 @@
 export {
-  BundleOutputFormat,
+  type BundleOutputFormat,
   readFileFromUrl,
   slash,
   doesYamlFileExist,

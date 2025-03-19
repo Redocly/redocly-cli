@@ -23,5 +23,5 @@
     "src/**/*.ts",
     "src/**/*.js" // Add this line
   ],
-  "exclude": ["**/__tests__", "**/__mocks__"]
+  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }

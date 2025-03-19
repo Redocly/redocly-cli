@@ -1,15 +1,13 @@
+import { MockInstance } from 'vitest';
+
 import * as colorette from 'colorette';
 import { logger, colorize } from '../logger';
 
 describe('Logger in nodejs', () => {
-  let spyingStderr: jest.SpyInstance;
+  let spyingStderr: MockInstance;
 
   beforeEach(() => {
-    spyingStderr = jest.spyOn(process.stderr, 'write').mockImplementation();
-  });
-
-  afterEach(() => {
-    spyingStderr.mockRestore();
+    spyingStderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   it('should call "process.stderr.write" for error severity', () => {
@@ -36,12 +34,17 @@ describe('Logger in nodejs', () => {
 
 describe('colorize in nodejs', () => {
   it('should call original colorette lib', () => {
+    vi.mock('colorette', async () => {
+      const actual = await vi.importActual('colorette');
+      return {
+        ...actual,
+        cyan: vi.fn(),
+      };
+    });
     const color = 'cyan';
-    const spyingCyan = jest.spyOn(colorette, color);
-
     const colorized = colorize.cyan(color);
 
-    expect(spyingCyan).toBeCalledWith(color);
+    expect(colorette.cyan).toBeCalledWith(color);
     expect(colorized).toEqual(colorette[color](color));
   });
 });

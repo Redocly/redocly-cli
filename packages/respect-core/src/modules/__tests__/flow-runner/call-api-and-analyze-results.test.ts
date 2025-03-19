@@ -1,12 +1,10 @@
 import { fetch } from 'undici';
-
 import type { TestContext } from '../../../types';
 
 import { callAPIAndAnalyzeResults, DEFAULT_SEVERITY_CONFIGURATION } from '../../flow-runner';
 import { ApiFetcher } from '../../../utils/api-fetcher';
 
-// @ts-ignore
-jest.mock('undici');
+vi.mock('undici');
 
 describe('callAPIAndAnalyzeResults', () => {
   const apiClient = new ApiFetcher({
@@ -349,13 +347,12 @@ describe('callAPIAndAnalyzeResults', () => {
 
     const mockResponse = {
       status: 200,
-      json: jest.fn().mockResolvedValue({ id: 1 }),
-      text: jest.fn().mockResolvedValue(JSON.stringify({ id: 1 })),
+      json: vi.fn().mockResolvedValue({ id: 1 }),
+      text: vi.fn().mockResolvedValue(JSON.stringify({ id: 1 })),
       headers: new Headers(),
     };
 
-    // @ts-ignore
-    (fetch as jest.Mock).mockResolvedValue(mockResponse);
+    vi.mocked(fetch).mockResolvedValue(mockResponse as any);
 
     const result = await callAPIAndAnalyzeResults({
       ctx,
@@ -375,8 +372,5 @@ describe('callAPIAndAnalyzeResults', () => {
       networkCheck: true,
       successCriteriaCheck: true,
     });
-
-    // @ts-ignore
-    (fetch as jest.Mock).mockRestore();
   });
 });
