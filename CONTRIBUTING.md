@@ -170,8 +170,9 @@ The application maintains the following exit codes.
 
 ## Tests
 
-When running tests, make sure the code is compiled (`npm run compile` or `npm run watch`).
+When running tests, make sure the code is compiled (`npm run compile`).
 Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
+Run `npm test` to start both unit and e2e tests (and additionally typecheck the code).
 
 ### Unit tests
 
@@ -179,7 +180,7 @@ Run unit tests with this command: `npm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
-To run single file in watch mode, run: `npm run unit -- <path/to/your/file.test.ts>`
+To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
 
@@ -224,7 +225,7 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of two packages - CLI and core. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
 
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
 
