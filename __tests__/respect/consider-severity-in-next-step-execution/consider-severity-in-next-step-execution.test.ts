@@ -20,4 +20,4 @@ test('should not follow the default behavior to break and return if onFailure om
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

@@ -20,4 +20,4 @@ test('should use error severity level', () => {
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

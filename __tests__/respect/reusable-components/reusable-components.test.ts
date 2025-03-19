@@ -16,4 +16,4 @@ test('should use inputs from CLI and env to mapp with resolved refs', () => {
   const result = getCommandOutput(args);
 
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

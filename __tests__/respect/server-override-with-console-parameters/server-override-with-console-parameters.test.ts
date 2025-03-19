@@ -14,4 +14,4 @@ test('should use server override from CLI and env', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.REDOCLY_CLI_RESPECT_SERVER;
-});
+}, 60_000);

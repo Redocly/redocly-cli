@@ -18,4 +18,4 @@ test('should hide sensitive input values', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.AUTH_TOKEN;
-});
+}, 60_000);

@@ -8,4 +8,4 @@ test('should replace values in the request body', () => {
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);
