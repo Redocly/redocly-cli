@@ -593,8 +593,6 @@ export async function sendTelemetry(
     };
     const { otelTelemetry } = await import('../otel');
     otelTelemetry.init();
-    console.log('JSON.stringify(cleanArgs(args)),', JSON.stringify(cleanArgs(args)));
-    console.log('RAW_I', cleanRawInput(process.argv.slice(2), args));
     otelTelemetry.send(data.command, data);
   } catch (err) {
     // Do nothing.
@@ -680,15 +678,11 @@ export function cleanRawInput(argv: string[], parsedArgs: CommandOptions) {
   }
 
   return argv
-    .map((entry) => {
-      for (const stringToMask of stringsToMask) {
-        if (entry.includes(stringToMask)) {
-          // Replace only the exact sensitive string with ***
-          return entry.replace(stringToMask, '***');
-        }
-      }
-      return entry.split('=').map(cleanString).join('=');
-    })
+    .map((entry) =>
+      stringsToMask.find((mask) => entry.includes(mask))
+        ? entry.replace(stringsToMask.find((mask) => entry.includes(mask))!, '***')
+        : entry.split('=').map(cleanString).join('=')
+    )
     .join(' ');
 }
 
