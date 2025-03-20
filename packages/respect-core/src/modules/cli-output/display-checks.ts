@@ -5,8 +5,8 @@ import { isJSON } from '../../utils/is-json';
 import { indent, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
 import { DefaultLogger } from '../../utils/logger/logger';
 
-import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
-import type { Check, VerboseLog } from '../../types';
+import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types.js';
+import type { Check, VerboseLog } from '../../types.js';
 
 const logger = DefaultLogger.getInstance();
 const MAX_CRITERIA_CONDITION_DISPLAY_LENGTH = 50;

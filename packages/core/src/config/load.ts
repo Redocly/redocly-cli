@@ -1,15 +1,15 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { isEmptyObject } from '../utils';
-import { parseYaml } from '../js-yaml';
-import { ConfigValidationError, transformConfig, deepCloneMapWithJSON } from './utils';
-import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
-import { bundleConfig } from '../bundle';
-import { BaseResolver } from '../resolve';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { isEmptyObject } from '../utils.js';
+import { parseYaml } from '../js-yaml/index.js';
+import { ConfigValidationError, transformConfig, deepCloneMapWithJSON } from './utils.js';
+import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers.js';
+import { bundleConfig } from '../bundle.js';
+import { BaseResolver } from '../resolve.js';
 
-import type { Config } from './config';
-import type { Document, ResolvedRefMap } from '../resolve';
-import type { RawConfig, RawUniversalConfig } from './types';
+import type { Config } from './config.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
+import type { RawConfig, RawUniversalConfig } from './types.js';
 
 async function addConfigMetadata({
   rawConfig,

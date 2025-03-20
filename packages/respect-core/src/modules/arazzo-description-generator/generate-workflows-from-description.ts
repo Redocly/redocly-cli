@@ -12,7 +12,7 @@ import { type OperationMethod, type Workflow, type Step } from '../../types';
 import {
   type ArazzoDefinition,
   type ExtendedOperation,
-} from '@redocly/openapi-core/lib/typings/arazzo';
+} from '@redocly/openapi-core/lib/typings/arazzo.js';
 
 type HttpMethod = Lowercase<ExtendedOperation['method']>;
 

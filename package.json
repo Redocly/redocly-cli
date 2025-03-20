@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18.20.7",
     "npm": ">=10.8.2"
@@ -19,7 +20,7 @@
     "prettier": "npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
     "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
     "eslint": "eslint packages/**",
-    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
+    "clean": "rm -rf packages/**/lib packages/**/*.tsbuildinfo",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json && npm run build-docs:copy-assets",
     "prepare": "npm run compile",

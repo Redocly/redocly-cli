@@ -1,13 +1,17 @@
 import { loadAndBundleSpec } from 'redoc';
-import { dirname, resolve } from 'path';
-import { writeFileSync, mkdirSync } from 'fs';
-import { performance } from 'perf_hooks';
+import { dirname, resolve } from 'node:path';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { performance } from 'node:perf_hooks';
 import { getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
-import { getObjectOrJSON, getPageHTML } from './utils';
-import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous';
+import { getObjectOrJSON, getPageHTML } from './utils.js';
+import {
+  exitWithError,
+  getExecutionTime,
+  getFallbackApisOrExit,
+} from '../../utils/miscellaneous.js';
 
-import type { BuildDocsArgv } from './types';
-import type { CommandArgs } from '../../wrapper';
+import type { BuildDocsArgv } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 export const handlerBuildCommand = async ({
   argv,

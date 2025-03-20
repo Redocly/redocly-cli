@@ -1,10 +1,10 @@
 import * as colors from 'colorette';
-import { printExecutionTime } from '../../utils/miscellaneous';
-import { Spinner } from '../../utils/spinner';
-import { DeploymentError } from '../utils';
-import { ReuniteApi, getApiKeys, getDomain } from '../api';
-import { capitalize } from '../../utils/js-utils';
-import { handleReuniteError, retryUntilConditionMet } from './utils';
+import { printExecutionTime } from '../../utils/miscellaneous.js';
+import { Spinner } from '../../utils/spinner.js';
+import { DeploymentError } from '../utils.js';
+import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
+import { capitalize } from '../../utils/js-utils.js';
+import { handleReuniteError, retryUntilConditionMet } from './utils.js';
 
 import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper';

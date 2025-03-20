@@ -1,35 +1,35 @@
 #!/usr/bin/env node
-import * as path from 'path';
+import * as path from 'node:path';
 import * as dotenv from 'dotenv';
-import './utils/assert-node-version';
+import './utils/assert-node-version.js';
 import * as yargs from 'yargs';
 import * as colors from 'colorette';
-import { outputExtensions } from './types';
-import { handleStats } from './commands/stats';
-import { handleSplit } from './commands/split';
-import { handleJoin } from './commands/join';
-import { handlePush } from './reunite/commands/push';
-import { handlePushStatus } from './reunite/commands/push-status';
-import { handleLint } from './commands/lint';
-import { handleBundle } from './commands/bundle';
-import { handleLogin, handleLogout } from './commands/auth';
-import { handlerBuildCommand } from './commands/build-docs';
+import { outputExtensions } from './types.js';
+import { handleStats } from './commands/stats.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleJoin } from './commands/join.js';
+import { handlePush } from './reunite/commands/push.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handleLint } from './commands/lint.js';
+import { handleBundle } from './commands/bundle.js';
+import { handleLogin, handleLogout } from './commands/auth.js';
+import { handlerBuildCommand } from './commands/build-docs/index.js';
 import {
   cacheLatestVersion,
   notifyUpdateCliVersion,
   version,
-} from './utils/update-version-notifier';
-import { commandWrapper } from './wrapper';
-import { previewProject } from './commands/preview-project';
-import { handleTranslations } from './commands/translations';
-import { handleEject } from './commands/eject';
-import { PRODUCT_PLANS } from './commands/preview-project/constants';
+} from './utils/update-version-notifier.js';
+import { commandWrapper } from './wrapper.js';
+import { previewProject } from './commands/preview-project/index.js';
+import { handleTranslations } from './commands/translations.js';
+import { handleEject } from './commands/eject.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
-import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { EjectOptions } from './commands/eject';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { EjectOptions } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 

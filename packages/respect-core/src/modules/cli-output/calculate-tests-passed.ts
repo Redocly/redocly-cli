@@ -1,4 +1,3 @@
-// import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
 import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types';
 
 export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {

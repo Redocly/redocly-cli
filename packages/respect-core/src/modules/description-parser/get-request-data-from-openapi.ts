@@ -1,10 +1,10 @@
-import { isPlainObject } from '@redocly/openapi-core/lib/utils';
+import { isPlainObject } from '@redocly/openapi-core/lib/utils.js';
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
-} from '../arazzo-description-generator';
-import { extractFirstExample } from './extract-first-example';
-import { isParameterWithIn } from '../config-parser';
+} from '../arazzo-description-generator/index.js';
+import { extractFirstExample } from './extract-first-example.js';
+import { isParameterWithIn } from '../config-parser/index.js';
 
 import type { Parameter } from '../../types';
 import type { ParameterWithIn } from '../config-parser';

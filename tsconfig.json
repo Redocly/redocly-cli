@@ -3,8 +3,8 @@
     "types": ["vitest/globals"],
     "composite": true,
     "declaration": true,
-    "module": "commonjs",
-    "target": "ES2021",
+    "module": "ESNext",
+    "target": "ES2020",
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -16,6 +16,8 @@
     "allowJs": false,
     "lib": ["ES2021", "ES2021.String", "DOM"],
     "baseUrl": "./packages",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true
   }
 }

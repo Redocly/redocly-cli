@@ -1,4 +1,4 @@
-import levenshtein = require('js-levenshtein');
+import { default as levenshtein } from 'js-levenshtein';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
 import {

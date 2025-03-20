@@ -2,7 +2,7 @@ import { yellow, red } from 'colorette';
 import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
-} from '../../utils/fetch-with-timeout';
+} from '../../utils/fetch-with-timeout.js';
 
 import type { ReadStream } from 'fs';
 import type { Readable } from 'node:stream';

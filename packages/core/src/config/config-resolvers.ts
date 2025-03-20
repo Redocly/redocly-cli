@@ -1,10 +1,10 @@
-import * as path from 'path';
-import { pathToFileURL } from 'url';
-import { existsSync } from 'fs';
-import { isAbsoluteUrl } from '../ref-utils';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
-import { resolveDocument, BaseResolver } from '../resolve';
-import { defaultPlugin } from './builtIn';
+import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { existsSync } from 'node:fs';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { resolveDocument, BaseResolver } from '../resolve.js';
+import { defaultPlugin } from './builtIn.js';
 import {
   getResolveConfig,
   getUniquePlugins,
@@ -14,13 +14,13 @@ import {
   parsePresetName,
   prefixRules,
   transformConfig,
-} from './utils';
-import { isBrowser } from '../env';
-import { Config } from './config';
-import { colorize, logger } from '../logger';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
-import { normalizeTypes } from '../types';
-import { ConfigTypes } from '../types/redocly-yaml';
+} from './utils.js';
+import { isBrowser } from '../env.js';
+import { Config } from './config.js';
+import { colorize, logger } from '../logger.js';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
+import { normalizeTypes } from '../types/index.js';
+import { ConfigTypes } from '../types/redocly-yaml.js';
 
 import type {
   StyleguideRawConfig,
@@ -32,11 +32,15 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
   ImportedPlugin,
-} from './types';
-import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
-import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
-import type { BundleOptions } from '../bundle';
-import type { Document, ResolvedRefMap } from '../resolve';
+} from './types.js';
+import type {
+  Assertion,
+  AssertionDefinition,
+  RawAssertion,
+} from '../rules/common/assertions/index.js';
+import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
+import type { BundleOptions } from '../bundle.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 

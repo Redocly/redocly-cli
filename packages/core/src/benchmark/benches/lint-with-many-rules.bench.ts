@@ -1,10 +1,10 @@
-import { readFileSync } from 'fs';
-import { join as pathJoin, resolve as pathResolve } from 'path';
-import { lintDocument } from '../../lint';
-import { BaseResolver } from '../../resolve';
-import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
+import { readFileSync } from 'node:fs';
+import { join as pathJoin, resolve as pathResolve } from 'node:path';
+import { lintDocument } from '../../lint.js';
+import { BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument, makeConfigForRuleset } from '../utils.js';
 
-import type { StyleguideConfig } from '../../config';
+import type { StyleguideConfig } from '../../config/index.js';
 
 export const name = 'Validate with 50 top-level rules';
 export const count = 10;
