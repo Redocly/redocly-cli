@@ -21,7 +21,7 @@
     "eslint": "eslint packages/**",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "compile": "npm run respect:parser:generate && npm run build-docs:copy-assets && tsc -b tsconfig.build.json",
+    "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json && npm run build-docs:copy-assets",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
     "precli": "npm run compile",
