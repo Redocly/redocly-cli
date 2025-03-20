@@ -42,7 +42,7 @@ vi.mock('node:fs', () => {
   };
 });
 
-const mockExistsSync = vi.mocked(fs.existsSync); //as Mock;
+const mockExistsSync = vi.mocked(fs.existsSync);
 
 describe('runTestFile', () => {
   beforeEach(() => {
