@@ -13,14 +13,17 @@ import {
   cleanRawInput,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform';
+} from '../utils/miscellaneous.js';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import { type ResolvedApi, type Totals, ResolveError, YamlParseError } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as process from 'node:process';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock('node:os');
 vi.mock('colorette');

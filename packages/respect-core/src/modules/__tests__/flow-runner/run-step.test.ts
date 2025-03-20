@@ -4,7 +4,7 @@ import type {
   ResponseContext,
   Check,
   WorkflowExecutionResult,
-} from '../../../types';
+} from '../../../types.js';
 import {
   runStep,
   callAPIAndAnalyzeResults,
@@ -13,19 +13,20 @@ import {
   resolveWorkflowContext,
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
-} from '../../flow-runner';
-import { createHarLog } from '../../../utils/har-logs';
-import { ApiFetcher } from '../../../utils/api-fetcher';
-import { displayChecks } from '../../cli-output';
-import { cleanColors } from '../../../utils/clean-colors';
-import { Timer } from '../../timeout-timer/timer';
+} from '../../flow-runner/index.js';
+import { createHarLog } from '../../../utils/har-logs/index.js';
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
+import { displayChecks } from '../../cli-output/index.js';
+import { cleanColors } from '../../../utils/clean-colors.js';
+import { Timer } from '../../timeout-timer/timer.js';
 
-vi.mock('../../flow-runner/call-api-and-analyze-results', () => ({
+// FIXME: mock .js?
+vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
 
 vi.mock('../../cli-output', async () => {
-  const actual = await vi.importActual('../../cli-output');
+  const actual = await vi.importActual('../../cli-output/index.js');
 
   return {
     ...actual,
@@ -33,17 +34,17 @@ vi.mock('../../cli-output', async () => {
   };
 });
 
-vi.mock('../../flow-runner/success-criteria', () => ({
+vi.mock('../../flow-runner/success-criteria/index.js', () => ({
   checkCriteria: vi.fn(),
 }));
 
-vi.mock('../../flow-runner/runner', () => ({
+vi.mock('../../flow-runner/runner.js', () => ({
   runWorkflow: vi.fn(),
   resolveWorkflowContext: vi.fn(),
 }));
 
-vi.mock('../../timeout-timer/timer', async () => {
-  const actual = await vi.importActual('../../timeout-timer/timer');
+vi.mock('../../timeout-timer/timer.js', async () => {
+  const actual = await vi.importActual('../../timeout-timer/timer.js');
   return {
     ...actual,
   };

@@ -1,8 +1,11 @@
 import path from 'node:path';
 import { outdent } from 'outdent';
-import { lintDocument } from '../../lint';
-import { BaseResolver } from '../../resolve';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../__tests__/utils';
+import { lintDocument } from '../../lint.js';
+import { BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../__tests__/utils.js';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on unresolved $ref', async () => {

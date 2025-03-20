@@ -1,4 +1,4 @@
-import { printExpected, printReceived } from '../../../flow-runner';
+import { printExpected, printReceived } from '../../../flow-runner/index.js';
 
 describe('printExpected', () => {
   it('should print expected', () => {

@@ -1,4 +1,4 @@
-import { formatCliInputs } from '../../../flow-runner';
+import { formatCliInputs } from '../../../flow-runner/index.js';
 
 describe('formatCliInputs', () => {
   it('should return empty object if input is undefined', () => {

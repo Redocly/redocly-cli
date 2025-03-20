@@ -1,10 +1,13 @@
 import { readFileSync } from 'node:fs';
-import { join as pathJoin, resolve as pathResolve } from 'node:path';
+import { join as pathJoin, resolve as pathResolve, dirname } from 'node:path';
 import { lintDocument } from '../../lint.js';
 import { BaseResolver } from '../../resolve.js';
 import { parseYamlToDocument, makeConfigForRuleset } from '../utils.js';
+import { fileURLToPath } from 'node:url';
 
 import type { StyleguideConfig } from '../../config/index.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const name = 'Validate with 50 top-level rules';
 export const count = 10;
