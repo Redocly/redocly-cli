@@ -1,4 +1,4 @@
-import * as pluralize from 'pluralize';
+import pluralize from 'pluralize';
 import { isPathParameter } from '../../utils.js';
 
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';

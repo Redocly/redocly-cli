@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json && npm run build-docs:copy-assets",
     "prepare": "npm run compile",
-    "cli": "node --loader ts-node/esm packages/cli/src/index.ts",
+    "cli": "node --import tsx packages/cli/src/index.ts",
     "precli": "npm run compile",
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
@@ -73,7 +73,8 @@
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "ts-loader": "^8.0.2",
-    "ts-node": "^9.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "5.5.3",
     "vitest": "^3.0.8"
   },

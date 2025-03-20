@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'node:path';
+import path, { dirname, resolve } from 'node:path';
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
@@ -9,11 +9,15 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
 } from '../../utils/miscellaneous.js';
+import { fileURLToPath } from 'node:url';
 
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
-const packageJson = JSON.parse(readFileSync('../../../package.json', 'utf-8'));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(
+  readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
+);
 
 export const handlerBuildCommand = async ({
   argv,

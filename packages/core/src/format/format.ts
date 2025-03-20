@@ -5,8 +5,12 @@ import { output } from '../output.js';
 import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+import { fileURLToPath } from 'node:url';
 
-const packageJson = JSON.parse(fs.readFileSync('../../../package.json', 'utf-8'));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8')
+);
 
 import type {
   NormalizedProblem,
