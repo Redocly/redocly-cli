@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:2:1 at #/info/contact
 
-Info object should contain \`contact\` field.
+Info object should contain `contact` field.
 
 1 | openapi: 3.1.0
 2 | info:

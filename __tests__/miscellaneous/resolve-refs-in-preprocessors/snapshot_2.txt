@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:4:1 at #/info
 
-Info object should contain \`license\` field.
+Info object should contain `license` field.
 
 2 | servers:
 3 |   - url: http://redocly-example.com:8080

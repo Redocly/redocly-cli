@@ -54,10 +54,6 @@ export function cleanupOutput(message: string) {
 
   const cleanedFromCwd = message.replace(cwdRegexp, '.');
   const cleanedFromVersion = cleanUpVersion(cleanedFromCwd);
-  // FIXME: remove after migration
-  // This was needed to fix the issue with unescaped quotes in the output
-  // as the snapshot migrated from JS exports string to a plain text
-  const cleanedFromUnescapedQuotes = cleanedFromVersion.replace(/`/g, '\\`');
 
-  return cleanedFromUnescapedQuotes;
+  return cleanedFromVersion;
 }

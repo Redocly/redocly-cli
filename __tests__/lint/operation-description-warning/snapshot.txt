@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:8:5 at #/paths/~1ping/get/description
 
-Operation object should contain \`description\` field.
+Operation object should contain `description` field.
 
  6 | paths:
  7 |   '/ping':

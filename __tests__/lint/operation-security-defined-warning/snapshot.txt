@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:17:5 at #/security/0/app_id
 
-There is no \`app_id\` security scheme defined.
+There is no `app_id` security scheme defined.
 
 15 |           description: example description
 16 | security:

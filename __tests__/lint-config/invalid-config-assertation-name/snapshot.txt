@@ -1,7 +1,7 @@
 
 [1] .redocly.yaml:6:3 at #/rules/asset~1path-item-mutually-required
 
-The field \`severity\` must be present on this level.
+The field `severity` must be present on this level.
 
 4 |
 5 | rules:

@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:5:3 at #/info/license/url
 
-License object should contain \`url\` field.
+License object should contain `url` field.
 
 3 | title: Example OpenAPI 3 definition.
 4 | version: 1.0

@@ -1,6 +1,6 @@
 
 
-warning: 1 conflict(s) on the \`Pet\` tags description.
+warning: 1 conflict(s) on the `Pet` tags description.
 openapi: 3.0.0
 info:
   version: 1.0.0

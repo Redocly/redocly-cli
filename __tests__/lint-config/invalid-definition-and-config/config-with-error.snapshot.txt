@@ -1,7 +1,7 @@
 
 [1] .redocly.yaml:6:3 at #/rules/context
 
-Property \`context\` is not expected here.
+Property `context` is not expected here.
 
 4 |
 5 | rules:

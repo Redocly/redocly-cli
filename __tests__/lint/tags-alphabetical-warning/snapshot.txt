@@ -2,7 +2,7 @@
 validating openapi.yaml...
 [1] openapi.yaml:34:5 at #/tags/0
 
-The \`tags\` array should be in alphabetical order.
+The `tags` array should be in alphabetical order.
 
 32 |         - astore
 33 | tags:
