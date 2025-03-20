@@ -1,12 +1,11 @@
 import * as fs from 'node:fs';
-
 import { resolveMtlsCertificates } from '../../mtls/resolve-mtls-certificates';
 
-// jest.mock must come before any variable declarations
-jest.mock('node:fs', () => {
-  const actual = jest.requireActual('node:fs');
-  const mockReadFileSync = jest.fn();
-  const mockAccessSync = jest.fn();
+// vi.mock must come before any variable declarations
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  const mockReadFileSync = vi.fn();
+  const mockAccessSync = vi.fn();
 
   return {
     __esModule: true,
@@ -16,6 +15,8 @@ jest.mock('node:fs', () => {
       readFileSync: mockReadFileSync,
     },
     constants: {
+      // FIXME: this is a temporary fix to make the test pass
+      // @ts-expect-error
       ...actual.constants,
       R_OK: 4,
     },
@@ -24,15 +25,15 @@ jest.mock('node:fs', () => {
   };
 });
 
-const mockReadFileSync = fs.readFileSync as jest.Mock;
-const mockAccessSync = fs.accessSync as jest.Mock;
+const mockReadFileSync = vi.mocked(fs.readFileSync);
+const mockAccessSync = vi.mocked(fs.accessSync);
 
 describe('resolveMtlsCertificates', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Default successful mock implementations
     mockAccessSync.mockImplementation(() => undefined); // successful access returns undefined
-    mockReadFileSync.mockImplementation((path: string) => {
+    mockReadFileSync.mockImplementation((path: any) => {
       if (path.includes('clientCert')) {
         return '-----BEGIN CERTIFICATE-----\nclientCert\n-----END CERTIFICATE-----';
       } else if (path.includes('clientKey')) {

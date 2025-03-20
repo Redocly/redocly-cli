@@ -5,7 +5,7 @@ import { resolveDocument, BaseResolver, Document } from '../resolve';
 import { parseYamlToDocument } from '../../__tests__/utils';
 import { Oas3Types } from '../types/oas3';
 import { normalizeTypes } from '../types';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
@@ -418,7 +418,11 @@ describe('collect refs', () => {
       `,
       path.join(cwd, 'foobar')
     );
-    jest.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
+    vi.mock('node:fs', async () => {
+      const actual = await vi.importActual('node:fs');
+      return { ...actual };
+    });
+    vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
 
     const resolvedRefs = await resolveDocument({
       rootDocument,

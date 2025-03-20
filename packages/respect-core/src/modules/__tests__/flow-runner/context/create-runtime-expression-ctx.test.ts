@@ -1,4 +1,4 @@
-import { Step, type AppOptions, type TestDescription } from '../../../../types';
+import { type Step, type AppOptions, type TestDescription } from '../../../../types';
 import { createRuntimeExpressionCtx, createTestContext } from '../../../flow-runner/context';
 import { ApiFetcher } from '../../../../utils/api-fetcher';
 
@@ -39,20 +39,22 @@ const testDescription = {
   ],
 } as unknown as TestDescription;
 
-const options = {
+const options: AppOptions = {
   workflowPath: 'test.test.yaml',
   workflow: undefined,
-  harLogsFile: 'har-output',
   metadata: {},
   verbose: false,
-} as AppOptions;
-
-process.env.AUTH_TOKEN = '1234567890';
-
-// Unmock @redocly/openapi-core
-jest.unmock('@redocly/openapi-core');
+};
 
 describe('createRuntimeExpressionCtx', () => {
+  beforeEach(() => {
+    process.env.AUTH_TOKEN = '1234567890';
+  });
+
+  afterEach(() => {
+    delete process.env.AUTH_TOKEN;
+  });
+
   it('should create limited runtime expression context when workflowId and step provided', async () => {
     const apiClient = new ApiFetcher({
       harLogs: undefined,

@@ -5,5 +5,5 @@
     "outDir": "lib"
   },
   "references": [{ "path": "../core" }, { "path": "../respect-core" }],
-  "exclude": ["lib"]
+  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }

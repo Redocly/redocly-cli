@@ -1,5 +1,5 @@
 export {
-  BundleOutputFormat,
+  type BundleOutputFormat,
   readFileFromUrl,
   slash,
   doesYamlFileExist,
@@ -39,7 +39,6 @@ export {
   RawConfig,
   RawUniversalConfig,
   IGNORE_FILE,
-  Region,
   getMergedConfig,
   transformConfig,
   loadConfig,
@@ -50,10 +49,6 @@ export {
   createConfig,
   ResolvedApi,
 } from './config';
-
-export { RedoclyClient } from './redocly';
-
-export * from './redocly/domains';
 
 export {
   Source,

@@ -4,8 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "engines": {
-    "node": ">=18.17.0",
-    "npm": ">=9.5.0"
+    "node": ">=18.20.7",
+    "npm": ">=10.8.2"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -17,6 +17,9 @@
     "fs": false,
     "path": "path-browserify",
     "os": false,
+    "node:fs": false,
+    "node:path": "path-browserify",
+    "node:os": false,
     "colorette": false,
     "https-proxy-agent": false
   },
@@ -41,14 +44,14 @@
     "https-proxy-agent": "^7.0.5",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
-    "minimatch": "^5.0.1",
+    "minimatch": "^10.0.1",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
     "@types/js-levenshtein": "^1.1.0",
     "@types/js-yaml": "^4.0.3",
-    "@types/minimatch": "^3.0.5",
+    "@types/minimatch": "^5.1.2",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
     "typescript": "5.5.3"

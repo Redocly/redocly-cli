@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
 
 test('should not follow the default behavior to break and return if onFailure omitted with warn severity and continue execution of the next step', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -20,4 +20,4 @@ test('should not follow the default behavior to break and return if onFailure om
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

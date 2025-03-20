@@ -199,23 +199,6 @@ jobs:
           version: 10
       - run: bash ./__tests__/smoke/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
 
-  run-smoke--webpack--node-22:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 22
-      - run: |
-          cd __tests__/smoke/
-          node bundle.js --version
-          node bundle.js lint openapi.yaml --extends minimal
-          node bundle.js bundle openapi.yaml
-
   run-smoke--npm--node-22--windows:
     needs: prepare-smoke
     runs-on: windows-latest

@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { join } from 'node:path';
 
 // Snapshot should have two workflows, and first workflow should run only first step
 test('should end workflow execution, context returns to the caller with applicable outputs, when step passes and onSuccess action is of type `end`', () => {
@@ -9,4 +9,4 @@ test('should end workflow execution, context returns to the caller with applicab
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

@@ -1,8 +1,6 @@
 import { getDomain } from '../domains';
 import { getReuniteUrl } from '../domains';
 
-import type { Region } from '@redocly/openapi-core';
-
 describe('getDomain()', () => {
   afterEach(() => {
     delete process.env.REDOCLY_DOMAIN;
@@ -32,7 +30,7 @@ describe('getReuniteUrl()', () => {
 
   it('should return custom domain API URL when custom domain specified', () => {
     const customDomain = 'https://custom.domain.com';
-    expect(getReuniteUrl(customDomain as Region)).toBe('https://custom.domain.com/api');
+    expect(getReuniteUrl(customDomain)).toBe('https://custom.domain.com/api');
   });
 
   it('should return US API URL when no region specified', () => {

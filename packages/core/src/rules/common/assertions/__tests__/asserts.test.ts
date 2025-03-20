@@ -2,7 +2,7 @@ import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
 import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
-let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
+let baseLocation = new Location(vi.fn() as any as Source, 'pointer');
 
 const assertionProperties = {
   baseLocation: baseLocation,
@@ -848,7 +848,7 @@ describe('oas3 assertions', () => {
 
     describe('function', () => {
       it('node must have at least one property from predefined list', () => {
-        const customFn = jest.fn((value: string[], options: any) => {
+        const customFn = vi.fn((value: string[], options: any) => {
           if (value[0] === options.word) {
             return [
               { message: `First value should be ${options.word}`, location: baseLocation.key() },

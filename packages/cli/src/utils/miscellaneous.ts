@@ -1,13 +1,14 @@
-import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
+import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as readline from 'readline';
-import { Writable } from 'stream';
-import { execSync } from 'child_process';
-import { promisify } from 'util';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as readline from 'node:readline';
+import { Writable } from 'node:stream';
+import { execSync } from 'node:child_process';
+import { promisify } from 'node:util';
+import * as process from 'node:process';
 import {
   ResolveError,
   YamlParseError,
@@ -15,7 +16,6 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
   loadConfig,
-  RedoclyClient,
 } from '@redocly/openapi-core';
 import {
   isEmptyObject,
@@ -28,7 +28,6 @@ import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
 import { outputExtensions } from '../types';
 import { version } from './update-version-notifier';
-import { DESTINATION_REGEX } from '../commands/push';
 import { getReuniteUrl } from '../reunite/api';
 
 import type { Arguments } from 'yargs';
@@ -36,7 +35,6 @@ import type {
   BundleOutputFormat,
   StyleguideConfig,
   ResolvedApi,
-  Region,
   Config,
   Oas3Definition,
   Oas2Definition,
@@ -172,6 +170,8 @@ export function langToExt(lang: string) {
     swift: '.swift',
     typescript: '.ts',
     tsx: '.tsx',
+    'visual basic': '.vb',
+    'c/al': '.al',
   };
   return langObj[lang.toLowerCase()];
 }
@@ -280,6 +280,7 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
   const ext = fileName.split('.').pop();
 
   if (['yaml', 'yml', 'json'].includes(ext!)) {
+    // FIXME: ^ use one source of truth
     return ext as NonNullable<OutputExtensions>;
   }
   process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
@@ -441,21 +442,11 @@ export function exitWithError(message: string) {
   throw new HandledError(message);
 }
 
-/**
- * Checks if dir is subdir of parent
- */
-export function isSubdir(parent: string, dir: string): boolean {
-  const relativePath = relative(parent, dir);
-  return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
-}
-
 export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
     processRawConfig?: RawConfigProcessor;
-    files?: string[];
-    region?: Region;
   } = {}
 ): Promise<Config | void> {
   try {
@@ -565,11 +556,10 @@ export async function sendTelemetry(
       ...args
     } = argv;
     const event_time = new Date().toISOString();
-    const redoclyClient = new RedoclyClient();
     const { RedoclyOAuthClient } = await import('../auth/oauth-client');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
-    const logged_in = redoclyClient.hasTokens() || (await oauthClient.isAuthorized(reuniteUrl));
+    const logged_in = await oauthClient.isAuthorized(reuniteUrl);
     const data: Analytics = {
       event: 'cli_command',
       event_time,
@@ -640,9 +630,7 @@ function cleanString(value?: string): string | undefined {
   if (isDirectory(value)) {
     return 'folder';
   }
-  if (DESTINATION_REGEX.test(value)) {
-    return value.startsWith('@') ? '@organization/api-name@api-version' : 'api-name@api-version';
-  }
+
   return value;
 }
 

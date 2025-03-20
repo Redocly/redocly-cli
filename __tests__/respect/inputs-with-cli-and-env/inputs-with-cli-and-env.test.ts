@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
 
 test('should use inputs from CLI and env', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
@@ -18,4 +18,4 @@ test('should use inputs from CLI and env', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.AUTH_TOKEN;
-});
+}, 60_000);

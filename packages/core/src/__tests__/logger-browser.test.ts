@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 
 import * as colorette from 'colorette';
@@ -7,7 +7,7 @@ import { logger, colorize } from '../logger';
 
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
-    const error = jest.spyOn(console, 'error').mockImplementation();
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     logger.error('error');
 
@@ -18,7 +18,7 @@ describe('Logger in Browser', () => {
   });
 
   it('should call "console.log"', () => {
-    const log = jest.spyOn(console, 'log').mockImplementation();
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     logger.info('info');
 
@@ -29,7 +29,7 @@ describe('Logger in Browser', () => {
   });
 
   it('should call "console.warn"', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     logger.warn('warn');
 
@@ -42,12 +42,11 @@ describe('Logger in Browser', () => {
 
 describe('colorize in Browser', () => {
   it('should not call original colorette lib', () => {
+    vi.mock('colorette');
     const color = 'cyan';
-    const spyingCyan = jest.spyOn(colorette, color);
-
     const colorized = colorize.cyan(color);
 
-    expect(spyingCyan).not.toBeCalled();
+    expect(colorette.cyan).not.toBeCalled();
     expect(colorized).toEqual(color);
   });
 });

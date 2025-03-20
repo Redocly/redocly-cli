@@ -13,7 +13,6 @@ import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils'
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { dequal, isPlainObject, isTruthy } from './utils';
-import { isRedoclyRegistryURL } from './redocly/domains';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 import { ConfigTypes } from './types/redocly-yaml';
@@ -37,7 +36,6 @@ export type BundleOptions = {
   config: Config;
   dereference?: boolean;
   base?: string | null;
-  skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
 };
@@ -147,7 +145,6 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
-  skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
 }): Promise<BundleResult> {
@@ -157,7 +154,6 @@ export async function bundleDocument(opts: {
     customTypes,
     externalRefResolver,
     dereference = false,
-    skipRedoclyRegistryRefs = false,
     removeUnusedComponents = false,
     keepUrlRefs = false,
   } = opts;
@@ -220,7 +216,6 @@ export async function bundleDocument(opts: {
         visitor: makeBundleVisitor(
           specMajorVersion,
           dereference,
-          skipRedoclyRegistryRefs,
           document,
           resolvedRefMap,
           keepUrlRefs
@@ -336,7 +331,6 @@ function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext)
 function makeBundleVisitor(
   version: SpecMajorVersion,
   dereference: boolean,
-  skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
   resolvedRefMap: ResolvedRefMap,
   keepUrlRefs: boolean
@@ -357,11 +351,6 @@ function makeBundleVisitor(
           ctx.type.name !== 'scalar' &&
           !dereference
         ) {
-          return;
-        }
-
-        // do not bundle registry URL before push, otherwise we can't record dependencies
-        if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
           return;
         }
 

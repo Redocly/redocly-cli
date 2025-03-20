@@ -9,7 +9,7 @@ rules:
 openapi:
   $ref: theme-openapi.yaml
 
-organization: false # wrong, expected string
+decorators: wrong, expected object
 
 seo:
   $ref: seo.yaml

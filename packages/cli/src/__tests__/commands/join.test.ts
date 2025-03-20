@@ -1,21 +1,54 @@
 import { yellow } from 'colorette';
-import { detectSpec } from '@redocly/openapi-core';
+import {
+  bundleDocument,
+  detectSpec,
+  getTotals,
+  loadConfig,
+  BaseResolver,
+  type SpecVersion,
+  type Document,
+} from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join';
 import {
   exitWithError,
+  getAndValidateFileExtension,
   getFallbackApisOrExit,
+  sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous';
-import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
-import { ConfigFixture } from '../fixtures/config';
-
-jest.mock('../../utils/miscellaneous');
-
-jest.mock('colorette');
+import { configFixture } from '../fixtures/config';
+import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents';
 
 describe('handleJoin', () => {
-  const colloreteYellowMock = yellow as jest.Mock<any, any>;
-  colloreteYellowMock.mockImplementation((string: string) => string);
+  beforeEach(() => {
+    vi.mock('../../utils/miscellaneous');
+    vi.mocked(getAndValidateFileExtension).mockImplementation(
+      (fileName) => fileName.split('.').pop() as any
+    );
+    vi.mocked(getFallbackApisOrExit).mockImplementation(
+      async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
+    );
+    vi.mocked(sortTopLevelKeysForOas).mockImplementation((document) => document);
+    vi.mocked(writeToFileByExtension).mockImplementation(() => {});
+
+    vi.mock('colorette');
+    vi.mocked(yellow).mockImplementation((text) => text as string);
+
+    vi.mock('@redocly/openapi-core');
+    vi.mocked(bundleDocument).mockResolvedValue({ problems: [] } as any);
+    vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });
+    vi.mocked(loadConfig).mockResolvedValue(configFixture);
+    vi.mocked(BaseResolver.prototype.resolveDocument)
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
+      );
+  });
 
   it('should call exitWithError because only one entrypoint', async () => {
     await handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' });
@@ -23,7 +56,7 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError if glob expands to less than 2 APIs', async () => {
-    (getFallbackApisOrExit as jest.Mock).mockResolvedValueOnce([{ path: 'first.yaml' }]);
+    vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([{ path: 'first.yaml' }]);
 
     await handleJoin({
       argv: { apis: ['*.yaml'] },
@@ -35,15 +68,15 @@ describe('handleJoin', () => {
   });
 
   it('should proceed if glob expands to 2 or more APIs', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_1');
-    (getFallbackApisOrExit as jest.Mock).mockResolvedValueOnce([
+    vi.mocked(detectSpec).mockReturnValue('oas3_1' as SpecVersion);
+    vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([
       { path: 'first.yaml' },
       { path: 'second.yaml' },
     ]);
 
     await handleJoin({
       argv: { apis: ['*.yaml'] },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -84,12 +117,12 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
-    (detectSpec as jest.Mock).mockReturnValueOnce('oas2_0');
+    vi.mocked(detectSpec).mockReturnValueOnce('oas2_0' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
     expect(exitWithError).toHaveBeenCalledWith(
@@ -98,14 +131,14 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
-    (detectSpec as jest.Mock)
-      .mockImplementationOnce(() => 'oas3_0')
-      .mockImplementationOnce(() => 'oas3_1');
+    vi.mocked(detectSpec)
+      .mockImplementationOnce(() => 'oas3_0' as SpecVersion)
+      .mockImplementationOnce(() => 'oas3_1' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -115,12 +148,12 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -132,12 +165,12 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_1');
+    vi.mocked(detectSpec).mockReturnValue('oas3_1' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -149,13 +182,13 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with custom output file', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -167,12 +200,12 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with json file extension', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.json', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
@@ -184,22 +217,22 @@ describe('handleJoin', () => {
   });
 
   it('should call skipDecorators and skipPreprocessors', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
-    const config = loadConfig();
+    const config = await loadConfig();
     expect(config.styleguide.skipDecorators).toHaveBeenCalled();
     expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
-    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
 
     await handleJoin({
       argv: {
@@ -207,7 +240,7 @@ describe('handleJoin', () => {
         'prefix-components-with-info-prop': 'title',
         output: 'join-result.yaml',
       },
-      config: ConfigFixture as any,
+      config: configFixture,
       version: 'cli-version',
     });
 
