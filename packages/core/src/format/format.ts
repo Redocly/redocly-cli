@@ -1,9 +1,12 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { colorOptions, colorize, logger } from '../logger.js';
 import { output } from '../output.js';
 import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+
+const packageJson = JSON.parse(fs.readFileSync('../../../package.json', 'utf-8'));
 
 import type {
   NormalizedProblem,
@@ -13,7 +16,7 @@ import type {
 } from '../walk.js';
 
 // FIXME: update
-const coreVersion = require('../../package.json').version;
+const coreVersion = packageJson.version;
 
 export type Totals = {
   errors: number;

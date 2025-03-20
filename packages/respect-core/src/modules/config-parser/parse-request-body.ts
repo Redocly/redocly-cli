@@ -1,7 +1,7 @@
 import { createReadStream, constants, access, type ReadStream } from 'node:fs';
 import * as querystring from 'node:querystring';
 import * as path from 'node:path';
-import FormData = require('form-data');
+import FormData from 'form-data';
 import { type TestContext, type RequestBody } from '../../types.js';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =

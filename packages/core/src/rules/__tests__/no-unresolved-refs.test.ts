@@ -1,4 +1,4 @@
-import path = require('path');
+import path from 'node:path';
 import { outdent } from 'outdent';
 import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';

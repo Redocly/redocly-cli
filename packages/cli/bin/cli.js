@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('../lib/index');
+import '../lib/index.js';

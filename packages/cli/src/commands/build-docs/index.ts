@@ -1,6 +1,6 @@
-import { loadAndBundleSpec } from 'redoc';
 import { dirname, resolve } from 'node:path';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
 import { getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
@@ -12,6 +12,8 @@ import {
 
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
+
+const packageJson = JSON.parse(readFileSync('../../../package.json', 'utf-8'));
 
 export const handlerBuildCommand = async ({
   argv,
@@ -33,12 +35,14 @@ export const handlerBuildCommand = async ({
     redocOptions: getObjectOrJSON(argv.theme?.openapi, config),
   };
 
-  const redocCurrentVersion = require('../../../package.json').dependencies.redoc;
+  const redocCurrentVersion = packageJson.dependencies.redoc;
 
   try {
     const elapsed = getExecutionTime(startedAt);
 
-    const api = await loadAndBundleSpec(isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi));
+    const api = await redoc.loadAndBundleSpec(
+      isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi)
+    );
     collectSpecData?.(api);
     const pageHTML = await getPageHTML(
       api,

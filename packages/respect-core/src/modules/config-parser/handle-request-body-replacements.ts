@@ -1,7 +1,6 @@
-import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
+import JsonPointerLib from 'json-pointer';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-
-const JsonPointerLib = require('json-pointer');
+import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
 
 export function handlePayloadReplacements(
   payload: object,

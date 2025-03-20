@@ -1,10 +1,11 @@
-import * as semver from 'semver';
-import * as path from 'node:path';
 import * as process from 'node:process';
+import * as fs from 'node:fs';
+import * as semver from 'semver';
 import { yellow } from 'colorette';
 
 try {
-  const { engines } = require(path.join(__dirname, '../package.json'));
+  const packageJson = JSON.parse(fs.readFileSync('../package.json', 'utf-8'));
+  const { engines } = packageJson;
   const version = engines.node;
 
   if (!semver.satisfies(process.version, version)) {

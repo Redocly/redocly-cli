@@ -2,7 +2,8 @@
 import * as path from 'node:path';
 import * as dotenv from 'dotenv';
 import './utils/assert-node-version.js';
-import * as yargs from 'yargs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as colors from 'colorette';
 import { outputExtensions } from './types.js';
 import { handleStats } from './commands/stats.js';
@@ -33,13 +34,16 @@ import type { EjectOptions } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
-if (!('replaceAll' in String.prototype)) {
-  require('core-js/actual/string/replace-all');
-}
+// FIXME: this is not working
+// if (!('replaceAll' in String.prototype)) {
+//   import('core-js/actual/string/replace-all.js').then((module) => {
+//     module.default();
+//   });
+// }
 
 cacheLatestVersion();
 
-yargs
+yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
   .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
