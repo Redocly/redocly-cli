@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
 
 test('should implicitly add content type header based on requestBody.content field (the first one) if such does not specified', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

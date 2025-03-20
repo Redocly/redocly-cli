@@ -1,5 +1,5 @@
 
-index.ts bundle [apis...]
+index.js bundle [apis...]
 
 Bundle a multi-file API description to a single file.
 

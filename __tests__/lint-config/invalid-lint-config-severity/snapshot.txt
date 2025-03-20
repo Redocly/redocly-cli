@@ -1,5 +1,5 @@
 
-index.ts lint [apis...]
+index.js lint [apis...]
 
 Lint an API or Arazzo description.
 

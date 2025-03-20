@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { join } from 'node:path';
 
 test('should hide sensitive input values', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';

@@ -1,5 +1,6 @@
-import { join } from 'path';
-import { getParams, getCommandOutput, cleanColors } from '../utils';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
+import { cleanColors } from '../utils';
 
 test('cats api test case', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

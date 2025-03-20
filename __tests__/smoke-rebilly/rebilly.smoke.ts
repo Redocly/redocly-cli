@@ -1,5 +1,5 @@
-import { getParams, getCommandOutput } from '../respect/utils';
-import { join } from 'path';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../helpers';
 
 test('rebilly test case', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
