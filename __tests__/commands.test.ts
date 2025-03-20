@@ -22,7 +22,7 @@ describe('E2E', () => {
 
       test(file, async () => {
         const result = getCommandOutput(args, testPath);
-        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
     }
 
@@ -33,7 +33,7 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('lint not valid Arazzo description', async () => {
@@ -43,7 +43,7 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['museum.yaml']);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('arazzo-type-extensions-with-plugin', async () => {
@@ -56,7 +56,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('skip-rules', async () => {
@@ -70,7 +70,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.txt'));
     });
   });
 
@@ -83,7 +83,7 @@ describe('E2E', () => {
         join(testPath, './openapi.yaml'),
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     it('no-default-recommended-fallback', async () => {
@@ -92,7 +92,7 @@ describe('E2E', () => {
         join(testPath, './openapi.yaml'),
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
   });
 
@@ -112,7 +112,7 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'check-config', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('run with config option', async () => {
@@ -124,7 +124,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('config type extension in assertions', async () => {
@@ -136,7 +136,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('wrong config type extension in assertions', async () => {
@@ -148,7 +148,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
   });
 
@@ -184,19 +184,19 @@ describe('E2E', () => {
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     const configSeverityOptions: { dirName: string; option: string | null; snapshot: string }[] = [
       {
         dirName: 'invalid-definition-and-config',
         option: 'error',
-        snapshot: 'config-with-error.snapshot.js',
+        snapshot: 'config-with-error.snapshot.txt',
       },
       {
         dirName: 'invalid-definition-and-config',
         option: 'warn',
-        snapshot: 'config-with-warn.snapshot.js',
+        snapshot: 'config-with-warn.snapshot.txt',
       },
     ];
 
@@ -225,7 +225,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('swagger', async () => {
@@ -237,7 +237,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('openapi with no errors', async () => {
@@ -250,7 +250,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('with separator: /', async () => {
@@ -264,7 +264,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('openapi json file', async () => {
@@ -277,7 +277,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('openapi json file refs validation', async () => {
@@ -303,7 +303,7 @@ describe('E2E', () => {
         join(folderPath, 'output/openapi.json'),
       ]);
       const result = getCommandOutput(lintArgs, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
 
     test('openapi json file with discriminator', async () => {
@@ -326,7 +326,7 @@ describe('E2E', () => {
       });
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot.txt'));
     });
   });
 
@@ -350,7 +350,7 @@ describe('E2E', () => {
         const testPath = join(__dirname, `join/${dir}`);
         const args = getParams('../../../packages/cli/src/index.ts', 'join', entrypoints);
         const result = getCommandOutput(args, testPath);
-        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
     });
 
@@ -367,7 +367,7 @@ describe('E2E', () => {
         const argsWithOptions = [...entrypoints, ...[`--${option.name}=${option.value}`]];
         const args = getParams('../../../packages/cli/src/index.ts', 'join', argsWithOptions);
         const result = getCommandOutput(args, testPath);
-        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
     });
 
@@ -379,7 +379,7 @@ describe('E2E', () => {
           'pet.yaml',
         ]);
         const result = getCommandOutput(args, testPath);
-        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
     });
 
@@ -395,20 +395,20 @@ describe('E2E', () => {
           name: 'first entrypoint is a json file',
           folder: 'json-and-yaml-input',
           entrypoints: ['foo.json', 'bar.yaml'],
-          snapshot: 'json-output.snapshot.js',
+          snapshot: 'json-output.snapshot.txt',
         },
         {
           name: 'first entrypoint is a yaml file',
           folder: 'json-and-yaml-input',
           entrypoints: ['bar.yaml', 'foo.json'],
-          snapshot: 'yaml-output.snapshot.js',
+          snapshot: 'yaml-output.snapshot.txt',
         },
         {
           name: 'json output file',
           folder: 'yaml-input-and-json-output',
           entrypoints: ['foo.yaml', 'bar.yaml'],
           output: 'openapi.json',
-          snapshot: 'snapshot.js',
+          snapshot: 'snapshot.txt',
         },
       ];
 
@@ -448,7 +448,7 @@ describe('E2E', () => {
 
       test(file, async () => {
         const result = getCommandOutput(args, testPath);
-        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
     }
 
@@ -457,14 +457,14 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['museum.yaml']);
 
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('bundle should NOT be invoked IF no positional apis provided AND --output specified', async () => {
       const testPath = join(folderPath, 'bundle-no-output-without-inline-apis');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['--output=dist']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
   });
 
@@ -480,7 +480,7 @@ describe('E2E', () => {
       ];
       const result = getCommandOutput(args, folderPath);
       await expect(cleanupOutput(result)).toMatchFileSnapshot(
-        join(folderPath, 'remove-unused-components-snapshot.js')
+        join(folderPath, 'remove-unused-components-snapshot.txt')
       );
     });
   });
@@ -495,7 +495,7 @@ describe('E2E', () => {
       const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
       const result = getCommandOutput(args, folderPath);
       await expect(cleanupOutput(result)).toMatchFileSnapshot(
-        join(folderPath, 'remove-unused-components-snapshot.js')
+        join(folderPath, 'remove-unused-components-snapshot.txt')
       );
     });
 
@@ -510,7 +510,7 @@ describe('E2E', () => {
         const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
         const result = getCommandOutput(args, folderPath);
         await expect(cleanupOutput(result)).toMatchFileSnapshot(
-          join(folderPath, 'without-remove-unused-components-snapshot.js')
+          join(folderPath, 'without-remove-unused-components-snapshot.txt')
         );
       }
     );
@@ -525,7 +525,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.txt'));
     });
 
     it('discriminator mapping should be replaced with correct references to components', async () => {
@@ -536,7 +536,7 @@ describe('E2E', () => {
       ]);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.txt'));
     });
   });
 
@@ -546,7 +546,7 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['test.yaml']);
 
       const result = getCommandOutput(args, folderPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(folderPath, 'snapshot_2.txt'));
     });
   });
 
@@ -557,21 +557,21 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('lint should resolve $refs in preprocessors', async () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
     });
 
     test('stat should print the correct summary with $refs in preprocessors', async () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.txt'));
     });
 
     test('lint with a rule from a plugin', async () => {
@@ -581,7 +581,7 @@ describe('E2E', () => {
         '--config=plugin-config.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('decorate with a decorator from a plugin', async () => {
@@ -591,7 +591,7 @@ describe('E2E', () => {
         '--config=plugin-config.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
     });
 
     test('apply a decorator to a specific api (without specifying the api)', async () => {
@@ -600,7 +600,7 @@ describe('E2E', () => {
         '--config=nested/redocly.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('apply a decorator to a specific api (when the api is specified as an alias)', async () => {
@@ -610,7 +610,7 @@ describe('E2E', () => {
         'test@fs',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
     });
 
     test('lint a specific api (when the api is specified as an alias and it points to an external URL)', async () => {
@@ -620,7 +620,7 @@ describe('E2E', () => {
         'test@external-url',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.txt'));
     });
   });
 
@@ -631,7 +631,7 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'simple-build-docs');
       const args = getParams('../../../packages/cli/src/index.ts', 'build-docs', ['pets.yaml']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
       expect(existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
     });
@@ -644,7 +644,7 @@ describe('E2E', () => {
         '-o=nested/redoc-static.html',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
       expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
       expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36238);
@@ -658,7 +658,7 @@ describe('E2E', () => {
       const testPath = join(folderPath, 'stats-stylish');
       const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['museum.yaml']);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('stats should produce correct JSON output', async () => {
@@ -668,7 +668,7 @@ describe('E2E', () => {
         '--format=json',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     test('stats should produce correct Markdown format', async () => {
@@ -678,7 +678,7 @@ describe('E2E', () => {
         '--format=markdown',
       ]);
       const result = getCommandOutput(args, testPath);
-      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.js'));
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
   });
 });
