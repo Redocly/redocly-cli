@@ -1,6 +1,6 @@
-import type { Location } from '../../ref-utils';
-import type { Problem, UserContext } from '../../walk';
-import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
+import type { Location } from '../../ref-utils.js';
+import type { Problem, UserContext } from '../../walk.js';
+import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,

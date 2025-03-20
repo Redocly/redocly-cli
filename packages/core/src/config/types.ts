@@ -23,8 +23,8 @@ import type {
   Overlay1DecoratorsSet,
   Overlay1RuleSet,
 } from '../oas-types';
-import type { NodeType } from '../types';
-import type { SkipFunctionContext } from '../visitors';
+import type { NodeType } from '../types/index.js';
+import type { SkipFunctionContext } from '../visitors.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';

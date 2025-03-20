@@ -7,14 +7,14 @@ import { capitalize } from '../../utils/js-utils.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
 
 import type { OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgs } from '../../wrapper';
+import type { CommandArgs } from '../../wrapper.js';
 import type {
   DeploymentStatus,
   DeploymentStatusResponse,
   PushResponse,
   ScorecardItem,
-} from '../api/types';
-import type { VerifyConfigOptions } from '../../types';
+} from '../api/types.js';
+import type { VerifyConfigOptions } from '../../types.js';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 

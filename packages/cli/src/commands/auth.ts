@@ -2,7 +2,7 @@ import { exitWithError } from '../utils/miscellaneous.js';
 import { RedoclyOAuthClient } from '../auth/oauth-client.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 
-import type { CommandArgs } from '../wrapper';
+import type { CommandArgs } from '../wrapper.js';
 
 export type LoginOptions = {
   residency?: string;

@@ -2,6 +2,20 @@ import { handlePushStatus } from '../push-status';
 import { PushResponse } from '../../api/types';
 import { ReuniteApi } from '../../api';
 
+vi.mock('colorette', async () => {
+  const actual = await vi.importActual('colorette');
+
+  return {
+    ...actual,
+    green: (str: string) => str,
+    yellow: (str: string) => str,
+    red: (str: string) => str,
+    gray: (str: string) => str,
+    magenta: (str: string) => str,
+    cyan: (str: string) => str,
+  };
+});
+
 const remotes = {
   getPush: vi.fn(),
   getRemotesList: vi.fn(),
@@ -58,15 +72,6 @@ describe('handlePushStatus()', () => {
   beforeEach(() => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
-
-    vi.mock('colorette', () => ({
-      green: (str: string) => str,
-      yellow: (str: string) => str,
-      red: (str: string) => str,
-      gray: (str: string) => str,
-      magenta: (str: string) => str,
-      cyan: (str: string) => str,
-    }));
 
     vi.mock('../../api', async () => {
       const actual = await vi.importActual('../../api');

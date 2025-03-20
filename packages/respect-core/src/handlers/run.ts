@@ -7,14 +7,14 @@ import {
   displayFilesSummaryTable,
   calculateTotals,
   composeJsonLogsFiles,
-} from '../modules/cli-output';
-import { DefaultLogger } from '../utils/logger/logger';
-import { exitWithError } from '../utils/exit-with-error';
+} from '../modules/cli-output/index.js';
+import { DefaultLogger } from '../utils/logger/logger.js';
+import { exitWithError } from '../utils/exit-with-error.js';
 import { writeFileSync } from 'node:fs';
-import { indent } from '../utils/cli-outputs';
-import { Timer } from '../modules/timeout-timer/timer';
+import { indent } from '../utils/cli-outputs.js';
+import { Timer } from '../modules/timeout-timer/timer.js';
 
-import type { JsonLogs, CommandArgs, RunArgv } from '../types';
+import type { JsonLogs, CommandArgs, RunArgv } from '../types.js';
 
 export type RespectOptions = {
   files: string[];

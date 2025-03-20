@@ -1,4 +1,4 @@
-const parser = require('./abnf-parser');
+import { default as parser } from './abnf-parser.js';
 
 export function lintExpression(expression: string) {
   try {

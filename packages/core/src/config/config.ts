@@ -12,7 +12,7 @@ import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 
-import type { NormalizedProblem } from '../walk';
+import type { NormalizedProblem } from '../walk.js';
 import type {
   Oas2RuleSet,
   Oas3RuleSet,
@@ -20,8 +20,8 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
-} from '../oas-types';
-import type { NodeType } from '../types';
+} from '../oas-types.js';
+import type { NodeType } from '../types/index.js';
 import type {
   DecoratorConfig,
   Plugin,

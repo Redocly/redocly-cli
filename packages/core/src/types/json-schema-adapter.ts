@@ -1,6 +1,6 @@
 // For internal usage only
 
-import Ajv from '@redocly/ajv/dist/2020';
+import Ajv from '@redocly/ajv/dist/2020.js';
 import { isPlainObject } from '../utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
