@@ -5,9 +5,9 @@ import {
   isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
-} from '../utils';
-import { Config } from './config';
-import { logger, colorize } from '../logger';
+} from '../utils.js';
+import { Config } from './config.js';
+import { logger, colorize } from '../logger.js';
 
 import type {
   Api,

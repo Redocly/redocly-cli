@@ -3,7 +3,7 @@ import { lintExpression } from './lint.js';
 import { replaceJSONPointers } from './replace-json-pointers.js';
 import { getFakeData, parseJson } from '../config-parser/index.js';
 
-import type { RuntimeExpressionContext } from '../../types';
+import type { RuntimeExpressionContext } from '../../types.js';
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
 export function evaluateRuntimeExpressionPayload({

@@ -1,9 +1,9 @@
 import { blue, yellow, green, gray, red } from 'colorette';
 import { outdent } from 'outdent';
-import { combineUrl } from '../../utils/url';
-import { isJSON } from '../../utils/is-json';
-import { indent, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
-import { DefaultLogger } from '../../utils/logger/logger';
+import { combineUrl } from '../../utils/url.js';
+import { isJSON } from '../../utils/is-json.js';
+import { indent, RESET_ESCAPE_CODE } from '../../utils/cli-outputs.js';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types.js';
 import type { Check, VerboseLog } from '../../types.js';

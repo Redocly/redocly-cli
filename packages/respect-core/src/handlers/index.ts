@@ -1,2 +1,2 @@
-export * from './run';
-export * from './generate';
+export * from './run.js';
+export * from './generate.js';

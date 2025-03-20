@@ -6,9 +6,9 @@ import {
 import { extractFirstExample } from './extract-first-example.js';
 import { isParameterWithIn } from '../config-parser/index.js';
 
-import type { Parameter } from '../../types';
-import type { ParameterWithIn } from '../config-parser';
-import type { OperationDetails } from './get-operation-from-description';
+import type { Parameter } from '../../types.js';
+import type { ParameterWithIn } from '../config-parser/index.js';
+import type { OperationDetails } from './get-operation-from-description.js';
 
 export interface OpenApiRequestData {
   requestBody?: Record<string, unknown>;

@@ -1,5 +1,5 @@
-import { maskSecrets } from './mask-secrets';
-import { calculateTotals } from './calculate-tests-passed';
+import { maskSecrets } from './mask-secrets.js';
+import { calculateTotals } from './calculate-tests-passed.js';
 
 import type {
   TestContext,
@@ -9,7 +9,7 @@ import type {
   Step,
   StepExecutionResult,
   Check,
-} from '../../types';
+} from '../../types.js';
 
 export function composeJsonLogsFiles(
   filesResult: {

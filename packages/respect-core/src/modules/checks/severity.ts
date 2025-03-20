@@ -1,4 +1,4 @@
-import { formatCliInputs } from '../flow-runner';
+import { formatCliInputs } from '../flow-runner/index.js';
 
 import type { CHECKS } from './checks.js';
 import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types.js';

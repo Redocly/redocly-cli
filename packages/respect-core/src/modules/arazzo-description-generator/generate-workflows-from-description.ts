@@ -1,14 +1,14 @@
-import { sortMethods } from '../../utils/sort';
-import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs';
-import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters';
+import { sortMethods } from '../../utils/sort.js';
+import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs.js';
+import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters.js';
 import {
   type Oas3SecurityScheme,
   type Oas3SecurityRequirement,
   type Oas3PathItem,
   type Oas3_1Schema,
   type Oas3Operation,
-} from 'core/src/typings/openapi';
-import { type OperationMethod, type Workflow, type Step } from '../../types';
+} from 'core/src/typings/openapi.js';
+import { type OperationMethod, type Workflow, type Step } from '../../types.js';
 import {
   type ArazzoDefinition,
   type ExtendedOperation,

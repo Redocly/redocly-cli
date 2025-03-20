@@ -4,7 +4,7 @@ import fetchWithTimeout, {
   DEFAULT_FETCH_TIMEOUT,
 } from '../../utils/fetch-with-timeout.js';
 
-import type { ReadStream } from 'fs';
+import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 import type {
   ListRemotesResponse,

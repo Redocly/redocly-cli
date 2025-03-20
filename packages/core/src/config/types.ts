@@ -1,5 +1,5 @@
-import type { Location } from '../ref-utils';
-import type { ProblemSeverity, UserContext } from '../walk';
+import type { Location } from '../ref-utils.js';
+import type { ProblemSeverity, UserContext } from '../walk.js';
 import type {
   Oas3PreprocessorsSet,
   SpecMajorVersion,

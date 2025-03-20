@@ -1,11 +1,16 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseYaml, stringifyYaml } from '../js-yaml';
-import { slash, doesYamlFileExist, isPlainObject, showWarningForDeprecatedField } from '../utils';
-import { SpecVersion, SpecMajorVersion } from '../oas-types';
-import { isBrowser } from '../env';
-import { getResolveConfig } from './utils';
-import { isAbsoluteUrl } from '../ref-utils';
+import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
+import {
+  slash,
+  doesYamlFileExist,
+  isPlainObject,
+  showWarningForDeprecatedField,
+} from '../utils.js';
+import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
+import { isBrowser } from '../env.js';
+import { getResolveConfig } from './utils.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { NormalizedProblem } from '../walk';
 import type {

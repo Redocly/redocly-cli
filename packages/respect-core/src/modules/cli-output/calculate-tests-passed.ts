@@ -1,4 +1,4 @@
-import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types';
+import type { CalculatedResults, Step, WorkflowExecutionResult } from '../../types.js';
 
 export function calculateTotals(workflows: WorkflowExecutionResult[]): CalculatedResults {
   const totalWorkflows = workflows.length;

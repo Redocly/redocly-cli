@@ -1,4 +1,4 @@
-import type { TestDescription, Workflow, Step } from '../../types';
+import type { TestDescription, Workflow, Step } from '../../types.js';
 
 // Scraps-out sensitive information from a test case
 export function cleanupTestDescription(testDescription: TestDescription) {

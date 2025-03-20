@@ -1,6 +1,6 @@
 import { blue, green, red } from 'colorette';
-import { type CollectFn } from '@redocly/openapi-core/src/utils';
-import { runTestFile } from '../modules/flow-runner';
+import { type CollectFn } from '@redocly/openapi-core/src/utils.js';
+import { runTestFile } from '../modules/flow-runner/index.js';
 import {
   displayErrors,
   displaySummary,

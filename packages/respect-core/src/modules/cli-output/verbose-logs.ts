@@ -1,4 +1,4 @@
-import type { VerboseLog } from '../../types';
+import type { VerboseLog } from '../../types.js';
 
 export function getVerboseLogs({
   headerParams,

@@ -1,8 +1,8 @@
 import * as yamlAst from 'yaml-ast-parser';
-import { unescapePointer } from '../ref-utils';
-import { colorize, colorOptions } from '../logger';
+import { unescapePointer } from '../ref-utils.js';
+import { colorize, colorOptions } from '../logger.js';
 
-import type { LineColLocationObject, Loc, LocationObject } from '../walk';
+import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };
