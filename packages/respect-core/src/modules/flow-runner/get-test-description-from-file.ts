@@ -5,11 +5,14 @@ import * as path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { type TestDescription } from '../../types.js';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
-// prettier-ignore
 import { isTestFile } from '../../utils/file.js';
 import { readYaml } from '../../utils/yaml.js';
+import { fileURLToPath } from 'node:url';
 
-const packageJson = JSON.parse(readFileSync('../../../package.json', 'utf-8'));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(
+  readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
+);
 const version = packageJson.version;
 
 export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn) {
