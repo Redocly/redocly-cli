@@ -28,7 +28,7 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import { ConfigApis } from '../types';
+import { CommandOptions, ConfigApis } from '../types';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -592,9 +592,31 @@ describe('cleanRawInput', () => {
       '--config=fixtures/redocly.yaml',
       '--output',
       'fixtures',
+      '--client-cert',
+      'fixtures/client-cert.pem',
+      '--client-key',
+      'fixtures/client-key.pem',
+      '--ca-cert',
+      'fixtures/ca-cert.pem',
+      '--organization',
+      'my-org',
+      '--input',
+      'timeout=10000',
+      '--input',
+      '{"apiKey":"some=111=1111"}',
     ];
-    expect(cleanRawInput(rawInput)).toEqual(
-      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder'
+    expect(
+      cleanRawInput(rawInput, {
+        input: ['timeout=10000', '{"apiKey":"some=111=1111"}'],
+        organization: 'my-org',
+        'client-cert': 'fixtures/client-cert.pem',
+        'client-key': 'fixtures/client-key.pem',
+        'ca-cert': 'fixtures/ca-cert.pem',
+        config: 'fixtures/redocly.yaml',
+        output: 'fixtures',
+      } as CommandOptions)
+    ).toEqual(
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --client-cert *** --client-key *** --ca-cert *** --organization *** --input *** --input ***'
     );
   });
   it('should preserve safe data from raw CLI input', () => {
@@ -608,7 +630,13 @@ describe('cleanRawInput', () => {
       '--skip-rule',
       'operation-4xx-response',
     ];
-    expect(cleanRawInput(rawInput)).toEqual(
+    expect(
+      cleanRawInput(rawInput, {
+        format: 'stylish',
+        extends: 'minimal',
+        'skip-rule': ['operation-4xx-response'],
+      } as CommandOptions)
+    ).toEqual(
       'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
     );
   });

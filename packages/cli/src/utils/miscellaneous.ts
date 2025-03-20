@@ -44,6 +44,8 @@ import type {
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types';
 
+const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
+
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
   config: ConfigApis
@@ -583,7 +585,7 @@ export async function sendTelemetry(
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
       environment_ci: process.env.CI,
-      raw_input: cleanRawInput(process.argv.slice(2)),
+      raw_input: cleanRawInput(process.argv.slice(2), args),
       has_config: has_config ? 'yes' : 'no',
       spec_version,
       spec_keyword,
@@ -591,6 +593,8 @@ export async function sendTelemetry(
     };
     const { otelTelemetry } = await import('../otel');
     otelTelemetry.init();
+    console.log('JSON.stringify(cleanArgs(args)),', JSON.stringify(cleanArgs(args)));
+    console.log('RAW_I', cleanRawInput(process.argv.slice(2), args));
     otelTelemetry.send(data.command, data);
   } catch (err) {
     // Do nothing.
@@ -627,7 +631,7 @@ function isDirectory(value: string) {
   return fs.existsSync(value) && fs.statSync(value).isDirectory();
 }
 
-function cleanString(value?: string): string | undefined {
+function cleanString(value: string): string | undefined {
   if (!value) {
     return value;
   }
@@ -647,11 +651,9 @@ function cleanString(value?: string): string | undefined {
 }
 
 export function cleanArgs(args: CommandOptions) {
-  const keysToClean = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
-
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(args)) {
-    if (keysToClean.includes(key)) {
+    if (KEYS_TO_CLEAN.includes(key)) {
       result[key] = '***';
     } else if (typeof value === 'string') {
       result[key] = cleanString(value);
@@ -665,8 +667,29 @@ export function cleanArgs(args: CommandOptions) {
   return result;
 }
 
-export function cleanRawInput(argv: string[]) {
-  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
+export function cleanRawInput(argv: string[], parsedArgs: CommandOptions) {
+  const stringsToMask: string[] = [];
+  for (const [key, value] of Object.entries(parsedArgs)) {
+    if (KEYS_TO_CLEAN.includes(key)) {
+      if (typeof value === 'string') {
+        stringsToMask.push(value);
+      } else if (Array.isArray(value)) {
+        stringsToMask.push(...value);
+      }
+    }
+  }
+
+  return argv
+    .map((entry) => {
+      for (const stringToMask of stringsToMask) {
+        if (entry.includes(stringToMask)) {
+          // Replace only the exact sensitive string with ***
+          return entry.replace(stringToMask, '***');
+        }
+      }
+      return entry.split('=').map(cleanString).join('=');
+    })
+    .join(' ');
 }
 
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
