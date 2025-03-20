@@ -28,7 +28,7 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import { CommandOptions, ConfigApis } from '../types';
+import { CommandOptions } from '../types';
 
 jest.mock('os');
 jest.mock('colorette');
