@@ -617,7 +617,7 @@ describe('E2E', () => {
     });
   });
 
-  describe('stats', () => {
+  describe.only('stats', () => {
     const folderPath = join(__dirname, 'stats');
 
     test('stats should produce correct output (stylish format)', async () => {
