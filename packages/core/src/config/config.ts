@@ -97,7 +97,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
       [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
       [SpecVersion.Async3]: { ...rawConfig.preprocessors, ...rawConfig.async3Preprocessors },
-      [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Preprocessors },
+      [SpecVersion.Arazzo1]: { ...rawConfig.preprocessors, ...rawConfig.arazzo1Preprocessors },
       [SpecVersion.Overlay1]: { ...rawConfig.preprocessors, ...rawConfig.overlay1Preprocessors },
     };
 
@@ -107,7 +107,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
       [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
       [SpecVersion.Async3]: { ...rawConfig.decorators, ...rawConfig.async3Decorators },
-      [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Decorators },
+      [SpecVersion.Arazzo1]: { ...rawConfig.decorators, ...rawConfig.arazzo1Decorators },
       [SpecVersion.Overlay1]: { ...rawConfig.decorators, ...rawConfig.overlay1Decorators },
     };
 
