@@ -8,9 +8,12 @@ import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { red } from 'colorette';
 import { isAbsoluteUrl } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/miscellaneous.js';
+import { fileURLToPath } from 'node:url';
 
 import type { Config } from '@redocly/openapi-core';
 import type { BuildDocsOptions } from './types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,

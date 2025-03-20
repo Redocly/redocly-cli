@@ -145,7 +145,7 @@ export async function resolvePlugins(
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                __dirname,
+                __dirname, // FIXME: use path.dirname(fileURLToPath(import.meta.url))?
               ],
             });
 

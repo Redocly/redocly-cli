@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(
   readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
 );

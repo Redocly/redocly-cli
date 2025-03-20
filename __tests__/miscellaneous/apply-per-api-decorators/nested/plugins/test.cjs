@@ -1,4 +1,4 @@
-const version = require('./decorators/version.js');
+const version = require('./decorators/version.cjs');
 
 module.exports = function testPlugin() {
   return {
