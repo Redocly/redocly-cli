@@ -1,5 +1,5 @@
 
-index.ts split [api]
+index.js split [api]
 
 Split an API description into a multi-file structure.
 

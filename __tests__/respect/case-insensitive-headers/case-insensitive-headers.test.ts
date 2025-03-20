@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { getCommandOutput, getParams } from '../utils';
+import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers';
 
 test('should send in request and proceed case-insensitive headers in runtime expressions', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
