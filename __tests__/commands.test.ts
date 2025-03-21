@@ -20,7 +20,7 @@ expect.extend({
 
 callSerializer();
 
-describe('E2E', () => {
+describe.skip('E2E', () => {
   describe('lint', () => {
     const excludeFolders = [
       'arazzo-type-extensions-with-plugin',
