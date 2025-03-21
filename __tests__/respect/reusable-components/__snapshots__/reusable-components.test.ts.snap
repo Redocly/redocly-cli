@@ -7,7 +7,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✓ GET /museum-hours - step get-museum-hours-step-success-action
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
@@ -77,7 +77,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
@@ -150,7 +150,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✓ GET /museum-hours - step final-workflow-step
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
@@ -225,7 +225,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✓ GET /special-events - step list-events
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
@@ -360,7 +360,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✓ POST /special-events - step create-event
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -412,7 +412,7 @@ exports[`should use inputs from CLI and env to mapp with resolved refs 1`] = `
 
   ✓ GET /museum-hours - step final-workflow-step
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://otest.redocly.xyz/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
