@@ -1,18 +1,15 @@
+import { createRequire } from 'node:module';
 import { bold, red } from 'colorette';
 import { getTotals, formatProblems, lint, bundle, createConfig } from '@redocly/openapi-core';
 import { type CollectFn } from '@redocly/openapi-core/src/utils.js';
 import * as path from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { type TestDescription } from '../../types.js';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
 import { readYaml } from '../../utils/yaml.js';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(
-  readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
-);
+const packageJson = createRequire(import.meta.url)('../../../package.json');
 const version = packageJson.version;
 
 export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn) {
