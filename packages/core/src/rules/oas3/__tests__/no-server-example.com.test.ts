@@ -1,7 +1,11 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../__tests__/utils.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 oas3-no-server-example.com', () => {
   it('oas3-no-server-example.com: should report on server object with "example.com" url', async () => {

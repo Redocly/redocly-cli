@@ -1,8 +1,8 @@
-import { listOf, mapOf } from '.';
-import { isMappingRef } from '../ref-utils';
+import { listOf, mapOf } from './index.js';
+import { isMappingRef } from '../ref-utils.js';
 
-import type { NodeType } from '.';
-import type { Oas3NodeType } from './redocly-yaml';
+import type { NodeType } from './index.js';
+import type { Oas3NodeType } from './redocly-yaml.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 

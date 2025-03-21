@@ -1,6 +1,6 @@
 import { blue, green } from 'colorette';
-import * as childProcess from 'child_process';
-import { ReuniteApiClient } from '../reunite/api/api-client';
+import * as childProcess from 'node:child_process';
+import { ReuniteApiClient } from '../reunite/api/api-client.js';
 
 export type AuthToken = {
   access_token: string;

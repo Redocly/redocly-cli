@@ -1,9 +1,9 @@
 import { red, gray, underline, blue, yellow } from 'colorette';
-import { CHECKS } from '../checks';
-import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from '../../utils/cli-outputs';
-import { DefaultLogger } from '../../utils/logger/logger';
+import { CHECKS } from '../checks/index.js';
+import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from '../../utils/cli-outputs.js';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { Step, WorkflowExecutionResult } from '../../types';
+import type { Step, WorkflowExecutionResult } from '../../types.js';
 
 const logger = DefaultLogger.getInstance();
 

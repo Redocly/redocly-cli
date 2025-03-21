@@ -1,4 +1,4 @@
-import { resolveInputValuesToSchema } from '../../../flow-runner';
+import { resolveInputValuesToSchema } from '../../../flow-runner/index.js';
 
 describe('resolveInputValuesToSchema', () => {
   it('should return empty object if values is empty', () => {

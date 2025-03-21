@@ -1,7 +1,7 @@
 import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
-import * as glob from 'glob';
+import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as readline from 'node:readline';
@@ -23,12 +23,12 @@ import {
   isNotEmptyObject,
   isPlainObject,
   pluralize,
-} from '@redocly/openapi-core/lib/utils';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema';
-import { outputExtensions } from '../types';
-import { version } from './update-version-notifier';
-import { getReuniteUrl } from '../reunite/api';
+} from '@redocly/openapi-core/lib/utils.js';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
+import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
+import { outputExtensions } from '../types.js';
+import { version } from './update-version-notifier.js';
+import { getReuniteUrl } from '../reunite/api/index.js';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -39,8 +39,10 @@ import type {
   Oas3Definition,
   Oas2Definition,
 } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types';
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config/index.js';
+import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types.js';
+
+const globPromise = promisify(glob.glob);
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -111,9 +113,17 @@ async function expandGlobsInEntrypoints(argApis: string[], config: ConfigApis) {
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {
-        return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
-          ? (await promisify(glob)(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
-          : getAliasOrPath(config, aliasOrPath);
+        const shouldResolveGlob = hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath);
+
+        if (shouldResolveGlob) {
+          const data = (await globPromise(aliasOrPath, {
+            cwd: getConfigDirectory(config),
+          })) as string[];
+
+          return data.map((g: string) => getAliasOrPath(config, g));
+        }
+
+        return getAliasOrPath(config, aliasOrPath);
       })
     )
   ).flat();

@@ -1,4 +1,4 @@
-import { getApiKeys } from '../api-keys';
+import { getApiKeys } from '../api-keys.js';
 
 describe('getApiKeys()', () => {
   afterEach(() => {

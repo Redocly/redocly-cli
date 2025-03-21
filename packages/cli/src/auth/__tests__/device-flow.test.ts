@@ -1,4 +1,4 @@
-import { RedoclyOAuthDeviceFlow } from '../device-flow';
+import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 
 describe('RedoclyOAuthDeviceFlow', () => {
   const mockBaseUrl = 'https://test.redocly.com';

@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { readEnvVariables } from '../../flow-runner';
+import { readEnvVariables } from '../../flow-runner/index.js';
 
 vi.mock('dotenv');
 vi.mock('node:fs');

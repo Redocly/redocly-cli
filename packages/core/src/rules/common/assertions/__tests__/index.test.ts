@@ -1,4 +1,4 @@
-import { Assertions } from '../.';
+import { Assertions } from '../index.js';
 
 const opts = {
   '0': {

@@ -1,11 +1,11 @@
-import path = require('path');
-import { existsSync, readFileSync } from 'fs';
-import { spawn } from 'child_process';
-import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
-import { getPlatformSpawnArgs } from '../../utils/platform';
+import path from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
+import { getPlatformSpawnArgs } from '../../utils/platform.js';
 
-import type { PreviewProjectOptions, Product } from './types';
-import type { CommandArgs } from '../../wrapper';
+import type { PreviewProjectOptions, Product } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
   const { plan, port } = argv;

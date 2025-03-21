@@ -1,6 +1,6 @@
-import { Location } from '../../../../ref-utils';
-import { Source } from '../../../../resolve';
-import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts';
+import { Location } from '../../../../ref-utils.js';
+import { Source } from '../../../../resolve.js';
+import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts.js';
 
 let baseLocation = new Location(vi.fn() as any as Source, 'pointer');
 

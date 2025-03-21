@@ -3,6 +3,7 @@
   "version": "1.34.0",
   "description": "",
   "main": "lib/index.js",
+  "type": "module",
   "engines": {
     "node": ">=18.20.7",
     "npm": ">=10.8.2"

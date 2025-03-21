@@ -1,5 +1,5 @@
-import { getDomain } from '../domains';
-import { getReuniteUrl } from '../domains';
+import { getDomain } from '../domains.js';
+import { getReuniteUrl } from '../domains.js';
 
 describe('getDomain()', () => {
   afterEach(() => {

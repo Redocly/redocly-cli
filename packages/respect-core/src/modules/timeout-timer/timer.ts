@@ -1,4 +1,4 @@
-import { DEFAULT_RESPECT_TIMEOUT } from '../../consts';
+import { DEFAULT_RESPECT_TIMEOUT } from '../../consts.js';
 
 export class Timer {
   private static instance: Timer;

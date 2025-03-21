@@ -10,8 +10,8 @@ Options:
   --version               Show version number.                         [boolean]
   --help                  Show help.                                   [boolean]
   --format                Use a specific output format.
-          [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate",
-                 "summary", "markdown", "github-actions"] [default: "codeframe"]
+  [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate", "summar
+                        y", "markdown", "github-actions"] [default: "codeframe"]
   --max-problems          Reduce output to a maximum of N problems.
                                                          [number] [default: 100]
   --generate-ignore-file  Generate an ignore file.                     [boolean]
@@ -20,8 +20,8 @@ Options:
   --lint-config           Severity level for config file linting.
                              [choices: "warn", "error", "off"] [default: "warn"]
   --config                Path to the config file.                      [string]
-  --extends               Override extends configurations (defaults or config
-                          file settings).                                [array]
+  --extends               Override extends configurations (defaults or config fi
+                          le settings).                                  [array]
 
 Invalid values:
   Argument: lint-config, Given: "something", Choices: "warn", "error", "off"

@@ -7,8 +7,8 @@ import {
   lint,
   lintConfig,
 } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { pluralize } from '@redocly/openapi-core/lib/utils';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
+import { pluralize } from '@redocly/openapi-core/lib/utils.js';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -20,14 +20,14 @@ import {
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
-} from '../utils/miscellaneous';
-import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
+} from '../utils/miscellaneous.js';
+import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { CommandOptions, Totals, VerifyConfigOptions } from '../types';
-import type { CommandArgs } from '../wrapper';
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config/index.js';
+import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type LintOptions = {
   apis?: string[];

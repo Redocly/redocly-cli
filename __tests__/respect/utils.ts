@@ -1,5 +1,7 @@
-import { join } from 'path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixturesPath = join(__dirname, 'apis');
 
 export const getFixturePath = (fileName: string): string => join(fixturesPath, fileName);

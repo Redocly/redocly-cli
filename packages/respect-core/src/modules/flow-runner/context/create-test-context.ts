@@ -4,18 +4,18 @@ import {
   type AppOptions,
   type TestContext,
   type InputSchema,
-} from '../../../types';
-import { type ApiFetcher } from '../../../utils/api-fetcher';
-import { bundleOpenApi } from '../../description-parser';
-import { createFaker } from '../../faker';
-import { infoSubstitute } from '../../arazzo-description-generator';
-import { formatCliInputs } from '../inputs';
-import { bundleArazzo } from '../get-test-description-from-file';
-import { readEnvVariables } from '../read-env-variables';
-import { getNestedValue } from '../../../utils/get-nested-value';
-import { getPublicWorkflows } from './set-public-workflows';
-import { resolveMtlsCertificates } from '../../../utils/mtls/resolve-mtls-certificates';
-import { resolveSeverityConfiguration } from '../../checks';
+} from '../../../types.js';
+import { type ApiFetcher } from '../../../utils/api-fetcher.js';
+import { bundleOpenApi } from '../../description-parser/index.js';
+import { createFaker } from '../../faker.js';
+import { infoSubstitute } from '../../arazzo-description-generator/index.js';
+import { formatCliInputs } from '../inputs/index.js';
+import { bundleArazzo } from '../get-test-description-from-file.js';
+import { readEnvVariables } from '../read-env-variables.js';
+import { getNestedValue } from '../../../utils/get-nested-value.js';
+import { getPublicWorkflows } from './set-public-workflows.js';
+import { resolveMtlsCertificates } from '../../../utils/mtls/resolve-mtls-certificates.js';
+import { resolveSeverityConfiguration } from '../../checks/index.js';
 
 const faker = createFaker();
 

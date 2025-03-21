@@ -1,5 +1,8 @@
-import { join } from 'node:path';
-import { getCommandOutput, getParams } from '../../helpers';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('should not follow the default behavior to break and return if onFailure omitted with warn severity and continue execution of the next step', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

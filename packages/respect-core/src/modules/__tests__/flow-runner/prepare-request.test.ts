@@ -1,7 +1,7 @@
-import type { TestContext, Step } from '../../../types';
+import type { TestContext, Step } from '../../../types.js';
 
-import { prepareRequest } from '../../flow-runner';
-import { ApiFetcher } from '../../../utils/api-fetcher';
+import { prepareRequest } from '../../flow-runner/index.js';
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 describe('prepareRequest', () => {
   const apiClient = new ApiFetcher({

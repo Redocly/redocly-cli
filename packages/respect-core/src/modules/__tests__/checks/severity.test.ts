@@ -1,4 +1,7 @@
-import { resolveSeverityConfiguration, DEFAULT_SEVERITY_CONFIGURATION } from '../../checks';
+import {
+  resolveSeverityConfiguration,
+  DEFAULT_SEVERITY_CONFIGURATION,
+} from '../../checks/index.js';
 
 describe('resolveSeverityConfiguration', () => {
   it('should return the default severity configuration if no severity argument is provided', () => {

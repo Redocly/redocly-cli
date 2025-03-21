@@ -3,7 +3,7 @@
  */
 
 import * as colorette from 'colorette';
-import { logger, colorize } from '../logger';
+import { logger, colorize } from '../logger.js';
 
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {

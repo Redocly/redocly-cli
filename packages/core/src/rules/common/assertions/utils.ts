@@ -1,18 +1,18 @@
-import { asserts, runOnKeysSet, runOnValuesSet } from './asserts';
-import { colorize } from '../../../logger';
-import { isRef } from '../../../ref-utils';
-import { isTruthy, keysOf, isString } from '../../../utils';
+import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
+import { colorize } from '../../../logger.js';
+import { isRef } from '../../../ref-utils.js';
+import { isTruthy, keysOf, isString } from '../../../utils.js';
 
-import type { UserContext } from 'core/src/walk';
-import type { Asserts } from './asserts';
-import type { AssertionContext, AssertResult } from '../../../config';
-import type { Assertion, AssertionDefinition, AssertionLocators } from '.';
+import type { UserContext } from 'core/src/walk.js';
+import type { Asserts } from './asserts.js';
+import type { AssertionContext, AssertResult } from '../../../config/index.js';
+import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 import type {
   Oas2Visitor,
   Oas3Visitor,
   SkipFunctionContext,
   VisitFunction,
-} from '../../../visitors';
+} from '../../../visitors.js';
 
 export type OrderDirection = 'asc' | 'desc';
 

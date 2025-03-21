@@ -1,9 +1,9 @@
-import { Assertions } from '../common/assertions';
-import { InfoContact } from '../common/info-contact';
-import { Struct } from '../common/struct';
+import { Assertions } from '../common/assertions/index.js';
+import { InfoContact } from '../common/info-contact.js';
+import { Struct } from '../common/struct.js';
 
-import type { Overlay1RuleSet } from '../../oas-types';
-import type { Overlay1Rule } from '../../visitors';
+import type { Overlay1RuleSet } from '../../oas-types.js';
+import type { Overlay1Rule } from '../../visitors.js';
 
 export const rules: Overlay1RuleSet<'built-in'> = {
   'info-contact': InfoContact as Overlay1Rule,

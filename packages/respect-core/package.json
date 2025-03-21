@@ -4,8 +4,10 @@
   "description": "API testing framework core",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
+      "import": "./lib/index.js",
       "require": "./lib/index.js",
       "types": "./lib/index.d.ts"
     }

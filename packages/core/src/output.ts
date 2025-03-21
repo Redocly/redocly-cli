@@ -1,4 +1,4 @@
-import { isBrowser } from './env';
+import { isBrowser } from './env.js';
 
 export const output = {
   write(str: string) {

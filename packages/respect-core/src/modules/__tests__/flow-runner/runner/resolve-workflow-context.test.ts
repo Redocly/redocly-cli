@@ -1,7 +1,7 @@
-import { resolveWorkflowContext, createTestContext } from '../../../flow-runner';
-import { ApiFetcher } from '../../../../utils/api-fetcher';
+import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/index.js';
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 
-vi.mock('../../../flow-runner/context/create-test-context');
+vi.mock('../../../flow-runner/context/create-test-context.js');
 
 describe('resolveWorkflowContext', () => {
   const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';

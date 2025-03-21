@@ -1,4 +1,4 @@
-import type { VerifyConfigOptions } from '../../types';
+import type { VerifyConfigOptions } from '../../types.js';
 
 export type BuildDocsOptions = {
   watch?: boolean;

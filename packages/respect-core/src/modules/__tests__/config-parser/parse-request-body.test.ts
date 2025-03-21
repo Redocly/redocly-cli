@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 
-import type { RequestBody, TestContext } from '../../../types';
+import type { RequestBody, TestContext } from '../../../types.js';
 
-import { parseRequestBody, stripFileDecorator } from '../../config-parser';
+import { parseRequestBody, stripFileDecorator } from '../../config-parser/index.js';
 
 vi.mock('node:fs');
 

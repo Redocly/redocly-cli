@@ -1,11 +1,11 @@
-import { iteratePathItems, handleSplit } from '../index';
+import { iteratePathItems, handleSplit } from '../index.js';
 import * as path from 'node:path';
 import * as process from 'node:process';
 import * as openapiCore from '@redocly/openapi-core';
-import { type ComponentsFiles } from '../types';
+import { type ComponentsFiles } from '../types.js';
 import { blue, green } from 'colorette';
-import * as utils from '../../../utils/miscellaneous';
-import { configFixture } from '../../../__tests__/fixtures/config';
+import * as utils from '../../../utils/miscellaneous.js';
+import { configFixture } from '../../../__tests__/fixtures/config.js';
 
 describe('split', () => {
   const openapiDir = 'test';

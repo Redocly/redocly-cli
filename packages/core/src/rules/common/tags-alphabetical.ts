@@ -1,7 +1,7 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import type { Oas2Definition, Oas2Tag } from '../../typings/swagger';
-import type { Oas3Definition, Oas3Tag, Oas3_1Definition } from '../../typings/openapi';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { Oas2Definition, Oas2Tag } from '../../typings/swagger.js';
+import type { Oas3Definition, Oas3Tag, Oas3_1Definition } from '../../typings/openapi.js';
+import type { UserContext } from '../../walk.js';
 
 export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) => {
   return {

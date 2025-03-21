@@ -5,4 +5,4 @@ apis:
 decorators:
   plugin/resolve-x: on
 plugins:
-  - './plugin.js'
+  - './plugin.cjs'

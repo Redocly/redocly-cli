@@ -1,22 +1,22 @@
 import { blue, green } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
 import { writeFileSync } from 'node:fs';
-import { createHarLog } from '../../utils/har-logs';
-import { ApiFetcher } from '../../utils/api-fetcher';
-import { createTestContext } from './context/create-test-context';
-import { getValueFromContext } from '../config-parser';
-import { getWorkflowsToRun } from './get-workflows-to-run';
-import { runStep } from './run-step';
-import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs';
-import { bundleArazzo } from './get-test-description-from-file';
-import { CHECKS } from '../checks';
-import { createRuntimeExpressionCtx } from './context';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
-import { calculateTotals, maskSecrets } from '../cli-output';
-import { resolveRunningWorkflows } from './resolve-running-workflows';
-import { DefaultLogger } from '../../utils/logger/logger';
+import { createHarLog } from '../../utils/har-logs/index.js';
+import { ApiFetcher } from '../../utils/api-fetcher.js';
+import { createTestContext } from './context/create-test-context.js';
+import { getValueFromContext } from '../config-parser/index.js';
+import { getWorkflowsToRun } from './get-workflows-to-run.js';
+import { runStep } from './run-step.js';
+import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs.js';
+import { bundleArazzo } from './get-test-description-from-file.js';
+import { CHECKS } from '../checks/index.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { calculateTotals, maskSecrets } from '../cli-output/index.js';
+import { resolveRunningWorkflows } from './resolve-running-workflows.js';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { CollectFn } from '@redocly/openapi-core/src/utils';
+import type { CollectFn } from '@redocly/openapi-core/src/utils.js';
 import type {
   TestDescription,
   AppOptions,
@@ -27,7 +27,7 @@ import type {
   Check,
   RunWorkflowInput,
   WorkflowExecutionResult,
-} from '../../types';
+} from '../../types.js';
 
 const logger = DefaultLogger.getInstance();
 

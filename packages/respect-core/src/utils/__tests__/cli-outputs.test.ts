@@ -1,8 +1,8 @@
 import type { Totals } from '@redocly/openapi-core';
-import type { VerboseLog } from '../../types';
+import type { VerboseLog } from '../../types.js';
 
 // eslint-disable-next-line import-x/order
-import { DefaultLogger } from '../../utils/logger/logger';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
 const logger = DefaultLogger.getInstance();
 
@@ -17,7 +17,7 @@ import {
   indent,
   removeExtraIndentation,
   printStepDetails,
-} from '../cli-outputs';
+} from '../cli-outputs.js';
 
 describe('cliOutputs', () => {
   describe('removeExtraIndentation', () => {

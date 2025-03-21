@@ -1,9 +1,9 @@
 import { pluralize } from 'jest-matcher-utils'; // FIXME: decide what to use: jest-matcher-utils or pluralize
 import { red, yellow, bold, blue } from 'colorette';
 import { type Totals } from '@redocly/openapi-core';
-import { type Check, type VerboseLog, type Step } from '../types';
-import { displayChecks } from '../modules/cli-output';
-import { DefaultLogger } from './logger/logger';
+import { type Check, type VerboseLog, type Step } from '../types.js';
+import { displayChecks } from '../modules/cli-output/index.js';
+import { DefaultLogger } from './logger/logger.js';
 
 const logger = DefaultLogger.getInstance();
 

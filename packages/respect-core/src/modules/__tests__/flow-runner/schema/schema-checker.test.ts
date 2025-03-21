@@ -1,7 +1,7 @@
-import type { StepCallContext, TestContext } from '../../../../types';
+import type { StepCallContext, TestContext } from '../../../../types.js';
 
-import { CHECKS, checkSchema } from '../../../flow-runner';
-import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity';
+import { CHECKS, checkSchema } from '../../../flow-runner/index.js';
+import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
 
 describe('checkSchema', () => {
   const stepCallCtx = {

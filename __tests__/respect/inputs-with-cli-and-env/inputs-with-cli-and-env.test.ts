@@ -1,5 +1,8 @@
-import { join } from 'node:path';
-import { getCommandOutput, getParams } from '../../helpers';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('should use inputs from CLI and env', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';

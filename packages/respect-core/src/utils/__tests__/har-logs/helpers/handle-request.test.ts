@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 import type { Dispatcher } from 'undici';
 
-import { handleRequest } from '../../../har-logs/helpers/handle-request';
+import { handleRequest } from '../../../har-logs/helpers/handle-request.js';
 
 describe('handleRequest', () => {
   it('should handle undici request', () => {

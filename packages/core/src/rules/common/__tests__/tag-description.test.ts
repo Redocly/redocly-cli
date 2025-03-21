@@ -1,7 +1,11 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../__tests__/utils.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 tag-description', () => {
   it('should report on tags with no description', async () => {

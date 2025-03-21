@@ -1,5 +1,5 @@
 import AbortController from 'abort-controller';
-import fetchWithTimeout from '../utils/fetch-with-timeout';
+import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 

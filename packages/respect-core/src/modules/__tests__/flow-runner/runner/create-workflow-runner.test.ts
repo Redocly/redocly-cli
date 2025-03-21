@@ -1,9 +1,9 @@
-import type { ApiFetcher } from '../../../../utils/api-fetcher';
-import type { Workflow, TestContext } from '../../../../types';
+import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
+import type { Workflow, TestContext } from '../../../../types.js';
 
-import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner';
-import { DefaultLogger } from '../../../../utils/logger/logger';
-import { type ResponseContext } from '../../../../types';
+import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
+import { DefaultLogger } from '../../../../utils/logger/logger.js';
+import { type ResponseContext } from '../../../../types.js';
 
 const logger = DefaultLogger.getInstance();
 describe('runWorkflow', () => {

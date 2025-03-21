@@ -1,12 +1,14 @@
-import * as util from 'node:util';
-import { colorize } from '../../logger';
-import { Asserts, asserts } from '../../rules/common/assertions/asserts';
-import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
-import recommended from '../recommended';
+import util from 'node:util';
+import { colorize } from '../../logger.js';
+import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
+import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
+import recommended from '../recommended.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const path = require('path');
+import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types.js';
 
-import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
 const baseStyleguideConfig: StyleguideRawConfig = {
@@ -94,8 +96,7 @@ describe('resolveStyleguideConfig', () => {
 
   it('should instantiate the plugin once', async () => {
     // Called by plugin during init
-    // @ts-expect-error
-    const deprecateSpy = vi.spyOn(util.default, 'deprecate');
+    const deprecateSpy = vi.spyOn(util, 'deprecate');
 
     const config = {
       ...baseStyleguideConfig,

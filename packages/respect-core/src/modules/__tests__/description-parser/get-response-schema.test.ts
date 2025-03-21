@@ -1,4 +1,4 @@
-import { getResponseSchema } from '../../description-parser';
+import { getResponseSchema } from '../../description-parser/index.js';
 
 describe('getResponseSchema', () => {
   it('should return undefined if descriptionResponses is not provided', () => {

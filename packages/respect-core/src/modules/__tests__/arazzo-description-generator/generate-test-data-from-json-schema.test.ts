@@ -1,7 +1,7 @@
 import * as Sampler from 'openapi-sampler';
 
-import { DefaultLogger } from '../../../utils/logger/logger';
-import { generateTestDataFromJsonSchema } from '../../arazzo-description-generator';
+import { DefaultLogger } from '../../../utils/logger/logger.js';
+import { generateTestDataFromJsonSchema } from '../../arazzo-description-generator/index.js';
 
 const logger = DefaultLogger.getInstance();
 

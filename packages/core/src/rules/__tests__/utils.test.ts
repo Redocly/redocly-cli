@@ -4,7 +4,7 @@ import {
   missingRequiredField,
   oasTypeOf,
   getAdditionalPropertiesOption,
-} from '../utils';
+} from '../utils.js';
 
 describe('field-non-empty', () => {
   it('should match expected message', () => {

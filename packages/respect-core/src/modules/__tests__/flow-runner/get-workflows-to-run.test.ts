@@ -1,5 +1,5 @@
-import { getWorkflowsToRun } from '../../flow-runner';
-import { DefaultLogger } from '../../../utils/logger/logger';
+import { getWorkflowsToRun } from '../../flow-runner/index.js';
+import { DefaultLogger } from '../../../utils/logger/logger.js';
 
 const logger = DefaultLogger.getInstance();
 

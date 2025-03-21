@@ -1,4 +1,4 @@
-import { retryUntilConditionMet } from '../utils';
+import { retryUntilConditionMet } from '../utils.js';
 
 describe('retryUntilConditionMet()', () => {
   it('should retry until condition meet and return result', async () => {

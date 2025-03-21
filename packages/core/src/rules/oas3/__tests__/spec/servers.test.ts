@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { validateDoc } from './utils';
+import { validateDoc } from './utils.js';
 
 describe('OpenAPI Schema', () => {
   it('should not report on valid Server Object', async () => {

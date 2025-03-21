@@ -1,6 +1,6 @@
-import { mapOf, type NodeType, listOf } from '.';
-import { DependentRequired, Schema, SchemaProperties } from './oas3_1';
-import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3';
+import { mapOf, type NodeType, listOf } from './index.js';
+import { DependentRequired, Schema, SchemaProperties } from './oas3_1.js';
+import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3.js';
 
 const Root: NodeType = {
   properties: {

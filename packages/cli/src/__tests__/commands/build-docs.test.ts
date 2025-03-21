@@ -1,9 +1,9 @@
 import { createStore, loadAndBundleSpec } from 'redoc';
 import { renderToString } from 'react-dom/server';
-import { handlerBuildCommand } from '../../commands/build-docs';
-import { BuildDocsArgv } from '../../commands/build-docs/types';
-import { getPageHTML } from '../../commands/build-docs/utils';
-import { getFallbackApisOrExit } from '../../utils/miscellaneous';
+import { handlerBuildCommand } from '../../commands/build-docs/index.js';
+import { BuildDocsArgv } from '../../commands/build-docs/types.js';
+import { getPageHTML } from '../../commands/build-docs/utils.js';
+import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { type OpenAPISpec } from 'redoc/typings/types';
 import { getMergedConfig } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
@@ -34,6 +34,9 @@ describe('build-docs', () => {
 
     vi.mock('handlebars', () => ({
       compile: vi.fn(() => vi.fn(() => '<html></html>')),
+      default: {
+        compile: vi.fn(() => vi.fn(() => '<html></html>')),
+      },
     }));
 
     vi.mock('@redocly/openapi-core');

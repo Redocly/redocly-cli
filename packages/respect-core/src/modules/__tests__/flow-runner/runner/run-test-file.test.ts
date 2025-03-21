@@ -1,11 +1,11 @@
 import { makeDocumentFromString, lint, bundle, type LocationObject } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
-import { type Step, type TestContext } from '../../../../types';
-import { runTestFile, runStep } from '../../../flow-runner';
-import { readYaml } from '../../../../utils/yaml';
+import { type Step, type TestContext } from '../../../../types.js';
+import { runTestFile, runStep } from '../../../flow-runner/index.js';
+import { readYaml } from '../../../../utils/yaml.js';
 
-vi.mock('../../../../utils/yaml', () => {
-  const originalModule = vi.importActual('../../../../utils/yaml');
+vi.mock('../../../../utils/yaml.js', () => {
+  const originalModule = vi.importActual('../../../../utils/yaml.js');
 
   return {
     ...originalModule, // In case there are other exports you want to preserve
@@ -24,7 +24,7 @@ vi.mock('@redocly/openapi-core', async () => {
   };
 });
 
-vi.mock('../../../flow-runner/run-step', () => ({
+vi.mock('../../../flow-runner/run-step.js', () => ({
   runStep: vi.fn(),
 }));
 

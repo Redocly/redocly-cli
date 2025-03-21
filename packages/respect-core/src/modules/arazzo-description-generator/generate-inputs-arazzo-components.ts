@@ -1,5 +1,5 @@
-import { type ArazzoDefinition } from 'core/src/typings/arazzo';
-import { type Oas3SecurityScheme } from 'core/src/typings/openapi';
+import { type ArazzoDefinition } from 'core/src/typings/arazzo.js';
+import { type Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 
 export function generateSecurityInputsArazzoComponents(
   securitySchemes: Record<string, Oas3SecurityScheme>

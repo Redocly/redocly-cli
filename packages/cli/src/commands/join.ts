@@ -1,6 +1,6 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import { red, blue, yellow, green } from 'colorette';
-import { performance } from 'perf_hooks';
+import { performance } from 'node:perf_hooks';
 import {
   SpecVersion,
   BaseResolver,
@@ -10,7 +10,7 @@ import {
   bundleDocument,
   isRef,
 } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils';
+import { dequal } from '@redocly/openapi-core/lib/utils.js';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -18,13 +18,13 @@ import {
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { isObject, isString, keysOf } from '../utils/js-utils';
-import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
-import { crawl, startsWithComponents } from './split';
+} from '../utils/miscellaneous.js';
+import { isObject, isString, keysOf } from '../utils/js-utils.js';
+import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
+import { crawl, startsWithComponents } from './split/index.js';
 
 import type { Document, Referenced } from '@redocly/openapi-core';
-import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
+import type { BundleResult } from '@redocly/openapi-core/lib/bundle.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -32,10 +32,10 @@ import type {
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
-} from '@redocly/openapi-core/lib/typings/openapi';
-import type { StrictObject } from '@redocly/openapi-core/lib/utils';
-import type { CommandArgs } from '../wrapper';
-import type { VerifyConfigOptions } from '../types';
+} from '@redocly/openapi-core/lib/typings/openapi.js';
+import type { StrictObject } from '@redocly/openapi-core/lib/utils.js';
+import type { CommandArgs } from '../wrapper.js';
+import type { VerifyConfigOptions } from '../types.js';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';

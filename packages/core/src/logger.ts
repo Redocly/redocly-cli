@@ -1,6 +1,6 @@
 import * as colorette from 'colorette';
-import { isBrowser } from './env';
-import { identity } from './utils';
+import { isBrowser } from './env.js';
+import { identity } from './utils.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore this works but some types are not working

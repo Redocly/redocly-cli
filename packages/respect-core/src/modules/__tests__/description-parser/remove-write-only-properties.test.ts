@@ -1,4 +1,4 @@
-import { removeWriteOnlyProperties } from '../../description-parser';
+import { removeWriteOnlyProperties } from '../../description-parser/index.js';
 
 describe('removeWriteOnlyProperties', () => {
   it('should remove writeOnly properties', () => {
