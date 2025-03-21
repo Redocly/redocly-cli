@@ -572,12 +572,16 @@ export async function sendTelemetry(
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
     const logged_in = redoclyClient.hasTokens() || (await oauthClient.isAuthorized(reuniteUrl));
+    const { cleanedParsedArgvString, cleanedRawArgvString } = cleanArgs(
+      args,
+      process.argv.slice(2)
+    );
     const data: Analytics = {
       event: 'cli_command',
       event_time,
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
-      arguments: JSON.stringify(cleanArgs(args)),
+      arguments: cleanedParsedArgvString,
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
       os_platform: os.platform(),
@@ -585,7 +589,7 @@ export async function sendTelemetry(
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
       environment_ci: process.env.CI,
-      raw_input: cleanRawInput(process.argv.slice(2), args),
+      raw_input: cleanedRawArgvString,
       has_config: has_config ? 'yes' : 'no',
       spec_version,
       spec_keyword,
@@ -629,7 +633,7 @@ function isDirectory(value: string) {
   return fs.existsSync(value) && fs.statSync(value).isDirectory();
 }
 
-function cleanString(value: string): string | undefined {
+function cleanString(value: string): string {
   if (!value) {
     return value;
   }
@@ -648,42 +652,40 @@ function cleanString(value: string): string | undefined {
   return value;
 }
 
-export function cleanArgs(args: CommandOptions) {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(args)) {
+function cleanArgvString(rawArgvString: string, value: string | string[], replacement: string) {
+  const replacedValues = typeof value === 'string' ? [value] : value;
+  for (const replacedValue of replacedValues) {
+    rawArgvString = rawArgvString.replaceAll(replacedValue, replacement);
+  }
+  return rawArgvString;
+}
+
+export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
+  let rawArgvString = rawArgv.join(' ');
+  const result: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
       result[key] = '***';
+      rawArgvString = cleanArgvString(rawArgvString, value, '***');
     } else if (typeof value === 'string') {
-      result[key] = cleanString(value);
+      const cleanedValue = cleanString(value);
+      result[key] = cleanedValue;
+      rawArgvString = cleanArgvString(rawArgvString, value, cleanedValue);
     } else if (Array.isArray(value)) {
       result[key] = value.map(cleanString);
+      const replacedValues = typeof value === 'string' ? [value] : value;
+      for (const replacedValue of replacedValues) {
+        const newValue = cleanString(replacedValue);
+        if (rawArgvString.includes(replacedValue)) {
+          rawArgvString = rawArgvString.replaceAll(replacedValue, newValue);
+        }
+      }
     } else {
       result[key] = value;
     }
   }
 
-  return result;
-}
-
-export function cleanRawInput(argv: string[], parsedArgs: CommandOptions) {
-  const stringsToMask: string[] = [];
-  for (const [key, value] of Object.entries(parsedArgs)) {
-    if (KEYS_TO_CLEAN.includes(key)) {
-      if (typeof value === 'string') {
-        stringsToMask.push(value);
-      } else if (Array.isArray(value)) {
-        stringsToMask.push(...value);
-      }
-    }
-  }
-
-  return argv
-    .map((entry) =>
-      stringsToMask.find((mask) => entry.includes(mask))
-        ? entry.replace(stringsToMask.find((mask) => entry.includes(mask))!, '***')
-        : entry.split('=').map(cleanString).join('=')
-    )
-    .join(' ');
+  return { cleanedParsedArgvString: JSON.stringify(result), cleanedRawArgvString: rawArgvString };
 }
 
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {

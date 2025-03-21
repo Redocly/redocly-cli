@@ -11,7 +11,6 @@ import {
   cleanColors,
   HandledError,
   cleanArgs,
-  cleanRawInput,
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous';
@@ -540,8 +539,8 @@ describe('cleanArgs', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it('should remove potentially sensitive data from args', () => {
-    const testArgs = {
+  it('should remove potentially sensitive data from parsed args', () => {
+    const parsedArgs = {
       config: './fixtures/redocly.yaml',
       apis: ['main@v1', 'fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       format: 'codeframe',
@@ -550,39 +549,46 @@ describe('cleanArgs', () => {
       'client-key': 'some-client-key',
       'ca-cert': 'some-ca-cert',
     };
-    expect(cleanArgs(testArgs)).toEqual({
-      config: 'file-yaml',
-      apis: ['api-name@api-version', 'file-yaml', 'http://url'],
-      format: 'codeframe',
-      input: '***',
-      'client-cert': '***',
-      'client-key': '***',
-      'ca-cert': '***',
-    });
+    const rawArgs = [
+      'redocly',
+      'bundle',
+      'main@v1',
+      'fixtures/openapi.yaml',
+      'http://some.url/openapi.yaml',
+      '--config=fixtures/redocly.yaml',
+      '--format=codeframe',
+      '--input=some-input',
+      '--client-cert=some-client-cert',
+      '--client-key=some-client-key',
+      '--ca-cert=some-ca-cert',
+    ];
+    const { cleanedParsedArgvString } = cleanArgs(parsedArgs, rawArgs);
+    expect(cleanedParsedArgvString).toEqual(
+      JSON.stringify({
+        config: 'file-yaml',
+        apis: ['api-name@api-version', 'file-yaml', 'http://url'],
+        format: 'codeframe',
+        input: '***',
+        'client-cert': '***',
+        'client-key': '***',
+        'ca-cert': '***',
+      })
+    );
   });
   it('should remove potentially sensitive data from a push destination', () => {
-    const testArgs = {
+    const parsedArgs = {
       destination: '@org/name@version',
     };
-    expect(cleanArgs(testArgs)).toEqual({
-      destination: '@organization/api-name@api-version',
-    });
+    const rawArgs = ['redocly', 'push', '--destination=@org/name@version'];
+    const { cleanedParsedArgvString } = cleanArgs(parsedArgs, rawArgs);
+    expect(cleanedParsedArgvString).toEqual(
+      JSON.stringify({
+        destination: '@organization/api-name@api-version',
+      })
+    );
   });
-});
 
-describe('cleanRawInput', () => {
-  beforeEach(() => {
-    // @ts-ignore
-    isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
-    // @ts-ignore
-    existsSync = (value) => jest.requireActual('fs').existsSync(path.resolve(__dirname, value));
-    // @ts-ignore
-    statSync = (value) => jest.requireActual('fs').statSync(path.resolve(__dirname, value));
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  it('should remove  potentially sensitive data from raw CLI input', () => {
+  it('should remove potentially sensitive data from raw CLI input', () => {
     const rawInput = [
       'redocly',
       'bundle',
@@ -605,20 +611,34 @@ describe('cleanRawInput', () => {
       '--input',
       '{"apiKey":"some=111=1111"}',
     ];
-    expect(
-      cleanRawInput(rawInput, {
-        input: ['timeout=10000', '{"apiKey":"some=111=1111"}'],
-        organization: 'my-org',
-        'client-cert': 'fixtures/client-cert.pem',
-        'client-key': 'fixtures/client-key.pem',
-        'ca-cert': 'fixtures/ca-cert.pem',
-        config: 'fixtures/redocly.yaml',
-        output: 'fixtures',
-      } as CommandOptions)
-    ).toEqual(
+    const parsedArgs = {
+      apis: ['./fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
+      input: ['timeout=10000', '{"apiKey":"some=111=1111"}'],
+      organization: 'my-org',
+      'client-cert': 'fixtures/client-cert.pem',
+      'client-key': 'fixtures/client-key.pem',
+      'ca-cert': 'fixtures/ca-cert.pem',
+      config: 'fixtures/redocly.yaml',
+      output: 'fixtures',
+    };
+    const { cleanedRawArgvString, cleanedParsedArgvString } = cleanArgs(parsedArgs, rawInput);
+    expect(cleanedRawArgvString).toEqual(
       'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --client-cert *** --client-key *** --ca-cert *** --organization *** --input *** --input ***'
     );
+    expect(cleanedParsedArgvString).toEqual(
+      JSON.stringify({
+        apis: ['file-yaml', 'http://url'],
+        input: '***',
+        organization: '***',
+        'client-cert': '***',
+        'client-key': '***',
+        'ca-cert': '***',
+        config: 'file-yaml',
+        output: 'folder',
+      })
+    );
   });
+
   it('should preserve safe data from raw CLI input', () => {
     const rawInput = [
       'redocly',
@@ -630,29 +650,40 @@ describe('cleanRawInput', () => {
       '--skip-rule',
       'operation-4xx-response',
     ];
-    expect(
-      cleanRawInput(rawInput, {
+    const parsedArgs = {
+      apis: ['./fixtures/openapi.json'],
+      format: 'stylish',
+      extends: 'minimal',
+      'skip-rule': ['operation-4xx-response'],
+    };
+    const { cleanedRawArgvString, cleanedParsedArgvString } = cleanArgs(parsedArgs, rawInput);
+
+    expect(cleanedRawArgvString).toEqual(
+      'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
+    );
+
+    expect(cleanedParsedArgvString).toEqual(
+      JSON.stringify({
+        apis: ['file-json'],
         format: 'stylish',
         extends: 'minimal',
         'skip-rule': ['operation-4xx-response'],
-      } as CommandOptions)
-    ).toEqual(
-      'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
+      })
     );
   });
+});
 
-  describe('validateFileExtension', () => {
-    it('should return current file extension', () => {
-      expect(getAndValidateFileExtension('test.json')).toEqual('json');
-    });
+describe('validateFileExtension', () => {
+  it('should return current file extension', () => {
+    expect(getAndValidateFileExtension('test.json')).toEqual('json');
+  });
 
-    it('should return yaml and print warning if file extension does not supported', () => {
-      const stderrMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-      (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
+  it('should return yaml and print warning if file extension does not supported', () => {
+    const stderrMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
 
-      expect(getAndValidateFileExtension('test.xml')).toEqual('yaml');
-      expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
-    });
+    expect(getAndValidateFileExtension('test.xml')).toEqual('yaml');
+    expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
   });
 });
 
