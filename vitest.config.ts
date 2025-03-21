@@ -10,7 +10,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   e2e: defineConfig({
     test: {
-      include: ['__tests__/commands.test.ts'],
+      include: ['__tests__/respect/**/*.test.ts', '__tests__/commands.test.ts'],
     },
   }),
   'smoke-rebilly': defineConfig({
