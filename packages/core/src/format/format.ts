@@ -1,16 +1,12 @@
-import * as fs from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { colorOptions, colorize, logger } from '../logger.js';
 import { output } from '../output.js';
 import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8')
-);
+const packageJson = createRequire(import.meta.url)('../../package.json');
 
 import type {
   NormalizedProblem,

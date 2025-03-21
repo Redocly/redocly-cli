@@ -1,11 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
-);
+const packageJson = createRequire(import.meta.url)('../../../package.json');
+
 const { name: packageName, version: packageVersion } = packageJson;
 
 export function createHarLog(entries: any[] = [], pageInfo: any = {}): any {
