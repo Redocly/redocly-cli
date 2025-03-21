@@ -1,5 +1,6 @@
-import path, { dirname, resolve } from 'node:path';
-import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
 import { getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
@@ -9,15 +10,11 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
 } from '../../utils/miscellaneous.js';
-import { fileURLToPath } from 'node:url';
 
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const packageJson = JSON.parse(
-  readFileSync(path.resolve(__dirname, '../../../package.json'), 'utf-8')
-);
+const packageJson = createRequire(import.meta.url)('../../../package.json');
 
 export const handlerBuildCommand = async ({
   argv,

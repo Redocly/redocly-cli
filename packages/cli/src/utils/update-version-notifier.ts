@@ -1,19 +1,14 @@
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import path, { join } from 'node:path';
+import { join } from 'node:path';
 import * as process from 'node:process';
-import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { compare } from 'semver';
 import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
 import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './miscellaneous.js';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const packageJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8')
-);
+const packageJson = createRequire(import.meta.url)('../../package.json');
 
 export const { version, name } = packageJson;
 

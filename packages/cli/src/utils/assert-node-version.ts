@@ -1,10 +1,10 @@
+import { createRequire } from 'node:module';
 import * as process from 'node:process';
-import * as fs from 'node:fs';
 import * as semver from 'semver';
 import { yellow } from 'colorette';
 
 try {
-  const packageJson = JSON.parse(fs.readFileSync('../package.json', 'utf-8'));
+  const packageJson = createRequire(import.meta.url)('../../package.json');
   const { engines } = packageJson;
   const version = engines.node;
 

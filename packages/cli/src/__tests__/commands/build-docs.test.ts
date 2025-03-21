@@ -34,6 +34,9 @@ describe('build-docs', () => {
 
     vi.mock('handlebars', () => ({
       compile: vi.fn(() => vi.fn(() => '<html></html>')),
+      default: {
+        compile: vi.fn(() => vi.fn(() => '<html></html>')),
+      },
     }));
 
     vi.mock('@redocly/openapi-core');
