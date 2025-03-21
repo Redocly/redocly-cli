@@ -34,7 +34,7 @@ import type {
   RuleSettings,
   Telemetry,
   ThemeRawConfig,
-} from './types';
+} from './types.js';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =

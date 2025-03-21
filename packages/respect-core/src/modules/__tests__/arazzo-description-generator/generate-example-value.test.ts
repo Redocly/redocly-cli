@@ -1,6 +1,6 @@
-import type { Parameter } from '../../../types';
+import type { Parameter } from '../../../types.js';
 
-import { generateExampleValue } from '../../arazzo-description-generator';
+import { generateExampleValue } from '../../arazzo-description-generator/index.js';
 
 describe('generateExampleValue', () => {
   it('should generate example value from parameter example', () => {

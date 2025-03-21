@@ -1,4 +1,4 @@
-import { getCommandOutput, getParams } from '../../helpers';
+import { getCommandOutput, getParams } from '../../helpers.js';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 

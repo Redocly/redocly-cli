@@ -25,7 +25,7 @@ import type {
   ThemeConfig,
   Plugin,
   PluginCreator,
-} from './types';
+} from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {

@@ -14,7 +14,7 @@ import type {
   BaseVisitor,
   NormalizeVisitor,
   VisitorNode,
-} from './visitors';
+} from './visitors.js';
 import type { NormalizedNodeType } from './types/index.js';
 import type { RuleSeverity } from './config/index.js';
 

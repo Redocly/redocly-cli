@@ -11,7 +11,7 @@ import type {
   ProjectSourceResponse,
   PushResponse,
   UpsertRemoteResponse,
-} from './types';
+} from './types.js';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;

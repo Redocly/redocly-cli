@@ -22,7 +22,7 @@ import type {
   Overlay1PreprocessorsSet,
   Overlay1DecoratorsSet,
   Overlay1RuleSet,
-} from '../oas-types';
+} from '../oas-types.js';
 import type { NodeType } from '../types/index.js';
 import type { SkipFunctionContext } from '../visitors.js';
 import type { JSONSchema } from 'json-schema-to-ts';

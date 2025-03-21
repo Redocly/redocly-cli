@@ -43,6 +43,7 @@ dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 cacheLatestVersion();
 
+// FIXME: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')

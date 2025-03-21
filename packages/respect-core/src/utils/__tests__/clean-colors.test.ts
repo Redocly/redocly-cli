@@ -1,4 +1,4 @@
-import { cleanColors } from '../clean-colors';
+import { cleanColors } from '../clean-colors.js';
 
 describe('cleanColors', () => {
   it('should remove ANSI color codes from the input string', () => {
