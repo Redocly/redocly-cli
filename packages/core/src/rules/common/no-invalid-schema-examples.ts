@@ -1,8 +1,8 @@
-import { getAdditionalPropertiesOption, validateExample } from '../utils';
+import { getAdditionalPropertiesOption, validateExample } from '../utils.js';
 
-import type { UserContext } from '../../walk';
-import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi';
-import type { Oas2Rule, Oas3Rule } from '../../visitors';
+import type { UserContext } from '../../walk.js';
+import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
   const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;

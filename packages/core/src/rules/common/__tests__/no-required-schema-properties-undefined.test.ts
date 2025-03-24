@@ -1,7 +1,11 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../__tests__/utils.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('no-required-schema-properties-undefined', () => {
   it('should report if one or more of the required properties are undefined', async () => {

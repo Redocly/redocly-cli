@@ -1,4 +1,4 @@
-import { getNestedValue } from '../get-nested-value';
+import { getNestedValue } from '../get-nested-value.js';
 
 describe('getNestedValue', () => {
   it('should return the value of a nested property', () => {

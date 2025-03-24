@@ -1,4 +1,4 @@
-const JsonPointer = require('json-pointer');
+import JsonPointerLib from 'json-pointer';
 
 export function replaceJSONPointers(expression: string, context: any): string {
   const jsonPointerReplacementRules = [
@@ -49,7 +49,7 @@ export function replaceJSONPointers(expression: string, context: any): string {
 function resolvePointer(sourceContext: any, pointer: string, fallbackMatch: string): string {
   if (sourceContext) {
     try {
-      const value = JsonPointer.get(sourceContext, `/${pointer}`);
+      const value = JsonPointerLib.get(sourceContext, `/${pointer}`);
       if (typeof value === 'string') {
         return JSON.stringify(value); // Safely quote the strings
       }

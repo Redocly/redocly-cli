@@ -1,4 +1,4 @@
-import type { PluginStyleguideConfig } from './types';
+import type { PluginStyleguideConfig } from './types.js';
 
 const all: PluginStyleguideConfig<'built-in'> = {
   rules: {

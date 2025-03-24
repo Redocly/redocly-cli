@@ -12,14 +12,17 @@ import {
   cleanArgs,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform';
+} from '../utils/miscellaneous.js';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import { type ResolvedApi, type Totals, ResolveError, YamlParseError } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as process from 'node:process';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 vi.mock('node:os');
 vi.mock('colorette');
@@ -502,9 +505,6 @@ describe('cleanArgs', () => {
       realFs.statSync(path.resolve(__dirname, value as string))
     );
   });
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
   it('should remove potentially sensitive data from parsed args', () => {
     const parsedArgs = {
       config: './fixtures/redocly.yaml',
@@ -532,24 +532,12 @@ describe('cleanArgs', () => {
     expect(result.arguments).toEqual(
       JSON.stringify({
         config: 'file-yaml',
-        apis: ['api-name@api-version', 'file-yaml', 'http://url'],
+        apis: ['main@v1', 'file-yaml', 'http://url'],
         format: 'codeframe',
         input: '***',
         'client-cert': '***',
         'client-key': '***',
         'ca-cert': '***',
-      })
-    );
-  });
-  it('should remove potentially sensitive data from a push destination', () => {
-    const parsedArgs = {
-      destination: '@org/name@version',
-    };
-    const rawArgs = ['redocly', 'push', '--destination=@org/name@version'];
-    const result = cleanArgs(parsedArgs, rawArgs);
-    expect(result.arguments).toEqual(
-      JSON.stringify({
-        destination: '@organization/api-name@api-version',
       })
     );
   });

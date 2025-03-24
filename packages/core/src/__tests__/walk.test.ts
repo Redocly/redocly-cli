@@ -1,17 +1,18 @@
 import outdent from 'outdent';
-import * as path from 'path';
-
-import { lintDocument } from '../lint';
-
+import path from 'node:path';
+import { lintDocument } from '../lint.js';
 import {
   parseYamlToDocument,
   replaceSourceWithRef,
   makeConfigForRuleset,
-} from '../../__tests__/utils';
-import { BaseResolver, Document } from '../resolve';
-import { listOf } from '../types';
-import { Oas3RuleSet } from '../oas-types';
-import { createConfig } from '../config';
+} from '../../__tests__/utils.js';
+import { BaseResolver, Document } from '../resolve.js';
+import { listOf } from '../types/index.js';
+import { Oas3RuleSet } from '../oas-types.js';
+import { createConfig } from '../config/index.js';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('walk order', () => {
   it('should run visitors', async () => {

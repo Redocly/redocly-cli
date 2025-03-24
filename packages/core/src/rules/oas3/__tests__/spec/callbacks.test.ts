@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { validateDoc } from './utils';
+import { validateDoc } from './utils.js';
 
 it('should not fail on valid callbacks object', async () => {
   const source = outdent`

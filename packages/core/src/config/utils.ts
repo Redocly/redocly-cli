@@ -5,9 +5,9 @@ import {
   isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
-} from '../utils';
-import { Config } from './config';
-import { logger, colorize } from '../logger';
+} from '../utils.js';
+import { Config } from './config.js';
+import { logger, colorize } from '../logger.js';
 
 import type {
   Api,
@@ -25,7 +25,7 @@ import type {
   ThemeConfig,
   Plugin,
   PluginCreator,
-} from './types';
+} from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {

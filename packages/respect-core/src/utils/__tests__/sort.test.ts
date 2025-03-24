@@ -1,4 +1,4 @@
-import { sortMethods } from '../sort';
+import { sortMethods } from '../sort.js';
 
 describe('sortMethods', () => {
   it('should sort methods', () => {

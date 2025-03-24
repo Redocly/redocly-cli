@@ -1,4 +1,4 @@
-import { type Oas3SecurityRequirement, type Oas3SecurityScheme } from 'core/src/typings/openapi';
+import { type Oas3SecurityRequirement, type Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 
 export function generateWorkflowSecurityParameters(
   inputsComponents: any,

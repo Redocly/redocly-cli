@@ -1,2 +1,2 @@
-export * from './create-har-log';
-export * from './with-har';
+export * from './create-har-log.js';
+export * from './with-har.js';

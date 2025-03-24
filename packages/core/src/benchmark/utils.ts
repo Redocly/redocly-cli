@@ -1,10 +1,10 @@
-import { parseYaml } from '../js-yaml';
-import { Source } from '../resolve';
-import { StyleguideConfig, mergeExtends, resolvePlugins } from '../config';
+import { parseYaml } from '../js-yaml/index.js';
+import { Source } from '../resolve.js';
+import { StyleguideConfig, mergeExtends, resolvePlugins } from '../config/index.js';
 
-import type { Document } from '../resolve';
-import type { Oas3RuleSet } from '../oas-types';
-import type { RuleConfig, Plugin, ResolvedStyleguideConfig } from '../config/types';
+import type { Document } from '../resolve.js';
+import type { Oas3RuleSet } from '../oas-types.js';
+import type { RuleConfig, Plugin, ResolvedStyleguideConfig } from '../config/types.js';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {

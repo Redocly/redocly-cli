@@ -1,6 +1,6 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
-import { lintDocumentForTest } from './utils/lint-document-for-test';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { lintDocumentForTest } from './utils/lint-document-for-test.js';
 
 describe('Oas3 component-name-unique', () => {
   describe('schema', () => {

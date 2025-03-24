@@ -1,4 +1,4 @@
-import { validateSuccessCriteria, isRegexpSuccessCriteria } from '../../../flow-runner';
+import { validateSuccessCriteria, isRegexpSuccessCriteria } from '../../../flow-runner/index.js';
 
 describe('validateSuccessCriteria', () => {
   describe('Simple criteria', () => {

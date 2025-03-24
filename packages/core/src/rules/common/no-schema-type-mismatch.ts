@@ -1,7 +1,7 @@
-import type { Oas3Schema } from '../../typings/openapi';
-import type { Oas2Schema } from '../../typings/swagger';
-import type { Oas2Rule, Oas3Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Schema } from '../../typings/openapi.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const NoSchemaTypeMismatch: Oas3Rule | Oas2Rule = () => {
   return {

@@ -1,9 +1,9 @@
 import * as path from 'path';
 import { readFileSync } from 'fs';
-import { resolveDocument, BaseResolver } from '../../resolve';
-import { parseYamlToDocument } from '../utils';
-import { Oas3Types } from '../../types/oas3';
-import { normalizeTypes } from '../../types';
+import { resolveDocument, BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument } from '../utils.js';
+import { Oas3Types } from '../../types/oas3.js';
+import { normalizeTypes } from '../../types/index.js';
 
 export const name = 'Resolve with no external refs';
 export const count = 10;
