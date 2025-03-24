@@ -44,8 +44,6 @@ import type {
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types';
 
-const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
-
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
   config: ConfigApis
@@ -572,16 +570,12 @@ export async function sendTelemetry(
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
     const logged_in = redoclyClient.hasTokens() || (await oauthClient.isAuthorized(reuniteUrl));
-    const { cleanedParsedArgvString, cleanedRawArgvString } = cleanArgs(
-      args,
-      process.argv.slice(2)
-    );
     const data: Analytics = {
       event: 'cli_command',
       event_time,
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
-      arguments: cleanedParsedArgvString,
+      ...cleanArgs(args, process.argv.slice(2)),
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
       os_platform: os.platform(),
@@ -589,7 +583,6 @@ export async function sendTelemetry(
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
       environment_ci: process.env.CI,
-      raw_input: cleanedRawArgvString,
       has_config: has_config ? 'yes' : 'no',
       spec_version,
       spec_keyword,
@@ -652,29 +645,33 @@ function cleanString(value: string): string {
   return value;
 }
 
-function cleanArgvString(rawArgvString: string, value: string | string[], replacement: string) {
-  const replacedValues = typeof value === 'string' ? [value] : value;
-  for (const replacedValue of replacedValues) {
-    rawArgvString = rawArgvString.replaceAll(replacedValue, replacement);
+function replaceArgs(
+  commandInput: string,
+  targets: string | string[],
+  replacement: string
+): string {
+  const targetValues = Array.isArray(targets) ? targets : [targets];
+  for (const target of targetValues) {
+    commandInput = commandInput.replaceAll(target, replacement);
   }
-  return rawArgvString;
+  return commandInput;
 }
 
 export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
+  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
   let rawArgvString = rawArgv.join(' ');
   const result: Record<string, string | string[]> = {};
   for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
       result[key] = '***';
-      rawArgvString = cleanArgvString(rawArgvString, value, '***');
+      rawArgvString = replaceArgs(rawArgvString, value, '***');
     } else if (typeof value === 'string') {
       const cleanedValue = cleanString(value);
       result[key] = cleanedValue;
-      rawArgvString = cleanArgvString(rawArgvString, value, cleanedValue);
+      rawArgvString = replaceArgs(rawArgvString, value, cleanedValue);
     } else if (Array.isArray(value)) {
       result[key] = value.map(cleanString);
-      const replacedValues = typeof value === 'string' ? [value] : value;
-      for (const replacedValue of replacedValues) {
+      for (const replacedValue of value) {
         const newValue = cleanString(replacedValue);
         if (rawArgvString.includes(replacedValue)) {
           rawArgvString = rawArgvString.replaceAll(replacedValue, newValue);
@@ -685,7 +682,7 @@ export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
     }
   }
 
-  return { cleanedParsedArgvString: JSON.stringify(result), cleanedRawArgvString: rawArgvString };
+  return { arguments: JSON.stringify(result), raw_input: rawArgvString };
 }
 
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {

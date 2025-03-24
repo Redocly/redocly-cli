@@ -561,8 +561,8 @@ describe('cleanArgs', () => {
       '--client-key=some-client-key',
       '--ca-cert=some-ca-cert',
     ];
-    const { cleanedParsedArgvString } = cleanArgs(parsedArgs, rawArgs);
-    expect(cleanedParsedArgvString).toEqual(
+    const result = cleanArgs(parsedArgs, rawArgs);
+    expect(result.arguments).toEqual(
       JSON.stringify({
         config: 'file-yaml',
         apis: ['api-name@api-version', 'file-yaml', 'http://url'],
@@ -579,8 +579,8 @@ describe('cleanArgs', () => {
       destination: '@org/name@version',
     };
     const rawArgs = ['redocly', 'push', '--destination=@org/name@version'];
-    const { cleanedParsedArgvString } = cleanArgs(parsedArgs, rawArgs);
-    expect(cleanedParsedArgvString).toEqual(
+    const result = cleanArgs(parsedArgs, rawArgs);
+    expect(result.arguments).toEqual(
       JSON.stringify({
         destination: '@organization/api-name@api-version',
       })
@@ -620,11 +620,11 @@ describe('cleanArgs', () => {
       config: 'fixtures/redocly.yaml',
       output: 'fixtures',
     };
-    const { cleanedRawArgvString, cleanedParsedArgvString } = cleanArgs(parsedArgs, rawInput);
-    expect(cleanedRawArgvString).toEqual(
+    const result = cleanArgs(parsedArgs, rawInput);
+    expect(result.raw_input).toEqual(
       'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --client-cert *** --client-key *** --ca-cert *** --organization *** --input *** --input ***'
     );
-    expect(cleanedParsedArgvString).toEqual(
+    expect(result.arguments).toEqual(
       JSON.stringify({
         apis: ['file-yaml', 'http://url'],
         input: '***',
@@ -655,13 +655,13 @@ describe('cleanArgs', () => {
       extends: 'minimal',
       'skip-rule': ['operation-4xx-response'],
     };
-    const { cleanedRawArgvString, cleanedParsedArgvString } = cleanArgs(parsedArgs, rawInput);
+    const result = cleanArgs(parsedArgs, rawInput);
 
-    expect(cleanedRawArgvString).toEqual(
+    expect(result.raw_input).toEqual(
       'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
     );
 
-    expect(cleanedParsedArgvString).toEqual(
+    expect(result.arguments).toEqual(
       JSON.stringify({
         apis: ['file-json'],
         format: 'stylish',
