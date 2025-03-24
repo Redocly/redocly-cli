@@ -93,7 +93,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   - You're actively developing your API and want to temporarily relax validation
   - You're testing new API behavior that doesn't match the current schema
   - You've encountered known issues that shouldn't block test execution
-  - You want to treat certain validation failures as warnings instead of errors
+  - You want to treat certain validation failures as warnings instead of errors.
 
   The following checks can be configured: `STATUS_CODE_CHECK`, `SCHEMA_CHECK`, and `CONTENT_TYPE_CHECK`.
   The following severity values are available:
