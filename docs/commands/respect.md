@@ -90,16 +90,16 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - Severity of the check.
   Customize the severity level of validation checks for status codes, schemas, and content types. This is useful when:
 
-  - You're actively developing your API and want to temporarily relax validation
-  - You're testing new API behavior that doesn't match the current schema
-  - You've encountered known issues that shouldn't block test execution
+  - You're actively developing your API and want to temporarily relax validation.
+  - You're testing new API behavior that doesn't match the current schema.
+  - You've encountered known issues that shouldn't block test execution.
   - You want to treat certain validation failures as warnings instead of errors.
 
   The following checks can be configured: `STATUS_CODE_CHECK`, `SCHEMA_CHECK`, and `CONTENT_TYPE_CHECK`.
   The following severity values are available:
 
-  - `error`: Validation failures cause the workflow to fail
-  - `warn`: Validation failures appear as warnings but don't fail the workflow
+  - `error`: Validation failures cause the workflow to fail.
+  - `warn`: Validation failures appear as warnings but don't fail the workflow.
   - `off`: Validation checks still run but their results are ignored
 
   Note that setting severity to `off` does not prevent checks from executing - it only prevents their results from affecting the workflow outcome.
