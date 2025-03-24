@@ -7,7 +7,7 @@ exports[`should use inputs from CLI and env 1`] = `
 
   ✓ GET /museum-hours - step get-museum-hours
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==
@@ -79,7 +79,7 @@ exports[`should use inputs from CLI and env 1`] = `
 
   ✓ POST /tickets - step buy-tickets
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/tickets
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -111,7 +111,7 @@ exports[`should use inputs from CLI and env 1`] = `
 
   ✓ GET /museum-hours - step test-default-input
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
     Request Headers:
       accept: application/json, application/problem+json
       authorization: Basic Og==
@@ -183,7 +183,7 @@ exports[`should use inputs from CLI and env 1`] = `
 
   ✓ POST /special-events - step create-event
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
