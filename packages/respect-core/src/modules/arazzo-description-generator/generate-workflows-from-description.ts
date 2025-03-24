@@ -9,10 +9,7 @@ import {
   type Oas3Operation,
 } from 'core/src/typings/openapi.js';
 import { type OperationMethod, type Workflow, type Step } from '../../types.js';
-import {
-  type ArazzoDefinition,
-  type ExtendedOperation,
-} from '@redocly/openapi-core/lib/typings/arazzo.js';
+import { type ArazzoDefinition, type ExtendedOperation } from '@redocly/openapi-core';
 
 type HttpMethod = Lowercase<ExtendedOperation['method']>;
 

@@ -19,11 +19,6 @@
       "import": "./lib/bundle.js",
       "require": "./lib/bundle.js",
       "types": "./lib/bundle.d.ts"
-    },
-    "./lib/typings/arazzo.js": {
-      "import": "./lib/typings/arazzo.js",
-      "require": "./lib/typings/arazzo.js",
-      "types": "./lib/typings/arazzo.d.ts"
     }
   },
   "engines": {
