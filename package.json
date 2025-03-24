@@ -5,8 +5,8 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=18.20.7",
-    "npm": ">=10.8.2"
+    "node": ">=20",
+    "npm": ">=10"
   },
   "engineStrict": true,
   "scripts": {
@@ -72,7 +72,6 @@
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "ts-loader": "^8.0.2",
-    "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "5.5.3",
     "vitest": "^3.0.8"

@@ -9,8 +9,8 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=18.20.7",
-    "npm": ">=10.8.2"
+    "node": ">=20",
+    "npm": ">=10"
   },
   "engineStrict": true,
   "scripts": {
