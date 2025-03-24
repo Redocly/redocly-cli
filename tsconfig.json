@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "node"],
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "module": "ESNext",
     "target": "ES2021",
     "noImplicitAny": true,
