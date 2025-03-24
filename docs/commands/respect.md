@@ -88,7 +88,7 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 - --severity
 - string
 - Severity of the check.
-  Customize the severity level of validation checks for status codes, schemas, and content types. This is useful when:
+  Customize the severity level of validation checks for status codes, schemas, and content types. Setting the severity level is useful when:
 
   - You're actively developing your API and want to temporarily relax validation.
   - You're testing new API behavior that doesn't match the current schema.
@@ -100,10 +100,10 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
 
   - `error`: Validation failures cause the workflow to fail.
   - `warn`: Validation failures appear as warnings but don't fail the workflow.
-  - `off`: Validation checks still run but their results are ignored
+  - `off`: Validation checks still run but their results are ignored.
 
   Note that setting severity to `off` does not prevent checks from executing - it only prevents their results from affecting the workflow outcome.
-  For example, the following command turns status code errors into warnings:
+  For example, the following command sets status code errors to the warning severity level:
   `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`.
 
 {% /table %}
