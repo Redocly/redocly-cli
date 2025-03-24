@@ -27,7 +27,7 @@ const ajvStrict = new Ajv({
   validateFormats: false,
   logger: false,
   verbose: true,
-  defaultUnevaluatedProperties: false,
+  defaultUnevaluatedProperties: true,
 });
 
 export function checkSchema({
