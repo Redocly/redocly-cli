@@ -659,30 +659,30 @@ function replaceArgs(
 
 export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
   const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
-  let rawArgvString = rawArgv.join(' ');
-  const result: Record<string, string | string[]> = {};
+  let commandInput = rawArgv.join(' ');
+  const commandArguments: Record<string, string | string[]> = {};
   for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
-      result[key] = '***';
-      rawArgvString = replaceArgs(rawArgvString, value, '***');
+      commandArguments[key] = '***';
+      commandInput = replaceArgs(commandInput, value, '***');
     } else if (typeof value === 'string') {
       const cleanedValue = cleanString(value);
-      result[key] = cleanedValue;
-      rawArgvString = replaceArgs(rawArgvString, value, cleanedValue);
+      commandArguments[key] = cleanedValue;
+      commandInput = replaceArgs(commandInput, value, cleanedValue);
     } else if (Array.isArray(value)) {
-      result[key] = value.map(cleanString);
+      commandArguments[key] = value.map(cleanString);
       for (const replacedValue of value) {
         const newValue = cleanString(replacedValue);
-        if (rawArgvString.includes(replacedValue)) {
-          rawArgvString = rawArgvString.replaceAll(replacedValue, newValue);
+        if (commandInput.includes(replacedValue)) {
+          commandInput = commandInput.replaceAll(replacedValue, newValue);
         }
       }
     } else {
-      result[key] = value;
+      commandArguments[key] = value;
     }
   }
 
-  return { arguments: JSON.stringify(result), raw_input: rawArgvString };
+  return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
 }
 
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
