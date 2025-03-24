@@ -83,6 +83,29 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   You can also pass the server overrides as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`.
 
+---
+
+- --severity
+- string
+- Severity of the check.
+  Customize the severity level of validation checks for status codes, schemas, and content types. This is useful when:
+
+  - You're actively developing your API and want to temporarily relax validation
+  - You're testing new API behavior that doesn't match the current schema
+  - You've encountered known issues that shouldn't block test execution
+  - You want to treat certain validation failures as warnings instead of errors
+
+  The following checks can be configured: `STATUS_CODE_CHECK`, `SCHEMA_CHECK`, and `CONTENT_TYPE_CHECK`.
+  The following severity values are available:
+
+  - `error`: Validation failures will cause the workflow to fail
+  - `warn`: Validation failures will be logged as warnings but won't fail the workflow
+  - `off`: Validation checks still run but their results are ignored
+
+  Note that setting severity to `off` does not prevent checks from executing - it only prevents their results from affecting the workflow outcome.
+  For example, the following command will turn status code errors into warnings:
+  `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`.
+
 {% /table %}
 
 ## Examples
