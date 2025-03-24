@@ -1,5 +1,5 @@
 import { bgRed } from 'colorette';
-import { DefaultLogger } from '../utils/logger/logger';
+import { DefaultLogger } from '../utils/logger/logger.js';
 
 const logger = DefaultLogger.getInstance();
 

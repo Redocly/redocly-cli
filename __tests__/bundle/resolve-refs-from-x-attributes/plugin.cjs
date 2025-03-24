@@ -1,4 +1,4 @@
-const ResolveX = require('./resolve-x.decorator');
+const ResolveX = require('./resolve-x.decorator.cjs');
 const id = 'plugin';
 
 const decorators = {

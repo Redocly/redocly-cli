@@ -1,27 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "CommonJS",
     "rootDir": "src",
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
     "outDir": "lib",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "moduleResolution": "node",
-    "types": ["node"],
-    "skipLibCheck": true,
-    "allowJs": true
+    "strict": true
   },
   "references": [{ "path": "../core" }],
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js" // Add this line
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }

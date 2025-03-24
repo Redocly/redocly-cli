@@ -1,4 +1,4 @@
-import { combineUrl } from '../url';
+import { combineUrl } from '../url.js';
 
 describe('combineUrl', () => {
   it('should combine host and path', () => {

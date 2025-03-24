@@ -2,7 +2,7 @@ coverage/
 lib/
 output/
 packages/core/src/rules/__tests__/fixtures/invalid-yaml.yaml
-packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
+packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs
 benchmark/api-definitions/
 LICENSE.md
 snapshot*.txt

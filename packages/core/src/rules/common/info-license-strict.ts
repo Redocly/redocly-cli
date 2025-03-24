@@ -1,7 +1,7 @@
-import { detectSpec } from '../../oas-types';
-import { validateDefinedAndNonEmpty, validateOneOfDefinedAndNonEmpty } from '../utils';
+import { detectSpec } from '../../oas-types.js';
+import { validateDefinedAndNonEmpty, validateOneOfDefinedAndNonEmpty } from '../utils.js';
 
-import type { Oas3Rule, Oas2Rule, Async2Rule, Async3Rule } from '../../visitors';
+import type { Oas3Rule, Oas2Rule, Async2Rule, Async3Rule } from '../../visitors.js';
 
 export const InfoLicenseStrict: Oas2Rule | Oas3Rule | Async2Rule | Async3Rule = () => {
   let specVersion: string | undefined;

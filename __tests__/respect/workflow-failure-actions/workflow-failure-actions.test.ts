@@ -1,5 +1,8 @@
-import { getCommandOutput, getParams } from '../../helpers';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('should execute successActions for each workflow step if it does not have onSuccess action itself', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');

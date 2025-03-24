@@ -1,4 +1,4 @@
-import type { Step } from '../../../types';
+import type { Step } from '../../../types.js';
 
 export function getPublicSteps(steps: Step[]): Record<string, any> {
   const publicSteps = {} as Record<string, any>;

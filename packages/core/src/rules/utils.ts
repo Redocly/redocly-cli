@@ -1,14 +1,14 @@
-import levenshtein = require('js-levenshtein');
-import { Location } from '../ref-utils';
-import { validateJsonSchema } from './ajv';
+import { default as levenshtein } from 'js-levenshtein';
+import { Location } from '../ref-utils.js';
+import { validateJsonSchema } from './ajv.js';
 import {
   isPlainObject,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
-} from '../utils';
+} from '../utils.js';
 
-import type { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi';
-import type { UserContext } from '../walk';
+import type { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi.js';
+import type { UserContext } from '../walk.js';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {

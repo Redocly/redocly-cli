@@ -1,10 +1,10 @@
 import { blue, yellow, gray } from 'colorette';
-import { writeFileSync } from 'fs';
-import { stringifyYaml } from '../utils/yaml';
-import { generateArazzoDescription } from '../modules/arazzo-description-generator';
-import { DefaultLogger } from '../utils/logger/logger';
-import { exitWithError } from '../utils/exit-with-error';
-import { type CommandArgs } from '../types';
+import { writeFileSync } from 'node:fs';
+import { stringifyYaml } from '../utils/yaml.js';
+import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
+import { DefaultLogger } from '../utils/logger/logger.js';
+import { exitWithError } from '../utils/exit-with-error.js';
+import { type CommandArgs } from '../types.js';
 
 export type GenerateArazzoFileOptions = {
   descriptionPath: string;

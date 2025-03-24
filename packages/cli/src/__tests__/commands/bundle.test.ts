@@ -1,6 +1,6 @@
 import { bundle, getTotals, getMergedConfig, Config } from '@redocly/openapi-core';
 
-import { BundleOptions, handleBundle } from '../../commands/bundle';
+import { BundleOptions, handleBundle } from '../../commands/bundle.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
@@ -8,9 +8,9 @@ import {
   handleError,
   loadConfigAndHandleErrors,
   saveBundle,
-} from '../../utils/miscellaneous';
-import { commandWrapper } from '../../wrapper';
-import { configFixture } from '../fixtures/config';
+} from '../../utils/miscellaneous.js';
+import { commandWrapper } from '../../wrapper.js';
+import { configFixture } from '../fixtures/config.js';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 

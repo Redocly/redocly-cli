@@ -1,8 +1,11 @@
 import { fetch } from 'undici';
-import type { TestContext } from '../../../types';
+import type { TestContext } from '../../../types.js';
 
-import { callAPIAndAnalyzeResults, DEFAULT_SEVERITY_CONFIGURATION } from '../../flow-runner';
-import { ApiFetcher } from '../../../utils/api-fetcher';
+import {
+  callAPIAndAnalyzeResults,
+  DEFAULT_SEVERITY_CONFIGURATION,
+} from '../../flow-runner/index.js';
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 vi.mock('undici');
 

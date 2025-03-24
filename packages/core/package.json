@@ -2,7 +2,25 @@
   "name": "@redocly/openapi-core",
   "version": "1.34.1",
   "description": "",
+  "type": "module",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./lib/config/config": {
+      "import": "./lib/config/index.js",
+      "require": "./lib/config/index.js",
+      "types": "./lib/config/index.d.ts"
+    },
+    "./lib/bundle": {
+      "import": "./lib/bundle.js",
+      "require": "./lib/bundle.js",
+      "types": "./lib/bundle.d.ts"
+    }
+  },
   "engines": {
     "node": ">=18.20.7",
     "npm": ">=10.8.2"

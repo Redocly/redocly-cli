@@ -1,8 +1,8 @@
 import { resolve, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
 import { loadConfig, bundle, bundleFromString } from '@redocly/openapi-core';
-import { type BundleResult } from '@redocly/openapi-core/lib/bundle';
-import { isURL } from '../../utils/is-url';
+import { type BundleResult } from '@redocly/openapi-core';
+import { isURL } from '../../utils/is-url.js';
 
 export async function bundleOpenApi(path: string = '', workflowPath: string): Promise<any> {
   const isUrl = isURL(path);

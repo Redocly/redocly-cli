@@ -1,16 +1,19 @@
 import { createElement } from 'react';
-import { createStore, Redoc } from 'redoc';
+import { default as redoc } from 'redoc';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
-import { compile } from 'handlebars';
-import { dirname, join, resolve } from 'path';
-import { existsSync, lstatSync, readFileSync } from 'fs';
+import { default as handlebars } from 'handlebars';
+import { dirname, join, resolve } from 'node:path';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { red } from 'colorette';
 import { isAbsoluteUrl } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/miscellaneous';
+import { exitWithError } from '../../utils/miscellaneous.js';
+import { fileURLToPath } from 'node:url';
 
 import type { Config } from '@redocly/openapi-core';
-import type { BuildDocsOptions } from './types';
+import type { BuildDocsOptions } from './types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -63,10 +66,10 @@ export async function getPageHTML(
   process.stdout.write('Prerendering docs\n');
 
   const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
-  const store = await createStore(api, apiUrl, redocOptions);
+  const store = await redoc.createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
 
-  const html = renderToString(sheet.collectStyles(createElement(Redoc, { store })));
+  const html = renderToString(sheet.collectStyles(createElement(redoc.Redoc, { store })));
   const state = await store.toJS();
   const css = sheet.getStyleTags();
 
@@ -75,7 +78,7 @@ export async function getPageHTML(
     : redocOptions?.htmlTemplate
     ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
     : join(__dirname, './template.hbs');
-  const template = compile(readFileSync(templateFileName).toString());
+  const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
       <div id="redoc">${html || ''}</div>

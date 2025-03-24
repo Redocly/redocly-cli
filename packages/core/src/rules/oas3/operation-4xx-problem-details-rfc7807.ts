@@ -1,7 +1,7 @@
-import { validateDefinedAndNonEmpty } from '../utils';
+import { validateDefinedAndNonEmpty } from '../utils.js';
 
-import type { Oas3Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 /**
  * Validation according to rfc7807 - https://datatracker.ietf.org/doc/html/rfc7807

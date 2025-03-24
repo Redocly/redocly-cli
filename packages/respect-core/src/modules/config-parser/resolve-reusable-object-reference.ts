@@ -1,4 +1,4 @@
-import { getValueFromContext } from './get-value-from-context';
+import { getValueFromContext } from './get-value-from-context.js';
 
 import type {
   ReusableObject,
@@ -6,7 +6,7 @@ import type {
   OnSuccessObject,
   OnFailureObject,
   Parameter,
-} from '../../types';
+} from '../../types.js';
 
 type ComponentType<T extends ReusableObject> =
   T['reference'] extends `$components.successActions${string}`

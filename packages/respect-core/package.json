@@ -2,11 +2,11 @@
   "name": "@redocly/respect-core",
   "version": "1.34.1",
   "description": "API testing framework core",
-  "main": "lib/index.js",
+  "type": "module",
   "types": "lib/index.d.ts",
   "exports": {
     ".": {
-      "require": "./lib/index.js",
+      "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
     }
   },

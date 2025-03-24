@@ -1,7 +1,7 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { spawnSync } from 'child_process';
-import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { parseYaml } from '../packages/core/src/utils.js'; // not able to import from @redocly/openapi-core
 
 export function getParams(indexEntryPoint: string, args: string[] = []): string[] {
   return [indexEntryPoint, ...args];

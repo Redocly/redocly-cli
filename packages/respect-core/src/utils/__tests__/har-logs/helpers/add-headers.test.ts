@@ -1,4 +1,4 @@
-import { addHeaders } from '../../../har-logs/helpers/add-headers';
+import { addHeaders } from '../../../har-logs/helpers/add-headers.js';
 
 describe('addHeaders', () => {
   it('should add headers to an existing Headers object', () => {

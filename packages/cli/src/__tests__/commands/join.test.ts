@@ -8,16 +8,16 @@ import {
   type SpecVersion,
   type Document,
 } from '@redocly/openapi-core';
-import { handleJoin } from '../../commands/join';
+import { handleJoin } from '../../commands/join.js';
 import {
   exitWithError,
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
   writeToFileByExtension,
-} from '../../utils/miscellaneous';
-import { configFixture } from '../fixtures/config';
-import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents';
+} from '../../utils/miscellaneous.js';
+import { configFixture } from '../fixtures/config.js';
+import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
   beforeEach(() => {

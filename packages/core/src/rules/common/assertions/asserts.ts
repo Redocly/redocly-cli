@@ -1,9 +1,9 @@
-import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils';
-import { isOrdered, getIntersectionLength, regexFromString } from './utils';
+import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils.js';
+import { isOrdered, getIntersectionLength, regexFromString } from './utils.js';
 
-import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types';
-import type { Location } from '../../../ref-utils';
-import type { OrderOptions, OrderDirection } from './utils';
+import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
+import type { Location } from '../../../ref-utils.js';
+import type { OrderOptions, OrderDirection } from './utils.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 

@@ -1,8 +1,8 @@
-import { getValueFromContext } from '../config-parser';
-import { formatCliInputs } from './inputs';
+import { getValueFromContext } from '../config-parser/index.js';
+import { formatCliInputs } from './inputs/index.js';
 
-import type { ExtendedOperation, TestContext } from '../../types';
-import type { OperationDetails } from '../description-parser';
+import type { ExtendedOperation, TestContext } from '../../types.js';
+import type { OperationDetails } from '../description-parser/index.js';
 
 export type GetServerUrlInput = {
   ctx: TestContext;
