@@ -16,7 +16,7 @@ import { calculateTotals, maskSecrets } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { CollectFn } from '@redocly/openapi-core/lib/utils.js';
+import type { CollectFn } from '@redocly/openapi-core';
 import type {
   TestDescription,
   AppOptions,

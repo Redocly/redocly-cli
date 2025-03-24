@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core/lib/utils.js';
+import { isPlainObject } from '@redocly/openapi-core';
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,

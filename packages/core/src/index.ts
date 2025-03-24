@@ -1,11 +1,19 @@
 export {
   type BundleOutputFormat,
+  type CollectFn,
+  type StrictObject,
   readFileFromUrl,
   slash,
   doesYamlFileExist,
   isTruthy,
   getProxyAgent,
   pause,
+  isPlainObject,
+  dequal,
+  pluralize,
+  isEmptyObject,
+  isNotEmptyArray,
+  isNotEmptyObject,
 } from './utils.js';
 export { Oas3_1Types } from './types/oas3_1.js';
 export { Arazzo1Types } from './types/arazzo.js';

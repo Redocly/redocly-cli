@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import { bold, red } from 'colorette';
 import { getTotals, formatProblems, lint, bundle, createConfig } from '@redocly/openapi-core';
-import { type CollectFn } from '@redocly/openapi-core/lib/utils.js';
+import { type CollectFn } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { existsSync } from 'node:fs';
 import { type TestDescription } from '../../types.js';

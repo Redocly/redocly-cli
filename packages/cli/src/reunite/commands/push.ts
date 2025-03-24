@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { slash } from '@redocly/openapi-core';
-import { pluralize } from '@redocly/openapi-core/lib/utils.js';
+import { slash , pluralize } from '@redocly/openapi-core';
 import { green, yellow } from 'colorette';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous.js';
 import { handlePushStatus } from './push-status.js';

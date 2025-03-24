@@ -1,12 +1,10 @@
-import { detectSpec, doesYamlFileExist } from '@redocly/openapi-core';
-import { isPlainObject } from '@redocly/openapi-core/lib/utils.js';
+import { detectSpec, doesYamlFileExist, isPlainObject } from '@redocly/openapi-core';
 import { version } from './utils/update-version-notifier.js';
 import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
 
 import type { Arguments } from 'yargs';
-import type { Config } from '@redocly/openapi-core';
-import type { CollectFn } from '@redocly/openapi-core/lib/utils.js';
+import type { Config, CollectFn } from '@redocly/openapi-core';
 import type { ExitCode } from './utils/miscellaneous.js';
 import type { CommandOptions } from './types.js';
 

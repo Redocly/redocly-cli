@@ -10,11 +10,6 @@
       "require": "./lib/index.js",
       "types": "./lib/index.d.ts"
     },
-    "./lib/utils.js": {
-      "import": "./lib/utils.js",
-      "require": "./lib/utils.js",
-      "types": "./lib/utils.d.ts"
-    },
     "./lib/config/index.js": {
       "import": "./lib/config/index.js",
       "require": "./lib/config/index.js",

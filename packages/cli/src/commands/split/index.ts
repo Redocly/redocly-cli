@@ -1,8 +1,7 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'node:fs';
 import * as process from 'node:process';
-import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils.js';
+import { parseYaml, slash, isRef, isTruthy , dequal } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 import {

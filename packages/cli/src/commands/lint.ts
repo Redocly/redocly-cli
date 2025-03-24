@@ -6,9 +6,8 @@ import {
   getTotals,
   lint,
   lintConfig,
-} from '@redocly/openapi-core';
+ pluralize } from '@redocly/openapi-core';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
-import { pluralize } from '@redocly/openapi-core/lib/utils.js';
 import {
   checkIfRulesetExist,
   exitWithError,

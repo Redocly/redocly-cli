@@ -16,14 +16,12 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
   loadConfig,
-} from '@redocly/openapi-core';
-import {
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
   isPlainObject,
   pluralize,
-} from '@redocly/openapi-core/lib/utils.js';
+} from '@redocly/openapi-core';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
