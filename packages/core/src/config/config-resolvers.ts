@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
@@ -145,7 +145,7 @@ export async function resolvePlugins(
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                __dirname, // FIXME: use path.dirname(fileURLToPath(import.meta.url))?
+                path.dirname(fileURLToPath(import.meta.url)),
               ],
             });
 
@@ -159,16 +159,8 @@ export async function resolvePlugins(
             // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            // FIXME: fix this mess after we migrate to ESM
-            // try {
-            //   // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
-            //   const _importDynamic = new Function('modulePath', 'return import(modulePath)');
-            //   const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
-            //   requiredPlugin = mod.default || mod;
-            // } catch (e) {
             const mod = await import(pathToFileURL(absolutePluginPath).href);
             requiredPlugin = mod.default || mod;
-            // }
           }
 
           const pluginCreatorOptions = { contentDir: configDir };
