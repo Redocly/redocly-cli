@@ -7,7 +7,7 @@ exports[`should use error severity level 1`] = `
 
   ✗ GET /museum-hours - step get-museum-hours
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/museum-hours
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: html/text, application/problem+json
       authorization: Basic Og==
@@ -79,7 +79,7 @@ exports[`should use error severity level 1`] = `
 
   ✓ POST /special-events - step create-event
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -120,7 +120,7 @@ exports[`should use error severity level 1`] = `
 
   ✗ PATCH /special-events/{eventId} - step update-event
 
-    Request URL: https://marketing-site.redocly.app/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
       content-type: application/json
       accept: json, application/problem+json
