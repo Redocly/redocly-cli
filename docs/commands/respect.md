@@ -98,12 +98,12 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   The following checks can be configured: `STATUS_CODE_CHECK`, `SCHEMA_CHECK`, and `CONTENT_TYPE_CHECK`.
   The following severity values are available:
 
-  - `error`: Validation failures will cause the workflow to fail
-  - `warn`: Validation failures will be logged as warnings but won't fail the workflow
+  - `error`: Validation failures cause the workflow to fail
+  - `warn`: Validation failures appear as warnings but don't fail the workflow
   - `off`: Validation checks still run but their results are ignored
 
   Note that setting severity to `off` does not prevent checks from executing - it only prevents their results from affecting the workflow outcome.
-  For example, the following command will turn status code errors into warnings:
+  For example, the following command turns status code errors into warnings:
   `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`.
 
 {% /table %}
