@@ -15,7 +15,6 @@ import type {
   LocationObject,
 } from '../walk.js';
 
-// FIXME: update
 const coreVersion = packageJson.version;
 
 export type Totals = {
