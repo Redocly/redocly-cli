@@ -575,7 +575,7 @@ export async function sendTelemetry(
       event_time,
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
-      arguments: JSON.stringify(cleanArgs(args)),
+      ...cleanArgs(args, process.argv.slice(2)),
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
       os_platform: os.platform(),
@@ -583,7 +583,6 @@ export async function sendTelemetry(
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
       environment_ci: process.env.CI,
-      raw_input: cleanRawInput(process.argv.slice(2)),
       has_config: has_config ? 'yes' : 'no',
       spec_version,
       spec_keyword,
@@ -627,7 +626,7 @@ function isDirectory(value: string) {
   return fs.existsSync(value) && fs.statSync(value).isDirectory();
 }
 
-function cleanString(value?: string): string | undefined {
+function cleanString(value: string): string {
   if (!value) {
     return value;
   }
@@ -646,27 +645,44 @@ function cleanString(value?: string): string | undefined {
   return value;
 }
 
-export function cleanArgs(args: CommandOptions) {
-  const keysToClean = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
+function replaceArgs(
+  commandInput: string,
+  targets: string | string[],
+  replacement: string
+): string {
+  const targetValues = Array.isArray(targets) ? targets : [targets];
+  for (const target of targetValues) {
+    commandInput = commandInput.replaceAll(target, replacement);
+  }
+  return commandInput;
+}
 
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(args)) {
-    if (keysToClean.includes(key)) {
-      result[key] = '***';
+export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
+  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
+  let commandInput = rawArgv.join(' ');
+  const commandArguments: Record<string, string | string[]> = {};
+  for (const [key, value] of Object.entries(parsedArgs)) {
+    if (KEYS_TO_CLEAN.includes(key)) {
+      commandArguments[key] = '***';
+      commandInput = replaceArgs(commandInput, value, '***');
     } else if (typeof value === 'string') {
-      result[key] = cleanString(value);
+      const cleanedValue = cleanString(value);
+      commandArguments[key] = cleanedValue;
+      commandInput = replaceArgs(commandInput, value, cleanedValue);
     } else if (Array.isArray(value)) {
-      result[key] = value.map(cleanString);
+      commandArguments[key] = value.map(cleanString);
+      for (const replacedValue of value) {
+        const newValue = cleanString(replacedValue);
+        if (commandInput.includes(replacedValue)) {
+          commandInput = commandInput.replaceAll(replacedValue, newValue);
+        }
+      }
     } else {
-      result[key] = value;
+      commandArguments[key] = value;
     }
   }
 
-  return result;
-}
-
-export function cleanRawInput(argv: string[]) {
-  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
+  return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
 }
 
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
