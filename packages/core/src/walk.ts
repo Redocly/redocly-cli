@@ -1,11 +1,11 @@
-import { Location, isRef } from './ref-utils';
-import { pushStack, popStack } from './utils';
-import { YamlParseError, makeRefId } from './resolve';
-import { isNamedType, SpecExtension } from './types';
+import { Location, isRef } from './ref-utils.js';
+import { pushStack, popStack } from './utils.js';
+import { YamlParseError, makeRefId } from './resolve.js';
+import { isNamedType, SpecExtension } from './types/index.js';
 
-import type { SpecVersion } from './oas-types';
-import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve';
-import type { Referenced } from './typings/openapi';
+import type { SpecVersion } from './oas-types.js';
+import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import type { Referenced } from './typings/openapi.js';
 import type {
   VisitorLevelContext,
   NormalizedOasVisitors,
@@ -14,9 +14,9 @@ import type {
   BaseVisitor,
   NormalizeVisitor,
   VisitorNode,
-} from './visitors';
-import type { NormalizedNodeType } from './types';
-import type { RuleSeverity } from './config';
+} from './visitors.js';
+import type { NormalizedNodeType } from './types/index.js';
+import type { RuleSeverity } from './config/index.js';
 
 export type NonUndefined =
   | string

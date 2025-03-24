@@ -1,5 +1,5 @@
 import { type MockInstance } from 'vitest';
-import { Spinner } from '../utils/spinner';
+import { Spinner } from '../utils/spinner.js';
 import * as process from 'node:process';
 
 describe('Spinner', () => {

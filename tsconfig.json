@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "node"],
     "composite": true,
     "declaration": true,
-    "module": "commonjs",
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "ESNext",
     "target": "ES2021",
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -16,6 +18,8 @@
     "allowJs": false,
     "lib": ["ES2021", "ES2021.String", "DOM"],
     "baseUrl": "./packages",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true
   }
 }

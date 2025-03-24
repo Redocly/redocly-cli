@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18.20.7",
     "npm": ">=10.8.2"
@@ -21,13 +22,13 @@
     "eslint": "eslint packages/**",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules dist && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "compile": "npm run respect:parser:generate && tsc -b tsconfig.build.json && npm run build-docs:copy-assets",
+    "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run build-docs:copy-assets",
     "prepare": "npm run compile",
-    "cli": "ts-node packages/cli/src/index.ts",
+    "cli": "node --import tsx packages/cli/src/index.ts",
     "precli": "npm run compile",
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
-    "respect:parser:generate": "pegjs --format commonjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs",
+    "respect:parser:generate": "pegjs --format commonjs --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.cjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.cjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs",
     "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
@@ -71,7 +72,8 @@
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "ts-loader": "^8.0.2",
-    "ts-node": "^9.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "5.5.3",
     "vitest": "^3.0.8"
   },

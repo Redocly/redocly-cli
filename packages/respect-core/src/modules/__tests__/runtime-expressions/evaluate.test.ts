@@ -1,10 +1,10 @@
-import type { RuntimeExpressionContext } from '../../../types';
+import type { RuntimeExpressionContext } from '../../../types.js';
 
-import { createFaker } from '../../faker';
+import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
   evaluateRuntimeExpression,
-} from '../../runtime-expressions';
+} from '../../runtime-expressions/index.js';
 
 const faker = createFaker();
 const runtimeExpressionContext = {

@@ -1,19 +1,28 @@
 export {
   type BundleOutputFormat,
+  type CollectFn,
+  type StrictObject,
   readFileFromUrl,
   slash,
   doesYamlFileExist,
   isTruthy,
   getProxyAgent,
   pause,
-} from './utils';
-export { Oas3_1Types } from './types/oas3_1';
-export { Arazzo1Types } from './types/arazzo';
-export { Oas3Types } from './types/oas3';
-export { Oas2Types } from './types/oas2';
-export { AsyncApi2Types } from './types/asyncapi2';
-export { AsyncApi3Types } from './types/asyncapi3';
-export { ConfigTypes } from './types/redocly-yaml';
+  isPlainObject,
+  dequal,
+  pluralize,
+  isEmptyObject,
+  isNotEmptyArray,
+  isNotEmptyObject,
+} from './utils.js';
+export { Oas3_1Types } from './types/oas3_1.js';
+export { Arazzo1Types } from './types/arazzo.js';
+export type { ArazzoDefinition, ExtendedOperation } from './typings/arazzo.js';
+export { Oas3Types } from './types/oas3.js';
+export { Oas2Types } from './types/oas2.js';
+export { AsyncApi2Types } from './types/asyncapi2.js';
+export { AsyncApi3Types } from './types/asyncapi3.js';
+export { ConfigTypes } from './types/redocly-yaml.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,
@@ -27,13 +36,18 @@ export type {
   Oas3Tag,
   Referenced,
   OasRef,
-} from './typings/openapi';
-export type { Oas2Definition } from './typings/swagger';
-export type { StatsAccumulator, StatsName } from './typings/common';
-export { normalizeTypes } from './types';
-export { Stats } from './rules/other/stats';
+  Oas3Parameter,
+  Oas3Server,
+  Oas3Operation,
+  Oas3Responses,
+} from './typings/openapi.js';
+export type { Oas2Definition } from './typings/swagger.js';
+export type { StatsAccumulator, StatsName } from './typings/common.js';
+export { normalizeTypes } from './types/index.js';
+export { Stats } from './rules/other/stats.js';
 
 export {
+  type RawConfigProcessor,
   Config,
   StyleguideConfig,
   RawConfig,
@@ -48,7 +62,8 @@ export {
   RuleSeverity,
   createConfig,
   ResolvedApi,
-} from './config';
+  ConfigValidationError,
+} from './config/index.js';
 
 export {
   Source,
@@ -58,17 +73,17 @@ export {
   ResolveError,
   YamlParseError,
   makeDocumentFromString,
-} from './resolve';
-export { parseYaml, stringifyYaml } from './js-yaml';
-export { unescapePointer, isRef, isAbsoluteUrl } from './ref-utils';
+} from './resolve.js';
+export { parseYaml, stringifyYaml } from './js-yaml/index.js';
+export { unescapePointer, isRef, isAbsoluteUrl } from './ref-utils.js';
 export {
   SpecMajorVersion,
   getMajorSpecVersion,
   SpecVersion,
   detectSpec,
   getTypes,
-} from './oas-types';
-export { normalizeVisitors } from './visitors';
+} from './oas-types.js';
+export { normalizeVisitors } from './visitors.js';
 
 export {
   WalkContext,
@@ -78,9 +93,15 @@ export {
   LineColLocationObject,
   LocationObject,
   Loc,
-} from './walk';
+} from './walk.js';
 
-export { getAstNodeByPointer, getLineColLocation } from './format/codeframes';
-export { formatProblems, OutputFormat, getTotals, Totals } from './format/format';
-export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint';
-export { bundle, bundleDocument, mapTypeToComponent, bundleFromString } from './bundle';
+export { getAstNodeByPointer, getLineColLocation } from './format/codeframes.js';
+export { formatProblems, OutputFormat, getTotals, Totals } from './format/format.js';
+export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export {
+  type BundleResult,
+  bundle,
+  bundleDocument,
+  mapTypeToComponent,
+  bundleFromString,
+} from './bundle.js';

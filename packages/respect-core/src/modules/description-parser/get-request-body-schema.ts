@@ -1,4 +1,4 @@
-import type { OperationDetails } from './get-operation-from-description';
+import type { OperationDetails } from './get-operation-from-description.js';
 
 export function getRequestBodySchema(
   contentType: string,

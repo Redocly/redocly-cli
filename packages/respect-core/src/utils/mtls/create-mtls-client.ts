@@ -1,6 +1,6 @@
 import { Client } from 'undici';
 
-import type { TestContext } from '../../types';
+import type { TestContext } from '../../types.js';
 
 export function createMtlsClient(
   parsedPathToFetch: string,

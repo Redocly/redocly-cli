@@ -1,1 +1,1 @@
-export * from './print-message';
+export * from './print-message.js';

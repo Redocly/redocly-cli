@@ -2,7 +2,7 @@ import type {
   CriteriaObject,
   RegexpSuccessCriteria,
   JsonPathSuccessCriteria,
-} from '../../../types';
+} from '../../../types.js';
 
 export function isRegexpSuccessCriteria(
   criteria: CriteriaObject

@@ -1,6 +1,6 @@
 import { bold } from 'colorette';
 
-import { errorMessageMatcher } from '../../../modules/flow-runner';
+import { errorMessageMatcher } from '../../../modules/flow-runner/index.js';
 
 describe('errorMessageMatcher', () => {
   it('should return correct error message', () => {

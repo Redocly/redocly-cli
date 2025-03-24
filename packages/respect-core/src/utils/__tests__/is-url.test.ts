@@ -1,4 +1,4 @@
-import { isURL } from '../is-url';
+import { isURL } from '../is-url.js';
 
 describe('isURL', () => {
   it('should return true for valid urls', () => {

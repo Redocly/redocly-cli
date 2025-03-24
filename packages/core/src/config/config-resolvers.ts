@@ -1,10 +1,11 @@
-import * as path from 'path';
-import { pathToFileURL } from 'url';
-import { existsSync } from 'fs';
-import { isAbsoluteUrl } from '../ref-utils';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
-import { resolveDocument, BaseResolver } from '../resolve';
-import { defaultPlugin } from './builtIn';
+import * as path from 'node:path';
+import { pathToFileURL, fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { resolveDocument, BaseResolver } from '../resolve.js';
+import { defaultPlugin } from './builtIn.js';
 import {
   getResolveConfig,
   getUniquePlugins,
@@ -14,12 +15,12 @@ import {
   parsePresetName,
   prefixRules,
   transformConfig,
-} from './utils';
-import { isBrowser } from '../env';
-import { Config } from './config';
-import { colorize, logger } from '../logger';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
-import { NormalizedConfigTypes } from '../types/redocly-yaml';
+} from './utils.js';
+import { isBrowser } from '../env.js';
+import { Config } from './config.js';
+import { colorize, logger } from '../logger.js';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 
 import type {
   StyleguideRawConfig,
@@ -31,11 +32,15 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
   ImportedPlugin,
-} from './types';
-import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
-import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
-import type { BundleOptions } from '../bundle';
-import type { Document, ResolvedRefMap } from '../resolve';
+} from './types.js';
+import type {
+  Assertion,
+  AssertionDefinition,
+  RawAssertion,
+} from '../rules/common/assertions/index.js';
+import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
+import type { BundleOptions } from '../bundle.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
@@ -133,12 +138,12 @@ export async function resolvePlugins(
         const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            require.resolve(plugin, {
+            createRequire(import.meta.url).resolve(plugin, {
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                __dirname,
+                path.dirname(fileURLToPath(import.meta.url)),
               ],
             });
 
@@ -152,16 +157,8 @@ export async function resolvePlugins(
             // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            // FIXME: fix this mess after we migrate to ESM
-            try {
-              // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
-              const _importDynamic = new Function('modulePath', 'return import(modulePath)');
-              const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
-              requiredPlugin = mod.default || mod;
-            } catch (e) {
-              const mod = await import(pathToFileURL(absolutePluginPath).href);
-              requiredPlugin = mod.default || mod;
-            }
+            const mod = await import(pathToFileURL(absolutePluginPath).href);
+            requiredPlugin = mod.default || mod;
           }
 
           const pluginCreatorOptions = { contentDir: configDir };

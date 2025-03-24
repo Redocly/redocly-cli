@@ -1,6 +1,6 @@
-import Ajv from '@redocly/ajv/dist/2020';
+import Ajv from '@redocly/ajv/dist/2020.js';
 
-import type { InputSchema } from '../../../types';
+import type { InputSchema } from '../../../types.js';
 
 type MappedValue = {
   [key: string]: any;

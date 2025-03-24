@@ -1,2 +1,2 @@
-export * from './checks';
-export * from './severity';
+export * from './checks.js';
+export * from './severity.js';

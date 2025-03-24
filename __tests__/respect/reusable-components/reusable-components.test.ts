@@ -1,7 +1,10 @@
-import { getCommandOutput, getParams } from '../../helpers';
-import { join } from 'node:path';
+import { getCommandOutput, getParams } from '../../helpers.js';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-test('should use inputs from CLI and env to mapp with resolved refs', () => {
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+test('should use inputs from CLI and env to map with resolved refs', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'reusable-components.arazzo.yaml');
   const args = getParams(indexEntryPoint, [

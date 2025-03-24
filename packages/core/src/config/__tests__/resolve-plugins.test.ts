@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { loadConfig } from '../load';
+import { loadConfig } from '../load.js';
 
 describe('resolving a plugin', () => {
   const configPath = path.join(__dirname, 'fixtures/plugin-config.yaml');

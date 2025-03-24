@@ -2,20 +2,20 @@ import {
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
   getRequestDataFromOpenApi,
-} from '../description-parser';
+} from '../description-parser/index.js';
 import {
   parseRequestBody,
   resolveReusableComponentItem,
   isParameterWithIn,
   handlePayloadReplacements,
-} from '../config-parser';
-import { getServerUrl } from './get-server-url';
-import { createRuntimeExpressionCtx, collectSecretFields } from './context';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
+} from '../config-parser/index.js';
+import { getServerUrl } from './get-server-url.js';
+import { createRuntimeExpressionCtx, collectSecretFields } from './context/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 
-import type { ParameterWithIn } from '../config-parser';
-import type { TestContext, Step, Parameter, PublicStep } from '../../types';
-import type { OperationDetails } from '../description-parser';
+import type { ParameterWithIn } from '../config-parser/index.js';
+import type { TestContext, Step, Parameter, PublicStep } from '../../types.js';
+import type { OperationDetails } from '../description-parser/index.js';
 
 export type RequestData = {
   serverUrl?: {

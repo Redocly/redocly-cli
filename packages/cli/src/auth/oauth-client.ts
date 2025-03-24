@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import * as crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
-import { type AuthToken, RedoclyOAuthDeviceFlow } from './device-flow';
+import { type AuthToken, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';

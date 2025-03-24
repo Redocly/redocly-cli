@@ -1,4 +1,9 @@
-import { normalizeHeaders, isJsonContentType, isXmlContentType, ApiFetcher } from '../api-fetcher';
+import {
+  normalizeHeaders,
+  isJsonContentType,
+  isXmlContentType,
+  ApiFetcher,
+} from '../api-fetcher.js';
 
 describe('normalizeHeaders', () => {
   it('should return empty object if no headers', () => {
