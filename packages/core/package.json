@@ -20,11 +20,6 @@
       "require": "./lib/bundle.js",
       "types": "./lib/bundle.d.ts"
     },
-    "./lib/typings/openapi.js": {
-      "import": "./lib/typings/openapi.js",
-      "require": "./lib/typings/openapi.js",
-      "types": "./lib/typings/openapi.d.ts"
-    },
     "./lib/config/types.js": {
       "import": "./lib/config/types.js",
       "require": "./lib/config/types.js",

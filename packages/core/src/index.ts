@@ -35,6 +35,10 @@ export type {
   Oas3Tag,
   Referenced,
   OasRef,
+  Oas3Parameter,
+  Oas3Server,
+  Oas3Operation,
+  Oas3Responses,
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';

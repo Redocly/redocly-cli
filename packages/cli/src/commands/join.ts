@@ -23,15 +23,14 @@ import { isObject, isString, keysOf } from '../utils/js-utils.js';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
 
-import type { Document, Referenced, StrictObject, BundleResult } from '@redocly/openapi-core';
-import type {
+import type { Document, Referenced, StrictObject, BundleResult ,
   Oas3Definition,
   Oas3_1Definition,
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
-} from '@redocly/openapi-core/lib/typings/openapi.js';
+} from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
