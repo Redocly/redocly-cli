@@ -2,12 +2,12 @@
   "name": "@redocly/openapi-core",
   "version": "1.34.0",
   "description": "",
-  "main": "lib/index.js",
   "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "exports": {
     ".": {
       "import": "./lib/index.js",
-      "require": "./lib/index.js",
       "types": "./lib/index.d.ts"
     },
     "./lib/config/config": {
