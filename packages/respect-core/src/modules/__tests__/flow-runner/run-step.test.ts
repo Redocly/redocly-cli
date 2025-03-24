@@ -20,7 +20,6 @@ import { displayChecks } from '../../cli-output/index.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
-// FIXME: mock .js?
 vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
