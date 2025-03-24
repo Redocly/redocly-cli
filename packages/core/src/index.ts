@@ -93,4 +93,10 @@ export {
 export { getAstNodeByPointer, getLineColLocation } from './format/codeframes.js';
 export { formatProblems, OutputFormat, getTotals, Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export { bundle, bundleDocument, mapTypeToComponent, bundleFromString } from './bundle.js';
+export {
+  type BundleResult,
+  bundle,
+  bundleDocument,
+  mapTypeToComponent,
+  bundleFromString,
+} from './bundle.js';

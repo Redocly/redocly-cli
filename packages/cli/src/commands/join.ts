@@ -9,7 +9,8 @@ import {
   detectSpec,
   bundleDocument,
   isRef,
- dequal } from '@redocly/openapi-core';
+  dequal,
+} from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -22,8 +23,7 @@ import { isObject, isString, keysOf } from '../utils/js-utils.js';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
 
-import type { Document, Referenced , StrictObject } from '@redocly/openapi-core';
-import type { BundleResult } from '@redocly/openapi-core/lib/bundle.js';
+import type { Document, Referenced, StrictObject, BundleResult } from '@redocly/openapi-core';
 import type {
   Oas3Definition,
   Oas3_1Definition,
