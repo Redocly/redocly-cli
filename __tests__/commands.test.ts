@@ -274,7 +274,7 @@ describe('E2E', () => {
       const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
 
       // run the split command and write the result to files
-      spawnSync('ts-node', args, {
+      spawnSync('node', args, {
         cwd: testPath,
         env: {
           ...process.env,
@@ -295,7 +295,7 @@ describe('E2E', () => {
       const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
 
       // run the split command and write the result to files
-      spawnSync('ts-node', args, {
+      spawnSync('node', args, {
         cwd: testPath,
         env: {
           ...process.env,
