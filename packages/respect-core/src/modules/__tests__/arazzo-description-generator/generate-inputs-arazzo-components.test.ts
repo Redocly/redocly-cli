@@ -1,5 +1,5 @@
-import { Oas3SecurityScheme } from 'core/src/typings/openapi';
-import { generateSecurityInputsArazzoComponents } from '../../arazzo-description-generator';
+import { type Oas3SecurityScheme } from '@redocly/openapi-core/lib/typings/openapi.js';
+import { generateSecurityInputsArazzoComponents } from '../../arazzo-description-generator/index.js';
 
 describe('generateSecurityInputsArazzoComponents', () => {
   it('should generate empty inputs for the security schemes if there are no security schemes', () => {

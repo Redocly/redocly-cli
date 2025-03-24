@@ -1,12 +1,12 @@
-import { Oas2Types } from './types/oas2';
-import { Oas3Types } from './types/oas3';
-import { Oas3_1Types } from './types/oas3_1';
-import { AsyncApi2Types } from './types/asyncapi2';
-import { AsyncApi3Types } from './types/asyncapi3';
-import { Arazzo1Types } from './types/arazzo';
-import { Overlay1Types } from './types/overlay';
-import { isPlainObject } from './utils';
-import { VERSION_PATTERN } from './typings/arazzo';
+import { Oas2Types } from './types/oas2.js';
+import { Oas3Types } from './types/oas3.js';
+import { Oas3_1Types } from './types/oas3_1.js';
+import { AsyncApi2Types } from './types/asyncapi2.js';
+import { AsyncApi3Types } from './types/asyncapi3.js';
+import { Arazzo1Types } from './types/arazzo.js';
+import { Overlay1Types } from './types/overlay.js';
+import { isPlainObject } from './utils.js';
+import { VERSION_PATTERN } from './typings/arazzo.js';
 
 import type {
   BuiltInAsync2RuleId,
@@ -15,7 +15,7 @@ import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
   BuiltInOverlay1RuleId,
-} from './types/redocly-yaml';
+} from './types/redocly-yaml.js';
 import type {
   Oas3Rule,
   Oas3Preprocessor,
@@ -29,7 +29,7 @@ import type {
   Arazzo1Rule,
   Overlay1Preprocessor,
   Overlay1Rule,
-} from './visitors';
+} from './visitors.js';
 
 export enum SpecVersion {
   OAS2 = 'oas2',

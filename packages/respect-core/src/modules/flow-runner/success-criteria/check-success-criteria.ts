@@ -3,10 +3,10 @@ import {
   validateSuccessCriteria,
   isRegexpSuccessCriteria,
   isJSONPathSuccessCriteria,
-} from './validate-success-criteria';
-import { CHECKS } from '../../checks';
-import { evaluateRuntimeExpression } from '../../runtime-expressions';
-import { createRuntimeExpressionCtx } from '../context';
+} from './validate-success-criteria.js';
+import { CHECKS } from '../../checks/index.js';
+import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
+import { createRuntimeExpressionCtx } from '../context/index.js';
 
 import type {
   TestContext,
@@ -14,7 +14,7 @@ import type {
   RegexpSuccessCriteria,
   Step,
   CriteriaObject,
-} from '../../../types';
+} from '../../../types.js';
 
 export function checkCriteria({
   workflowId,

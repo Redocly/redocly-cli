@@ -10,11 +10,11 @@
 import { URL } from 'url';
 import { Client } from 'undici';
 import * as crypto from 'node:crypto';
-import { addHeaders } from './helpers/add-headers';
-import { getDuration } from './helpers/get-duration';
-import { buildRequestCookies } from './helpers/build-request-cookies';
-import { buildHeaders } from './helpers/build-headers';
-import { buildResponseCookies } from './helpers/build-response-cookies';
+import { addHeaders } from './helpers/add-headers.js';
+import { getDuration } from './helpers/get-duration.js';
+import { buildRequestCookies } from './helpers/build-request-cookies.js';
+import { buildHeaders } from './helpers/build-headers.js';
+import { buildResponseCookies } from './helpers/build-response-cookies.js';
 
 const HAR_HEADER_NAME = 'x-har-request-id';
 const harEntryMap = new Map<string, any>();

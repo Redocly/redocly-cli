@@ -1,4 +1,4 @@
-import type { Oas2Rule } from '../../visitors';
+import type { Oas2Rule } from '../../visitors.js';
 
 export type BooleanParameterPrefixesOptions = {
   prefixes?: string[];

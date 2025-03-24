@@ -1,4 +1,4 @@
-import { buildHeaders } from '../../../har-logs/helpers/build-headers';
+import { buildHeaders } from '../../../har-logs/helpers/build-headers.js';
 
 describe('buildHeaders', () => {
   it('should build headers from an array', () => {

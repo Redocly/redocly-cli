@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils';
-import { bundleDocument } from '../../../bundle';
-import { BaseResolver } from '../../../resolve';
+import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils.js';
+import { bundleDocument } from '../../../bundle.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('oas3 remove-unused-components', () => {
   it('should remove unused components', async () => {

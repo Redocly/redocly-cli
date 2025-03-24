@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { parseYaml, stringifyYaml, readYaml } from '../yaml';
+import { parseYaml, stringifyYaml, readYaml } from '../yaml.js';
 
 vi.mock('node:fs');
 

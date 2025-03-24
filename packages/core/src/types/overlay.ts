@@ -1,4 +1,4 @@
-import { type NodeType, listOf } from '.';
+import { type NodeType, listOf } from './index.js';
 
 const Root: NodeType = {
   properties: {

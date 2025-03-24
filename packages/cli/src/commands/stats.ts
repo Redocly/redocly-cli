@@ -11,7 +11,7 @@ import {
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous';
+import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
 import type {
   StatsAccumulator,
@@ -20,8 +20,8 @@ import type {
   OutputFormat,
   StyleguideConfig,
 } from '@redocly/openapi-core';
-import type { CommandArgs } from '../wrapper';
-import type { VerifyConfigOptions } from '../types';
+import type { CommandArgs } from '../wrapper.js';
+import type { VerifyConfigOptions } from '../types.js';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },

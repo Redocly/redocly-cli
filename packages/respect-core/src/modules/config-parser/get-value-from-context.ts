@@ -1,8 +1,8 @@
 import { red } from 'colorette';
 import { createContext, runInContext } from 'node:vm';
-import { DefaultLogger } from '../../utils/logger/logger';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types';
+import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types.js';
 
 const logger = DefaultLogger.getInstance();
 

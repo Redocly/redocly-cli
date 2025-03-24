@@ -1,4 +1,6 @@
-const parser = require('./abnf-parser');
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { default as parser } from './abnf-parser.cjs';
 
 export function lintExpression(expression: string) {
   try {

@@ -13,14 +13,12 @@ import type {
   onSuccessObject,
   onFailureObject,
   extendedOperation,
-} from './arazzo-schema';
-import type { Faker } from './modules/faker';
-import type { OperationDetails } from './modules/description-parser';
-import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types';
-import type { ApiFetcher } from './utils/api-fetcher';
-import type { RespectOptions } from './handlers/run';
-import type { Config } from '@redocly/openapi-core';
-import type { CollectFn } from '@redocly/openapi-core/src/utils';
+} from './arazzo-schema.js';
+import type { Faker } from './modules/faker.js';
+import type { OperationDetails } from './modules/description-parser/index.js';
+import type { ApiFetcher } from './utils/api-fetcher.js';
+import type { RespectOptions } from './handlers/run.js';
+import type { Config, CollectFn, RuleSeverity } from '@redocly/openapi-core';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {

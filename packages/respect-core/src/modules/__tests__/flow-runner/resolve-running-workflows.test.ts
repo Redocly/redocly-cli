@@ -1,4 +1,4 @@
-import { resolveRunningWorkflows } from '../../flow-runner';
+import { resolveRunningWorkflows } from '../../flow-runner/index.js';
 
 describe('resolveRunningWorkflows', () => {
   it('should return undefined if no workflows are provided', () => {
