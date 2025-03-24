@@ -42,6 +42,7 @@ export { normalizeTypes } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 
 export {
+  type RawConfigProcessor,
   Config,
   StyleguideConfig,
   RawConfig,
@@ -56,6 +57,7 @@ export {
   RuleSeverity,
   createConfig,
   ResolvedApi,
+  ConfigValidationError,
 } from './config/index.js';
 
 export {

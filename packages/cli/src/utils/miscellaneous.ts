@@ -21,8 +21,8 @@ import {
   isNotEmptyObject,
   isPlainObject,
   pluralize,
+  ConfigValidationError,
 } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { version } from './update-version-notifier.js';
@@ -36,8 +36,8 @@ import type {
   Config,
   Oas3Definition,
   Oas2Definition,
+  RawConfigProcessor,
 } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config/index.js';
 import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types.js';
 
 const globPromise = promisify(glob.glob);

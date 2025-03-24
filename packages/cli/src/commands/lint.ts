@@ -6,8 +6,9 @@ import {
   getTotals,
   lint,
   lintConfig,
- pluralize } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config/index.js';
+  pluralize,
+  ConfigValidationError,
+} from '@redocly/openapi-core';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -23,8 +24,7 @@ import {
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
-import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config/index.js';
+import type { OutputFormat, ProblemSeverity, RawConfigProcessor } from '@redocly/openapi-core';
 import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
