@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
@@ -39,6 +39,20 @@ jobs:
           node-version: 22
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
 
+  run-smoke-plugins--npm--node-22--windows:
+    needs: prepare-smoke-plugins
+    runs-on: windows-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke-plugins/
+          key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
   run-smoke-plugins--npm--node-20:
     needs: prepare-smoke-plugins
     runs-on: ubuntu-latest
@@ -51,16 +65,16 @@ jobs:
         with:
           node-version: 20
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
-
-  run-smoke-plugins--npm--node-18:
+  run-smoke-plugins--npm--node-20--windows:
     needs: prepare-smoke-plugins
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke-plugins/
           key: cache-plugins-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
