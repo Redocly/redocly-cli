@@ -1,7 +1,7 @@
 import { formatCliInputs } from '../flow-runner/index.js';
 
 import type { CHECKS } from './checks.js';
-import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types.js';
+import type { RuleSeverity } from '@redocly/openapi-core';
 
 export const DEFAULT_SEVERITY_CONFIGURATION: {
   [key in keyof typeof CHECKS]: RuleSeverity;

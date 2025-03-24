@@ -16,10 +16,9 @@ import type {
 } from './arazzo-schema.js';
 import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
-import type { RuleSeverity } from '@redocly/openapi-core/lib/config/types.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
 import type { RespectOptions } from './handlers/run.js';
-import type { Config , CollectFn } from '@redocly/openapi-core';
+import type { Config, CollectFn, RuleSeverity } from '@redocly/openapi-core';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {

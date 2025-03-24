@@ -20,11 +20,6 @@
       "require": "./lib/bundle.js",
       "types": "./lib/bundle.d.ts"
     },
-    "./lib/config/types.js": {
-      "import": "./lib/config/types.js",
-      "require": "./lib/config/types.js",
-      "types": "./lib/config/types.d.ts"
-    },
     "./lib/typings/arazzo.js": {
       "import": "./lib/typings/arazzo.js",
       "require": "./lib/typings/arazzo.js",
