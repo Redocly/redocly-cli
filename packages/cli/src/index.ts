@@ -34,13 +34,6 @@ import type { EjectOptions } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
-// FIXME: this is not working
-// if (!('replaceAll' in String.prototype)) {
-//   import('core-js/actual/string/replace-all.js').then((module) => {
-//     module.default();
-//   });
-// }
-
 cacheLatestVersion();
 
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
