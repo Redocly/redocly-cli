@@ -21,7 +21,7 @@ import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/d
 
 describe('handleJoin', () => {
   beforeEach(() => {
-    vi.mock('../../utils/miscellaneous');
+    vi.mock('../../utils/miscellaneous.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
       (fileName) => fileName.split('.').pop() as any
     );

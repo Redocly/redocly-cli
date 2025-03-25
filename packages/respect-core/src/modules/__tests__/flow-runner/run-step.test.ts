@@ -24,7 +24,7 @@ vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-vi.mock('../../cli-output', async () => {
+vi.mock('../../cli-output/index.js', async () => {
   const actual = await vi.importActual('../../cli-output/index.js');
 
   return {

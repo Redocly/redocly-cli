@@ -73,8 +73,8 @@ describe('handlePushStatus()', () => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
 
-    vi.mock('../../api', async () => {
-      const actual = await vi.importActual('../../api');
+    vi.mock('../../api/index.js', async () => {
+      const actual = await vi.importActual('../../api/index.js');
       return {
         ...actual,
         ReuniteApi: vi.fn(),

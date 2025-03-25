@@ -23,8 +23,8 @@ describe('handlePush()', () => {
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
 
-    vi.mock('../../api', async () => {
-      const actual = await vi.importActual('../../api');
+    vi.mock('../../api/index.js', async () => {
+      const actual = await vi.importActual('../../api/index.js');
       return {
         ...actual,
         ReuniteApi: vi.fn(),
