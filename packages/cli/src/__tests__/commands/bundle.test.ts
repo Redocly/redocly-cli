@@ -37,14 +37,14 @@ describe('bundle', () => {
     );
     vi.mocked(getMergedConfig).mockImplementation((config) => config);
 
-    vi.mock('../../utils/miscellaneous');
+    vi.mock('../../utils/miscellaneous.js');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
     vi.mocked(dumpBundle).mockImplementation(() => '');
     vi.mocked(getOutputFileName).mockImplementation(
-      ((await vi.importActual('../../utils/miscellaneous')) as any).getOutputFileName
+      ((await vi.importActual('../../utils/miscellaneous.js')) as any).getOutputFileName
     );
   });
 

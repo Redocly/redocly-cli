@@ -30,8 +30,8 @@ describe('split', () => {
         writeFileSync: vi.fn(),
       };
     });
-    vi.mock('../../../utils/miscellaneous', async () => {
-      const actual = await vi.importActual('../../../utils/miscellaneous');
+    vi.mock('../../../utils/miscellaneous.js', async () => {
+      const actual = await vi.importActual('../../../utils/miscellaneous.js');
       return {
         ...actual,
         writeToFileByExtension: vi.fn(),

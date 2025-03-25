@@ -7,8 +7,8 @@ import { readFileSync } from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'node:path';
 
-vi.mock('../../utils');
-vi.mock('../../js-yaml');
+vi.mock('../../utils.js');
+vi.mock('../../js-yaml/index.js');
 vi.mock('node:fs');
 vi.mock('node:path', async () => {
   const actual = await vi.importActual('node:path');

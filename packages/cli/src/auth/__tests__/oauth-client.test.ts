@@ -14,7 +14,7 @@ describe('RedoclyOAuthClient', () => {
 
   beforeEach(() => {
     vi.mock('node:fs');
-    vi.mock('../device-flow');
+    vi.mock('../device-flow.js');
     vi.mock('node:os');
     vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
     process.env.HOME = mockHomeDir;
