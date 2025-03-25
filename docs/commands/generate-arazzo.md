@@ -20,7 +20,7 @@ The first HTTP response is used as the success criteria for each step.
 ## Usage
 
 ```sh
-npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file]
+npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> [-o | --output-file]
 ```
 
 ## Options
@@ -41,7 +41,7 @@ npx @redocly/cli generate-arazzo <your-OAS-description-file> [-o | --output-file
 
 ## Examples
 
-Run the command: `npx @redocly/cli generate-arazzo 'https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml'`
+Run the command: `npx @redocly/cli@latest generate-arazzo 'https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml'`
 
 The command generates an `auto-generated.arazzo.yaml` file in the current directory.
 

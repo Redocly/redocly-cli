@@ -104,7 +104,7 @@ The following command pushes the `docs/museum.yaml` file to the project `push-do
 It uses the variables available in the GitHub actions context to supply information to the destination.
 
 ```bash
-npx @redocly/cli push docs/museum.yaml \
+npx @redocly/cli@latest push docs/museum.yaml \
               --organization "Docs" \
               --project "push-docs" \
               --mount-path "/docs/remotes/cicd" \

@@ -27,7 +27,7 @@ Running `redocly --version` confirms that the installation was successful, and t
 To run Redocly CLI with `npx`, the command looks like the following example:
 
 ```shell
-npx @redocly/cli <command> [options]
+npx @redocly/cli@latest <command> [options]
 ```
 
 For example, to run `redocly lint` on a file named `openapi.yaml`, use the following command:
