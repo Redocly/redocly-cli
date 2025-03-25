@@ -1,5 +1,4 @@
-import { type ArazzoDefinition } from 'core/src/typings/arazzo.js';
-import { type Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import { type ArazzoDefinition, type Oas3SecurityScheme } from '@redocly/openapi-core';
 
 export function generateSecurityInputsArazzoComponents(
   securitySchemes: Record<string, Oas3SecurityScheme>

@@ -40,6 +40,8 @@ export type {
   Oas3Server,
   Oas3Operation,
   Oas3Responses,
+  Oas3SecurityScheme,
+  Oas3SecurityRequirement,
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';

@@ -1,4 +1,4 @@
-import { type Oas3SecurityRequirement, type Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import { type Oas3SecurityRequirement, type Oas3SecurityScheme } from '@redocly/openapi-core';
 
 export function generateWorkflowSecurityParameters(
   inputsComponents: any,
