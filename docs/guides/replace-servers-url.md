@@ -163,7 +163,7 @@ extends:
 1. Run the following command to bundle the `original.yaml` API with the "backend" server URL.
 
 ```shell
-npx @redocly/cli bundle sample@v1-backend
+npx @redocly/cli@latest bundle sample@v1-backend
 ```
 
 2. Verify that the output shows the correct server URL.
@@ -184,7 +184,7 @@ servers:
 1. Run the following command bundles the `original.yaml` API with the "proxy" server URL.
 
 ```shell
-npx @redocly/cli bundle sample@v1-proxy
+npx @redocly/cli@latest bundle sample@v1-proxy
 ```
 
 2. Verify that the output shows the correct server URL.

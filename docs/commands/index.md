@@ -53,7 +53,7 @@ There are some parameters supported by all commands:
 `--help` display the command help, or the help for the subcommand if you used one. For example:
 
 ```bash
-npx @redocly/cli lint --help
+npx @redocly/cli@latest lint --help
 ```
 
 Try these with any of the other commands.
@@ -69,7 +69,7 @@ If Redocly CLI finds `redocly.yaml` in the root directory, it uses the options s
 You can also specify a config file to most commands using `--config myconfig.yaml` as part of the command. For example:
 
 ```bash
-npx @redocly/cli lint --config redocly-official.yaml openapi.yaml
+npx @redocly/cli@latest lint --config redocly-official.yaml openapi.yaml
 ```
 
 For more information, refer to the [Redocly configuration file](../configuration/index.md) docs.

@@ -133,7 +133,7 @@ In this step, two API snapshots are produced from the single source of truth. To
    ```bash
    redocly bundle external@latest -o dist/bundle-external.yaml
    // or
-   npx @redocly/cli bundle external@latest -o dist/bundle-external.yaml
+   npx @redocly/cli@latest bundle external@latest -o dist/bundle-external.yaml
    ```
 
    Inspect the file at `dist/external.yaml`.
@@ -144,7 +144,7 @@ In this step, two API snapshots are produced from the single source of truth. To
    ```bash
    redocly bundle internal@latest -o dist/bundle-internal.yaml
    // or
-   npx @redocly/cli bundle internal@latest -o dist/bundle-internal.yaml
+   npx @redocly/cli@latest bundle internal@latest -o dist/bundle-internal.yaml
    ```
 
    Inspect the file at `dist/internal.yaml`.

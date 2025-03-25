@@ -16,7 +16,7 @@ Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6
 ### Node
 
 ```sh
-npx @redocly/cli lint path-to-root-file.yaml
+npx @redocly/cli@latest lint path-to-root-file.yaml
 ```
 
 Alternatively, install it globally with `npm`:
