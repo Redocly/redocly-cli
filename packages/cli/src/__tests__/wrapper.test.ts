@@ -16,8 +16,8 @@ describe('commandWrapper', () => {
         detectSpec: vi.fn(),
       };
     });
-    vi.mock('../utils/miscellaneous');
-    vi.mock('../commands/lint');
+    vi.mock('../utils/miscellaneous.js');
+    vi.mock('../commands/lint.js');
   });
   afterEach(() => {
     global.fetch = originalFetch;

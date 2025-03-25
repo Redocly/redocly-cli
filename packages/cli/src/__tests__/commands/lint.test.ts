@@ -50,13 +50,13 @@ describe('handleLint', () => {
     vi.mocked(doesYamlFileExist).mockImplementation((path) => path === 'redocly.yaml');
     vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
 
-    vi.mock('../../utils/miscellaneous');
+    vi.mock('../../utils/miscellaneous.js');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
 
-    vi.mock('../../utils/update-version-notifier', () => ({
+    vi.mock('../../utils/update-version-notifier.js', () => ({
       version: '1.0.0',
     }));
   });

@@ -26,7 +26,7 @@ describe('build-docs', () => {
     vi.mock('node:fs');
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
 
-    vi.mock('../../utils/miscellaneous');
+    vi.mock('../../utils/miscellaneous.js');
 
     vi.mock('react-dom/server', () => ({
       renderToString: vi.fn(),
