@@ -7,9 +7,10 @@ import {
   type Oas3PathItem,
   type Oas3_1Schema,
   type Oas3Operation,
-} from 'core/src/typings/openapi.js';
+  type ArazzoDefinition,
+  type ExtendedOperation,
+} from '@redocly/openapi-core';
 import { type OperationMethod, type Workflow, type Step } from '../../types.js';
-import { type ArazzoDefinition, type ExtendedOperation } from '@redocly/openapi-core';
 
 type HttpMethod = Lowercase<ExtendedOperation['method']>;
 
