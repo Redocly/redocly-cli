@@ -22,7 +22,7 @@ export { Oas3Types } from './types/oas3.js';
 export { Oas2Types } from './types/oas2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
-export { ConfigTypes } from './types/redocly-yaml.js';
+export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,
@@ -45,11 +45,13 @@ export type {
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
-export { normalizeTypes } from './types/index.js';
+export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 
 export {
   type RawConfigProcessor,
+  type ResolvedConfig,
+  type Plugin,
   Config,
   StyleguideConfig,
   RawConfig,
@@ -65,9 +67,11 @@ export {
   createConfig,
   ResolvedApi,
   ConfigValidationError,
+  resolvePlugins,
 } from './config/index.js';
 
 export {
+  type ResolvedRefMap,
   Source,
   BaseResolver,
   Document,
@@ -77,7 +81,7 @@ export {
   makeDocumentFromString,
 } from './resolve.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
-export { unescapePointer, isRef, isAbsoluteUrl } from './ref-utils.js';
+export { unescapePointer, isRef, isAbsoluteUrl, escapePointer } from './ref-utils.js';
 export {
   SpecMajorVersion,
   getMajorSpecVersion,
@@ -97,7 +101,7 @@ export {
   Loc,
 } from './walk.js';
 
-export { getAstNodeByPointer, getLineColLocation } from './format/codeframes.js';
+export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, OutputFormat, getTotals, Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
 export {
@@ -107,3 +111,5 @@ export {
   mapTypeToComponent,
   bundleFromString,
 } from './bundle.js';
+
+export { type Assertions } from './rules/common/assertions/index.js';
