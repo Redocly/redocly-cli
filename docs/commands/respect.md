@@ -95,14 +95,23 @@ npx @redocly/cli respect <your-test-file | multiple files | files bash query> [-
   - You've encountered known issues that shouldn't block test execution.
   - You want to treat certain validation failures as warnings instead of errors.
 
-  The following checks can be configured: `STATUS_CODE_CHECK`, `SCHEMA_CHECK`, and `CONTENT_TYPE_CHECK`.
+  The following checks can be configured:
+
+  - `STATUS_CODE_CHECK`: Verifies if the status code returned with API responses matches the statuses described in the provided OpenAPI description.
+  - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
+  - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
+  - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
+
   The following severity values are available:
 
   - `error`: Validation failures cause the workflow to fail.
   - `warn`: Validation failures appear as warnings but don't fail the workflow.
-  - `off`: Validation checks still run but their results are ignored.
+  - `off`: Validation checks still run, but their results are ignored.
 
-  Note that setting severity to `off` does not prevent checks from executing - it only prevents their results from affecting the workflow outcome.
+  {% admonition type="info" %}
+  Setting the severity of a check to `off` does not prevent the check from executing - it only prevents the check's results from affecting the workflow outcome.
+  {% /admonition %}
+
   For example, the following command sets status code errors to the warning severity level:
   `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`.
 
