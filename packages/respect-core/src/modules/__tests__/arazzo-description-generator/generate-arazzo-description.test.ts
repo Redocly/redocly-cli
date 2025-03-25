@@ -7,7 +7,7 @@ import {
   type OpenApiRequestData,
 } from '../../description-parser/index.js';
 
-vi.mock('../../description-parser');
+vi.mock('../../description-parser/index.js');
 
 const BUNDLED_DESCRIPTION_MOCK = {
   paths: {
