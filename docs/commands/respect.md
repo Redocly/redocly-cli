@@ -83,6 +83,38 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   You can also pass the server overrides as an environment variable, as in the following example:
   `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`.
 
+---
+
+- --severity
+- string
+- Severity of the check.
+  Customize the severity level of validation checks for status codes, schemas, and content types. Setting the severity level is useful when:
+
+  - You're actively developing your API and want to temporarily relax validation.
+  - You're testing new API behavior that doesn't match the current schema.
+  - You've encountered known issues that shouldn't block test execution.
+  - You want to treat certain validation failures as warnings instead of errors.
+
+  The following checks can be configured:
+
+  - `STATUS_CODE_CHECK`: Verifies if the status code returned with API responses matches the statuses described in the provided OpenAPI description.
+  - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
+  - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
+  - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
+
+  The following severity values are available:
+
+  - `error`: Validation failures cause the workflow to fail.
+  - `warn`: Validation failures appear as warnings but don't fail the workflow.
+  - `off`: Validation checks still run, but their results are ignored.
+
+  {% admonition type="info" %}
+  Setting the severity of a check to `off` does not prevent the check from executing - it only prevents the check's results from affecting the workflow outcome.
+  {% /admonition %}
+
+  For example, the following command sets status code errors to the warning severity level:
+  `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`.
+
 {% /table %}
 
 ## Examples
