@@ -10,6 +10,7 @@ export const NoSchemaTypeMismatch: Oas3Rule | Oas2Rule = () => {
         report({
           message: "Schema type mismatch: 'object' type should not contain 'items' field.",
           location: location.child('items'),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-schema-type-mismatch',
         });
       }
 
@@ -17,6 +18,7 @@ export const NoSchemaTypeMismatch: Oas3Rule | Oas2Rule = () => {
         report({
           message: "Schema type mismatch: 'array' type should not contain 'properties' field.",
           location: location.child('properties'),
+          reference: 'https://redocly.com/docs/cli/rules/oas/no-schema-type-mismatch',
         });
       }
     },
