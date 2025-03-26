@@ -1,5 +1,5 @@
-import type { Location } from '../ref-utils';
-import type { ProblemSeverity, UserContext } from '../walk';
+import type { Location } from '../ref-utils.js';
+import type { ProblemSeverity, UserContext } from '../walk.js';
 import type {
   Oas3PreprocessorsSet,
   SpecMajorVersion,
@@ -22,9 +22,9 @@ import type {
   Overlay1PreprocessorsSet,
   Overlay1DecoratorsSet,
   Overlay1RuleSet,
-} from '../oas-types';
-import type { NodeType } from '../types';
-import type { SkipFunctionContext } from '../visitors';
+} from '../oas-types.js';
+import type { NodeType } from '../types/index.js';
+import type { SkipFunctionContext } from '../visitors.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';
@@ -209,10 +209,7 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
-export type Region = 'us' | 'eu';
 export type Telemetry = 'on' | 'off';
-
-export type AccessTokens = { [region in Region]?: string };
 
 export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
@@ -234,16 +231,12 @@ export type DeprecatedInApi = {
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
-  files?: string[];
 };
 
 export type RawConfig = {
   apis?: Record<string, Api>;
   styleguide?: StyleguideRawConfig;
   resolve?: RawResolveConfig;
-  region?: Region;
-  organization?: string;
-  files?: string[];
   telemetry?: Telemetry;
 } & ThemeConfig;
 

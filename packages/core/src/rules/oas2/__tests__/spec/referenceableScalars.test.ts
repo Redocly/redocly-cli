@@ -3,9 +3,13 @@ import {
   parseYamlToDocument,
   replaceSourceWithRef,
   makeConfig,
-} from '../../../../../__tests__/utils';
-import { lintDocument } from '../../../../lint';
-import { BaseResolver } from '../../../../resolve';
+} from '../../../../../__tests__/utils.js';
+import { lintDocument } from '../../../../lint.js';
+import { BaseResolver } from '../../../../resolve.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {

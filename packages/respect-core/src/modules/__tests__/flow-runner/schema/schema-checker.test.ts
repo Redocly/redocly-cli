@@ -1,7 +1,7 @@
-import type { StepCallContext, TestContext } from '../../../../types';
+import type { StepCallContext, TestContext } from '../../../../types.js';
 
-import { CHECKS, checkSchema } from '../../../flow-runner';
-import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity';
+import { CHECKS, checkSchema } from '../../../flow-runner/index.js';
+import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
 
 describe('checkSchema', () => {
   const stepCallCtx = {
@@ -262,7 +262,7 @@ describe('checkSchema', () => {
   });
 
   it('should check circular referenced schema', () => {
-    jest.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
+    vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
       throw new Error('circular reference');
     });
     const result = checkSchema({
@@ -320,16 +320,12 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
-
-    jest.restoreAllMocks();
   });
 
   it('should catch ajvStrict.validate error', () => {
-    jest
-      .spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate')
-      .mockImplementationOnce(() => {
-        throw new Error('ajvStrict.validate error');
-      });
+    vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate').mockImplementationOnce(() => {
+      throw new Error('ajvStrict.validate error');
+    });
 
     const result = checkSchema({
       stepCallCtx: {
@@ -392,8 +388,6 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
-
-    jest.restoreAllMocks();
   });
 
   it('should return empty checks if no response available', () => {

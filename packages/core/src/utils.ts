@@ -1,16 +1,17 @@
-import * as fs from 'fs';
-import { extname } from 'path';
-import * as minimatch from 'minimatch';
-import { parseYaml } from './js-yaml';
-import { env } from './env';
-import { logger, colorize } from './logger';
+import * as fs from 'node:fs';
+import { extname } from 'node:path';
+import { minimatch } from 'minimatch';
+import { parseYaml } from './js-yaml/index.js';
+import { env } from './env.js';
+import { logger, colorize } from './logger.js';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import * as pluralizeOne from 'pluralize';
+import * as pluralize1 from 'pluralize'; // FIXME: use correct import after migration to ESM
+const pluralizeOne = (pluralize1 as any).default || pluralize1; // FIXME: use correct import after migration to ESM
 
-import type { HttpResolveConfig } from './config';
-import type { UserContext } from './walk';
+import type { HttpResolveConfig } from './config/index.js';
+import type { UserContext } from './walk.js';
 
-export { parseYaml, stringifyYaml } from './js-yaml';
+export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -34,7 +35,7 @@ export function popStack<T, P extends Stack<T>>(head: P) {
   return head?.prev ?? null;
 }
 
-export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
+export type BundleOutputFormat = 'json' | 'yml' | 'yaml'; // FIXME: use one source of truth
 
 export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
@@ -234,9 +235,7 @@ export function isCustomRuleId(id: string) {
 
 export function doesYamlFileExist(filePath: string): boolean {
   return (
-    (extname(filePath) === '.yaml' || extname(filePath) === '.yml') &&
-    fs?.hasOwnProperty?.('existsSync') &&
-    fs.existsSync(filePath)
+    (extname(filePath) === '.yaml' || extname(filePath) === '.yml') && !!fs?.existsSync?.(filePath)
   );
 }
 

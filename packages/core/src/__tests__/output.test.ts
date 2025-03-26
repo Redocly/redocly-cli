@@ -1,8 +1,8 @@
-import { output } from '../output';
+import { output } from '../output.js';
 
 describe('output', () => {
   it('should write all parsable data to stdout', () => {
-    const spyingStdout = jest.spyOn(process.stdout, 'write').mockImplementation();
+    const spyingStdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     const data = '{ "errors" : [] }';
 
     output.write(data);

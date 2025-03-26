@@ -1,5 +1,5 @@
-import type { Oas3Server } from '../../typings/openapi';
-import type { Oas3Rule } from '../../visitors';
+import type { Oas3Server } from '../../typings/openapi.js';
+import type { Oas3Rule } from '../../visitors.js';
 
 enum enumError {
   empty = 'empty',

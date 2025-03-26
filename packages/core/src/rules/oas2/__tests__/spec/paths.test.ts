@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { lintDoc } from './utils';
+import { lintDoc } from './utils.js';
 
 describe('OpenAPI Schema', () => {
   it('should not report if Path object is valid ', async () => {

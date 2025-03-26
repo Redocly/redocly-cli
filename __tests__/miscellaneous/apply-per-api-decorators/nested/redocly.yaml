@@ -9,4 +9,4 @@ apis:
     rules:
       info-contact: error
 plugins:
-  - plugins/test.js
+  - plugins/test.cjs

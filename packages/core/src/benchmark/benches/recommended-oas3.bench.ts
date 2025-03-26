@@ -1,9 +1,9 @@
 import { readFileSync } from 'fs';
 import { join as pathJoin, resolve as pathResolve } from 'path';
-import { lintDocument } from '../../lint';
-import { StyleguideConfig, defaultPlugin, resolvePreset } from '../../config';
-import { BaseResolver } from '../../resolve';
-import { parseYamlToDocument } from '../utils';
+import { lintDocument } from '../../lint.js';
+import { StyleguideConfig, defaultPlugin, resolvePreset } from '../../config/index.js';
+import { BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument } from '../utils.js';
 
 export const name = 'Validate with recommended rules';
 export const count = 10;

@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { validateDoc } from './utils';
+import { validateDoc } from './utils.js';
 
 describe('OpenAPI Schema', () => {
   it('should report if the title of the API is empty ', async () => {

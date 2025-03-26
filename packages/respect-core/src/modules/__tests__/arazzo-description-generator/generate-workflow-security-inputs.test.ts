@@ -1,4 +1,4 @@
-import { generateWorkflowSecurityInputs } from '../../arazzo-description-generator';
+import { generateWorkflowSecurityInputs } from '../../arazzo-description-generator/index.js';
 
 describe('generateWorkflowSecurityInputs', () => {
   it('should return undefined if there are no security requirements', () => {

@@ -1,8 +1,8 @@
-import { spawn } from 'child_process';
-import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/platform';
+import { spawn } from 'node:child_process';
+import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/platform.js';
 
-import type { CommandArgs } from '../wrapper';
-import type { VerifyConfigOptions } from '../types';
+import type { CommandArgs } from '../wrapper.js';
+import type { VerifyConfigOptions } from '../types.js';
 
 export type TranslationsOptions = {
   locale: string;

@@ -1,4 +1,4 @@
-import { getRequestBodySchema, type OperationDetails } from '../../description-parser';
+import { getRequestBodySchema, type OperationDetails } from '../../description-parser/index.js';
 
 describe('getRequestBodySchema', () => {
   it('should return the correct schema for a given request body', () => {

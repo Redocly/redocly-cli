@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
-import { type TestContext } from '../../types';
 import * as path from 'node:path';
+import { type TestContext } from '../../types.js';
 
 export function resolveMtlsCertificates(
   mtlsCertificates: Partial<TestContext['mtlsCerts']> = {},

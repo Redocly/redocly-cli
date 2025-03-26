@@ -1,5 +1,8 @@
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('should hide sensitive input values', () => {
   process.env.AUTH_TOKEN = 'Basic Og==';
@@ -18,4 +21,4 @@ test('should hide sensitive input values', () => {
   expect(result).toMatchSnapshot();
 
   delete process.env.AUTH_TOKEN;
-});
+}, 60_000);

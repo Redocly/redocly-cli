@@ -1,23 +1,21 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { slash } from '@redocly/openapi-core';
-import { pluralize } from '@redocly/openapi-core/lib/utils';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { slash, pluralize } from '@redocly/openapi-core';
 import { green, yellow } from 'colorette';
-import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
-import { handlePushStatus } from './push-status';
-import { ReuniteApi, getDomain, getApiKeys } from '../api';
-import { handleReuniteError } from './utils';
+import { exitWithError, printExecutionTime } from '../../utils/miscellaneous.js';
+import { handlePushStatus } from './push-status.js';
+import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
+import { handleReuniteError } from './utils.js';
 
 import type { OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgs } from '../../wrapper';
-import type { VerifyConfigOptions } from '../../types';
+import type { CommandArgs } from '../../wrapper.js';
+import type { VerifyConfigOptions } from '../../types.js';
 
 export type PushOptions = {
-  apis?: string[];
-  organization?: string;
+  files: string[];
+  organization: string;
   project: string;
   'mount-path': string;
-
   branch: string;
   author: string;
   message: string;
@@ -26,13 +24,10 @@ export type PushOptions = {
   namespace?: string;
   repository?: string;
   'created-at'?: string;
-
-  files: string[];
-
   'default-branch': string;
   domain?: string;
   'wait-for-deployment'?: boolean;
-  'max-execution-time': number;
+  'max-execution-time'?: number;
   'continue-on-deploy-failures'?: boolean;
   verbose?: boolean;
   format?: Extract<OutputFormat, 'stylish'>;
@@ -49,18 +44,6 @@ export async function handlePush({
   const startTime = Date.now(); // for push-status command
 
   const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
-
-  const orgId = organization || config.organization;
-
-  if (!argv.message || !argv.author || !argv.branch) {
-    exitWithError('Error: message, author and branch are required for push to the Reunite.');
-  }
-
-  if (!orgId) {
-    return exitWithError(
-      `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
-    );
-  }
 
   const domain = argv.domain || getDomain();
 
@@ -79,8 +62,8 @@ export async function handlePush({
       'max-execution-time': maxExecutionTime,
     } = argv;
     const author = parseCommitAuthor(argv.author);
-    const apiKey = getApiKeys(domain);
-    const filesToUpload = collectFilesToPush(argv.files || argv.apis);
+    const apiKey = getApiKeys();
+    const filesToUpload = collectFilesToPush(argv.files);
     const commandName = 'push' as const;
 
     if (!filesToUpload.length) {
@@ -88,8 +71,8 @@ export async function handlePush({
     }
 
     const client = new ReuniteApi({ domain, apiKey, version, command: commandName });
-    const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
-    const remote = await client.remotes.upsert(orgId, projectId, {
+    const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, projectId);
+    const remote = await client.remotes.upsert(organization, projectId, {
       mountBranchName: projectDefaultBranch,
       mountPath,
     });
@@ -102,7 +85,7 @@ export async function handlePush({
     );
 
     const { id } = await client.remotes.push(
-      orgId,
+      organization,
       projectId,
       {
         remoteId: remote.id,
@@ -133,7 +116,7 @@ export async function handlePush({
 
       await handlePushStatus({
         argv: {
-          organization: orgId,
+          organization,
           project: projectId,
           pushId: id,
           wait: true,
@@ -153,7 +136,7 @@ export async function handlePush({
         `${pluralize(
           'file',
           filesToUpload.length
-        )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
+        )} uploaded to organization ${organization}, project ${projectId}. Push ID: ${id}.`
       );
 
     client.reportSunsetWarnings();

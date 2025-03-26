@@ -1,10 +1,11 @@
+import { createRequire } from 'node:module';
+import * as process from 'node:process';
 import * as semver from 'semver';
-import * as path from 'path';
-import * as process from 'process';
 import { yellow } from 'colorette';
 
 try {
-  const { engines } = require(path.join(__dirname, '../package.json'));
+  const packageJson = createRequire(import.meta.url)('../../package.json');
+  const { engines } = packageJson;
   const version = engines.node;
 
   if (!semver.satisfies(process.version, version)) {

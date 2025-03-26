@@ -1,9 +1,17 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver } from '../../../resolve';
+import { lintDocument } from '../../../lint.js';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../__tests__/utils.js';
+import { BaseResolver } from '../../../resolve.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-jest.setTimeout(10000);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+vi.setConfig({ testTimeout: 10000 });
 
 describe('no-invalid-media-type-examples', () => {
   it('should report on invalid example', async () => {

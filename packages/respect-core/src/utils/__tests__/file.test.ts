@@ -1,4 +1,4 @@
-import { isTestFile } from '../file';
+import { isTestFile } from '../file.js';
 
 describe('isTestFile', () => {
   const validDocument = {

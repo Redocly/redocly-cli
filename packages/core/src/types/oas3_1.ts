@@ -1,8 +1,8 @@
-import { listOf, mapOf } from '.';
-import { Oas3Types } from './oas3';
+import { listOf, mapOf } from './index.js';
+import { Oas3Types } from './oas3.js';
 
-import type { NodeType } from '.';
-import type { Oas3_1NodeType } from './redocly-yaml';
+import type { NodeType } from './index.js';
+import type { Oas3_1NodeType } from './redocly-yaml.js';
 
 const Root: NodeType = {
   properties: {

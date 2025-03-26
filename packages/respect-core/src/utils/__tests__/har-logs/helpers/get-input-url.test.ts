@@ -1,4 +1,4 @@
-import { getInputUrl } from '../../../har-logs/helpers/get-input-url';
+import { getInputUrl } from '../../../har-logs/helpers/get-input-url.js';
 
 describe('getInputUrl', () => {
   it('should return a URL object', () => {

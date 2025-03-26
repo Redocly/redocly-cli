@@ -1,7 +1,7 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`runStep should run step and display checks 1`] = `
-[MockFunction] {
+exports[`runStep > should run step and display checks 1`] = `
+[MockFunction spy] {
   "calls": [
     [
       "GET [37mhttp://localhost:3000/bird[39m [34m- step[39m [37m[1mget-bird[22m[39m",
