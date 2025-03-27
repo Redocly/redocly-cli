@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { logger } from '@redocly/openapi-core';
 import { getPlatformSpawnArgs, sanitizePath } from '../utils/platform.js';
 
 import type { CommandArgs } from '../wrapper.js';
@@ -12,7 +13,7 @@ export type EjectOptions = {
 } & VerifyConfigOptions;
 
 export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
-  process.stdout.write(`\nLaunching eject using NPX.\n\n`);
+  logger.info(`\nLaunching eject using NPX.\n\n`);
   const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 
   const path = sanitize(argv.path, sanitizePath);
@@ -36,7 +37,7 @@ export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
   );
 
   child.on('error', (error) => {
-    process.stderr.write(`Eject launch failed: ${error.message}`);
+    logger.info(`Eject launch failed: ${error.message}`);
     throw new Error('Eject launch failed.');
   });
 };

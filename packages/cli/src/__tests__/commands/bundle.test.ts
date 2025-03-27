@@ -1,4 +1,4 @@
-import { bundle, getTotals, getMergedConfig, Config } from '@redocly/openapi-core';
+import { bundle, getTotals, getMergedConfig, Config, logger } from '@redocly/openapi-core';
 
 import { BundleOptions, handleBundle } from '../../commands/bundle.js';
 import {
@@ -17,16 +17,12 @@ import { type Arguments } from 'yargs';
 describe('bundle', () => {
   let processExitMock: MockInstance;
   let exitCb: any;
-  let stderrWriteMock: any;
-  let stdoutWriteMock: any;
   beforeEach(async () => {
     processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     vi.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
       return process.on(_e, cb);
     });
-    stderrWriteMock = vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
-    stdoutWriteMock = vi.spyOn(process.stdout, 'write').mockImplementation(vi.fn());
 
     vi.mock('@redocly/openapi-core');
     vi.mocked(bundle).mockImplementation(
@@ -209,7 +205,7 @@ describe('bundle', () => {
 
       expect(saveBundle).toBeCalledTimes(1);
       expect(saveBundle).toHaveBeenCalledWith('output/foo.yaml', expect.any(String));
-      expect(process.stdout.write).toHaveBeenCalledTimes(1);
+      expect(logger.output).toHaveBeenCalledTimes(1);
     });
 
     it('should NOT store bundled API descriptions in the output files described in the apis section of config IF there is a positional api provided', async () => {
@@ -241,7 +237,7 @@ describe('bundle', () => {
       });
 
       expect(saveBundle).toBeCalledTimes(0);
-      expect(process.stdout.write).toHaveBeenCalledTimes(1);
+      expect(logger.output).toHaveBeenCalledTimes(1);
     });
 
     it('should store bundled API descriptions in the directory specified in argv IF multiple positional apis provided AND --output specified', async () => {

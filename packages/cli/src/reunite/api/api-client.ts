@@ -1,4 +1,4 @@
-import { yellow, red } from 'colorette';
+import { logger } from '@redocly/openapi-core';
 import fetchWithTimeout, {
   type FetchWithTimeoutOptions,
   DEFAULT_FETCH_TIMEOUT,
@@ -335,18 +335,14 @@ export class ReuniteApi {
       const updateVersionMessage = `Update to the latest version by running "npm install @redocly/cli@latest".`;
 
       if (isSunsetExpired) {
-        process.stdout.write(
-          red(
-            `The "${this.command}" command is not compatible with your version of Redocly CLI. ${updateVersionMessage}\n\n`
-          )
+        logger.error(
+          `The "${this.command}" command is not compatible with your version of Redocly CLI. ${updateVersionMessage}\n\n`
         );
       } else {
-        process.stdout.write(
-          yellow(
-            `The "${
-              this.command
-            }" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
-          )
+        logger.warn(
+          `The "${
+            this.command
+          }" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
         );
       }
     }
