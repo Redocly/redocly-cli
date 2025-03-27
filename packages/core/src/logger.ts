@@ -15,9 +15,14 @@ export const colorize = new Proxy(colorette, {
     return (target as any)[prop];
   },
 });
+
 class Logger {
   protected stderr(str: string) {
     return process.stderr.write(str);
+  }
+
+  protected stdout(str: string) {
+    return process.stdout.write(str);
   }
 
   info(str: string) {
@@ -30,6 +35,10 @@ class Logger {
 
   error(str: string) {
     return isBrowser ? console.error(str) : this.stderr(colorize.red(str));
+  }
+
+  output(str: string) {
+    return isBrowser ? console.log(str) : this.stdout(str);
   }
 }
 

@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import './utils/assert-node-version.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import * as colors from 'colorette';
+import { logger } from '@redocly/openapi-core';
 import { outputExtensions } from './types.js';
 import { handleStats } from './commands/stats.js';
 import { handleSplit } from './commands/split/index.js';
@@ -535,10 +535,8 @@ yargs(hideBin(process.argv))
       }),
     (argv) => {
       if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
-        process.stderr.write(
-          colors.red(
-            'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
-          )
+        logger.error(
+          'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
         );
       }
       commandWrapper(previewProject)(argv);

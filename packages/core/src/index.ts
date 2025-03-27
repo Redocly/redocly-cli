@@ -113,3 +113,5 @@ export {
 } from './bundle.js';
 
 export { type Assertions } from './rules/common/assertions/index.js';
+
+export { logger } from './logger.js';

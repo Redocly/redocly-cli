@@ -5,6 +5,7 @@ import {
   getTotals,
   formatProblems,
   doesYamlFileExist,
+  logger,
   type Totals,
 } from '@redocly/openapi-core';
 import {
@@ -183,7 +184,7 @@ describe('handleLint', () => {
         };
       });
       await commandWrapper(handleLint)(argvMock);
-      expect(process.stderr.write).toHaveBeenCalledWith(
+      expect(logger.info).toHaveBeenCalledWith(
         `No configurations were provided -- using built in ${blue(
           'recommended'
         )} configuration by default.\n\n`
