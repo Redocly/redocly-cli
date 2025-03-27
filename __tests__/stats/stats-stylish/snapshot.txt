@@ -1,6 +1,3 @@
-
-Document: museum.yaml stats:
-
 🚗 References: 43 
 📦 External Documents: 0 
 📈 Schemas: 23 
@@ -10,6 +7,9 @@ Document: museum.yaml stats:
 🎣 Webhooks: 0 
 👷 Operations: 8 
 🔖 Tags: 3 
+
+Document: museum.yaml stats:
+
 
 museum.yaml: stats processed in <test>ms
 

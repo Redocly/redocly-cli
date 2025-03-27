@@ -38,7 +38,7 @@ const statsAccumulator: StatsAccumulator = {
 function printStatsStylish(statsAccumulator: StatsAccumulator) {
   for (const node in statsAccumulator) {
     const { metric, total, color } = statsAccumulator[node as StatsName];
-    process.stderr.write(colors[color](`${metric}: ${total} \n`));
+    process.stdout.write(colors[color](`${metric}: ${total} \n`));
   }
 }
 
