@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import { logger } from '@redocly/openapi-core';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 import { getPlatformSpawnArgs } from '../../utils/platform.js';
 
@@ -14,7 +15,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const product = argv.product || tryGetProductFromPackageJson(projectDir);
 
   if (!isValidProduct(product)) {
-    process.stderr.write(`Invalid product ${product}.`);
+    logger.info(`Invalid product ${product}.`);
     throw new Error(`Project preview launch failed.`);
   }
 
@@ -35,7 +36,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   );
 
   child.on('error', (error) => {
-    process.stderr.write(`Project preview launch failed: ${error.message}`);
+    logger.info(`Project preview launch failed: ${error.message}`);
     throw new Error(`Project preview launch failed.`);
   });
 };

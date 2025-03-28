@@ -10,6 +10,7 @@ import {
   walkDocument,
   Stats,
   bundle,
+  logger,
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
@@ -74,7 +75,7 @@ function printStats(
 ) {
   switch (format) {
     case 'stylish':
-      process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
+      logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
       printExecutionTime('stats', startedAt, api);
       break;

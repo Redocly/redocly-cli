@@ -3,6 +3,7 @@ import * as path from 'node:path';
 import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import * as crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
+import { logger } from '@redocly/openapi-core';
 import { type AuthToken, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
@@ -88,7 +89,7 @@ export class RedoclyOAuthClient {
         this.cipher.update(JSON.stringify(token), 'utf8', 'hex') + this.cipher.final('hex');
       writeFileSync(path.join(this.dir, 'auth.json'), encrypted);
     } catch (error) {
-      process.stderr.write('Error saving tokens:', error);
+      logger.error(`Error saving tokens: ${error}`);
     }
   }
 

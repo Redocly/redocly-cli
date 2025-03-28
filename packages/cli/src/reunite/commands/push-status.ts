@@ -1,4 +1,5 @@
 import * as colors from 'colorette';
+import { logger } from '@redocly/openapi-core';
 import { printExecutionTime } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
 import { DeploymentError } from '../utils.js';
@@ -188,7 +189,7 @@ function printPushStatusInfo({
   pushId: string;
   startedAt: number;
 }) {
-  process.stderr.write(
+  logger.info(
     `\nProcessed push-status for ${colors.yellow(organization)}, ${colors.yellow(
       projectId
     )} and pushID ${colors.yellow(pushId)}.\n`
@@ -212,10 +213,8 @@ function printPushStatus({
     return;
   }
   if (push.isOutdated || !push.hasChanges) {
-    process.stderr.write(
-      colors.yellow(
-        `Files not added to your project. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`
-      )
+    logger.warn(
+      `Files not added to your project. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`
     );
   } else {
     displayDeploymentAndBuildStatus({

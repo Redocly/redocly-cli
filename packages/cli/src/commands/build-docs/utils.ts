@@ -5,8 +5,7 @@ import { ServerStyleSheet } from 'styled-components';
 import { default as handlebars } from 'handlebars';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { red } from 'colorette';
-import { isAbsoluteUrl } from '@redocly/openapi-core';
+import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/miscellaneous.js';
 import { fileURLToPath } from 'node:url';
 
@@ -30,10 +29,8 @@ export function getObjectOrJSON(
           return JSON.parse(openapiOptions);
         }
       } catch (e) {
-        process.stderr.write(
-          red(
-            `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
-          )
+        logger.error(
+          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
         );
         exitWithError(e);
       }

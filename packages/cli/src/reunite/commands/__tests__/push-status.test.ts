@@ -88,6 +88,7 @@ describe('handlePushStatus()', () => {
     vi.mock('@redocly/openapi-core', async () => {
       const actual = await vi.importActual('@redocly/openapi-core');
       return {
+        ...actual,
         pause: actual.pause,
       };
     });

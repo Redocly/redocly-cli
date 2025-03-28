@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { slash, pluralize } from '@redocly/openapi-core';
+import { slash, pluralize, logger } from '@redocly/openapi-core';
 import { green, yellow } from 'colorette';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous.js';
 import { handlePushStatus } from './push-status.js';
@@ -77,7 +77,7 @@ export async function handlePush({
       mountPath,
     });
 
-    process.stderr.write(
+    logger.info(
       `Uploading to ${remote.mountPath} ${filesToUpload.length} ${pluralize(
         'file',
         filesToUpload.length
@@ -105,7 +105,7 @@ export async function handlePush({
     );
 
     filesToUpload.forEach((f) => {
-      process.stderr.write(green(`✓ ${f.name}\n`));
+      logger.info(green(`✓ ${f.name}\n`));
     });
 
     process.stdout.write('\n');

@@ -462,6 +462,8 @@ describe('checkIfRulesetExist', () => {
   });
 
   it('should throw an error if rules are not provided', () => {
+    vi.mocked(red).mockImplementation((text) => text as string);
+
     const rules = {
       oas2: {},
       oas3_0: {},
