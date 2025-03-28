@@ -56,8 +56,8 @@ describe('handleLint', () => {
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
 
-    vi.mock('../../utils/update-version-notifier.js', () => ({
-      version: '1.0.0',
+    vi.mock('../../utils/package.js', () => ({
+      version: '2.0.0',
     }));
   });
 
@@ -137,7 +137,7 @@ describe('handleLint', () => {
         format: 'stylish',
         maxProblems: 2,
         totals: { errors: 0 },
-        version: '1.0.0',
+        version: '2.0.0',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
     });
