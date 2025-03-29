@@ -357,7 +357,7 @@ describe('ApiClient', () => {
     it.each(endpointMocks)(
       'should report endpoint sunset in the past',
       async ({ responseBody, requestFn }) => {
-        vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        vi.spyOn(process.stderr, 'write').mockImplementationOnce(() => true);
         const sunsetDate = new Date('2024-09-06T12:30:32.456Z');
 
         mockFetchResponse({
@@ -371,7 +371,7 @@ describe('ApiClient', () => {
         await requestFn();
         apiClient.reportSunsetWarnings();
 
-        expect(process.stdout.write).toHaveBeenCalledWith(
+        expect(process.stderr.write).toHaveBeenCalledWith(
           red(
             `The "push" command is not compatible with your version of Redocly CLI. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
           )
@@ -382,7 +382,7 @@ describe('ApiClient', () => {
     it.each(endpointMocks)(
       'should report endpoint sunset in the future',
       async ({ responseBody, requestFn }) => {
-        vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+        vi.spyOn(process.stderr, 'write').mockImplementationOnce(() => true);
         const sunsetDate = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
         mockFetchResponse({
@@ -396,7 +396,7 @@ describe('ApiClient', () => {
         await requestFn();
         apiClient.reportSunsetWarnings();
 
-        expect(process.stdout.write).toHaveBeenCalledWith(
+        expect(process.stderr.write).toHaveBeenCalledWith(
           yellow(
             `The "push" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
           )
@@ -405,7 +405,7 @@ describe('ApiClient', () => {
     );
 
     it('should report only expired resource', async () => {
-      vi.spyOn(process.stdout, 'write').mockImplementationOnce(() => true);
+      vi.spyOn(process.stderr, 'write').mockImplementationOnce(() => true);
 
       mockFetchResponse({
         ok: true,
@@ -439,8 +439,8 @@ describe('ApiClient', () => {
 
       apiClient.reportSunsetWarnings();
 
-      expect(process.stdout.write).toHaveBeenCalledTimes(1);
-      expect(process.stdout.write).toHaveBeenCalledWith(
+      expect(process.stderr.write).toHaveBeenCalledTimes(1);
+      expect(process.stderr.write).toHaveBeenCalledWith(
         red(
           `The "push" command is not compatible with your version of Redocly CLI. Update to the latest version by running "npm install @redocly/cli@latest".\n\n`
         )

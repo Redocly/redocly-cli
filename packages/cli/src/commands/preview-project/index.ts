@@ -22,7 +22,7 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
+  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
   const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
@@ -59,12 +59,12 @@ const tryGetProductFromPackageJson = (projectDir: string): Product => {
 
       for (const [product, packageName] of Object.entries(PRODUCT_PACKAGES)) {
         if (packageJsonDeps[packageName]) {
-          process.stdout.write(`\n${packageName} detected in project's 'package.json'`);
+          logger.info(`\n${packageName} detected in project's 'package.json'`);
           return product as Product;
         }
       }
     } catch (error) {
-      process.stdout.write(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
+      logger.info(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
     }
   }
 

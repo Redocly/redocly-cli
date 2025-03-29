@@ -13,7 +13,7 @@ export type EjectOptions = {
 } & VerifyConfigOptions;
 
 export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
-  process.stdout.write(`\nLaunching eject using NPX.\n\n`);
+  logger.info(`\nLaunching eject using NPX.\n\n`);
   const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 
   const path = sanitize(argv.path, sanitizePath);
