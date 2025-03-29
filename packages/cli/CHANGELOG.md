@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.1
+
+### Patch Changes
+
+- Improved OpenTelemetry data serialization.
+- Updated @redocly/respect-core to v1.34.1.
+
 ## 1.34.0
 
 ### Minor Changes

@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.1 (2025-03-29)
+
+### Patch Changes
+
+- Improved OpenTelemetry data serialization.
+- Updated @redocly/respect-core to v1.34.1.
+
 ## 1.34.0 (2025-03-19)
 
 ### Minor Changes
