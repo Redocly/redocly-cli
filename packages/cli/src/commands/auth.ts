@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { exitWithError } from '../utils/miscellaneous.js';
 import { RedoclyOAuthClient } from '../auth/oauth-client.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
@@ -32,5 +33,5 @@ export async function handleLogout({ version }: CommandArgs<LogoutOptions>) {
   const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
   oauthClient.logout();
 
-  process.stdout.write('Logged out from the Redocly account. ✋ \n');
+  logger.output('Logged out from the Redocly account. ✋ \n');
 }
