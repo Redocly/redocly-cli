@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { colorOptions, colorize, logger } from '../logger.js';
-import { output } from '../output.js';
 import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -145,45 +144,45 @@ export function formatProblems(
     case 'markdown': {
       const groupedByFile = groupByFiles(problems);
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
-        output.write(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
+        logger.output(`## Lint: ${isAbsoluteUrl(file) ? file : path.relative(cwd, file)}\n\n`);
 
-        output.write(`| Severity | Location | Problem | Message |\n`);
-        output.write(`|---|---|---|---|\n`);
+        logger.output(`| Severity | Location | Problem | Message |\n`);
+        logger.output(`|---|---|---|---|\n`);
         for (let i = 0; i < fileProblems.length; i++) {
           const problem = fileProblems[i];
-          output.write(`${formatMarkdown(problem)}\n`);
+          logger.output(`${formatMarkdown(problem)}\n`);
         }
-        output.write('\n');
+        logger.output('\n');
 
         if (totals.errors > 0) {
-          output.write(`Validation failed\nErrors: ${totals.errors}\n`);
+          logger.output(`Validation failed\nErrors: ${totals.errors}\n`);
         } else {
-          output.write('Validation successful\n');
+          logger.output('Validation successful\n');
         }
 
         if (totals.warnings > 0) {
-          output.write(`Warnings: ${totals.warnings}\n`);
+          logger.output(`Warnings: ${totals.warnings}\n`);
         }
 
-        output.write('\n');
+        logger.output('\n');
       }
       break;
     }
     case 'checkstyle': {
       const groupedByFile = groupByFiles(problems);
 
-      output.write('<?xml version="1.0" encoding="UTF-8"?>\n');
-      output.write('<checkstyle version="4.3">\n');
+      logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
+      logger.output('<checkstyle version="4.3">\n');
 
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
-        output.write(
+        logger.output(
           `<file name="${xmlEscape(isAbsoluteUrl(file) ? file : path.relative(cwd, file))}">\n`
         );
         fileProblems.forEach(formatCheckstyle);
-        output.write(`</file>\n`);
+        logger.output(`</file>\n`);
       }
 
-      output.write(`</checkstyle>\n`);
+      logger.output(`</checkstyle>\n`);
       break;
     }
     case 'codeclimate':
@@ -222,7 +221,7 @@ export function formatProblems(
         fingerprint: `${p.ruleId}${p.location.length > 0 ? '-' + p.location[0].pointer : ''}`,
       };
     });
-    output.write(JSON.stringify(issues, null, 2));
+    logger.output(JSON.stringify(issues, null, 2));
   }
 
   function outputJSON() {
@@ -260,7 +259,7 @@ export function formatProblems(
         return problem;
       }),
     };
-    output.write(JSON.stringify(resultObject, null, 2));
+    logger.output(JSON.stringify(resultObject, null, 2));
   }
 
   function getBgColor(problem: NormalizedProblem) {
@@ -321,7 +320,7 @@ export function formatProblems(
     const severity = problem.severity == 'warn' ? 'warning' : 'error';
     const message = xmlEscape(problem.message);
     const source = xmlEscape(problem.ruleId);
-    output.write(
+    logger.output(
       `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`
     );
   }
@@ -448,7 +447,7 @@ function outputForGithubActions(problems: NormalizedProblem[], cwd: string): voi
         endLine: location.end?.line,
         endColumn: location.end?.col,
       };
-      output.write(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
+      logger.output(`::${command} ${formatProperties(properties)}::${escapeMessage(message)}\n`);
     }
   }
 
