@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { slash, pluralize, logger } from '@redocly/openapi-core';
-import { green, yellow } from 'colorette';
+import { green } from 'colorette';
 import { exitWithError, printExecutionTime } from '../../utils/miscellaneous.js';
 import { handlePushStatus } from './push-status.js';
 import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
@@ -108,11 +108,11 @@ export async function handlePush({
       logger.info(green(`✓ ${f.name}\n`));
     });
 
-    process.stdout.write('\n');
-    process.stdout.write(`Push ID: ${id}\n`);
+    logger.info('\n');
+    logger.info(`Push ID: ${id}\n`);
 
     if (waitForDeployment) {
-      process.stdout.write('\n');
+      logger.info('\n');
 
       await handlePushStatus({
         argv: {
@@ -183,9 +183,7 @@ function collectFilesToPush(files: string[]): FileToUpload[] {
     const fileName = path.relative(fileDir, filePath);
 
     if (collectedFiles[fileName]) {
-      process.stdout.write(
-        yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`)
-      );
+      logger.warn(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`);
     }
 
     collectedFiles[fileName] = filePath;
