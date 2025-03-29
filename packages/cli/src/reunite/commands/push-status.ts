@@ -231,15 +231,15 @@ function printScorecard(scorecard?: ScorecardItem[]) {
   if (!scorecard || scorecard.length === 0) {
     return;
   }
-  process.stdout.write(`\n${colors.magenta('Scorecard')}:`);
+  logger.output(`\n${colors.magenta('Scorecard')}:`);
   for (const scorecardItem of scorecard) {
-    process.stdout.write(`
+    logger.output(`
     ${colors.magenta('Name')}: ${scorecardItem.name}
     ${colors.magenta('Status')}: ${scorecardItem.status}
     ${colors.magenta('URL')}: ${colors.cyan(scorecardItem.url)}
     ${colors.magenta('Description')}: ${scorecardItem.description}\n`);
   }
-  process.stdout.write(`\n`);
+  logger.output(`\n`);
 }
 
 function displayDeploymentAndBuildStatus({
@@ -269,7 +269,8 @@ function displayDeploymentAndBuildStatus({
   }
 
   spinner.stop();
-  return process.stdout.write(message);
+
+  return logger.output(message);
 }
 
 function getMessage({
