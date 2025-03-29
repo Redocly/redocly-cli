@@ -3,7 +3,7 @@ import { Resource as OtelResource } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { version } from './utils/update-version-notifier.js';
+import { version } from './utils/package.js';
 import { DEFAULT_FETCH_TIMEOUT } from './utils/fetch-with-timeout.js';
 
 import type { Analytics } from './utils/miscellaneous.js';

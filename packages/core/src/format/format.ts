@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { colorOptions, colorize, logger } from '../logger.js';
 import { output } from '../output.js';
@@ -6,16 +5,12 @@ import { getCodeframe, getLineColLocation } from './codeframes.js';
 import { env, isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 
-const packageJson = createRequire(import.meta.url)('../../package.json');
-
 import type {
   NormalizedProblem,
   ProblemSeverity,
   LineColLocationObject,
   LocationObject,
 } from '../walk.js';
-
-const coreVersion = packageJson.version;
 
 export type Totals = {
   errors: number;
@@ -101,7 +96,7 @@ export function formatProblems(
     format = 'codeframe',
     color = colorOptions.enabled,
     totals = getTotals(problems),
-    version = coreVersion,
+    version = '2.0',
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified

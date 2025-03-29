@@ -14,7 +14,7 @@ import {
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
-const packageJson = createRequire(import.meta.url)('../../../package.json');
+const packageJson = createRequire(import.meta.url ?? __dirname)('../../../package.json');
 
 export const handlerBuildCommand = async ({
   argv,

@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as process from 'node:process';
@@ -7,10 +6,7 @@ import { compare } from 'semver';
 import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
 import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './miscellaneous.js';
-
-const packageJson = createRequire(import.meta.url)('../../package.json');
-
-export const { version, name } = packageJson;
+import { version, name } from './package.js';
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;

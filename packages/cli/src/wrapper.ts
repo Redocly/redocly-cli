@@ -1,5 +1,5 @@
 import { detectSpec, doesYamlFileExist, isPlainObject } from '@redocly/openapi-core';
-import { version } from './utils/update-version-notifier.js';
+import { version } from './utils/package.js';
 import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
 

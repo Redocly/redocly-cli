@@ -112,4 +112,4 @@ export {
   bundleFromString,
 } from './bundle.js';
 
-export { type Assertions } from './rules/common/assertions/index.js';
+export { type Assertions, type Assertion } from './rules/common/assertions/index.js';

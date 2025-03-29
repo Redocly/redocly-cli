@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import type { Config } from '@redocly/openapi-core';
 import type { BuildDocsOptions } from './types.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __internalDirname = dirname(fileURLToPath(import.meta.url ?? __dirname));
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -77,7 +77,7 @@ export async function getPageHTML(
     ? templateFileName
     : redocOptions?.htmlTemplate
     ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
-    : join(__dirname, './template.hbs');
+    : join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
