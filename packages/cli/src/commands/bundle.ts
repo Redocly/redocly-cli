@@ -87,7 +87,7 @@ export async function handleBundle({
             argv.ext || 'yaml',
             argv.dereferenced
           );
-          process.stdout.write(bundled);
+          logger.output(bundled);
         } else {
           const bundled = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
           saveBundle(outputFile, bundled);

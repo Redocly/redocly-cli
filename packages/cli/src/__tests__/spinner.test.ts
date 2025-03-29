@@ -3,15 +3,15 @@ import { Spinner } from '../utils/spinner.js';
 import * as process from 'node:process';
 
 describe('Spinner', () => {
-  const IS_TTY = process.stdout.isTTY;
+  const IS_TTY = process.stderr.isTTY;
 
   let writeMock: MockInstance;
   let spinner: Spinner;
 
   beforeEach(() => {
     vi.useFakeTimers();
-    process.stdout.isTTY = true;
-    writeMock = vi.spyOn(process.stdout, 'write').mockImplementation(vi.fn());
+    process.stderr.isTTY = true;
+    writeMock = vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
     spinner = new Spinner();
   });
 
@@ -20,7 +20,7 @@ describe('Spinner', () => {
   });
 
   afterAll(() => {
-    process.stdout.isTTY = IS_TTY;
+    process.stderr.isTTY = IS_TTY;
   });
 
   it('starts the spinner', () => {
@@ -42,7 +42,7 @@ describe('Spinner', () => {
   });
 
   it('should call write 1 times if CI set to true', () => {
-    process.stdout.isTTY = false;
+    process.stderr.isTTY = false;
     spinner.start('Loading');
     vi.advanceTimersByTime(300);
     expect(writeMock).toHaveBeenCalledTimes(1);
