@@ -3,4 +3,4 @@
 "@redocly/respect-core": patch
 ---
 
-Improved telemetry data serialization and transmission efficiency.
+Improved OpenTelemetry data serialization.
