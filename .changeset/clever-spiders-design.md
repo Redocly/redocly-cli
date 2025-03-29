@@ -3,4 +3,4 @@
 "@redocly/respect-core": patch
 ---
 
-Improved stability of the CLI.
+Improved telemetry data serialization and transmission efficiency.
