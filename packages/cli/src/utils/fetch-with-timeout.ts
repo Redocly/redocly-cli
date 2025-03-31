@@ -1,4 +1,4 @@
-import { getProxyAgent } from '@redocly/openapi-core';
+import { getProxyAgent } from './proxy-agent.js';
 
 export const DEFAULT_FETCH_TIMEOUT = 3000;
 

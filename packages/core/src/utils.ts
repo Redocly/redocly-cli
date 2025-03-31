@@ -4,7 +4,6 @@ import { minimatch } from 'minimatch';
 import { parseYaml } from './js-yaml/index.js';
 import { env } from './env.js';
 import { logger, colorize } from './logger.js';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as pluralize1 from 'pluralize'; // FIXME: use correct import after migration to ESM
 const pluralizeOne = (pluralize1 as any).default || pluralize1; // FIXME: use correct import after migration to ESM
 
@@ -307,11 +306,6 @@ export async function pause(ms: number): Promise<void> {
 
 function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
   return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
-}
-
-export function getProxyAgent() {
-  const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
-  return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }
 
 /**

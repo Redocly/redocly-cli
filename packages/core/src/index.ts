@@ -6,7 +6,6 @@ export {
   slash,
   doesYamlFileExist,
   isTruthy,
-  getProxyAgent,
   pause,
   isPlainObject,
   dequal,
