@@ -78,10 +78,11 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --server
 - string
 - Server overrides for the `sourceDescriptions` object.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the server listed in the API description, uses the server at `https://test.com`: `npx @redocly/cli@latest respect test-file.yaml --server test=https://test.com`.
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and instead of using the servers listed in the API description, uses the specified servers:
+  `npx @redocly/cli@latest respect test-file.yaml --server test=https://test.com --server prod=https://prod.com`.
 
-  You can also pass the server overrides as an environment variable, as in the following example:
-  `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com"`.
+  You can also pass multiple server overrides as an environment variable by separating them with commas, as in the following example:
+  `REDOCLY_CLI_RESPECT_SERVER="test=https://test.com,prod=https://prod.com"`.
 
 ---
 
