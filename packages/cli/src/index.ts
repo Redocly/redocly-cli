@@ -15,16 +15,13 @@ import { handleLint } from './commands/lint.js';
 import { handleBundle } from './commands/bundle.js';
 import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
-import {
-  cacheLatestVersion,
-  notifyUpdateCliVersion,
-  version,
-} from './utils/update-version-notifier.js';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { commandWrapper } from './wrapper.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { handleTranslations } from './commands/translations.js';
 import { handleEject } from './commands/eject.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { version } from './utils/package.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
