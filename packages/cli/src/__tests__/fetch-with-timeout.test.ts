@@ -1,7 +1,7 @@
 import AbortController from 'abort-controller';
-import fetchWithTimeout from '../utils/fetch-with-timeout.js';
-import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import fetchWithTimeout from '../utils/fetch-with-timeout.js';
+import * as proxyAgent from '../utils/proxy-agent.js';
 
 const signalInstance = new AbortController().signal;
 
@@ -30,6 +30,11 @@ const mockFetch = vi.fn(() =>
 
 const originalFetch = global.fetch;
 global.fetch = mockFetch;
+
+vi.mock('../utils/get-proxy-agent.js', async () => {
+  const actual = await vi.importActual('../utils/get-proxy-agent.js');
+  return { ...actual };
+});
 
 describe('fetchWithTimeout', () => {
   beforeAll(() => {
@@ -60,12 +65,12 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    const proxyAgent = new HttpsProxyAgent('http://localhost');
-    vi.mocked(getProxyAgent).mockReturnValueOnce(proxyAgent as any);
+    const dispatcher = new HttpsProxyAgent('http://localhost');
+    vi.spyOn(proxyAgent, 'getProxyAgent').mockReturnValueOnce(dispatcher);
 
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher: proxyAgent });
+    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher });
   });
 
   it('should call fetch without signal when timeout is not passed', async () => {
