@@ -141,12 +141,12 @@ export async function resolvePlugins(
         const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            createRequire(import.meta.url).resolve(plugin, {
+            createRequire(import.meta.url ?? __dirname).resolve(plugin, {
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                path.dirname(fileURLToPath(import.meta.url)),
+                path.dirname(fileURLToPath(import.meta.url ?? __dirname)),
               ],
             });
 

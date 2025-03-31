@@ -25,7 +25,7 @@ import {
 } from '@redocly/openapi-core';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
-import { version } from './update-version-notifier.js';
+import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 
 import type { Arguments } from 'yargs';

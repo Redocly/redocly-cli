@@ -1,8 +1,4 @@
-import { createRequire } from 'node:module';
-
-const packageJson = createRequire(import.meta.url)('../../../package.json');
-
-const { name: packageName, version: packageVersion } = packageJson;
+import { name as packageName, version as packageVersion } from '../package.js';
 
 export function createHarLog(entries: any[] = [], pageInfo: any = {}): any {
   return {

@@ -1,17 +1,15 @@
-import { createRequire } from 'node:module';
 import * as process from 'node:process';
 import * as semver from 'semver';
 import { yellow } from 'colorette';
+import { engines } from './package.js';
 
 try {
-  const packageJson = createRequire(import.meta.url)('../../package.json');
-  const { engines } = packageJson;
-  const version = engines.node;
+  const range = engines?.node;
 
-  if (!semver.satisfies(process.version, version)) {
+  if (typeof range === 'string' && !semver.satisfies(process.version, range)) {
     process.stderr.write(
       yellow(
-        `\n⚠️ Warning: failed to satisfy expected node version. Expected: "${version}", Current "${process.version}"\n\n`
+        `\n⚠️ Warning: failed to satisfy expected node version. Expected: "${range}", Current "${process.version}"\n\n`
       )
     );
   }
