@@ -65,6 +65,7 @@ jobs:
         with:
           node-version: 20
       - run: bash ./__tests__/smoke-plugins/run-smoke.sh
+
   run-smoke-plugins--npm--node-20--windows:
     needs: prepare-smoke-plugins
     runs-on: windows-latest
