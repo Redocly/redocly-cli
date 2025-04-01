@@ -62,7 +62,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 - --har-output
 - string
 - Path for the `har` file for saving logs.
-  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.har` file: 
+  For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.har` file:
 
   ```npx @redocly/cli@latest respect test-file.yaml --har-output='logs.har'```
 
@@ -70,9 +70,9 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
 - --json-output
 - string
-- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the 
+- Path for the JSON file for saving logs. For example, the following command runs all workflows from the `test-file.yaml` Arazzo description and saves the logs to the `logs.json` file:
 
-  ```logs.json` file:`npx @redocly/cli@latest respect test-file.yaml --json-output='logs.json'```
+  ```npx @redocly/cli@latest respect test-file.yaml --json-output='logs.json'```
 
 ---
 
