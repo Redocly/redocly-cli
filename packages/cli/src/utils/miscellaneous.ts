@@ -28,6 +28,7 @@ import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-conf
 import { outputExtensions } from '../types.js';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
+import { exitWithError, HandledError } from './error.js';
 
 import type { Arguments } from 'yargs';
 import type {
@@ -319,8 +320,6 @@ export function handleError(e: Error, ref: string) {
   }
 }
 
-export class HandledError extends Error {}
-
 export function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
     ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n\n`)
@@ -432,11 +431,6 @@ export function printUnusedWarnings(config: StyleguideConfig) {
   if (rules.length || preprocessors.length) {
     logger.warn(`Check the spelling and verify the added plugin prefix.\n`);
   }
-}
-
-export function exitWithError(message: string) {
-  logger.error(message + '\n\n');
-  throw new HandledError(message);
 }
 
 export async function loadConfigAndHandleErrors(
