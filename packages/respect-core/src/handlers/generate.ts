@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { stringifyYaml } from '../utils/yaml.js';
 import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
 import { DefaultLogger } from '../utils/logger/logger.js';
-import { exitWithError } from '../utils/exit-with-error.js';
+import { rethrowHandledError } from '../utils/exit-with-error.js';
 import { type CommandArgs } from '../types.js';
 
 export type GenerateArazzoFileOptions = {
@@ -28,7 +28,7 @@ export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOpt
       '\n' + blue(`Arazzo description ${yellow(fileName)} successfully generated.`) + '\n'
     );
   } catch (_err) {
-    exitWithError(
+    rethrowHandledError(
       '\n' +
         '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'
     );

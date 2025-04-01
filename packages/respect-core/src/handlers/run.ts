@@ -9,7 +9,7 @@ import {
   composeJsonLogsFiles,
 } from '../modules/cli-output/index.js';
 import { DefaultLogger } from '../utils/logger/logger.js';
-import { exitWithError } from '../utils/exit-with-error.js';
+import { rethrowHandledError } from '../utils/exit-with-error.js';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
@@ -110,7 +110,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
       throw new Error(' Tests exited with error ');
     }
   } catch (err) {
-    exitWithError((err as Error)?.message ?? err);
+    rethrowHandledError((err as Error)?.message ?? err);
   }
 }
 

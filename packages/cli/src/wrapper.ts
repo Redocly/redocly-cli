@@ -7,6 +7,7 @@ import {
   sendTelemetry,
 } from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
+import { HandledError as RespectHandledError } from '@redocly/respect-core';
 
 import type { Arguments } from 'yargs';
 import type { Config, CollectFn } from '@redocly/openapi-core';
@@ -67,6 +68,9 @@ export function commandWrapper<T extends CommandOptions>(
     } catch (err) {
       if (err instanceof HandledError) {
         logger.error(err.message + '\n\n');
+      } else if (err instanceof RespectHandledError) {
+        logger.error(err.message + '\n');
+        logger.output('\n');
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
