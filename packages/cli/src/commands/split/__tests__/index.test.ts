@@ -20,7 +20,6 @@ describe('split', () => {
       const actual = await vi.importActual('node:process');
       return {
         ...actual,
-        stderr: { write: vi.fn() },
       };
     });
     vi.mock('node:fs', async () => {
@@ -42,6 +41,8 @@ describe('split', () => {
   it('should split the file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
     await handleSplit({
       argv: {
         api: filePath,
@@ -52,7 +53,7 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(process.stderr.write).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
     expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
       `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(openapiDir)} \n`

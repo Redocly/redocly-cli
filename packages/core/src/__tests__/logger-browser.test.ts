@@ -18,14 +18,14 @@ describe('Logger in Browser', () => {
   });
 
   it('should call "console.log"', () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const info = vi.spyOn(console, 'info').mockImplementation(() => {});
 
     logger.info('info');
 
-    expect(log).toBeCalledTimes(1);
-    expect(log).toBeCalledWith('info');
+    expect(info).toBeCalledTimes(1);
+    expect(info).toBeCalledWith('info');
 
-    log.mockRestore();
+    info.mockRestore();
   });
 
   it('should call "console.warn"', () => {

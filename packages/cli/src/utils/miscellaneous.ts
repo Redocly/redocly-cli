@@ -22,6 +22,7 @@ import {
   isPlainObject,
   pluralize,
   ConfigValidationError,
+  logger,
 } from '@redocly/openapi-core';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
@@ -55,9 +56,7 @@ export async function getFallbackApisOrExit(
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
     for (const { path } of filteredInvalidEntrypoints) {
-      process.stderr.write(
-        yellow(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`)
-      );
+      logger.warn(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`);
     }
     exitWithError('Please provide a valid path.');
   }
@@ -135,7 +134,7 @@ export function getExecutionTime(startedAt: number) {
 
 export function printExecutionTime(commandName: string, startedAt: number, api: string) {
   const elapsed = getExecutionTime(startedAt);
-  process.stderr.write(gray(`\n${api}: ${commandName} processed in ${elapsed}\n\n`));
+  logger.info(gray(`\n${api}: ${commandName} processed in ${elapsed}\n\n`));
 }
 
 export function pathToFilename(path: string, pathSeparator: string) {
@@ -266,7 +265,7 @@ export function writeYaml(data: any, filename: string, noRefs = false) {
   const content = stringifyYaml(data, { noRefs });
 
   if (process.env.NODE_ENV === 'test') {
-    process.stderr.write(content);
+    logger.info(content);
     return;
   }
   fs.mkdirSync(dirname(filename), { recursive: true });
@@ -277,7 +276,7 @@ export function writeJson(data: unknown, filename: string) {
   const content = JSON.stringify(data, null, 2);
 
   if (process.env.NODE_ENV === 'test') {
-    process.stderr.write(content);
+    logger.info(content);
     return;
   }
   fs.mkdirSync(dirname(filename), { recursive: true });
@@ -291,7 +290,7 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
     // FIXME: ^ use one source of truth
     return ext as NonNullable<OutputExtensions>;
   }
-  process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
+  logger.warn(`Unsupported file extension: ${ext}. Using yaml.\n`);
   return 'yaml';
 }
 
@@ -328,24 +327,22 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
     : '';
 
   if (totals.errors > 0) {
-    process.stderr.write(
-      red(
-        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
-          totals.warnings > 0
-            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
-            : ''
-        }.\n${ignored}`
-      )
+    logger.error(
+      `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
+        totals.warnings > 0
+          ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
+          : ''
+      }.\n${ignored}`
     );
   } else if (totals.warnings > 0) {
-    process.stderr.write(
+    logger.info(
       green(`Woohoo! Your API ${pluralize('description is', definitionsCount)} valid. 🎉\n`)
     );
-    process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`)
+    logger.warn(
+      `You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`
     );
   } else {
-    process.stderr.write(
+    logger.info(
       green(
         `Woohoo! Your API ${pluralize('description is', definitionsCount)} valid. 🎉\n${ignored}`
       )
@@ -353,25 +350,23 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   }
 
   if (totals.errors > 0) {
-    process.stderr.write(
+    logger.info(
       gray(`run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.\n`)
     );
   }
 
-  process.stderr.write('\n');
+  logger.info('\n');
 }
 
 export function printConfigLintTotals(totals: Totals, command?: string | number): void {
   if (totals.errors > 0) {
-    process.stderr.write(
-      red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`)
-    );
+    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`);
   } else if (totals.warnings > 0) {
-    process.stderr.write(
-      yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
+    logger.warn(
+      `⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`
     );
   } else if (command === 'check-config') {
-    process.stderr.write(green('✅  Your config is valid.\n'));
+    logger.info(green('✅  Your config is valid.\n'));
   }
 }
 
@@ -415,38 +410,32 @@ export function getOutputFileName({
 export function printUnusedWarnings(config: StyleguideConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
-    process.stderr.write(
-      yellow(
-        `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`
-      )
+    logger.warn(
+      `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`
     );
   }
   if (preprocessors.length) {
-    process.stderr.write(
-      yellow(
-        `[WARNING] Unused preprocessors found in ${blue(
-          config.configFile || ''
-        )}: ${preprocessors.join(', ')}.\n`
-      )
+    logger.warn(
+      `[WARNING] Unused preprocessors found in ${blue(
+        config.configFile || ''
+      )}: ${preprocessors.join(', ')}.\n`
     );
   }
   if (decorators.length) {
-    process.stderr.write(
-      yellow(
-        `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
-          ', '
-        )}.\n`
-      )
+    logger.warn(
+      `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+        ', '
+      )}.\n`
     );
   }
 
   if (rules.length || preprocessors.length) {
-    process.stderr.write(`Check the spelling and verify the added plugin prefix.\n`);
+    logger.warn(`Check the spelling and verify the added plugin prefix.\n`);
   }
 }
 
 export function exitWithError(message: string) {
-  process.stderr.write(red(message) + '\n\n');
+  logger.error(message + '\n\n');
   throw new HandledError(message);
 }
 
@@ -684,12 +673,10 @@ export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
   for (const option of deprecatedOptions) {
     if (argv[option]) {
-      process.stderr.write(
-        yellow(
-          `[WARNING] "${String(
-            option
-          )}" option is deprecated and will be removed in a future release. \n\n`
-        )
+      logger.warn(
+        `[WARNING] "${String(
+          option
+        )}" option is deprecated and will be removed in a future release. \n\n`
       );
     }
   }
@@ -703,15 +690,13 @@ export function notifyAboutIncompatibleConfigOptions(
     const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties);
     const intersection = propertiesSet.filter((prop) => deprecatedSet.includes(prop));
     if (intersection.length > 0) {
-      process.stderr.write(
-        yellow(
-          `\n${pluralize('Property', intersection.length)} ${gray(
-            intersection.map((prop) => `'${prop}'`).join(', ')
-          )} ${pluralize(
-            'is',
-            intersection.length
-          )} only used in API Reference Docs and Redoc version 2.x or earlier.\n\n`
-        )
+      logger.warn(
+        `\n${pluralize('Property', intersection.length)} ${gray(
+          intersection.map((prop) => `'${prop}'`).join(', ')
+        )} ${pluralize(
+          'is',
+          intersection.length
+        )} only used in API Reference Docs and Redoc version 2.x or earlier.\n\n`
       );
     }
   }

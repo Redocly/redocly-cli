@@ -1,5 +1,6 @@
 import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
+import { logger } from '@redocly/openapi-core';
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
 
 export type AuthToken = {
@@ -18,17 +19,17 @@ export class RedoclyOAuthDeviceFlow {
 
   async run() {
     const code = await this.getDeviceCode();
-    process.stdout.write(
+    logger.output(
       'Attempting to automatically open the SSO authorization page in your default browser.\n'
     );
-    process.stdout.write(
+    logger.output(
       'If the browser does not open or you wish to use a different device to authorize this request, open the following URL:\n\n'
     );
-    process.stdout.write(blue(code.verificationUri));
-    process.stdout.write(`\n\n`);
-    process.stdout.write(`Then enter the code:\n\n`);
-    process.stdout.write(blue(code.userCode));
-    process.stdout.write(`\n\n`);
+    logger.output(blue(code.verificationUri));
+    logger.output(`\n\n`);
+    logger.output(`Then enter the code:\n\n`);
+    logger.output(blue(code.userCode));
+    logger.output(`\n\n`);
 
     this.openBrowser(code.verificationUriComplete);
 
@@ -37,7 +38,7 @@ export class RedoclyOAuthDeviceFlow {
       code.interval,
       code.expiresIn
     );
-    process.stdout.write(green('✅ Logged in\n\n'));
+    logger.output(green('✅ Logged in\n\n'));
 
     return accessToken;
   }
