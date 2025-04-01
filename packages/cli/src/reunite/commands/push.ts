@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { slash, pluralize, logger } from '@redocly/openapi-core';
 import { green } from 'colorette';
-import { exitWithError, printExecutionTime } from '../../utils/miscellaneous.js';
+import { rethrowHandledError, printExecutionTime } from '../../utils/miscellaneous.js';
 import { handlePushStatus } from './push-status.js';
 import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
 import { handleReuniteError } from './utils.js';
@@ -48,7 +48,7 @@ export async function handlePush({
   const domain = argv.domain || getDomain();
 
   if (!domain) {
-    return exitWithError(
+    return rethrowHandledError(
       `No domain provided, please use --domain option or environment variable REDOCLY_AUTHORIZATION.`
     );
   }

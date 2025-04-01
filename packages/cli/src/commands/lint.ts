@@ -12,7 +12,7 @@ import {
 } from '@redocly/openapi-core';
 import {
   checkIfRulesetExist,
-  exitWithError,
+  rethrowHandledError,
   formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
@@ -48,7 +48,7 @@ export async function handleLint({
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
-    exitWithError('No APIs were provided.');
+    rethrowHandledError('No APIs were provided.');
   }
 
   if (argv['generate-ignore-file']) {

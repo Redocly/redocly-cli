@@ -58,7 +58,7 @@ export async function getFallbackApisOrExit(
     for (const { path } of filteredInvalidEntrypoints) {
       logger.warn(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`);
     }
-    exitWithError('Please provide a valid path.');
+    rethrowHandledError('Please provide a valid path.');
   }
   return res;
 }
@@ -69,7 +69,7 @@ function getConfigDirectory(config: ConfigApis) {
 
 function isApiPathValid(apiPath: string): string | void {
   if (!apiPath.trim()) {
-    exitWithError('Path cannot be empty.');
+    rethrowHandledError('Path cannot be empty.');
     return;
   }
   return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
@@ -300,21 +300,23 @@ export function handleError(e: Error, ref: string) {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
+      return rethrowHandledError(
+        `Failed to resolve API description at ${ref}:\n\n  - ${e.message}`
+      );
     case YamlParseError:
-      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
+      return rethrowHandledError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
     case CircularJSONNotSupportedError: {
-      return exitWithError(
+      return rethrowHandledError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
       );
     }
     case SyntaxError:
-      return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+      return rethrowHandledError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     case ConfigValidationError:
-      return exitWithError(e.message);
+      return rethrowHandledError(e.message);
     default: {
-      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
+      rethrowHandledError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
   }
 }
@@ -434,7 +436,7 @@ export function printUnusedWarnings(config: StyleguideConfig) {
   }
 }
 
-export function exitWithError(message: string) {
+export function rethrowHandledError(message: string) {
   throw new HandledError(message);
 }
 
@@ -523,7 +525,7 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
   };
 
   if (isEmptyObject(ruleset)) {
-    exitWithError(
+    rethrowHandledError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
     );
   }

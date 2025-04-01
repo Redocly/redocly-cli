@@ -10,7 +10,7 @@ import {
 } from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join.js';
 import {
-  exitWithError,
+  rethrowHandledError,
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
@@ -52,7 +52,7 @@ describe('handleJoin', () => {
 
   it('should call exitWithError because only one entrypoint', async () => {
     await handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' });
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
+    expect(rethrowHandledError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
   });
 
   it('should call exitWithError if glob expands to less than 2 APIs', async () => {
@@ -64,7 +64,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
 
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
+    expect(rethrowHandledError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
   });
 
   it('should proceed if glob expands to 2 or more APIs', async () => {
@@ -80,7 +80,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
 
-    expect(exitWithError).not.toHaveBeenCalled();
+    expect(rethrowHandledError).not.toHaveBeenCalled();
   });
 
   it('should call exitWithError because passed all 3 options for tags', async () => {
@@ -95,7 +95,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
 
-    expect(exitWithError).toHaveBeenCalledWith(
+    expect(rethrowHandledError).toHaveBeenCalledWith(
       `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
@@ -111,7 +111,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
 
-    expect(exitWithError).toHaveBeenCalledWith(
+    expect(rethrowHandledError).toHaveBeenCalledWith(
       `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
@@ -125,7 +125,7 @@ describe('handleJoin', () => {
       config: configFixture,
       version: 'cli-version',
     });
-    expect(exitWithError).toHaveBeenCalledWith(
+    expect(rethrowHandledError).toHaveBeenCalledWith(
       'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined.'
     );
   });
@@ -142,7 +142,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
 
-    expect(exitWithError).toHaveBeenCalledWith(
+    expect(rethrowHandledError).toHaveBeenCalledWith(
       'All APIs must use the same OpenAPI version: undefined.'
     );
   });

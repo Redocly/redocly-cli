@@ -7,7 +7,7 @@ import {
   printExecutionTime,
   pathToFilename,
   readYaml,
-  exitWithError,
+  rethrowHandledError,
   escapeLanguageName,
   langToExt,
   writeToFileByExtension,
@@ -107,17 +107,17 @@ function loadFile(fileName: string) {
   try {
     return parseYaml(fs.readFileSync(fileName, 'utf8')) as Definition;
   } catch (e) {
-    return exitWithError(e.message);
+    return rethrowHandledError(e.message);
   }
 }
 
 function validateDefinitionFileName(fileName: string) {
-  if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist.`);
+  if (!fs.existsSync(fileName)) rethrowHandledError(`File ${blue(fileName)} does not exist.`);
   const file = loadFile(fileName);
   if ((file as Oas2Definition).swagger)
-    exitWithError('OpenAPI 2 is not supported by this command.');
+    rethrowHandledError('OpenAPI 2 is not supported by this command.');
   if (!(file as Oas3Definition | Oas3_1Definition).openapi)
-    exitWithError(
+    rethrowHandledError(
       'File does not conform to the OpenAPI Specification. OpenAPI version is not specified.'
     );
   return true;

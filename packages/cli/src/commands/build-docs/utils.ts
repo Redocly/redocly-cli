@@ -6,7 +6,7 @@ import { default as handlebars } from 'handlebars';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/miscellaneous.js';
+import { rethrowHandledError } from '../../utils/miscellaneous.js';
 import { fileURLToPath } from 'node:url';
 
 import type { Config } from '@redocly/openapi-core';
@@ -32,7 +32,7 @@ export function getObjectOrJSON(
         logger.error(
           `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
         );
-        exitWithError(e);
+        rethrowHandledError(e);
       }
       break;
     default: {

@@ -15,7 +15,7 @@ import {
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  exitWithError,
+  rethrowHandledError,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
@@ -85,7 +85,7 @@ export async function handleJoin({
   ].filter(Boolean);
 
   if (usedTagsOptions.length > 1) {
-    return exitWithError(
+    return rethrowHandledError(
       `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one!`
     );
   }
@@ -93,7 +93,7 @@ export async function handleJoin({
   // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
-    return exitWithError(`At least 2 APIs should be provided.`);
+    return rethrowHandledError(`At least 2 APIs should be provided.`);
   }
 
   const fileExtension = getAndValidateFileExtension(output || apis[0].path);
@@ -127,7 +127,7 @@ export async function handleJoin({
         config: config.styleguide,
         externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
-        exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
+        rethrowHandledError(`${e.message}: ${blue(document.source.absoluteRef)}`);
       })
     )
   );
@@ -139,7 +139,7 @@ export async function handleJoin({
         totals: fileTotals,
         version: packageVersion,
       });
-      exitWithError(
+      rethrowHandledError(
         `❌ Errors encountered while bundling ${blue(
           document.source.absoluteRef
         )}: join will not proceed.`
@@ -153,19 +153,19 @@ export async function handleJoin({
       const version = detectSpec(document.parsed);
       collectSpecData?.(document.parsed);
       if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
-        return exitWithError(
+        return rethrowHandledError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
       oasVersion = oasVersion ?? version;
       if (oasVersion !== version) {
-        return exitWithError(
+        return rethrowHandledError(
           `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)}.`
         );
       }
     } catch (e) {
-      return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}.`);
+      return rethrowHandledError(`${e.message}: ${blue(document.source.absoluteRef)}.`);
     }
   }
 
@@ -219,7 +219,7 @@ export async function handleJoin({
   const noRefs = true;
 
   if (potentialConflictsTotal) {
-    return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
+    return rethrowHandledError(`Please fix conflicts before running ${yellow('join')}.`);
   }
 
   writeToFileByExtension(sortTopLevelKeysForOas(joinedDef), specFilename, noRefs);
@@ -422,7 +422,7 @@ export async function handleJoin({
         for (const pathServer of joinedDef.paths[path].servers) {
           if (pathServer.url === server.url) {
             if (!isServersEqual(pathServer, server)) {
-              exitWithError(`Different server values for (${server.url}) in ${path}.`);
+              rethrowHandledError(`Different server values for (${server.url}) in ${path}.`);
             }
             isFoundServer = true;
           }
@@ -457,7 +457,9 @@ export async function handleJoin({
           if (!isRef(pathParameter) && !isRef(parameter)) {
             if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
               if (!dequal(pathParameter.schema, parameter.schema)) {
-                exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}.`);
+                rethrowHandledError(
+                  `Different parameter schemas for (${parameter.name}) in ${path}.`
+                );
               }
               isFoundParameter = true;
             }
@@ -632,8 +634,8 @@ export async function handleJoin({
     const firstApi = documents[0];
     const openapi = firstApi.parsed;
     const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
-    if (!openapi.openapi) exitWithError('Version of specification is not found.');
-    if (!openapi.info) exitWithError('Info section is not found in specification.');
+    if (!openapi.openapi) rethrowHandledError('Version of specification is not found.');
+    if (!openapi.info) rethrowHandledError('Info section is not found in specification.');
     if (openapi.info?.description) {
       openapi.info.description = addComponentsPrefix(openapi.info.description, componentsPrefix);
     }
@@ -752,15 +754,17 @@ function addSecurityPrefix(security: any, componentsPrefix: string) {
 
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
-  if (!info) exitWithError('Info section is not found in specification.');
+  if (!info) rethrowHandledError('Info section is not found in specification.');
   if (!info[prefixArg])
-    exitWithError(
+    rethrowHandledError(
       `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section.`
     );
   if (!isString(info[prefixArg]))
-    exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`);
+    rethrowHandledError(
+      `${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`
+    );
   if (info[prefixArg].length > 50)
-    exitWithError(
+    rethrowHandledError(
       `${yellow(
         `prefix-${type}-with-info-prop`
       )} argument value length should not exceed 50 characters.`

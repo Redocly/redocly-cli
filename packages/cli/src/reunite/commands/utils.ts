@@ -1,6 +1,6 @@
 import { pause } from '@redocly/openapi-core';
 import { DeploymentError } from '../utils.js';
-import { exitWithError } from '../../utils/miscellaneous.js';
+import { rethrowHandledError } from '../../utils/miscellaneous.js';
 
 import type { ReuniteApiError } from '../api/index.js';
 
@@ -62,5 +62,5 @@ export function handleReuniteError(
   const errorMessage =
     error instanceof DeploymentError ? error.message : `${message} Reason: ${error.message}\n`;
 
-  return exitWithError(errorMessage);
+  return rethrowHandledError(errorMessage);
 }

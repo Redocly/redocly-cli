@@ -6,7 +6,7 @@ import { performance } from 'node:perf_hooks';
 import { getMergedConfig, isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
 import {
-  exitWithError,
+  rethrowHandledError,
   getExecutionTime,
   getFallbackApisOrExit,
 } from '../../utils/miscellaneous.js';
@@ -59,6 +59,6 @@ export const handlerBuildCommand = async ({
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {
-    exitWithError(e);
+    rethrowHandledError(e);
   }
 };

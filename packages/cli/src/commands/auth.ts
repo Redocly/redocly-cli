@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { exitWithError } from '../utils/miscellaneous.js';
+import { rethrowHandledError } from '../utils/miscellaneous.js';
 import { RedoclyOAuthClient } from '../auth/oauth-client.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 
@@ -18,9 +18,9 @@ export async function handleLogin({ argv, version }: CommandArgs<LoginOptions>) 
   } catch {
     if (argv.residency) {
       const reuniteUrl = getReuniteUrl(argv.residency);
-      exitWithError(`❌ Connection to ${reuniteUrl} failed.`);
+      rethrowHandledError(`❌ Connection to ${reuniteUrl} failed.`);
     } else {
-      exitWithError(`❌ Login failed. Please check your credentials and try again.`);
+      rethrowHandledError(`❌ Login failed. Please check your credentials and try again.`);
     }
   }
 }

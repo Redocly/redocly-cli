@@ -1,7 +1,7 @@
 import { detectSpec, doesYamlFileExist, isPlainObject, logger } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
 import {
-  exitWithError,
+  rethrowHandledError,
   HandledError,
   loadConfigAndHandleErrors,
   sendTelemetry,
@@ -50,7 +50,7 @@ export function commandWrapper<T extends CommandOptions>(
     };
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
-        exitWithError('Please provide a valid path to the configuration file.');
+        rethrowHandledError('Please provide a valid path to the configuration file.');
       }
       const config: Config = (await loadConfigAndHandleErrors({
         configPath: argv.config,

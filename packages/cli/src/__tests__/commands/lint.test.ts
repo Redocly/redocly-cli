@@ -13,7 +13,7 @@ import {
   getExecutionTime,
   printUnusedWarnings,
   handleError,
-  exitWithError,
+  rethrowHandledError,
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
@@ -65,7 +65,7 @@ describe('handleLint', () => {
   describe('loadConfig and getEntrypoints stage', () => {
     it('should fail if config file does not exist', async () => {
       await commandWrapper(handleLint)({ ...argvMock, config: 'config.yaml' });
-      expect(exitWithError).toHaveBeenCalledWith(
+      expect(rethrowHandledError).toHaveBeenCalledWith(
         'Please provide a valid path to the configuration file.'
       );
     });
@@ -106,7 +106,7 @@ describe('handleLint', () => {
     it('should fail if apis not provided', async () => {
       await commandWrapper(handleLint)({ ...argvMock, apis: [] });
       expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
-      expect(exitWithError).toHaveBeenCalledWith('No APIs were provided.');
+      expect(rethrowHandledError).toHaveBeenCalledWith('No APIs were provided.');
     });
   });
 
