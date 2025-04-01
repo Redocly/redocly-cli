@@ -12,7 +12,6 @@ import {
 } from '@redocly/openapi-core';
 import {
   checkIfRulesetExist,
-  exitWithError,
   formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
@@ -22,6 +21,7 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
+import { AbortFlowError, exitWithError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
@@ -121,7 +121,7 @@ export async function handleLint({
   printUnusedWarnings(config.styleguide);
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
-    throw new Error('Lint failed.');
+    throw new AbortFlowError('Lint failed.');
   }
 }
 

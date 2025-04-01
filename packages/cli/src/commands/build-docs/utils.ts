@@ -6,7 +6,7 @@ import { default as handlebars } from 'handlebars';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/miscellaneous.js';
+import { exitWithError } from '../../utils/error.js';
 import { fileURLToPath } from 'node:url';
 
 import type { Config } from '@redocly/openapi-core';
