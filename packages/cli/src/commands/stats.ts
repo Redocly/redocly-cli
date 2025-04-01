@@ -10,6 +10,7 @@ import {
   walkDocument,
   Stats,
   bundle,
+  logger,
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
@@ -38,7 +39,8 @@ const statsAccumulator: StatsAccumulator = {
 function printStatsStylish(statsAccumulator: StatsAccumulator) {
   for (const node in statsAccumulator) {
     const { metric, total, color } = statsAccumulator[node as StatsName];
-    process.stderr.write(colors[color](`${metric}: ${total} \n`));
+
+    logger.output(colors[color](`${metric}: ${total} \n`));
   }
 }
 
@@ -50,7 +52,8 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
       total: statsAccumulator[key as StatsName].total,
     };
   }
-  process.stdout.write(JSON.stringify(json, null, 2));
+
+  logger.output(JSON.stringify(json, null, 2));
 }
 
 function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
@@ -63,7 +66,8 @@ function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
       statsAccumulator[key as StatsName].total +
       ' |\n';
   }
-  process.stdout.write(output);
+
+  logger.output(output);
 }
 
 function printStats(
@@ -74,7 +78,7 @@ function printStats(
 ) {
   switch (format) {
     case 'stylish':
-      process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
+      logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
       printExecutionTime('stats', startedAt, api);
       break;

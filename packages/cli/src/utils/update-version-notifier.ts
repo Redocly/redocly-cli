@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import * as process from 'node:process';
 import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { compare } from 'semver';
+import { logger } from '@redocly/openapi-core';
 import fetch, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
 import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './miscellaneous.js';
@@ -85,7 +86,7 @@ const renderUpdateBanner = (current: string, latest: string) => {
     '',
     '',
   ].join('\n');
-  process.stderr.write(banner);
+  logger.info(banner);
 };
 
 const getLineWithPadding =
