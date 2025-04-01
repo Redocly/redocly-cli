@@ -435,7 +435,6 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 }
 
 export function exitWithError(message: string) {
-  logger.error(message + '\n\n');
   throw new HandledError(message);
 }
 

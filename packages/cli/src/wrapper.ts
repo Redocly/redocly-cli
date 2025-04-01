@@ -1,6 +1,11 @@
-import { detectSpec, doesYamlFileExist, isPlainObject } from '@redocly/openapi-core';
+import { detectSpec, doesYamlFileExist, isPlainObject, logger } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
+import {
+  exitWithError,
+  HandledError,
+  loadConfigAndHandleErrors,
+  sendTelemetry,
+} from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
 
 import type { Arguments } from 'yargs';
@@ -60,7 +65,9 @@ export function commandWrapper<T extends CommandOptions>(
       }
       code = 0;
     } catch (err) {
-      // Do nothing
+      if (err instanceof HandledError) {
+        logger.error(err.message + '\n\n');
+      }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         await sendTelemetry(argv, code, hasConfig, specVersion, specKeyword, specFullVersion);
