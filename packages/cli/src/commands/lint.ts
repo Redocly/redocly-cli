@@ -8,6 +8,7 @@ import {
   lintConfig,
   pluralize,
   ConfigValidationError,
+  logger,
 } from '@redocly/openapi-core';
 import {
   checkIfRulesetExist,
@@ -69,13 +70,13 @@ export async function handleLint({
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
 
       if (styleguide.recommendedFallback) {
-        process.stderr.write(
+        logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
           )} configuration by default.\n\n`
         );
       }
-      process.stderr.write(gray(`validating ${formatPath(path)}...\n`));
+      logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
         config: resolvedConfig,
@@ -102,7 +103,7 @@ export async function handleLint({
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
+      logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
     } catch (e) {
       handleError(e, path);
     }
@@ -110,7 +111,7 @@ export async function handleLint({
 
   if (argv['generate-ignore-file']) {
     config.styleguide.saveIgnore();
-    process.stderr.write(
+    logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
   } else {

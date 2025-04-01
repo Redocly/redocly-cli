@@ -1,4 +1,5 @@
 import * as process from 'node:process';
+import { logger } from '@redocly/openapi-core';
 
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
@@ -16,7 +17,7 @@ export class Spinner {
   }
 
   private showFrame() {
-    process.stdout.write('\r' + this.frames[this.currentFrame] + ' ' + this.message);
+    logger.info('\r' + this.frames[this.currentFrame] + ' ' + this.message);
     this.currentFrame = (this.currentFrame + 1) % this.frames.length;
   }
 
@@ -27,8 +28,8 @@ export class Spinner {
 
     this.message = message;
     // If we're not in a TTY, don't display the spinner.
-    if (!process.stdout.isTTY) {
-      process.stdout.write(`${message}...\n`);
+    if (!process.stderr.isTTY) {
+      logger.info(`${message}...\n`);
       return;
     }
 
@@ -43,7 +44,7 @@ export class Spinner {
     if (this.intervalId !== null) {
       clearInterval(this.intervalId);
       this.intervalId = null;
-      process.stdout.write('\r');
+      logger.info('\r');
     }
     this.message = '';
   }

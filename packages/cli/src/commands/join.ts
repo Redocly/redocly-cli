@@ -10,6 +10,7 @@ import {
   bundleDocument,
   isRef,
   dequal,
+  logger,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -189,7 +190,7 @@ export async function handleJoin({
     const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
-      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(api)} will be skipped \n`));
+      logger.warn(`warning: x-tagGroups at ${blue(api)} will be skipped \n`);
     }
 
     const context = {
@@ -339,9 +340,7 @@ export async function handleJoin({
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (joinedDef.hasOwnProperty('externalDocs')) {
-        process.stderr.write(
-          yellow(`warning: skip externalDocs from ${blue(path.basename(api))} \n`)
-        );
+        logger.warn(`warning: skip externalDocs from ${blue(path.basename(api))} \n`);
         return;
       }
       joinedDef['externalDocs'] = externalDocs;
@@ -403,7 +402,7 @@ export async function handleJoin({
         joinedDef.paths[path].hasOwnProperty(field) &&
         joinedDef.paths[path][field] !== fieldValue
       ) {
-        process.stderr.write(yellow(`warning: different ${field} values in ${path}\n`));
+        logger.warn(`warning: different ${field} values in ${path}\n`);
         return;
       }
       joinedDef.paths[path][field] = fieldValue;
@@ -691,17 +690,15 @@ function iteratePotentialConflicts(potentialConflicts: any, withoutXTagGroups?: 
 function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
   const tagsKeys = conflicts.map(([tagName]) => `\`${tagName}\``);
   const joinString = yellow(', ');
-  process.stderr.write(
-    yellow(
-      `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
-        tagsKeys.join(joinString)
-      )} tags description.\n`
-    )
+  logger.warn(
+    `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
+      tagsKeys.join(joinString)
+    )} tags description.\n`
   );
 }
 
 function prefixTagSuggestion(conflictsLength: number) {
-  process.stderr.write(
+  logger.info(
     green(
       `\n${conflictsLength} conflict(s) on tags.\nSuggestion: please use ${blue(
         'prefix-tags-with-filename'
@@ -714,7 +711,7 @@ function prefixTagSuggestion(conflictsLength: number) {
 
 function showConflicts(key: string, conflicts: any) {
   for (const [path, files] of conflicts) {
-    process.stderr.write(yellow(`Conflict on ${key} : ${red(path)} in files: ${blue(files)} \n`));
+    logger.warn(`Conflict on ${key} : ${red(path)} in files: ${blue(files)} \n`);
   }
 }
 

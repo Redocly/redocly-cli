@@ -1,7 +1,6 @@
-import { red, blue, yellow, green } from 'colorette';
+import { red, blue, green } from 'colorette';
 import * as fs from 'node:fs';
-import * as process from 'node:process';
-import { parseYaml, slash, isRef, isTruthy, dequal } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef, isTruthy, dequal, logger } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 import {
@@ -53,7 +52,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOp
   const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
-  process.stderr.write(
+  logger.info(
     `🪓 Document: ${blue(api)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
@@ -211,12 +210,10 @@ function implicitlyReferenceDiscriminator(
       continue;
     }
     if (mapping[name] && mapping[name] !== implicitMapping[name]) {
-      process.stderr.write(
-        yellow(
-          `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(
-            filename
-          )}. Please check it.`
-        )
+      logger.warn(
+        `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(
+          filename
+        )}. Please check it.`
       );
     }
     mapping[name] = implicitMapping[name];
@@ -375,12 +372,10 @@ function iterateComponents(
         );
 
         if (doesFileDiffer(filename, componentData)) {
-          process.stderr.write(
-            yellow(
-              `warning: conflict for ${componentName} - file already exists with different content: ${blue(
-                filename
-              )} ... Skip.\n`
-            )
+          logger.warn(
+            `warning: conflict for ${componentName} - file already exists with different content: ${blue(
+              filename
+            )} ... Skip.\n`
           );
         } else {
           writeToFileByExtension(componentData, filename);
