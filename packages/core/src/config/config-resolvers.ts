@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
+import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
@@ -119,7 +119,7 @@ export async function resolveConfig({
 function getDefaultPluginPath(configDir: string): string | undefined {
   for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
     const absolutePluginPath = path.resolve(configDir, pluginPath);
-    if (existsSync(absolutePluginPath)) {
+    if (fs.existsSync(absolutePluginPath)) {
       return pluginPath;
     }
   }
@@ -138,7 +138,7 @@ export async function resolvePlugins(
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
-        const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
+        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
             createRequire(import.meta.url ?? __dirname).resolve(plugin, {

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import * as fs from 'node:fs';
 import { join as pathJoin, resolve as pathResolve, dirname } from 'node:path';
 import { lintDocument } from '../../lint.js';
 import { BaseResolver } from '../../resolve.js';
@@ -13,7 +13,7 @@ export const name = 'Validate with 50 top-level rules';
 export const count = 10;
 const rebillyDefinitionRef = pathResolve(pathJoin(__internalDirname, 'rebilly.yaml'));
 const rebillyDocument = parseYamlToDocument(
-  readFileSync(rebillyDefinitionRef, 'utf-8'),
+  fs.readFileSync(rebillyDefinitionRef, 'utf-8'),
   rebillyDefinitionRef
 );
 
