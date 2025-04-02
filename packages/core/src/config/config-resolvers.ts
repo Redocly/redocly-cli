@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
-import { createRequire } from 'node:module';
+import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
@@ -141,7 +141,7 @@ export async function resolvePlugins(
         const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+            module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
