@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { pathToFileURL, fileURLToPath } from 'node:url';
+import url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -146,7 +146,7 @@ export async function resolvePlugins(
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                path.dirname(fileURLToPath(import.meta.url ?? __dirname)),
+                path.dirname(url.fileURLToPath(import.meta.url ?? __dirname)),
               ],
             });
 
@@ -160,7 +160,7 @@ export async function resolvePlugins(
             // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            const mod = await import(pathToFileURL(absolutePluginPath).href);
+            const mod = await import(url.pathToFileURL(absolutePluginPath).href);
             requiredPlugin = mod.default || mod;
           }
 
