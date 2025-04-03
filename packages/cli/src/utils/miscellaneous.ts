@@ -133,6 +133,9 @@ export function printExecutionTime(commandName: string, startedAt: number, api: 
 }
 
 export function pathToFilename(path: string, pathSeparator: string) {
+  if (path === '/') {
+    return '~root';
+  }
   return path
     .replace(/~1/g, '/')
     .replace(/~0/g, '~')
