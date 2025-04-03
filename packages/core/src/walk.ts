@@ -78,6 +78,10 @@ export type Problem = {
   from?: LocationObject;
   forceSeverity?: RuleSeverity;
   ruleId?: string;
+  /**
+   * A URL to a reference that explains the design decision of a particular rule.
+   */
+  reference?: string;
 };
 
 export type NormalizedProblem = {
@@ -88,6 +92,10 @@ export type NormalizedProblem = {
   from?: LocationObject;
   suggest: string[];
   ignored?: boolean;
+  /**
+   * A URL to a reference that explains the design decision of a particular rule.
+   */
+  reference?: string;
 };
 
 export type WalkContext = {

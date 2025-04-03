@@ -80,6 +80,7 @@ export interface CriteriaObject {
         type: 'xpath';
         version: 'xpath-30' | 'xpath-20' | 'xpath-10';
       };
+  reference?: string;
 }
 
 export interface OnSuccessObject {
