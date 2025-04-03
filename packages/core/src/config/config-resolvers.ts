@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import url from 'node:url';
+import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
