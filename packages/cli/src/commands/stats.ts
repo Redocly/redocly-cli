@@ -76,11 +76,11 @@ function printStats(
   startedAt: number,
   format: string
 ) {
+  logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
+
   switch (format) {
     case 'stylish':
-      logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
-      printExecutionTime('stats', startedAt, api);
       break;
     case 'json':
       printStatsJson(statsAccumulator);
@@ -89,6 +89,8 @@ function printStats(
       printStatsMarkdown(statsAccumulator);
       break;
   }
+
+  printExecutionTime('stats', startedAt, api);
 }
 
 export type StatsOptions = {
