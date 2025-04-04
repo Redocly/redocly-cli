@@ -3,9 +3,11 @@ import * as querystring from 'node:querystring';
 import * as path from 'node:path';
 import FormData from 'form-data';
 import { type TestContext, type RequestBody } from '../../types.js';
-import { fileURLToPath } from 'node:url';
+import * as url from 'node:url';
 
-const __internalDirname = path.dirname(fileURLToPath(import.meta.url ?? __dirname));
+const __internalDirname = import.meta.url
+  ? path.dirname(url.fileURLToPath(import.meta.url))
+  : __dirname;
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
   /^image\/(png|jpeg|gif|bmp|webp|svg\+xml)|application\/pdf$/;

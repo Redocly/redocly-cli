@@ -3,16 +3,18 @@ import { default as redoc } from 'redoc';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { default as handlebars } from 'handlebars';
-import { dirname, join, resolve } from 'node:path';
+import * as path from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/miscellaneous.js';
-import { fileURLToPath } from 'node:url';
+import * as url from 'node:url';
 
 import type { Config } from '@redocly/openapi-core';
 import type { BuildDocsOptions } from './types.js';
 
-const __internalDirname = dirname(fileURLToPath(import.meta.url ?? __dirname));
+const __internalDirname = import.meta.url
+  ? path.dirname(url.fileURLToPath(import.meta.url))
+  : __dirname;
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -73,8 +75,8 @@ export async function getPageHTML(
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
-    : join(__internalDirname, './template.hbs');
+    ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
+    : path.join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
