@@ -19,36 +19,26 @@ exports[`free apis test case 1`] = `
 
   Running workflow free.arazzo.yaml / xml
 
-  ✗ POST http://restapi.adequateshop.com/api/Traveler - step post-traveler
+  ✓ POST http://restapi.adequateshop.com/api/Traveler - step post-traveler
     ✓ success criteria check - $statusCode == 404
-    ✓ success criteria check - $response.header.content-type == 'text/html; chars...
-    ✗ success criteria check - $response.body == '<Error><Message>Pleae try with ...
+    ✓ success criteria check - $response.header.content-type == 'text/html'
+    ✓ success criteria check - ^[\\s\\S]*404 - File or directory not found\\.[\\s\\S]*...
 
 
-  Failed tests info:
-
-  Workflow name: xml
-
-    stepId - post-traveler
-    ✗ success criteria check
-      Checking simple criteria: {"condition":"$response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'"}
-      
   Summary for free.arazzo.yaml
   
-  Workflows: 1 passed, 1 failed, 2 total
-  Steps: 2 passed, 1 failed, 3 total
-  Checks: 8 passed, 1 failed, 9 total
+  Workflows: 2 passed, 2 total
+  Steps: 3 passed, 3 total
+  Checks: 9 passed, 9 total
   Time: <test>ms
 
 
 ┌──────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                 │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x free.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+│ ✓ free.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
 └──────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
-
- Tests exited with error 
 "
 `;
