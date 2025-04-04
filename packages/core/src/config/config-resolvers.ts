@@ -146,7 +146,7 @@ export async function resolvePlugins(
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                path.dirname(url.fileURLToPath(import.meta.url ?? __dirname)),
+                import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
               ],
             });
 
@@ -160,7 +160,7 @@ export async function resolvePlugins(
             // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            const mod = await import(url.pathToFileURL(absolutePluginPath).href);
+            const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
             requiredPlugin = mod.default || mod;
           }
 
