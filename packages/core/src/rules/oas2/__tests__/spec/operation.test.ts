@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { lintDoc } from './utils';
+import { lintDoc } from './utils.js';
 
 describe('OpenAPI Schema 2.0', () => {
   it('should not report of a valid GET operation object', async () => {

@@ -1,13 +1,11 @@
 import AbortController from 'abort-controller';
-import fetchWithTimeout from '../utils/fetch-with-timeout';
-import { getProxyAgent } from '@redocly/openapi-core';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-
-jest.mock('@redocly/openapi-core');
+import fetchWithTimeout from '../utils/fetch-with-timeout.js';
+import * as proxyAgent from '../utils/proxy-agent.js';
 
 const signalInstance = new AbortController().signal;
 
-const mockFetch = jest.fn(() =>
+const mockFetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     status: 200,
@@ -25,6 +23,7 @@ const mockFetch = jest.fn(() =>
     formData: async () => new FormData(),
     text: async () => '',
     signal: signalInstance,
+    bytes: async () => new Uint8Array(),
     dispatcher: undefined,
   } as Response)
 );
@@ -32,15 +31,19 @@ const mockFetch = jest.fn(() =>
 const originalFetch = global.fetch;
 global.fetch = mockFetch;
 
+vi.mock('../utils/get-proxy-agent.js', async () => {
+  const actual = await vi.importActual('../utils/get-proxy-agent.js');
+  return { ...actual };
+});
+
 describe('fetchWithTimeout', () => {
   beforeAll(() => {
-    // @ts-ignore
-    global.setTimeout = jest.fn();
-    global.clearTimeout = jest.fn();
+    global.setTimeout = vi.fn() as any;
+    global.clearTimeout = vi.fn();
   });
 
   beforeEach(() => {
-    (getProxyAgent as jest.Mock).mockReturnValueOnce(undefined);
+    vi.mock('@redocly/openapi-core');
   });
 
   afterAll(() => {
@@ -62,13 +65,12 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    (getProxyAgent as jest.Mock).mockRestore();
-    const proxyAgent = new HttpsProxyAgent('http://localhost');
-    (getProxyAgent as jest.Mock).mockReturnValueOnce(proxyAgent);
+    const dispatcher = new HttpsProxyAgent('http://localhost');
+    vi.spyOn(proxyAgent, 'getProxyAgent').mockReturnValueOnce(dispatcher);
 
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher: proxyAgent });
+    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher });
   });
 
   it('should call fetch without signal when timeout is not passed', async () => {

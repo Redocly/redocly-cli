@@ -1,7 +1,8 @@
-import { type Oas3Responses } from '@redocly/openapi-core/lib/typings/openapi';
-import { type OperationMethod, type TestContext } from '../../types';
-import { getOperationById } from './get-operation-by-id';
-import { getOperationByPath } from './get-operation-by-path';
+import { type OperationMethod, type TestContext } from '../../types.js';
+import { getOperationById } from './get-operation-by-id.js';
+import { getOperationByPath } from './get-operation-by-path.js';
+
+import type { Oas3Operation, Oas3Responses } from '@redocly/openapi-core';
 
 export type DescriptionSource = {
   operationId?: string;
@@ -20,8 +21,8 @@ export function getOperationFromDescription(
   path: string,
   method: string,
   descriptionPaths: Record<string, any>
-): Record<string, string> | undefined {
-  return descriptionPaths?.[path]?.[method] as Record<string, string>;
+): Oas3Operation | undefined {
+  return descriptionPaths?.[path]?.[method];
 }
 
 export function getOperationFromDescriptionBySource(

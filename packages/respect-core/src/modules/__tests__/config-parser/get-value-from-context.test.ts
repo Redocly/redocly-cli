@@ -1,11 +1,11 @@
-import type { TestContext } from '../../../types';
+import type { TestContext } from '../../../types.js';
 
-import { createFaker } from '../../faker';
-import { getValueFromContext, resolvePath } from '../../config-parser';
+import { createFaker } from '../../faker.js';
+import { getValueFromContext, resolvePath } from '../../config-parser/index.js';
 
 describe('getValueFromContext', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return value from context', () => {

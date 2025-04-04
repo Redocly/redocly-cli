@@ -1,8 +1,11 @@
 import { createReadStream, constants, access, type ReadStream } from 'node:fs';
 import * as querystring from 'node:querystring';
 import * as path from 'node:path';
-import FormData = require('form-data');
-import { type TestContext, type RequestBody } from '../../types';
+import FormData from 'form-data';
+import { type TestContext, type RequestBody } from '../../types.js';
+import { fileURLToPath } from 'node:url';
+
+const __internalDirname = path.dirname(fileURLToPath(import.meta.url ?? __dirname));
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
   /^image\/(png|jpeg|gif|bmp|webp|svg\+xml)|application\/pdf$/;
@@ -76,7 +79,7 @@ const getRequestBodyMultipartFormData = async (
 
 const getRequestBodyOctetStream = async (payload: RequestBody['payload']) => {
   if (typeof payload === 'string' && payload.startsWith('$file(') && payload.endsWith(')')) {
-    const filePath = path.resolve(__dirname, '../', stripFileDecorator(payload));
+    const filePath = path.resolve(__internalDirname, '../', stripFileDecorator(payload));
 
     await new Promise((resolve, reject) => {
       access(filePath, constants.F_OK | constants.R_OK, (err) => {

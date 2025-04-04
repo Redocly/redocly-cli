@@ -45,5 +45,7 @@ workflows:
             </Travelerinformation>
         successCriteria:
           - condition: $statusCode == 404
-          - condition: $response.header.content-type == 'text/html; charset=us-ascii'
-          - condition: $response.body == '<Error><Message>Pleae try with different email address!</Message></Error>'
+          - condition: $response.header.content-type == 'text/html'
+          - type: regex
+            condition: '^[\s\S]*404 - File or directory not found\.[\s\S]*$'
+            context: $response.body

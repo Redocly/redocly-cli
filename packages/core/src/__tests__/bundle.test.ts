@@ -1,10 +1,18 @@
 import outdent from 'outdent';
-import * as path from 'path';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { bundleDocument, bundle, bundleFromString } from '../bundle.js';
+import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils.js';
+import {
+  StyleguideConfig,
+  Config,
+  ResolvedConfig,
+  createConfig,
+  loadConfig,
+} from '../config/index.js';
+import { BaseResolver } from '../resolve.js';
 
-import { bundleDocument, bundle, bundleFromString } from '../bundle';
-import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { StyleguideConfig, Config, ResolvedConfig, createConfig, loadConfig } from '../config';
-import { BaseResolver } from '../resolve';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const stringDocument = outdent`
   openapi: 3.0.0
@@ -28,7 +36,7 @@ const stringDocument = outdent`
 const testDocument = parseYamlToDocument(stringDocument, '');
 
 describe('bundle', () => {
-  const fetchMock = jest.fn(() =>
+  const fetchMock = vi.fn(() =>
     Promise.resolve({
       ok: true,
       text: () => 'External schema content',
@@ -139,52 +147,6 @@ describe('bundle', () => {
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
-  });
-
-  it('should add to meta ref from redocly registry', async () => {
-    const testDocument = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /pet:
-            get:
-              operationId: get
-              parameters:
-                - $ref: '#/components/parameters/shared_a'
-                - name: get_b
-            post:
-              operationId: post
-              parameters:
-                - $ref: 'https://api.redocly.com/registry/params'
-        components:
-          parameters:
-            shared_a:
-              name: shared-a
-      `,
-      ''
-    );
-
-    const config = await makeConfig({ rules: {}, decorators: { 'registry-dependencies': 'on' } });
-
-    const {
-      bundle: result,
-      problems,
-      ...meta
-    } = await bundleDocument({
-      document: testDocument,
-      config: config,
-      externalRefResolver: new BaseResolver({
-        http: {
-          customFetch: fetchMock,
-          headers: [],
-        },
-      }),
-    });
-
-    const parsedMeta = JSON.parse(JSON.stringify(meta));
-
-    expect(problems).toHaveLength(0);
-    expect(parsedMeta).toMatchSnapshot();
   });
 
   it('should bundle refs using $anchors', async () => {

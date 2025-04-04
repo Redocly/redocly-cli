@@ -1,8 +1,8 @@
 import { pause } from '@redocly/openapi-core';
-import { DeploymentError } from '../utils';
-import { exitWithError } from '../../utils/miscellaneous';
+import { DeploymentError } from '../utils.js';
+import { exitWithError } from '../../utils/miscellaneous.js';
 
-import type { ReuniteApiError } from '../api';
+import type { ReuniteApiError } from '../api/index.js';
 
 /**
  * This function retries an operation until a condition is met or a timeout is exceeded.

@@ -1,4 +1,4 @@
-import { generateWorkflowSecurityParameters } from '../../arazzo-description-generator';
+import { generateWorkflowSecurityParameters } from '../../arazzo-description-generator/index.js';
 
 describe('generateWorkflowSecurityParameters', () => {
   it('should return the correct workflow security parameters for Basic authentication', () => {

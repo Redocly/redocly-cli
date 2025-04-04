@@ -6,9 +6,10 @@ import {
   getTotals,
   lint,
   lintConfig,
+  pluralize,
+  ConfigValidationError,
+  logger,
 } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { pluralize } from '@redocly/openapi-core/lib/utils';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -20,14 +21,13 @@ import {
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
-} from '../utils/miscellaneous';
-import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs';
+} from '../utils/miscellaneous.js';
+import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
-import type { OutputFormat, ProblemSeverity } from '@redocly/openapi-core';
-import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
-import type { CommandOptions, Skips, Totals, VerifyConfigOptions } from '../types';
-import type { CommandArgs } from '../wrapper';
+import type { OutputFormat, ProblemSeverity, RawConfigProcessor } from '@redocly/openapi-core';
+import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type LintOptions = {
   apis?: string[];
@@ -35,8 +35,9 @@ export type LintOptions = {
   extends?: string[];
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
-} & Omit<Skips, 'skip-decorator'> &
-  VerifyConfigOptions;
+  'skip-rule'?: string[];
+  'skip-preprocessor'?: string[]; // FIXME: do we need this?
+} & VerifyConfigOptions;
 
 export async function handleLint({
   argv,
@@ -69,13 +70,13 @@ export async function handleLint({
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
 
       if (styleguide.recommendedFallback) {
-        process.stderr.write(
+        logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
           )} configuration by default.\n\n`
         );
       }
-      process.stderr.write(gray(`validating ${formatPath(path)}...\n`));
+      logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
         config: resolvedConfig,
@@ -102,7 +103,7 @@ export async function handleLint({
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
+      logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
     } catch (e) {
       handleError(e, path);
     }
@@ -110,7 +111,7 @@ export async function handleLint({
 
   if (argv['generate-ignore-file']) {
     config.styleguide.saveIgnore();
-    process.stderr.write(
+    logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
   } else {

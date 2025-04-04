@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   isRef,
   joinPointer,
@@ -8,14 +8,14 @@ import {
   isAbsoluteUrl,
   isAnchor,
   isExternalValue,
-} from './ref-utils';
-import { isNamedType, SpecExtension } from './types';
-import { readFileFromUrl, parseYaml, nextTick } from './utils';
+} from './ref-utils.js';
+import { isNamedType, SpecExtension } from './types/index.js';
+import { readFileFromUrl, parseYaml, nextTick } from './utils.js';
 
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
-import type { NormalizedNodeType } from './types';
-import type { ResolveConfig } from './config/types';
-import type { OasRef } from './typings/openapi';
+import type { NormalizedNodeType } from './types/index.js';
+import type { ResolveConfig } from './config/types.js';
+import type { OasRef } from './typings/openapi.js';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 

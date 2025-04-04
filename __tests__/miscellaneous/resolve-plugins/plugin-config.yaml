@@ -1,5 +1,5 @@
 plugins:
-  - '../../../packages/core/src/config/__tests__/fixtures/plugin.js'
+  - '../../../packages/core/src/config/__tests__/fixtures/plugin.cjs'
 decorators:
   test-plugin/inject-x-stats: on
 rules:

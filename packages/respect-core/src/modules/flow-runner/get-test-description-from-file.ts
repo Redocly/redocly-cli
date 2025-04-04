@@ -1,13 +1,12 @@
 import { bold, red } from 'colorette';
 import { getTotals, formatProblems, lint, bundle, createConfig } from '@redocly/openapi-core';
-import { type CollectFn } from '@redocly/openapi-core/src/utils';
+import { type CollectFn } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { existsSync } from 'node:fs';
-import { type TestDescription } from '../../types';
-import { printConfigLintTotals } from '../../utils/cli-outputs';
-import { version } from '../../../package.json';
-import { isTestFile } from '../../utils/file';
-import { readYaml } from '../../utils/yaml';
+import { printConfigLintTotals } from '../../utils/cli-outputs.js';
+import { isTestFile } from '../../utils/file.js';
+import { readYaml } from '../../utils/yaml.js';
+import { version } from '../../utils/package.js';
 
 export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn) {
   const fileName = path.basename(filePath);
@@ -68,5 +67,5 @@ export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn
     throw new Error(`${red('Found errors in Arazzo description')} ${bold(fileName)}`);
   }
 
-  return (bundledDocument.bundle.parsed || {}) as TestDescription;
+  return bundledDocument.bundle.parsed || {};
 }

@@ -1,14 +1,11 @@
-import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types';
+import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
-import { ApiFetcher } from '../../../../utils/api-fetcher';
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createTestContext,
   DEFAULT_SEVERITY_CONFIGURATION,
   collectSecretFields,
-} from '../../../../modules/flow-runner';
-
-// Unmock @redocly/openapi-core
-jest.unmock('@redocly/openapi-core');
+} from '../../../../modules/flow-runner/index.js';
 
 describe('createTestContext', () => {
   it('should create context', async () => {

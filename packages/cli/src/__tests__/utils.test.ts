@@ -1,6 +1,5 @@
 import {
   getFallbackApisOrExit,
-  isSubdir,
   pathToFilename,
   printConfigLintTotals,
   langToExt,
@@ -13,63 +12,35 @@ import {
   cleanArgs,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform';
-import {
-  ResolvedApi,
-  Totals,
-  isAbsoluteUrl,
-  ResolveError,
-  YamlParseError,
-  stringifyYaml,
-} from '@redocly/openapi-core';
+} from '../utils/miscellaneous.js';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
+import { type ResolvedApi, type Totals, ResolveError, YamlParseError } from '@redocly/openapi-core';
+import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
-import { existsSync, statSync } from 'fs';
-import * as path from 'path';
-import * as process from 'process';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
-jest.mock('os');
-jest.mock('colorette');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-jest.mock('fs');
-
-describe('isSubdir', () => {
-  it('can correctly determine if subdir', () => {
-    (
-      [
-        ['/foo', '/foo', false],
-        ['/foo', '/bar', false],
-        ['/foo', '/foobar', false],
-        ['/foo', '/foo/bar', true],
-        ['/foo', '/foo/../bar', false],
-        ['/foo', '/foo/./bar', true],
-        ['/bar/../foo', '/foo/bar', true],
-        ['/foo', './bar', false],
-        ['/foo', '/foo/..bar', true],
-      ] as [string, string, boolean][]
-    ).forEach(([parent, child, expectRes]) => {
-      expect(isSubdir(parent, child)).toBe(expectRes);
-    });
-  });
-
-  it('can correctly determine if subdir for windows-based paths', () => {
-    const os = require('os');
-    os.platform.mockImplementation(() => 'win32');
-
-    (
-      [
-        ['C:/Foo', 'C:/Foo/Bar', true],
-        ['C:\\Foo', 'C:\\Bar', false],
-        ['C:\\Foo', 'D:\\Foo\\Bar', false],
-      ] as [string, string, boolean][]
-    ).forEach(([parent, child, expectRes]) => {
-      expect(isSubdir(parent, child)).toBe(expectRes);
-    });
-  });
-
-  afterEach(() => {
-    jest.resetModules();
-  });
+vi.mock('node:os');
+vi.mock('colorette');
+vi.mock('node:fs');
+vi.mock('node:process', async () => {
+  const actual = await vi.importActual('node:process');
+  return { ...actual };
+});
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual('@redocly/openapi-core');
+  return {
+    ...actual,
+    stringifyYaml: vi.fn((data, opts) => data as string),
+  };
 });
 
 describe('pathToFilename', () => {
@@ -86,13 +57,13 @@ describe('printConfigLintTotals', () => {
     ignored: 0,
   };
 
-  const redColoretteMocks = red as jest.Mock<any, any>;
-  const yellowColoretteMocks = yellow as jest.Mock<any, any>;
+  const redColoretteMocks = vi.mocked(red);
+  const yellowColoretteMocks = vi.mocked(yellow);
 
   beforeEach(() => {
-    yellowColoretteMocks.mockImplementation((text: string) => text);
-    redColoretteMocks.mockImplementation((text: string) => text);
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    yellowColoretteMocks.mockImplementation((text) => text as string);
+    redColoretteMocks.mockImplementation((text) => text as string);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   it('should print errors if such exist', () => {
@@ -101,7 +72,7 @@ describe('printConfigLintTotals', () => {
     expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.');
   });
 
-  it('should print warnign if no error', () => {
+  it('should print warning if no error', () => {
     printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
     expect(process.stderr.write).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
     expect(yellowColoretteMocks).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
@@ -117,8 +88,8 @@ describe('printConfigLintTotals', () => {
 });
 
 describe('getFallbackApisOrExit', () => {
-  const redColoretteMocks = red as jest.Mock<any, any>;
-  const yellowColoretteMocks = yellow as jest.Mock<any, any>;
+  const redColoretteMocks = vi.mocked(red);
+  const yellowColoretteMocks = vi.mocked(yellow);
 
   const apis: Record<string, ResolvedApi> = {
     main: {
@@ -130,13 +101,13 @@ describe('getFallbackApisOrExit', () => {
   const config = { apis };
 
   beforeEach(() => {
-    yellowColoretteMocks.mockImplementation((text: string) => text);
-    redColoretteMocks.mockImplementation((text: string) => text);
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    jest.spyOn(process, 'exit').mockImplementation();
+    yellowColoretteMocks.mockImplementation((text) => text as string);
+    redColoretteMocks.mockImplementation((text) => text as string);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
   });
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should exit with error because no path provided', async () => {
@@ -152,7 +123,7 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should error if file from config do not exist', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
     try {
       await getFallbackApisOrExit(undefined, config);
@@ -166,8 +137,8 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should return valid array with results if such file exist', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
-    jest.spyOn(path, 'resolve').mockImplementationOnce((_, path) => path);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
+    vi.spyOn(path, 'resolve').mockImplementationOnce((_, path) => path);
 
     const result = await getFallbackApisOrExit(undefined, config);
     expect(process.stderr.write).toHaveBeenCalledTimes(0);
@@ -185,7 +156,7 @@ describe('getFallbackApisOrExit', () => {
     const apisConfig = {
       apis: {},
     };
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
 
     try {
@@ -203,7 +174,7 @@ describe('getFallbackApisOrExit', () => {
     const apisConfig = {
       apis: {},
     };
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
     try {
       await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
@@ -226,9 +197,9 @@ describe('getFallbackApisOrExit', () => {
     };
     const configStub = { apis: apisStub };
 
-    const existSyncMock = (existsSync as jest.Mock<any, any>).mockImplementation((path) =>
-      path.endsWith('someFile.yaml')
-    );
+    const existSyncMock = vi
+      .mocked(fs.existsSync)
+      .mockImplementation((path) => (path as string).endsWith('someFile.yaml'));
 
     expect.assertions(4);
 
@@ -246,8 +217,8 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should work ok if it is url passed', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
-    (isAbsoluteUrl as jest.Mock<any, any>).mockImplementation(() => true);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
+
     const apisConfig = {
       apis: {
         main: {
@@ -267,12 +238,10 @@ describe('getFallbackApisOrExit', () => {
         output: undefined,
       },
     ]);
-
-    (isAbsoluteUrl as jest.Mock<any, any>).mockReset();
   });
 
   it('should find alias by filename', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
     const entry = await getFallbackApisOrExit(['./test.yaml'], {
       apis: {
         main: {
@@ -285,7 +254,7 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should return apis from config with paths and outputs resolved relatively to the config location', async () => {
-    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
     const entry = await getFallbackApisOrExit(undefined, {
       apis: {
         main: {
@@ -424,18 +393,18 @@ describe('sorTopLevelKeysForOas', () => {
 describe('handleErrors', () => {
   const ref = 'openapi/test.yaml';
 
-  const redColoretteMocks = red as jest.Mock<any, any>;
-  const blueColoretteMocks = blue as jest.Mock<any, any>;
+  const redColoretteMocks = vi.mocked(red);
+  const blueColoretteMocks = vi.mocked(blue);
 
   beforeEach(() => {
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    jest.spyOn(process, 'exit').mockImplementation((code) => code as never);
-    redColoretteMocks.mockImplementation((text) => text);
-    blueColoretteMocks.mockImplementation((text) => text);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
+    redColoretteMocks.mockImplementation((text) => text as string);
+    blueColoretteMocks.mockImplementation((text) => text as string);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should handle ResolveError', () => {
@@ -485,14 +454,16 @@ describe('handleErrors', () => {
 
 describe('checkIfRulesetExist', () => {
   beforeEach(() => {
-    jest.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
+    vi.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should throw an error if rules are not provided', () => {
+    vi.mocked(red).mockImplementation((text) => text as string);
+
     const rules = {
       oas2: {},
       oas3_0: {},
@@ -527,16 +498,14 @@ describe('cleanColors', () => {
 });
 
 describe('cleanArgs', () => {
-  beforeEach(() => {
-    // @ts-ignore
-    isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
-    // @ts-ignore
-    existsSync = (value) => jest.requireActual('fs').existsSync(path.resolve(__dirname, value));
-    // @ts-ignore
-    statSync = (value) => jest.requireActual('fs').statSync(path.resolve(__dirname, value));
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    const realFs: typeof fs = await vi.importActual('node:fs');
+    vi.spyOn(fs, 'existsSync').mockImplementation((value) =>
+      realFs.existsSync(path.resolve(__dirname, value as string))
+    );
+    vi.spyOn(fs, 'statSync').mockImplementation((value) =>
+      realFs.statSync(path.resolve(__dirname, value as string))
+    );
   });
   it('should remove potentially sensitive data from parsed args', () => {
     const parsedArgs = {
@@ -565,24 +534,12 @@ describe('cleanArgs', () => {
     expect(result.arguments).toEqual(
       JSON.stringify({
         config: 'file-yaml',
-        apis: ['api-name@api-version', 'file-yaml', 'http://url'],
+        apis: ['main@v1', 'file-yaml', 'http://url'],
         format: 'codeframe',
         input: '***',
         'client-cert': '***',
         'client-key': '***',
         'ca-cert': '***',
-      })
-    );
-  });
-  it('should remove potentially sensitive data from a push destination', () => {
-    const parsedArgs = {
-      destination: '@org/name@version',
-    };
-    const rawArgs = ['redocly', 'push', '--destination=@org/name@version'];
-    const result = cleanArgs(parsedArgs, rawArgs);
-    expect(result.arguments).toEqual(
-      JSON.stringify({
-        destination: '@organization/api-name@api-version',
       })
     );
   });
@@ -678,8 +635,8 @@ describe('validateFileExtension', () => {
   });
 
   it('should return yaml and print warning if file extension does not supported', () => {
-    const stderrMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
+    const stderrMock = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.mocked(yellow).mockImplementation((text) => text as string);
 
     expect(getAndValidateFileExtension('test.xml')).toEqual('yaml');
     expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
@@ -688,22 +645,18 @@ describe('validateFileExtension', () => {
 
 describe('writeToFileByExtension', () => {
   beforeEach(() => {
-    jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
-    (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
+    vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
+    vi.mocked(yellow).mockImplementation((text) => text as string);
   });
 
   it('should call stringifyYaml function', () => {
     writeToFileByExtension('test data', 'test.yaml');
-    expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
+    expect(openapiCore.stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
     expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
   });
 
   it('should call JSON.stringify function', () => {
-    const stringifySpy = jest.spyOn(JSON, 'stringify').mockImplementation((data) => data);
+    const stringifySpy = vi.spyOn(JSON, 'stringify').mockImplementation((data) => data);
     writeToFileByExtension('test data', 'test.json');
     expect(stringifySpy).toHaveBeenCalledWith('test data', null, 2);
     expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
@@ -742,18 +695,8 @@ describe('runtime platform', () => {
   });
 
   describe('getPlatformSpawnArgs', () => {
-    const originalPlatform = process.platform;
-
-    afterEach(() => {
-      Object.defineProperty(process, 'platform', {
-        value: originalPlatform,
-      });
-    });
-
     it('should return args for Windows platform', () => {
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-      });
+      vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('win32');
 
       const result = getPlatformSpawnArgs();
 
@@ -765,9 +708,7 @@ describe('runtime platform', () => {
     });
 
     it('should return args for non-Windows platform', () => {
-      Object.defineProperty(process, 'platform', {
-        value: 'linux',
-      });
+      vi.spyOn(process, 'platform', 'get').mockReturnValueOnce('linux');
 
       const result = getPlatformSpawnArgs();
 

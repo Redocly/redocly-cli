@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { formatProblems, getTotals, getMergedConfig, bundle } from '@redocly/openapi-core';
+import { formatProblems, getTotals, getMergedConfig, bundle, logger } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -13,10 +13,10 @@ import {
   sortTopLevelKeysForOas,
   checkForDeprecatedOptions,
   formatPath,
-} from '../utils/miscellaneous';
+} from '../utils/miscellaneous.js';
 
-import type { OutputExtensions, Skips, Totals, VerifyConfigOptions } from '../types';
-import type { CommandArgs } from '../wrapper';
+import type { OutputExtensions, Totals, VerifyConfigOptions } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type BundleOptions = {
   apis?: string[];
@@ -28,8 +28,9 @@ export type BundleOptions = {
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
-} & Skips &
-  VerifyConfigOptions;
+  'skip-decorator'?: string[];
+  'skip-preprocessor'?: string[];
+} & VerifyConfigOptions;
 
 export async function handleBundle({
   argv,
@@ -55,7 +56,7 @@ export async function handleBundle({
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
 
-      process.stderr.write(gray(`bundling ${formatPath(path)}...\n`));
+      logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
       const {
         bundle: result,
@@ -86,7 +87,7 @@ export async function handleBundle({
             argv.ext || 'yaml',
             argv.dereferenced
           );
-          process.stdout.write(bundled);
+          logger.output(bundled);
         } else {
           const bundled = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
           saveBundle(outputFile, bundled);
@@ -105,9 +106,7 @@ export async function handleBundle({
 
       if (argv.metafile) {
         if (apis.length > 1) {
-          process.stderr.write(
-            yellow(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...`)
-          );
+          logger.warn(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...`);
         }
         {
           writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
@@ -117,20 +116,20 @@ export async function handleBundle({
       const elapsed = getExecutionTime(startedAt);
       if (fileTotals.errors > 0) {
         if (argv.force) {
-          process.stderr.write(
+          logger.info(
             `❓ Created a bundle for ${blue(formatPath(path))} at ${blue(
               outputFile || 'stdout'
             )} with errors ${green(elapsed)}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
-          process.stderr.write(
+          logger.info(
             `❌ Errors encountered while bundling ${blue(
               formatPath(path)
             )}: bundle not created (use --force to ignore errors).\n`
           );
         }
       } else {
-        process.stderr.write(
+        logger.info(
           `📦 Created a bundle for ${blue(formatPath(path))} at ${blue(
             outputFile || 'stdout'
           )} ${green(elapsed)}.\n`
@@ -139,7 +138,7 @@ export async function handleBundle({
 
       const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
       if (removedCount) {
-        process.stderr.write(gray(`🧹 Removed ${removedCount} unused components.\n`));
+        logger.info(gray(`🧹 Removed ${removedCount} unused components.\n`));
       }
     } catch (e) {
       handleError(e, path);

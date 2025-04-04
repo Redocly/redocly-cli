@@ -1,7 +1,7 @@
-import { StyleguideConfig, RuleConfig, resolveStyleguideConfig } from '../../../../config';
-import { parseYamlToDocument } from '../../../../../__tests__/utils';
-import { lintDocument } from '../../../../lint';
-import { BaseResolver } from '../../../../resolve';
+import { StyleguideConfig, RuleConfig, resolveStyleguideConfig } from '../../../../config/index.js';
+import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
+import { lintDocument } from '../../../../lint.js';
+import { BaseResolver } from '../../../../resolve.js';
 
 export async function validateDoc(
   source: string,

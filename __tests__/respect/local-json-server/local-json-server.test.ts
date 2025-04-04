@@ -1,8 +1,10 @@
 import { spawn } from 'child_process';
-import { getParams, getCommandOutput } from '../utils';
-import { join } from 'path';
-import * as fs from 'fs';
+import { dirname, join } from 'node:path';
+import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const dbPath = join(__dirname, 'fake-db.json');
 
 describe('local-json-server', () => {

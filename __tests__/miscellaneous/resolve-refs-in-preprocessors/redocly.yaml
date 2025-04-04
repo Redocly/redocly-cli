@@ -4,7 +4,7 @@ apis:
 extends:
   - recommended
 plugins:
-  - ./plugin.js
+  - ./plugin.cjs
 preprocessors:
   plugin/conventional-response:
     codes:

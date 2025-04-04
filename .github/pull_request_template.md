@@ -8,7 +8,7 @@
 
 ## Check yourself
 
-- [ ] Code changed? - Tested with redoc/reference-docs/workflows (internal)
+- [ ] Code changed? - Tested with redoc (internal)
 - [ ] All new/updated code is covered with tests
 - [ ] New package installed? - Tested in different environments (browser/node)
 

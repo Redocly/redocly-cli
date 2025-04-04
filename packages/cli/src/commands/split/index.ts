@@ -1,8 +1,7 @@
-import { red, blue, yellow, green } from 'colorette';
-import * as fs from 'fs';
-import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils';
-import * as path from 'path';
+import { red, blue, green } from 'colorette';
+import * as fs from 'node:fs';
+import { parseYaml, slash, isRef, isTruthy, dequal, logger } from '@redocly/openapi-core';
+import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 import {
   printExecutionTime,
@@ -13,17 +12,19 @@ import {
   langToExt,
   writeToFileByExtension,
   getAndValidateFileExtension,
-} from '../../utils/miscellaneous';
-import { isObject, isEmptyObject } from '../../utils/js-utils';
+} from '../../utils/miscellaneous.js';
+import { isObject, isEmptyObject } from '../../utils/js-utils.js';
 import {
   OPENAPI3_COMPONENT,
   COMPONENTS,
   OPENAPI3_METHOD_NAMES,
   OPENAPI3_COMPONENT_NAMES,
-} from './types';
+} from './types.js';
 
-import type { Oas3Definition, Oas3_1Definition, Oas2Definition } from '@redocly/openapi-core';
 import type {
+  Oas3Definition,
+  Oas3_1Definition,
+  Oas2Definition,
   Oas3Schema,
   Oas3_1Schema,
   Oas3Components,
@@ -32,10 +33,10 @@ import type {
   Oas3PathItem,
   OasRef,
   Referenced,
-} from '@redocly/openapi-core/lib/typings/openapi';
-import type { ComponentsFiles, Definition, RefObject } from './types';
-import type { CommandArgs } from '../../wrapper';
-import type { VerifyConfigOptions } from '../../types';
+} from '@redocly/openapi-core';
+import type { ComponentsFiles, Definition, RefObject } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
+import type { VerifyConfigOptions } from '../../types.js';
 
 export type SplitOptions = {
   api: string;
@@ -51,7 +52,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOp
   const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
-  process.stderr.write(
+  logger.info(
     `🪓 Document: ${blue(api)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
@@ -209,12 +210,10 @@ function implicitlyReferenceDiscriminator(
       continue;
     }
     if (mapping[name] && mapping[name] !== implicitMapping[name]) {
-      process.stderr.write(
-        yellow(
-          `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(
-            filename
-          )}. Please check it.`
-        )
+      logger.warn(
+        `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(
+          filename
+        )}. Please check it.`
       );
     }
     mapping[name] = implicitMapping[name];
@@ -373,12 +372,10 @@ function iterateComponents(
         );
 
         if (doesFileDiffer(filename, componentData)) {
-          process.stderr.write(
-            yellow(
-              `warning: conflict for ${componentName} - file already exists with different content: ${blue(
-                filename
-              )} ... Skip.\n`
-            )
+          logger.warn(
+            `warning: conflict for ${componentName} - file already exists with different content: ${blue(
+              filename
+            )} ... Skip.\n`
           );
         } else {
           writeToFileByExtension(componentData, filename);

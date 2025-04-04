@@ -4,10 +4,10 @@ import {
   normalizeVisitors,
   RuleInstanceConfig,
   VisitorLevelContext,
-} from '../visitors';
-import { Oas3RuleSet } from '../oas-types';
-import { Oas3Types } from '../types/oas3';
-import { normalizeTypes } from '../types';
+} from '../visitors.js';
+import { Oas3RuleSet } from '../oas-types.js';
+import { Oas3Types } from '../types/oas3.js';
+import { normalizeTypes } from '../types/index.js';
 
 describe('Normalize visitors', () => {
   it('should work correctly for single rule', () => {
