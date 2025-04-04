@@ -117,7 +117,7 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        logger.info(`${formatCodeframe(problem, i)}\n`);
+        logger.output(`${formatCodeframe(problem, i)}\n`);
       }
       break;
     case 'stylish': {
@@ -125,14 +125,14 @@ export function formatProblems(
       for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
         groupedByFile
       )) {
-        logger.info(`${colorize.blue(isAbsoluteUrl(file) ? file : path.relative(cwd, file))}:\n`);
+        logger.output(`${colorize.blue(isAbsoluteUrl(file) ? file : path.relative(cwd, file))}:\n`);
 
         for (let i = 0; i < fileProblems.length; i++) {
           const problem = fileProblems[i];
-          logger.info(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
+          logger.output(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
         }
 
-        logger.info('\n');
+        logger.output('\n');
       }
       break;
     }
@@ -335,10 +335,10 @@ function formatSummary(problems: NormalizedProblem[]): void {
   for (const [ruleId, info] of sorted) {
     const color = COLORS[info.severity];
     const severityName = color(SEVERITY_NAMES[info.severity].toLowerCase().padEnd(7));
-    logger.info(`${severityName} ${ruleId}: ${info.count}\n`);
+    logger.output(`${severityName} ${ruleId}: ${info.count}\n`);
   }
 
-  logger.info('\n');
+  logger.output('\n');
 }
 
 function formatFrom(cwd: string, location?: LocationObject) {
