@@ -114,3 +114,4 @@ export {
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 
 export { logger } from './logger.js';
+export { HandledError } from './error.js';

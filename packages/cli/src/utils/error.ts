@@ -1,4 +1,4 @@
-export class HandledError extends Error {}
+import { HandledError } from '@redocly/openapi-core';
 
 export class AbortFlowError extends Error {}
 

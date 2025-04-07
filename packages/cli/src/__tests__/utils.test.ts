@@ -12,10 +12,15 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { HandledError } from '../utils/error.js';
 import * as errorHandling from '../utils/error.js';
 import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
-import { type ResolvedApi, type Totals, ResolveError, YamlParseError } from '@redocly/openapi-core';
+import {
+  type ResolvedApi,
+  type Totals,
+  ResolveError,
+  YamlParseError,
+  HandledError,
+} from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import * as fs from 'node:fs';

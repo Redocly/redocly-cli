@@ -1,9 +1,14 @@
-import { detectSpec, doesYamlFileExist, isPlainObject, logger } from '@redocly/openapi-core';
+import {
+  detectSpec,
+  doesYamlFileExist,
+  isPlainObject,
+  logger,
+  HandledError,
+} from '@redocly/openapi-core';
 import { version } from './utils/package.js';
 import { loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
-import { AbortFlowError, HandledError, exitWithError } from './utils/error.js';
-import { HandledError as RespectHandledError } from '@redocly/respect-core';
+import { AbortFlowError, exitWithError } from './utils/error.js';
 
 import type { Arguments } from 'yargs';
 import type { Config, CollectFn } from '@redocly/openapi-core';
@@ -65,10 +70,15 @@ export function commandWrapper<T extends CommandOptions>(
       if (err instanceof AbortFlowError) {
         // do nothing
       } else if (err instanceof HandledError) {
-        logger.error(err.message + '\n\n');
-      } else if (err instanceof RespectHandledError) {
-        logger.error(err.message + '\n');
-        logger.output('\n');
+        if (
+          process.env.REDOCLY_CLI_COMMAND === 'respect' ||
+          process.env.REDOCLY_CLI_COMMAND === 'generate-arazzo'
+        ) {
+          logger.error(err.message + '\n');
+          logger.output('\n');
+        } else {
+          logger.error(err.message + '\n\n');
+        }
       } else {
         logger.error(
           'An unexpected error occurred. This is likely a bug that should be reported.\n'

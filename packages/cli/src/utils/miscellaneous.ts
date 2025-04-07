@@ -23,12 +23,13 @@ import {
   pluralize,
   ConfigValidationError,
   logger,
+  HandledError,
 } from '@redocly/openapi-core';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
-import { exitWithError, HandledError } from './error.js';
+import { exitWithError } from './error.js';
 
 import type { Arguments } from 'yargs';
 import type {
