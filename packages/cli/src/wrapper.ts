@@ -1,9 +1,7 @@
-import { detectSpec, doesYamlFileExist, isPlainObject, logger } from '@redocly/openapi-core';
+import { detectSpec, doesYamlFileExist, isPlainObject } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import { loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
+import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
-import { AbortFlowError, HandledError, exitWithError } from './utils/error.js';
-import { HandledError as RespectHandledError } from '@redocly/respect-core';
 
 import type { Arguments } from 'yargs';
 import type { Config, CollectFn } from '@redocly/openapi-core';
@@ -62,20 +60,7 @@ export function commandWrapper<T extends CommandOptions>(
       }
       code = 0;
     } catch (err) {
-      if (err instanceof AbortFlowError) {
-        // do nothing
-      } else if (err instanceof HandledError) {
-        logger.error(err.message + '\n\n');
-      } else if (err instanceof RespectHandledError) {
-        logger.error(err.message + '\n');
-        logger.output('\n');
-      } else {
-        logger.error(
-          'An unexpected error occurred. This is likely a bug that should be reported.\n'
-        );
-        logger.error(err instanceof Error ? err.stack || err.message : String(err));
-        logger.error('\n');
-      }
+      // Do nothing
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         await sendTelemetry(argv, code, hasConfig, specVersion, specKeyword, specFullVersion);

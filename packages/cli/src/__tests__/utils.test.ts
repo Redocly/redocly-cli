@@ -8,12 +8,11 @@ import {
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
   cleanColors,
+  HandledError,
   cleanArgs,
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { HandledError } from '../utils/error.js';
-import * as errorHandling from '../utils/error.js';
 import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import { type ResolvedApi, type Totals, ResolveError, YamlParseError } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
@@ -41,12 +40,6 @@ vi.mock('@redocly/openapi-core', async () => {
   return {
     ...actual,
     stringifyYaml: vi.fn((data, opts) => data as string),
-  };
-});
-vi.mock('../../utils/error.js', async () => {
-  const actual = await vi.importActual('../../utils/error.js');
-  return {
-    ...actual,
   };
 });
 
@@ -130,7 +123,6 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should error if file from config do not exist', async () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
     try {
@@ -139,7 +131,7 @@ describe('getFallbackApisOrExit', () => {
       expect(process.stderr.write).toHaveBeenCalledWith(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
@@ -161,7 +153,6 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should exit with error in case if invalid path provided as args', async () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const apisConfig = {
       apis: {},
     };
@@ -174,13 +165,12 @@ describe('getFallbackApisOrExit', () => {
       expect(process.stderr.write).toHaveBeenCalledWith(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
 
   it('should exit with error in case if invalid 2 path provided as args', async () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const apisConfig = {
       apis: {},
     };
@@ -192,13 +182,12 @@ describe('getFallbackApisOrExit', () => {
       expect(process.stderr.write).toHaveBeenCalledWith(
         '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
 
   it('should exit with error if only one file exist ', async () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const apisStub = {
       ...apis,
       notExist: {
@@ -212,7 +201,7 @@ describe('getFallbackApisOrExit', () => {
       .mocked(fs.existsSync)
       .mockImplementation((path) => (path as string).endsWith('someFile.yaml'));
 
-    expect.assertions(5);
+    expect.assertions(4);
 
     try {
       await getFallbackApisOrExit(undefined, configStub);
@@ -220,9 +209,8 @@ describe('getFallbackApisOrExit', () => {
       expect(process.stderr.write).toHaveBeenCalledWith(
         '\nnotExist.yaml does not exist or is invalid.\n\n'
       );
-      expect(process.stderr.write).toHaveBeenCalledTimes(1);
-      expect(errorHandling.exitWithError).toHaveBeenCalledWith('Please provide a valid path.');
-      expect(errorHandling.exitWithError).toHaveBeenCalledTimes(1);
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
+      expect(process.stderr.write).toHaveBeenCalledTimes(2);
       expect(e.message).toEqual('Please provide a valid path.');
     }
     existSyncMock.mockClear();
@@ -420,49 +408,46 @@ describe('handleErrors', () => {
   });
 
   it('should handle ResolveError', () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const resolveError = new ResolveError(new Error('File not found.'));
     expect(() => handleError(resolveError, ref)).toThrowError(HandledError);
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
-      `Failed to resolve API description at openapi/test.yaml:\n\n  - File not found.`
+    expect(redColoretteMocks).toHaveBeenCalledTimes(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Failed to resolve API description at openapi/test.yaml:\n\n  - File not found.\n\n`
     );
   });
 
   it('should handle YamlParseError', () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const yamlParseError = new YamlParseError(new Error('Invalid yaml.'), {} as any);
     expect(() => handleError(yamlParseError, ref)).toThrowError(HandledError);
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
-      `Failed to parse API description at openapi/test.yaml:\n\n  - Invalid yaml.`
+    expect(redColoretteMocks).toHaveBeenCalledTimes(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Failed to parse API description at openapi/test.yaml:\n\n  - Invalid yaml.\n\n`
     );
   });
 
   it('should handle CircularJSONNotSupportedError', () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
     expect(() => handleError(circularError, ref)).toThrowError(HandledError);
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
+    expect(process.stderr.write).toHaveBeenCalledWith(
       `Detected circular reference which can't be converted to JSON.\n` +
-        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
+        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
     );
   });
 
   it('should handle SyntaxError', () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const testError = new SyntaxError('Unexpected identifier');
     testError.stack = 'test stack';
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
-      'Syntax error: Unexpected identifier test stack'
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      'Syntax error: Unexpected identifier test stack\n\n'
     );
   });
 
   it('should throw unknown error', () => {
-    vi.spyOn(errorHandling, 'exitWithError');
     const testError = new Error('Test error.');
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
-      `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.`
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.\n\n`
     );
   });
 });

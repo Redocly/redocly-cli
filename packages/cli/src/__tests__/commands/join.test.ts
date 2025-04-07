@@ -10,19 +10,18 @@ import {
 } from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join.js';
 import {
+  exitWithError,
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
   beforeEach(() => {
     vi.mock('../../utils/miscellaneous.js');
-    vi.mock('../../utils/error.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
       (fileName) => fileName.split('.').pop() as any
     );

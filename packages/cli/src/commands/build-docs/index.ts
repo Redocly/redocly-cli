@@ -5,8 +5,11 @@ import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
 import { getMergedConfig, isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
-import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
+import {
+  exitWithError,
+  getExecutionTime,
+  getFallbackApisOrExit,
+} from '../../utils/miscellaneous.js';
 
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';

@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { exitWithError } from '../utils/error.js';
+import { exitWithError } from '../utils/miscellaneous.js';
 import { RedoclyOAuthClient } from '../auth/oauth-client.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 

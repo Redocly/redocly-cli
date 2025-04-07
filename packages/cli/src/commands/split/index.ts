@@ -7,13 +7,13 @@ import {
   printExecutionTime,
   pathToFilename,
   readYaml,
+  exitWithError,
   escapeLanguageName,
   langToExt,
   writeToFileByExtension,
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
 import { isObject, isEmptyObject } from '../../utils/js-utils.js';
-import { exitWithError } from '../../utils/error.js';
 import {
   OPENAPI3_COMPONENT,
   COMPONENTS,

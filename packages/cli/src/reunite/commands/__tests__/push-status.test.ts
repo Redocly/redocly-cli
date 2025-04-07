@@ -1,7 +1,6 @@
 import { handlePushStatus } from '../push-status.js';
 import { PushResponse } from '../../api/types.js';
 import { ReuniteApi } from '../../api/index.js';
-import * as errorHandling from '../../../utils/error.js';
 
 vi.mock('colorette', async () => {
   const actual = await vi.importActual('colorette');
@@ -143,8 +142,6 @@ describe('handlePushStatus()', () => {
   });
 
   it('should print failed push status for preview build', async () => {
-    vi.spyOn(errorHandling, 'exitWithError');
-
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValue({
@@ -171,8 +168,8 @@ describe('handlePushStatus()', () => {
       Preview URL: https://preview-test-url]
     `);
 
-    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
-      '❌ Preview deploy fail.\nPreview URL: https://preview-test-url'
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '❌ Preview deploy fail.\nPreview URL: https://preview-test-url' + '\n\n'
     );
   });
 

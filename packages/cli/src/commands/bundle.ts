@@ -14,7 +14,6 @@ import {
   checkForDeprecatedOptions,
   formatPath,
 } from '../utils/miscellaneous.js';
-import { AbortFlowError } from '../utils/error.js';
 
 import type { OutputExtensions, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
@@ -149,6 +148,6 @@ export async function handleBundle({
   printUnusedWarnings(config.styleguide);
 
   if (!(totals.errors === 0 || argv.force)) {
-    throw new AbortFlowError('Bundle failed.');
+    throw new Error('Bundle failed.');
   }
 }
