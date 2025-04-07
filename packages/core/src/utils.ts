@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { extname } from 'node:path';
+import * as path from 'node:path';
 import { minimatch } from 'minimatch';
 import { parseYaml } from './js-yaml/index.js';
 import { env } from './env.js';
@@ -234,7 +234,8 @@ export function isCustomRuleId(id: string) {
 
 export function doesYamlFileExist(filePath: string): boolean {
   return (
-    (extname(filePath) === '.yaml' || extname(filePath) === '.yml') && !!fs?.existsSync?.(filePath)
+    (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') &&
+    !!fs?.existsSync?.(filePath)
   );
 }
 
