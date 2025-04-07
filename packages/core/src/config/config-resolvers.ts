@@ -1,7 +1,7 @@
 import * as path from 'node:path';
-import { pathToFileURL, fileURLToPath } from 'node:url';
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import * as url from 'node:url';
+import * as fs from 'node:fs';
+import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
@@ -119,7 +119,7 @@ export async function resolveConfig({
 function getDefaultPluginPath(configDir: string): string | undefined {
   for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
     const absolutePluginPath = path.resolve(configDir, pluginPath);
-    if (existsSync(absolutePluginPath)) {
+    if (fs.existsSync(absolutePluginPath)) {
       return pluginPath;
     }
   }
@@ -138,15 +138,15 @@ export async function resolvePlugins(
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
-        const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
+        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+            module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                path.dirname(fileURLToPath(import.meta.url ?? __dirname)),
+                import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
               ],
             });
 
@@ -160,7 +160,7 @@ export async function resolvePlugins(
             // @ts-ignore FIXME: remove?
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            const mod = await import(pathToFileURL(absolutePluginPath).href);
+            const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
             requiredPlugin = mod.default || mod;
           }
 
