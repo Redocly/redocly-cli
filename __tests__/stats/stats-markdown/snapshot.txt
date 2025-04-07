@@ -10,3 +10,8 @@
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
 
+Document: museum.yaml stats:
+
+
+museum.yaml: stats processed in <test>ms
+
