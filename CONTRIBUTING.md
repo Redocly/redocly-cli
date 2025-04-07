@@ -6,6 +6,7 @@ Before submitting your contribution though, please make sure to take a moment an
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
 - [Development setup](#development-setup)
+- [Development guidelines](#development-guidelines)
 - [Local source code usage](#local-source-code-usage)
 - [Contribute documentation](#contribute-documentation)
 - [Built-in rules changes](#built-in-rules-changes)
@@ -57,6 +58,36 @@ Format your code with `npm run prettier` before committing.
 Please check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
+
+## Development guidelines
+
+### Logging
+
+When contributing to Redocly CLI, it's important to follow these logging guidelines:
+
+1. Use the built-in logger from `@redocly/openapi-core` package:
+
+   ```typescript
+   import { logger } from '@redocly/openapi-core';
+   ```
+
+2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
+
+   - `logger.info()` for general information
+   - `logger.warn()` for warnings
+   - `logger.error()` for errors
+
+3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
+
+   - Command output that needs to be parsed
+   - Interactive outputs (like login/logout responses)
+   - Data that needs to be piped to other commands
+
+   ```typescript
+   logger.output(JSON.stringify(stats, null, 2));
+   ```
+
+4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls. Always use the logger methods to ensure consistent output formatting and proper stream usage.
 
 ## Local source code usage
 
@@ -199,6 +230,18 @@ If you made any changes, make sure to compile the code before running the tests.
 The e2e tests are written and run with [Vitest](https://vitest.dev/).
 Most of them are encapsulated inside the `commands.test.ts` file.
 However, when adding new e2e tests, it's best to follow the approach of the `respect` command tests.
+
+Note that the snapshot does not always match the command output because of the way the stdout and stderr outputs are combined in tests.
+
+Here's how the output is processed in tests:
+
+```typescript
+const out = result.stdout ? result.stdout.toString() : '';
+const err = result.stderr ? result.stderr.toString() : '';
+return `${out}\n${err}`;
+```
+
+This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering. When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
 
 ### Smoke tests
 
