@@ -231,6 +231,18 @@ The e2e tests are written and run with [Vitest](https://vitest.dev/).
 Most of them are encapsulated inside the `commands.test.ts` file.
 However, when adding new e2e tests, it's best to follow the approach of the `respect` command tests.
 
+Note that the snapshot does not always match the command output because of the way the stdout and stderr outputs are combined in tests.
+
+Here's how the output is processed in tests:
+
+```typescript
+const out = result.stdout ? result.stdout.toString() : '';
+const err = result.stderr ? result.stderr.toString() : '';
+return `${out}\n${err}`;
+```
+
+This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering. When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
+
 ### Smoke tests
 
 Smokes are for testing the CLI in different environments.
