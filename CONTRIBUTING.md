@@ -6,6 +6,7 @@ Before submitting your contribution though, please make sure to take a moment an
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
 - [Development setup](#development-setup)
+- [Development guidelines](#development-guidelines)
 - [Local source code usage](#local-source-code-usage)
 - [Contribute documentation](#contribute-documentation)
 - [Built-in rules changes](#built-in-rules-changes)
@@ -57,6 +58,36 @@ Format your code with `npm run prettier` before committing.
 Please check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
+
+## Development guidelines
+
+### Logging
+
+When contributing to Redocly CLI, it's important to follow these logging guidelines:
+
+1. Use the built-in logger from `@redocly/openapi-core` package:
+
+   ```typescript
+   import { logger } from '@redocly/openapi-core';
+   ```
+
+2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
+
+   - `logger.info()` for general information
+   - `logger.warn()` for warnings
+   - `logger.error()` for errors
+
+3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
+
+   - Command output that needs to be parsed
+   - Interactive outputs (like login/logout responses)
+   - Data that needs to be piped to other commands
+
+   ```typescript
+   logger.output(JSON.stringify(stats, null, 2));
+   ```
+
+4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls. Always use the logger methods to ensure consistent output formatting and proper stream usage.
 
 ## Local source code usage
 
