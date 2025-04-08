@@ -70,6 +70,7 @@ export function commandWrapper<T extends CommandOptions>(
       if (err instanceof AbortFlowError) {
         // do nothing
       } else if (err instanceof HandledError) {
+        // FIXME: remove differentiator between respect and openapi-core error logging
         if (
           process.env.REDOCLY_CLI_COMMAND === 'respect' ||
           process.env.REDOCLY_CLI_COMMAND === 'generate-arazzo'
