@@ -72,7 +72,7 @@ exports[`local-json-server > local-json-server test case 1`] = `
 └───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
-
  Tests exited with error 
+
 "
 `;
