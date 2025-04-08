@@ -15,11 +15,11 @@ import {
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  exitWithError,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
+import { exitWithError } from '../utils/error.js';
 import { isObject, isString, keysOf } from '../utils/js-utils.js';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
