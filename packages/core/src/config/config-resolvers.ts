@@ -19,8 +19,7 @@ import { isBrowser } from '../env';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
-import { normalizeTypes } from '../types';
-import { ConfigTypes } from '../types/redocly-yaml';
+import { NormalizedConfigTypes } from '../types/redocly-yaml';
 
 import type {
   StyleguideRawConfig,
@@ -61,11 +60,9 @@ export async function resolveConfigFileAndRefs({
     throw document;
   }
 
-  const types = normalizeTypes(ConfigTypes);
-
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.ConfigRoot,
+    rootType: NormalizedConfigTypes.ConfigRoot,
     externalRefResolver,
   });
 
