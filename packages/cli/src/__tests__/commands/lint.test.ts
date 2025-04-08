@@ -13,10 +13,10 @@ import {
   getExecutionTime,
   printUnusedWarnings,
   handleError,
-  exitWithError,
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
+import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper.js';
@@ -52,6 +52,7 @@ describe('handleLint', () => {
     vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
 
     vi.mock('../../utils/miscellaneous.js');
+    vi.mock('../../utils/error.js');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
