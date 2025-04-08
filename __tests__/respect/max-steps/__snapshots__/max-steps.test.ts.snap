@@ -159,7 +159,7 @@ exports[`should quit an infinite loop on RESPECT_MAX_STEPS 1`] = `
 └─────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
-
  Tests exited with error 
+
 "
 `;
