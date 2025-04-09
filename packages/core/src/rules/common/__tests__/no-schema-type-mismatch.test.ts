@@ -44,6 +44,7 @@ describe('no-schema-type-mismatch rule', () => {
         ruleId: 'no-schema-type-mismatch',
         severity: 'warn',
         suggest: [],
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-schema-type-mismatch',
       },
     ]);
   });
@@ -89,6 +90,7 @@ describe('no-schema-type-mismatch rule', () => {
         ruleId: 'no-schema-type-mismatch',
         severity: 'warn',
         suggest: [],
+        reference: 'https://redocly.com/docs/cli/rules/oas/no-schema-type-mismatch',
       },
     ]);
   });
