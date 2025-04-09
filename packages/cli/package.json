@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.34.1",
+  "version": "1.34.2",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -38,8 +38,8 @@
   ],
   "dependencies": {
     "@redocly/config": "^0.22.0",
-    "@redocly/openapi-core": "1.34.1",
-    "@redocly/respect-core": "1.34.1",
+    "@redocly/openapi-core": "1.34.2",
+    "@redocly/respect-core": "1.34.2",
     "abort-controller": "^3.0.0",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
