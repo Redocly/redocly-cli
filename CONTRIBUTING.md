@@ -27,7 +27,7 @@ Before submitting your contribution though, please make sure to take a moment an
 
 Before submitting a pull request, please make sure the following is done:
 
-1. Fork the repository and create your branch from `main`.
+1. Fork the repository and create your branch from `v1`.
 1. Run `npm install` in the repository root.
 1. If you’ve fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
@@ -251,13 +251,13 @@ We use [Changesets](https://github.com/changesets/changesets) flow.
 After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR.
-Merging that PR triggers the release process.
+Merging that PR triggers the release process under the `v1` label.
 
 ### Revert a release
 
 There's no possibility to revert a release itself.
 However, you can release a new version with a problematic commit reverted.
-Create a new branch from **main**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
+Create a new branch from **v1**, then find the hash of the commit you want to revert and run `git revert <commit-hash>`.
 Create a patch-level changeset for the revert and open a PR with it.
 Merge the PR and cut a release according to the [Release flow](#release-flow).
 
@@ -265,8 +265,8 @@ Merge the PR and cut a release according to the [Release flow](#release-flow).
 
 To release an experimental version to the **NPM** registry, follow these steps:
 
-1. Create a new PR to **main**.
-2. Add the `snapshot` label to the PR. This creates a new PR with to the `snapshot` branch (which is a copy of the `main` branch).
-3. Merging the second PR triggers release to the **NPM** registry under the `snapshot` tag.
+1. Create a new PR to **v1**.
+2. Add the `snapshot` label to the PR.
+   This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
-The released version can be installed with `npm install @redocly/cli@snapshot`.
+The released version can be installed with `npm install @redocly/cli@snapshot`
