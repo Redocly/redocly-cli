@@ -5,7 +5,6 @@ import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
 
-
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from './index.js';
 import type { Config } from '../config/index.js';
