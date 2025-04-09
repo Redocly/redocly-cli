@@ -5,7 +5,7 @@
   "fixed": [["@redocly/cli", "@redocly/openapi-core", "@redocly/respect-core"]],
   "linked": [],
   "access": "public",
-  "baseBranch": "main",
+  "baseBranch": "v1",
   "updateInternalDependencies": "patch",
   "ignore": []
 }

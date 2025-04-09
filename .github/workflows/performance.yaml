@@ -3,7 +3,7 @@ name: Performance Benchmark
 on:
   pull_request:
     branches:
-      - main
+      - v1
 
 env:
   CI: true
@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Install External
-        run: npm i -g hyperfine @redocly/cli@latest
+        run: npm i -g hyperfine @redocly/cli@v1
       - name: Prepare
         run: |
           jq '.bin = {"redocly-next":"bin/cli.js"} | .name = "@redocly/cli-next"' packages/cli/package.json > __tmp__.json
@@ -42,8 +42,8 @@ jobs:
           comment_tag: latest-vs-next-comparison
 
   historical-versions:
-    # Run only on release branch (changeset-release/main):
-    if: github.head_ref == 'changeset-release/main'
+    # Run only on release branch (changeset-release/v1):
+    if: github.head_ref == 'changeset-release/v1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -5,7 +5,7 @@ on:
 
 jobs:
   require-changeset-or-label:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changeset needed') && github.head_ref != 'changeset-release/main' }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changeset needed') && github.head_ref != 'changeset-release/v1' }}
     runs-on: ubuntu-latest
     env:
       CI: true
@@ -20,4 +20,4 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - name: Check for changeset
-        run: npx changeset status --since origin/main
+        run: npx changeset status --since origin/v1

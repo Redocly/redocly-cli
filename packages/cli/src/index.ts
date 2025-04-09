@@ -766,7 +766,7 @@ yargs
           t: {
             alias: 'template',
             describe:
-              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
+              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/v1/packages/cli/src/commands/build-docs/template.hbs for the example.',
             type: 'string',
           },
           templateOptions: {
