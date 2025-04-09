@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.34.2
+
+### Patch Changes
+
+- Enhanced performance by pre-calculating the config type tree.
+
 ## 1.34.1
 
 ## 1.34.0
