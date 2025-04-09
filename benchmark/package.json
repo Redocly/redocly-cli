@@ -5,8 +5,7 @@
   "private": true,
   "scripts": {
     "chart": "node chart.mjs > benchmark_chart.md",
-    "make-test": "bash make-test-command.sh",
-    "test": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine -i --warmup 3 'node node_modules/cli-1.26/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.27/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.28/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.29/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.30/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.31/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.32/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.33/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-1.34/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' 'node node_modules/cli-next/bin/cli.js lint public@core --config=api-definitions/redocly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json"
+    "make-test": "bash make-test-command.sh"
   },
   "dependencies": {
     "cli-1.26": "npm:@redocly/cli@1.26.1",
