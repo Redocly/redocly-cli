@@ -16,7 +16,7 @@ import { dequal, isPlainObject, isTruthy } from './utils';
 import { isRedoclyRegistryURL } from './redocly/domains';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
-import { ConfigTypes } from './types/redocly-yaml';
+import { NormalizedConfigTypes } from './types/redocly-yaml';
 
 import type { Location } from './ref-utils';
 import type { Oas3Visitor, Oas2Visitor } from './visitors';
@@ -42,9 +42,24 @@ export type BundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
-  const types = normalizeTypes(ConfigTypes);
+const bundleVisitor = normalizeVisitors(
+  [
+    {
+      severity: 'error',
+      ruleId: 'configBundler',
+      visitor: {
+        ref: {
+          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            replaceRef(node, resolved, ctx);
+          },
+        },
+      },
+    },
+  ],
+  NormalizedConfigTypes
+);
 
+export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
@@ -52,26 +67,9 @@ export async function bundleConfig(document: Document, resolvedRefMap: ResolvedR
     visitorsData: {},
   };
 
-  const bundleVisitor = normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {
-            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx);
-            },
-          },
-        },
-      },
-    ],
-    types
-  );
-
   walkDocument({
     document,
-    rootType: types.ConfigRoot,
+    rootType: NormalizedConfigTypes.ConfigRoot,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,

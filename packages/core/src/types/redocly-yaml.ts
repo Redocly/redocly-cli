@@ -3,6 +3,7 @@ import { listOf } from '.';
 import { SpecVersion, getTypes } from '../oas-types';
 import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
+import { normalizeTypes } from '../types';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
@@ -1222,3 +1223,4 @@ const CoreConfigTypes: Record<string, NodeType> = {
 };
 
 export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);
+export const NormalizedConfigTypes = normalizeTypes(ConfigTypes);
