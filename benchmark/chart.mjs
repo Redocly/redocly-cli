@@ -15,11 +15,13 @@ const constructBarForChart = (x) => {
 };
 
 const output = [
-  '| CLI Version | Performance benchmark (test duration diff) |',
-  '|---|---|',
+  '| CLI Version | Performance benchmark (test duration diff) | Test mean (ms) |',
+  '|---|---|---|',
   ...arr.map(
     ([cliVersion, mean]) =>
-      `| ${cliVersion} | ${constructBarForChart((mean - min) / (max - min))} |`
+      `| ${cliVersion} | ${constructBarForChart((mean - min) / (max - min))} | ${Math.round(
+        mean * 1000
+      )} |`
   ),
 ].join('\n');
 
