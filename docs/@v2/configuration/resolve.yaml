@@ -1,0 +1,42 @@
+type: object
+title: Resolve object
+description: >-
+  All API registry links and public URLs in your API descriptions automatically resolve.
+  If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
+
+  If the URL matches multiple patterns, the first match takes priority.
+  The header from the first match is used in the request.
+
+  Use environment variables where possible.
+properties:
+  doNotResolveExamples:
+    type: boolean
+    description: >-
+      You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
+      This does not affect `$ref` resolution in other parts of the API description.
+    default: false
+  http:
+    type: object
+    description: Description of URL pattern matches and the corresponding headers to use when resolving references.
+    properties:
+      headers:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          required:
+            - matches
+            - name
+          properties:
+            matches:
+              type: string
+              description: The URL pattern to match. For example, `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`
+            name:
+              type: string
+              description: The header name. For example, `X-API-KEY`.
+            value:
+              type: string
+              description: The value of the header. Mutually exclusive with `envVariable`. We recommend to use `envVariable` instead for any secrets.
+            envVariable:
+              type: string
+              description: The environment variable name resolved which should contain the value. Mutually exclusive with `value`.
