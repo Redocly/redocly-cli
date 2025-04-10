@@ -41,7 +41,7 @@ export function getObjectOrJSON(
       if (config) {
         logger.info(`Found ${config.configFile} and using theme.openapi options\n`);
 
-        return config.theme.openapi ? config.theme.openapi : {}; // FIXME: ? theme is deprecated
+        return config.theme.openapi ? config.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
       }
       return {};
     }

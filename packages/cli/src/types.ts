@@ -23,8 +23,8 @@ export type Entrypoint = {
   alias?: string;
   output?: string;
 };
-export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>; // FIXME: use one source of truth
-export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined; // FIXME: use one source of truth
+export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>; // FIXME: use one source of truth (2.0)
+export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined; // FIXME: use one source of truth (2.0)
 export type CommandOptions =
   | StatsOptions
   | SplitOptions

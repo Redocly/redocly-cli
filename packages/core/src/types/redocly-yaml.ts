@@ -995,7 +995,7 @@ const GenerateCodeSamples: NodeType = {
 // TODO: deprecated
 const ConfigReferenceDocs: NodeType = {
   properties: {
-    theme: 'ConfigTheme', // FIXME: ? theme is deprecated
+    theme: 'ConfigTheme', // FIXME: theme is deprecated (2.0)
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },

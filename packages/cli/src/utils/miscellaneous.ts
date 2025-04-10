@@ -289,7 +289,7 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
   const ext = fileName.split('.').pop();
 
   if (['yaml', 'yml', 'json'].includes(ext!)) {
-    // FIXME: ^ use one source of truth
+    // FIXME: ^ use one source of truth (2.0)
     return ext as NonNullable<OutputExtensions>;
   }
   logger.warn(`Unsupported file extension: ${ext}. Using yaml.\n`);

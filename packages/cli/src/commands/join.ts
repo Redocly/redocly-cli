@@ -90,7 +90,7 @@ export async function handleJoin({
     );
   }
 
-  // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied
+  // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied (2.0)
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
     return exitWithError(`At least 2 APIs should be provided.`);

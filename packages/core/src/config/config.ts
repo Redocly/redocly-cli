@@ -129,7 +129,7 @@ export class StyleguideConfig {
         Record<string, Set<string>>
       >) || {};
 
-    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore); // FIXME: remove this
+    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore); // FIXME: remove this (2.0)
 
     // resolve ignore paths
     for (const fileName of Object.keys(this.ignore)) {
@@ -409,12 +409,12 @@ export class Config {
   styleguide: StyleguideConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
-  theme: ThemeRawConfig; // FIXME: theme is deprecated
+  theme: ThemeRawConfig; // FIXME: theme is deprecated (2.0)
   telemetry?: Telemetry;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
-    this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated
+    this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated (2.0)
     this.resolve = getResolveConfig(rawConfig?.resolve);
     this.telemetry = rawConfig.telemetry;
   }
