@@ -564,6 +564,7 @@ export async function sendTelemetry(
       version,
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
+      metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
       environment_ci: process.env.CI,
       has_config: has_config ? 'yes' : 'no',
       spec_version,
@@ -592,6 +593,7 @@ export type Analytics = {
   version: string;
   exit_code: ExitCode;
   environment?: string;
+  metadata?: string;
   environment_ci?: string;
   raw_input: string;
   has_config?: 'yes' | 'no';
