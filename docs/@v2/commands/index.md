@@ -9,7 +9,6 @@ Documentation commands:
 - [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
 - [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
 - [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
-- [`preview-docs`](preview-docs.md) Preview API reference docs for the specified API description.
 - [`build-docs`](build-docs.md) Build API description into an HTML file.
 
 API management commands:
@@ -24,20 +23,16 @@ Linting commands:
 - [`lint`](lint.md) Lint API description.
 - [`check-config`](check-config.md) Lint Redocly configuration file.
 
-{% if includes($rbac.teams, "autheticated") %}
-
 Testing commands:
 
 - [`respect`](respect.md) Execute API tests described in an Arazzo description.
 - [`generate-arazzo`](generate-arazzo.md) Generate an Arazzo description from an OpenAPI description.
 
-{% /if %}
-
 Redocly platform commands:
 
-- [`login`](login.md) Log in to Reunite or to the Redocly API registry with an access token.
+- [`login`](login.md) Log in to Reunite.
 - [`logout`](logout.md) Clear your stored credentials.
-- [`push`](push.md) Push an API description to the Redocly API registry.
+- [`push`](push.md) Push an API description to the Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
 
 Supporting commands:
