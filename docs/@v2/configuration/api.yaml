@@ -1,0 +1,130 @@
+type: object
+title: APIs object
+description: >-
+  Lets you configure one or more API description files.
+  This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
+additionalProperties:
+  x-additionalPropertiesName: '{name}@{version}'
+  type: object
+  title: API object
+  minItems: 1
+  required:
+    - root
+  description: >-
+    Specifies the name and version of an API associated with the root API description with the pattern `{name}@{version}`.
+    If the version is omitted, Redocly apps interpret it as 'latest' by default.
+  properties:
+    root:
+      type: string
+      description: The path to the root API description file of the specified API.
+    output:
+      type: string
+      description: The path to the output file produced by the `bundle` command.
+    labels:
+      type: array
+      description: >-
+        Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
+        You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
+
+        If you try to assign labels that don't already exist for your organization, Redocly apps display a warning in the output and only assigns the existing labels (if any).
+      items:
+        type: string
+    preprocessors:
+      type: object
+      title: Preprocessors object
+      description: >-
+        Change the severity level of any preprocessors in your extended configurations.
+        Preprocessors run first during `lint` and `bundle`.
+      additionalProperties:
+        description: >-
+          List each preprocessor by name.
+          For example, `do-this-first`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - on
+              - off
+          - type: object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            properties:
+              severity:
+                type: string
+                enum:
+                  - on
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
+    rules:
+      type: object
+      title: Rules object
+      description: >-
+        Change the severity level of any rules in your extended configurations.
+        Some rules may also receive additional configurations.
+        Rules run during the `lint` command after preprocessors.
+      additionalProperties:
+        description: >-
+          List each rule by name.
+          For example, `no-empty-servers`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - error
+              - warn
+              - off
+          - type: object
+            title: Rule configuration object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            required:
+              - severity
+            properties:
+              severity:
+                type: string
+                enum:
+                  - error
+                  - warn
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
+    decorators:
+      type: object
+      description: >-
+        Used to enable or disable decorators.
+        Decorators run during the `bundle` command after linting.
+      additionalProperties:
+        description: >-
+          List each decorator by name.
+          For example, `remove-x-internal`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - off
+              - on
+          - type: object
+            title: Decorator configuration object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            properties:
+              severity:
+                type: string
+                enum:
+                  - on
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
+    theme:
+      type: object
+      properties:
+        openapi:
+          type: object
+          description: >-
+            Defines theming and functionality for an API description.
+            Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+            API-level configuration always overrides the root configuration.
+        mockServer:
+          type: object
+          description: >-
+            Defines mock server behavior for an API description.
+            Supports the same format and options as the root `mockServer` object.
+            API-level configuration always overrides the root configuration.
