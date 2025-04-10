@@ -36,7 +36,7 @@ export type LintOptions = {
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
   'skip-rule'?: string[];
-  'skip-preprocessor'?: string[]; // FIXME: do we need this?
+  'skip-preprocessor'?: string[]; // FIXME: do we need this? (2.0)
 } & VerifyConfigOptions;
 
 export async function handleLint({

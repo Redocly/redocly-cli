@@ -290,7 +290,7 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             extendPaths,
             pluginPaths,
           },
-          // FIXME: theme is deprecated
+          // FIXME: theme is deprecated (2.0)
           theme: {
             ...config.rawConfig.theme,
             ...config.apis[apiName]?.theme,
@@ -368,7 +368,7 @@ export function transformConfig(
   const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
 
   const transformedConfig: RawConfig = {
-    // FIXME: ? theme is deprecated
+    // FIXME: theme is deprecated (2.0)
     theme: {
       openapi: {
         ...referenceDocs,

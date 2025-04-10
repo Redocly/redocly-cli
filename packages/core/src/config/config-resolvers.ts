@@ -151,10 +151,10 @@ export async function resolvePlugins(
           let requiredPlugin: ImportedPlugin | undefined;
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore FIXME: remove?
+          // @ts-ignore FIXME: investigate if we still need this (2.0)
           if (typeof __webpack_require__ === 'function') {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore FIXME: remove?
+            // @ts-ignore FIXME: investigate if we still need this (2.0)
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
             const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);

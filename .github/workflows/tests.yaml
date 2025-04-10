@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      # FIXME: add vitest coverage report
+      # FIXME: add vitest coverage report (2.0)
 
   code-style-check:
     runs-on: ubuntu-latest

@@ -1,10 +1,10 @@
-// FIXME: remove?
+// FIXME: investigate if it can be removed (2.0)
 export function isObject(obj: unknown): obj is Record<string, unknown> {
   const type = typeof obj;
   return type === 'function' || (type === 'object' && !!obj);
 }
 
-// FIXME: remove?
+// FIXME: investigate if it can be removed (2.0)
 export function isEmptyObject(obj: any) {
   return !!obj && Object.keys(obj).length === 0;
 }
