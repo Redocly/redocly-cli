@@ -1,9 +1,9 @@
-import { SpecExtension } from './types';
+import { SpecExtension } from './types/index.js';
 
-import type { NormalizedNodeType } from './types';
-import type { Stack } from './utils';
-import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
-import type { Location } from './ref-utils';
+import type { NormalizedNodeType } from './types/index.js';
+import type { Stack } from './utils.js';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
+import type { Location } from './ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -34,7 +34,7 @@ import type {
   Oas3Xml,
   Oas3Discriminator,
   Oas3Callback,
-} from './typings/openapi';
+} from './typings/openapi.js';
 import type {
   Oas2Definition,
   Oas2Tag,
@@ -51,9 +51,9 @@ import type {
   Oas2Xml,
   Oas2Parameter,
   Oas2SecurityScheme,
-} from './typings/swagger';
-import type { Async2Definition } from './typings/asyncapi';
-import type { Async3Definition } from './typings/asyncapi3';
+} from './typings/swagger.js';
+import type { Async2Definition } from './typings/asyncapi.js';
+import type { Async3Definition } from './typings/asyncapi3.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
@@ -69,8 +69,8 @@ import type {
   SourceDescription,
   Step,
   Workflow,
-} from './typings/arazzo';
-import type { Overlay1Definition } from './typings/overlay';
+} from './typings/arazzo.js';
+import type { Overlay1Definition } from './typings/overlay.js';
 
 export type SkipFunctionContext = Pick<
   UserContext,

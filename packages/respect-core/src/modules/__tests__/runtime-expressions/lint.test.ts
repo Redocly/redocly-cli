@@ -1,4 +1,4 @@
-import { lintExpression } from '../../runtime-expressions/lint';
+import { lintExpression } from '../../runtime-expressions/lint.js';
 
 describe('lintExpression', () => {
   describe('general cases', () => {

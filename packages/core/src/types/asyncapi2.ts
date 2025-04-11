@@ -1,7 +1,7 @@
-import { listOf, mapOf } from '.';
-import { isMappingRef } from '../ref-utils';
+import { listOf, mapOf } from './index.js';
+import { isMappingRef } from '../ref-utils.js';
 
-import type { NodeType } from '.';
+import type { NodeType } from './index.js';
 
 const Root: NodeType = {
   properties: {

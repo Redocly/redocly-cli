@@ -1,17 +1,19 @@
-import { SpecVersion } from '../../oas-types';
-import { Config, StyleguideConfig } from '../config';
-import { getMergedConfig } from '../utils';
-import { doesYamlFileExist } from '../../utils';
-import { parseYaml } from '../../js-yaml';
-import { readFileSync } from 'fs';
-import { ignoredFileStub } from './fixtures/ingore-file';
-import * as path from 'path';
-import { NormalizedProblem } from '../../walk';
-import { Source } from '../../resolve';
+import { SpecVersion } from '../../oas-types.js';
+import { Config, StyleguideConfig } from '../config.js';
+import { getMergedConfig } from '../utils.js';
+import { doesYamlFileExist } from '../../utils.js';
+import { parseYaml } from '../../js-yaml/index.js';
+import { readFileSync } from 'node:fs';
+import { ignoredFileStub } from './fixtures/ingore-file.js';
+import * as path from 'node:path';
 
-jest.mock('../../utils');
-jest.mock('../../js-yaml');
-jest.mock('fs');
+vi.mock('../../utils.js');
+vi.mock('../../js-yaml/index.js');
+vi.mock('node:fs');
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
 
 const testConfig: Config = {
   rawConfig: {
@@ -21,7 +23,6 @@ const testConfig: Config = {
         styleguide: { rules: { 'operation-summary': 'warn' } },
       },
     },
-    organization: 'redocly-test',
     telemetry: 'on',
     styleguide: {
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
@@ -61,8 +62,6 @@ const testConfig: Config = {
     mockServer: {},
   },
   resolve: { http: { headers: [] } },
-  organization: 'redocly-test',
-  files: [],
 };
 
 describe('getMergedConfig', () => {
@@ -80,8 +79,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "files": [],
-        "organization": "redocly-test",
         "rawConfig": {
           "apis": {
             "test@v1": {
@@ -93,8 +90,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "files": [],
-          "organization": "redocly-test",
           "styleguide": {
             "extendPaths": [],
             "pluginPaths": [],
@@ -105,7 +100,6 @@ describe('getMergedConfig', () => {
           "telemetry": "on",
           "theme": {},
         },
-        "region": undefined,
         "resolve": {
           "http": {
             "customFetch": undefined,
@@ -198,8 +192,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "files": [],
-        "organization": "redocly-test",
         "rawConfig": {
           "apis": {
             "test@v1": {
@@ -211,8 +203,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "files": [],
-          "organization": "redocly-test",
           "styleguide": {
             "extendPaths": [],
             "pluginPaths": [],
@@ -225,7 +215,6 @@ describe('getMergedConfig', () => {
           "telemetry": "on",
           "theme": {},
         },
-        "region": undefined,
         "resolve": {
           "http": {
             "customFetch": undefined,
@@ -308,8 +297,8 @@ describe('getMergedConfig', () => {
 });
 
 describe('StyleguideConfig.extendTypes', () => {
-  let oas3 = jest.fn();
-  let oas2 = jest.fn();
+  let oas3 = vi.fn();
+  let oas2 = vi.fn();
   let testRawConfigStyleguide = {
     plugins: [
       {
@@ -343,11 +332,11 @@ describe('StyleguideConfig.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    (readFileSync as jest.Mock<any, any>).mockImplementationOnce(() => '');
-    (parseYaml as jest.Mock<any, any>).mockImplementationOnce(() => ignoredFileStub);
-    (doesYamlFileExist as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    vi.mocked(readFileSync).mockImplementationOnce(() => '');
+    vi.mocked(parseYaml).mockImplementationOnce(() => ignoredFileStub);
+    vi.mocked(doesYamlFileExist).mockImplementationOnce(() => true);
 
-    jest.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
+    vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 
     const styleguideConfig = new StyleguideConfig(testConfig.styleguide);
 

@@ -1,20 +1,17 @@
-import type { BundleOutputFormat, Region, Config, RuleSeverity } from '@redocly/openapi-core';
+import type { BundleOutputFormat, Config, RuleSeverity } from '@redocly/openapi-core';
 import type { RespectOptions, GenerateArazzoFileOptions } from '@redocly/respect-core';
-import type { ArgumentsCamelCase } from 'yargs';
-import type { LintOptions } from './commands/lint';
-import type { BundleOptions } from './commands/bundle';
-import type { JoinOptions } from './commands/join';
-import type { LoginOptions, LogoutOptions } from './commands/auth';
-import type { PushOptions } from './commands/push';
-import type { StatsOptions } from './commands/stats';
-import type { SplitOptions } from './commands/split';
-import type { PreviewDocsOptions } from './commands/preview-docs';
-import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushOptions as CMSPushOptions } from './reunite/commands/push';
-import type { PushStatusOptions } from './reunite/commands/push-status';
-import type { PreviewProjectOptions } from './commands/preview-project/types';
-import type { TranslationsOptions } from './commands/translations';
-import type { EjectOptions } from './commands/eject';
+import type { LintOptions } from './commands/lint.js';
+import type { BundleOptions } from './commands/bundle.js';
+import type { JoinOptions } from './commands/join.js';
+import type { LoginOptions, LogoutOptions } from './commands/auth.js';
+import type { StatsOptions } from './commands/stats.js';
+import type { SplitOptions } from './commands/split/index.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { PushOptions } from './reunite/commands/push.js';
+import type { PushStatusOptions } from './reunite/commands/push-status.js';
+import type { PreviewProjectOptions } from './commands/preview-project/types.js';
+import type { TranslationsOptions } from './commands/translations.js';
+import type { EjectOptions } from './commands/eject.js';
 
 export type Totals = {
   errors: number;
@@ -26,21 +23,18 @@ export type Entrypoint = {
   alias?: string;
   output?: string;
 };
-export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
-export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined;
-export const regionChoices = ['us', 'eu'] as ReadonlyArray<Region>;
+export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>; // FIXME: use one source of truth (2.0)
+export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined; // FIXME: use one source of truth (2.0)
 export type CommandOptions =
   | StatsOptions
   | SplitOptions
   | JoinOptions
-  | PushOptions
-  | CMSPushOptions
   | LintOptions
   | BundleOptions
   | LoginOptions
   | LogoutOptions
-  | PreviewDocsOptions
   | BuildDocsArgv
+  | PushOptions
   | PushStatusOptions
   | PreviewProjectOptions
   | TranslationsOptions
@@ -53,12 +47,4 @@ export type VerifyConfigOptions = {
   'lint-config'?: RuleSeverity;
 };
 
-export type Skips = {
-  'skip-rule'?: string[];
-  'skip-decorator'?: string[];
-  'skip-preprocessor'?: string[];
-};
-
 export type ConfigApis = Pick<Config, 'apis' | 'configFile'>;
-
-export type PushArguments = ArgumentsCamelCase<PushOptions & CMSPushOptions & { apis: string[] }>;

@@ -1,7 +1,11 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { lintDocument } from '../../../lint';
-import { BaseResolver } from '../../../resolve';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../__tests__/utils.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('Overlay 1.0 Description', () => {
   it('should not report if the Contact Object is valid', async () => {

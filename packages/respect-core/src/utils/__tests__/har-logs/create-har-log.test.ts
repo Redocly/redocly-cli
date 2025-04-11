@@ -1,9 +1,9 @@
-import { createHarLog } from '../../har-logs';
+import { createHarLog } from '../../har-logs/index.js';
 
 describe('createHarLog', () => {
   it('should create a har log', () => {
     const mockDate = new Date('2024-01-01T00:00:00.000Z');
-    jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
+    vi.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
 
     const harLog = createHarLog();
     expect(harLog).toEqual({
@@ -28,6 +28,6 @@ describe('createHarLog', () => {
       },
     });
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 });

@@ -1,13 +1,18 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { parseYaml, stringifyYaml } from '../js-yaml';
-import { slash, doesYamlFileExist, isPlainObject, showWarningForDeprecatedField } from '../utils';
-import { SpecVersion, SpecMajorVersion } from '../oas-types';
-import { isBrowser } from '../env';
-import { getResolveConfig } from './utils';
-import { isAbsoluteUrl } from '../ref-utils';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
+import {
+  slash,
+  doesYamlFileExist,
+  isPlainObject,
+  showWarningForDeprecatedField,
+} from '../utils.js';
+import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
+import { isBrowser } from '../env.js';
+import { getResolveConfig } from './utils.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
-import type { NormalizedProblem } from '../walk';
+import type { NormalizedProblem } from '../walk.js';
 import type {
   Oas2RuleSet,
   Oas3RuleSet,
@@ -15,13 +20,12 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
-} from '../oas-types';
-import type { NodeType } from '../types';
+} from '../oas-types.js';
+import type { NodeType } from '../types/index.js';
 import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
-  Region,
   ResolveConfig,
   ResolvedApi,
   ResolvedConfig,
@@ -30,7 +34,7 @@ import type {
   RuleSettings,
   Telemetry,
   ThemeRawConfig,
-} from './types';
+} from './types.js';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -125,7 +129,7 @@ export class StyleguideConfig {
         Record<string, Set<string>>
       >) || {};
 
-    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore);
+    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore); // FIXME: remove this (2.0)
 
     // resolve ignore paths
     for (const fileName of Object.keys(this.ignore)) {
@@ -405,19 +409,13 @@ export class Config {
   styleguide: StyleguideConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
-  region?: Region;
-  theme: ThemeRawConfig;
-  organization?: string;
-  files: string[];
+  theme: ThemeRawConfig; // FIXME: theme is deprecated (2.0)
   telemetry?: Telemetry;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
-    this.theme = rawConfig.theme || {};
+    this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated (2.0)
     this.resolve = getResolveConfig(rawConfig?.resolve);
-    this.region = rawConfig.region;
-    this.organization = rawConfig.organization;
-    this.files = rawConfig.files || [];
     this.telemetry = rawConfig.telemetry;
   }
 }

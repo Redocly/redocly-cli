@@ -1,4 +1,4 @@
-import { replaceJSONPointers } from '../../runtime-expressions/replace-json-pointers';
+import { replaceJSONPointers } from '../../runtime-expressions/replace-json-pointers.js';
 
 describe('replaceJSONPointers', () => {
   it('should replace valid $response.body pointers with the correct value from context', () => {

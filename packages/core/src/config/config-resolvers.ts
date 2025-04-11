@@ -1,10 +1,11 @@
-import * as path from 'path';
-import { pathToFileURL } from 'url';
-import { existsSync } from 'fs';
-import { isAbsoluteUrl } from '../ref-utils';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils';
-import { resolveDocument, BaseResolver } from '../resolve';
-import { defaultPlugin } from './builtIn';
+import * as path from 'node:path';
+import * as url from 'node:url';
+import * as fs from 'node:fs';
+import module from 'node:module';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { resolveDocument, BaseResolver } from '../resolve.js';
+import { defaultPlugin } from './builtIn.js';
 import {
   getResolveConfig,
   getUniquePlugins,
@@ -14,12 +15,12 @@ import {
   parsePresetName,
   prefixRules,
   transformConfig,
-} from './utils';
-import { isBrowser } from '../env';
-import { Config } from './config';
-import { colorize, logger } from '../logger';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
-import { NormalizedConfigTypes } from '../types/redocly-yaml';
+} from './utils.js';
+import { isBrowser } from '../env.js';
+import { Config } from './config.js';
+import { colorize, logger } from '../logger.js';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 
 import type {
   StyleguideRawConfig,
@@ -31,11 +32,15 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
   ImportedPlugin,
-} from './types';
-import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
-import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
-import type { BundleOptions } from '../bundle';
-import type { Document, ResolvedRefMap } from '../resolve';
+} from './types.js';
+import type {
+  Assertion,
+  AssertionDefinition,
+  RawAssertion,
+} from '../rules/common/assertions/index.js';
+import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
+import type { BundleOptions } from '../bundle.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
@@ -111,7 +116,7 @@ export async function resolveConfig({
 function getDefaultPluginPath(configDir: string): string | undefined {
   for (const pluginPath of DEFAULT_PROJECT_PLUGIN_PATHS) {
     const absolutePluginPath = path.resolve(configDir, pluginPath);
-    if (existsSync(absolutePluginPath)) {
+    if (fs.existsSync(absolutePluginPath)) {
       return pluginPath;
     }
   }
@@ -130,15 +135,15 @@ export async function resolvePlugins(
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
-        const absolutePluginPath = existsSync(maybeAbsolutePluginPath)
+        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath)
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
-            require.resolve(plugin, {
+            module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
               paths: [
                 // Plugins imported from the node_modules in the project directory
                 configDir,
                 // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                __dirname,
+                import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
               ],
             });
 
@@ -146,16 +151,13 @@ export async function resolvePlugins(
           let requiredPlugin: ImportedPlugin | undefined;
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-ignore FIXME: investigate if we still need this (2.0)
           if (typeof __webpack_require__ === 'function') {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-ignore FIXME: investigate if we still need this (2.0)
             requiredPlugin = __non_webpack_require__(absolutePluginPath);
           } else {
-            // Workaround for dynamic imports being transpiled to require by Typescript: https://github.com/microsoft/TypeScript/issues/43329#issuecomment-811606238
-            const _importDynamic = new Function('modulePath', 'return import(modulePath)');
-            // you can import both cjs and mjs
-            const mod = await _importDynamic(pathToFileURL(absolutePluginPath).href);
+            const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
             requiredPlugin = mod.default || mod;
           }
 

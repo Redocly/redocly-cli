@@ -1,5 +1,4 @@
-import type { RuntimeExpressionContext, Step, TestContext } from '../../../types';
-// import type { OperationDetails } from '../../description-parser';
+import type { RuntimeExpressionContext, Step, TestContext } from '../../../types.js';
 
 export function createRuntimeExpressionCtx({
   ctx,

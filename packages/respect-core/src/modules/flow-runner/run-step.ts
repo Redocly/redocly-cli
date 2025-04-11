@@ -1,25 +1,25 @@
 import { blue, white, bold, red } from 'colorette';
-import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results';
-import { checkCriteria } from './success-criteria';
-import { delay } from '../../utils/delay';
-import { CHECKS } from '../checks';
-import { runWorkflow, resolveWorkflowContext } from './runner';
-import { prepareRequest, type RequestData } from './prepare-request';
+import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { checkCriteria } from './success-criteria/index.js';
+import { delay } from '../../utils/delay.js';
+import { CHECKS } from '../checks/index.js';
+import { runWorkflow, resolveWorkflowContext } from './runner.js';
+import { prepareRequest, type RequestData } from './prepare-request.js';
 import {
   printChildWorkflowSeparator,
   printStepDetails,
   printActionsSeparator,
   printUnknownStep,
-} from '../../utils/cli-outputs';
+} from '../../utils/cli-outputs.js';
 import {
   getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
-} from '../config-parser';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
-import { DefaultLogger } from '../../utils/logger/logger';
-import { Timer } from '../timeout-timer/timer';
-import { DEFAULT_RESPECT_MAX_STEPS } from '../../consts';
+} from '../config-parser/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { DefaultLogger } from '../../utils/logger/logger.js';
+import { Timer } from '../timeout-timer/timer.js';
+import { DEFAULT_RESPECT_MAX_STEPS } from '../../consts.js';
 
 import type {
   Check,
@@ -30,8 +30,8 @@ import type {
   OnFailureObject,
   RuntimeExpressionContext,
   ResolvedParameter,
-} from '../../types';
-import type { ParameterWithoutIn } from '../config-parser';
+} from '../../types.js';
+import type { ParameterWithoutIn } from '../config-parser/index.js';
 
 const logger = DefaultLogger.getInstance();
 const parsedMaxSteps = parseInt(process.env.RESPECT_MAX_STEPS as string, 10);

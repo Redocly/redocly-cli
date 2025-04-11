@@ -1,4 +1,4 @@
-import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020';
+import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 import { diffLinesUnified } from 'jest-diff';
 import { blue, dim, red, yellow } from 'colorette';
 import {
@@ -6,12 +6,12 @@ import {
   type DescriptionChecks,
   type StepCallContext,
   type TestContext,
-} from '../../../types';
-import { CHECKS } from '../../checks';
-import { printErrors as printAjvErrors } from '../../../utils/ajv-errors';
-import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema';
-import { removeWriteOnlyProperties } from '../../description-parser';
-import { DefaultLogger } from '../../../utils/logger/logger';
+} from '../../../types.js';
+import { CHECKS } from '../../checks/index.js';
+import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
+import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
+import { removeWriteOnlyProperties } from '../../description-parser/index.js';
+import { DefaultLogger } from '../../../utils/logger/logger.js';
 
 const logger = DefaultLogger.getInstance();
 

@@ -1,4 +1,4 @@
-import { getExecutionTime } from '../time';
+import { getExecutionTime } from '../time.js';
 
 describe('getExecutionTime', () => {
   it('returns a string with ms', () => {

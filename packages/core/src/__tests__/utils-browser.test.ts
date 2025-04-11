@@ -1,8 +1,8 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 
-import { isBrowser } from '../env';
+import { isBrowser } from '../env.js';
 
 describe('isBrowser', () => {
   it('should be browser', () => {

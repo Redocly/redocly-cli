@@ -1,7 +1,7 @@
-import { validateMimeTypeOAS3 } from '../../utils';
+import { validateMimeTypeOAS3 } from '../../utils.js';
 
-import type { Oas3Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const RequestMimeType: Oas3Rule = ({ allowedValues }) => {
   return {

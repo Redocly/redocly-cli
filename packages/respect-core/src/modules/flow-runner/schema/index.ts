@@ -1,1 +1,1 @@
-export * from './schema-checker';
+export * from './schema-checker.js';

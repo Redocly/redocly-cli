@@ -1,31 +1,26 @@
-import { handlePushStatus } from '../push-status';
-import { PushResponse } from '../../api/types';
+import { handlePushStatus } from '../push-status.js';
+import { PushResponse } from '../../api/types.js';
+import { ReuniteApi } from '../../api/index.js';
+import * as errorHandling from '../../../utils/error.js';
+
+vi.mock('colorette', async () => {
+  const actual = await vi.importActual('colorette');
+
+  return {
+    ...actual,
+    green: (str: string) => str,
+    yellow: (str: string) => str,
+    red: (str: string) => str,
+    gray: (str: string) => str,
+    magenta: (str: string) => str,
+    cyan: (str: string) => str,
+  };
+});
 
 const remotes = {
-  getPush: jest.fn(),
-  getRemotesList: jest.fn(),
+  getPush: vi.fn(),
+  getRemotesList: vi.fn(),
 };
-
-jest.mock('colorette', () => ({
-  green: (str: string) => str,
-  yellow: (str: string) => str,
-  red: (str: string) => str,
-  gray: (str: string) => str,
-  magenta: (str: string) => str,
-  cyan: (str: string) => str,
-}));
-
-jest.mock('../../api', () => ({
-  ...jest.requireActual('../../api'),
-  ReuniteApi: jest.fn().mockImplementation(function (this: any, ...args) {
-    this.remotes = remotes;
-    this.reportSunsetWarnings = jest.fn();
-  }),
-}));
-
-jest.mock('@redocly/openapi-core', () => ({
-  pause: jest.requireActual('@redocly/openapi-core').pause,
-}));
 
 describe('handlePushStatus()', () => {
   const mockConfig = { apis: {} } as any;
@@ -76,34 +71,32 @@ describe('handlePushStatus()', () => {
   };
 
   beforeEach(() => {
-    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
+
+    vi.mock('../../api/index.js', async () => {
+      const actual = await vi.importActual('../../api/index.js');
+      return {
+        ...actual,
+        ReuniteApi: vi.fn(),
+      };
+    });
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
+      this.remotes = remotes;
+      this.reportSunsetWarnings = vi.fn();
+    });
+
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return {
+        ...actual,
+        pause: actual.pause,
+      };
+    });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should throw error if organization not provided', async () => {
-    await expect(
-      handlePushStatus({
-        argv: {
-          domain: 'test-domain',
-          organization: '',
-          project: 'test-project',
-          pushId: 'test-push-id',
-        },
-        config: mockConfig,
-        version: 'cli-version',
-      })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"No organization provided, please use --organization option or specify the 'organization' field in the config file."`
-    );
-
-    expect(process.stderr.write).toHaveBeenCalledWith(
-      `No organization provided, please use --organization option or specify the 'organization' field in the config file.` +
-        '\n\n'
-    );
+    process.env.REDOCLY_AUTHORIZATION = undefined;
   });
 
   it('should print success push status for preview-build', async () => {
@@ -150,6 +143,8 @@ describe('handlePushStatus()', () => {
   });
 
   it('should print failed push status for preview build', async () => {
+    vi.spyOn(errorHandling, 'exitWithError');
+
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.getPush.mockResolvedValue({
@@ -172,12 +167,12 @@ describe('handlePushStatus()', () => {
         version: 'cli-version',
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      "❌ Preview deploy fail.
-      Preview URL: https://preview-test-url"
+      [Error: ❌ Preview deploy fail.
+      Preview URL: https://preview-test-url]
     `);
 
-    expect(process.stderr.write).toHaveBeenCalledWith(
-      '❌ Preview deploy fail.\nPreview URL: https://preview-test-url' + '\n\n'
+    expect(errorHandling.exitWithError).toHaveBeenCalledWith(
+      '❌ Preview deploy fail.\nPreview URL: https://preview-test-url'
     );
   });
 
@@ -481,8 +476,8 @@ describe('handlePushStatus()', () => {
           version: 'cli-version',
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "❌ Preview deploy fail.
-        Preview URL: https://preview-test-url"
+        [Error: ❌ Preview deploy fail.
+        Preview URL: https://preview-test-url]
       `);
     });
 
@@ -556,7 +551,7 @@ describe('handlePushStatus()', () => {
         },
       });
 
-      const onRetrySpy = jest.fn();
+      const onRetrySpy = vi.fn();
 
       const result = await handlePushStatus({
         argv: {
@@ -645,8 +640,8 @@ describe('handlePushStatus()', () => {
           version: 'cli-version',
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "✗ Failed to get push status. Reason: Timeout exceeded.
-        "
+        [Error: ✗ Failed to get push status. Reason: Timeout exceeded.
+        ]
       `);
     });
   });

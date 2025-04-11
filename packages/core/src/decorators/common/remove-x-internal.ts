@@ -1,8 +1,8 @@
-import { isEmptyArray, isEmptyObject, isPlainObject } from '../../utils';
-import { isRef } from '../../ref-utils';
+import { isEmptyArray, isEmptyObject, isPlainObject } from '../../utils.js';
+import { isRef } from '../../ref-utils.js';
 
-import type { Oas3Decorator, Oas2Decorator } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 

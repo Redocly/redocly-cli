@@ -1,2 +1,2 @@
-export * from './validate-success-criteria';
-export * from './check-success-criteria';
+export * from './validate-success-criteria.js';
+export * from './check-success-criteria.js';

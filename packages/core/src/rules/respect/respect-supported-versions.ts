@@ -1,8 +1,8 @@
-import { ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT } from '../../typings/arazzo';
-import { pluralize } from '../../utils';
+import { ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT } from '../../typings/arazzo.js';
+import { pluralize } from '../../utils.js';
 
-import type { Arazzo1Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
+import type { Arazzo1Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const RespectSupportedVersions: Arazzo1Rule = () => {
   const supportedVersions = ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT.join(', ');

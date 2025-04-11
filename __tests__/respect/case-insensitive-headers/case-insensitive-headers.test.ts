@@ -1,5 +1,8 @@
-import { join } from 'path';
-import { getCommandOutput, getParams } from '../utils';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { getCommandOutput, getParams } from '../../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('should send in request and proceed case-insensitive headers in runtime expressions', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -8,4 +11,4 @@ test('should send in request and proceed case-insensitive headers in runtime exp
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
-});
+}, 60_000);

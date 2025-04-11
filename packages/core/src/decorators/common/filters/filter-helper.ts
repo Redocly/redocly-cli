@@ -1,7 +1,7 @@
-import { isRef } from '../../../ref-utils';
-import { isEmptyArray, isEmptyObject, isPlainObject } from '../../../utils';
+import { isRef } from '../../../ref-utils.js';
+import { isEmptyArray, isEmptyObject, isPlainObject } from '../../../utils.js';
 
-import type { UserContext } from '../../../walk';
+import type { UserContext } from '../../../walk.js';
 
 export function filter(node: any, ctx: UserContext, criteria: (item: any) => boolean) {
   const { parent, key } = ctx;

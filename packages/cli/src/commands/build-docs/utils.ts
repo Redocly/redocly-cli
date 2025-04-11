@@ -1,16 +1,20 @@
 import { createElement } from 'react';
-import { createStore, Redoc } from 'redoc';
+import { default as redoc } from 'redoc';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
-import { compile } from 'handlebars';
-import { dirname, join, resolve } from 'path';
-import { existsSync, lstatSync, readFileSync } from 'fs';
-import { red } from 'colorette';
-import { isAbsoluteUrl } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/miscellaneous';
+import { default as handlebars } from 'handlebars';
+import * as path from 'node:path';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import * as url from 'node:url';
+import { exitWithError } from '../../utils/error.js';
 
 import type { Config } from '@redocly/openapi-core';
-import type { BuildDocsOptions } from './types';
+import type { BuildDocsOptions } from './types.js';
+
+const __internalDirname = import.meta.url
+  ? path.dirname(url.fileURLToPath(import.meta.url))
+  : __dirname;
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -27,19 +31,17 @@ export function getObjectOrJSON(
           return JSON.parse(openapiOptions);
         }
       } catch (e) {
-        process.stderr.write(
-          red(
-            `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
-          )
+        logger.error(
+          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
         );
         exitWithError(e);
       }
       break;
     default: {
       if (config) {
-        process.stdout.write(`Found ${config.configFile} and using theme.openapi options\n`);
+        logger.info(`Found ${config.configFile} and using theme.openapi options\n`);
 
-        return config.theme.openapi ? config.theme.openapi : {};
+        return config.theme.openapi ? config.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
       }
       return {};
     }
@@ -60,22 +62,22 @@ export async function getPageHTML(
   }: BuildDocsOptions,
   configPath?: string
 ) {
-  process.stdout.write('Prerendering docs\n');
+  logger.info('Prerendering docs\n');
 
   const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
-  const store = await createStore(api, apiUrl, redocOptions);
+  const store = await redoc.createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
 
-  const html = renderToString(sheet.collectStyles(createElement(Redoc, { store })));
+  const html = renderToString(sheet.collectStyles(createElement(redoc.Redoc, { store })));
   const state = await store.toJS();
   const css = sheet.getStyleTags();
 
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
-    : join(__dirname, './template.hbs');
-  const template = compile(readFileSync(templateFileName).toString());
+    ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
+    : path.join(__internalDirname, './template.hbs');
+  const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
       <div id="redoc">${html || ''}</div>

@@ -1,0 +1,202 @@
+- group: Redocly CLI
+  page: index.md
+  items:
+    - label: Installation
+      page: installation.md
+    - label: Changelog
+      page: changelog.md
+    - group: Commands
+      page: commands/index.md
+      items:
+        - label: build-docs
+          page: commands/build-docs.md
+        - label: bundle
+          page: commands/bundle.md
+        - label: check-config
+          page: commands/check-config.md
+        - label: eject
+          page: commands/eject.md
+        - label: generate-arazzo
+          page: commands/generate-arazzo.md
+        - label: join
+          page: commands/join.md
+        - label: lint
+          page: commands/lint.md
+        - label: login
+          page: commands/login.md
+        - label: logout
+          page: commands/logout.md
+        - label: preview
+          page: commands/preview.md
+        - label: preview-docs
+          page: commands/preview-docs.md
+        - label: push
+          page: commands/push.md
+        - label: push-status
+          page: commands/push-status.md
+        - label: respect
+          page: commands/respect.md
+        - label: split
+          page: commands/split.md
+        - label: stats
+          page: commands/stats.md
+        - label: translate
+          page: commands/translate.md
+    - group: Guides
+      page: guides/index.md
+      items:
+        - label: Quickstart
+          page: quickstart.md
+        - label: Use openapi-starter
+          page: openapi-starter.md
+        - page: guides/configure-rules.md
+        - page: guides/lint-and-bundle.md
+          label: Lint and bundle
+        - label: Hide internal APIs
+          page: guides/hide-apis.md
+        - label: Replace the servers URL
+          page: guides/replace-servers-url.md
+        - label: Enforce response contents
+          page: guides/response-contains-property.md
+        - page: guides/lint-asyncapi.md
+        - page: guides/lint-arazzo.md
+        - label: Change the OAuth2 token URL
+          page: guides/change-token-url.md
+        - label: Hide OpenAPI specification extensions
+          page: guides/hide-specification-extensions.md
+        - page: guides/autocomplete.md
+        - page: guides/migrate-from-redoc-cli.md
+        - page: guides/migrate-from-openapi-cli.md
+        - page: guides/migrate-from-spectral.md
+        - page: guides/migrate-from-swagger-cli.md
+    - page: api-docs.md
+      label: API docs
+    - group: API governance
+      page: api-standards.md
+      items:
+        - page: rules.md
+          group: Rules and rulesets
+          items:
+            - page: rules/recommended.md
+            - page: rules/minimal.md
+            - page: rules/spec-ruleset.md
+            - page: rules/ruleset-templates.md
+        - group: Built-in rules
+          page: rules/built-in-rules.md
+          items:
+            - separator: OpenAPI
+            - page: rules/oas/array-parameter-serialization.md
+            - page: rules/oas/boolean-parameter-prefixes.md
+            - page: rules/oas/component-name-unique.md
+            - page: rules/oas/info-contact.md
+            - page: rules/oas/info-license.md
+            - page: rules/oas/info-license-url.md
+            - page: rules/oas/no-ambiguous-paths.md
+            - page: rules/oas/no-empty-servers.md
+            - page: rules/oas/no-enum-type-mismatch.md
+            - page: rules/oas/no-example-value-and-externalValue.md
+            - page: rules/oas/no-http-verbs-in-paths.md
+            - page: rules/oas/no-identical-paths.md
+            - page: rules/oas/no-invalid-media-type-examples.md
+            - page: rules/oas/no-invalid-parameter-examples.md
+            - page: rules/oas/no-invalid-schema-examples.md
+            - page: rules/oas/no-path-trailing-slash.md
+            - page: rules/oas/no-required-schema-properties-undefined.md
+            - page: rules/oas/no-schema-type-mismatch.md
+            - page: rules/oas/no-server-example-com.md
+            - page: rules/oas/no-server-trailing-slash.md
+            - page: rules/oas/no-server-variables-empty-enum.md
+            - page: rules/oas/no-undefined-server-variable.md
+            - page: rules/oas/no-unresolved-refs.md
+            - page: rules/oas/no-unused-components.md
+            - page: rules/oas/operation-2xx-response.md
+            - page: rules/oas/operation-4xx-problem-details-rfc7807.md
+            - page: rules/oas/operation-4xx-response.md
+            - page: rules/oas/operation-description.md
+            - page: rules/oas/operation-operationId.md
+            - page: rules/oas/operation-operationId-unique.md
+            - page: rules/oas/operation-operationId-url-safe.md
+            - page: rules/oas/operation-parameters-unique.md
+            - page: rules/oas/operation-singular-tag.md
+            - page: rules/oas/operation-summary.md
+            - page: rules/oas/operation-tag-defined.md
+            - page: rules/oas/parameter-description.md
+            - page: rules/oas/path-declaration-must-exist.md
+            - page: rules/oas/path-excludes-patterns.md
+            - page: rules/oas/path-not-include-query.md
+            - page: rules/oas/path-parameters-defined.md
+            - page: rules/oas/path-segment-plural.md
+            - page: rules/oas/paths-kebab-case.md
+            - page: rules/oas/required-string-property-missing-min-length.md
+            - page: rules/oas/response-contains-header.md
+            - page: rules/oas/response-contains-property.md
+            - page: rules/oas/response-mime-type.md
+            - page: rules/oas/request-mime-type.md
+            - page: rules/oas/scalar-property-missing-example.md
+            - page: rules/oas/security-defined.md
+            - page: rules/oas/spec-components-invalid-map-name.md
+            - page: rules/oas/struct.md
+            - page: rules/oas/spec-strict-refs.md
+            - page: rules/oas/tag-description.md
+            - page: rules/oas/tags-alphabetical.md
+            - separator: AsyncAPI
+            - page: rules/async/channels-kebab-case.md
+            - page: rules/async/no-channel-trailing-slash.md
+            - separator: Arazzo
+            - page: rules/respect/no-criteria-xpath.md
+            - page: rules/respect/respect-supported-versions.md
+            - page: rules/arazzo/criteria-unique.md
+            - page: rules/arazzo/parameters-unique.md
+            - page: rules/arazzo/requestBody-replacements-unique.md
+            - page: rules/arazzo/sourceDescriptions-name-unique.md
+            - page: rules/arazzo/sourceDescriptions-type.md
+            - page: rules/arazzo/stepId-unique.md
+            - page: rules/arazzo/step-onFailure-unique.md
+            - page: rules/arazzo/step-onSuccess-unique.md
+            - page: rules/arazzo/workflow-dependsOn.md
+            - page: rules/arazzo/workflowId-unique.md
+
+        - page: rules/configure-rules.md
+          label: Rule configuration
+        - page: rules/configurable-rules.md
+        - group: Decorators
+          page: decorators.md
+          items:
+            - page: decorators/filter-in.md
+            - page: decorators/filter-out.md
+            - page: decorators/info-description-override.md
+            - page: decorators/info-override.md
+            - page: decorators/media-type-examples-override.md
+            - page: decorators/operation-description-override.md
+            - page: decorators/remove-unused-components.md
+            - page: decorators/remove-x-internal.md
+            - page: decorators/tag-description-override.md
+    - page: file-management.md
+    - group: Configuration
+      page: configuration/index.md
+      items:
+        - page: configuration/extends.md
+        - page: configuration/rules.md
+        - page: configuration/apis.md
+        - group: Reference
+          items:
+            - page: configuration/reference/apis.md
+            - page: configuration/reference/decorators.md
+            - page: configuration/reference/extends.md
+            - page: configuration/reference/plugins.md
+            - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/resolve.md
+            - page: configuration/reference/rules.md
+    - group: Custom plugins
+      page: custom-plugins/index.md
+      items:
+        - label: Custom rules
+          page: custom-plugins/custom-rules.md
+        - label: Custom decorators
+          page: custom-plugins/custom-decorators.md
+        - label: Custom config
+          page: custom-plugins/custom-config.md
+        - label: Extended types
+          page: custom-plugins/extended-types.md
+        - label: Visitor pattern
+          page: custom-plugins/visitor.md

@@ -1,7 +1,7 @@
 extends: []
 
 plugins:
-  - plugins/type-extention.js
+  - plugins/type-extention.cjs
 
 rules:
   spec: warn

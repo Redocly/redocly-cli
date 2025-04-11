@@ -1,11 +1,11 @@
-import { checkCriteria } from './success-criteria';
-import { checkSchema } from './schema';
-import { CHECKS } from '../checks';
-import { createRuntimeExpressionCtx } from './context';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions';
+import { checkCriteria } from './success-criteria/index.js';
+import { checkSchema } from './schema/index.js';
+import { CHECKS } from '../checks/index.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 
-import type { RequestData } from './prepare-request';
-import type { TestContext, Step } from '../../types';
+import type { RequestData } from './prepare-request.js';
+import type { TestContext, Step } from '../../types.js';
 
 // TODO: split into two functions
 export async function callAPIAndAnalyzeResults({

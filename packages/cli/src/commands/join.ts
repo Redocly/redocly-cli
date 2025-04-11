@@ -1,6 +1,6 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import { red, blue, yellow, green } from 'colorette';
-import { performance } from 'perf_hooks';
+import { performance } from 'node:perf_hooks';
 import {
   SpecVersion,
   BaseResolver,
@@ -9,33 +9,35 @@ import {
   detectSpec,
   bundleDocument,
   isRef,
+  dequal,
+  logger,
 } from '@redocly/openapi-core';
-import { dequal } from '@redocly/openapi-core/lib/utils';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
-  exitWithError,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous';
-import { isObject, isString, keysOf } from '../utils/js-utils';
-import { COMPONENTS, OPENAPI3_METHOD } from './split/types';
-import { crawl, startsWithComponents } from './split';
+} from '../utils/miscellaneous.js';
+import { exitWithError } from '../utils/error.js';
+import { isObject, isString, keysOf } from '../utils/js-utils.js';
+import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
+import { crawl, startsWithComponents } from './split/index.js';
 
-import type { Document, Referenced } from '@redocly/openapi-core';
-import type { BundleResult } from '@redocly/openapi-core/lib/bundle';
 import type {
+  Document,
+  Referenced,
+  StrictObject,
+  BundleResult,
   Oas3Definition,
   Oas3_1Definition,
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
-} from '@redocly/openapi-core/lib/typings/openapi';
-import type { StrictObject } from '@redocly/openapi-core/lib/utils';
-import type { CommandArgs } from '../wrapper';
-import type { VerifyConfigOptions } from '../types';
+} from '@redocly/openapi-core';
+import type { CommandArgs } from '../wrapper.js';
+import type { VerifyConfigOptions } from '../types.js';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
@@ -88,6 +90,7 @@ export async function handleJoin({
     );
   }
 
+  // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied (2.0)
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
     return exitWithError(`At least 2 APIs should be provided.`);
@@ -187,7 +190,7 @@ export async function handleJoin({
     const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
-      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(api)} will be skipped \n`));
+      logger.warn(`warning: x-tagGroups at ${blue(api)} will be skipped \n`);
     }
 
     const context = {
@@ -337,9 +340,7 @@ export async function handleJoin({
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (joinedDef.hasOwnProperty('externalDocs')) {
-        process.stderr.write(
-          yellow(`warning: skip externalDocs from ${blue(path.basename(api))} \n`)
-        );
+        logger.warn(`warning: skip externalDocs from ${blue(path.basename(api))} \n`);
         return;
       }
       joinedDef['externalDocs'] = externalDocs;
@@ -401,7 +402,7 @@ export async function handleJoin({
         joinedDef.paths[path].hasOwnProperty(field) &&
         joinedDef.paths[path][field] !== fieldValue
       ) {
-        process.stderr.write(yellow(`warning: different ${field} values in ${path}\n`));
+        logger.warn(`warning: different ${field} values in ${path}\n`);
         return;
       }
       joinedDef.paths[path][field] = fieldValue;
@@ -689,17 +690,15 @@ function iteratePotentialConflicts(potentialConflicts: any, withoutXTagGroups?: 
 function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
   const tagsKeys = conflicts.map(([tagName]) => `\`${tagName}\``);
   const joinString = yellow(', ');
-  process.stderr.write(
-    yellow(
-      `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
-        tagsKeys.join(joinString)
-      )} tags description.\n`
-    )
+  logger.warn(
+    `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
+      tagsKeys.join(joinString)
+    )} tags description.\n`
   );
 }
 
 function prefixTagSuggestion(conflictsLength: number) {
-  process.stderr.write(
+  logger.info(
     green(
       `\n${conflictsLength} conflict(s) on tags.\nSuggestion: please use ${blue(
         'prefix-tags-with-filename'
@@ -712,7 +711,7 @@ function prefixTagSuggestion(conflictsLength: number) {
 
 function showConflicts(key: string, conflicts: any) {
   for (const [path, files] of conflicts) {
-    process.stderr.write(yellow(`Conflict on ${key} : ${red(path)} in files: ${blue(files)} \n`));
+    logger.warn(`Conflict on ${key} : ${red(path)} in files: ${blue(files)} \n`);
   }
 }
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`printErrors should display multiple Ajv errors 1`] = `
+exports[`printErrors > should display multiple Ajv errors 1`] = `
 "
 UNEVALUATEDPROPERTIES must NOT have unevaluated properties: "date".: "date".
 

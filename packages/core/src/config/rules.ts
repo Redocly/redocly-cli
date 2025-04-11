@@ -1,4 +1,4 @@
-import { isDefined } from '../utils';
+import { isDefined } from '../utils.js';
 
 import type {
   Arazzo1RuleSet,
@@ -8,9 +8,9 @@ import type {
   Oas3RuleSet,
   Overlay1RuleSet,
   SpecVersion,
-} from '../oas-types';
-import type { StyleguideConfig } from './config';
-import type { ProblemSeverity } from '../walk';
+} from '../oas-types.js';
+import type { StyleguideConfig } from './config.js';
+import type { ProblemSeverity } from '../walk.js';
 
 type InitializedRule = {
   severity: ProblemSeverity;

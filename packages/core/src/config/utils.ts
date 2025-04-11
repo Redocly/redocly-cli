@@ -5,9 +5,9 @@ import {
   isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
-} from '../utils';
-import { Config } from './config';
-import { logger, colorize } from '../logger';
+} from '../utils.js';
+import { Config } from './config.js';
+import { logger, colorize } from '../logger.js';
 
 import type {
   Api,
@@ -25,7 +25,7 @@ import type {
   ThemeConfig,
   Plugin,
   PluginCreator,
-} from './types';
+} from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -290,11 +290,11 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             extendPaths,
             pluginPaths,
           },
+          // FIXME: theme is deprecated (2.0)
           theme: {
             ...config.rawConfig.theme,
             ...config.apis[apiName]?.theme,
           },
-          files: [...config.files, ...(config.apis?.[apiName]?.files ?? [])],
           // TODO: merge everything else here
         },
         config.configFile
@@ -368,6 +368,7 @@ export function transformConfig(
   const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
 
   const transformedConfig: RawConfig = {
+    // FIXME: theme is deprecated (2.0)
     theme: {
       openapi: {
         ...referenceDocs,

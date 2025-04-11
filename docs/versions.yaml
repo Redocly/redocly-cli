@@ -1,0 +1,4 @@
+default: 'v1'
+versions:
+  - version: v1
+  - version: v2

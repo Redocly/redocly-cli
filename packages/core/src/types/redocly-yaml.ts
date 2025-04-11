@@ -1,13 +1,13 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf } from '.';
-import { SpecVersion, getTypes } from '../oas-types';
-import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils';
-import { getNodeTypesFromJSONSchema } from './json-schema-adapter';
-import { normalizeTypes } from '../types';
+import { listOf } from './index.js';
+import { SpecVersion, getTypes } from '../oas-types.js';
+import { isCustomRuleId, omitObjectProps, pickObjectProps } from '../utils.js';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { normalizeTypes } from '../types/index.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from '.';
-import type { Config } from '../config';
+import type { NodeType } from './index.js';
+import type { Config } from '../config/index.js';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -340,19 +340,11 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
     apis: 'ConfigApis', // Override apis with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    organization: { type: 'string' },
-    region: { enum: ['us', 'eu'] },
     telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
         http: 'ConfigHTTP',
         doNotResolveExamples: { type: 'boolean' },
-      },
-    },
-    files: {
-      type: 'array',
-      items: {
-        type: 'string',
       },
     },
   },
@@ -376,12 +368,6 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    files: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
   },
 });
 
@@ -506,7 +492,7 @@ const AssertionDefinitionAssertions: NodeType = {
     },
   },
   additionalProperties: (_value: unknown, key: string) => {
-    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
+    if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
 };
@@ -1009,7 +995,7 @@ const GenerateCodeSamples: NodeType = {
 // TODO: deprecated
 const ConfigReferenceDocs: NodeType = {
   properties: {
-    theme: 'ConfigTheme',
+    theme: 'ConfigTheme', // FIXME: theme is deprecated (2.0)
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },

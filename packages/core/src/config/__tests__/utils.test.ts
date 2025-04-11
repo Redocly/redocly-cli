@@ -1,5 +1,5 @@
-import type { DeprecatedInRawConfig, RawConfig, FlatRawConfig } from '../types';
-import * as utils from '../utils';
+import type { DeprecatedInRawConfig, RawConfig, FlatRawConfig } from '../types.js';
+import * as utils from '../utils.js';
 
 const makeTestRawConfig = (
   apiStyleguideName: string,

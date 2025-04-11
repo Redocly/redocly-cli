@@ -1,48 +1,40 @@
 #!/usr/bin/env node
-import * as path from 'path';
+import * as path from 'node:path';
 import * as dotenv from 'dotenv';
-import './utils/assert-node-version';
-import * as yargs from 'yargs';
-import * as colors from 'colorette';
-import { outputExtensions, regionChoices } from './types';
-import { previewDocs } from './commands/preview-docs';
-import { handleStats } from './commands/stats';
-import { handleSplit } from './commands/split';
-import { handleJoin } from './commands/join';
-import { handlePushStatus } from './reunite/commands/push-status';
-import { handleLint } from './commands/lint';
-import { handleBundle } from './commands/bundle';
-import { handleLogin, handleLogout } from './commands/auth';
-import { handlerBuildCommand } from './commands/build-docs';
-import {
-  cacheLatestVersion,
-  notifyUpdateCliVersion,
-  version,
-} from './utils/update-version-notifier';
-import { commandWrapper } from './wrapper';
-import { previewProject } from './commands/preview-project';
-import { handleTranslations } from './commands/translations';
-import { handleEject } from './commands/eject';
-import { PRODUCT_PLANS } from './commands/preview-project/constants';
-import { commonPushHandler } from './commands/push';
+import './utils/assert-node-version.js';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { logger } from '@redocly/openapi-core';
+import { outputExtensions } from './types.js';
+import { handleStats } from './commands/stats.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleJoin } from './commands/join.js';
+import { handlePush } from './reunite/commands/push.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handleLint } from './commands/lint.js';
+import { handleBundle } from './commands/bundle.js';
+import { handleLogin, handleLogout } from './commands/auth.js';
+import { handlerBuildCommand } from './commands/build-docs/index.js';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
+import { commandWrapper } from './wrapper.js';
+import { previewProject } from './commands/preview-project/index.js';
+import { handleTranslations } from './commands/translations.js';
+import { handleEject } from './commands/eject.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { version } from './utils/package.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
-import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushStatusOptions } from './reunite/commands/push-status';
-import type { PushArguments } from './types';
-import type { EjectOptions } from './commands/eject';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { EjectOptions } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
-if (!('replaceAll' in String.prototype)) {
-  require('core-js/actual/string/replace-all');
-}
-
 cacheLatestVersion();
 
-yargs
+// TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
+yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
   .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
@@ -151,48 +143,8 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-          lint: {
-            hidden: true,
-            deprecated: true,
-          },
-          decorate: {
-            hidden: true,
-            deprecated: true,
-          },
-          preprocess: {
-            hidden: true,
-            deprecated: true,
-          },
         }),
     (argv) => {
-      const DEPRECATED_OPTIONS = ['lint', 'preprocess', 'decorate'];
-      const DECORATORS_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/decorators/#decorators';
-      const JOIN_COMMAND_DOCUMENTATION_LINK = 'https://redocly.com/docs/cli/commands/join/#join';
-
-      DEPRECATED_OPTIONS.forEach((option) => {
-        if (argv[option]) {
-          process.stdout.write(
-            `${colors.red(
-              `Option --${option} is no longer supported. Please review join command documentation ${JOIN_COMMAND_DOCUMENTATION_LINK}.`
-            )}`
-          );
-          process.stdout.write('\n\n');
-
-          if (['preprocess', 'decorate'].includes(option)) {
-            process.stdout.write(
-              `${colors.red(
-                `If you are looking for decorators, please review the decorators documentation ${DECORATORS_DOCUMENTATION_LINK}.`
-              )}`
-            );
-            process.stdout.write('\n\n');
-          }
-
-          yargs.showHelp();
-          process.exit(1);
-        }
-      });
-
-      process.env.REDOCLY_CLI_COMMAND = 'join';
       commandWrapper(handleJoin)(argv);
     }
   )
@@ -204,7 +156,7 @@ yargs
         .positional('pushId', {
           description: 'Push id.',
           type: 'string',
-          required: true,
+          demandOption: true,
         })
         .implies('max-execution-time', 'wait')
         .option({
@@ -212,6 +164,7 @@ yargs
             description: 'Name of the organization to push to.',
             type: 'string',
             alias: 'o',
+            required: true,
           },
           project: {
             description: 'Name of the project to push to.',
@@ -242,88 +195,25 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
-      commandWrapper(handlePushStatus)(argv as Arguments<PushStatusOptions>);
+      commandWrapper(handlePushStatus)(argv);
     }
   )
   .command(
-    'push [apis...]',
-    'Push an API description to the Redocly API registry.',
+    'push [files...]',
+    'Push documents to Reunite.',
     (yargs) =>
       yargs
-        .positional('apis', {
+        .positional('files', {
           type: 'string',
           array: true,
-          required: true,
-          default: [],
+          demandOption: true,
         })
-        .hide('project')
-        .hide('domain')
-        .hide('mount-path')
-        .hide('author')
-        .hide('message')
-        .hide('default-branch')
-        .hide('verbose')
-        .hide('commit-sha')
-        .hide('commit-url')
-        .hide('namespace')
-        .hide('repository')
-        .hide('wait-for-deployment')
-        .hide('created-at')
-        .hide('max-execution-time')
-        .deprecateOption('batch-id', 'use --job-id')
-        .implies('job-id', 'batch-size')
-        .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'job-id')
-        .implies('max-execution-time', 'wait-for-deployment')
         .option({
-          destination: {
-            description: 'API name and version in the format `name@version`.',
-            type: 'string',
-            alias: 'd',
-          },
           branch: {
             description: 'Branch name to push to.',
             type: 'string',
             alias: 'b',
-          },
-          upsert: {
-            description:
-              "Create the specified API version if it doesn't exist, update if it does exist.",
-            type: 'boolean',
-            alias: 'u',
-          },
-          'batch-id': {
-            description:
-              'Specifies the ID of the CI job that the current push will be associated with.',
-            type: 'string',
-            requiresArg: true,
-            deprecated: true,
-            hidden: true,
-          },
-          'job-id': {
-            description: 'ID of the CI job that the current push will be associated with.',
-            type: 'string',
-            requiresArg: true,
-          },
-          'batch-size': {
-            description: 'Number of CI pushes to expect in a batch.',
-            type: 'number',
-            requiresArg: true,
-          },
-          region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
-          'skip-decorator': {
-            description: 'Ignore certain decorators.',
-            array: true,
-            type: 'string',
-          },
-          public: {
-            description: 'Make the API description available to the public',
-            type: 'boolean',
-          },
-          files: {
-            description: 'List of other folders and files to upload',
-            array: true,
-            type: 'string',
+            required: true,
           },
           'lint-config': {
             description: 'Severity level for config file linting.',
@@ -334,26 +224,31 @@ yargs
             description: 'Name of the organization to push to.',
             type: 'string',
             alias: 'o',
+            required: true,
           },
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
             alias: 'p',
+            required: true,
           },
           'mount-path': {
             description: 'The path files should be pushed to.',
             type: 'string',
             alias: 'mp',
+            required: true,
           },
           author: {
             description: 'Author of the commit.',
             type: 'string',
             alias: 'a',
+            required: true,
           },
           message: {
             description: 'Commit message.',
             type: 'string',
             alias: 'm',
+            required: true,
           },
           'commit-sha': {
             description: 'Commit SHA.',
@@ -408,7 +303,7 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(commonPushHandler(argv))(argv as Arguments<PushArguments>);
+      commandWrapper(handlePush)(argv);
     }
   )
   .command(
@@ -539,24 +434,6 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-          format: {
-            hidden: true,
-            deprecated: true,
-          },
-          lint: {
-            hidden: true,
-            deprecated: true,
-          },
-          'skip-rule': {
-            hidden: true,
-            deprecated: true,
-            array: true,
-            type: 'string',
-          },
-          'max-problems': {
-            hidden: true,
-            deprecated: true,
-          },
         })
         .check((argv) => {
           if (argv.output && (!argv.apis || argv.apis.length === 0)) {
@@ -565,24 +442,6 @@ yargs
           return true;
         }),
     (argv) => {
-      const DEPRECATED_OPTIONS = ['lint', 'format', 'skip-rule', 'max-problems'];
-      const LINT_AND_BUNDLE_DOCUMENTATION_LINK =
-        'https://redocly.com/docs/cli/guides/lint-and-bundle/#lint-and-bundle-api-descriptions-with-redocly-cli';
-
-      DEPRECATED_OPTIONS.forEach((option) => {
-        if (argv[option]) {
-          process.stdout.write(
-            `${colors.red(
-              `Option --${option} is no longer supported. Please use separate commands, as described in the ${LINT_AND_BUNDLE_DOCUMENTATION_LINK}.`
-            )}`
-          );
-          process.stdout.write('\n\n');
-          yargs.showHelp();
-          process.exit(1);
-        }
-      });
-
-      process.env.REDOCLY_CLI_COMMAND = 'bundle';
       commandWrapper(handleBundle)(argv);
     }
   )
@@ -611,23 +470,15 @@ yargs
     'Log in to Redocly.',
     async (yargs) =>
       yargs.options({
-        verbose: {
-          description: 'Include additional output.',
-          type: 'boolean',
-        },
         residency: {
           description: 'Residency of the application. Defaults to `us`.',
-          alias: ['r', 'region'],
+          alias: ['r'],
           type: 'string',
         },
         config: {
           description: 'Path to the config file.',
           requiresArg: true,
           type: 'string',
-        },
-        next: {
-          description: 'Use Reunite application to login.',
-          type: 'boolean',
         },
       }),
     (argv) => {
@@ -637,7 +488,7 @@ yargs
   )
   .command(
     'logout',
-    'Clear your stored credentials for the Redocly API registry.',
+    'Clear your stored credentials.',
     (yargs) => yargs,
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'logout';
@@ -681,64 +532,11 @@ yargs
       }),
     (argv) => {
       if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
-        process.stderr.write(
-          colors.red(
-            'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
-          )
+        logger.error(
+          'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
         );
       }
       commandWrapper(previewProject)(argv);
-    }
-  )
-  .command(
-    'preview-docs [api]',
-    'Preview API reference docs for an API description.',
-    (yargs) =>
-      yargs.positional('api', { type: 'string' }).options({
-        port: {
-          alias: 'p',
-          type: 'number',
-          default: 8080,
-          description: 'Preview port.',
-        },
-        host: {
-          alias: 'h',
-          type: 'string',
-          default: '127.0.0.1',
-          description: 'Preview host.',
-        },
-        'skip-preprocessor': {
-          description: 'Ignore certain preprocessors.',
-          array: true,
-          type: 'string',
-        },
-        'skip-decorator': {
-          description: 'Ignore certain decorators.',
-          array: true,
-          type: 'string',
-        },
-        'use-community-edition': {
-          description: 'Use Redoc CE for documentation preview.',
-          type: 'boolean',
-        },
-        force: {
-          alias: 'f',
-          type: 'boolean',
-          description: 'Produce bundle output even when errors occur.',
-        },
-        config: {
-          description: 'Path to the config file.',
-          type: 'string',
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-      }),
-    (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
-      commandWrapper(previewDocs)(argv);
     }
   )
   .command(
