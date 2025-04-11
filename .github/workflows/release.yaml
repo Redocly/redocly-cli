@@ -68,9 +68,10 @@ jobs:
           images: |
             redocly/cli
             ghcr.io/redocly/cli
+          # FIXME: replace `next` with `latest` before GA
           tags: |
             ${{ steps.get_version.outputs.value }}
-            latest
+            next
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
