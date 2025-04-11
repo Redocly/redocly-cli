@@ -1,4 +1,4 @@
-import { checkCircularRefsInSchema } from '../check-circular-refs-in-schema';
+import { checkCircularRefsInSchema } from '../check-circular-refs-in-schema.js';
 
 describe('checkCircularRefsInSchema', () => {
   it('should return false if schema is not circular', () => {

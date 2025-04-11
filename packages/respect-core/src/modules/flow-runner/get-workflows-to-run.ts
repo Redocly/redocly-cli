@@ -1,7 +1,7 @@
 import { red, yellow } from 'colorette';
-import { DefaultLogger } from '../../utils/logger/logger';
+import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { Workflow } from '../../types';
+import type { Workflow } from '../../types.js';
 
 const logger = DefaultLogger.getInstance();
 

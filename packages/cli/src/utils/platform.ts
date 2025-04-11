@@ -1,3 +1,5 @@
+import * as process from 'node:process';
+
 /**
  * Sanitizes the input path by removing invalid characters.
  */

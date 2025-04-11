@@ -1,8 +1,8 @@
 import * as http from 'http';
 import * as https from 'https';
 import { Dispatcher } from 'undici';
-import { getInputUrl } from './get-input-url';
-import { handleRequest } from './handle-request';
+import { getInputUrl } from './get-input-url.js';
+import { handleRequest } from './handle-request.js';
 
 const HarHttpAgent = createAgentClass(http.Agent);
 const HarHttpsAgent = createAgentClass(https.Agent);

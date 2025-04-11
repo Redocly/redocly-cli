@@ -1,6 +1,6 @@
 import * as colorette from 'colorette';
-import { isBrowser } from './env';
-import { identity } from './utils';
+import { isBrowser } from './env.js';
+import { identity } from './utils.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore this works but some types are not working
@@ -15,21 +15,22 @@ export const colorize = new Proxy(colorette, {
     return (target as any)[prop];
   },
 });
-class Logger {
-  protected stderr(str: string) {
-    return process.stderr.write(str);
-  }
 
+class Logger {
   info(str: string) {
-    return isBrowser ? console.log(str) : this.stderr(str);
+    return isBrowser ? console.info(str) : process.stderr.write(str);
   }
 
   warn(str: string) {
-    return isBrowser ? console.warn(str) : this.stderr(colorize.yellow(str));
+    return isBrowser ? console.warn(str) : process.stderr.write(colorize.yellow(str));
   }
 
   error(str: string) {
-    return isBrowser ? console.error(str) : this.stderr(colorize.red(str));
+    return isBrowser ? console.error(str) : process.stderr.write(colorize.red(str));
+  }
+
+  output(str: string) {
+    return isBrowser ? console.info(str) : process.stdout.write(str);
   }
 }
 

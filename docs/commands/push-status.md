@@ -34,7 +34,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 | --project, -p        | string  | **REQUIRED.** [Project slug](#find-org-slug).                                                                                  |
 | --domain, -d         | string  | The domain that the `push` command pushed to. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com). |
 | --wait               | boolean | Waits until the build is completed if it is in progress. Default value is `false`.                                             |
-| --max-execution-time | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `600`.      |
+| --max-execution-time | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `1200`.     |
 
 <details>
 <summary>How to find and copy the Reunite organization or project slugs<a id="find-org-slug"></a></summary>

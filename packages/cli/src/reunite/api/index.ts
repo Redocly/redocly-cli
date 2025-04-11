@@ -1,3 +1,3 @@
-export * from './api-client';
-export * from './domains';
-export * from './api-keys';
+export * from './api-client.js';
+export * from './domains.js';
+export * from './api-keys.js';

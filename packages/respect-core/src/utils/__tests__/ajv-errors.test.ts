@@ -1,7 +1,7 @@
 import type { JSONSchemaType } from '@redocly/ajv/dist/2020';
 
-import { printErrors } from '../ajv-errors';
-import { cleanColors } from '../../utils/clean-colors';
+import { printErrors } from '../ajv-errors.js';
+import { cleanColors } from '../../utils/clean-colors.js';
 
 describe('printErrors', () => {
   it('should display multiple Ajv errors', () => {

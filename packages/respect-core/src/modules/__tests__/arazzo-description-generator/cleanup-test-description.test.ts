@@ -1,6 +1,6 @@
-import type { TestDescription } from '../../../types';
+import type { TestDescription } from '../../../types.js';
 
-import { cleanupTestDescription } from '../../arazzo-description-generator';
+import { cleanupTestDescription } from '../../arazzo-description-generator/index.js';
 
 describe('cleanupTestDescription', () => {
   it('should cleanup sensitive information from a test config', () => {

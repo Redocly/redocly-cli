@@ -1,4 +1,4 @@
-import { isJSON } from '../is-json';
+import { isJSON } from '../is-json.js';
 
 describe('isJSON', () => {
   it('should return true if the string is a valid JSON', () => {

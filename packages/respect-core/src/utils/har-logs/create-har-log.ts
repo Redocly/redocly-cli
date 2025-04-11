@@ -1,4 +1,4 @@
-const { name: packageName, version: packageVersion } = require('../../../package.json');
+import { name as packageName, version as packageVersion } from '../package.js';
 
 export function createHarLog(entries: any[] = [], pageInfo: any = {}): any {
   return {

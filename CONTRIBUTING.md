@@ -6,6 +6,7 @@ Before submitting your contribution though, please make sure to take a moment an
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
 - [Development setup](#development-setup)
+- [Development guidelines](#development-guidelines)
 - [Local source code usage](#local-source-code-usage)
 - [Contribute documentation](#contribute-documentation)
 - [Built-in rules changes](#built-in-rules-changes)
@@ -37,7 +38,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v18.17.0+ and NPM v10.8.2+ are required.
+[Node.js](http://nodejs.org) at v22.13.0+ and NPM v10.9.2+ are required.
 
 After forking the repo, run:
 
@@ -47,7 +48,7 @@ npm install # or npm i
 
 ### Commonly used NPM scripts
 
-To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
+To compile the code, run `npm run compile`.
 
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
 Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
@@ -57,6 +58,36 @@ Format your code with `npm run prettier` before committing.
 Please check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
+
+## Development guidelines
+
+### Logging
+
+When contributing to Redocly CLI, it's important to follow these logging guidelines:
+
+1. Use the built-in logger from `@redocly/openapi-core` package:
+
+   ```typescript
+   import { logger } from '@redocly/openapi-core';
+   ```
+
+2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
+
+   - `logger.info()` for general information
+   - `logger.warn()` for warnings
+   - `logger.error()` for errors
+
+3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
+
+   - Command output that needs to be parsed
+   - Interactive outputs (like login/logout responses)
+   - Data that needs to be piped to other commands
+
+   ```typescript
+   logger.output(JSON.stringify(stats, null, 2));
+   ```
+
+4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls. Always use the logger methods to ensure consistent output formatting and proper stream usage.
 
 ## Local source code usage
 
@@ -170,8 +201,9 @@ The application maintains the following exit codes.
 
 ## Tests
 
-When running tests, make sure the code is compiled (`npm run compile` or `npm run watch`).
+When running tests, make sure the code is compiled (`npm run compile`).
 Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
+Run `npm test` to start both unit and e2e tests (and additionally typecheck the code).
 
 ### Unit tests
 
@@ -179,9 +211,8 @@ Run unit tests with this command: `npm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
+To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
-To run tests in watch mode, run: `npm run unit:watch`
-To run single file in watch mode, run: `npm run unit:watch -- <path/to/your/file.test.ts>`
 To update snapshots, run `npm run unit -- -u`.
 
 To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
@@ -196,6 +227,42 @@ To update snapshots, run `npm run e2e -- -u`.
 
 If you made any changes, make sure to compile the code before running the tests.
 
+The e2e tests are written and run with [Vitest](https://vitest.dev/).
+Most of them are encapsulated inside the `commands.test.ts` file.
+However, when adding new e2e tests, it's best to follow the approach of the `respect` command tests.
+
+Note that the snapshot does not always match the command output because of the way the stdout and stderr outputs are combined in tests.
+
+Here's how the output is processed in tests:
+
+```typescript
+const out = result.stdout ? result.stdout.toString() : '';
+const err = result.stderr ? result.stderr.toString() : '';
+return `${out}\n${err}`;
+```
+
+This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering. When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
+
+### Smoke tests
+
+Smokes are for testing the CLI in different environments.
+
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+
+To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
+
+```sh
+# Build and install the current CLI build locally
+npm run compile
+npm run pack:prepare
+npm i -g redocly-cli.tgz
+
+# Re-build the docs
+(cd __tests__/smoke/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
+```
+
+For other commands you'd have to do something similar.
+
 ### Performance benchmark
 
 To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
@@ -209,19 +276,18 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 ## Project structure
 
-- **`__mocks__`**: contains basic mocks for e2e tests.
+- **`__tests__`**: contains e2e and smoke tests.
 
-- **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/).
+- **`benchmark`**: contains the performance benchmark. <!-- TODO: move it under the __tests__ folder -->
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. Сonsists of two packages - CLI and core. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
 
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
 
     - **`packages/cli/src`**: contains CLI package source code.
 
-      - **`packages/cli/src/__mocks__`**: contains basic mocks for unit tests.
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
@@ -231,12 +297,10 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
     - **`packages/cli/core`**: contains core package source code.
 
       - **`packages/core/src/__tests__`**: contains unit tests.
-      - **`packages/core/src/benchmark`**: contains basic perf benchmark. Not fully ready yet.
       - **`packages/core/src/config`**: contains the base configuration options.
       - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.
       - **`packages/core/src/format`**: contains the format options.
       - **`packages/core/src/js-yaml`**: contains the [JS-YAML](https://www.npmjs.com/package/js-yaml) based functions.
-      - **`packages/core/src/redocly`**: contains the Redocly API registry integration setup.
       - **`packages/core/src/rules`**: contains the built-in [rules](../docs/resources/built-in-rules.md) code.
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.
@@ -266,7 +330,7 @@ Merge the PR and cut a release according to the [Release flow](#release-flow).
 To release an experimental version to the **NPM** registry, follow these steps:
 
 1. Create a new PR to **main**.
-2. Add the `snapshot` label to the PR. This creates a new PR with to the `snapshot` branch (which is a copy of the `main` branch).
-3. Merging the second PR triggers release to the **NPM** registry under the `snapshot` tag.
+2. Add the `snapshot` label to the PR.
+   This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
 The released version can be installed with `npm install @redocly/cli@snapshot`.

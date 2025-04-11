@@ -1,7 +1,11 @@
 import { outdent } from 'outdent';
-import { makeConfig, parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
-import { lintDocument } from '../../../lint';
-import { BaseResolver } from '../../../resolve';
+import {
+  makeConfig,
+  parseYamlToDocument,
+  replaceSourceWithRef,
+} from '../../../../__tests__/utils.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('no-schema-type-mismatch rule', () => {
   it('should report a warning for object type with items field', async () => {

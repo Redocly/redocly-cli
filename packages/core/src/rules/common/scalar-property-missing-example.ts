@@ -1,9 +1,9 @@
-import { SpecVersion } from '../../oas-types';
+import { SpecVersion } from '../../oas-types.js';
 
-import type { Oas2Rule, Oas3Rule } from '../../visitors';
-import type { UserContext } from '../../walk';
-import type { Oas2Schema } from '../../typings/swagger';
-import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
+import type { Oas2Schema } from '../../typings/swagger.js';
+import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 
 const SCALAR_TYPES = ['string', 'integer', 'number', 'boolean', 'null'];
 

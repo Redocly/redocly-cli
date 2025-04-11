@@ -1,9 +1,9 @@
-import { yamlAndJsonSyncReader } from '../../utils';
-import { isRef } from '../../ref-utils';
+import { yamlAndJsonSyncReader } from '../../utils.js';
+import { isRef } from '../../ref-utils.js';
 
-import type { Oas3Decorator } from '../../visitors';
-import type { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi';
-import type { NonUndefined, ResolveFn, UserContext } from '../../walk';
+import type { Oas3Decorator } from '../../visitors.js';
+import type { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi.js';
+import type { NonUndefined, ResolveFn, UserContext } from '../../walk.js';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   return {

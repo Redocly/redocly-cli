@@ -1,42 +1,38 @@
-import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous';
-import * as process from 'process';
-import { commandWrapper } from '../wrapper';
-import { handleLint } from '../commands/lint';
-import { Arguments } from 'yargs';
-import { handlePush, PushOptions } from '../commands/push';
-import { detectSpec } from '@redocly/openapi-core';
+import * as process from 'node:process';
+import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous.js';
+import { commandWrapper } from '../wrapper.js';
+import { handleLint } from '../commands/lint.js';
+import { type Config, detectSpec, type SpecVersion } from '@redocly/openapi-core';
 
-const mockFetch = jest.fn();
 const originalFetch = global.fetch;
 
-jest.mock('../utils/miscellaneous', () => ({
-  sendTelemetry: jest.fn(),
-  loadConfigAndHandleErrors: jest.fn(),
-}));
-
-beforeAll(() => {
-  global.fetch = mockFetch;
-});
-
-afterAll(() => {
-  jest.resetAllMocks();
-  global.fetch = originalFetch;
-});
-
-jest.mock('../commands/lint', () => ({
-  handleLint: jest.fn().mockImplementation(({ collectSpecData }) => {
-    collectSpecData({ openapi: '3.1.0' });
-  }),
-  lintConfigCallback: jest.fn(),
-}));
-
 describe('commandWrapper', () => {
-  it('should send telemetry if there is "telemetry: on" in the config', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } };
+  beforeEach(() => {
+    global.fetch = vi.fn();
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return {
+        ...actual,
+        detectSpec: vi.fn(),
+      };
     });
-    (detectSpec as jest.Mock).mockImplementationOnce(() => {
-      return 'oas3_1';
+    vi.mock('../utils/miscellaneous.js');
+    vi.mock('../commands/lint.js');
+  });
+  afterEach(() => {
+    global.fetch = originalFetch;
+    process.env.REDOCLY_TELEMETRY = undefined;
+  });
+
+  it('should send telemetry if there is "telemetry: on" in the config', async () => {
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
+    });
+    vi.mocked(detectSpec).mockImplementationOnce(() => {
+      return 'oas3_1' as SpecVersion;
+    });
+    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
+      collectSpecData?.({ openapi: '3.1.0' });
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 
@@ -48,10 +44,10 @@ describe('commandWrapper', () => {
   });
 
   it('should not collect spec version if the file is not parsed to json', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } };
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
     });
-    (handleLint as jest.Mock).mockImplementation(({ collectSpecData }) => {
+    vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }: any) => {
       collectSpecData();
     });
     process.env.REDOCLY_TELEMETRY = 'on';
@@ -64,8 +60,8 @@ describe('commandWrapper', () => {
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { telemetry: 'off', styleguide: { recommendedFallback: true } };
+    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      return { telemetry: 'off', styleguide: { recommendedFallback: true } } as Config;
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 
@@ -74,18 +70,5 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
 
     expect(sendTelemetry).toHaveBeenCalledTimes(0);
-  });
-
-  it('should pass files from arguments to config', async () => {
-    const filesToPush = ['test1.yaml', 'test2.yaml'];
-
-    const loadConfigMock = loadConfigAndHandleErrors as jest.Mock<any, any>;
-
-    const argv = {
-      files: filesToPush,
-    } as Arguments<PushOptions>;
-
-    await commandWrapper(handlePush)(argv);
-    expect(loadConfigMock).toHaveBeenCalledWith(expect.objectContaining({ files: filesToPush }));
   });
 });

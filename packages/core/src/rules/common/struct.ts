@@ -1,9 +1,9 @@
-import { isNamedType, SpecExtension } from '../../types';
-import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils';
-import { isRef } from '../../ref-utils';
-import { isPlainObject } from '../../utils';
+import { isNamedType, SpecExtension } from '../../types/index.js';
+import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
+import { isRef } from '../../ref-utils.js';
+import { isPlainObject } from '../../utils.js';
 
-import type { UserContext } from '../../walk';
+import type { UserContext } from '../../walk.js';
 import type {
   Oas3Rule,
   Oas2Rule,
@@ -11,7 +11,7 @@ import type {
   Async3Rule,
   Arazzo1Rule,
   Overlay1Rule,
-} from '../../visitors';
+} from '../../visitors.js';
 
 export const Struct:
   | Oas3Rule

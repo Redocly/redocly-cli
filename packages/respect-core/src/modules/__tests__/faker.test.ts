@@ -1,4 +1,4 @@
-import { createFaker } from '../faker';
+import { createFaker } from '../faker.js';
 
 describe('faker', () => {
   const faker = createFaker();
