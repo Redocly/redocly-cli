@@ -4,7 +4,7 @@ content:
   cards:
     - header: Great API docs
       link: docs/cli/api-docs
-      text: Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
+      text: Use open source Redoc or our hosted tools to create clear and useful documentation with static builds available.
     - header: Manage OpenAPI files
       link: docs/cli/file-management
       text: Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
@@ -24,6 +24,13 @@ Redocly CLI is an open source command-line tool for working with OpenAPI descrip
 Authenticate, update APIs, publish documentation, and use the other tools to manage, polish and share the APIs throughout the API lifecycle.
 
 {% wideTileCards content=$frontmatter.content /%}
+
+{% admonition type="warning" %}
+Starting v2 Redocly CLI becomes a ESM-only package.
+This means it could be run with Node.js 22.12.0 or higher.
+Also it could be run on Node.js 20.19.0 in some environments (latest Linux distros and MacOS).
+
+{% /admonition %}
 
 ## About Redocly and Redoc
 

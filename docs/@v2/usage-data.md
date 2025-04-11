@@ -13,7 +13,7 @@ When a command is run, the following data is collected:
 
 - the command being run
 - command exit code
-- values from `REDOCLY_ENVIRONMENT`
+- values from `REDOCLY_ENVIRONMENT` and `REDOCLY_CLI_TELEMETRY_METADATA`
 - CLI version
 - Node.js and NPM versions
 - whether the `redocly.yaml` configuration file exists

@@ -10,48 +10,25 @@ Before you start:
 
 {% admonition type="info" %}
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
+
+<!-- FIXME: is it still relevant? -->
+
 {% /admonition %}
 
-## Preview API documentation
+## Build API documentation
 
-Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc/) rendering your API docs, which updates when the API description updates.
+Redocly CLI has support for building your API documentation into an HTML file.
 Run the command:
 
 ```bash
-redocly preview-docs openapi.yaml
+redocly build-docs openapi.yaml
 ```
 
-The `redocly preview-docs` command triggers the creation of the doc preview for your API descriptions on your local machine. Once the doc preview has been generated, a url is printed as output to the CLI, as seen in the example below.
+The command produces a static HTML file named `redoc-static.html` by default in the current directory.
 
-The API Doc preview takes a few moments to build. Upon completion, it provides the host and port where the preview server runs - typically `http://localhost:8080`.
+Open it in your browser, and admire your lovely API documentation!
 
-<details><summary>Preview-docs command output</summary>
-
-```text
-Using Redoc community edition.
-Login with redocly login or use an enterprise license key to preview with the premium docs.
-
-
-  🔎  Preview server running at http://127.0.0.1:8080
-
-  👀  Watching openapi-starter/openapi/openapi.yaml and all related resources for changes
-
-
-Bundling...
-
-Created a bundle for openapi-starter/openapi/openapi.yaml successfully
-GET /: 18.123ms
-GET /simplewebsocket.min.js: 4.256ms
-GET /hot.js: 4.765ms
-GET /openapi.json: 1.73ms
-GET /favicon.ico: 1.556ms
-```
-
-</details>
-
-Open that URL in your browser, and admire your lovely API documentation!
-
-![Preview of API documentation](./images/preview-docs.png)
+![Preview of API documentation](./images/redoc.png)
 
 ## Lint an OpenAPI description
 

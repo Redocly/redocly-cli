@@ -334,3 +334,17 @@ To release an experimental version to the **NPM** registry, follow these steps:
    This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
 The released version can be installed with `npm install @redocly/cli@snapshot`.
+
+### Release a V1 version
+
+Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
+
+To release a new version, follow these steps:
+
+1. Create a new branch from **v1** and open a PR to **v1** branch.
+2. Add a changeset.
+3. Merge the PR to **v1** branch.
+
+That creates a new release PR which should be merged to release the new **v1** version under the `v1` tag.
+The **v1** branch is no longer connected with the **main** branch.
+Copypaste the changelog entry to the main branch manually.
