@@ -345,6 +345,7 @@ To release a new version, follow these steps:
 2. Add a changeset.
 3. Merge the PR to **v1** branch.
 
-That creates a new release PR which should be merged to release the new **v1** version under the `v1` tag.
-The **v1** branch is no longer connected with the **main** branch.
-Copypaste the changelog entry to the main branch manually.
+As a result, a new release PR is created.  
+After you merge the changes, a new **v1** version under the `v1` tag is released.
+The **v1** branch is no longer connected to the **main** branch.
+Copy and paste the changelog entry to the main branch manually.
