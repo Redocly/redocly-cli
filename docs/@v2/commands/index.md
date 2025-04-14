@@ -32,7 +32,7 @@ Redocly platform commands:
 
 - [`login`](login.md) Log in to Reunite.
 - [`logout`](logout.md) Clear your stored credentials.
-- [`push`](push.md) Push an API description to the Reunite.
+- [`push`](push.md) Push an API description to Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
 
 Supporting commands:
