@@ -26,9 +26,9 @@ Authenticate, update APIs, publish documentation, and use the other tools to man
 {% wideTileCards content=$frontmatter.content /%}
 
 {% admonition type="warning" %}
-Starting v2 Redocly CLI becomes a ESM-only package.
-This means it could be run with Node.js 22.12.0 or higher.
-Also it could be run on Node.js 20.19.0 in some environments (latest Linux distros and MacOS).
+Starting with v2, Redocly CLI becomes a ESM-only package.
+This means that you can run it with Node.js 22.12.0 or higher.
+You can also run it on Node.js 20.19.0 in some environments (latest Linux distributions and MacOS).
 
 {% /admonition %}
 
