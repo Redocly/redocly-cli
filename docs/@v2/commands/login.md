@@ -20,7 +20,7 @@ Note that logging in with **Reunite** API does not allow you to use the `push` c
 | --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | --config        | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                                         |
 | --help          | boolean | Display help.                                                                                                                                                   |
-| --residency, -r | string  | Specify the application's residency. Supported values: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. Default value is `us`. |
+| --residency, -r | string  | Specify the application's residency. The supported values are: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. The default value is `us`. |
 | --version       | boolean | Show version number.                                                                                                                                         |
 
 ## Examples
