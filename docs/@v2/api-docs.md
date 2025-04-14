@@ -19,7 +19,7 @@ There's a **free trial** on all our plans, so you can take it for a spin before 
 
 Get started with [Reunite](https://redocly.com/reunite).
 
-<!-- TODO: add more info about Reunite -->
+Feel free to check out [Reunite documentation](https://redocly.com/docs/realm/get-started/start-reunite-editor).
 
 ## Redoc
 
