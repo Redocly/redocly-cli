@@ -11,8 +11,6 @@ Before you start:
 {% admonition type="info" %}
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
 
-<!-- FIXME: is it still relevant? -->
-
 {% /admonition %}
 
 ## Build API documentation
