@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Use the `login` command to authenticate to use premium features.
+Use the `login` command to authenticate and use premium features.
 
 ## Usage
 
