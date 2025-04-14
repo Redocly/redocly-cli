@@ -11,4 +11,4 @@ const modifiedChangelog = mainChangelog.replace(
   '<!-- do-not-remove -->\n\n## ' + logWithDate
 );
 
-fs.writeFileSync('./docs/changelog.md', modifiedChangelog);
+fs.writeFileSync('./docs/@v2/changelog.md', modifiedChangelog);
