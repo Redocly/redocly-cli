@@ -24,7 +24,7 @@ Run the command:
 redocly build-docs openapi.yaml
 ```
 
-The command produces a static HTML file named `redoc-static.html` by default in the current directory.
+The command produces a static HTML file named `redoc-static.html` in the current directory by default.
 
 Open it in your browser, and admire your lovely API documentation!
 
