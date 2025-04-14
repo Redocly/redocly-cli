@@ -3,16 +3,16 @@ tocMaxDepth: 2
 content:
   cards:
     - header: Great API docs
-      link: docs/cli/api-docs
+      link: docs/cli/v2/api-docs
       text: Use open source Redoc or our hosted tools to create clear and useful documentation with static builds available.
     - header: Manage OpenAPI files
-      link: docs/cli/file-management
+      link: docs/cli/v2/file-management
       text: Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
     - header: Transform OpenAPI
-      link: docs/cli/decorators
+      link: docs/cli/v2/decorators
       text: Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
     - header: API governance
-      link: docs/cli/api-standards
+      link: docs/cli/v2/api-standards
       text: Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
 ---
 
