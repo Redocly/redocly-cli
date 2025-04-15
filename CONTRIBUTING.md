@@ -339,4 +339,4 @@ The released version can be installed with `npm install @redocly/cli@snapshot`.
 
 Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
 
-To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide.
+To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide (the `CONTRIBUTING.md` file).
