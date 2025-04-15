@@ -14,23 +14,6 @@ Visit the [installation page](../installation.md) to find and use an installatio
 
 All Redocly CLI commands use a common configuration file. For theme options, linting rules, and other configuration, check out the [configuration documentation](../configuration/index.md) for all the details.
 
-### Preview documentation locally
-
-Replace the old `redoc-cli serve` with:
-
-```sh
-redocly preview-docs --use-community-edition openapi.yaml
-```
-
-The documentation output updates when the API description changes.
-By default the documentation is available on `http://127.0.0.1:8080` but you can configure the host and port.
-
-The `--use-community-edition` parameter is needed for the tool to use Redoc to generate the docs; otherwise it generates the preview for our hosted [API reference docs](https://redocly.com/reference/)
-
-{% admonition type="success" name="Command reference" %}
-Visit the [`preview-docs` documentation](../commands/preview-docs.md) for more information and examples
-{% /admonition %}
-
 ### Publish documentation
 
 Replace existing `redoc-cli build` commands with:

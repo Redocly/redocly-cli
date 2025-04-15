@@ -2,44 +2,26 @@
 
 ## Introduction
 
-Use the `login` command to authenticate to the API registry.
-
-When you log in, the [`preview-docs`](./preview-docs.md) command starts a preview server using [Redocly API reference docs](https://redocly.com/reference/) with all of the premium features. Users who are not logged in see a [Redoc community edition](https://redocly.com/redoc/) version of their documentation.
-
-After logging in, you can also access your members-only (private) API descriptions in the Redocly registry, and use the [`push`](./push.md) command.
-
-If you're having issues with the `login` command, use the `--verbose` option to display a detailed error trace (if any).
+Use the `login` command to authenticate and use premium features.
 
 ## Usage
 
-{% admonition type="warning" name="Note" %}
-To log in, a personal API key is required. See [generate a personal API key](https://redocly.com/docs/settings/personal-api-keys/).
-{% /admonition %}
-
 ```bash
-redocly login [--help] [--verbose] [--version]
+redocly login [--help] [--version]
 
-redocly login --verbose
+redocly login --residency https://api.example.com
 ```
 
-To authenticate using **Reunite** API, use the `--next` option.
-
-```bash
-redocly login --next
-```
-
-Note that logging in with **Reunite** API does not allow you to use the `push` command.
+Note that logging in with **Reunite** API does not allow you to use the `push` command without an API key.
 
 ## Options
 
-| Option                    | Type    | Description                                                                                                                                                  |
-| ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| --config                  | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                         |
-| --help                    | boolean | Show help.                                                                                                                                                   |
-| --residency, --region, -r | string  | Specify the application's residency. Supported values: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. Default value is `us`. |
-| --verbose                 | boolean | Display additional output.                                                                                                                                   |
-| --version                 | boolean | Show version number.                                                                                                                                         |
-| --next                    | boolean | Authenticate through Reunite API.                                                                                                                            |
+| Option          | Type    | Description                                                                                                                                                              |
+| --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --config        | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                                                 |
+| --help          | boolean | Display help.                                                                                                                                                            |
+| --residency, -r | string  | Specify the application's residency. The supported values are: `us`, `eu`, or a full URL. The `eu` region is limited to enterprise customers. The default value is `us`. |
+| --version       | boolean | Show version number.                                                                                                                                                     |
 
 ## Examples
 
@@ -49,20 +31,14 @@ A confirmation message is displayed with a successful login:
 
 <pre>
 redocly login
-  🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
+  Attempting to automatically open the SSO authorization page in your default browser.
+  If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
 
-  Logging in...
-  Authorization confirmed. ✅
-</pre>
+  https://auth.cloud.redocly.com/device-login
 
-### View failed login message
+  Then enter the code:
 
-An error message is displayed with a failed login:
+  123456
 
-<pre>
-redocly login
-  🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
-
-  Logging in...
-  Authorization failed. Please check if you entered a valid API key.
+  ✅ Logged in
 </pre>

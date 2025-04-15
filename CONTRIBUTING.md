@@ -30,7 +30,7 @@ Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
-1. If you’ve fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
+1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
 1. Format your code with prettier (`npm run prettier`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes. If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the 'no changeset needed' label to the PR.
@@ -334,3 +334,9 @@ To release an experimental version to the **NPM** registry, follow these steps:
    This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
 The released version can be installed with `npm install @redocly/cli@snapshot`.
+
+### Release a V1 version
+
+Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
+
+To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide (the `CONTRIBUTING.md` file).
