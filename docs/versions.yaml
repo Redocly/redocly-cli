@@ -1,4 +1,6 @@
 default: 'v1'
 versions:
   - version: v1
+    name: Current
   - version: v2
+    name: Next
