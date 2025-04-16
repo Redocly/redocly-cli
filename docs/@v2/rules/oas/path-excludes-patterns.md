@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/path-excludes-patterns
+slug: /docs/cli/v2/rules/oas/path-excludes-patterns
 ---
 
 # path-excludes-patterns

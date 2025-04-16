@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/struct
+slug: /docs/cli/v2/rules/oas/struct
 ---
 
 # struct
