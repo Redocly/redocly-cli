@@ -1,9 +1,9 @@
-const fs = require('fs');
+import fs from 'fs';
 
 const generatedLogsCli = fs.readFileSync('./packages/cli/CHANGELOG.md').toString();
 const [, logCli] = generatedLogsCli.split('\n## ', 2);
 
-const mainChangelog = fs.readFileSync('./docs/changelog.md').toString();
+const mainChangelog = fs.readFileSync('./docs/@v2/changelog.md').toString();
 const [date] = new Date().toISOString().split('T');
 const logWithDate = logCli.replace('\n', ` (${date})\n`);
 const modifiedChangelog = mainChangelog.replace(
