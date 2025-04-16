@@ -6,3 +6,4 @@ packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs
 benchmark/api-definitions/
 LICENSE.md
 snapshot*.txt
+.changeset/pre.json
