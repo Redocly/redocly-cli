@@ -615,7 +615,7 @@ describe('E2E', () => {
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
       expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36238);
+      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36309);
     });
   });
 
