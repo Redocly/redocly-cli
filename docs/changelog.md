@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.3 (2025-04-22)
+
+### Patch Changes
+
+- Updated Redoc to v2.5.0.
+- Updated @redocly/openapi-core to v1.34.3.
+
 ## 1.34.2 (2025-04-09)
 
 ### Patch Changes
