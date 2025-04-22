@@ -16,13 +16,13 @@ Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6
 ### Node
 
 ```sh
-npx @redocly/cli@v1 lint path-to-root-file.yaml
+npx @redocly/cli@v1-archive lint path-to-root-file.yaml
 ```
 
 Alternatively, install it globally with `npm`:
 
 ```sh
-npm install @redocly/cli -g
+npm install @redocly/cli@v1-archive -g
 ```
 
 Then you can use it as `redocly [command] [options]`, for example:

@@ -36,7 +36,7 @@
     "build-docs": "npm run cli build-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
-    "release": "changeset publish --tag v1",
+    "release": "changeset publish --tag v1-archive",
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
     "pack:prepare": "./scripts/local-pack.sh",

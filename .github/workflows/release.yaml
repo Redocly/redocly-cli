@@ -101,7 +101,7 @@ jobs:
             ghcr.io/redocly/cli
           tags: |
             ${{ steps.get_version.outputs.value }}
-            v1
+            v1-archive
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -144,7 +144,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - name: Install CLI from npm
-        run: npm i -g @redocly/cli@v1
+        run: npm i -g @redocly/cli@v1-archive
       - name: Test version from NPM
         continue-on-error: true
         run: |
@@ -159,7 +159,7 @@ jobs:
           redocly bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml -o bundled.json
           redocly build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
       - name: Pull docker image
-        run: docker pull redocly/cli:v1
+        run: docker pull redocly/cli:v1-archive
       - name: Test docker image
         continue-on-error: true
         run: |

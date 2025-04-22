@@ -251,7 +251,7 @@ We use [Changesets](https://github.com/changesets/changesets) flow.
 After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR.
-Merging that PR triggers the release process under the `v1` label.
+Merging that PR triggers the release process under the `v1-archive` label.
 
 ### Revert a release
 
