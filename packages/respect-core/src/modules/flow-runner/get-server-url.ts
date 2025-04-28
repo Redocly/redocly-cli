@@ -112,7 +112,7 @@ export function getServerUrl({
     !descriptionName ||
     !ctx.$sourceDescriptions ||
     !ctx.$sourceDescriptions[descriptionName] ||
-    !ctx.$sourceDescriptions[descriptionName].servers.length
+    !ctx.$sourceDescriptions[descriptionName]?.servers?.length
   ) {
     return undefined;
   }

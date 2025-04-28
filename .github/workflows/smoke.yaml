@@ -196,10 +196,8 @@ jobs:
       - name: Clear Yarn Cache
         run: |
           yarn cache clean
-          Remove-Item -Path "$env:APPDATA\Local\Yarn\Cache" -Recurse -Force -ErrorAction SilentlyContinue
-          Start-Sleep -Seconds 10
       - run: |
-          Start-Sleep -Seconds 10
+          Start-Sleep -Seconds 20
           bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
 
   run-smoke--npm--node-20--windows:
@@ -231,10 +229,8 @@ jobs:
       - name: Clear Yarn Cache
         run: |
           yarn cache clean
-          Remove-Item -Path "$env:APPDATA\Local\Yarn\Cache" -Recurse -Force -ErrorAction SilentlyContinue
-          Start-Sleep -Seconds 10
       - run: |
-          Start-Sleep -Seconds 10
+          Start-Sleep -Seconds 20
           bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
 
   run-smoke--docker-image:
