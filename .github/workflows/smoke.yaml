@@ -196,9 +196,15 @@ jobs:
       - name: Clear Yarn Cache
         run: |
           yarn cache clean
-      - run: |
-          Start-Sleep -Seconds 30
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
+          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 10
+      - name: Install Yarn
+        run: npm install -g yarn@latest
+      - name: Run Smoke Tests
+        run: |
+          Start-Sleep -Seconds 20
+          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
 
   run-smoke--npm--node-20--windows:
     needs: prepare-smoke
@@ -229,9 +235,15 @@ jobs:
       - name: Clear Yarn Cache
         run: |
           yarn cache clean
-      - run: |
-          Start-Sleep -Seconds 35
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
+          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 10
+      - name: Install Yarn
+        run: npm install -g yarn@latest
+      - name: Run Smoke Tests
+        run: |
+          Start-Sleep -Seconds 20
+          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest
