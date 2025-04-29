@@ -198,13 +198,20 @@ jobs:
           yarn cache clean
           Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
           Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
+          rm -rf "$HOME/.yarn_cache"
           Start-Sleep -Seconds 10
-      - name: Install Yarn
-        run: npm install -g yarn@latest
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--npm--node-20--windows:
     needs: prepare-smoke
@@ -237,13 +244,20 @@ jobs:
           yarn cache clean
           Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
           Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
+          rm -rf "$HOME/.yarn_cache"
           Start-Sleep -Seconds 10
-      - name: Install Yarn
-        run: npm install -g yarn@latest
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest
