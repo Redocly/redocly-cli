@@ -200,7 +200,7 @@ jobs:
             if (bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn") {
               break
             }
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds 20
           }
 
   run-smoke--npm--node-20--windows:
@@ -236,7 +236,7 @@ jobs:
             if (bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn") {
               break
             }
-            Start-Sleep -Seconds 10
+            Start-Sleep -Seconds 20
           }
 
   run-smoke--docker-image:
