@@ -197,7 +197,7 @@ jobs:
         run: |
           yarn cache clean
       - run: |
-          Start-Sleep -Seconds 20
+          Start-Sleep -Seconds 30
           bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
 
   run-smoke--npm--node-20--windows:
@@ -230,7 +230,7 @@ jobs:
         run: |
           yarn cache clean
       - run: |
-          Start-Sleep -Seconds 20
+          Start-Sleep -Seconds 35
           bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
 
   run-smoke--docker-image:
