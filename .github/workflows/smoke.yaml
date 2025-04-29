@@ -193,14 +193,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: Clear Yarn Cache
+      - name: Run Smoke Tests
         run: |
-          yarn cache clean
-          Remove-Item -Path "$env:APPDATA\Local\Yarn\Cache" -Recurse -Force -ErrorAction SilentlyContinue
-          Start-Sleep -Seconds 10
-      - run: |
-          Start-Sleep -Seconds 10
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          Start-Sleep -Seconds 20
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--npm--node-20--windows:
     needs: prepare-smoke
@@ -228,14 +232,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Clear Yarn Cache
+      - name: Run Smoke Tests
         run: |
-          yarn cache clean
-          Remove-Item -Path "$env:APPDATA\Local\Yarn\Cache" -Recurse -Force -ErrorAction SilentlyContinue
-          Start-Sleep -Seconds 10
-      - run: |
-          Start-Sleep -Seconds 10
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          Start-Sleep -Seconds 20
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest

@@ -365,4 +365,15 @@ describe('getServerUrl', () => {
       ],
     });
   });
+
+  it('should return undefined when descriptionName is provided but servers are undefined in sourceDescription', () => {
+    const ctx = {
+      $sourceDescriptions: {
+        test: { servers: undefined },
+      },
+    } as unknown as TestContext;
+
+    const result = getServerUrl({ ctx, descriptionName: 'test' });
+    expect(result).toBeUndefined();
+  });
 });
