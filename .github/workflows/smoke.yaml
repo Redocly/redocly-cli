@@ -193,13 +193,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - name: Clear Yarn Cache
-        run: |
-          yarn cache clean
-          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
-          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
-          rm -rf "$HOME/.yarn_cache"
-          Start-Sleep -Seconds 10
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20
@@ -239,13 +232,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Clear Yarn Cache
-        run: |
-          yarn cache clean
-          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Cache" -ErrorAction SilentlyContinue
-          Remove-Item -Recurse -Force "$env:APPDATA\Local\Yarn\Data" -ErrorAction SilentlyContinue
-          rm -rf "$HOME/.yarn_cache"
-          Start-Sleep -Seconds 10
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20
