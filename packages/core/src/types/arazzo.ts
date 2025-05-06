@@ -1,6 +1,16 @@
 import { mapOf, type NodeType, listOf } from './index.js';
-import { DependentRequired, Schema, SchemaProperties } from './oas3_1.js';
-import { Discriminator, DiscriminatorMapping, ExternalDocs, Xml } from './oas3.js';
+import { DependentRequired, Schema, SchemaProperties, SecurityScheme } from './oas3_1.js';
+import {
+  Discriminator,
+  DiscriminatorMapping,
+  ExternalDocs,
+  Xml,
+  OAuth2Flows,
+  ImplicitFlow,
+  PasswordFlow,
+  ClientCredentials,
+  AuthorizationCode,
+} from './oas3.js';
 
 const Root: NodeType = {
   properties: {
@@ -132,6 +142,7 @@ const Step: NodeType = {
     onFailure: 'OnFailureActionList',
     outputs: 'Outputs',
     'x-operation': 'ExtendedOperation',
+    'x-security': 'ExtendedSecurityList',
     requestBody: 'RequestBody',
   },
   required: ['stepId'],
@@ -160,6 +171,16 @@ const Replacement: NodeType = {
   },
   required: ['target', 'value'],
   extensionsPrefix: 'x-',
+};
+const ExtendedSecurityList: NodeType = listOf('ExtendedSecurity');
+const ExtendedSecurity: NodeType = {
+  properties: {
+    schemeName: { type: 'string' },
+    values: {},
+    schema: 'SecurityScheme',
+  },
+  required: ['values'],
+  requiredOneOf: ['schemeName', 'schema'],
 };
 const ExtendedOperation: NodeType = {
   properties: {
@@ -280,6 +301,8 @@ export const Arazzo1Types: Record<string, NodeType> = {
   RequestBody,
   Replacement,
   ExtendedOperation,
+  ExtendedSecurityList,
+  ExtendedSecurity,
   Outputs,
   CriterionObject,
   XPathCriterion,
@@ -302,4 +325,10 @@ export const Arazzo1Types: Record<string, NodeType> = {
   NamedSuccessActions,
   NamedFailureActions,
   Xml,
+  SecurityScheme,
+  OAuth2Flows,
+  ImplicitFlow,
+  PasswordFlow,
+  ClientCredentials,
+  AuthorizationCode,
 };
