@@ -177,10 +177,10 @@ const ExtendedSecurity: NodeType = {
   properties: {
     schemeName: { type: 'string' },
     values: {},
-    schema: 'SecurityScheme',
+    scheme: 'SecurityScheme',
   },
   required: ['values'],
-  requiredOneOf: ['schemeName', 'schema'],
+  requiredOneOf: ['schemeName', 'scheme'],
 };
 const ExtendedOperation: NodeType = {
   properties: {

@@ -29,7 +29,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
                   values:
                     email: todd@example.com
                     password: 123456
-                - schema:
+                - scheme:
                     type: apiKey
                     name: api-key
                     in: header
@@ -46,7 +46,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
                   values:
                     email: todd@example.com
                     password: 123456
-                - schema:
+                - scheme:
                     type: apiKey
                     name: api-key
                     in: header
@@ -77,7 +77,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The \`schemeName\` can be only used in Step with OpenAPI operation, please use \`schema\` instead.",
+          "message": "The \`schemeName\` can be only used in Step with OpenAPI operation, please use \`scheme\` instead.",
           "ruleId": "no-x-security-scheme-name-without-openapi",
           "severity": "error",
           "suggest": [],

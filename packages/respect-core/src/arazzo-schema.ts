@@ -57,7 +57,7 @@ export const extendedSecurity = {
   properties: {
     schemeName: { type: 'string' },
     values: { type: 'object' },
-    schema: {
+    scheme: {
       type: 'object',
       properties: {
         type: { type: 'string', enum: ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'] },
