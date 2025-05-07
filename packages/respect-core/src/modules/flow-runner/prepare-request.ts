@@ -86,8 +86,6 @@ export async function prepareRequest(
     replacements,
   } = await parseRequestBody(step['requestBody'], ctx);
 
-  const xSecurityParameters: ParameterWithIn[] = resolveXSecurityParameters(step, openapiOperation);
-
   const requestBody = stepRequestBodyPayload || requestDataFromOpenAPI?.requestBody;
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
   const parameters = joinParameters(
@@ -103,8 +101,7 @@ export async function prepareRequest(
     stepRequestBodyContentType
       ? [{ in: 'header', name: 'content-type', value: stepRequestBodyContentType }]
       : [],
-    resolveParameters(step.parameters || [], ctx),
-    xSecurityParameters
+    resolveParameters(step.parameters || [], ctx)
   );
 
   // save local $steps context before evaluating runtime expressions
@@ -143,7 +140,8 @@ export async function prepareRequest(
     step,
   });
 
-  const evaluatedParameters = parameters.map((parameter) => {
+  const xSecurityParameters = resolveXSecurityParameters(expressionContext, step, openapiOperation);
+  const evaluatedParameters = joinParameters(parameters, xSecurityParameters).map((parameter) => {
     return {
       ...parameter,
       value: evaluateRuntimeExpressionPayload({
@@ -200,7 +198,8 @@ function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   const parametersWithNames = parameters.flat().filter((param) => 'name' in param);
 
   const parameterMap = parametersWithNames.reduce((map, param) => {
-    map[param.name] = param;
+    const key = `${param.name}:${param.in}`;
+    map[key] = param;
     return map;
   }, {} as { [key: string]: ParameterWithIn });
 
