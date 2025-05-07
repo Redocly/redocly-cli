@@ -13,6 +13,7 @@ import { StepOnFailureUnique } from './step-onFailure-unique.js';
 import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
 import { NoCriteriaXpath } from '../respect/no-criteria-xpath.js';
 import { CriteriaUnique } from './criteria-unique.js';
+import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';
@@ -33,6 +34,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'requestBody-replacements-unique': RequestBodyReplacementsUnique,
   'no-criteria-xpath': NoCriteriaXpath,
   'criteria-unique': CriteriaUnique,
+  'no-x-security-scheme-name-without-openapi': NoXSecuritySchemeNameWithoutOpenAPI,
 };
 
 export const preprocessors = {};

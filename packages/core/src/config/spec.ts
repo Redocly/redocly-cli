@@ -24,6 +24,7 @@ const spec: PluginStyleguideConfig<'built-in'> = {
     'requestBody-replacements-unique': 'error',
     'no-criteria-xpath': 'off',
     'criteria-unique': 'error',
+    'no-x-security-scheme-name-without-openapi': 'off',
   },
   overlay1Rules: {
     'info-contact': 'warn',

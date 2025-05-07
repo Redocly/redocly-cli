@@ -196,7 +196,7 @@ export const SchemaProperties: NodeType = {
   },
 };
 
-const SecurityScheme: NodeType = {
+export const SecurityScheme: NodeType = {
   properties: {
     type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'] },
     description: { type: 'string' },
