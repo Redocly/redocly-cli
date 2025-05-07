@@ -12,6 +12,7 @@ import {
 import { getServerUrl } from './get-server-url.js';
 import { createRuntimeExpressionCtx, collectSecretFields } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 
 import type { ParameterWithIn } from '../config-parser/index.js';
 import type { TestContext, Step, Parameter, PublicStep } from '../../types.js';
@@ -85,6 +86,8 @@ export async function prepareRequest(
     replacements,
   } = await parseRequestBody(step['requestBody'], ctx);
 
+  const xSecurityParameters: ParameterWithIn[] = resolveXSecurityParameters(step, openapiOperation);
+
   const requestBody = stepRequestBodyPayload || requestDataFromOpenAPI?.requestBody;
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
   const parameters = joinParameters(
@@ -100,7 +103,8 @@ export async function prepareRequest(
     stepRequestBodyContentType
       ? [{ in: 'header', name: 'content-type', value: stepRequestBodyContentType }]
       : [],
-    resolveParameters(step.parameters || [], ctx)
+    resolveParameters(step.parameters || [], ctx),
+    xSecurityParameters
   );
 
   // save local $steps context before evaluating runtime expressions
