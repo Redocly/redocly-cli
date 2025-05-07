@@ -32,17 +32,17 @@ export function generateWorkflowSecurityParameters(
           value: `$inputs.${securityName}`,
           in: securityScheme?.in || 'header',
         });
-      } else if (securityScheme?.scheme === 'bearer') {
+      } else if (securityScheme?.type === 'http' && securityScheme?.scheme === 'bearer') {
         parameters.push({
           name: 'Authorization',
           value: `Bearer {$inputs.${securityName}}`,
-          in: securityScheme?.in || 'header',
+          in: 'header',
         });
-      } else if (securityScheme?.scheme === 'basic') {
+      } else if (securityScheme?.type === 'http' && securityScheme?.scheme === 'basic') {
         parameters.push({
           name: 'Authorization',
           value: `Basic {$inputs.${securityName}}`,
-          in: securityScheme?.in || 'header',
+          in: 'header',
         });
       }
     }
