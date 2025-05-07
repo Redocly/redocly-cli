@@ -35,6 +35,7 @@ export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn
     arazzo1Rules: {
       'no-criteria-xpath': 'error',
       'respect-supported-versions': 'warn',
+      'no-x-security-scheme-name-without-openapi': 'error',
     },
   });
 

@@ -225,6 +225,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'respect-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
+    'no-x-security-scheme-name-without-openapi': 'off',
   },
   overlay1Rules: {
     'info-contact': 'error',
