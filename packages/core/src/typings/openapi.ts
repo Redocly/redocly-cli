@@ -291,37 +291,52 @@ export interface Oas3SecurityRequirement {
   [name: string]: string[];
 }
 
-export interface Oas3SecurityScheme {
-  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect' | 'mutualTLS';
+type Extensions = {
   description?: string;
-  name?: string;
-  in?: 'query' | 'header' | 'cookie';
-  scheme?: string;
+  [key: `x-${string}`]: unknown;
+};
+
+type BasicAuth = {
+  type: 'http';
+  scheme: 'basic';
+} & Extensions;
+
+type BearerAuth = {
+  type: 'http';
+  scheme: 'bearer';
   bearerFormat?: string;
+} & Extensions;
+
+type ApiKeyAuth = {
+  type: 'apiKey';
+  in: 'query' | 'header' | 'cookie';
+  name: string;
+} & Extensions;
+
+type OpenIDAuth = {
+  type: 'openIdConnect';
+  openIdConnectUrl: string;
+} & Extensions;
+
+type OAuth2Flow = {
+  refreshUrl?: string;
+  scopes: Record<string, string>;
+};
+
+export type OAuth2Auth = {
+  type: 'oauth2';
   flows: {
-    implicit?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
+    implicit?: OAuth2Flow & { authorizationUrl: string };
+    password?: OAuth2Flow & { tokenUrl: string };
+    clientCredentials?: OAuth2Flow & { tokenUrl: string };
+    authorizationCode?: OAuth2Flow & {
       authorizationUrl: string;
-    };
-    password?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
-      tokenUrl: string;
-    };
-    clientCredentials?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
-      tokenUrl: string;
-    };
-    authorizationCode?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
       tokenUrl: string;
     };
   };
-  openIdConnectUrl?: string;
-}
+} & Extensions;
+
+export type Oas3SecurityScheme = BasicAuth | BearerAuth | ApiKeyAuth | OpenIDAuth | OAuth2Auth;
 
 export interface Oas3Tag {
   name: string;

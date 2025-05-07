@@ -35,6 +35,11 @@ export interface ExtendedSecurity {
   schema?: Oas3SecurityScheme;
 }
 
+export type ResolvedSecurity = {
+  scheme: Oas3SecurityScheme;
+  values: Record<string, string>;
+};
+
 export interface ExtendedOperation {
   url: string;
   method:

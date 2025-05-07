@@ -197,11 +197,22 @@ type Oas3FlatVisitor = {
   NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
   NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
-  ImplicitFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['implicit']>;
-  PasswordFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['password']>;
-  ClientCredentials?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['clientCredentials']>;
-  AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
-  OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
+
+  ImplicitFlow?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['implicit']>
+  >;
+  PasswordFlow?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['password']>
+  >;
+  ClientCredentials?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['clientCredentials']>
+  >;
+  AuthorizationCode?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['authorizationCode']>
+  >;
+  OAuth2Flows?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']>
+  >;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
   SpecExtension?: VisitFunctionOrObject<unknown>;
 };
