@@ -1,3 +1,5 @@
+import type { Oas3SecurityScheme } from './openapi.js';
+
 export interface InfoObject {
   title: string;
   description?: string;
@@ -25,6 +27,12 @@ export interface Parameter {
   name: string;
   value: string | number | boolean;
   reference?: string;
+}
+
+export interface ExtendedSecurity {
+  schemeName?: string;
+  values: Record<string, string>;
+  schema?: Oas3SecurityScheme;
 }
 
 export interface ExtendedOperation {
@@ -114,6 +122,7 @@ export interface Step {
     [key: string]: string | object | any[] | boolean | number;
   };
   'x-operation'?: ExtendedOperation;
+  'x-security'?: ExtendedSecurity[];
   requestBody?: RequestBody;
 }
 
