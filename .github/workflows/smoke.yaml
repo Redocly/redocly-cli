@@ -92,8 +92,8 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          for i in {1..2}; do
-            bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--yarn--node-22--redoc:
@@ -110,8 +110,8 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          for i in {1..2}; do
-            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--yarn--node-20:
@@ -128,9 +128,8 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          for i in {1..2}; do
-            sleep 5
-            bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--yarn--node-20--redoc:
@@ -147,9 +146,8 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          for i in {1..2}; do
-            sleep 5
-            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--pnpm--node-22:
@@ -197,7 +195,7 @@ jobs:
           node-version: 22
       - name: Run Smoke Tests
         run: |
-          Start-Sleep -Seconds 20
+          Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
               bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
@@ -236,7 +234,7 @@ jobs:
           node-version: 20
       - name: Run Smoke Tests
         run: |
-          Start-Sleep -Seconds 20
+          Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
               bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
