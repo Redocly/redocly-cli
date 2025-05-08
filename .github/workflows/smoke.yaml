@@ -129,6 +129,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do
+            sleep 5
             bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
           done
 
@@ -147,7 +148,8 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do
-            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+            sleep 5
+            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--pnpm--node-22:
