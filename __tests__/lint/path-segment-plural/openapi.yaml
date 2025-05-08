@@ -33,6 +33,6 @@ paths:
       operationId: status id
       summary: get first status
   /health: # should be ignored as it's the last segment and the ignoreLastPathSegment option is set to true
-    get: 
+    get:
       operationId: status
       summary: get health status

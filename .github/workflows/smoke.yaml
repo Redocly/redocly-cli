@@ -92,7 +92,9 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do
+            bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          done
 
   run-smoke--yarn--node-22--redoc:
     needs: prepare-smoke
@@ -108,7 +110,9 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do
+            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+          done
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke
@@ -124,7 +128,9 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do
+            bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn"
+          done
 
   run-smoke--yarn--node-20--redoc:
     needs: prepare-smoke
@@ -140,7 +146,9 @@ jobs:
       - name: Clear Yarn Cache
         run: yarn cache clean
       - run: |
-          bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+          for i in {1..2}; do
+            bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn"
+          done
 
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
