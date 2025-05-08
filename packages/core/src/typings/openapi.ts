@@ -296,29 +296,29 @@ type SecuritySchemeBase = {
   [key: `x-${string}`]: unknown;
 };
 
-type BasicAuth = {
+export type BasicAuth = {
   type: 'http';
   scheme: 'basic';
 } & SecuritySchemeBase;
 
-type BearerAuth = {
+export type BearerAuth = {
   type: 'http';
   scheme: 'bearer';
   bearerFormat?: string;
 } & SecuritySchemeBase;
 
-type ApiKeyAuth = {
+export type ApiKeyAuth = {
   type: 'apiKey';
   in: 'query' | 'header' | 'cookie';
   name: string;
 } & SecuritySchemeBase;
 
-type OpenIDAuth = {
+export type OpenIDAuth = {
   type: 'openIdConnect';
   openIdConnectUrl: string;
 } & SecuritySchemeBase;
 
-type OAuth2Auth = {
+export type OAuth2Auth = {
   type: 'oauth2';
   flows: {
     authorizationCode?: OAuth2Flow & { authorizationUrl: string; tokenUrl: string };
