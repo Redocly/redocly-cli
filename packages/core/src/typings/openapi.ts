@@ -291,7 +291,7 @@ export interface Oas3SecurityRequirement {
   [name: string]: string[];
 }
 
-type Extensions = {
+type SecuritySchemeBase = {
   description?: string;
   [key: `x-${string}`]: unknown;
 };
@@ -299,42 +299,39 @@ type Extensions = {
 type BasicAuth = {
   type: 'http';
   scheme: 'basic';
-} & Extensions;
+} & SecuritySchemeBase;
 
 type BearerAuth = {
   type: 'http';
   scheme: 'bearer';
   bearerFormat?: string;
-} & Extensions;
+} & SecuritySchemeBase;
 
 type ApiKeyAuth = {
   type: 'apiKey';
   in: 'query' | 'header' | 'cookie';
   name: string;
-} & Extensions;
+} & SecuritySchemeBase;
 
 type OpenIDAuth = {
   type: 'openIdConnect';
   openIdConnectUrl: string;
-} & Extensions;
+} & SecuritySchemeBase;
+
+type OAuth2Auth = {
+  type: 'oauth2';
+  flows: {
+    authorizationCode?: OAuth2Flow & { authorizationUrl: string; tokenUrl: string };
+    implicit?: OAuth2Flow & { authorizationUrl: string }; // legacy
+    password?: OAuth2Flow & { tokenUrl: string }; // legacy
+    clientCredentials?: OAuth2Flow & { tokenUrl: string };
+  };
+} & SecuritySchemeBase;
 
 type OAuth2Flow = {
   refreshUrl?: string;
   scopes: Record<string, string>;
 };
-
-export type OAuth2Auth = {
-  type: 'oauth2';
-  flows: {
-    implicit?: OAuth2Flow & { authorizationUrl: string };
-    password?: OAuth2Flow & { tokenUrl: string };
-    clientCredentials?: OAuth2Flow & { tokenUrl: string };
-    authorizationCode?: OAuth2Flow & {
-      authorizationUrl: string;
-      tokenUrl: string;
-    };
-  };
-} & Extensions;
 
 export type Oas3SecurityScheme = BasicAuth | BearerAuth | ApiKeyAuth | OpenIDAuth | OAuth2Auth;
 

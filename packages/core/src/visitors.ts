@@ -198,6 +198,9 @@ type Oas3FlatVisitor = {
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
   NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
 
+  AuthorizationCode?: VisitFunctionOrObject<
+    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['authorizationCode']>
+  >;
   ImplicitFlow?: VisitFunctionOrObject<
     NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['implicit']>
   >;
@@ -206,9 +209,6 @@ type Oas3FlatVisitor = {
   >;
   ClientCredentials?: VisitFunctionOrObject<
     NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['clientCredentials']>
-  >;
-  AuthorizationCode?: VisitFunctionOrObject<
-    NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']['authorizationCode']>
   >;
   OAuth2Flows?: VisitFunctionOrObject<
     NonNullable<Extract<Oas3SecurityScheme, { type: 'oauth2' }>['flows']>
