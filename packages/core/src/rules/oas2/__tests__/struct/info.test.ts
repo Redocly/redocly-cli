@@ -19,7 +19,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -49,7 +49,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -79,7 +79,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -113,7 +113,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -139,7 +139,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -172,7 +172,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -204,7 +204,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -228,7 +228,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -260,7 +260,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -291,7 +291,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -312,7 +312,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -341,7 +341,7 @@ describe('OpenAPI Schema 2.0', () => {
 
     expect(
       await lintDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [

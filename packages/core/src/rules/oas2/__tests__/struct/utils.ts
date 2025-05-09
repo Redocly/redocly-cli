@@ -3,9 +3,9 @@ import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
 import { lintDocument } from '../../../../lint.js';
 import { BaseResolver } from '../../../../resolve.js';
 
-export async function validateDoc(
+export async function lintDoc(
   source: string,
-  rules: Record<string, RuleConfig> = { spec: 'error' }
+  rules: Record<string, RuleConfig> = { struct: 'error' }
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 

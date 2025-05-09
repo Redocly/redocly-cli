@@ -22,7 +22,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -55,7 +55,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -88,7 +88,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -125,7 +125,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -154,7 +154,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -190,7 +190,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -225,7 +225,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -252,7 +252,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -287,7 +287,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -321,7 +321,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`[]`);
   });
@@ -345,7 +345,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [
@@ -377,7 +377,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        struct: 'error',
       })
     ).toMatchInlineSnapshot(`
       [

@@ -32,7 +32,7 @@ describe('Referenceable scalars', () => {
           styleguideConfig: {
             extends: [],
             rules: {
-              spec: 'error',
+              struct: 'error',
               'no-unresolved-refs': 'error',
             },
           },

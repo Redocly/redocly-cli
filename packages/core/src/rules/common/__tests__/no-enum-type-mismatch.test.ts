@@ -166,7 +166,7 @@ describe('Oas3 typed enum', () => {
     `);
   });
 
-  it('should not crash on null schema when there is spec rule', async () => {
+  it('should not crash on null schema when there is struct rule', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -189,7 +189,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { spec: 'error', 'no-enum-type-mismatch': 'error' } }),
+      config: await makeConfig({ rules: { struct: 'error', 'no-enum-type-mismatch': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

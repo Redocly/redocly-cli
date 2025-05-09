@@ -13,14 +13,14 @@ describe('format', () => {
 
   const problems = [
     {
-      ruleId: 'spec',
+      ruleId: 'struct',
       location: [],
       severity: 'error' as const,
       message: 'message',
       suggest: [],
     },
     {
-      ruleId: 'spec',
+      ruleId: 'struct',
       location: [],
       severity: 'error' as const,
       message: 'message 2',
@@ -57,7 +57,7 @@ describe('format', () => {
     });
 
     expect(output).toMatchInlineSnapshot(`
-      "error   spec: 2
+      "error   struct: 2
       warning other-rule: 1
 
       "
@@ -73,7 +73,7 @@ describe('format', () => {
     });
 
     expect(replaceColors(output)).toMatchInlineSnapshot(`
-      "<r>error  </r> spec: 2
+      "<r>error  </r> struct: 2
       <o>warning</o> other-rule: 1
 
       "
@@ -83,7 +83,7 @@ describe('format', () => {
   it('should format problems using github-actions', () => {
     const problems = [
       {
-        ruleId: 'spec',
+        ruleId: 'struct',
         message: 'message',
         severity: 'error' as const,
         location: [
@@ -104,14 +104,14 @@ describe('format', () => {
     });
 
     expect(output).toEqual(
-      '::error title=spec,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n'
+      '::error title=struct,file=openapi.yaml,line=1,col=2,endLine=3,endColumn=4::message\n'
     );
   });
 
   it('should format problems using markdown', () => {
     const problems = [
       {
-        ruleId: 'spec',
+        ruleId: 'struct',
         message: 'message',
         severity: 'error' as const,
         location: [
@@ -136,7 +136,7 @@ describe('format', () => {
 
       | Severity | Location | Problem | Message |
       |---|---|---|---|
-      | error | line 1:2 | [spec](https://redocly.com/docs/cli/rules/spec/) | message |
+      | error | line 1:2 | [struct](https://redocly.com/docs/cli/rules/struct/) | message |
 
       Validation failed
       Errors: 1

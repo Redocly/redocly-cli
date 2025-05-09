@@ -12,9 +12,6 @@ import type { Async3Rule } from '../../visitors.js';
 import type { Async3RuleSet } from '../../oas-types.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
-  spec: Struct as Async3Rule,
   struct: Struct as Async3Rule,
   assertions: Assertions as Async3Rule,
   'info-contact': InfoContact as Async3Rule,

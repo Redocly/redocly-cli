@@ -1,12 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
-import {
-  slash,
-  doesYamlFileExist,
-  isPlainObject,
-  showWarningForDeprecatedField,
-} from '../utils.js';
+import { slash, doesYamlFileExist } from '../utils.js';
 import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
@@ -72,19 +67,6 @@ export class StyleguideConfig {
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
     this.recommendedFallback = rawConfig.recommendedFallback || false;
 
-    const ruleGroups: (keyof ResolvedStyleguideConfig)[] = [
-      'rules',
-      'oas2Rules',
-      'oas3_0Rules',
-      'oas3_1Rules',
-      'async2Rules',
-      'async3Rules',
-      'arazzo1Rules',
-      'overlay1Rules',
-    ];
-
-    replaceSpecWithStruct(ruleGroups, rawConfig);
-
     this.rules = {
       [SpecVersion.OAS2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
       [SpecVersion.OAS3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
@@ -128,8 +110,6 @@ export class StyleguideConfig {
         string,
         Record<string, Set<string>>
       >) || {};
-
-    replaceSpecWithStruct(Object.keys(this.ignore), this.ignore); // FIXME: remove this (2.0)
 
     // resolve ignore paths
     for (const fileName of Object.keys(this.ignore)) {
@@ -389,17 +369,6 @@ export class StyleguideConfig {
           this.decorators[version][decoratorId] = 'off';
         }
       }
-    }
-  }
-}
-
-// To support backwards compatibility with the old `spec` key we rename it to `struct`.
-function replaceSpecWithStruct(ruleGroups: string[], config: Record<string, unknown>) {
-  for (const ruleGroup of ruleGroups) {
-    if (config[ruleGroup] && isPlainObject(config[ruleGroup]) && 'spec' in config[ruleGroup]) {
-      showWarningForDeprecatedField('spec', 'struct');
-      config[ruleGroup].struct = config[ruleGroup].spec;
-      delete config[ruleGroup].spec;
     }
   }
 }

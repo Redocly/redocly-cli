@@ -90,7 +90,7 @@ components:
 ## Related rules
 
 - [configurable rules](../configurable-rules.md)
-- [spec](./struct.md)
+- [struct](./struct.md)
 
 ## Resources
 
