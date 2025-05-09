@@ -40,10 +40,12 @@ export function getSecurityParameters(resolvedSecurity: ResolvedSecurity): Param
   }
 
   if (isOpenIDAuth(resolvedSecurity) || isOAuth2Auth(resolvedSecurity)) {
+    const { accessToken } = resolvedSecurity.values;
+
     return {
       in: 'header',
       name: 'Authorization',
-      value: `Bearer ${resolvedSecurity.values.accessToken}`,
+      value: `Bearer ${accessToken}`,
     };
   }
 
