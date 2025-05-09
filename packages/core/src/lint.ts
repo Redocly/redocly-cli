@@ -161,7 +161,7 @@ export async function lintConfig(opts: {
   })[] = [
     {
       severity: severity || 'error',
-      ruleId: 'configuration spec',
+      ruleId: 'configuration struct',
       visitor: Struct({ severity: 'error' }),
     },
     {

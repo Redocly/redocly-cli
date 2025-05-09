@@ -77,7 +77,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 | `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`          |
 | `oas3-operation-security-defined`      | `security-defined`                            |
 | `oas3-parameter-description`           | `parameter-description`                       |
-| `oas3-schema`                          | `spec`                                        |
+| `oas3-schema`                          | `struct`                                      |
 | `oas3-server-not-example.com`          | `no-server-example.com`                       |
 | `oas3-server-trailing-slash`           | `no-server-trailing-slash`                    |
 | `oas3-unused-component`                | `no-unused-components`                        |

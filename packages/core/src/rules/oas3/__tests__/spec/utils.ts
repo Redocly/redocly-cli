@@ -5,7 +5,7 @@ import { BaseResolver } from '../../../../resolve.js';
 
 export async function validateDoc(
   source: string,
-  rules: Record<string, RuleConfig> = { spec: 'error' }
+  rules: Record<string, RuleConfig> = { struct: 'error' }
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
