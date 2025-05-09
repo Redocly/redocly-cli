@@ -84,7 +84,7 @@ components:
 
 ## Related rules
 
-- [spec](./struct.md)
+- [struct](./struct.md)
 - [configurable rules](../configurable-rules.md)
 - [no-unused-components](./no-unused-components.md)
 

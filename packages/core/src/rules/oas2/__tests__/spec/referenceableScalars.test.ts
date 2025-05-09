@@ -31,7 +31,7 @@ describe('Referenceable scalars', () => {
       document,
       config: await makeConfig({
         rules: {
-          spec: 'error',
+          struct: 'error',
         },
       }),
     });
