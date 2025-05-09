@@ -1,8 +1,10 @@
 import type {
   Oas3SecurityScheme,
+  HttpAuth,
   BasicAuth,
   BearerAuth,
   ApiKeyAuth,
+  MutualTLSAuth,
   OpenIDAuth,
   OAuth2Auth,
 } from './openapi.js';
@@ -63,13 +65,7 @@ export type ResolvedSecurity =
       };
     }
   | {
-      scheme: OpenIDAuth;
-      values: {
-        accessToken: string;
-      };
-    }
-  | {
-      scheme: OAuth2Auth;
+      scheme: HttpAuth | MutualTLSAuth | OAuth2Auth | OpenIDAuth;
       values: {
         accessToken: string;
       };

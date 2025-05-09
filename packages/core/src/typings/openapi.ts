@@ -296,6 +296,11 @@ type SecuritySchemeBase = {
   [key: `x-${string}`]: unknown;
 };
 
+export type HttpAuth = {
+  type: 'http';
+  scheme: string;
+} & SecuritySchemeBase;
+
 export type BasicAuth = {
   type: 'http';
   scheme: 'basic';
@@ -307,10 +312,19 @@ export type BearerAuth = {
   bearerFormat?: string;
 } & SecuritySchemeBase;
 
+export type DigestAuth = {
+  type: 'http';
+  scheme: 'digest';
+} & SecuritySchemeBase;
+
 export type ApiKeyAuth = {
   type: 'apiKey';
   in: 'query' | 'header' | 'cookie';
   name: string;
+} & SecuritySchemeBase;
+
+export type MutualTLSAuth = {
+  type: 'mutualTLS';
 } & SecuritySchemeBase;
 
 export type OpenIDAuth = {
@@ -333,7 +347,15 @@ type OAuth2Flow = {
   scopes: Record<string, string>;
 };
 
-export type Oas3SecurityScheme = BasicAuth | BearerAuth | ApiKeyAuth | OpenIDAuth | OAuth2Auth;
+export type Oas3SecurityScheme =
+  | HttpAuth
+  | BasicAuth
+  | BearerAuth
+  | DigestAuth
+  | ApiKeyAuth
+  | MutualTLSAuth
+  | OpenIDAuth
+  | OAuth2Auth;
 
 export interface Oas3Tag {
   name: string;
