@@ -29,11 +29,15 @@ export interface Parameter {
   reference?: string;
 }
 
-export interface ExtendedSecurity {
-  schemeName?: string;
-  values: Record<string, string>;
-  schema?: Oas3SecurityScheme;
-}
+export type ExtendedSecurity =
+  | {
+      schemeName: string;
+      values: Record<string, string>;
+    }
+  | {
+      scheme: Oas3SecurityScheme;
+      values: Record<string, string>;
+    };
 
 export type ResolvedSecurity =
   | {
