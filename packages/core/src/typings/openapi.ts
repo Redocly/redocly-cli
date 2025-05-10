@@ -327,18 +327,30 @@ export type MutualTLSAuth = {
   type: 'mutualTLS';
 } & SecuritySchemeBase;
 
-type OAuth2FlowBase = {
-  refreshUrl?: string;
-  scopes: Record<string, string>;
-};
-
 export type OAuth2Auth = {
   type: 'oauth2';
   flows: {
-    authorizationCode?: OAuth2FlowBase & { authorizationUrl: string; tokenUrl: string };
-    implicit?: OAuth2FlowBase & { authorizationUrl: string }; // legacy
-    password?: OAuth2FlowBase & { tokenUrl: string }; // legacy
-    clientCredentials?: OAuth2FlowBase & { tokenUrl: string };
+    implicit?: {
+      authorizationUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    };
+    password?: {
+      tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    };
+    clientCredentials?: {
+      tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    };
+    authorizationCode?: {
+      authorizationUrl: string;
+      tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    };
   };
 } & SecuritySchemeBase;
 
