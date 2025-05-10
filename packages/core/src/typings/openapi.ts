@@ -296,6 +296,12 @@ type SecuritySchemeBase = {
   [key: `x-${string}`]: unknown;
 };
 
+export type ApiKeyAuth = {
+  type: 'apiKey';
+  in: 'query' | 'header' | 'cookie';
+  name: string;
+} & SecuritySchemeBase;
+
 export type HttpAuth = {
   type: 'http';
   scheme: string;
@@ -317,14 +323,23 @@ export type DigestAuth = {
   scheme: 'digest';
 } & SecuritySchemeBase;
 
-export type ApiKeyAuth = {
-  type: 'apiKey';
-  in: 'query' | 'header' | 'cookie';
-  name: string;
-} & SecuritySchemeBase;
-
 export type MutualTLSAuth = {
   type: 'mutualTLS';
+} & SecuritySchemeBase;
+
+type OAuth2FlowBase = {
+  refreshUrl?: string;
+  scopes: Record<string, string>;
+};
+
+export type OAuth2Auth = {
+  type: 'oauth2';
+  flows: {
+    authorizationCode?: OAuth2FlowBase & { authorizationUrl: string; tokenUrl: string };
+    implicit?: OAuth2FlowBase & { authorizationUrl: string }; // legacy
+    password?: OAuth2FlowBase & { tokenUrl: string }; // legacy
+    clientCredentials?: OAuth2FlowBase & { tokenUrl: string };
+  };
 } & SecuritySchemeBase;
 
 export type OpenIDAuth = {
@@ -332,30 +347,15 @@ export type OpenIDAuth = {
   openIdConnectUrl: string;
 } & SecuritySchemeBase;
 
-export type OAuth2Auth = {
-  type: 'oauth2';
-  flows: {
-    authorizationCode?: OAuth2Flow & { authorizationUrl: string; tokenUrl: string };
-    implicit?: OAuth2Flow & { authorizationUrl: string }; // legacy
-    password?: OAuth2Flow & { tokenUrl: string }; // legacy
-    clientCredentials?: OAuth2Flow & { tokenUrl: string };
-  };
-} & SecuritySchemeBase;
-
-type OAuth2Flow = {
-  refreshUrl?: string;
-  scopes: Record<string, string>;
-};
-
 export type Oas3SecurityScheme =
+  | ApiKeyAuth
   | HttpAuth
   | BasicAuth
   | BearerAuth
   | DigestAuth
-  | ApiKeyAuth
   | MutualTLSAuth
-  | OpenIDAuth
-  | OAuth2Auth;
+  | OAuth2Auth
+  | OpenIDAuth;
 
 export interface Oas3Tag {
   name: string;

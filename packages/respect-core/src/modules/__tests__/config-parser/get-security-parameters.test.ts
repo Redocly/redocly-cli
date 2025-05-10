@@ -2,6 +2,25 @@ import { describe, it, expect } from 'vitest';
 import { getSecurityParameters } from '../../config-parser/get-security-parameters';
 
 describe('getSecurityParameters', () => {
+  it('should return security parameters for API Key Auth', () => {
+    const result = getSecurityParameters({
+      scheme: {
+        type: 'apiKey',
+        in: 'query',
+        name: 'api_key',
+      },
+      values: {
+        value: '12345678-ABCD-90EF-GHIJ-1234567890KL',
+      },
+    });
+
+    expect(result).toEqual({
+      in: 'query',
+      name: 'api_key',
+      value: '12345678-ABCD-90EF-GHIJ-1234567890KL',
+    });
+  });
+
   it('should return security parameters for Basic Auth', () => {
     const result = getSecurityParameters({
       scheme: {
@@ -39,25 +58,6 @@ describe('getSecurityParameters', () => {
       name: 'Authorization',
       value:
         'Bearer eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.LlTGHPZRXbci-y349jXXN0byQniQQqwKGybzQCFIgY0',
-    });
-  });
-
-  it('should return security parameters for API Key Auth', () => {
-    const result = getSecurityParameters({
-      scheme: {
-        type: 'apiKey',
-        in: 'query',
-        name: 'api_key',
-      },
-      values: {
-        value: '12345678-ABCD-90EF-GHIJ-1234567890KL',
-      },
-    });
-
-    expect(result).toEqual({
-      in: 'query',
-      name: 'api_key',
-      value: '12345678-ABCD-90EF-GHIJ-1234567890KL',
     });
   });
 

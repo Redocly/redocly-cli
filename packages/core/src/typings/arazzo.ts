@@ -1,13 +1,4 @@
-import type {
-  Oas3SecurityScheme,
-  HttpAuth,
-  BasicAuth,
-  BearerAuth,
-  ApiKeyAuth,
-  MutualTLSAuth,
-  OpenIDAuth,
-  OAuth2Auth,
-} from './openapi.js';
+import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from './openapi.js';
 
 export interface InfoObject {
   title: string;
@@ -46,6 +37,12 @@ export interface ExtendedSecurity {
 
 export type ResolvedSecurity =
   | {
+      scheme: ApiKeyAuth;
+      values: {
+        value: string;
+      };
+    }
+  | {
       scheme: BasicAuth;
       values: {
         username: string;
@@ -59,13 +56,7 @@ export type ResolvedSecurity =
       };
     }
   | {
-      scheme: ApiKeyAuth;
-      values: {
-        value: string;
-      };
-    }
-  | {
-      scheme: HttpAuth | MutualTLSAuth | OAuth2Auth | OpenIDAuth;
+      scheme: Exclude<Oas3SecurityScheme, ApiKeyAuth | BasicAuth | BearerAuth>;
       values: {
         accessToken: string;
       };
