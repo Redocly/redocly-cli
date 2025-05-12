@@ -33,7 +33,7 @@ rules:
 ```
 
 The empty `extends` element instructs Redocly CLI not to use any existing rulesets, but to display an error if the `struct` rule finds any problem.
-This rule checks that the document structure matches what is expected by the AsyncAPI specification.
+This rule checks that the document structure matches the AsyncAPI specification.
 
 With this configuration file, and your AsyncAPI description file (or use one of the [existing examples](https://github.com/asyncapi/spec/tree/master/examples)), run the linting command:
 
