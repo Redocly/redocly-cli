@@ -4,7 +4,7 @@ Requires the `onSuccess` actions of the `step` object to be unique.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

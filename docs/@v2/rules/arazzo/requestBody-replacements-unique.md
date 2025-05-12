@@ -4,7 +4,7 @@ Requires the `replacements` in the `step.requestBody` object to be unique.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

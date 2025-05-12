@@ -4,7 +4,7 @@ Requires the `stepId` to be unique amongst all steps described in the workflow.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

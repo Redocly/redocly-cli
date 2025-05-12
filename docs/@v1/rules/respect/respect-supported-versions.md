@@ -4,7 +4,7 @@ The `version` property must be one of the supported values.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## API design principles
 
@@ -20,7 +20,7 @@ The `version` property must be one of the Respect-supported values which may be 
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   respect-supported-versions: error
 ```
 
@@ -29,7 +29,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   respect-supported-versions: error
 ```
 

@@ -4,7 +4,7 @@ Requires unique values in the `parameters` lists.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 
