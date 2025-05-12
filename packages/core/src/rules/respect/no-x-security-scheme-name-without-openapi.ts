@@ -18,7 +18,7 @@ export const NoXSecuritySchemeNameWithoutOpenAPI: Arazzo1Rule = () => {
         }
 
         for (const security of extendedSecurity) {
-          if (security?.schemeName) {
+          if ('schemeName' in security) {
             report({
               message:
                 'The `schemeName` can be only used in Step with OpenAPI operation, please use `scheme` instead.',
