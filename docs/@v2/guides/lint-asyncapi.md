@@ -32,7 +32,7 @@ rules:
   struct: error
 ```
 
-The empty `extends` element instructs Redocly CLI not to use any existing rulesets, but to emit an error if the `struct` rule finds any problem.
+The empty `extends` element instructs Redocly CLI not to use any existing rulesets, but to display an error if the `struct` rule finds any problem.
 This rule checks that the document structure matches what is expected by the AsyncAPI specification.
 
 With this configuration file, and your AsyncAPI description file (or use one of the [existing examples](https://github.com/asyncapi/spec/tree/master/examples)), run the linting command:
@@ -46,7 +46,7 @@ The output describes any structural problems with the document, or reports that 
 ## AsyncAPI rules
 
 To expand the linting checks for an AsyncAPI description, start by enabling some of the built-in rules.
-The currently-supported rules are:
+The currently supported rules are:
 
 - `info-contact`: the `Info` section must contain a valid `Contact` field.
 - `operation-operationId`: every operation must have a valid `operationId`.
@@ -71,7 +71,7 @@ Pick and mix the available rules until you have the setup that fits your situati
 ## Configurable rule example
 
 Redocly CLI also offers [configurable rules](../rules/configurable-rules.md) that allow you to set assertions about the API description being linted, and this functionality works just as well for AsyncAPI as for OpenAPI.
-The following example shows a configurable rule that emits a warning if the `title` field is not present in the `info` block:
+The following example shows a configurable rule that displays a warning if the `title` field is not present in the `info` block:
 
 ```yaml
 rules:
@@ -84,7 +84,7 @@ rules:
     severity: warn
 ```
 
-With the extensive configurable rules options available, there are many opportunities to make sure that your AsyncAPI spec conforms with expectations (we'd also love to see what you're building, it helps us know how things are going!).
+With the extensive configurable rules options available, there are many opportunities to make sure that your AsyncAPI spec conforms with expectations. We'd also love to see what you're building - it helps us know how things are going!
 
 {% admonition type="info" name="Custom plugins" %}
 For those users with advanced requirements and JavaScript skills, the [custom plugins](../custom-plugins/index.md) feature offers some extension points if you need them.
