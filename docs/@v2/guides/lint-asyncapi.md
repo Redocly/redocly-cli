@@ -87,7 +87,7 @@ rules:
 With the extensive configurable rules options available, there are many opportunities to make sure that your AsyncAPI spec conforms with expectations. We'd also love to see what you're building - it helps us know how things are going!
 
 {% admonition type="info" name="Custom plugins" %}
-For those users with advanced requirements and JavaScript skills, the [custom plugins](../custom-plugins/index.md) feature offers some extension points if you need them.
+To create your own plugins, see the [custom plugins documentation](../custom-plugins/index.md).
 
 {% /admonition %}
 
