@@ -114,7 +114,7 @@ export const extendedSecurity = {
     },
   },
   required: ['values'],
-  requiredOneOf: ['schemeName', 'schema'],
+  requiredOneOf: ['schemeName', 'scheme'],
 } as const;
 export const extendedSecurityList = {
   type: 'array',
