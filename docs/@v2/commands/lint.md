@@ -379,7 +379,7 @@ museum-with-errors.yaml:
 ```
 
 The rule in the example is named `struct`, which indicates compliance with the OpenAPI specification structure.
-You can also manually add problems that should be ignored to specific rules.
+You can also manually add problems to be ignored by specific rules.
 
 ### Skip preprocessor or rule
 
