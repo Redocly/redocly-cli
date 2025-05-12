@@ -1,4 +1,4 @@
-import type { Oas3SecurityScheme } from './openapi.js';
+import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from './openapi.js';
 
 export interface InfoObject {
   title: string;
@@ -29,11 +29,42 @@ export interface Parameter {
   reference?: string;
 }
 
-export interface ExtendedSecurity {
-  schemeName?: string;
-  values: Record<string, string>;
-  schema?: Oas3SecurityScheme;
-}
+export type ExtendedSecurity =
+  | {
+      schemeName: string;
+      values: Record<string, string>;
+    }
+  | {
+      scheme: Oas3SecurityScheme;
+      values: Record<string, string>;
+    };
+
+export type ResolvedSecurity =
+  | {
+      scheme: ApiKeyAuth;
+      values: {
+        value: string;
+      };
+    }
+  | {
+      scheme: BasicAuth;
+      values: {
+        username: string;
+        password: string;
+      };
+    }
+  | {
+      scheme: BearerAuth;
+      values: {
+        token: string;
+      };
+    }
+  | {
+      scheme: Exclude<Oas3SecurityScheme, ApiKeyAuth | BasicAuth | BearerAuth>;
+      values: {
+        accessToken: string;
+      };
+    };
 
 export interface ExtendedOperation {
   url: string;
