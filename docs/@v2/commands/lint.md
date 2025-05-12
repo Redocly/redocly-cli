@@ -409,7 +409,7 @@ To learn more about preprocessors, rules, and decorators, refer to the [custom p
 
 The `lint` command also validates the configuration file.
 You may want to set severity level by using the `--lint-config` option.
-This option accepts one of the following values: `warn`,`error`,`off`.
+This option accepts one of the following values: `warn`,`error`, or `off`.
 Default value is `warn`.
 
 ```bash
