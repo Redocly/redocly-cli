@@ -108,7 +108,7 @@ The rules list is split into sections.
 ## AsyncAPI rules
 
 Use the rules in this section for AsyncAPI-specific linting.
-Other rules such as the `struct` and `info.*` rules also apply to AsyncAPI.
+Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 
 - [channels-kebab-case](./async/channels-kebab-case.md): Channels must be in `kebab-case` format
 - [no-channel-trailing-slash](./async/no-channel-trailing-slash.md): No trailing slashes on channels
