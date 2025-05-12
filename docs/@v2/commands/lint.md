@@ -261,7 +261,7 @@ redocly lint --format=checkstyle
 ```
 
 The `lint` command also supports the [Checkstyle](https://checkstyle.org/) XML report format.
-Use this command to get the following standard format output to use with your other tools:
+Run this command to use the following standard format output with your other tools:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
