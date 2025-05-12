@@ -8,7 +8,7 @@ Ensures that your API document conforms to the [OpenAPI specification](https://s
 
 | Arzzo | Compatibility |
 | ----- | ------------- |
-| 1.0.0 | ✅            |
+| 1.x   | ✅            |
 
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 

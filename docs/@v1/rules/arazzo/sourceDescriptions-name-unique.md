@@ -4,7 +4,7 @@ The `name` property of the Source Description object must be unique across all s
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

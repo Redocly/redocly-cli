@@ -8,7 +8,7 @@ The `xpath` type criteria is not supported by Respect.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## API design principles
 
@@ -24,7 +24,7 @@ The `xpath` type criteria is not supported by Respect.
 An example configuration:
 
 ```yaml
-arazzoRules:
+rules:
   no-criteria-xpath: error
 ```
 
@@ -33,7 +33,7 @@ arazzoRules:
 Given the following configuration:
 
 ```yaml
-arazzoRules:
+rules:
   no-criteria-xpath: error
 ```
 

@@ -4,7 +4,7 @@ The criteria list must not contain duplicated assertions.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

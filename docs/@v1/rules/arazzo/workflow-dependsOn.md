@@ -4,7 +4,7 @@ Requires the items in the `workflow` `dependsOn` property to exist and to be uni
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 

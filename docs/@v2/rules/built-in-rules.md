@@ -131,7 +131,7 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
 
-### Respect [ deprecated ]
+### Respect
 
 The below rules are being migrated to Respect:
 

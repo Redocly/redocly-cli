@@ -4,7 +4,7 @@ Requires the `workflowId` property to be unique across all workflows.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0.0  | ✅            |
+| 1.x    | ✅            |
 
 ## Design principles
 
