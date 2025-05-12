@@ -13,7 +13,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
         if (pathKey.startsWith('/')) {
           const pathSegments = pathKey.split('/');
           pathSegments.shift();
-          if (ignoreLastPathSegment && pathSegments.length > 1) {
+          if (ignoreLastPathSegment && pathSegments.length > 0) {
             pathSegments.pop();
           }
 
