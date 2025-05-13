@@ -137,6 +137,8 @@ The below rules are being migrated to Respect:
 
 - [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
+- [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
+- [x-security-schema-required-values](./respect/x-security-schema-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
 
 ## Resources
 
