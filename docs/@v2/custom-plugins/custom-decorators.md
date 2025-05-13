@@ -170,7 +170,7 @@ Here are the key points to understand:
 
 ### Example
 
-Suppose you have two plugins defined as follows:
+If you have two plugins defined as follows:
 
 ```js
 // plugins/plugin1.js
@@ -201,7 +201,7 @@ export default function plugin2() {
 }
 ```
 
-And your `redocly.yaml` configuration:
+And your `redocly.yaml` has this configuration:
 
 ```yaml
 plugins:
@@ -214,7 +214,7 @@ decorators:
   plugin2/decoratorC: on
 ```
 
-The actual execution order of the decorators will be:
+The actual execution order of the decorators is:
 
 1. `plugin2/decoratorC`
 2. `plugin1/decoratorB`
