@@ -234,6 +234,8 @@ rules:
   no-criteria-xpath: off
   no-actions-type-end: off
   criteria-unique: off
+  no-x-security-scheme-name-without-openapi: off
+  x-security-schema-required-values: off
 ```
 
 ## Recommended rulesets
@@ -503,6 +505,8 @@ rules:
   no-criteria-xpath: off
   no-actions-type-end: warn
   criteria-unique: warn
+  no-x-security-scheme-name-without-openapi: off
+  x-security-schema-required-values: off
 ```
 
 ## Resources
