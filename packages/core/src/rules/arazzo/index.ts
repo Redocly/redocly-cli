@@ -14,6 +14,7 @@ import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique
 import { NoCriteriaXpath } from '../respect/no-criteria-xpath.js';
 import { CriteriaUnique } from './criteria-unique.js';
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
+import { XSecuritySchemaRequiredValues } from '../respect/x-security-schema-required-values.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';
@@ -35,6 +36,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'no-criteria-xpath': NoCriteriaXpath,
   'criteria-unique': CriteriaUnique,
   'no-x-security-scheme-name-without-openapi': NoXSecuritySchemeNameWithoutOpenAPI,
+  'x-security-schema-required-values': XSecuritySchemaRequiredValues,
 };
 
 export const preprocessors = {};

@@ -48,6 +48,13 @@ export function resolveXSecurityParameters(
         in: 'header',
         value: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
       });
+    } else if (resolvedSchema?.type === 'http' && resolvedSchema?.scheme === 'bearer') {
+      const { token } = resolvedValues;
+      xSecurityParameters.push({
+        name: 'Authorization',
+        in: 'header',
+        value: `Bearer ${token}`,
+      });
     }
   }
 

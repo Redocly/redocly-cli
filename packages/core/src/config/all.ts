@@ -226,6 +226,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'error',
     'no-x-security-scheme-name-without-openapi': 'off',
+    'x-security-schema-required-values': 'off',
   },
   overlay1Rules: {
     'info-contact': 'error',
