@@ -408,7 +408,7 @@ To learn more about preprocessors, rules, and decorators, refer to the [custom p
 ### Lint config file
 
 The `lint` command also validates the configuration file.
-You may want to set severity level by using the `--lint-config` option.
+You can set severity level by using the `--lint-config` option.
 This option accepts one of the following values: `warn`,`error`, or `off`.
 Default value is `warn`.
 
