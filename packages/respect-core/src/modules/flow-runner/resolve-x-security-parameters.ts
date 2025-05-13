@@ -26,7 +26,7 @@ export function resolveXSecurityParameters(
         : security.scheme;
 
     const values = Object.fromEntries(
-      Object.entries(security.values).map(([key, value]) => [
+      Object.entries(security?.values ?? {}).map(([key, value]) => [
         key,
         evaluateRuntimeExpressionPayload({ payload: value, context: ctx }),
       ])

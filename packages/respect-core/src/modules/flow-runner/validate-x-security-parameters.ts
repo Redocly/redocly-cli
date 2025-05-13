@@ -7,7 +7,7 @@ const REQUIRED_VALUES_MAP = {
   digest: ['username', 'password'],
   bearer: ['token'],
   oauth2: ['accessToken'],
-} as const;
+};
 
 export function validateXSecurityParameters({
   scheme,
