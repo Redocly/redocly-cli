@@ -179,8 +179,8 @@ export default function plugin1() {
     id: 'plugin1',
     decorators: {
       oas3: {
-        b: B,
-        a: A,
+        decoratorB,
+        decoratorA,
       },
     },
   };
@@ -194,7 +194,7 @@ export default function plugin2() {
     id: 'plugin2',
     decorators: {
       oas3: {
-        c: C,
+        decoratorC,
       },
     },
   };
@@ -209,16 +209,16 @@ plugins:
   - plugins/plugin1.js
 
 decorators:
-  plugin1/a: on
-  plugin1/b: on
-  plugin2/c: on
+  plugin1/decoratorA: on
+  plugin1/decoratorB: on
+  plugin2/decoratorC: on
 ```
 
 The actual execution order of the decorators will be:
 
-1. `plugin2/c`
-2. `plugin1/b`
-3. `plugin1/a`
+1. `plugin2/decoratorC`
+2. `plugin1/decoratorB`
+3. `plugin1/decoratorA`
 
 > **Note:** The order in the `decorators` section of `redocly.yaml` does not affect execution order. Only the order in the `decorators` and the `plugins` sections matters.
 
