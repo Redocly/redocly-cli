@@ -70,7 +70,7 @@ Pick and mix the available rules until you have the setup that fits your situati
 
 ## Configurable rule example
 
-Redocly CLI also offers [configurable rules](../rules/configurable-rules.md) that allow you to set assertions about the API description being linted, and this functionality works just as well for AsyncAPI as for OpenAPI.
+Redocly CLI also offers [configurable rules](../rules/configurable-rules.md) that allow you to set assertions about the API description being linted. This functionality works for both AsyncAPI and OpenAPI.
 The following example shows a configurable rule that displays a warning if the `title` field is not present in the `info` block:
 
 ```yaml
