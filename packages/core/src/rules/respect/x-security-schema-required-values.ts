@@ -3,6 +3,14 @@ import { logger } from '../../logger.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
+const REQUIRED_VALUES_MAP = {
+  apiKey: ['value'],
+  basic: ['username', 'password'],
+  bearer: ['token'],
+  oauth2: ['accessToken'],
+  digest: ['username', 'password'],
+};
+
 export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
   return {
     Step: {
@@ -13,21 +21,20 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
           return;
         }
 
-        const SchemeTypeToRequiredValueMapping = {
-          apiKey: ['value'],
-          basic: ['username', 'password'],
-          bearer: ['token'],
-          oauth2: ['accessToken'],
-          digest: ['username', 'password'],
-        };
-
         for (const securitySchema of extendedSecurity) {
           // TODO: Handle schemeName case, this will require bundled OpenAPI definitions
-          if ('schemeName' in securitySchema) continue;
-          if (!('scheme' in securitySchema)) continue;
+          if ('schemeName' in securitySchema) {
+            continue;
+          }
+
+          if (!('scheme' in securitySchema)) {
+            continue;
+          }
 
           const { scheme, values } = securitySchema;
-          if (!('type' in scheme)) continue;
+          if (!('type' in scheme)) {
+            continue;
+          }
 
           const { type } = scheme;
           const schemeName = type === 'http' ? scheme.scheme : type;
@@ -48,13 +55,13 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
           }
 
           const requiredValues =
-            schemeName in SchemeTypeToRequiredValueMapping
-              ? SchemeTypeToRequiredValueMapping[
-                  schemeName as keyof typeof SchemeTypeToRequiredValueMapping
-                ]
+            schemeName in REQUIRED_VALUES_MAP
+              ? REQUIRED_VALUES_MAP[schemeName as keyof typeof REQUIRED_VALUES_MAP]
               : undefined;
 
-          if (!requiredValues) continue;
+          if (!requiredValues) {
+            continue;
+          }
 
           for (const requiredValue of requiredValues) {
             if (!values || !(requiredValue in values)) {
