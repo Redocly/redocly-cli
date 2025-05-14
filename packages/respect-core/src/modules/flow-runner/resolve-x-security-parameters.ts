@@ -1,6 +1,6 @@
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { getSecurityParameters } from '../config-parser/get-security-parameters.js';
-import { validateXSecurityParameters } from './validate-x-security-parameters.js';
+import { resolveXSecurity } from './validate-x-security-parameters.js';
 
 import type { ExtendedSecurity } from 'core/src/typings/arazzo.js';
 import type { ParameterWithIn } from '../config-parser/index.js';
@@ -11,7 +11,7 @@ import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 export function resolveXSecurityParameters(
   ctx: RuntimeExpressionContext,
   step: Step,
-  operation?: OperationDetails
+  operation?: OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> }
 ): ParameterWithIn[] {
   const xSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
 
@@ -32,7 +32,7 @@ export function resolveXSecurityParameters(
       ])
     );
 
-    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+    const resolvedSecurity = resolveXSecurity({ scheme, values });
 
     return getSecurityParameters(resolvedSecurity);
   });
