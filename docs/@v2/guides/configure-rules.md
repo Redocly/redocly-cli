@@ -2,7 +2,7 @@
 
 Every API has a different purpose and therefore different standards apply.
 If you work in high security financial data, you may want a higher level of compliance with API standards than if you are creating a quick backend for a web application.
-Configuring an appropriate combination of rules is important; if the standards are too harsh, you risk ignoring errors and missing something important, but if they are too lax then your OpenAPI description may be inconsistent or incomplete for your needs.
+Configuring an appropriate combination of rules is important. If the standards are too strict, you risk ignoring errors and missing something important, but if they are too lax then your OpenAPI description may be inconsistent or incomplete for your needs.
 
 In this guide, learn how to choose and adapt the rules built into Redocly for your own needs.
 
@@ -42,7 +42,7 @@ You can also define rulesets and other linting details differently for each API 
 
 ## Adjust the rules in use
 
-The recommended ruleset aims to be best practice for all use cases, but of course every situation is different and some of the defaults may not fit your needs.
+The recommended ruleset aims to be best practice for all use cases, but every situation is different and some of the defaults may not fit your needs.
 You can tweak existing rulesets by turning rules on or off, or setting them to be warnings or errors.
 
 As an example, here's a configuration file for a public API, where the rule `security-defined` shouldn't cause an error:
@@ -62,7 +62,7 @@ Customizing the rulesets is a great way to get API linting set up in a way that 
 If you work with multiple APIs, or need to use consistent API linting in different projects, consider creating a ruleset that you can use in each situation.
 
 Reusable rulesets are configured the same way as the Redocly CLI, but the yaml file contains only the `rules:` section.
-An example ruleset could be like this one, which is in a file called `reusable-ruleset.yaml`:
+Below you can see an example ruleset from a `reusable-ruleset.yaml` file:
 
 ```yaml
 rules:
@@ -87,7 +87,7 @@ Since multiple rulesets can be added, and you can adjust these settings for each
 ## Use configurable rules
 
 Assertions are a low-code way of creating targeted rules for specific situations in your use case.
-You specify which elements of the API description that should be checked, and using features like `defined`, `nonEmpty`, and `pattern`, describe the expectations for that element.
+Specify elements of the API description that you want to be checked, and using features like `defined`, `nonEmpty`, and `pattern`, describe the expectations for that element.
 
 Add your desired assertions to the `rules:` configuration in the Redocly configuration file.
 The example below creates a `version-semver` assertion, ensuring that theAPI version is in [Semantic Version](https://semver.org/) format with the major version set to 1:
@@ -161,8 +161,8 @@ There's a few things going on in the example, but let's look at each feature in 
 - No rules are defined at the top level, but since every API sets the `no-server-trailing-slash` rule to "off", this could be set at the top level.
 - Each API adds (or removes) the rules that fit their use case, including using the `version-semver` assertion.
 
-Configuring per-API means that there doesn't have to be compromise for the lowest standard that all APIs can meet.
-Especially when you are working on improving your APIs or API descriptions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure standards only improve.
+Configuring per API means that  you don't have to compromise for the lowest standard that all APIs can meet.
+Especially when you are working on improving your APIs or API descriptions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure improvement of standards.
 
 ## Next steps
 
