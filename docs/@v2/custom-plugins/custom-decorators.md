@@ -158,6 +158,64 @@ See some more examples of decorators:
 - Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
 - Change your [OAuth2 token URL](../guides/change-token-url.md).
 
+## Decorator execution order
+
+The order in which decorators are executed is important and can affect the final output of your API description.
+Here are the key points to understand:
+
+- For each decorator, the `enter` function is always executed before the `leave` function.
+- The order of decorator execution is determined by:
+  1. The order of plugins as listed in the `plugins` array in `redocly.yaml` configuration file.
+  1. The order of decorators as defined in the `decorators` object of each plugin.
+
+The order in the `decorators` section of `redocly.yaml` **DOES NOT** affect the order in which the decorators are executed.
+
+### Example
+
+If you have two plugins defined as follows:
+
+```js
+// plugins/plugin1.js
+export default function plugin1() {
+  return {
+    id: 'plugin1',
+    decorators: {
+      oas3: {
+        decoratorB,
+        decoratorA,
+      },
+    },
+  };
+}
+```
+
+```js
+// plugins/plugin2.js
+export default function plugin2() {
+  return {
+    id: 'plugin2',
+    decorators: {
+      oas3: {
+        decoratorC,
+      },
+    },
+  };
+}
+```
+
+And your `redocly.yaml` has this configuration:
+
+```yaml
+plugins:
+  - plugins/plugin2.js
+  - plugins/plugin1.js
+
+decorators:
+  plugin1/decoratorA: on
+  plugin1/decoratorB: on
+  plugin2/decoratorC: on
+```
+
 ## Preprocessors
 
 Preprocessors follow the same structure and operation as decorators, but they are run before the validation/linting step. Running before the validation/linting step makes them brittle because the document may not be valid, and the extra processing step can cause performance impacts. We recommend looking for alternative approaches to preprocessing.
