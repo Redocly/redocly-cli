@@ -110,7 +110,7 @@ describe('runTestFile', () => {
 
     vi.mocked(lint).mockResolvedValueOnce([
       {
-        ruleId: 'spec',
+        ruleId: 'struct',
         severity: 'error',
         message: 'The field `sourceDescriptions` must be present on this level.',
         from: undefined,
@@ -118,7 +118,7 @@ describe('runTestFile', () => {
         suggest: [],
       },
       {
-        ruleId: 'spec',
+        ruleId: 'struct',
         severity: 'error',
         message: 'Property `sourceDescriptionsd` is not expected here.',
         suggest: ['sourceDescriptions'],

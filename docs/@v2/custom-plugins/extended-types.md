@@ -60,7 +60,7 @@ module.exports = function typeExtensionsPlugin() {
 };
 ```
 
-You can use the new type immediately to check the validity of your API document. First, include the plugin in `redocly.yaml` and enable the `spec` rule:
+You can use the new type immediately to check the validity of your API document. First, include the plugin in `redocly.yaml` and enable the `struct` rule:
 
 ```yaml
 extends: []
@@ -69,7 +69,7 @@ plugins:
  - 'plugins/example-type-extension.js'
 
 rules:
-  spec: warn
+  struct: warn
 ```
 
 Now lint your API description with `redocly lint openapi.yaml` and try removing the `lifecycle` field from within the `x-metadata` section. It's a required field, so you see an error if it's missing.

@@ -60,9 +60,6 @@ import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
 
 export const rules: Oas3RuleSet<'built-in'> = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore TODO: This is depricated property `spec` and should be removed in the future
-  spec: Struct as Oas3Rule,
   struct: Struct as Oas3Rule,
   'info-contact': InfoContact as Oas3Rule,
   'info-license': InfoLicense as Oas3Rule,
