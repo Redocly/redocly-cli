@@ -168,6 +168,8 @@ Here are the key points to understand:
   1. The order of plugins as listed in the `plugins` array in `redocly.yaml` configuration file.
   1. The order of decorators as defined in the `decorators` object of each plugin.
 
+The order in the `decorators` section of `redocly.yaml` **DOES NOT** affect the order in which the decorators are executed.
+
 ### Example
 
 If you have two plugins defined as follows:
@@ -213,8 +215,6 @@ decorators:
   plugin1/decoratorB: on
   plugin2/decoratorC: on
 ```
-
-The order in the `decorators` section of `redocly.yaml` **DOES NOT** affect the order in which the decorators are executed.
 
 ## Preprocessors
 
