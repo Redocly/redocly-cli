@@ -32,10 +32,7 @@ export function resolveXSecurityParameters(
       ])
     );
 
-    const resolvedSecurity = validateXSecurityParameters({
-      scheme,
-      values,
-    });
+    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
 
     return getSecurityParameters(resolvedSecurity);
   });
