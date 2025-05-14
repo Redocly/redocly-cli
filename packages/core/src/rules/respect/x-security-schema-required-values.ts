@@ -3,13 +3,14 @@ import { logger } from '../../logger.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-const REQUIRED_VALUES_MAP = {
+const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['value'],
   basic: ['username', 'password'],
-  bearer: ['token'],
-  oauth2: ['accessToken'],
   digest: ['username', 'password'],
-};
+  bearer: ['token'],
+} as const;
+
+type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
 
 export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
   return {
@@ -32,41 +33,30 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
           }
 
           const { scheme, values } = securitySchema;
+
           if (!('type' in scheme)) {
             continue;
           }
 
           const { type } = scheme;
-          const schemeName = type === 'http' ? scheme.scheme : type;
+          const authType = type === 'http' ? scheme.scheme : type;
 
-          if (schemeName === 'mutualTls') {
+          if (authType === 'mutualTls') {
             logger.warn(
               'Please use CLI option to provide mutualTLS certificates for mutualTls authentication security schema.'
             );
             continue;
           }
 
-          if (schemeName === 'openIdConnect') {
-            report({
-              message: `The \`${schemeName}\` is not supported by Respect.`,
-              location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
-            });
-            continue;
-          }
-
           const requiredValues =
-            schemeName in REQUIRED_VALUES_MAP
-              ? REQUIRED_VALUES_MAP[schemeName as keyof typeof REQUIRED_VALUES_MAP]
-              : undefined;
-
-          if (!requiredValues) {
-            continue;
-          }
+            authType in REQUIRED_VALUES_BY_AUTH_TYPE
+              ? REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType]
+              : ['accessToken']; // Default fallback
 
           for (const requiredValue of requiredValues) {
             if (!values || !(requiredValue in values)) {
               report({
-                message: `The \`${requiredValue}\` is required for ${schemeName} authentication security schema.`,
+                message: `The \`${requiredValue}\` is required for ${authType} authentication security schema.`,
                 location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
               });
             }
