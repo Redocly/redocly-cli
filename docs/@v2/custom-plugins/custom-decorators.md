@@ -214,15 +214,7 @@ decorators:
   plugin2/decoratorC: on
 ```
 
-The actual execution order of the decorators is:
-
-1. `plugin2/decoratorC`
-2. `plugin1/decoratorB`
-3. `plugin1/decoratorA`
-
-> **Note:** The order in the `decorators` section of `redocly.yaml` does not affect execution order. Only the order in the `decorators` and the `plugins` sections matters.
-
-Understanding this order is important for predictable results, especially when decorators depend on the output of others.
+The order in the `decorators` section of `redocly.yaml` **DOES NOT** affect the order in which the decorators are executed.
 
 ## Preprocessors
 
