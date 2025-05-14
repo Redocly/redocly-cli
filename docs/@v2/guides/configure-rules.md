@@ -161,7 +161,7 @@ There's a few things going on in the example, but let's look at each feature in 
 - No rules are defined at the top level, but since every API sets the `no-server-trailing-slash` rule to "off", this could be set at the top level.
 - Each API adds (or removes) the rules that fit their use case, including using the `version-semver` assertion.
 
-Configuring per API means that  you don't have to compromise for the lowest standard that all APIs can meet.
+Configuring per API means that you don't have to compromise for the lowest standard that all APIs can meet.
 Especially when you are working on improving your APIs or API descriptions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure improvement of standards.
 
 ## Next steps
