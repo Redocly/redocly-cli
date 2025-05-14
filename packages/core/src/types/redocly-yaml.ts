@@ -172,7 +172,6 @@ const builtInRules = [
   ...builtInAsync3Rules,
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
-  'spec', // TODO: depricated in favor of struct
   'struct',
 ] as const;
 
