@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/path-item-mutually-required:
+  rule/path-item-mutually-required:
     where:
       - subject:
           type: Invalid-type

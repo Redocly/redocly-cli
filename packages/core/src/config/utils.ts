@@ -384,22 +384,7 @@ export function transformConfig(
     styleguide: styleguideConfig || lint,
     ...rawConfigRest,
   };
-  showDeprecationMessages(transformedConfig);
   return transformedConfig;
-}
-
-function showDeprecationMessages(config: RawConfig) {
-  let allRules = { ...config.styleguide?.rules };
-  for (const api of Object.values(config.apis || {})) {
-    allRules = { ...allRules, ...api?.styleguide?.rules };
-  }
-  for (const ruleKey of Object.keys(allRules)) {
-    if (ruleKey.startsWith('assert/')) {
-      logger.warn(
-        `\nThe 'assert/' syntax in ${ruleKey} is deprecated. Update your configuration to use 'rule/' instead. Examples and more information: https://redocly.com/docs/cli/rules/configurable-rules/\n`
-      );
-    }
-  }
 }
 
 export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
