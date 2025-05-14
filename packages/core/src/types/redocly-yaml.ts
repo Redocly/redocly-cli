@@ -391,13 +391,6 @@ const Rules: NodeType = {
       } else {
         return 'Assert';
       }
-    } else if (key.startsWith('assert/')) {
-      // keep the old assert/ prefix as an alias
-      if (typeof value === 'string') {
-        return { enum: ['error', 'warn', 'off'] };
-      } else {
-        return 'Assert';
-      }
     } else if (builtInRules.includes(key as BuiltInRuleId) || isCustomRuleId(key)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };

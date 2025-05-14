@@ -599,13 +599,7 @@ function groupStyleguideAssertionRules({
   // Collect assertion rules
   const assertions: Assertion[] = [];
   for (const [ruleKey, rule] of Object.entries(rules)) {
-    // keep the old assert/ syntax as an alias
-
-    if (
-      (ruleKey.startsWith('rule/') || ruleKey.startsWith('assert/')) &&
-      typeof rule === 'object' &&
-      rule !== null
-    ) {
+    if (ruleKey.startsWith('rule/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule as RawAssertion;
 
       if (plugins) {
