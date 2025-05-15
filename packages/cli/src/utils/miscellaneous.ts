@@ -536,7 +536,8 @@ export async function sendTelemetry(
   has_config: boolean | undefined,
   spec_version: string | undefined,
   spec_keyword: string | undefined,
-  spec_full_version: string | undefined
+  spec_full_version: string | undefined,
+  respect_x_security_auth_types: string[] | undefined
 ): Promise<void> {
   try {
     if (!argv) {
@@ -570,6 +571,7 @@ export async function sendTelemetry(
       spec_version,
       spec_keyword,
       spec_full_version,
+      respect_x_security_auth_types: spec_keyword === 'arazzo' && respect_x_security_auth_types?.length ? JSON.stringify(respect_x_security_auth_types) : undefined,
     };
     const { otelTelemetry } = await import('../otel');
     otelTelemetry.init();
@@ -600,6 +602,7 @@ export type Analytics = {
   spec_version?: string;
   spec_keyword?: string;
   spec_full_version?: string;
+  respect_x_security_auth_types?: string;
 };
 
 function isFile(value: string) {
