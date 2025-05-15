@@ -329,4 +329,58 @@ describe('Arazzo x-security-schema-required-values', () => {
       ]
     `);
   });
+
+  it('should report when unsupported auth type is used', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            steps:
+              - stepId: step-with-openapi-operation
+                operationId: museum-api.getMuseumHours
+                x-security:
+                  - scheme:
+                      type: http
+                      scheme: PrivateToken
+                    values:
+                      some-token: some-token
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: { 'x-security-schema-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`PrivateToken\` authentication security schema is not supported.",
+          "ruleId": "x-security-schema-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

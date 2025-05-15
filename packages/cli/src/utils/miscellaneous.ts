@@ -719,20 +719,14 @@ export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
   respectXSecurityAuthTypes: string[]
 ) {
-  if (document.workflows?.length) {
-    for (const workflow of document.workflows) {
-      if (workflow.steps?.length) {
-        for (const step of workflow.steps) {
-          if (step['x-security']?.length) {
-            for (const security of step['x-security']) {
-              const scheme = (security as ExtendedSecurity).scheme;
-              if (scheme?.type) {
-                const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-                if (authType && !respectXSecurityAuthTypes.includes(authType)) {
-                  respectXSecurityAuthTypes.push(authType);
-                }
-              }
-            }
+  for (const workflow of document.workflows ?? []) {
+    for (const step of workflow.steps ?? []) {
+      for (const security of step['x-security'] ?? []) {
+        const scheme = (security as ExtendedSecurity).scheme;
+        if (scheme?.type) {
+          const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
+          if (authType && !respectXSecurityAuthTypes.includes(authType)) {
+            respectXSecurityAuthTypes.push(authType);
           }
         }
       }
