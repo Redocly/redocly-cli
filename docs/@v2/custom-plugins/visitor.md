@@ -45,7 +45,7 @@ This works fine for most context-free rules. If you need contextual info you sho
 
 ## Nested visitors
 
-The visitor object (if it is not `any` or `ref`) can define [nested visitors](#nested-visitors).
+The visitor object (if it is not `any` or `ref`) can define nested visitors.
 
 Here is a basic example of a nested visitor:
 
