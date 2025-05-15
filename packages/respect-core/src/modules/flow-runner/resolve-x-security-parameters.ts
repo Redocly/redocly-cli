@@ -19,21 +19,23 @@ export function resolveXSecurityParameters(
     return [];
   }
 
-  return xSecurity.map((security) => {
-    const scheme =
-      'schemeName' in security
-        ? (operation?.securitySchemes?.[security.schemeName] as Oas3SecurityScheme)
-        : security.scheme;
+  return xSecurity
+    .map((security) => {
+      const scheme =
+        'schemeName' in security
+          ? (operation?.securitySchemes?.[security.schemeName] as Oas3SecurityScheme)
+          : security.scheme;
 
-    const values = Object.fromEntries(
-      Object.entries(security?.values ?? {}).map(([key, value]) => [
-        key,
-        evaluateRuntimeExpressionPayload({ payload: value, context: ctx }),
-      ])
-    );
+      const values = Object.fromEntries(
+        Object.entries(security?.values ?? {}).map(([key, value]) => [
+          key,
+          evaluateRuntimeExpressionPayload({ payload: value, context: ctx }),
+        ])
+      );
 
-    const resolvedSecurity = resolveXSecurity({ scheme, values });
+      const resolvedSecurity = resolveXSecurity({ scheme, values });
 
-    return getSecurityParameters(resolvedSecurity);
-  });
+      return getSecurityParameters(resolvedSecurity);
+    })
+    .filter((param): param is ParameterWithIn => param !== undefined);
 }
