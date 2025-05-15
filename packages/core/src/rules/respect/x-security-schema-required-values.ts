@@ -41,7 +41,7 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
           const { type } = scheme;
           const authType = type === 'http' ? scheme.scheme : type;
 
-          if (authType === 'mutualTls') {
+          if (authType === 'mutualTLS') {
             logger.warn(
               'Please use CLI option to provide mutualTLS certificates for mutualTls authentication security schema.'
             );
