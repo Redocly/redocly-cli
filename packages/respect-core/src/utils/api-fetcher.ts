@@ -308,7 +308,7 @@ export class ApiFetcher implements IFetcher {
 
       const updatedHeaders = {
         ...headers,
-        Authorization: digestAuthHeader,
+        authorization: digestAuthHeader,
       };
 
       this.updateVerboseLogs({
