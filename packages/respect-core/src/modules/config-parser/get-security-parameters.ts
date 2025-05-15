@@ -1,8 +1,14 @@
-import type { ApiKeyAuth, BasicAuth, BearerAuth } from 'core/src/typings/openapi';
+import type {
+  ApiKeyAuth,
+  BasicAuth,
+  BearerAuth,
+  OAuth2Auth,
+  OpenIDAuth,
+} from 'core/src/typings/openapi';
 import type { ResolvedSecurity } from 'core/src/typings/arazzo';
 import type { ParameterWithIn } from './parse-parameters';
 
-export function getSecurityParameters(security: ResolvedSecurity): ParameterWithIn {
+export function getSecurityParameters(security: ResolvedSecurity): ParameterWithIn | undefined {
   if (isApiKeyAuth(security)) {
     return {
       in: security.scheme.in,
@@ -21,7 +27,17 @@ export function getSecurityParameters(security: ResolvedSecurity): ParameterWith
     return getAuthHeader(`Bearer ${security.values.token}`);
   }
 
-  return getAuthHeader(`Bearer ${security.values.accessToken}`);
+  if (isOpenIdConnectAuth(security)) {
+    const { accessToken } = security.values;
+    return getAuthHeader(`Bearer ${accessToken}`);
+  }
+
+  if (isOAuth2Auth(security)) {
+    const { accessToken } = security.values;
+    return getAuthHeader(`Bearer ${accessToken}`);
+  }
+
+  return undefined;
 }
 
 function getAuthHeader(value: string): ParameterWithIn {
@@ -30,6 +46,18 @@ function getAuthHeader(value: string): ParameterWithIn {
     name: 'Authorization',
     value,
   };
+}
+
+function isOAuth2Auth(
+  security: ResolvedSecurity
+): security is Extract<ResolvedSecurity, { scheme: OAuth2Auth }> {
+  return security.scheme.type === 'oauth2';
+}
+
+function isOpenIdConnectAuth(
+  security: ResolvedSecurity
+): security is Extract<ResolvedSecurity, { scheme: OpenIDAuth }> {
+  return security.scheme.type === 'openIdConnect';
 }
 
 function isApiKeyAuth(

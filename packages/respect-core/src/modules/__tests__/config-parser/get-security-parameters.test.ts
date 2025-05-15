@@ -105,4 +105,17 @@ describe('getSecurityParameters', () => {
       value: 'Bearer oauth2-token',
     });
   });
+
+  it('should return undefined for unknown security scheme', () => {
+    const result = getSecurityParameters({
+      scheme: {
+        type: 'mutualTLS',
+      },
+      values: {
+        accessToken: 'mutual-tls-token',
+      },
+    });
+
+    expect(result).toBeUndefined();
+  });
 });
