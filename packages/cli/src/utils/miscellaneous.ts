@@ -40,8 +40,10 @@ import type {
   Oas3Definition,
   Oas2Definition,
   RawConfigProcessor,
+  ArazzoDefinition,
 } from '@redocly/openapi-core';
 import type { Totals, Entrypoint, ConfigApis, CommandOptions, OutputExtensions } from '../types.js';
+import type { ExtendedSecurity } from 'respect-core/src/types.js';
 
 const globPromise = promisify(glob.glob);
 
@@ -571,8 +573,12 @@ export async function sendTelemetry(
       spec_version,
       spec_keyword,
       spec_full_version,
-      respect_x_security_auth_types: spec_keyword === 'arazzo' && respect_x_security_auth_types?.length ? JSON.stringify(respect_x_security_auth_types) : undefined,
+      respect_x_security_auth_types:
+        spec_version === 'arazzo1' && respect_x_security_auth_types?.length
+          ? JSON.stringify(respect_x_security_auth_types)
+          : undefined,
     };
+
     const { otelTelemetry } = await import('../otel');
     otelTelemetry.init();
     otelTelemetry.send(data.command, data);
@@ -707,4 +713,29 @@ export function formatPath(path: string) {
     return path;
   }
   return relative(process.cwd(), path);
+}
+
+export function collectXSecurityAuthTypes(
+  document: Partial<ArazzoDefinition>,
+  respectXSecurityAuthTypes: string[]
+) {
+  if (document.workflows?.length) {
+    for (const workflow of document.workflows) {
+      if (workflow.steps?.length) {
+        for (const step of workflow.steps) {
+          if (step['x-security']?.length) {
+            for (const security of step['x-security']) {
+              const scheme = (security as ExtendedSecurity).scheme;
+              if (scheme?.type) {
+                const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
+                if (authType && !respectXSecurityAuthTypes.includes(authType)) {
+                  respectXSecurityAuthTypes.push(authType);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

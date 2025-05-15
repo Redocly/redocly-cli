@@ -6,7 +6,11 @@ import {
   HandledError,
 } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import { loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
+import {
+  loadConfigAndHandleErrors,
+  sendTelemetry,
+  collectXSecurityAuthTypes,
+} from './utils/miscellaneous.js';
 import { lintConfigCallback } from './commands/lint.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 
@@ -14,7 +18,6 @@ import type { Arguments } from 'yargs';
 import type { Config, CollectFn, ArazzoDefinition } from '@redocly/openapi-core';
 import type { ExitCode } from './utils/miscellaneous.js';
 import type { CommandOptions } from './types.js';
-import { ExtendedSecurity } from 'respect-core/src/types.js';
 
 export type CommandArgs<T extends CommandOptions> = {
   argv: T;
@@ -53,9 +56,7 @@ export function commandWrapper<T extends CommandOptions>(
       }
 
       if (specVersion === 'arazzo1') {
-        // Check if document has workflows with steps containing x-security
-        const arazzoDoc = document as Partial<ArazzoDefinition>;
-        collectXSecurityAuthTypes(arazzoDoc, respectXSecurityAuthTypes);
+        collectXSecurityAuthTypes(document as Partial<ArazzoDefinition>, respectXSecurityAuthTypes);
       }
     };
 
@@ -89,33 +90,19 @@ export function commandWrapper<T extends CommandOptions>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendTelemetry(argv, code, hasConfig, specVersion, specKeyword, specFullVersion, respectXSecurityAuthTypes);
+        await sendTelemetry(
+          argv,
+          code,
+          hasConfig,
+          specVersion,
+          specKeyword,
+          specFullVersion,
+          respectXSecurityAuthTypes
+        );
       }
       process.once('beforeExit', () => {
         process.exit(code);
       });
     }
   };
-}
-
-function collectXSecurityAuthTypes(document: Partial<ArazzoDefinition>, respectXSecurityAuthTypes: string[]) {
-  if (document.workflows?.length) {
-    for (const workflow of document.workflows) {
-      if (workflow.steps?.length) {
-        for (const step of workflow.steps) {
-          if (step['x-security']?.length) {
-            for (const security of step['x-security']) {
-              const scheme = (security as ExtendedSecurity).scheme;
-              if (scheme?.type) {
-                const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-                if (authType && !respectXSecurityAuthTypes.includes(authType)) {
-                  respectXSecurityAuthTypes.push(authType);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }

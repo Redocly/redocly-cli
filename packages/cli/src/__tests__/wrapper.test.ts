@@ -40,7 +40,7 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, 'oas3_1', 'openapi', '3.1.0');
+    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, 'oas3_1', 'openapi', '3.1.0', []);
   });
 
   it('should not collect spec version if the file is not parsed to json', async () => {
@@ -56,7 +56,7 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, undefined, undefined, undefined);
+    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, undefined, undefined, undefined, []);
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
