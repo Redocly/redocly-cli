@@ -157,9 +157,9 @@ describe('ApiFetcher', () => {
         parameters: [],
         requestBody: {},
       };
-      await expect(apiFetcher.fetchResult(ctx, step, requestData)).rejects.toThrowError(
-        'No server url provided'
-      );
+      await expect(
+        apiFetcher.fetchResult({ ctx, step, requestData, workflowId: 'test' })
+      ).rejects.toThrowError('No server url provided');
     });
   });
 });

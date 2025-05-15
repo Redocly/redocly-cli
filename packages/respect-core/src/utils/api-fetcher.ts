@@ -123,11 +123,17 @@ export class ApiFetcher implements IFetcher {
     return this.verboseResponseLogs;
   };
 
-  fetchResult = async (
-    ctx: TestContext,
-    step: Step,
-    requestData: RequestData
-  ): Promise<ResponseContext | never> => {
+  fetchResult = async ({
+    ctx,
+    step,
+    requestData,
+    workflowId,
+  }: {
+    ctx: TestContext;
+    step: Step;
+    requestData: RequestData;
+    workflowId: string;
+  }): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
       logger.error(bgRed(` No server url provided `));
@@ -310,6 +316,12 @@ export class ApiFetcher implements IFetcher {
         ...headers,
         authorization: digestAuthHeader,
       };
+
+      // Update the request headers in the step
+      const stepRequest = ctx.$workflows[workflowId].steps[step.stepId]?.request;
+      if (stepRequest) {
+        stepRequest.header = updatedHeaders;
+      }
 
       this.updateVerboseLogs({
         headerParams: updatedHeaders,
