@@ -324,7 +324,7 @@ export class ApiFetcher implements IFetcher {
       }
 
       this.updateVerboseLogs({
-        headerParams: updatedHeaders,
+        headerParams: maskSecrets(updatedHeaders, ctx.secretFields || new Set()),
       });
 
       result = await wrappedFetch(urlToFetch, {

@@ -1,0 +1,94 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should make request with X-API-KEY in header 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow x-security-api-key-auth.arazzo.yaml / api-key-auth-workflow
+
+  ✓ GET /museum-hours - step step-with-api-key-auth-scheme
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic Og==
+      x-api-key: "some-api-key"
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for x-security-api-key-auth.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 3 passed, 3 total
+  Time: <test>ms
+
+
+┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ x-security-api-key-auth.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;
