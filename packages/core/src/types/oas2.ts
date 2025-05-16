@@ -1,7 +1,4 @@
-import { listOf, mapOf } from './index.js';
-
-import type { NodeType } from './index.js';
-import type { Oas2NodeType } from './redocly-yaml.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
@@ -440,7 +437,7 @@ const Example: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Oas2Types: Record<Oas2NodeType, NodeType> = {
+export const Oas2Types = {
   Root,
   Tag,
   TagList: listOf('Tag'),
@@ -478,4 +475,4 @@ export const Oas2Types: Record<Oas2NodeType, NodeType> = {
   XCodeSampleList: listOf('XCodeSample'),
   XServerList: listOf('XServer'),
   XServer,
-};
+} as const;
