@@ -59,7 +59,7 @@
     "openapi-sampler": "^1.6.1",
     "outdent": "^0.8.0",
     "set-cookie-parser": "^2.3.5",
-    "undici": "^6.21.1"
+    "undici": "^6.21.2"
   },
   "files": [
     "lib"
