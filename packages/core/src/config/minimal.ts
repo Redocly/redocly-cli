@@ -201,6 +201,8 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'respect-supported-versions': 'off',
     'workflowId-unique': 'error',
     'workflow-dependsOn': 'off',
+    'no-x-security-scheme-name-without-openapi': 'off',
+    'x-security-schema-required-values': 'off',
   },
   overlay1Rules: {
     'info-contact': 'off',

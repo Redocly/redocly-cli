@@ -8,6 +8,7 @@ import {
   type VerboseLog,
   type TestContext,
   type ResponseContext,
+  type Step,
 } from '../types.js';
 import { withHar } from '../utils/har-logs/index.js';
 import { isEmpty } from './is-empty.js';
@@ -18,6 +19,8 @@ import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { createMtlsClient } from './mtls/create-mtls-client.js';
 import { DefaultLogger } from './logger/logger.js';
 import { DEFAULT_RESPECT_MAX_FETCH_TIMEOUT } from '../consts.js';
+import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
+import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
@@ -86,6 +89,16 @@ export class ApiFetcher implements IFetcher {
     return this.verboseLogs;
   };
 
+  updateVerboseLogs = (params: Partial<VerboseLog>) => {
+    if (!this.verboseLogs) {
+      throw new Error('Verbose logs not initialized');
+    }
+    this.verboseLogs = getVerboseLogs({
+      ...this.verboseLogs,
+      ...params,
+    });
+  };
+
   initVerboseResponseLogs = ({
     headerParams,
     host,
@@ -110,10 +123,17 @@ export class ApiFetcher implements IFetcher {
     return this.verboseResponseLogs;
   };
 
-  fetchResult = async (
-    ctx: TestContext,
-    requestData: RequestData
-  ): Promise<ResponseContext | never> => {
+  fetchResult = async ({
+    ctx,
+    step,
+    requestData,
+    workflowId,
+  }: {
+    ctx: TestContext;
+    step: Step;
+    requestData: RequestData;
+    workflowId: string;
+  }): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
       logger.error(bgRed(` No server url provided `));
@@ -232,7 +252,11 @@ export class ApiFetcher implements IFetcher {
     const wrappedFetch = this.harLogs ? withHar(this.fetch, { har: this.harLogs }) : fetch;
     const startTime = performance.now();
 
-    const result = await wrappedFetch(urlToFetch, {
+    let result;
+    let res;
+    let responseTime;
+
+    const fetchParams = {
       method: (method || 'get').toUpperCase() as OperationMethod,
       headers,
       ...(!isEmpty(requestBody) && {
@@ -245,9 +269,81 @@ export class ApiFetcher implements IFetcher {
         duplex: 'half',
       }),
       dispatcher: ctx.mtlsCerts ? createMtlsClient(urlToFetch, ctx.mtlsCerts) : undefined,
-    });
-    const responseTime = Math.ceil(performance.now() - startTime);
-    const res = await result.text();
+    };
+
+    const lastDigestSecurityScheme = step['x-security']
+      ?.slice()
+      .reverse()
+      .find(
+        (security) =>
+          'scheme' in security &&
+          security.scheme?.type === 'http' &&
+          security.scheme?.scheme === 'digest'
+      );
+
+    // FETCH WITH DIGEST AUTH
+    if (lastDigestSecurityScheme) {
+      // Digest auth perform two requests to establish the connection
+      // We need to wait for the second request to complete before returning the response
+      const first401Result = await wrappedFetch(urlToFetch, fetchParams);
+      const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
+
+      if (!wwwAuthenticateHeader) {
+        throw new Error('No www-authenticate header');
+      }
+
+      const { realm, nonce, opaque, qop, algorithm, cnonce, nc } =
+        parseWwwAuthenticateHeader(wwwAuthenticateHeader);
+      const { username, password } = lastDigestSecurityScheme.values;
+      const uri = new URL(urlToFetch).pathname + new URL(urlToFetch).search;
+
+      const digestAuthHeader = generateDigestAuthHeader({
+        username: username as string,
+        password: password as string,
+        realm,
+        nonce,
+        opaque,
+        qop,
+        algorithm,
+        cnonce,
+        nc,
+        uri,
+        method: (method || 'get').toUpperCase(),
+        bodyContent: JSON.stringify(encodedBody) || '',
+      });
+
+      const updatedHeaders = {
+        ...headers,
+        authorization: digestAuthHeader,
+      };
+
+      // Update the request headers in the step
+      const stepRequest = ctx.$workflows[workflowId].steps[step.stepId]?.request;
+      if (stepRequest) {
+        stepRequest.header = updatedHeaders;
+      }
+
+      this.updateVerboseLogs({
+        headerParams: updatedHeaders,
+      });
+
+      result = await wrappedFetch(urlToFetch, {
+        ...fetchParams,
+        headers: updatedHeaders,
+      });
+
+      responseTime = Math.ceil(performance.now() - startTime);
+      res = await result.text();
+      // REGULAR FETCH
+    } else {
+      result = await wrappedFetch(urlToFetch, fetchParams);
+      responseTime = Math.ceil(performance.now() - startTime);
+      res = await result.text();
+    }
+
+    if (!result) {
+      throw new Error('Failed to fetch, no result received');
+    }
 
     const [responseContentType] = result.headers.get('content-type')?.split(';') || [
       'application/json',

@@ -32,6 +32,7 @@ export function getOperationById(
   }
 
   const description = descriptions[descriptionName];
+  const securitySchemes = description?.components?.securitySchemes;
   const rootServers = description.servers;
 
   for (const [path, pathDetails] of Object.entries(descriptions[descriptionName].paths)) {
@@ -48,6 +49,7 @@ export function getOperationById(
           path,
           method,
           descriptionName,
+          securitySchemes,
         };
       }
     }
