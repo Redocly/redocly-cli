@@ -90,15 +90,15 @@ export function commandWrapper<T extends CommandOptions>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendTelemetry(
+        await sendTelemetry({
           argv,
-          code,
-          hasConfig,
-          specVersion,
-          specKeyword,
-          specFullVersion,
-          respectXSecurityAuthTypes
-        );
+          exit_code: code,
+          has_config: hasConfig,
+          spec_version: specVersion,
+          spec_keyword: specKeyword,
+          spec_full_version: specFullVersion,
+          respect_x_security_auth_types: respectXSecurityAuthTypes,
+        });
       }
       process.once('beforeExit', () => {
         process.exit(code);

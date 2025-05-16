@@ -532,15 +532,23 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-export async function sendTelemetry(
-  argv: Arguments | undefined,
-  exit_code: ExitCode,
-  has_config: boolean | undefined,
-  spec_version: string | undefined,
-  spec_keyword: string | undefined,
-  spec_full_version: string | undefined,
-  respect_x_security_auth_types: string[] | undefined
-): Promise<void> {
+export async function sendTelemetry({
+  argv,
+  exit_code,
+  has_config,
+  spec_version,
+  spec_keyword,
+  spec_full_version,
+  respect_x_security_auth_types,
+}: {
+  argv: Arguments | undefined;
+  exit_code: ExitCode;
+  has_config: boolean | undefined;
+  spec_version: string | undefined;
+  spec_keyword: string | undefined;
+  spec_full_version: string | undefined;
+  respect_x_security_auth_types: string[] | undefined;
+}): Promise<void> {
   try {
     if (!argv) {
       return;
