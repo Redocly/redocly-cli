@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.34.2",
+  "version": "2.0.0-next.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -44,8 +44,8 @@
     "@opentelemetry/sdk-trace-node": "1.26.0",
     "@opentelemetry/semantic-conventions": "1.27.0",
     "@redocly/config": "^0.24.1",
-    "@redocly/openapi-core": "1.34.2",
-    "@redocly/respect-core": "1.34.2",
+    "@redocly/openapi-core": "2.0.0-next.0",
+    "@redocly/respect-core": "2.0.0-next.0",
     "abort-controller": "^3.0.0",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
