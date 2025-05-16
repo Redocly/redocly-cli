@@ -1,11 +1,10 @@
-import { getAdditionalPropertiesOption, validateExample } from '../utils.js';
+import { validateExample } from '../utils.js';
 
 import type { UserContext } from '../../walk.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
-  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
   return {
     Schema: {
       leave(schema: Oas3_1Schema | Oas3Schema, ctx: UserContext) {
@@ -17,7 +16,7 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
               schema,
               ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
-              allowAdditionalProperties
+              !!opts.allowAdditionalProperties
             );
           }
         }

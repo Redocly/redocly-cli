@@ -29,9 +29,8 @@ Every operation with (400-499) HTTP response should have content-type `applicati
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-4xx-problem-details-rfc7807: error
+rules:
+  operation-4xx-problem-details-rfc7807: error
 ```
 
 ## Examples
@@ -39,9 +38,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-4xx-problem-details-rfc7807: error
+rules:
+  operation-4xx-problem-details-rfc7807: error
 ```
 
 Example of **incorrect** operation response:

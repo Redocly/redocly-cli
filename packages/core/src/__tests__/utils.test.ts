@@ -1,11 +1,4 @@
-import {
-  pickObjectProps,
-  omitObjectProps,
-  slash,
-  getMatchingStatusCodeRange,
-  doesYamlFileExist,
-  pickDefined,
-} from '../utils.js';
+import { slash, getMatchingStatusCodeRange, doesYamlFileExist, pickDefined } from '../utils.js';
 import { isBrowser } from '../env.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -14,59 +7,6 @@ vi.mock('node:fs');
 vi.mock('node:path');
 
 describe('utils', () => {
-  const testObject = {
-    a: 'value a',
-    b: 'value b',
-    c: 'value c',
-    d: 'value d',
-    e: 'value e',
-  };
-
-  describe('pickObjectProps', () => {
-    it('returns correct object result', () => {
-      expect(pickObjectProps(testObject, ['a', 'b'])).toStrictEqual({ a: 'value a', b: 'value b' });
-    });
-
-    it('returns correct object if passed non existing key', () => {
-      expect(pickObjectProps(testObject, ['a', 'b', 'nonExisting'])).toStrictEqual({
-        a: 'value a',
-        b: 'value b',
-      });
-    });
-
-    it('returns an empty object if no keys are passed', () => {
-      expect(pickObjectProps(testObject, [])).toStrictEqual({});
-    });
-
-    it('returns an empty object if empty target obj passed', () => {
-      expect(pickObjectProps({}, ['d', 'e'])).toStrictEqual({});
-    });
-  });
-
-  describe('omitObjectProps', () => {
-    it('returns correct object result', () => {
-      expect(omitObjectProps(testObject, ['a', 'b', 'c'])).toStrictEqual({
-        d: 'value d',
-        e: 'value e',
-      });
-    });
-
-    it('returns correct object if passed non existing key', () => {
-      expect(omitObjectProps(testObject, ['a', 'b', 'c', 'nonExisting'])).toStrictEqual({
-        d: 'value d',
-        e: 'value e',
-      });
-    });
-
-    it('returns full object if no keys are passed', () => {
-      expect(omitObjectProps(testObject, [])).toStrictEqual(testObject);
-    });
-
-    it('returns an empty object if empty target obj passed', () => {
-      expect(omitObjectProps({}, ['d', 'e'])).toStrictEqual({});
-    });
-  });
-
   describe('slash path', () => {
     it('can correctly slash path', () => {
       [

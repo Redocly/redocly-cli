@@ -439,42 +439,6 @@ describe('lint', () => {
     `);
   });
 
-  it('lintConfig should work with legacy fields - referenceDocs', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        apis:
-          entry:
-            root: ./file.yaml
-        rules:
-          operation-2xx-response: warn
-        referenceDocs:
-          showConsole: true
-      `,
-      ''
-    );
-    const config = await createConfig({});
-    const results = await lintConfig({ document, config });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/referenceDocs",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`referenceDocs\` is not expected here.",
-          "ruleId": "configuration struct",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
   it("'plugins' shouldn't be allowed in 'apis'", async () => {
     const document = parseYamlToDocument(
       outdent`

@@ -1,5 +1,5 @@
 import { isRef } from '../../ref-utils.js';
-import { getAdditionalPropertiesOption, validateExample } from '../utils.js';
+import { validateExample } from '../utils.js';
 
 import type { Oas3Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
@@ -7,8 +7,6 @@ import type { Oas3Example } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
-  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
-
   return {
     MediaType: {
       leave(mediaType, ctx: UserContext) {
@@ -45,7 +43,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             mediaType.schema!,
             location,
             ctx,
-            allowAdditionalProperties
+            !!opts.allowAdditionalProperties
           );
         }
       },

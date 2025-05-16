@@ -211,23 +211,11 @@ export type ResolveConfig = {
 
 export type Telemetry = 'on' | 'off';
 
-export type DeprecatedInRawConfig = {
-  apiDefinitions?: Record<string, string>;
-  lint?: StyleguideRawConfig;
-  styleguide?: StyleguideRawConfig;
-  referenceDocs?: Record<string, any>;
-  apis?: Record<string, Api & DeprecatedInApi>;
-} & DeprecatedFeaturesConfig;
-
 export type Api = {
   root: string;
   output?: string;
   styleguide?: ApiStyleguideRawConfig;
 } & ThemeConfig;
-
-export type DeprecatedInApi = {
-  lint?: ApiStyleguideRawConfig;
-} & DeprecatedFeaturesConfig;
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
@@ -255,11 +243,6 @@ export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
 export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
   apis: Record<string, ResolvedApi>;
   styleguide: ResolvedStyleguideConfig;
-};
-
-type DeprecatedFeaturesConfig = {
-  'features.openapi'?: Record<string, any>;
-  'features.mockServer'?: Record<string, any>;
 };
 
 export type ThemeConfig = {

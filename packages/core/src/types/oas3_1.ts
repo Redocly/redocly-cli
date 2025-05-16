@@ -1,8 +1,5 @@
-import { listOf, mapOf } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import { Oas3Types } from './oas3.js';
-
-import type { NodeType } from './index.js';
-import type { Oas3_1NodeType } from './redocly-yaml.js';
 
 const Root: NodeType = {
   properties: {
@@ -274,7 +271,7 @@ export const DependentRequired: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
-export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
+export const Oas3_1Types = {
   ...Oas3Types,
   Info,
   Root,
@@ -287,4 +284,4 @@ export const Oas3_1Types: Record<Oas3_1NodeType, NodeType> = {
   SecurityScheme,
   Operation,
   DependentRequired,
-};
+} as const;

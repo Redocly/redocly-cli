@@ -20,15 +20,6 @@ additionalProperties:
     output:
       type: string
       description: The path to the output file produced by the `bundle` command.
-    labels:
-      type: array
-      description: >-
-        Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
-        You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
-
-        If you try to assign labels that don't already exist for your organization, Redocly apps display a warning in the output and only assigns the existing labels (if any).
-      items:
-        type: string
     preprocessors:
       type: object
       title: Preprocessors object

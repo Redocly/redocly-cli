@@ -30,7 +30,6 @@ import type {
   ResolvedApi,
   ResolvedStyleguideConfig,
   RuleConfig,
-  DeprecatedInRawConfig,
   ImportedPlugin,
 } from './types.js';
 import type {
@@ -512,7 +511,7 @@ async function loadExtendStyleguideConfig(
 ): Promise<StyleguideRawConfig> {
   try {
     const { parsed } = (await resolver.resolveDocument(null, filePath)) as Document;
-    const rawConfig = transformConfig(parsed as RawConfig & DeprecatedInRawConfig);
+    const rawConfig = transformConfig(parsed as RawConfig);
     if (!rawConfig.styleguide) {
       throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
     }

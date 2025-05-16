@@ -4,7 +4,6 @@ import { minimatch } from 'minimatch';
 import pluralizeOne from 'pluralize';
 import { parseYaml } from './js-yaml/index.js';
 import { env } from './env.js';
-import { logger, colorize } from './logger.js';
 
 import type { HttpResolveConfig } from './config/index.js';
 import type { UserContext } from './walk.js';
@@ -90,22 +89,6 @@ function match(url: string, pattern: string) {
     url = url.replace(/^https?:\/\//, '');
   }
   return minimatch(url, pattern);
-}
-
-export function pickObjectProps<T extends Record<string, unknown>>(
-  object: T,
-  keys: Array<string>
-): T {
-  return Object.fromEntries(
-    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]])
-  ) as T;
-}
-
-export function omitObjectProps<T extends Record<string, unknown>>(
-  object: T,
-  keys: Array<string>
-): T {
-  return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
 
 export function splitCamelCaseIntoWords(str: string) {
@@ -238,34 +221,6 @@ export function doesYamlFileExist(filePath: string): boolean {
   );
 }
 
-export function showWarningForDeprecatedField(
-  deprecatedField: string,
-  updatedField?: string,
-  updatedObject?: string,
-  link?: string
-) {
-  const readMoreText = link ? `Read more about this change: ${link}` : '';
-  logger.warn(
-    `The '${colorize.red(deprecatedField)}' field is deprecated. ${
-      updatedField
-        ? `Use ${colorize.green(getUpdatedFieldName(updatedField, updatedObject))} instead. `
-        : ''
-    }${readMoreText}\n`
-  );
-}
-
-export function showErrorForDeprecatedField(
-  deprecatedField: string,
-  updatedField?: string,
-  updatedObject?: string
-) {
-  throw new Error(
-    `Do not use '${deprecatedField}' field. ${
-      updatedField ? `Use '${getUpdatedFieldName(updatedField, updatedObject)}' instead. ` : ''
-    }\n`
-  );
-}
-
 export type Falsy = undefined | null | false | '' | 0;
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
@@ -302,10 +257,6 @@ export function nextTick() {
 
 export async function pause(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
-  return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
 }
 
 /**

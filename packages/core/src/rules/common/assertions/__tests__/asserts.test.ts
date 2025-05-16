@@ -186,27 +186,6 @@ describe('oas3 assertions', () => {
       });
     });
 
-    describe('undefined', () => {
-      it('value should be undefined', () => {
-        expect(asserts.undefined(undefined, true, assertionProperties)).toEqual([]);
-        expect(asserts.undefined('test', true, assertionProperties)).toEqual([
-          {
-            message: 'Should not be defined',
-            location: baseLocation,
-          },
-        ]);
-      });
-      it('value should be defined', () => {
-        expect(asserts.undefined('test', false, assertionProperties)).toEqual([]);
-        expect(asserts.undefined(undefined, false, assertionProperties)).toEqual([
-          {
-            message: 'Should be defined',
-            location: baseLocation,
-          },
-        ]);
-      });
-    });
-
     describe('required', () => {
       it('values should be required', () => {
         expect(

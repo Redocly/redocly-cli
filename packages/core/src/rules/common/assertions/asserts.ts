@@ -16,7 +16,6 @@ export type Asserts = {
   defined: AssertionFn;
   required: AssertionFn;
   disallowed: AssertionFn;
-  undefined: AssertionFn;
   nonEmpty: AssertionFn;
   minLength: AssertionFn;
   maxLength: AssertionFn;
@@ -51,7 +50,6 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'notPattern',
   'enum',
   'defined',
-  'undefined',
   'nonEmpty',
   'minLength',
   'maxLength',
@@ -192,18 +190,6 @@ export const asserts: Asserts = {
           ]
         : [];
     }
-  },
-  undefined: (value: unknown, condition: boolean = true, { baseLocation }: AssertionFnContext) => {
-    const isUndefined = typeof value === 'undefined';
-    const isValid = condition ? isUndefined : !isUndefined;
-    return isValid
-      ? []
-      : [
-          {
-            message: condition ? `Should not be defined` : 'Should be defined',
-            location: baseLocation,
-          },
-        ];
   },
   nonEmpty: (
     value: string | undefined | null,

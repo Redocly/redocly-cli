@@ -33,8 +33,6 @@ apis:
       no-ambiguous-paths: error
   external@v1:
     root: ./openapi/external.yaml
-    labels:
-      - external
     theme:
       openapi:
         hideLogo: true
