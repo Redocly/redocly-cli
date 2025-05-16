@@ -29,7 +29,7 @@ An example configuration:
 
 ```yaml
 rules:
-  path-not-included-query: error
+  path-not-include-query: error
 ```
 
 ## Examples
@@ -38,7 +38,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  path-not-included-query: error
+  path-not-include-query: error
 ```
 
 Example of an **incorrect** path:
