@@ -14,7 +14,6 @@
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
-    "coverage": "VITEST_SUITE=coverage vitest run",
     "prettier": "npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
     "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
     "eslint": "eslint packages/**",

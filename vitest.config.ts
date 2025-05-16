@@ -6,11 +6,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   unit: defineConfig({
     test: {
       include: ['packages/*/src/**/*.test.ts'],
-    },
-  }),
-  coverage: defineConfig({
-    test: {
-      include: ['packages/*/src/**/*.test.ts'],
       coverage: {
         enabled: true,
         include: [
