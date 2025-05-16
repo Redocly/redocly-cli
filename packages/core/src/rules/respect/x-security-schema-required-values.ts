@@ -8,6 +8,9 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
+  oauth2: ['accessToken'],
+  openIdConnect: ['accessToken'],
+  mutualTLS: [],
 } as const;
 
 type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
@@ -51,7 +54,15 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
           const requiredValues =
             authType in REQUIRED_VALUES_BY_AUTH_TYPE
               ? REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType]
-              : ['accessToken']; // Default fallback
+              : undefined;
+
+          if (!requiredValues) {
+            report({
+              message: `The \`${authType}\` authentication security schema is not supported.`,
+              location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+            });
+            continue;
+          }
 
           for (const requiredValue of requiredValues) {
             if (!values || !(requiredValue in values)) {
