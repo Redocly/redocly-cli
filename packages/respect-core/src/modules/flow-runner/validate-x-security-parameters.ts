@@ -22,11 +22,7 @@ export function resolveXSecurity({
   values: Record<string, string>;
 }): ResolvedSecurity {
   const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
-
-  const requiredKeys =
-    authType in REQUIRED_VALUES_BY_AUTH_TYPE
-      ? REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType]
-      : undefined;
+  const requiredKeys = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
 
   if (!requiredKeys) {
     throw new Error(`Unsupported security scheme type: ${authType}`);
