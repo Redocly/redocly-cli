@@ -6,6 +6,9 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
+  oauth2: ['accessToken'],
+  openIdConnect: ['accessToken'],
+  mutualTLS: [],
 } as const;
 
 type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
@@ -23,13 +26,15 @@ export function resolveXSecurity({
   const requiredKeys =
     authType in REQUIRED_VALUES_BY_AUTH_TYPE
       ? REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType]
-      : ['accessToken']; // Default fallback
+      : undefined;
 
-  if (requiredKeys) {
-    for (const key of requiredKeys) {
-      if (!values?.[key]) {
-        throw new Error(`Missing required value \`${key}\` for ${authType} security scheme`);
-      }
+  if (!requiredKeys) {
+    throw new Error(`Unsupported security scheme type: ${authType}`);
+  }
+
+  for (const key of requiredKeys) {
+    if (!values?.[key]) {
+      throw new Error(`Missing required value \`${key}\` for ${authType} security scheme`);
     }
   }
 
