@@ -286,9 +286,18 @@ export class ApiFetcher implements IFetcher {
       // Digest auth perform two requests to establish the connection
       // We need to wait for the second request to complete before returning the response
       const first401Result = await wrappedFetch(urlToFetch, fetchParams);
+      const body401 = await first401Result.text();
       const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
 
       if (!wwwAuthenticateHeader) {
+        this.initVerboseResponseLogs({
+          body: body401,
+          method: (method || 'get') as OperationMethod,
+          host: serverUrl.url,
+          path: pathWithSearchParams || '',
+          statusCode: first401Result.status,
+          responseTime: 0,
+        });
         throw new Error('No www-authenticate header');
       }
 
