@@ -11,7 +11,7 @@ While under development, this standard was also known as "OpenAPI Workflows".
 Redocly CLI offers support for checking that your Arazzo files are valid.
 
 {% admonition type="info" name="Experimental Arazzo support" %}
-This feature is at an early stage, please send us lots of [feedback](https://github.com/redocly/redocly-cli/issues/new)!
+This feature is at an early stage, please send us lots of [feedback](https://github.com/redocly/redocly-cli/issues)!
 {% /admonition %}
 
 ## Lint an Arazzo file

@@ -61,7 +61,7 @@ It is also possible to configure additional rules for specific APIs using the [A
 
 ### Redocly rules and Spectral equivalents
 
-Included here is an attempt to map the simliar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues/new)?
+Included here is an attempt to map the simliar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues)?
 
 | Spectral rules                         | Redocly rules                                 |
 | -------------------------------------- | --------------------------------------------- |
