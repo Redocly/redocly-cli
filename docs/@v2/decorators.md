@@ -32,7 +32,7 @@ Some common decorator use cases are already built in to Redocly. Check the list 
 
 Have an idea for a decorator?
 We might build it for you and give it to the world.
-Open a [GitHub issue](https://github.com/Redocly/redocly-cli/issues/new?assignees=&labels=feature+request&template=feature_request.md&title=) and let us know.
+Open a [GitHub issue](https://github.com/Redocly/redocly-cli/issues) and let us know.
 
 ## Decorator configuration syntax
 
