@@ -27,10 +27,13 @@ export function resolveXSecurityParameters(
           : security.scheme;
 
       const values = Object.fromEntries(
-        Object.entries(security?.values ?? {}).map(([key, value]) => [
-          key,
-          evaluateRuntimeExpressionPayload({ payload: value, context: ctx }),
-        ])
+        Object.entries(security?.values ?? {}).map(([key, value]) => {
+          const evaluatedValue = evaluateRuntimeExpressionPayload({ payload: value, context: ctx });
+          if (security.values) {
+            security.values[key] = evaluatedValue;
+          }
+          return [key, evaluatedValue];
+        })
       );
 
       const resolvedSecurity = resolveXSecurity({ scheme, values });
