@@ -1,19 +1,19 @@
 import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
-import { resolveXSecurity } from '../../flow-runner/validate-x-security-parameters.js';
+import { validateXSecurityParameters } from '../../flow-runner/validate-x-security-parameters.js';
 
-describe('resolveXSecurity', () => {
+describe('validateXSecurityParameters', () => {
   it('should validate apiKey scheme', () => {
     const scheme: ApiKeyAuth = { type: 'apiKey', name: 'api_key', in: 'header' };
     const values = { value: '123' };
 
-    const result = resolveXSecurity({ scheme, values });
+    const result = validateXSecurityParameters({ scheme, values });
     expect(result).toEqual({ scheme, values });
   });
 
   it('should throw for missing value in apiKey scheme', () => {
     const scheme: ApiKeyAuth = { type: 'apiKey', name: 'api_key', in: 'header' };
 
-    expect(() => resolveXSecurity({ scheme, values: {} })).toThrow(
+    expect(() => validateXSecurityParameters({ scheme, values: {} })).toThrow(
       'Missing required value `value` for apiKey security scheme'
     );
   });
@@ -22,7 +22,7 @@ describe('resolveXSecurity', () => {
     const scheme: BasicAuth = { type: 'http', scheme: 'basic' };
     const values = { username: 'user', password: 'password' };
 
-    const result = resolveXSecurity({ scheme, values });
+    const result = validateXSecurityParameters({ scheme, values });
     expect(result).toEqual({ scheme, values });
   });
 
@@ -30,7 +30,7 @@ describe('resolveXSecurity', () => {
     const scheme: BasicAuth = { type: 'http', scheme: 'basic' };
     const values = { username: 'user' };
 
-    expect(() => resolveXSecurity({ scheme, values })).toThrow(
+    expect(() => validateXSecurityParameters({ scheme, values })).toThrow(
       'Missing required value `password` for basic security scheme'
     );
   });
@@ -42,14 +42,14 @@ describe('resolveXSecurity', () => {
         'eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.LlTGHPZRXbci-y349jXXN0byQniQQqwKGybzQCFIgY0',
     };
 
-    const result = resolveXSecurity({ scheme, values });
+    const result = validateXSecurityParameters({ scheme, values });
     expect(result).toEqual({ scheme, values });
   });
 
   it('should throw for missing token in bearer scheme', () => {
     const scheme: BearerAuth = { type: 'http', scheme: 'bearer' };
 
-    expect(() => resolveXSecurity({ scheme, values: {} })).toThrow(
+    expect(() => validateXSecurityParameters({ scheme, values: {} })).toThrow(
       'Missing required value `token` for bearer security scheme'
     );
   });
@@ -58,7 +58,7 @@ describe('resolveXSecurity', () => {
     const scheme = { type: 'http', scheme: 'unknown' } as unknown as Oas3SecurityScheme;
     const values = { accessToken: 'xyz' };
 
-    expect(() => resolveXSecurity({ scheme, values })).toThrow(
+    expect(() => validateXSecurityParameters({ scheme, values })).toThrow(
       'Unsupported security scheme type: unknown'
     );
   });
@@ -67,7 +67,7 @@ describe('resolveXSecurity', () => {
     const scheme = { type: 'unknown' } as unknown as Oas3SecurityScheme;
     const values = { accessToken: 'xyz' };
 
-    expect(() => resolveXSecurity({ scheme, values })).toThrow(
+    expect(() => validateXSecurityParameters({ scheme, values })).toThrow(
       'Unsupported security scheme type: unknown'
     );
   });

@@ -13,7 +13,7 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
 type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
 
 // TODO: This should be replaced with schema validation in Respect rules
-export function resolveXSecurity({
+export function validateXSecurityParameters({
   scheme,
   values,
 }: {
