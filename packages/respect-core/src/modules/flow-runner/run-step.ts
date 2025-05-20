@@ -15,7 +15,7 @@ import {
   getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
-} from '../config-parser/index.js';
+} from '../context-parser/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 import { Timer } from '../timeout-timer/timer.js';
@@ -31,7 +31,7 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
 } from '../../types.js';
-import type { ParameterWithoutIn } from '../config-parser/index.js';
+import type { ParameterWithoutIn } from '../context-parser/index.js';
 
 const logger = DefaultLogger.getInstance();
 const parsedMaxSteps = parseInt(process.env.RESPECT_MAX_STEPS as string, 10);

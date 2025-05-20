@@ -1,9 +1,9 @@
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { getSecurityParameters } from '../config-parser/get-security-parameters.js';
+import { getSecurityParameters } from '../context-parser/get-security-parameters.js';
 import { resolveXSecurity } from './validate-x-security-parameters.js';
 
 import type { ExtendedSecurity } from '@redocly/openapi-core';
-import type { ParameterWithIn } from '../config-parser/index.js';
+import type { ParameterWithIn } from '../context-parser/index.js';
 import type { Step, RuntimeExpressionContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';

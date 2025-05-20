@@ -1,7 +1,7 @@
 import type { TestContext } from '../../../types.js';
 
 import { createFaker } from '../../faker.js';
-import { getValueFromContext, resolvePath } from '../../config-parser/index.js';
+import { getValueFromContext, resolvePath } from '../../context-parser/index.js';
 
 describe('getValueFromContext', () => {
   beforeEach(() => {
