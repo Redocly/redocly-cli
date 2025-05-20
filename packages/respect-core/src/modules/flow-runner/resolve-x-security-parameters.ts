@@ -2,7 +2,7 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { getSecurityParameters } from '../config-parser/get-security-parameters.js';
 import { resolveXSecurity } from './validate-x-security-parameters.js';
 
-import type { ExtendedSecurity } from 'core/src/typings/arazzo.js';
+import type { ExtendedSecurity } from '@redocly/openapi-core';
 import type { ParameterWithIn } from '../config-parser/index.js';
 import type { Step, RuntimeExpressionContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';

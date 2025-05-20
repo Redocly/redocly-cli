@@ -51,10 +51,7 @@ export const XSecuritySchemaRequiredValues: Arazzo1Rule = () => {
             continue;
           }
 
-          const requiredValues =
-            authType in REQUIRED_VALUES_BY_AUTH_TYPE
-              ? REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType]
-              : undefined;
+          const requiredValues = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
 
           if (!requiredValues) {
             report({
