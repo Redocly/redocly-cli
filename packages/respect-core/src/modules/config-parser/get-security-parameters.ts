@@ -4,8 +4,8 @@ import type {
   BearerAuth,
   OAuth2Auth,
   OpenIDAuth,
-} from 'core/src/typings/openapi';
-import type { ResolvedSecurity } from 'core/src/typings/arazzo';
+  ResolvedSecurity,
+} from '@redocly/openapi-core';
 import type { ParameterWithIn } from './parse-parameters';
 
 export function getSecurityParameters(security: ResolvedSecurity): ParameterWithIn | undefined {

@@ -1,4 +1,4 @@
-import type { ApiKeyAuth, BasicAuth, BearerAuth, OAuth2Auth } from 'core/src/typings/openapi';
+import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
 import { resolveXSecurity } from '../../flow-runner/validate-x-security-parameters.js';
 
 describe('resolveXSecurity', () => {
@@ -54,19 +54,21 @@ describe('resolveXSecurity', () => {
     );
   });
 
-  it('should fall back to default accessToken for unknown types', () => {
-    const scheme: OAuth2Auth = { type: 'oauth2', flows: {} };
+  it('should throw an error for unsupported security http scheme', () => {
+    const scheme = { type: 'http', scheme: 'unknown' } as unknown as Oas3SecurityScheme;
     const values = { accessToken: 'xyz' };
 
-    const result = resolveXSecurity({ scheme, values });
-    expect(result).toEqual({ scheme, values });
+    expect(() => resolveXSecurity({ scheme, values })).toThrow(
+      'Unsupported security scheme type: unknown'
+    );
   });
 
-  it('should throw for missing accessToken in unknown types', () => {
-    const scheme: OAuth2Auth = { type: 'oauth2', flows: {} };
+  it('should throw an error for unsupported security scheme type', () => {
+    const scheme = { type: 'unknown' } as unknown as Oas3SecurityScheme;
+    const values = { accessToken: 'xyz' };
 
-    expect(() => resolveXSecurity({ scheme, values: {} })).toThrow(
-      'Missing required value `accessToken` for oauth2 security scheme'
+    expect(() => resolveXSecurity({ scheme, values })).toThrow(
+      'Unsupported security scheme type: unknown'
     );
   });
 });
