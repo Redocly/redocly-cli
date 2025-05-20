@@ -22,5 +22,3 @@ All the rules are of severity `error`:
 - [requestBody-replacements-unique](./arazzo/requestBody-replacements-unique.md)
 - [no-criteria-xpath](./respect/no-criteria-xpath.md)
 - [criteria-unique](./arazzo/criteria-unique.md)
-- [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md)
-- [x-security-schema-required-values](./respect/x-security-schema-required-values.md)

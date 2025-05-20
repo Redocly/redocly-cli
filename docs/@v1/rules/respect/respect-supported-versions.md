@@ -42,8 +42,6 @@ arazzo: 1.0.1
 ## Related rules
 
 - [no-criteria-xpath](./no-criteria-xpath.md)
-- [no-x-security-scheme-name-without-openapi](./no-x-security-scheme-name-without-openapi.md)
-- [x-security-schema-required-values](./x-security-schema-required-values.md)
 
 ## Resources
 
