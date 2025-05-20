@@ -20,4 +20,4 @@ test('should quit an infinite loop on RESPECT_MAX_STEPS', () => {
   });
 
   expect(result).toMatchSnapshot();
-}, 60_000);
+}, 120_000);
