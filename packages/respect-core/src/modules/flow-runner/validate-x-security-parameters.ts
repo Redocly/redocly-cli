@@ -1,5 +1,4 @@
-import type { Oas3SecurityScheme } from 'core/src/typings/openapi';
-import type { ResolvedSecurity } from 'core/src/typings/arazzo';
+import type { Oas3SecurityScheme, ResolvedSecurity } from '@redocly/openapi-core';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['value'],
