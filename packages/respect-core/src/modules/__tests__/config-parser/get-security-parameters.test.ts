@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getSecurityParameters } from '../../config-parser/get-security-parameters';
+import { getSecurityParameters } from '../../context-parser/get-security-parameters';
 
 describe('getSecurityParameters', () => {
   it('should return security parameters for API Key Auth', () => {

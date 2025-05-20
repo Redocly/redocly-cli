@@ -1,6 +1,6 @@
 import type { TestContext } from '../../../types.js';
 
-import { resolveReusableComponentItem } from '../../config-parser/index.js';
+import { resolveReusableComponentItem } from '../../context-parser/index.js';
 
 describe('resolveReusableComponentItem', () => {
   it('should return parameter if not reference', () => {

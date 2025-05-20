@@ -1,4 +1,4 @@
-import { isParameterWithoutIn, isParameterWithIn } from '../../config-parser/index.js';
+import { isParameterWithoutIn, isParameterWithIn } from '../../context-parser/index.js';
 
 describe('isParameterWithoutIn', () => {
   it('should return true if the parameter is not a parameter with in', () => {

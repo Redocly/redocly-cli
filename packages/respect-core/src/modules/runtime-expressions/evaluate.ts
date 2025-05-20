@@ -1,7 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 import { lintExpression } from './lint.js';
 import { replaceJSONPointers } from './replace-json-pointers.js';
-import { getFakeData, parseJson } from '../config-parser/index.js';
+import { getFakeData, parseJson } from '../context-parser/index.js';
 
 import type { RuntimeExpressionContext } from '../../types.js';
 

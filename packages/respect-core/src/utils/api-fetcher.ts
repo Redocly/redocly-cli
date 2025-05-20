@@ -12,7 +12,7 @@ import {
 } from '../types.js';
 import { withHar } from '../utils/har-logs/index.js';
 import { isEmpty } from './is-empty.js';
-import { resolvePath } from '../modules/config-parser/index.js';
+import { resolvePath } from '../modules/context-parser/index.js';
 import { getVerboseLogs, maskSecrets } from '../modules/cli-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
