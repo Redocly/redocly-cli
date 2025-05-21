@@ -34,7 +34,7 @@ The configuration in the `redocly.yaml` file should look like this:
 ```yaml
 extends: []
 
-rule:
+rules:
   spec: error
 ```
 

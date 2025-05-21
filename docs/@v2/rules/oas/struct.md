@@ -67,4 +67,4 @@ paths: {}
 
 ## Resources
 
-- [OpenAPI docs](https://redocly.com/docs/openapi-visual-reference/)
+- [OpenAPI docs](https://redocly.com/learn/openapi/learning-openapi)

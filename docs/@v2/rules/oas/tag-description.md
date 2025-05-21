@@ -45,7 +45,7 @@ Set the desired [severity](../../rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
-  info-contact: error
+  tag-description: error
 ```
 
 | Option   | Type   | Description                                                                              |
