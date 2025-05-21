@@ -13,7 +13,7 @@ Validate that `x-security` has all required `values` described according to the 
 ## API design principles
 
 This is a Respect specific rule.
-Different OpenAPI `securitySchemes` have some required values, like `token` or `username`. Below are the values the you need to use for particular OpenAPI `securitySchemes`: 
+Different OpenAPI `securitySchemes` have some required values, like `token` or `username`. Here you can find the values the you need to use for particular OpenAPI `securitySchemes`: 
 
  Basic Auth:
 
