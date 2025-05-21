@@ -10,11 +10,30 @@ sourceDescriptions:
 
 workflows:
   - workflowId: events-crud
+    x-security:
+      - scheme:
+          type: http
+          scheme: bearer
+        values:
+          token: workflow-bearer-token
+      - scheme:
+          type: apiKey
+          in: cookie
+          name: X-API-KEY-WORKFLOW
+        values:
+          value: workflow-api-key-auth
+      - scheme:
+          type: apiKey
+          in: header
+          name: X-API-KEY
+        values:
+          value: workflow-api-key-auth-header-that-will-be-overridden-by-step-level-api-key-auth
     inputs:
       type: object
       properties:
         secret:
           type: string
+          default: some-password
     parameters:
       - in: header
         name: Authorization
