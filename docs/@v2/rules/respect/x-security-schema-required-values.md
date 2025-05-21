@@ -13,7 +13,58 @@ Validate that `x-security` has all required `values` described according to the 
 ## API design principles
 
 This is a Respect specific rule.
-Different OpenAPI `securitySchemes` have some required values, like `token` or `username`.
+Different OpenAPI `securitySchemes` have some required values, like `token` or `username`. Below are the values the you need to use for particular OpenAPI `securitySchemes`: 
+
+ Basic Auth:
+
+```yaml
+  x-security:
+    - scheme:
+        type: http
+        scheme: basic
+      values:
+        username: test@example.com
+        password: 123456
+```
+
+Api Key:
+
+```yaml
+x-security:
+  - scheme:
+      type: apiKey
+      in: query
+      name: api_key
+    values:
+      value: $inputs.secret
+```
+
+JWT Bearer:
+
+```yaml
+x-security:
+  - scheme:
+      type: http
+      scheme: bearer
+    values:
+      token: $inputs.secret
+```
+
+OAuth2 or other custom HTTP security schemes:
+
+```yaml
+x-security:
+  - scheme:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://example.com/token
+    values:
+      accessToken: $inputs.secret
+```
+
+**Note**: Use `accessToken` (not `token`) for schemes other than bearer.
+
 
 ## Configuration
 
