@@ -54,6 +54,7 @@ Example of an entry:
         password: 123456
 ```
 
+
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/no-x-security-scheme-name-without-openapi.ts)
