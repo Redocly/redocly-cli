@@ -1,3 +1,4 @@
+import { dirname } from 'path';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
@@ -9,6 +10,9 @@ import {
   pluralize,
   ConfigValidationError,
   logger,
+  loadConfig,
+  findConfig,
+  createConfig,
 } from '@redocly/openapi-core';
 import {
   checkIfRulesetExist,
@@ -45,12 +49,17 @@ export async function handleLint({
   version,
   collectSpecData,
 }: CommandArgs<LintOptions>) {
-  const apis = await getFallbackApisOrExit(argv.apis, config);
+  const apis = await getFallbackApisOrExit(
+    argv.apis,
+    config // if we continue using global config to get the apis, it might create mess...
+    // await createConfig({})  // ...but removing it breaks a lot of E2E tests
+  );
 
   if (!apis.length) {
     exitWithError('No APIs were provided.');
   }
 
+  ///// move inside for loop
   if (argv['generate-ignore-file']) {
     config.styleguide.ignore = {}; // clear ignore
   }
@@ -60,8 +69,14 @@ export async function handleLint({
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path, alias } of apis) {
     try {
+      const configPath = findConfig(dirname(path));
+      let c = await loadConfig({ configPath });
+      if (argv.config) {
+        c = config;
+      }
+
       const startedAt = performance.now();
-      const resolvedConfig = getMergedConfig(config, alias);
+      const resolvedConfig = getMergedConfig(c, alias);
       const { styleguide } = resolvedConfig;
 
       checkIfRulesetExist(styleguide.rules);
@@ -118,7 +133,7 @@ export async function handleLint({
     printLintTotals(totals, apis.length);
   }
 
-  printUnusedWarnings(config.styleguide);
+  printUnusedWarnings(config.styleguide); //// leave it outside or inside the for loop?
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');
