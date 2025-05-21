@@ -41,29 +41,29 @@ arazzoRules:
 Example 1 of an entry:
 
 ```yaml
-- stepId: step-without-openapi-operation-and-security-scheme-name
-  x-operation:
-    method: GET
-    url: 'https://api.example.com/v1/users'
-  x-security:
-    - scheme:
-        type: http
-        scheme: basic
-      values:
-        username: test@example.com
-        password: 123456
+stepId: step-without-openapi-operation-and-security-scheme-name
+x-operation:
+  method: GET
+  url: 'https://api.example.com/v1/users'
+x-security:
+  - scheme:
+      type: http
+      scheme: basic
+    values:
+      username: test@example.com
+      password: 123456
 ```
 
 Example 2 of an entry:
 
 ```yaml
-- stepId: step-with-openapi-operation
-  operationId: museum-api.getMuseumHours
-  x-security:
-    - schemeName: MuseumPlaceholderAuth
-      values:
-        username: todd@example.com
-        password: 123456
+stepId: step-with-openapi-operation
+operationId: museum-api.getMuseumHours
+x-security:
+  - schemeName: MuseumPlaceholderAuth
+    values:
+      username: todd@example.com
+      password: 123456
 ```
 
 ## Resources
