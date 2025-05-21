@@ -4,7 +4,7 @@ slug: /docs/cli/rules/respect/x-security-schema-required-values
 
 # x-security-schema-required-values
 
-Validate that `x-security` have all required `values` described according to the used `scheme`.
+Validate that `x-security` has all required `values` described according to the used `scheme`.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -12,14 +12,65 @@ Validate that `x-security` have all required `values` described according to the
 
 ## API design principles
 
-This is `Respect` specific rule.
-Different OpenAPI securitySchemes have some required values, like `token`, `username`, etc.
+This is a Respect specific rule.
+Different OpenAPI `securitySchemes` have some required values, like `token` or `username`. Here you can find the values the you need to use for particular OpenAPI `securitySchemes`: 
+
+ Basic Auth:
+
+```yaml
+  x-security:
+    - scheme:
+        type: http
+        scheme: basic
+      values:
+        username: test@example.com
+        password: 123456
+```
+
+Api Key:
+
+```yaml
+x-security:
+  - scheme:
+      type: apiKey
+      in: query
+      name: api_key
+    values:
+      value: $inputs.secret
+```
+
+JWT Bearer:
+
+```yaml
+x-security:
+  - scheme:
+      type: http
+      scheme: bearer
+    values:
+      token: $inputs.secret
+```
+
+OAuth2 or other custom HTTP security schemes:
+
+```yaml
+x-security:
+  - scheme:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://example.com/token
+    values:
+      accessToken: $inputs.secret
+```
+
+**Note**: Use `accessToken` (not `token`) for schemes other than bearer.
+
 
 ## Configuration
 
 | Option   | Type   | Description                                             |
 | -------- | ------ | ------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off`. |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:
 
@@ -37,7 +88,7 @@ arazzoRules:
   x-security-schema-required-values: error
 ```
 
-Example of a **correct** entry:
+Example of an entry:
 
 ```yaml
 - stepId: step-without-openapi-operation-and-security-scheme-name
@@ -50,22 +101,6 @@ Example of a **correct** entry:
         scheme: basic
       values:
         username: test@example.com
-        password: 123456
-```
-
-Example of a **incorrect** entry:
-
-```yaml
-- stepId: step-without-openapi-operation-and-security-scheme-name
-  x-operation:
-    method: GET
-    url: https://api.example.com/v1/users
-  x-security:
-    - scheme:
-        type: http
-        scheme: basic
-      values:
-        email: test@example.com
         password: 123456
 ```
 
