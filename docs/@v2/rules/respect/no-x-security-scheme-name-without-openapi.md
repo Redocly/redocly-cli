@@ -4,7 +4,7 @@ slug: /docs/cli/rules/respect/no-x-security-scheme-name-without-openapi
 
 # no-x-security-scheme-name-without-openapi
 
-You can only use `schemeName` in `x-security` when the Step request doesn't include `x-operation`.
+You can only use `schemeName` in `x-security` if the step request does **not** include `x-operation`.
 
 
 | Arazzo | Compatibility |
