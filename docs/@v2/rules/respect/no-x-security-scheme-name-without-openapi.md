@@ -54,7 +54,7 @@ Example 1 of an entry:
         password: 123456
 ```
 
-Example 2 of an entry: 
+Example 2 of an entry:
 
 ```yaml
 steps:
