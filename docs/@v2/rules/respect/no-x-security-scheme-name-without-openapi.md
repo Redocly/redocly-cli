@@ -14,7 +14,7 @@ You can only use `schemeName` in `x-security` if the step request does **not** i
 ## API design principles
 
 This is a Respect specific rule.
-You must use an OpenAPI operation in a Step to be able to reference `schemeName` inside `x-security` extension.
+You must use an OpenAPI operation in a step to be able to reference `schemeName` inside `x-security` extension.
 
 ## Configuration
 
