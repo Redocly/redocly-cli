@@ -44,7 +44,7 @@ Example 1 of an entry:
 - stepId: step-without-openapi-operation-and-security-scheme-name
   x-operation:
     method: GET
-    url: https://api.example.com/v1/users
+    url: 'https://api.example.com/v1/users'
   x-security:
     - scheme:
         type: http
@@ -57,13 +57,13 @@ Example 1 of an entry:
 Example 2 of an entry:
 
 ```yaml
-  - stepId: step-with-openapi-operation
-    operationId: museum-api.getMuseumHours
-    x-security:
-      - schemeName: MuseumPlaceholderAuth
-        values:
-          username: todd@example.com
-          password: 123456
+- stepId: step-with-openapi-operation
+  operationId: museum-api.getMuseumHours
+  x-security:
+    - schemeName: MuseumPlaceholderAuth
+      values:
+        username: todd@example.com
+        password: 123456
 ```
 
 ## Resources
