@@ -63,8 +63,6 @@ x-security:
       accessToken: $inputs.secret
 ```
 
-**Note**: Use `accessToken` (not `token`) for schemes other than bearer.
-
 
 ## Configuration
 
