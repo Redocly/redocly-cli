@@ -18,13 +18,13 @@ Different OpenAPI `securitySchemes` have some required values, like `token` or `
  Basic Auth:
 
 ```yaml
-  x-security:
-    - scheme:
-        type: http
-        scheme: basic
-      values:
-        username: test@example.com
-        password: 123456
+x-security:
+  - scheme:
+      type: http
+      scheme: basic
+    values:
+      username: test@example.com
+      password: 123456
 ```
 
 Api Key:
@@ -58,7 +58,7 @@ x-security:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: https://example.com/token
+          tokenUrl: 'https://example.com/token'
     values:
       accessToken: $inputs.secret
 ```
@@ -92,7 +92,7 @@ Example of an entry:
 - stepId: step-without-openapi-operation-and-security-scheme-name
   x-operation:
     method: GET
-    url: https://api.example.com/v1/users
+    url: 'https://api.example.com/v1/users'
   x-security:
     - scheme:
         type: http
