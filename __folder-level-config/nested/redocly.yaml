@@ -1,0 +1,4 @@
+rules:
+  info-contact: error
+# extends:
+#   - ../redocly.yaml
