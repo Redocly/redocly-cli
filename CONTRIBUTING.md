@@ -215,8 +215,6 @@ To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.t
 To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 To update snapshots, run `npm run unit -- -u`.
 
-To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
-
 ### E2E tests
 
 Run e2e tests with this command: `npm run e2e`.

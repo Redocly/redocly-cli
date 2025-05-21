@@ -51,8 +51,6 @@ For all other APIs, not including the `storefront@latest` API, `filter-in` and `
 apis:
   name@version:
     root: ./openapi/openapi.yaml
-    labels:
-      - production
     openapi: {}
     output: ./openapi/bundled.yaml
 ```

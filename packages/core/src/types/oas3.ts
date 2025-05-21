@@ -1,8 +1,5 @@
-import { listOf, mapOf } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import { isMappingRef } from '../ref-utils.js';
-
-import type { NodeType } from './index.js';
-import type { Oas3NodeType } from './redocly-yaml.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
@@ -528,7 +525,7 @@ const XUsePkce: NodeType = {
   },
 };
 
-export const Oas3Types: Record<Oas3NodeType, NodeType> = {
+export const Oas3Types = {
   Root,
   Tag,
   TagList: listOf('Tag'),
@@ -591,4 +588,4 @@ export const Oas3Types: Record<Oas3NodeType, NodeType> = {
   XCodeSampleList: listOf('XCodeSample'),
   XUsePkce,
   WebhooksMap,
-};
+} as const;

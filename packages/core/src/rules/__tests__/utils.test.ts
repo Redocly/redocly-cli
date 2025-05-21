@@ -1,10 +1,4 @@
-import {
-  fieldNonEmpty,
-  matchesJsonSchemaType,
-  missingRequiredField,
-  oasTypeOf,
-  getAdditionalPropertiesOption,
-} from '../utils.js';
+import { fieldNonEmpty, matchesJsonSchemaType, missingRequiredField, oasTypeOf } from '../utils.js';
 
 describe('field-non-empty', () => {
   it('should match expected message', () => {
@@ -124,37 +118,5 @@ describe('oas-type-of', () => {
     const car = { type: 'Fiat', model: '500', color: 'white' };
     const results = oasTypeOf(car);
     expect(results).toBe('object');
-  });
-});
-
-describe('get-additional-properties-option', () => {
-  it('should return actual option', () => {
-    const options = {
-      allowAdditionalProperties: true,
-    };
-    expect(getAdditionalPropertiesOption(options)).toBeTruthy();
-  });
-
-  it('should reverse option', () => {
-    const options = {
-      disallowAdditionalProperties: true,
-    };
-    expect(getAdditionalPropertiesOption(options)).toBeFalsy();
-  });
-
-  it('should throw error with message', () => {
-    const options = {
-      allowAdditionalProperties: true,
-      disallowAdditionalProperties: false,
-    };
-
-    try {
-      getAdditionalPropertiesOption(options);
-    } catch (error) {
-      expect(error).toBeInstanceOf(Error);
-      expect(error.message).toEqual(
-        "Do not use 'disallowAdditionalProperties' field. Use 'allowAdditionalProperties' instead. \n"
-      );
-    }
   });
 });
