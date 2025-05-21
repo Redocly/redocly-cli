@@ -15,7 +15,7 @@ Validate that `x-security` has all required `values` described according to the 
 This is a Respect specific rule.
 Different OpenAPI `securitySchemes` have some required values, like `token` or `username`. Here you can find the values the you need to use for particular OpenAPI `securitySchemes`:
 
- Basic Auth:
+Basic Auth:
 
 ```yaml
 x-security:
@@ -63,11 +63,10 @@ x-security:
       accessToken: $inputs.secret
 ```
 
-
 ## Configuration
 
-| Option   | Type   | Description                                             |
-| -------- | ------ | ------------------------------------------------------- |
+| Option   | Type   | Description                                              |
+| -------- | ------ | -------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:

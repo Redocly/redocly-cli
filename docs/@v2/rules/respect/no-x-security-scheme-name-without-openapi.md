@@ -6,7 +6,6 @@ slug: /docs/cli/rules/respect/no-x-security-scheme-name-without-openapi
 
 You can only use `schemeName` in `x-security` if the step request does **not** include `x-operation`.
 
-
 | Arazzo | Compatibility |
 | ------ | ------------- |
 | 1.x    | ✅            |
@@ -18,8 +17,8 @@ You must use an OpenAPI operation in a step to be able to reference `schemeName`
 
 ## Configuration
 
-| Option   | Type   | Description                                             |
-| -------- | ------ | ------------------------------------------------------- |
+| Option   | Type   | Description                                              |
+| -------- | ------ | -------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:
