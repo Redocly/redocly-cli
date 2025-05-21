@@ -57,7 +57,6 @@ Example 1 of an entry:
 Example 2 of an entry:
 
 ```yaml
-steps:
   - stepId: step-with-openapi-operation
     operationId: museum-api.getMuseumHours
     x-security:
