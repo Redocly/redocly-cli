@@ -38,7 +38,7 @@ arazzoRules:
   no-x-security-scheme-name-without-openapi: error
 ```
 
-Example of an entry:
+Example 1 of an entry:
 
 ```yaml
 - stepId: step-without-openapi-operation-and-security-scheme-name
@@ -54,6 +54,18 @@ Example of an entry:
         password: 123456
 ```
 
+Example 2 of an entry: 
+
+```yaml
+steps:
+  - stepId: step-with-openapi-operation
+    operationId: museum-api.getMuseumHours
+    x-security:
+      - schemeName: MuseumPlaceholderAuth
+        values:
+          username: todd@example.com
+          password: 123456
+```
 
 ## Resources
 
