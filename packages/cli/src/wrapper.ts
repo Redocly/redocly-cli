@@ -6,17 +6,14 @@ import {
   HandledError,
 } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import {
-  loadConfigAndHandleErrors,
-  sendTelemetry,
-  collectXSecurityAuthTypes,
-} from './utils/miscellaneous.js';
+import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
+import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 import { lintConfigCallback } from './commands/lint.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 
 import type { Arguments } from 'yargs';
 import type { Config, CollectFn, ArazzoDefinition } from '@redocly/openapi-core';
-import type { ExitCode } from './utils/miscellaneous.js';
+import type { ExitCode } from './utils/telemetry.js';
 import type { CommandOptions } from './types.js';
 
 export type CommandArgs<T extends CommandOptions> = {

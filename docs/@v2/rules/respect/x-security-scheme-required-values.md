@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/respect/x-security-schema-required-values
+slug: /docs/cli/rules/respect/x-security-scheme-required-values
 ---
 
-# x-security-schema-required-values
+# x-security-scheme-required-values
 
 Validate that `x-security` have all required `values` described according to the used `scheme`.
 
@@ -25,7 +25,7 @@ An example configuration:
 
 ```yaml
 arazzoRules:
-  x-security-schema-required-values: error
+  x-security-scheme-required-values: error
 ```
 
 ## Examples
@@ -34,7 +34,7 @@ Given the following configuration:
 
 ```yaml
 arazzoRules:
-  x-security-schema-required-values: error
+  x-security-scheme-required-values: error
 ```
 
 Example of a **correct** entry:
@@ -71,4 +71,4 @@ Example of a **incorrect** entry:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/x-security-schema-required-values.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/x-security-scheme-required-values.ts)

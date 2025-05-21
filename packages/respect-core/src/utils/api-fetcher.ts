@@ -252,8 +252,8 @@ export class ApiFetcher implements IFetcher {
     const wrappedFetch = this.harLogs ? withHar(this.fetch, { har: this.harLogs }) : fetch;
     const startTime = performance.now();
 
-    let result;
-    let res;
+    let fetchResult;
+    let responseBody;
     let responseTime;
 
     const fetchParams = {
@@ -271,7 +271,12 @@ export class ApiFetcher implements IFetcher {
       dispatcher: ctx.mtlsCerts ? createMtlsClient(urlToFetch, ctx.mtlsCerts) : undefined,
     };
 
-    const lastDigestSecurityScheme = step['x-security']
+    const workflowLevelXSecurityParameters =
+      ctx.workflows.find((workflow) => workflow.workflowId === workflowId)?.['x-security'] || [];
+    const lastDigestSecurityScheme = [
+      ...workflowLevelXSecurityParameters,
+      ...(step['x-security'] || []),
+    ]
       ?.slice()
       .reverse()
       .find(
@@ -336,34 +341,34 @@ export class ApiFetcher implements IFetcher {
         headerParams: maskSecrets(updatedHeaders, ctx.secretFields || new Set()),
       });
 
-      result = await wrappedFetch(urlToFetch, {
+      fetchResult = await wrappedFetch(urlToFetch, {
         ...fetchParams,
         headers: updatedHeaders,
       });
 
       responseTime = Math.ceil(performance.now() - startTime);
-      res = await result.text();
+      responseBody = await fetchResult.text();
       // REGULAR FETCH
     } else {
-      result = await wrappedFetch(urlToFetch, fetchParams);
+      fetchResult = await wrappedFetch(urlToFetch, fetchParams);
       responseTime = Math.ceil(performance.now() - startTime);
-      res = await result.text();
+      responseBody = await fetchResult.text();
     }
 
-    if (!result) {
+    if (!fetchResult) {
       throw new Error('Failed to fetch, no result received');
     }
 
-    const [responseContentType] = result.headers.get('content-type')?.split(';') || [
+    const [responseContentType] = fetchResult.headers.get('content-type')?.split(';') || [
       'application/json',
     ];
-    const transformedBody = res
+    const transformedBody = responseBody
       ? isJsonContentType(responseContentType)
-        ? JSON.parse(res)
-        : res
+        ? JSON.parse(responseBody)
+        : responseBody
       : {};
     const responseSchema = getResponseSchema({
-      statusCode: result.status,
+      statusCode: fetchResult.status,
       contentType: responseContentType,
       descriptionResponses: openapiOperation?.responses,
     });
@@ -381,15 +386,15 @@ export class ApiFetcher implements IFetcher {
       method: (method || 'get') as OperationMethod,
       host: serverUrl.url,
       path: pathWithSearchParams || '',
-      statusCode: result.status,
+      statusCode: fetchResult.status,
       responseTime,
     });
 
     return {
       body: transformedBody,
-      statusCode: result.status,
+      statusCode: fetchResult.status,
       time: responseTime,
-      header: Object.fromEntries(result.headers?.entries() || []),
+      header: Object.fromEntries(fetchResult.headers?.entries() || []),
       contentType: responseContentType,
       requestUrl: urlToFetch,
     };

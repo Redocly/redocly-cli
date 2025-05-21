@@ -30,7 +30,10 @@ describe('resolveXSecurityParameters', () => {
       ],
     } as unknown as Step;
 
-    const parameters = resolveXSecurityParameters(runtimeContext, step);
+    const parameters = resolveXSecurityParameters({
+      runtimeContext,
+      step,
+    });
     expect(parameters).toEqual([
       {
         name: 'Authorization',

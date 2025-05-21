@@ -123,6 +123,7 @@ const Workflow: NodeType = {
     steps: 'Steps',
     successActions: 'OnSuccessActionList',
     failureActions: 'OnFailureActionList',
+    'x-security': 'ExtendedSecurityList',
   },
   required: ['workflowId', 'steps'],
   extensionsPrefix: 'x-',

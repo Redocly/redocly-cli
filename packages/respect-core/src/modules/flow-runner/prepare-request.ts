@@ -141,11 +141,19 @@ export async function prepareRequest(
     step,
   });
 
-  const xSecurityParameters = resolveXSecurityParameters(
-    expressionContext,
+  const workflowLevelXSecurityParameters = activeWorkflow?.['x-security'] || [];
+
+  const xSecurityParameters = resolveXSecurityParameters({
+    runtimeContext: expressionContext,
     step,
-    openapiOperation as OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> }
-  );
+    operation: openapiOperation as OperationDetails & {
+      securitySchemes: Record<string, Oas3SecurityScheme>;
+    },
+    workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as {
+      scheme: Oas3SecurityScheme;
+      values: Record<string, string>;
+    }[],
+  });
 
   const evaluatedParameters = joinParameters(parameters, xSecurityParameters).map((parameter) => {
     return {

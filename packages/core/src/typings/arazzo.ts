@@ -201,6 +201,7 @@ export interface Workflow {
   steps: Step[];
   successActions?: OnSuccessObject[];
   failureActions?: OnFailureObject[];
+  'x-security'?: ExtendedSecurity[];
 }
 
 export interface ArazzoDefinition {
