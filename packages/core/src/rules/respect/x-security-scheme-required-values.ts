@@ -31,17 +31,8 @@ function validateSecuritySchemas(
     }
 
     const { scheme, values } = securitySchema;
-
-    if (!scheme) {
-      continue;
-    }
-
     const { type } = scheme;
     const authType = type === 'http' ? scheme.scheme : type;
-
-    if (!authType) {
-      continue;
-    }
 
     if (authType === 'mutualTLS') {
       logger.warn(
@@ -52,21 +43,20 @@ function validateSecuritySchemas(
 
     const requiredValues = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
 
-    if (!requiredValues) {
+    if (requiredValues) {
+      for (const requiredValue of requiredValues) {
+        if (!values || !(requiredValue in values)) {
+          report({
+            message: `The \`${requiredValue}\` is required for ${authType} authentication security schema.`,
+            location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
+          });
+        }
+      }
+    } else {
       report({
         message: `The \`${authType}\` authentication security schema is not supported.`,
         location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
       });
-      continue;
-    }
-
-    for (const requiredValue of requiredValues) {
-      if (!values || !(requiredValue in values)) {
-        report({
-          message: `The \`${requiredValue}\` is required for ${authType} authentication security schema.`,
-          location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
-        });
-      }
     }
   }
 }

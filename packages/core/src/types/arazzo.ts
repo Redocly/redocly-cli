@@ -173,7 +173,7 @@ const Replacement: NodeType = {
   required: ['target', 'value'],
   extensionsPrefix: 'x-',
 };
-const ExtendedSecurityList: NodeType = listOf('ExtendedSecurity');
+
 const ExtendedSecurity: NodeType = {
   properties: {
     schemeName: { type: 'string' },
@@ -302,7 +302,7 @@ export const Arazzo1Types: Record<string, NodeType> = {
   RequestBody,
   Replacement,
   ExtendedOperation,
-  ExtendedSecurityList,
+  ExtendedSecurityList: listOf('ExtendedSecurity'),
   ExtendedSecurity,
   Outputs,
   CriterionObject,
