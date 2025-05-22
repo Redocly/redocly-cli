@@ -135,6 +135,16 @@ describe('resolveXSecurityParameters', () => {
 
     expect(parameters).toEqual([
       {
+        in: 'header',
+        name: 'Authorization',
+        value: 'Bearer workflow-level-token',
+      },
+      {
+        in: 'header',
+        name: 'x-api-key',
+        value: 'workflow-level-api-key',
+      },
+      {
         in: 'cookie',
         name: 'x-api-key',
         value: 'workflow-level-api-key',

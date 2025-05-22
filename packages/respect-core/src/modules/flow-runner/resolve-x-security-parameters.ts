@@ -50,43 +50,8 @@ export function resolveXSecurityParameters({
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
   const workflowLevelXSecurity = workflowLevelXSecurityParameters as ExtendedSecurity[] | undefined;
 
-  // If no security parameters at all, return empty array
-  if (!stepXSecurity && !workflowLevelXSecurity?.length) {
-    return [];
-  }
-
-  // Create a map to track which schemes have been processed
-  const processedSchemes = new Set<string>();
-  const orderedSecuritySchemes: ExtendedSecurity[] = [];
-
-  // First add workflow level security parameters
-  if (workflowLevelXSecurity) {
-    for (const security of workflowLevelXSecurity) {
-      const key = getSecuritySchemeKey(security);
-      if (!processedSchemes.has(key)) {
-        processedSchemes.add(key);
-        orderedSecuritySchemes.push(security);
-      }
-    }
-  }
-
-  // Then add step level security parameters that will override workflow level ones
-  if (stepXSecurity) {
-    for (const security of stepXSecurity) {
-      const key = getSecuritySchemeKey(security);
-      // Remove any existing scheme with the same key from orderedSecuritySchemes
-      const existingIndex = orderedSecuritySchemes.findIndex(
-        (s) => getSecuritySchemeKey(s) === key
-      );
-      if (existingIndex !== -1) {
-        orderedSecuritySchemes.splice(existingIndex, 1);
-      }
-      orderedSecuritySchemes.push(security);
-    }
-  }
-
   // Convert array to parameters and process them
-  return orderedSecuritySchemes
+  return [...(workflowLevelXSecurity || []), ...(stepXSecurity || [])]
     .map((security) => {
       const scheme =
         'schemeName' in security

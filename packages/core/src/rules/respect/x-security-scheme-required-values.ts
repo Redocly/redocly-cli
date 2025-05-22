@@ -2,6 +2,7 @@ import { logger } from '../../logger.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['value'],
@@ -15,17 +16,8 @@ const REQUIRED_VALUES_BY_AUTH_TYPE = {
 
 type AuthType = keyof typeof REQUIRED_VALUES_BY_AUTH_TYPE;
 
-interface SecuritySchema {
-  scheme?: {
-    type: string;
-    scheme?: string;
-  };
-  values?: Record<string, unknown>;
-  schemeName?: string;
-}
-
 function validateSecuritySchemas(
-  extendedSecurity: SecuritySchema[] | undefined,
+  extendedSecurity: ExtendedSecurity[] | undefined,
   { report, location }: UserContext
 ) {
   if (!extendedSecurity) {
