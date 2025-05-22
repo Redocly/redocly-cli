@@ -17,8 +17,8 @@ This is a Respect specific rule.
 
 ## Configuration
 
-| Option   | Type   | Description                                             |
-| -------- | ------ | ------------------------------------------------------- |
+| Option   | Type   | Description                                              |
+| -------- | ------ | -------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:
