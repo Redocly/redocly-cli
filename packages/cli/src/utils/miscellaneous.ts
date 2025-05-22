@@ -40,6 +40,8 @@ import type { Totals, Entrypoint, ConfigApis, OutputExtensions } from '../types.
 
 const globPromise = promisify(glob.glob);
 
+export type ExitCode = 0 | 1 | 2;
+
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
   config: ConfigApis

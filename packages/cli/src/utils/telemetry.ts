@@ -5,12 +5,11 @@ import { isAbsoluteUrl } from '@redocly/openapi-core';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 
+import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
 import type { CommandOptions } from '../types.js';
-
-export type ExitCode = 0 | 1 | 2;
 
 export type Analytics = {
   event: string;
