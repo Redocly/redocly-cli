@@ -4,7 +4,7 @@
 "@redocly/cli": minor
 ---
 
-Added `x-security` extension for Respect that enables secure handling of authentication in workflows.
+Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
 This extension allows you to:
 
 - Define security schemes at the step level using either predefined schemes or inline definitions
