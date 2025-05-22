@@ -8,34 +8,6 @@ import type { Step, RuntimeExpressionContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 
-function getSecuritySchemeKey(security: ExtendedSecurity): string {
-  if ('schemeName' in security) {
-    return security.schemeName;
-  }
-  const scheme = security.scheme as {
-    type: string;
-    scheme?: string;
-    name?: string;
-    flows?: Record<string, any>;
-    openIdConnectUrl?: string;
-    in?: string;
-  };
-  let flowType: string;
-
-  switch (scheme.type) {
-    case 'apiKey':
-      return `${scheme.type}-${scheme.name}-${scheme.in}`;
-    case 'oauth2':
-      // For OAuth2, we'll use the first flow type as part of the key
-      flowType = Object.keys(scheme.flows || {})[0] || 'default';
-      return `${scheme.type}-${flowType}`;
-    case 'openIdConnect':
-      return `${scheme.type}-${scheme.openIdConnectUrl}`;
-    default:
-      return `${scheme.type}-${scheme.scheme}`;
-  }
-}
-
 export function resolveXSecurityParameters({
   runtimeContext,
   step,
