@@ -277,7 +277,6 @@ export class ApiFetcher implements IFetcher {
       ...workflowLevelXSecurityParameters,
       ...(step['x-security'] || []),
     ]
-      ?.slice()
       .reverse()
       .find(
         (security) =>
