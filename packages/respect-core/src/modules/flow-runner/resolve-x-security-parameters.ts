@@ -22,38 +22,43 @@ export function resolveXSecurityParameters({
   const stepXSecurity = step['x-security'] as ExtendedSecurity[] | undefined;
   const workflowLevelXSecurity = workflowLevelXSecurityParameters as ExtendedSecurity[] | undefined;
 
-  // Convert array to parameters and process them
-  return [...(workflowLevelXSecurity || []), ...(stepXSecurity || [])]
-    .map((security) => {
-      const scheme =
-        'schemeName' in security
-          ? (operation?.securitySchemes?.[security.schemeName] as Oas3SecurityScheme)
-          : security.scheme;
+  const securities = [...(workflowLevelXSecurity || []), ...(stepXSecurity || [])];
+  const parameters: ParameterWithIn[] = [];
 
-      if ('schemeName' in security && !scheme) {
-        throw new Error(`Security scheme "${security.schemeName}" not found`);
-      }
+  for (const security of securities) {
+    const scheme =
+      'schemeName' in security
+        ? (operation?.securitySchemes?.[security.schemeName] as Oas3SecurityScheme)
+        : security.scheme;
 
-      if (!scheme) {
-        return undefined;
-      }
+    if ('schemeName' in security && !scheme) {
+      throw new Error(`Security scheme "${security.schemeName}" not found`);
+    }
 
-      const values = Object.fromEntries(
-        Object.entries(security?.values ?? {}).map(([key, value]) => {
-          const evaluatedValue = evaluateRuntimeExpressionPayload({
-            payload: value,
-            context: runtimeContext,
-          });
-          if (security.values) {
-            security.values[key] = evaluatedValue;
-          }
-          return [key, evaluatedValue];
-        })
-      );
+    if (!scheme) {
+      continue;
+    }
 
-      const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+    const values = Object.fromEntries(
+      Object.entries(security?.values ?? {}).map(([key, value]) => {
+        const evaluatedValue = evaluateRuntimeExpressionPayload({
+          payload: value,
+          context: runtimeContext,
+        });
+        if (security.values) {
+          security.values[key] = evaluatedValue;
+        }
+        return [key, evaluatedValue];
+      })
+    );
 
-      return getSecurityParameters(resolvedSecurity);
-    })
-    .filter((param): param is ParameterWithIn => param !== undefined);
+    const resolvedSecurity = validateXSecurityParameters({ scheme, values });
+    const param = getSecurityParameters(resolvedSecurity);
+
+    if (param) {
+      parameters.push(param);
+    }
+  }
+
+  return parameters;
 }
