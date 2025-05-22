@@ -4,7 +4,7 @@ slug: /docs/cli/rules/respect/no-x-security-scheme-name-in-workflow
 
 # no-x-security-scheme-name-in-workflow
 
-The `x-security` can't use `schemeName` when described on `workflow` level.
+You must use `scheme` instead of `schemeName` when `x-security` is described on `workflow` level.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -12,14 +12,14 @@ The `x-security` can't use `schemeName` when described on `workflow` level.
 
 ## API design principles
 
-This is `Respect` specific rule.
-Workflow does not have a direct connection to OpenAPI operation, so it is not allowed to reference `schemeName` inside `x-security` extension.
+This is a Respect specific rule.
+`Workflow` does not have a direct connection to OpenAPI operation, so you can't reference `schemeName` inside `x-security` extension.
 
 ## Configuration
 
 | Option   | Type   | Description                                             |
 | -------- | ------ | ------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off`. |
+| severity | string | Possible values: `off`, `warn`, `error`. Default: `off`. |
 
 An example configuration:
 
@@ -37,7 +37,7 @@ arazzoRules:
   no-x-security-scheme-name-in-workflow: error
 ```
 
-Example of a **correct** entry:
+Example of an entry:
 
 ```yaml
 workflows:
@@ -46,23 +46,6 @@ workflows:
       - scheme:
           type: http
           scheme: basic
-        values:
-          username: test@example.com
-          password: 123456
-    steps:
-      - stepId: step-without-openapi-operation-and-security-scheme-name
-        x-operation:
-          method: GET
-          url: https://api.example.com/v1/users
-```
-
-Example of a **incorrect** entry:
-
-```yaml
-workflows:
-  - workflowId: workflowId
-    x-security:
-      - schemeName: MuseumPlaceholderAuth
         values:
           username: test@example.com
           password: 123456
