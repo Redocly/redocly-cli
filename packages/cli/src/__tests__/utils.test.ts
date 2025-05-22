@@ -8,10 +8,10 @@ import {
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
   cleanColors,
-  cleanArgs,
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
+import { cleanArgs } from '../utils/telemetry.js';
 import * as errorHandling from '../utils/error.js';
 import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import {

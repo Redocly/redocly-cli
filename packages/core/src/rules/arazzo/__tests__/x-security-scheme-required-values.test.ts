@@ -7,7 +7,7 @@ import {
 } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
 
-describe('Arazzo x-security-schema-required-values', () => {
+describe('Arazzo x-security-scheme-required-values', () => {
   it('should report when required values are missing for Basic Auth x-security schema', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -22,6 +22,12 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: http
+                  scheme: basic
+                values:
+                  token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -43,12 +49,38 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`username\` is required for basic authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`password\` is required for basic authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -58,7 +90,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`username\` is required for basic authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -71,7 +103,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`password\` is required for basic authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -93,6 +125,12 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: http
+                  scheme: bearer
+                values:
+                  some-token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -114,12 +152,25 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`token\` is required for bearer authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -129,7 +180,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`token\` is required for bearer authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -151,6 +202,13 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: apiKey
+                  name: api-key
+                  in: header
+                values:
+                  some-token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -173,12 +231,25 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`value\` is required for apiKey authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -188,7 +259,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`value\` is required for apiKey authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -210,6 +281,17 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: oauth2
+                  flows:
+                    implicit:
+                      authorizationUrl: https://example.org/api/oauth/dialog
+                      scopes:
+                        write:pets: modify pets in your account
+                        read:pets: read your pets
+                    values:
+                      some-token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -236,12 +318,25 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`accessToken\` is required for oauth2 authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -251,7 +346,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`accessToken\` is required for oauth2 authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -273,6 +368,12 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: http
+                  scheme: digest
+                values:
+                  token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -294,12 +395,38 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`username\` is required for digest authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`password\` is required for digest authentication security schema.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -309,7 +436,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`username\` is required for digest authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -322,7 +449,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`password\` is required for digest authentication security schema.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },
@@ -344,6 +471,12 @@ describe('Arazzo x-security-schema-required-values', () => {
             url: openapi.yaml
         workflows:
           - workflowId: get-museum-hours
+            x-security:
+              - scheme:
+                  type: http
+                  scheme: PrivateToken
+                values:
+                  some-token: some-token
             steps:
               - stepId: step-with-openapi-operation
                 operationId: museum-api.getMuseumHours
@@ -361,12 +494,25 @@ describe('Arazzo x-security-schema-required-values', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await makeConfig({
-        rules: { 'x-security-schema-required-values': 'error' },
+        rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The \`PrivateToken\` authentication security schema is not supported.",
+          "ruleId": "x-security-scheme-required-values",
+          "severity": "error",
+          "suggest": [],
+        },
         {
           "location": [
             {
@@ -376,7 +522,7 @@ describe('Arazzo x-security-schema-required-values', () => {
             },
           ],
           "message": "The \`PrivateToken\` authentication security schema is not supported.",
-          "ruleId": "x-security-schema-required-values",
+          "ruleId": "x-security-scheme-required-values",
           "severity": "error",
           "suggest": [],
         },

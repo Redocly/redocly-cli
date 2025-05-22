@@ -14,6 +14,7 @@ import { createRuntimeExpressionCtx, collectSecretFields } from './context/index
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 
+import type { ExtendedSecurity } from '@redocly/openapi-core';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { TestContext, Step, Parameter, PublicStep } from '../../types.js';
@@ -141,11 +142,16 @@ export async function prepareRequest(
     step,
   });
 
-  const xSecurityParameters = resolveXSecurityParameters(
-    expressionContext,
+  const workflowLevelXSecurityParameters = activeWorkflow?.['x-security'] || [];
+
+  const xSecurityParameters = resolveXSecurityParameters({
+    runtimeContext: expressionContext,
     step,
-    openapiOperation as OperationDetails & { securitySchemes: Record<string, Oas3SecurityScheme> }
-  );
+    operation: openapiOperation as OperationDetails & {
+      securitySchemes: Record<string, Oas3SecurityScheme>;
+    },
+    workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as ExtendedSecurity[],
+  });
 
   const evaluatedParameters = joinParameters(parameters, xSecurityParameters).map((parameter) => {
     return {

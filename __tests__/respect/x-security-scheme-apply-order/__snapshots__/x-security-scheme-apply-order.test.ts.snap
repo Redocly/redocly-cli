@@ -12,7 +12,7 @@ exports[`should apply x-security schemes in Top-Down order, the Last one have bi
       accept: application/json, application/problem+json
       authorization: Basic YmFzaWMtYXV0aC1zaG91bGQtYmUtaW4tZmluYWwtcmVzdWx0OiJzb21lLXBhc3N3b3JkIg==
       x-api-key: api-key-auth-should-be-in-final-result
-      cookie: X-API-KEY=cookie-api-key-auth-should-be-in-final-result
+      cookie: X-API-KEY-WORKFLOW=workflow-api-key-auth; X-API-KEY=cookie-api-key-auth-should-be-in-final-result
 
 
     Response status code: 200

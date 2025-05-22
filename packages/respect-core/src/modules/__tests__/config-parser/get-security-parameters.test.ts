@@ -111,9 +111,7 @@ describe('getSecurityParameters', () => {
       scheme: {
         type: 'mutualTLS',
       },
-      values: {
-        accessToken: 'mutual-tls-token',
-      },
+      values: {},
     });
 
     expect(result).toBeUndefined();

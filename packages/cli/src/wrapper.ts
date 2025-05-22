@@ -6,11 +6,8 @@ import {
   HandledError,
 } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import {
-  loadConfigAndHandleErrors,
-  sendTelemetry,
-  collectXSecurityAuthTypes,
-} from './utils/miscellaneous.js';
+import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
+import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 import { lintConfigCallback } from './commands/lint.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 

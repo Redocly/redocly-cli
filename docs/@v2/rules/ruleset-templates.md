@@ -235,7 +235,8 @@ rules:
   no-actions-type-end: off
   criteria-unique: off
   no-x-security-scheme-name-without-openapi: off
-  x-security-schema-required-values: off
+  x-security-scheme-required-values: off
+  no-x-security-scheme-name-in-workflow: off
 ```
 
 ## Recommended rulesets
@@ -506,7 +507,8 @@ rules:
   no-actions-type-end: warn
   criteria-unique: warn
   no-x-security-scheme-name-without-openapi: off
-  x-security-schema-required-values: off
+  x-security-scheme-required-values: off
+  no-x-security-scheme-name-in-workflow: 'off',
 ```
 
 ## Resources

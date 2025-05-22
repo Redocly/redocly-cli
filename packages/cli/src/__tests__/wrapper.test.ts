@@ -1,5 +1,6 @@
 import * as process from 'node:process';
-import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous.js';
+import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
+import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 import { handleLint } from '../commands/lint.js';
 import { type Config, detectSpec, type SpecVersion } from '@redocly/openapi-core';
@@ -17,6 +18,7 @@ describe('commandWrapper', () => {
       };
     });
     vi.mock('../utils/miscellaneous.js');
+    vi.mock('../utils/telemetry.js');
     vi.mock('../commands/lint.js');
   });
   afterEach(() => {

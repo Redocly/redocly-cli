@@ -12,6 +12,7 @@ export function parseWwwAuthenticateHeader(wwwAuthenticateHeader: string): {
     .split(',')
     .map((part: string) => part.trim());
 
+  // Digest The WWW-Authenticate Response Header Field: https://datatracker.ietf.org/doc/html/rfc7616#section-3.3
   const keys = ['realm', 'nonce', 'opaque', 'qop', 'algorithm', 'cnonce', 'nc'];
   const result = Object.fromEntries(
     keys.map((key) => [
