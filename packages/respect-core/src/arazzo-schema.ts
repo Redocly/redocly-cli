@@ -382,6 +382,7 @@ export const workflow = {
       type: 'array',
       items: onFailureObject,
     },
+    'x-security': extendedSecurityList,
   },
   additionalProperties: false,
   required: ['workflowId', 'steps'],
