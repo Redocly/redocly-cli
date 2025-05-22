@@ -286,8 +286,8 @@ export class ApiFetcher implements IFetcher {
           security.scheme?.scheme === 'digest'
       );
 
-    // FETCH WITH DIGEST AUTH
     if (lastDigestSecurityScheme) {
+      // FETCH WITH DIGEST AUTH
       // Digest auth perform two requests to establish the connection
       // We need to wait for the second request to complete before returning the response
       const first401Result = await wrappedFetch(urlToFetch, fetchParams);
@@ -348,8 +348,8 @@ export class ApiFetcher implements IFetcher {
 
       responseTime = Math.ceil(performance.now() - startTime);
       responseBody = await fetchResult.text();
-      // REGULAR FETCH
     } else {
+      // REGULAR FETCH
       fetchResult = await wrappedFetch(urlToFetch, fetchParams);
       responseTime = Math.ceil(performance.now() - startTime);
       responseBody = await fetchResult.text();

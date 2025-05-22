@@ -5,6 +5,7 @@ import type {
   BearerAuth,
   OpenIDAuth,
   OAuth2Auth,
+  MutualTLSAuth,
 } from './openapi.js';
 
 export interface InfoObject {
@@ -67,25 +68,20 @@ export type ResolvedSecurity =
       };
     }
   | {
-      scheme: OpenIDAuth;
-      values: {
-        accessToken: string;
-      };
-    }
-  | {
       scheme: OAuth2Auth;
       values: {
         accessToken: string;
       };
     }
   | {
-      scheme: Exclude<
-        Oas3SecurityScheme,
-        ApiKeyAuth | BasicAuth | BearerAuth | OpenIDAuth | OAuth2Auth
-      >;
+      scheme: OpenIDAuth;
       values: {
         accessToken: string;
       };
+    }
+  | {
+      scheme: MutualTLSAuth;
+      values: Record<string, unknown>;
     };
 
 export interface ExtendedOperation {
