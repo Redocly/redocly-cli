@@ -17,11 +17,13 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
   const masked = JSON.parse(JSON.stringify(target));
   const maskIfContainsSecret = (value: string): string => {
     let maskedValue = value;
+
     for (const secret of secretValues) {
       if (maskedValue.includes(secret)) {
         maskedValue = maskValue(maskedValue, secret);
       }
     }
+
     return maskedValue;
   };
 
