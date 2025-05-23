@@ -2,7 +2,9 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
   target: T,
   secretValues: Set<string>
 ): T {
-  const maskValue = (): string => '*'.repeat(8);
+  const maskValue = (value: string, secret: string): string => {
+    return value.replace(secret, '*'.repeat(8));
+  };
 
   if (typeof target === 'string') {
     let maskedString = target as string;
@@ -14,7 +16,12 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
 
   const masked = JSON.parse(JSON.stringify(target));
   const maskIfContainsSecret = (value: string): string => {
-    return containsSecret(value, secretValues) ? maskValue() : value;
+    for (const secret of secretValues) {
+      if (value.includes(secret)) {
+        return maskValue(value, secret);
+      }
+    }
+    return value;
   };
 
   const maskRecursive = (current: any) => {
