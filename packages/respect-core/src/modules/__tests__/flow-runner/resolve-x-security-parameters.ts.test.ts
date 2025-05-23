@@ -1,8 +1,12 @@
 import { resolveXSecurityParameters } from '../../flow-runner/resolve-x-security-parameters.js';
 
-import type { Step, RuntimeExpressionContext } from 'respect-core/src/types.js';
+import type { Step, RuntimeExpressionContext, TestContext } from 'respect-core/src/types.js';
 
 describe('resolveXSecurityParameters', () => {
+  const ctx = {
+    secretFields: new Set(),
+  } as TestContext;
+
   it('should resolve x-security parameters', () => {
     const runtimeContext = {
       $steps: {
@@ -31,6 +35,7 @@ describe('resolveXSecurityParameters', () => {
     } as unknown as Step;
 
     const parameters = resolveXSecurityParameters({
+      ctx,
       runtimeContext,
       step,
     });
@@ -127,6 +132,7 @@ describe('resolveXSecurityParameters', () => {
     } as any;
 
     const parameters = resolveXSecurityParameters({
+      ctx,
       runtimeContext,
       step,
       operation,

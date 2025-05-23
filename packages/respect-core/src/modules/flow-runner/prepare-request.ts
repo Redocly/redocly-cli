@@ -145,6 +145,7 @@ export async function prepareRequest(
   const workflowLevelXSecurityParameters = activeWorkflow?.['x-security'] || [];
 
   const xSecurityParameters = resolveXSecurityParameters({
+    ctx: ctxWithInputs,
     runtimeContext: expressionContext,
     step,
     operation: openapiOperation as OperationDetails & {

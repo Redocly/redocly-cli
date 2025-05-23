@@ -6,9 +6,13 @@ import type {
   OpenIDAuth,
   ResolvedSecurity,
 } from '@redocly/openapi-core';
+import type { TestContext } from '../../types';
 import type { ParameterWithIn } from './parse-parameters';
 
-export function getSecurityParameters(security: ResolvedSecurity): ParameterWithIn | undefined {
+export function getSecurityParameter(
+  security: ResolvedSecurity,
+  ctx: TestContext
+): ParameterWithIn | undefined {
   if (isApiKeyAuth(security)) {
     return {
       in: security.scheme.in,
@@ -20,27 +24,29 @@ export function getSecurityParameters(security: ResolvedSecurity): ParameterWith
   if (isBasicAuth(security)) {
     const { username, password } = security.values;
 
-    return getAuthHeader(`Basic ${btoa(`${username}:${password}`)}`);
+    return getAuthHeader(`Basic ${btoa(`${username}:${password}`)}`, ctx);
   }
 
   if (isBearerAuth(security)) {
-    return getAuthHeader(`Bearer ${security.values.token}`);
+    return getAuthHeader(`Bearer ${security.values.token}`, ctx);
   }
 
   if (isOpenIdConnectAuth(security)) {
     const { accessToken } = security.values;
-    return getAuthHeader(`Bearer ${accessToken}`);
+    return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }
 
   if (isOAuth2Auth(security)) {
     const { accessToken } = security.values;
-    return getAuthHeader(`Bearer ${accessToken}`);
+    return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }
 
   return undefined;
 }
 
-function getAuthHeader(value: string): ParameterWithIn {
+function getAuthHeader(value: string, ctx: TestContext): ParameterWithIn {
+  ctx.secretFields.add(value);
+
   return {
     in: 'header',
     name: 'Authorization',
