@@ -47,8 +47,8 @@ export function getSecurityParameters(
 }
 
 function getAuthHeader(ctx: TestContext, value: string): ParameterWithIn {
-  // collect new calculated Authorization header value as secret field to mask it in the verbose logs
-  addSecretFields(ctx, value);
+  ctx.secretFields.add(value);
+
   return {
     in: 'header',
     name: 'Authorization',

@@ -100,10 +100,6 @@ export async function createTestContext(
   return ctx;
 }
 
-export function addSecretFields(ctx: TestContext, secretField: string) {
-  ctx.secretFields?.add(secretField);
-}
-
 export function collectSecretFields(
   ctx: TestContext,
   schema: InputSchema | undefined,
@@ -115,7 +111,7 @@ export function collectSecretFields(
   const inputValue = getNestedValue(inputs, path);
 
   if (schema.format === 'password' && inputValue) {
-    addSecretFields(ctx, inputValue);
+    ctx.secretFields.add(inputValue);
   }
 
   if (schema.properties) {
