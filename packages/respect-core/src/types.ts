@@ -257,7 +257,7 @@ export type TestContext = RuntimeExpressionContext & {
   testDescription: TestDescription;
   harLogs: any;
   components?: Record<string, any>;
-  secretFields?: Set<string>;
+  secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
   mtlsCerts?: {
     clientCert?: string;
