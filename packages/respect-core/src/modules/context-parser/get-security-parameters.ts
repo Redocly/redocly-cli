@@ -1,3 +1,5 @@
+import { addSecretFields } from '../flow-runner/context/create-test-context.js';
+
 import type {
   ApiKeyAuth,
   BasicAuth,
@@ -6,9 +8,13 @@ import type {
   OpenIDAuth,
   ResolvedSecurity,
 } from '@redocly/openapi-core';
+import type { TestContext } from '../../types';
 import type { ParameterWithIn } from './parse-parameters';
 
-export function getSecurityParameters(security: ResolvedSecurity): ParameterWithIn | undefined {
+export function getSecurityParameters(
+  ctx: TestContext,
+  security: ResolvedSecurity
+): ParameterWithIn | undefined {
   if (isApiKeyAuth(security)) {
     return {
       in: security.scheme.in,
@@ -20,27 +26,29 @@ export function getSecurityParameters(security: ResolvedSecurity): ParameterWith
   if (isBasicAuth(security)) {
     const { username, password } = security.values;
 
-    return getAuthHeader(`Basic ${btoa(`${username}:${password}`)}`);
+    return getAuthHeader(ctx, `Basic ${btoa(`${username}:${password}`)}`);
   }
 
   if (isBearerAuth(security)) {
-    return getAuthHeader(`Bearer ${security.values.token}`);
+    return getAuthHeader(ctx, `Bearer ${security.values.token}`);
   }
 
   if (isOpenIdConnectAuth(security)) {
     const { accessToken } = security.values;
-    return getAuthHeader(`Bearer ${accessToken}`);
+    return getAuthHeader(ctx, `Bearer ${accessToken}`);
   }
 
   if (isOAuth2Auth(security)) {
     const { accessToken } = security.values;
-    return getAuthHeader(`Bearer ${accessToken}`);
+    return getAuthHeader(ctx, `Bearer ${accessToken}`);
   }
 
   return undefined;
 }
 
-function getAuthHeader(value: string): ParameterWithIn {
+function getAuthHeader(ctx: TestContext, value: string): ParameterWithIn {
+  // collect new calculated Authorization header value as secret field to mask it in the verbose logs
+  addSecretFields(ctx, value);
   return {
     in: 'header',
     name: 'Authorization',

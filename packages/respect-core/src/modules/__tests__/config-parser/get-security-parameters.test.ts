@@ -1,9 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { getSecurityParameters } from '../../context-parser/get-security-parameters';
 
+import type { TestContext } from '../../../types';
+
 describe('getSecurityParameters', () => {
+  const ctx = {
+    secretFields: new Set(),
+  } as TestContext;
+
   it('should return security parameters for API Key Auth', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'apiKey',
         in: 'query',
@@ -22,7 +28,7 @@ describe('getSecurityParameters', () => {
   });
 
   it('should return security parameters for Basic Auth', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'http',
         scheme: 'basic',
@@ -41,7 +47,7 @@ describe('getSecurityParameters', () => {
   });
 
   it('should return security parameters for Bearer Auth', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'http',
         scheme: 'bearer',
@@ -62,7 +68,7 @@ describe('getSecurityParameters', () => {
   });
 
   it('should return security parameters for OpenID Auth', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com',
@@ -80,7 +86,7 @@ describe('getSecurityParameters', () => {
   });
 
   it('should return security parameters for OAuth2 Auth', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'oauth2',
         flows: {
@@ -107,7 +113,7 @@ describe('getSecurityParameters', () => {
   });
 
   it('should return undefined for unknown security scheme', () => {
-    const result = getSecurityParameters({
+    const result = getSecurityParameters(ctx, {
       scheme: {
         type: 'mutualTLS',
       },

@@ -10,7 +10,7 @@ exports[`should make request with Authorization header \`Bearer ...\` 1`] = `
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Bearer "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.LlTGHPZRXbci-y349jXXN0byQniQQqwKGybzQCFIgY0"
+      authorization: ********
 
 
     Response status code: 200

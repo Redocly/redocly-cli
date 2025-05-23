@@ -10,7 +10,7 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Sm9objoic29tZS1wYXNzd29yZCI=
+      authorization: ********
 
 
     Response status code: 200
@@ -78,7 +78,7 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Sm9objoic29tZS1wYXNzd29yZCI=
+      authorization: ********
 
 
     Response status code: 200
