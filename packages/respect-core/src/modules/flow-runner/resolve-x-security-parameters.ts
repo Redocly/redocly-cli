@@ -1,5 +1,5 @@
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { getSecurityParameters } from '../context-parser/get-security-parameters.js';
+import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
 
 import type { ExtendedSecurity } from '@redocly/openapi-core';
@@ -55,7 +55,7 @@ export function resolveXSecurityParameters({
     );
 
     const resolvedSecurity = validateXSecurityParameters({ scheme, values });
-    const param = getSecurityParameters(ctx, resolvedSecurity);
+    const param = getSecurityParameter(resolvedSecurity, ctx);
 
     if (param) {
       parameters.push(param);

@@ -1,5 +1,3 @@
-import { addSecretFields } from '../flow-runner/context/create-test-context.js';
-
 import type {
   ApiKeyAuth,
   BasicAuth,
@@ -11,9 +9,9 @@ import type {
 import type { TestContext } from '../../types';
 import type { ParameterWithIn } from './parse-parameters';
 
-export function getSecurityParameters(
-  ctx: TestContext,
-  security: ResolvedSecurity
+export function getSecurityParameter(
+  security: ResolvedSecurity,
+  ctx: TestContext
 ): ParameterWithIn | undefined {
   if (isApiKeyAuth(security)) {
     return {
