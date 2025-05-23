@@ -1,6 +1,6 @@
 import type { TestContext } from '../../../types';
 
-import { resolveReusableObjectReference } from '../../config-parser/resolve-reusable-object-reference.js';
+import { resolveReusableObjectReference } from '../../context-parser/resolve-reusable-object-reference.js';
 
 describe('resolveReusableObjectReference', () => {
   it('should throw an error if the reference is invalid', () => {

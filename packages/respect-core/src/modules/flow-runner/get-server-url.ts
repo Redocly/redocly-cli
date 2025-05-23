@@ -1,4 +1,4 @@
-import { getValueFromContext } from '../config-parser/index.js';
+import { getValueFromContext } from '../context-parser/index.js';
 import { formatCliInputs } from './inputs/index.js';
 
 import type { ExtendedOperation, TestContext } from '../../types.js';

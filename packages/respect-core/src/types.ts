@@ -13,6 +13,7 @@ import type {
   onSuccessObject,
   onFailureObject,
   extendedOperation,
+  extendedSecurity,
 } from './arazzo-schema.js';
 import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
@@ -38,6 +39,7 @@ export type ReusableObject = FromSchema<typeof reusableObject>;
 export type OnSuccessObject = FromSchema<typeof onSuccessObject>;
 export type OnFailureObject = FromSchema<typeof onFailureObject>;
 export type ExtendedOperation = FromSchema<typeof extendedOperation>;
+export type ExtendedSecurity = FromSchema<typeof extendedSecurity>;
 type ArazzoStep = FromSchema<typeof step>;
 type ArazzoWorkflow = FromSchema<typeof workflow> & {
   steps: Step[];
@@ -255,7 +257,7 @@ export type TestContext = RuntimeExpressionContext & {
   testDescription: TestDescription;
   harLogs: any;
   components?: Record<string, any>;
-  secretFields?: Set<string>;
+  secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
   mtlsCerts?: {
     clientCert?: string;

@@ -111,7 +111,7 @@ export function collectSecretFields(
   const inputValue = getNestedValue(inputs, path);
 
   if (schema.format === 'password' && inputValue) {
-    ctx.secretFields?.add(inputValue);
+    ctx.secretFields.add(inputValue);
   }
 
   if (schema.properties) {

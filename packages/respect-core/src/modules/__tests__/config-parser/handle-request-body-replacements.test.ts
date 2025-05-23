@@ -1,5 +1,5 @@
 import type { RuntimeExpressionContext } from '../../../types.js';
-import { handlePayloadReplacements } from '../../config-parser/index.js';
+import { handlePayloadReplacements } from '../../context-parser/index.js';
 
 describe('handlePayloadReplacements', () => {
   it('should replace the value using JSON Pointer', () => {

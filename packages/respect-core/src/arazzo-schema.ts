@@ -52,6 +52,74 @@ const sourceDescriptionsSchema = {
   type: 'array',
   items: sourceDescriptionSchema,
 } as const;
+export const extendedSecurity = {
+  type: 'object',
+  properties: {
+    schemeName: { type: 'string' },
+    values: { type: 'object' },
+    scheme: {
+      type: 'object',
+      properties: {
+        type: { type: 'string', enum: ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'] },
+        description: { type: 'string' },
+        name: { type: 'string' },
+        in: { type: 'string', enum: ['query', 'header', 'cookie'] },
+        scheme: { type: 'string' },
+        bearerFormat: { type: 'string' },
+        flows: {
+          type: 'object',
+          properties: {
+            implicit: {
+              type: 'object',
+              properties: {
+                refreshUrl: { type: 'string' },
+                scopes: { type: 'object', additionalProperties: { type: 'string' } },
+                authorizationUrl: { type: 'string' },
+              },
+              required: ['authorizationUrl', 'scopes'],
+            },
+            password: {
+              type: 'object',
+              properties: {
+                refreshUrl: { type: 'string' },
+                scopes: { type: 'object', additionalProperties: { type: 'string' } },
+                tokenUrl: { type: 'string' },
+              },
+              required: ['tokenUrl', 'scopes'],
+            },
+            clientCredentials: {
+              type: 'object',
+              properties: {
+                refreshUrl: { type: 'string' },
+                scopes: { type: 'object', additionalProperties: { type: 'string' } },
+                tokenUrl: { type: 'string' },
+              },
+              required: ['tokenUrl', 'scopes'],
+            },
+            authorizationCode: {
+              type: 'object',
+              properties: {
+                refreshUrl: { type: 'string' },
+                authorizationUrl: { type: 'string' },
+                scopes: { type: 'object', additionalProperties: { type: 'string' } },
+                tokenUrl: { type: 'string' },
+              },
+              required: ['authorizationUrl', 'tokenUrl', 'scopes'],
+            },
+          },
+        },
+        openIdConnectUrl: { type: 'string' },
+      },
+      required: ['type'],
+    },
+  },
+  required: ['values'],
+  requiredOneOf: ['schemeName', 'scheme'],
+} as const;
+export const extendedSecurityList = {
+  type: 'array',
+  items: extendedSecurity,
+} as const;
 export const extendedOperation = {
   type: 'object',
   properties: {
@@ -247,6 +315,7 @@ export const step = {
       },
     },
     'x-operation': extendedOperation,
+    'x-security': extendedSecurityList,
     requestBody: requestBody,
   },
   required: ['stepId'],
@@ -313,6 +382,7 @@ export const workflow = {
       type: 'array',
       items: onFailureObject,
     },
+    'x-security': extendedSecurityList,
   },
   additionalProperties: false,
   required: ['workflowId', 'steps'],

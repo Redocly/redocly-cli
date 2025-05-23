@@ -6,12 +6,13 @@ import {
   HandledError,
 } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
-import { loadConfigAndHandleErrors, sendTelemetry } from './utils/miscellaneous.js';
+import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
+import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 import { lintConfigCallback } from './commands/lint.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 
 import type { Arguments } from 'yargs';
-import type { Config, CollectFn } from '@redocly/openapi-core';
+import type { Config, CollectFn, ArazzoDefinition } from '@redocly/openapi-core';
 import type { ExitCode } from './utils/miscellaneous.js';
 import type { CommandOptions } from './types.js';
 
@@ -32,6 +33,7 @@ export function commandWrapper<T extends CommandOptions>(
     let specVersion: string | undefined;
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
+    const respectXSecurityAuthTypes: string[] = [];
     const collectSpecData: CollectFn = (document) => {
       specVersion = detectSpec(document);
       if (!isPlainObject(document)) return;
@@ -49,7 +51,12 @@ export function commandWrapper<T extends CommandOptions>(
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
       }
+
+      if (specVersion === 'arazzo1') {
+        collectXSecurityAuthTypes(document as Partial<ArazzoDefinition>, respectXSecurityAuthTypes);
+      }
     };
+
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please provide a valid path to the configuration file.');
@@ -80,7 +87,15 @@ export function commandWrapper<T extends CommandOptions>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendTelemetry(argv, code, hasConfig, specVersion, specKeyword, specFullVersion);
+        await sendTelemetry({
+          argv,
+          exit_code: code,
+          has_config: hasConfig,
+          spec_version: specVersion,
+          spec_keyword: specKeyword,
+          spec_full_version: specFullVersion,
+          respect_x_security_auth_types: respectXSecurityAuthTypes,
+        });
       }
       process.once('beforeExit', () => {
         process.exit(code);
