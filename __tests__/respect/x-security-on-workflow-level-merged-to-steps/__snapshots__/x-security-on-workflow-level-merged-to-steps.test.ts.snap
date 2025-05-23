@@ -10,7 +10,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: ********
+      authorization: Basic ********
 
 
     Response status code: 200
@@ -79,7 +79,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
-      authorization: ********
+      authorization: Basic ********
     Request Body:
       {
         "name": "Mermaid Treasure Identification and Analysis",

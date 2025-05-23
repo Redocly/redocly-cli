@@ -23,30 +23,41 @@ export function getSecurityParameter(
 
   if (isBasicAuth(security)) {
     const { username, password } = security.values;
+    const value = btoa(`${username}:${password}`);
 
-    return getAuthHeader(`Basic ${btoa(`${username}:${password}`)}`, ctx);
+    ctx.secretFields.add(value);
+
+    return getAuthHeader(`Basic ${value}`, ctx);
   }
 
   if (isBearerAuth(security)) {
-    return getAuthHeader(`Bearer ${security.values.token}`, ctx);
+    const { token } = security.values;
+
+    ctx.secretFields.add(token);
+
+    return getAuthHeader(`Bearer ${token}`, ctx);
   }
 
   if (isOpenIdConnectAuth(security)) {
     const { accessToken } = security.values;
+
+    ctx.secretFields.add(accessToken);
+
     return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }
 
   if (isOAuth2Auth(security)) {
     const { accessToken } = security.values;
+
+    ctx.secretFields.add(accessToken);
+
     return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }
 
   return undefined;
 }
 
-function getAuthHeader(value: string, ctx: TestContext): ParameterWithIn {
-  ctx.secretFields.add(value);
-
+function getAuthHeader(value: string, _ctx: TestContext): ParameterWithIn {
   return {
     in: 'header',
     name: 'Authorization',

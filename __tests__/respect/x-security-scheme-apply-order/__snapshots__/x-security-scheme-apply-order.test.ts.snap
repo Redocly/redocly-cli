@@ -10,7 +10,7 @@ exports[`should apply x-security schemes in Top-Down order, the Last one have bi
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: ********
+      authorization: Basic ********
       x-api-key: api-key-auth-should-be-in-final-result
       cookie: X-API-KEY-WORKFLOW=workflow-api-key-auth; X-API-KEY=cookie-api-key-auth-should-be-in-final-result
 
