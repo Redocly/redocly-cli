@@ -5,7 +5,7 @@ import type { UserContext } from '../../walk.js';
 import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
-  apiKey: ['value'],
+  apiKey: ['apiKey'],
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],

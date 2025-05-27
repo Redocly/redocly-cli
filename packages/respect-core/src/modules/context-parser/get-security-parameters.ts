@@ -17,7 +17,7 @@ export function getSecurityParameter(
     return {
       in: security.scheme.in,
       name: security.scheme.name,
-      value: security.values.value,
+      value: security.values.apiKey,
     };
   }
 
