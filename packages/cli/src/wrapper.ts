@@ -54,6 +54,7 @@ export function commandWrapper<T extends CommandOptions>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please provide a valid path to the configuration file.');
       }
+      ///// move config resolving inside command handlers?
       const config: Config = (await loadConfigAndHandleErrors({
         configPath: argv.config,
         customExtends: argv.extends as string[] | undefined,

@@ -103,6 +103,15 @@ export function findConfig(dir?: string): string | undefined {
       Please use 'redocly.yaml' instead.
     `);
   }
+  if (existingConfigFiles.length === 0) {
+    if (!dir) {
+      return undefined;
+    }
+    if (dir === '.' || dir === '/') {
+      return undefined;
+    }
+    return findConfig(path.join(dir, '..'));
+  }
   return existingConfigFiles[0];
 }
 
