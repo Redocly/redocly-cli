@@ -283,7 +283,7 @@ export class ApiFetcher implements IFetcher {
         const scheme =
           'schemeName' in security && security.schemeName
             ? openapiOperation?.securitySchemes?.[security.schemeName]
-            : (security.scheme as Oas3SecurityScheme);
+            : security.scheme;
 
         return scheme?.type === 'http' && scheme?.scheme === 'digest';
       });
