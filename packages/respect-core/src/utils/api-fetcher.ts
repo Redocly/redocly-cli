@@ -278,12 +278,13 @@ export class ApiFetcher implements IFetcher {
       ...(step['x-security'] || []),
     ]
       .reverse()
-      .find(
-        (security) =>
-          'scheme' in security &&
-          security.scheme?.type === 'http' &&
-          security.scheme?.scheme === 'digest'
-      );
+      .find((security) => {
+        const scheme = security.schemeName
+          ? openapiOperation?.securitySchemes?.[security.schemeName]
+          : security.scheme;
+
+        return scheme?.type === 'http' && scheme?.scheme === 'digest';
+      });
 
     if (lastDigestSecurityScheme) {
       // FETCH WITH DIGEST AUTH
