@@ -29,7 +29,7 @@ export type RequestData = {
   method: string;
   parameters: ParameterWithIn[];
   requestBody: any;
-  openapiOperation?: OperationDetails & Record<string, string>;
+  openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
 };
 
 export async function prepareRequest(
