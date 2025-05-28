@@ -291,37 +291,83 @@ export interface Oas3SecurityRequirement {
   [name: string]: string[];
 }
 
-export interface Oas3SecurityScheme {
-  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect' | 'mutualTLS';
+type SecuritySchemeBase = {
   description?: string;
-  name?: string;
-  in?: 'query' | 'header' | 'cookie';
-  scheme?: string;
+  [key: `x-${string}`]: unknown;
+};
+
+export type ApiKeyAuth = {
+  type: 'apiKey';
+  in: 'query' | 'header' | 'cookie';
+  name: string;
+} & SecuritySchemeBase;
+
+export type HttpAuth = {
+  type: 'http';
+  scheme: string;
+} & SecuritySchemeBase;
+
+export type BasicAuth = {
+  type: 'http';
+  scheme: 'basic';
+} & SecuritySchemeBase;
+
+export type BearerAuth = {
+  type: 'http';
+  scheme: 'bearer';
   bearerFormat?: string;
+} & SecuritySchemeBase;
+
+export type DigestAuth = {
+  type: 'http';
+  scheme: 'digest';
+} & SecuritySchemeBase;
+
+export type MutualTLSAuth = {
+  type: 'mutualTLS';
+} & SecuritySchemeBase;
+
+export type OAuth2Auth = {
+  type: 'oauth2';
   flows: {
     implicit?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
       authorizationUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
     };
     password?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
       tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
     };
     clientCredentials?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
       tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
     };
     authorizationCode?: {
-      refreshUrl?: string;
-      scopes: Record<string, string>;
+      authorizationUrl: string;
       tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
     };
   };
-  openIdConnectUrl?: string;
-}
+} & SecuritySchemeBase;
+
+export type OpenIDAuth = {
+  type: 'openIdConnect';
+  openIdConnectUrl: string;
+} & SecuritySchemeBase;
+
+export type Oas3SecurityScheme =
+  | ApiKeyAuth
+  | HttpAuth
+  | BasicAuth
+  | BearerAuth
+  | DigestAuth
+  | MutualTLSAuth
+  | OAuth2Auth
+  | OpenIDAuth;
 
 export interface Oas3Tag {
   name: string;

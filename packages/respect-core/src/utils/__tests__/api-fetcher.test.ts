@@ -149,6 +149,7 @@ describe('ApiFetcher', () => {
     it('should throw an error if no serverUrl', async () => {
       const apiFetcher = new ApiFetcher({});
       const ctx = {} as any;
+      const step = {} as any;
       const requestData = {
         serverUrl: undefined,
         path: '/pets',
@@ -156,9 +157,9 @@ describe('ApiFetcher', () => {
         parameters: [],
         requestBody: {},
       };
-      await expect(apiFetcher.fetchResult(ctx, requestData)).rejects.toThrowError(
-        'No server url provided'
-      );
+      await expect(
+        apiFetcher.fetchResult({ ctx, step, requestData, workflowId: 'test' })
+      ).rejects.toThrowError('No server url provided');
     });
   });
 });

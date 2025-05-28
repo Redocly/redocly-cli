@@ -4,7 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { createHarLog } from '../../utils/har-logs/index.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
-import { getValueFromContext } from '../config-parser/index.js';
+import { getValueFromContext } from '../context-parser/index.js';
 import { getWorkflowsToRun } from './get-workflows-to-run.js';
 import { runStep } from './run-step.js';
 import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs.js';

@@ -1,0 +1,27 @@
+arazzo: 1.0.1
+info:
+  title: Redocly Museum API
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../museum-api.yaml
+
+workflows:
+  - workflowId: basic-auth-workflow
+    inputs:
+      type: object
+      properties:
+        secret:
+          type: string
+    steps:
+      - stepId: step-with-basic-auth-scheme
+        operationId: getMuseumHours
+        x-security:
+          - scheme:
+              type: http
+              scheme: basic
+            values:
+              username: John
+              password: $inputs.secret

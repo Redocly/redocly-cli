@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 
 import type { RequestBody, TestContext } from '../../../types.js';
 
-import { parseRequestBody, stripFileDecorator } from '../../config-parser/index.js';
+import { parseRequestBody, stripFileDecorator } from '../../context-parser/index.js';
 
 vi.mock('node:fs');
 

@@ -1,3 +1,13 @@
+import type {
+  Oas3SecurityScheme,
+  ApiKeyAuth,
+  BasicAuth,
+  BearerAuth,
+  OpenIDAuth,
+  OAuth2Auth,
+  MutualTLSAuth,
+} from './openapi.js';
+
 export interface InfoObject {
   title: string;
   description?: string;
@@ -26,6 +36,53 @@ export interface Parameter {
   value: string | number | boolean;
   reference?: string;
 }
+
+export type ExtendedSecurity =
+  | {
+      schemeName: string;
+      values: Record<string, string>;
+    }
+  | {
+      scheme: Oas3SecurityScheme;
+      values: Record<string, string>;
+    };
+
+export type ResolvedSecurity =
+  | {
+      scheme: ApiKeyAuth;
+      values: {
+        apiKey: string;
+      };
+    }
+  | {
+      scheme: BasicAuth;
+      values: {
+        username: string;
+        password: string;
+      };
+    }
+  | {
+      scheme: BearerAuth;
+      values: {
+        token: string;
+      };
+    }
+  | {
+      scheme: OAuth2Auth;
+      values: {
+        accessToken: string;
+      };
+    }
+  | {
+      scheme: OpenIDAuth;
+      values: {
+        accessToken: string;
+      };
+    }
+  | {
+      scheme: MutualTLSAuth;
+      values: Record<string, unknown>;
+    };
 
 export interface ExtendedOperation {
   url: string;
@@ -114,6 +171,7 @@ export interface Step {
     [key: string]: string | object | any[] | boolean | number;
   };
   'x-operation'?: ExtendedOperation;
+  'x-security'?: ExtendedSecurity[];
   requestBody?: RequestBody;
 }
 
@@ -139,6 +197,7 @@ export interface Workflow {
   steps: Step[];
   successActions?: OnSuccessObject[];
   failureActions?: OnFailureObject[];
+  'x-security'?: ExtendedSecurity[];
 }
 
 export interface ArazzoDefinition {

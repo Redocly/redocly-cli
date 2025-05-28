@@ -16,12 +16,18 @@ export {
 } from './utils.js';
 export { Oas3_1Types } from './types/oas3_1.js';
 export { Arazzo1Types } from './types/arazzo.js';
-export type { ArazzoDefinition, ExtendedOperation } from './typings/arazzo.js';
+export type {
+  ArazzoDefinition,
+  ExtendedOperation,
+  ExtendedSecurity,
+  ResolvedSecurity,
+} from './typings/arazzo.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas2Types } from './types/oas2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
+
 export type {
   Oas3Definition,
   Oas3_1Definition,
@@ -39,6 +45,14 @@ export type {
   Oas3Server,
   Oas3Operation,
   Oas3Responses,
+  ApiKeyAuth,
+  HttpAuth,
+  BasicAuth,
+  BearerAuth,
+  DigestAuth,
+  MutualTLSAuth,
+  OAuth2Auth,
+  OpenIDAuth,
   Oas3SecurityScheme,
   Oas3SecurityRequirement,
 } from './typings/openapi.js';

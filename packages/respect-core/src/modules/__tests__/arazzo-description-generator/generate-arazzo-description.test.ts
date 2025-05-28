@@ -1,5 +1,5 @@
 import { generateArazzoDescription } from '../../arazzo-description-generator/index.js';
-import { type ParameterWithIn } from '../../config-parser/index.js';
+import { type ParameterWithIn } from '../../context-parser/index.js';
 import {
   bundleOpenApi,
   getOperationFromDescription,
