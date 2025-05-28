@@ -22,7 +22,6 @@ import { DEFAULT_RESPECT_MAX_FETCH_TIMEOUT } from '../consts.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
-import type { Oas3SecurityScheme } from '@redocly/openapi-core';
 import type { RequestData } from '../modules/flow-runner/index.js';
 
 const logger = DefaultLogger.getInstance();
@@ -280,10 +279,9 @@ export class ApiFetcher implements IFetcher {
     ]
       .reverse()
       .find((security) => {
-        const scheme =
-          'schemeName' in security && security.schemeName
-            ? openapiOperation?.securitySchemes?.[security.schemeName]
-            : security.scheme;
+        const scheme = security.schemeName
+          ? openapiOperation?.securitySchemes?.[security.schemeName]
+          : security.scheme;
 
         return scheme?.type === 'http' && scheme?.scheme === 'digest';
       });
