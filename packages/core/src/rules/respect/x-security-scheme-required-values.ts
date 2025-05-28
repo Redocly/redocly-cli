@@ -31,8 +31,8 @@ function validateSecuritySchemas(
     }
 
     const { scheme, values } = securitySchema;
-    const { type } = scheme;
-    const authType = type === 'http' ? scheme.scheme : type;
+    // TODO: Struct rule does not check before this point, so we need to check it here. Investigate if we can move this check to the Struct rule.
+    const authType = scheme?.type === 'http' ? scheme.scheme : scheme?.type;
 
     if (authType === 'mutualTLS') {
       logger.warn(
