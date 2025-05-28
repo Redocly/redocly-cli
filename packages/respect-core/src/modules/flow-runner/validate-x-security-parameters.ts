@@ -1,7 +1,7 @@
 import type { Oas3SecurityScheme, ResolvedSecurity } from '@redocly/openapi-core';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
-  apiKey: ['value'],
+  apiKey: ['apiKey'],
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],

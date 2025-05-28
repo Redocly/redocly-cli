@@ -80,7 +80,7 @@ describe('resolveXSecurityParameters', () => {
         },
         {
           scheme: { type: 'apiKey', name: 'x-api-key', in: 'header' },
-          values: { value: 'step-level-api-key' },
+          values: { apiKey: 'step-level-api-key' },
         },
       ],
     } as unknown as Step;
@@ -92,11 +92,11 @@ describe('resolveXSecurityParameters', () => {
       },
       {
         scheme: { type: 'apiKey', name: 'x-api-key', in: 'header' },
-        values: { value: 'workflow-level-api-key' },
+        values: { apiKey: 'workflow-level-api-key' },
       },
       {
         scheme: { type: 'apiKey', name: 'x-api-key', in: 'cookie' },
-        values: { value: 'workflow-level-api-key' },
+        values: { apiKey: 'workflow-level-api-key' },
       },
       {
         scheme: {
@@ -104,7 +104,7 @@ describe('resolveXSecurityParameters', () => {
           name: 'different-workflow-level-x-api-key',
           in: 'header',
         },
-        values: { value: '$inputs.secret' },
+        values: { apiKey: '$inputs.secret' },
       },
       {
         scheme: { type: 'oauth2', flows: [Object] },
