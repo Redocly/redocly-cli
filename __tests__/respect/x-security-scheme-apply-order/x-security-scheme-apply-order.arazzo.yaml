@@ -21,13 +21,13 @@ workflows:
           in: cookie
           name: X-API-KEY-WORKFLOW
         values:
-          value: workflow-api-key-auth
+          apiKey: workflow-api-key-auth
       - scheme:
           type: apiKey
           in: header
           name: X-API-KEY
         values:
-          value: workflow-api-key-auth-header-that-will-be-overridden-by-step-level-api-key-auth
+          apiKey: workflow-api-key-auth-header-that-will-be-overridden-by-step-level-api-key-auth
     inputs:
       type: object
       properties:
@@ -70,19 +70,19 @@ workflows:
               in: header
               name: X-API-KEY
             values:
-              value: this-api-key-will-be-overridden-by-the-next-scheme
+              apiKey: this-api-key-will-be-overridden-by-the-next-scheme
           - scheme:
               type: apiKey
               in: header
               name: X-API-KEY
             values:
-              value: api-key-auth-should-be-in-final-result
+              apiKey: api-key-auth-should-be-in-final-result
           - scheme:
               type: apiKey
               in: cookie
               name: X-API-KEY
             values:
-              value: cookie-api-key-auth-should-be-in-final-result
+              apiKey: cookie-api-key-auth-should-be-in-final-result
           - scheme:
               type: http
               scheme: basic

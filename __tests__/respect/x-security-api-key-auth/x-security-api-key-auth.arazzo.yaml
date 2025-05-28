@@ -28,4 +28,4 @@ workflows:
               name: X-API-KEY
               in: header
             values:
-              value: $inputs.secret
+              apiKey: $inputs.secret

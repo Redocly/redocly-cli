@@ -5,7 +5,7 @@ import type { UserContext } from '../../walk.js';
 import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
-  apiKey: ['value'],
+  apiKey: ['apiKey'],
   basic: ['username', 'password'],
   digest: ['username', 'password'],
   bearer: ['token'],
@@ -47,7 +47,7 @@ function validateSecuritySchemas(
       for (const requiredValue of requiredValues) {
         if (!values || !(requiredValue in values)) {
           report({
-            message: `The \`${requiredValue}\` is required for ${authType} authentication security schema.`,
+            message: `The \`${requiredValue}\` is required when using the ${authType} authentication security schema.`,
             location: location.child(['x-security', extendedSecurity.indexOf(securitySchema)]),
           });
         }

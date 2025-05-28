@@ -51,7 +51,7 @@ export type ResolvedSecurity =
   | {
       scheme: ApiKeyAuth;
       values: {
-        value: string;
+        apiKey: string;
       };
     }
   | {

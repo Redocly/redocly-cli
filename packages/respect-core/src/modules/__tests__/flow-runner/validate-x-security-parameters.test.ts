@@ -4,7 +4,7 @@ import { validateXSecurityParameters } from '../../flow-runner/validate-x-securi
 describe('validateXSecurityParameters', () => {
   it('should validate apiKey scheme', () => {
     const scheme: ApiKeyAuth = { type: 'apiKey', name: 'api_key', in: 'header' };
-    const values = { value: '123' };
+    const values = { apiKey: '123' };
 
     const result = validateXSecurityParameters({ scheme, values });
     expect(result).toEqual({ scheme, values });
@@ -14,7 +14,7 @@ describe('validateXSecurityParameters', () => {
     const scheme: ApiKeyAuth = { type: 'apiKey', name: 'api_key', in: 'header' };
 
     expect(() => validateXSecurityParameters({ scheme, values: {} })).toThrow(
-      'Missing required value `value` for apiKey security scheme'
+      'Missing required value `apiKey` for apiKey security scheme'
     );
   });
 

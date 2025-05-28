@@ -17,7 +17,7 @@ describe('getSecurityParameter', () => {
           name: 'api_key',
         },
         values: {
-          value: '12345678-ABCD-90EF-GHIJ-1234567890KL',
+          apiKey: '12345678-ABCD-90EF-GHIJ-1234567890KL',
         },
       },
       ctx
