@@ -1735,4 +1735,188 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should allow for itemSchema and itemEncoding to be defined - OAS 3.2.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: test itemSchema and itemEncoding in MediaType for Streaming Multipart
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'multipart/mixed':
+                      itemSchema:
+                        $comment: A single data image from the device
+                      itemEncoding:
+                        contentType: image/jpg
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: { struct: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/openapi",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`openapi\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/info",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`info\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/paths",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`paths\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should allow for prefixEncoding to be defined - OAS 3.2.x', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        info:
+          title: test prefixEncoding in MediaType for multipart/mixed payloads
+          version: 1.0.0
+        paths:
+          '/thing':
+            get:
+              summary: a sample api
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    'multipart/mixed':
+                      prefixItems:
+                        - type: object
+                          properties:
+                            author:
+                              type: string
+                            created:
+                              type: string
+                              format: datetime
+                            copyright:
+                              type: string
+                            license:
+                              type: string
+                        - # default content type for a schema without \`type\`
+                          # is \`application/octet-stream\`, which we need
+                          # to override.
+                          true
+                      prefixEncoding:
+                        - contentType: application/json
+                        - contentType: image/*  
+      `,
+      ''
+    );
+
+    const configFilePath = path.join(__dirname, '..', '..', '..', 'redocly.yaml');
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        rules: { struct: 'error' },
+        decorators: undefined,
+        configPath: configFilePath,
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/openapi",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`openapi\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/info",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`info\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/paths",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`paths\` is not expected here.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
 });

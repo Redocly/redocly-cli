@@ -10,6 +10,9 @@ import type {
   Oas3Schema,
   Oas3_1Schema,
   OasRef,
+  Oas3_2Parameter,
+  Oas3_2Response,
+  Oas3_2Definition,
 } from '../../typings/openapi.js';
 
 const TYPE_NAME_SCHEMA = 'Schema';
@@ -56,7 +59,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
       },
     },
     Root: {
-      leave(root: Oas3Definition | Oas3_1Definition, ctx: UserContext) {
+      leave(root: Oas3Definition | Oas3_1Definition | Oas3_2Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);
@@ -92,7 +95,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.responses != 'off') {
     rule.NamedResponses = {
-      Response(_: Oas3Response, { location }: UserContext) {
+      Response(_: Oas3Response | Oas3_2Response, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location);
       },
     };
@@ -100,7 +103,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   if (options.parameters != 'off') {
     rule.NamedParameters = {
-      Parameter(_: Oas3Parameter, { location }: UserContext) {
+      Parameter(_: Oas3Parameter | Oas3_2Parameter, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location);
       },
     };

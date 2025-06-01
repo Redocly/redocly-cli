@@ -71,6 +71,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
       [SpecVersion.OAS3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
       [SpecVersion.OAS3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
+      [SpecVersion.OAS3_2]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules }, // TODO: configure 3_2 rules
       [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
       [SpecVersion.Async3]: { ...rawConfig.rules, ...rawConfig.async3Rules },
       [SpecVersion.Arazzo1]: { ...rawConfig.rules, ...rawConfig.arazzo1Rules },
@@ -81,6 +82,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
       [SpecVersion.OAS3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
       [SpecVersion.OAS3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
+      [SpecVersion.OAS3_2]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
       [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
       [SpecVersion.Async3]: { ...rawConfig.preprocessors, ...rawConfig.async3Preprocessors },
       [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Preprocessors },
@@ -91,6 +93,7 @@ export class StyleguideConfig {
       [SpecVersion.OAS2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
       [SpecVersion.OAS3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
       [SpecVersion.OAS3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
+      [SpecVersion.OAS3_2]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
       [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
       [SpecVersion.Async3]: { ...rawConfig.decorators, ...rawConfig.async3Decorators },
       [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Decorators },

@@ -31,10 +31,15 @@ import type {
   BundleResult,
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Parameter,
+  Oas3_2Parameter,
   Oas3PathItem,
+  Oas3_2PathItem,
   Oas3Server,
+  Oas3_2Server,
   Oas3Tag,
+  Oas3_2Tag,
 } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
@@ -47,7 +52,7 @@ type JoinDocumentContext = {
   api: string;
   apiFilename: string;
   apiTitle?: string;
-  tags: Oas3Tag[];
+  tags: Oas3Tag[] | Oas3_2Tag[];
   potentialConflicts: any;
   tagsPrefix: string;
   componentsPrefix: string | undefined;
@@ -109,6 +114,7 @@ export async function handleJoin({
   const decorators = new Set([
     ...Object.keys(config.styleguide.decorators.oas3_0),
     ...Object.keys(config.styleguide.decorators.oas3_1),
+    ...Object.keys(config.styleguide.decorators.oas3_2),
     ...Object.keys(config.styleguide.decorators.oas2),
   ]);
   config.styleguide.skipDecorators(Array.from(decorators));
@@ -116,6 +122,7 @@ export async function handleJoin({
   const preprocessors = new Set([
     ...Object.keys(config.styleguide.preprocessors.oas3_0),
     ...Object.keys(config.styleguide.preprocessors.oas3_1),
+    ...Object.keys(config.styleguide.preprocessors.oas3_2),
     ...Object.keys(config.styleguide.preprocessors.oas2),
   ]);
   config.styleguide.skipPreprocessors(Array.from(preprocessors));
@@ -152,9 +159,9 @@ export async function handleJoin({
     try {
       const version = detectSpec(document.parsed);
       collectSpecData?.(document.parsed);
-      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
+      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1 && version !== SpecVersion.OAS3_2) {
         return exitWithError(
-          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
+          `Only OpenAPI 3.0, OpenAPI 3.1, and OpenAPI 3.2 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
@@ -250,7 +257,7 @@ export async function handleJoin({
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
 
-      const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
+      const tagDuplicate = joinedDef.tags.find((t: Oas3Tag|Oas3_2Tag) => t.name === entrypointTagName);
 
       if (tagDuplicate && withoutXTagGroups) {
         // If tag already exist and `without-x-tag-groups` option,
@@ -313,13 +320,13 @@ export async function handleJoin({
 
   function populateXTagGroups(entrypointTagName: string, indexGroup: number) {
     if (
-      !joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag) => t.name === entrypointTagName)
+      !joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag|Oas3_2Tag) => t.name === entrypointTagName)
     ) {
       joinedDef[xTagGroups][indexGroup][Tags].push(entrypointTagName);
     }
   }
 
-  function collectServers(openapi: Oas3Definition | Oas3_1Definition) {
+  function collectServers(openapi: Oas3Definition | Oas3_1Definition | Oas3_2Definition) {
     const { servers } = openapi;
     if (servers) {
       if (!joinedDef.hasOwnProperty('servers')) {
@@ -334,7 +341,7 @@ export async function handleJoin({
   }
 
   function collectExternalDocs(
-    openapi: Oas3Definition | Oas3_1Definition,
+    openapi: Oas3Definition | Oas3_1Definition | Oas3_2Definition,
     { api }: JoinDocumentContext
   ) {
     const { externalDocs } = openapi;
@@ -348,7 +355,7 @@ export async function handleJoin({
   }
 
   function collectPaths(
-    openapi: Oas3Definition | Oas3_1Definition,
+    openapi: Oas3Definition | Oas3_1Definition | Oas3_2Definition,
     {
       apiFilename,
       apiTitle,
@@ -373,7 +380,7 @@ export async function handleJoin({
           potentialConflicts.paths[path] = {};
         }
 
-        const pathItem = paths[path] as Oas3PathItem;
+        const pathItem = paths[path] as Oas3PathItem | Oas3_2PathItem;
 
         for (const field of keysOf(pathItem)) {
           if (operationsSet.has(field as OPENAPI3_METHOD)) {
@@ -393,9 +400,9 @@ export async function handleJoin({
     }
 
     function collectPathStringFields(
-      pathItem: Oas3PathItem,
+      pathItem: Oas3PathItem | Oas3_2PathItem,
       path: string | number,
-      field: keyof Oas3PathItem
+      field: keyof Oas3PathItem | Oas3_2PathItem
     ) {
       const fieldValue = pathItem[field];
       if (
@@ -408,7 +415,7 @@ export async function handleJoin({
       joinedDef.paths[path][field] = fieldValue;
     }
 
-    function collectPathServers(pathItem: Oas3PathItem, path: string | number) {
+    function collectPathServers(pathItem: Oas3PathItem | Oas3_2PathItem, path: string | number) {
       if (!pathItem.servers) {
         return;
       }
@@ -434,7 +441,7 @@ export async function handleJoin({
       }
     }
 
-    function collectPathParameters(pathItem: Oas3PathItem, path: string | number) {
+    function collectPathParameters(pathItem: Oas3PathItem | Oas3_2PathItem, path: string | number) {
       if (!pathItem.parameters) {
         return;
       }
@@ -442,11 +449,11 @@ export async function handleJoin({
         joinedDef.paths[path].parameters = [];
       }
 
-      for (const parameter of pathItem.parameters as Referenced<Oas3Parameter>[]) {
+      for (const parameter of pathItem.parameters as Referenced<Oas3Parameter | Oas3_2Parameter>[]) {
         let isFoundParameter = false;
 
         for (const pathParameter of joinedDef.paths[path]
-          .parameters as Referenced<Oas3Parameter>[]) {
+          .parameters as Referenced<Oas3Parameter | Oas3_2Parameter>[]) {
           // Compare $ref only if both are reference objects
           if (isRef(pathParameter) && isRef(parameter)) {
             if (pathParameter['$ref'] === parameter['$ref']) {
@@ -471,7 +478,7 @@ export async function handleJoin({
     }
 
     function collectPathOperation(
-      pathItem: Oas3PathItem,
+      pathItem: Oas3PathItem | Oas3_2PathItem,
       path: string | number,
       operation: OPENAPI3_METHOD
     ) {
@@ -540,7 +547,7 @@ export async function handleJoin({
     }
   }
 
-  function isServersEqual(serverOne: Oas3Server, serverTwo: Oas3Server) {
+  function isServersEqual(serverOne: Oas3Server | Oas3_2Server, serverTwo: Oas3Server | Oas3_2Server) {
     if (serverOne.description === serverTwo.description) {
       return dequal(serverOne.variables, serverTwo.variables);
     }
@@ -549,7 +556,7 @@ export async function handleJoin({
   }
 
   function collectComponents(
-    openapi: Oas3Definition,
+    openapi: Oas3Definition | Oas3_1Definition | Oas3_2Definition,
     { api, potentialConflicts, componentsPrefix }: JoinDocumentContext
   ) {
     const { components } = openapi;
@@ -576,7 +583,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: StrictObject<Oas3Definition | Oas3_1Definition>,
+    openapi: StrictObject<Oas3Definition | Oas3_1Definition | Oas3_2Definition>,
     {
       apiFilename,
       apiTitle,
@@ -586,7 +593,7 @@ export async function handleJoin({
       componentsPrefix,
     }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
+    const webhooks = (oasVersion === SpecVersion.OAS3_1 || oasVersion ===  SpecVersion.OAS3_2) ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {

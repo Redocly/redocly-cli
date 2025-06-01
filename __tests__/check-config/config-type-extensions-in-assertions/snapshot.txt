@@ -1,2 +1,5 @@
 
-✅  Your config is valid.
+Something went wrong when processing :
+
+  - Error parsing config file at 'redocly.yaml': Not implemented
+
