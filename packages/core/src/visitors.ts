@@ -22,6 +22,7 @@ import type {
   Oas3ServerVariable,
   Oas3Server,
   Oas3MediaType,
+  Oas3_2MediaType,
   Oas3Response,
   Oas3Example,
   Oas3RequestBody,
@@ -172,8 +173,8 @@ type Oas3FlatVisitor = {
   Parameter?: VisitFunctionOrObject<Oas3Parameter<Oas3Schema | Oas3_1Schema>>;
   Operation?: VisitFunctionOrObject<Oas3Operation<Oas3Schema | Oas3_1Schema>>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody<Oas3Schema | Oas3_1Schema>>;
-  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema>>>;
-  MediaType?: VisitFunctionOrObject<Oas3MediaType<Oas3Schema | Oas3_1Schema>>;
+  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema> | Oas3_2MediaType>>;
+  MediaType?: VisitFunctionOrObject<Oas3MediaType<Oas3Schema | Oas3_1Schema> | Oas3_2MediaType>;
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding<Oas3Schema | Oas3_1Schema>>;
   Header?: VisitFunctionOrObject<Oas3Header<Oas3Schema | Oas3_1Schema>>;

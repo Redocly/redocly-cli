@@ -1,6 +1,7 @@
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
+import { Oas3_2Types } from './types/oas3_2.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Arazzo1Types } from './types/arazzo.js';
@@ -35,6 +36,7 @@ export enum SpecVersion {
   OAS2 = 'oas2',
   OAS3_0 = 'oas3_0',
   OAS3_1 = 'oas3_1',
+  OAS3_2 = 'oas3_2',
   Async2 = 'async2',
   Async3 = 'async3',
   Arazzo1 = 'arazzo1',
@@ -54,6 +56,7 @@ const typesMap = {
   [SpecVersion.OAS2]: Oas2Types,
   [SpecVersion.OAS3_0]: Oas3Types,
   [SpecVersion.OAS3_1]: Oas3_1Types,
+  [SpecVersion.OAS3_2]: Oas3_2Types,
   [SpecVersion.Async2]: AsyncApi2Types,
   [SpecVersion.Async3]: AsyncApi3Types,
   [SpecVersion.Arazzo1]: Arazzo1Types,
@@ -124,6 +127,10 @@ export function detectSpec(root: unknown): SpecVersion {
 
   if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
     return SpecVersion.OAS3_1;
+  }
+
+  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.2')) {
+    return SpecVersion.OAS3_2;
   }
 
   if (root.swagger && root.swagger === '2.0') {

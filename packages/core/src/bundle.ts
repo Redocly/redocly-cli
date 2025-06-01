@@ -30,6 +30,7 @@ export enum OasVersion {
   Version2 = 'oas2',
   Version3_0 = 'oas3_0',
   Version3_1 = 'oas3_1',
+  Version3_2 = 'oas3_2',
 }
 export type BundleOptions = {
   externalRefResolver?: BaseResolver;
