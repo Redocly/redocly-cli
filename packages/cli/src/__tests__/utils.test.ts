@@ -488,6 +488,7 @@ describe('checkIfRulesetExist', () => {
       oas2: {},
       oas3_0: {},
       oas3_1: {},
+      oas3_2: {},
       async2: {},
       async3: {},
       arazzo1: {},
@@ -503,6 +504,7 @@ describe('checkIfRulesetExist', () => {
       oas2: { 'operation-4xx-response': 'error' },
       oas3_0: {},
       oas3_1: {},
+      oas3_2: {},
     } as any;
     checkIfRulesetExist(rules);
   });

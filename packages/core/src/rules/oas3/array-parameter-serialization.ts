@@ -1,7 +1,8 @@
 import { isRef } from '../../ref-utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
-import type { Oas3_1Schema, Oas3Parameter } from '../../typings/openapi.js';
+import type { Oas3_1Schema, Oas3_2Parameter, Oas3Parameter } from '../../typings/openapi.js';
+import { UserContext } from 'core/src/walk.js';
 
 export type ArrayParameterSerializationOptions = {
   in?: string[];
@@ -12,7 +13,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
 ): Oas3Visitor => {
   return {
     Parameter: {
-      leave(node, ctx) {
+      leave(node: Oas3Parameter | Oas3_2Parameter, ctx: UserContext) {
         if (!node.schema) {
           return;
         }
@@ -22,7 +23,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
 
         if (
           schema &&
-          shouldReportMissingStyleAndExplode(node as Oas3Parameter<Oas3_1Schema>, schema, options)
+          shouldReportMissingStyleAndExplode(node, schema, options)
         ) {
           ctx.report({
             message: `Parameter \`${node.name}\` should have \`style\` and \`explode \` fields`,
@@ -35,7 +36,7 @@ export const ArrayParameterSerialization: Oas3Rule = (
 };
 
 function shouldReportMissingStyleAndExplode(
-  node: Oas3Parameter<Oas3_1Schema>,
+  node: Oas3Parameter<Oas3_1Schema> | Oas3_2Parameter,
   schema: Oas3_1Schema,
   options: ArrayParameterSerializationOptions
 ) {

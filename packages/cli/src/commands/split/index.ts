@@ -37,6 +37,7 @@ import type {
 import type { ComponentsFiles, Definition, RefObject } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { VerifyConfigOptions } from '../../types.js';
+import { Oas3_2Definition } from 'core/src/typings/openapi.js';
 
 export type SplitOptions = {
   api: string;
@@ -49,7 +50,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOp
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api);
   const ext = getAndValidateFileExtension(api);
-  const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
+  const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition | Oas3_2Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
   logger.info(
@@ -60,7 +61,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOp
 }
 
 function splitDefinition(
-  openapi: Oas3Definition | Oas3_1Definition,
+  openapi: Oas3Definition | Oas3_1Definition | Oas3_2Definition,
   openapiDir: string,
   pathSeparator: string,
   ext: string
@@ -79,7 +80,7 @@ function splitDefinition(
     ext
   );
   const webhooks =
-    (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
+    (openapi as Oas3_1Definition | Oas3_2Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
   // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
   iteratePathItems(
     webhooks,

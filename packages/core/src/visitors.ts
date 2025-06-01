@@ -22,6 +22,7 @@ import type {
   Oas3ServerVariable,
   Oas3Server,
   Oas3MediaType,
+  Oas3_2MediaType,
   Oas3Response,
   Oas3Example,
   Oas3RequestBody,
@@ -34,6 +35,13 @@ import type {
   Oas3Xml,
   Oas3Discriminator,
   Oas3Callback,
+  Oas3_2Tag,
+  Oas3_2Definition,
+  Oas3_2PathItem,
+  Oas3_2Parameter,
+  Oas3_2Response,
+  Oas3_2Discriminator,
+  Oas3_2SecurityScheme,
 } from './typings/openapi.js';
 import type {
   Oas2Definition,
@@ -156,8 +164,8 @@ export type BaseVisitor = {
 };
 
 type Oas3FlatVisitor = {
-  Root?: VisitFunctionOrObject<Oas3Definition | Oas3_1Definition>;
-  Tag?: VisitFunctionOrObject<Oas3Tag>;
+  Root?: VisitFunctionOrObject<Oas3Definition | Oas3_1Definition | Oas3_2Definition>;
+  Tag?: VisitFunctionOrObject<Oas3Tag|Oas3_2Tag>;
   ExternalDocs?: VisitFunctionOrObject<Oas3ExternalDocs>;
   Server?: VisitFunctionOrObject<Oas3Server>;
   ServerVariable?: VisitFunctionOrObject<Oas3ServerVariable>;
@@ -165,44 +173,45 @@ type Oas3FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas3Info>;
   Contact?: VisitFunctionOrObject<Oas3Contact>;
   License?: VisitFunctionOrObject<Oas3License>;
-  Paths?: VisitFunctionOrObject<Record<string, Oas3PathItem<Oas3Schema | Oas3_1Schema>>>;
-  PathItem?: VisitFunctionOrObject<Oas3PathItem<Oas3Schema | Oas3_1Schema>>;
+  Paths?: VisitFunctionOrObject<Record<string, Oas3PathItem<Oas3Schema | Oas3_1Schema> | Oas3_2PathItem<Oas3_1Schema>>>;
+  PathItem?: VisitFunctionOrObject<Oas3PathItem<Oas3Schema | Oas3_1Schema> | Oas3_2PathItem<Oas3_1Schema>>;
   Callback?: VisitFunctionOrObject<Oas3Callback<Oas3Schema | Oas3_1Schema>>;
   CallbacksMap?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
-  Parameter?: VisitFunctionOrObject<Oas3Parameter<Oas3Schema | Oas3_1Schema>>;
+  Parameter?: VisitFunctionOrObject<Oas3Parameter<Oas3Schema | Oas3_1Schema> | Oas3_2Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation<Oas3Schema | Oas3_1Schema>>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody<Oas3Schema | Oas3_1Schema>>;
-  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema>>>;
-  MediaType?: VisitFunctionOrObject<Oas3MediaType<Oas3Schema | Oas3_1Schema>>;
+  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType<Oas3Schema | Oas3_1Schema> | Oas3_2MediaType>>;
+  MediaType?: VisitFunctionOrObject<Oas3MediaType<Oas3Schema | Oas3_1Schema> | Oas3_2MediaType>;
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding<Oas3Schema | Oas3_1Schema>>;
   Header?: VisitFunctionOrObject<Oas3Header<Oas3Schema | Oas3_1Schema>>;
-  Responses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
-  Response?: VisitFunctionOrObject<Oas3Response<Oas3Schema | Oas3_1Schema>>;
+  Responses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema> | Oas3_2Response>>;
+  Response?: VisitFunctionOrObject<Oas3Response<Oas3Schema | Oas3_1Schema>| Oas3_2Response>;
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema | Oas3_1Schema>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
   SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
-  Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
+  Discriminator?: VisitFunctionOrObject<Oas3Discriminator | Oas3_2Discriminator>;
   Components?: VisitFunctionOrObject<Oas3Components | Oas3_1Components>;
-  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
-  NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
-  NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema>>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
+  NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema> | Oas3_2Response>>;
+  NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema> | Oas3_2Parameter>>;
   NamedExamples?: VisitFunctionOrObject<Record<string, Oas3Example>>;
   NamedRequestBodies?: VisitFunctionOrObject<
     Record<string, Oas3RequestBody<Oas3Schema | Oas3_1Schema>>
   >;
   NamedHeaders?: VisitFunctionOrObject<Record<string, Oas3Header<Oas3Schema | Oas3_1Schema>>>;
-  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme | Oas3_2SecurityScheme>>;
   NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
   NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback<Oas3Schema | Oas3_1Schema>>>;
   ImplicitFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['implicit']>;
   PasswordFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['password']>;
   ClientCredentials?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['clientCredentials']>;
   AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
-  OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
-  SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
+  DeviceAuthorization?: VisitFunctionOrObject<Oas3_2SecurityScheme['flows']['deviceAuthorization']>;
+  OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows'] | Oas3_2SecurityScheme['flows']>;
+  SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme | Oas3_2SecurityScheme>;
   SpecExtension?: VisitFunctionOrObject<unknown>;
 };
 
