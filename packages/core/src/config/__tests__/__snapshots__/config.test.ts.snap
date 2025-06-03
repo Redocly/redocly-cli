@@ -6,7 +6,11 @@ StyleguideConfig {
   "_usedVersions": Set {},
   "configFile": undefined,
   "decorators": {
-    "arazzo1": {},
+    "arazzo1": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
+    },
     "async2": {
       "oas2": {},
       "oas3_0": {},
@@ -55,7 +59,11 @@ StyleguideConfig {
   "pluginPaths": [],
   "plugins": [],
   "preprocessors": {
-    "arazzo1": {},
+    "arazzo1": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
+    },
     "async2": {
       "oas2": {},
       "oas3_0": {},
