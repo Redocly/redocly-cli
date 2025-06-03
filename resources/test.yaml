@@ -1,0 +1,31 @@
+openapi: 3.1.1
+info:
+  title: Pet API
+  version: 1.0.0
+  description: A simple API for pet-related contracts.
+
+paths:
+  /pets:
+    get:
+      summary: Get pet contract information
+      operationId: getPet
+      responses:
+        '200':
+          description: Successful response with pet contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pet'
+
+components:
+  schemas:
+    pet:
+      title: petapi
+      type: object
+      description: this is pet api
+      properties:
+        constructor:
+          title: petapi
+          type:
+            - object
+            - 'null'
