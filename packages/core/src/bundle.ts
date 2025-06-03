@@ -18,12 +18,11 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorato
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
 import {
   mergeExtends,
-  RawConfig,
   resolvePreset,
   type Config,
   type StyleguideConfig,
-  ResolvedStyleguideConfig,
-  RulesFields,
+  type ResolvedStyleguideConfig,
+  type RulesFields,
 } from './config/index.js';
 import path from 'path';
 import { defaultPlugin } from './config/builtIn.js';
@@ -99,7 +98,6 @@ const bundleVisitor = () => {
             leave(node: any, ctx: UserContext) {
               if (node.extends) {
                 const bundled = bundleExtends(node, ctx);
-                debugger;
                 Object.assign(node, bundled);
                 node.plugins = Array.from(new Set([...(node.plugins || []), ...scorecardPlugins]));
                 delete node.extends;
@@ -115,7 +113,11 @@ const bundleVisitor = () => {
 
 function removeEmptyRules(config: Pick<ResolvedStyleguideConfig, RulesFields>) {
   // TODO: convert strings to constants
-  return Object.fromEntries(Object.entries(config).filter(([key, value]) => !isEmptyObject(value) && key !== 'pluginPaths' && key !== 'extendPaths'));
+  return Object.fromEntries(
+    Object.entries(config).filter(
+      ([key, value]) => !isEmptyObject(value) && key !== 'pluginPaths' && key !== 'extendPaths'
+    )
+  );
 }
 
 export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {

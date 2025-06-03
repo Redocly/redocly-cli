@@ -176,11 +176,14 @@ export async function resolvePlugins(
           }
 
           if (pluginModule) {
-            pluginsCache.set(absolutePluginPath, pluginInstances.map((p) => ({
-              ...p,
-              path: plugin,
-              absolutePath: absolutePluginPath,
-            })));
+            pluginsCache.set(
+              absolutePluginPath,
+              pluginInstances.map((p) => ({
+                ...p,
+                path: plugin,
+                absolutePath: absolutePluginPath,
+              }))
+            );
           }
         }
 
