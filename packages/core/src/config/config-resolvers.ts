@@ -43,7 +43,7 @@ import type { Document, ResolvedRefMap } from '../resolve.js';
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
 // Cache instantiated plugins during a single execution
-const pluginsCache: Map<string, Plugin> = new Map();
+const pluginsCache: Map<string, Plugin[]> = new Map();
 
 export async function resolveConfigFileAndRefs({
   configPath,
@@ -93,7 +93,7 @@ export async function resolveConfig({
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
-  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(config.resolve));
+  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(rawConfig?.resolve));
 
   const apis = await resolveApis({
     rawConfig: config,
@@ -134,7 +134,7 @@ export async function resolvePlugins(
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
-  const requireFunc = async (plugin: string | Plugin): Promise<Plugin | undefined> => {
+  const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
     if (isString(plugin)) {
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
@@ -173,16 +173,19 @@ export async function resolvePlugins(
             ? await requiredPlugin(pluginCreatorOptions)
             : await requiredPlugin?.default?.(pluginCreatorOptions);
 
-          if (pluginModule?.id && isDeprecatedPluginFormat(requiredPlugin)) {
-            logger.info(`Deprecated plugin format detected: ${pluginModule.id}\n`);
+          const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
+          for (const pluginInstance of pluginInstances) {
+            if (pluginInstance?.id && isDeprecatedPluginFormat(pluginInstance)) {
+              logger.info(`Deprecated plugin format detected: ${pluginInstance.id}\n`);
+            }
           }
 
           if (pluginModule) {
-            pluginsCache.set(absolutePluginPath, {
-              ...pluginModule,
+            pluginsCache.set(absolutePluginPath, pluginInstances.map((p) => ({
+              ...p,
               path: plugin,
               absolutePath: absolutePluginPath,
-            });
+            })));
           }
         }
 
@@ -220,151 +223,172 @@ export async function resolvePlugins(
         resolvedPlugins.add(p);
       }
 
-      const pluginModule: Plugin | undefined = await requireFunc(p);
+      const pluginInstanceOrInstances = await requireFunc(p);
 
-      if (!pluginModule) {
+      if (!pluginInstanceOrInstances) {
         return;
       }
 
-      const id = pluginModule.id;
-      if (typeof id !== 'string') {
-        throw new Error(
-          colorize.red(`Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`)
-        );
-      }
+      const pluginInstances = Array.isArray(pluginInstanceOrInstances)
+        ? pluginInstanceOrInstances
+        : [pluginInstanceOrInstances];
 
-      if (seenPluginIds.has(id)) {
-        const pluginPath = seenPluginIds.get(id)!;
-        throw new Error(
-          colorize.red(
-            `Plugin "id" must be unique. Plugin ${colorize.blue(
-              p.toString()
-            )} uses id "${colorize.blue(id)}" already seen in ${colorize.blue(pluginPath)}`
-          )
-        );
-      }
+      return (
+        await Promise.all(
+          pluginInstances.map(async (pluginInstance) => {
+            if (!pluginInstance) return;
+            const id = pluginInstance.id;
+            if (typeof id !== 'string') {
+              throw new Error(
+                colorize.red(
+                  `Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`
+                )
+              );
+            }
 
-      seenPluginIds.set(id, p.toString());
+            if (seenPluginIds.has(id)) {
+              const pluginPath = seenPluginIds.get(id)!;
+              throw new Error(
+                colorize.red(
+                  `Plugin "id" must be unique. Plugin ${colorize.blue(
+                    p.toString()
+                  )} uses id "${colorize.blue(id)}" already seen in ${colorize.blue(pluginPath)}`
+                )
+              );
+            }
 
-      const plugin: Plugin = {
-        id,
-        ...(pluginModule.configs ? { configs: pluginModule.configs } : {}),
-        ...(pluginModule.typeExtension ? { typeExtension: pluginModule.typeExtension } : {}),
-      };
+            seenPluginIds.set(id, p.toString());
 
-      if (pluginModule.rules) {
-        if (
-          !pluginModule.rules.oas3 &&
-          !pluginModule.rules.oas2 &&
-          !pluginModule.rules.async2 &&
-          !pluginModule.rules.async3 &&
-          !pluginModule.rules.arazzo1 &&
-          !pluginModule.rules.overlay1
-        ) {
-          throw new Error(
-            `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, or \`overlay1\` rules "${p}.`
-          );
-        }
-        plugin.rules = {};
-        if (pluginModule.rules.oas3) {
-          plugin.rules.oas3 = prefixRules(pluginModule.rules.oas3, id);
-        }
-        if (pluginModule.rules.oas2) {
-          plugin.rules.oas2 = prefixRules(pluginModule.rules.oas2, id);
-        }
-        if (pluginModule.rules.async2) {
-          plugin.rules.async2 = prefixRules(pluginModule.rules.async2, id);
-        }
-        if (pluginModule.rules.async3) {
-          plugin.rules.async3 = prefixRules(pluginModule.rules.async3, id);
-        }
-        if (pluginModule.rules.arazzo1) {
-          plugin.rules.arazzo1 = prefixRules(pluginModule.rules.arazzo1, id);
-        }
-        if (pluginModule.rules.overlay1) {
-          plugin.rules.overlay1 = prefixRules(pluginModule.rules.overlay1, id);
-        }
-      }
-      if (pluginModule.preprocessors) {
-        if (
-          !pluginModule.preprocessors.oas3 &&
-          !pluginModule.preprocessors.oas2 &&
-          !pluginModule.preprocessors.async2 &&
-          !pluginModule.preprocessors.async3 &&
-          !pluginModule.preprocessors.arazzo1 &&
-          !pluginModule.preprocessors.overlay1
-        ) {
-          throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` preprocessors "${p}.`
-          );
-        }
-        plugin.preprocessors = {};
-        if (pluginModule.preprocessors.oas3) {
-          plugin.preprocessors.oas3 = prefixRules(pluginModule.preprocessors.oas3, id);
-        }
-        if (pluginModule.preprocessors.oas2) {
-          plugin.preprocessors.oas2 = prefixRules(pluginModule.preprocessors.oas2, id);
-        }
-        if (pluginModule.preprocessors.async2) {
-          plugin.preprocessors.async2 = prefixRules(pluginModule.preprocessors.async2, id);
-        }
-        if (pluginModule.preprocessors.async3) {
-          plugin.preprocessors.async3 = prefixRules(pluginModule.preprocessors.async3, id);
-        }
-        if (pluginModule.preprocessors.arazzo1) {
-          plugin.preprocessors.arazzo1 = prefixRules(pluginModule.preprocessors.arazzo1, id);
-        }
-        if (pluginModule.preprocessors.overlay1) {
-          plugin.preprocessors.overlay1 = prefixRules(pluginModule.preprocessors.overlay1, id);
-        }
-      }
+            const plugin: Plugin = {
+              id,
+              ...(pluginInstance.configs ? { configs: pluginInstance.configs } : {}),
+              ...(pluginInstance.typeExtension
+                ? { typeExtension: pluginInstance.typeExtension }
+                : {}),
+            };
 
-      if (pluginModule.decorators) {
-        if (
-          !pluginModule.decorators.oas3 &&
-          !pluginModule.decorators.oas2 &&
-          !pluginModule.decorators.async2 &&
-          !pluginModule.decorators.async3 &&
-          !pluginModule.decorators.arazzo1 &&
-          !pluginModule.decorators.overlay1
-        ) {
-          throw new Error(
-            `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` decorators "${p}.`
-          );
-        }
-        plugin.decorators = {};
-        if (pluginModule.decorators.oas3) {
-          plugin.decorators.oas3 = prefixRules(pluginModule.decorators.oas3, id);
-        }
-        if (pluginModule.decorators.oas2) {
-          plugin.decorators.oas2 = prefixRules(pluginModule.decorators.oas2, id);
-        }
-        if (pluginModule.decorators.async2) {
-          plugin.decorators.async2 = prefixRules(pluginModule.decorators.async2, id);
-        }
-        if (pluginModule.decorators.async3) {
-          plugin.decorators.async3 = prefixRules(pluginModule.decorators.async3, id);
-        }
-        if (pluginModule.decorators.arazzo1) {
-          plugin.decorators.arazzo1 = prefixRules(pluginModule.decorators.arazzo1, id);
-        }
-        if (pluginModule.decorators.overlay1) {
-          plugin.decorators.overlay1 = prefixRules(pluginModule.decorators.overlay1, id);
-        }
-      }
+            if (pluginInstance.rules) {
+              if (
+                !pluginInstance.rules.oas3 &&
+                !pluginInstance.rules.oas2 &&
+                !pluginInstance.rules.async2 &&
+                !pluginInstance.rules.async3 &&
+                !pluginInstance.rules.arazzo1 &&
+                !pluginInstance.rules.overlay1
+              ) {
+                throw new Error(
+                  `Plugin rules must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo\`, or \`overlay1\` rules "${p}.`
+                );
+              }
+              plugin.rules = {};
+              if (pluginInstance.rules.oas3) {
+                plugin.rules.oas3 = prefixRules(pluginInstance.rules.oas3, id);
+              }
+              if (pluginInstance.rules.oas2) {
+                plugin.rules.oas2 = prefixRules(pluginInstance.rules.oas2, id);
+              }
+              if (pluginInstance.rules.async2) {
+                plugin.rules.async2 = prefixRules(pluginInstance.rules.async2, id);
+              }
+              if (pluginInstance.rules.async3) {
+                plugin.rules.async3 = prefixRules(pluginInstance.rules.async3, id);
+              }
+              if (pluginInstance.rules.arazzo1) {
+                plugin.rules.arazzo1 = prefixRules(pluginInstance.rules.arazzo1, id);
+              }
+              if (pluginInstance.rules.overlay1) {
+                plugin.rules.overlay1 = prefixRules(pluginInstance.rules.overlay1, id);
+              }
+            }
+            if (pluginInstance.preprocessors) {
+              if (
+                !pluginInstance.preprocessors.oas3 &&
+                !pluginInstance.preprocessors.oas2 &&
+                !pluginInstance.preprocessors.async2 &&
+                !pluginInstance.preprocessors.async3 &&
+                !pluginInstance.preprocessors.arazzo1 &&
+                !pluginInstance.preprocessors.overlay1
+              ) {
+                throw new Error(
+                  `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` preprocessors "${p}.`
+                );
+              }
+              plugin.preprocessors = {};
+              if (pluginInstance.preprocessors.oas3) {
+                plugin.preprocessors.oas3 = prefixRules(pluginInstance.preprocessors.oas3, id);
+              }
+              if (pluginInstance.preprocessors.oas2) {
+                plugin.preprocessors.oas2 = prefixRules(pluginInstance.preprocessors.oas2, id);
+              }
+              if (pluginInstance.preprocessors.async2) {
+                plugin.preprocessors.async2 = prefixRules(pluginInstance.preprocessors.async2, id);
+              }
+              if (pluginInstance.preprocessors.async3) {
+                plugin.preprocessors.async3 = prefixRules(pluginInstance.preprocessors.async3, id);
+              }
+              if (pluginInstance.preprocessors.arazzo1) {
+                plugin.preprocessors.arazzo1 = prefixRules(
+                  pluginInstance.preprocessors.arazzo1,
+                  id
+                );
+              }
+              if (pluginInstance.preprocessors.overlay1) {
+                plugin.preprocessors.overlay1 = prefixRules(
+                  pluginInstance.preprocessors.overlay1,
+                  id
+                );
+              }
+            }
 
-      if (pluginModule.assertions) {
-        plugin.assertions = pluginModule.assertions;
-      }
+            if (pluginInstance.decorators) {
+              if (
+                !pluginInstance.decorators.oas3 &&
+                !pluginInstance.decorators.oas2 &&
+                !pluginInstance.decorators.async2 &&
+                !pluginInstance.decorators.async3 &&
+                !pluginInstance.decorators.arazzo1 &&
+                !pluginInstance.decorators.overlay1
+              ) {
+                throw new Error(
+                  `Plugin \`decorators\` must have \`oas3\`, \`oas2\`, \`async2\`, \`async3\`, \`arazzo1\`, or \`overlay1\` decorators "${p}.`
+                );
+              }
+              plugin.decorators = {};
+              if (pluginInstance.decorators.oas3) {
+                plugin.decorators.oas3 = prefixRules(pluginInstance.decorators.oas3, id);
+              }
+              if (pluginInstance.decorators.oas2) {
+                plugin.decorators.oas2 = prefixRules(pluginInstance.decorators.oas2, id);
+              }
+              if (pluginInstance.decorators.async2) {
+                plugin.decorators.async2 = prefixRules(pluginInstance.decorators.async2, id);
+              }
+              if (pluginInstance.decorators.async3) {
+                plugin.decorators.async3 = prefixRules(pluginInstance.decorators.async3, id);
+              }
+              if (pluginInstance.decorators.arazzo1) {
+                plugin.decorators.arazzo1 = prefixRules(pluginInstance.decorators.arazzo1, id);
+              }
+              if (pluginInstance.decorators.overlay1) {
+                plugin.decorators.overlay1 = prefixRules(pluginInstance.decorators.overlay1, id);
+              }
+            }
 
-      return {
-        ...pluginModule,
-        ...plugin,
-      };
+            if (pluginInstance.assertions) {
+              plugin.assertions = pluginInstance.assertions;
+            }
+
+            return {
+              ...pluginInstance,
+              ...plugin,
+            };
+          })
+        )
+      ).filter(isDefined);
     })
   );
 
-  return instances.filter(isDefined);
+  return instances.filter(isDefined).flat();
 }
 
 export async function resolveApis({

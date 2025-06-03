@@ -45,6 +45,7 @@ export type PreprocessorConfig =
 export type DecoratorConfig = PreprocessorConfig;
 
 export type RawGovernanceConfig<T = undefined> = {
+  extends?: string[];
   rules?: RuleMap<string, RuleConfig, T>;
   oas2Rules?: RuleMap<string, RuleConfig, T>;
   oas3_0Rules?: RuleMap<string, RuleConfig, T>;
