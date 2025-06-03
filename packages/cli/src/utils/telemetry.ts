@@ -60,7 +60,7 @@ export async function sendTelemetry({
       ...args
     } = argv;
     const event_time = new Date().toISOString();
-    const { RedoclyOAuthClient } = await import('../auth/oauth-client');
+    const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
@@ -88,7 +88,7 @@ export async function sendTelemetry({
           : undefined,
     };
 
-    const { otelTelemetry } = await import('../otel');
+    const { otelTelemetry } = await import('../otel.js');
     otelTelemetry.init();
     otelTelemetry.send(data.command, data);
   } catch (err) {
