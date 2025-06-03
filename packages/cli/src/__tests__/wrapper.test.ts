@@ -1,5 +1,6 @@
 import * as process from 'node:process';
-import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous.js';
+import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
+import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 import { handleLint } from '../commands/lint.js';
 import { type Config, detectSpec, type SpecVersion } from '@redocly/openapi-core';
@@ -17,6 +18,7 @@ describe('commandWrapper', () => {
       };
     });
     vi.mock('../utils/miscellaneous.js');
+    vi.mock('../utils/telemetry.js');
     vi.mock('../commands/lint.js');
   });
   afterEach(() => {
@@ -40,7 +42,15 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, 'oas3_1', 'openapi', '3.1.0');
+    expect(sendTelemetry).toHaveBeenCalledWith({
+      argv: {},
+      exit_code: 0,
+      has_config: false,
+      spec_version: 'oas3_1',
+      spec_keyword: 'openapi',
+      spec_full_version: '3.1.0',
+      respect_x_security_auth_types: [],
+    });
   });
 
   it('should not collect spec version if the file is not parsed to json', async () => {
@@ -56,7 +66,15 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false, undefined, undefined, undefined);
+    expect(sendTelemetry).toHaveBeenCalledWith({
+      argv: {},
+      exit_code: 0,
+      has_config: false,
+      spec_version: undefined,
+      spec_keyword: undefined,
+      spec_full_version: undefined,
+      respect_x_security_auth_types: [],
+    });
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {

@@ -1,0 +1,96 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should apply x-security schemes in Top-Down order, the Last one have bigger priority 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow x-security-scheme-apply-order.arazzo.yaml / events-crud
+
+  ✓ GET /museum-hours - step get-museum-hours
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
+    Request Headers:
+      accept: application/json, application/problem+json
+      authorization: Basic ********
+      x-api-key: api-key-auth-should-be-in-final-result
+      cookie: X-API-KEY-WORKFLOW=workflow-api-key-auth; X-API-KEY=cookie-api-key-auth-should-be-in-final-result
+
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Body:
+      [
+        {
+          "date": "2023-09-11",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-12",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-13",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-14",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-15",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        },
+        {
+          "date": "2023-09-18",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-19",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-20",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-21",
+          "timeOpen": "09:00",
+          "timeClose": "18:00"
+        },
+        {
+          "date": "2023-09-22",
+          "timeOpen": "10:00",
+          "timeClose": "16:00"
+        }
+      ]
+
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+  Summary for x-security-scheme-apply-order.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 4 passed, 4 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                          │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ x-security-scheme-apply-order.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

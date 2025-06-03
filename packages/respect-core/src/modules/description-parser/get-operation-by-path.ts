@@ -38,6 +38,8 @@ export function getOperationByPath(
   }
 
   const description = $sourceDescriptions[descriptionName] || {};
+  const securitySchemes = description?.components?.securitySchemes;
+
   const [prop, path, method] = JsonPointerLib.parse(fragmentIdentifier);
 
   if (prop !== 'paths') {
@@ -60,5 +62,6 @@ export function getOperationByPath(
     path,
     method,
     descriptionName,
+    securitySchemes,
   };
 }

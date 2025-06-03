@@ -143,6 +143,9 @@
             - separator: Arazzo
             - page: rules/respect/no-criteria-xpath.md
             - page: rules/respect/respect-supported-versions.md
+            - page: rules/respect/no-x-security-scheme-name-without-openapi.md
+            - page: rules/respect/x-security-scheme-required-values.md
+            - page: rules/respect/no-x-security-scheme-name-in-workflow.md
             - page: rules/arazzo/criteria-unique.md
             - page: rules/arazzo/parameters-unique.md
             - page: rules/arazzo/requestBody-replacements-unique.md

@@ -8,12 +8,15 @@ import {
   resolveReusableComponentItem,
   isParameterWithIn,
   handlePayloadReplacements,
-} from '../config-parser/index.js';
+} from '../context-parser/index.js';
 import { getServerUrl } from './get-server-url.js';
 import { createRuntimeExpressionCtx, collectSecretFields } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 
-import type { ParameterWithIn } from '../config-parser/index.js';
+import type { ExtendedSecurity } from '@redocly/openapi-core';
+import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import type { ParameterWithIn } from '../context-parser/index.js';
 import type { TestContext, Step, Parameter, PublicStep } from '../../types.js';
 import type { OperationDetails } from '../description-parser/index.js';
 
@@ -26,7 +29,7 @@ export type RequestData = {
   method: string;
   parameters: ParameterWithIn[];
   requestBody: any;
-  openapiOperation?: OperationDetails & Record<string, string>;
+  openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
 };
 
 export async function prepareRequest(
@@ -139,7 +142,19 @@ export async function prepareRequest(
     step,
   });
 
-  const evaluatedParameters = parameters.map((parameter) => {
+  const workflowLevelXSecurityParameters = activeWorkflow?.['x-security'] || [];
+
+  const xSecurityParameters = resolveXSecurityParameters({
+    ctx: ctxWithInputs,
+    runtimeContext: expressionContext,
+    step,
+    operation: openapiOperation as OperationDetails & {
+      securitySchemes: Record<string, Oas3SecurityScheme>;
+    },
+    workflowLevelXSecurityParameters: workflowLevelXSecurityParameters as ExtendedSecurity[],
+  });
+
+  const evaluatedParameters = joinParameters(parameters, xSecurityParameters).map((parameter) => {
     return {
       ...parameter,
       value: evaluateRuntimeExpressionPayload({
@@ -196,7 +211,8 @@ function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   const parametersWithNames = parameters.flat().filter((param) => 'name' in param);
 
   const parameterMap = parametersWithNames.reduce((map, param) => {
-    map[param.name] = param;
+    const key = `${param.name}:${param.in}`;
+    map[key] = param;
     return map;
   }, {} as { [key: string]: ParameterWithIn });
 

@@ -6,7 +6,7 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic
 import { version } from './utils/package.js';
 import { DEFAULT_FETCH_TIMEOUT } from './utils/fetch-with-timeout.js';
 
-import type { Analytics } from './utils/miscellaneous.js';
+import type { Analytics } from './utils/telemetry.js';
 
 type Events = {
   [key: string]: Analytics;

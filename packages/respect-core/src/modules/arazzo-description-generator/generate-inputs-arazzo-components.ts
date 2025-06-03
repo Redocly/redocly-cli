@@ -10,7 +10,7 @@ export function generateSecurityInputsArazzoComponents(
       continue;
     }
 
-    if (securityScheme?.scheme?.toLowerCase() === 'basic') {
+    if (securityScheme.type === 'http' && securityScheme.scheme?.toLowerCase() === 'basic') {
       inputs[name] = {
         type: 'object',
         properties: {
@@ -21,7 +21,10 @@ export function generateSecurityInputsArazzoComponents(
           },
         },
       };
-    } else if (securityScheme?.scheme?.toLowerCase() === 'bearer') {
+    } else if (
+      securityScheme.type === 'http' &&
+      securityScheme.scheme?.toLowerCase() === 'bearer'
+    ) {
       inputs[name] = {
         type: 'object',
         properties: {

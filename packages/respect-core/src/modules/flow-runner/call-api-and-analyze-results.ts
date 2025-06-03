@@ -29,7 +29,7 @@ export async function callAPIAndAnalyzeResults({
   };
 
   try {
-    step.response = await ctx.apiClient.fetchResult(ctx, requestData);
+    step.response = await ctx.apiClient.fetchResult({ ctx, step, requestData, workflowId });
   } catch (error: any) {
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
