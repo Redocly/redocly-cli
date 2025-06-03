@@ -1,0 +1,24 @@
+# plugins:
+#   - 'plugins/my-rules-1.js'
+rules:
+  my-rules-1/opid-not-test: warn
+  
+# extends:
+#   # - minimal
+#   - ./gold.yaml
+
+scorecard:
+  levels:
+    # - name: Baseline
+    #   extends:
+    #     - minimal
+
+    # - name: Silver
+    #   extends:
+    #     - recommended
+    #   rules:
+    #     my-rules-1/opid-not-test: warn
+
+    - name: Gold
+      extends:
+        - ./gold.yaml

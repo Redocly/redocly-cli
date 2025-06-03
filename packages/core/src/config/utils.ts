@@ -78,6 +78,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     plugins: [],
     pluginPaths: [],
     extendPaths: [],
+    extends: [],
   };
 
   for (const rulesConf of rulesConfList) {

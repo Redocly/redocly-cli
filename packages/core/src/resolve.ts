@@ -365,6 +365,34 @@ export async function resolveDocument(opts: {
         });
         resolvePromises.push(promise);
       }
+
+      if ('extends' in node) {
+        // TODO: check if config root
+        const promise = Promise.all(
+          node.extends
+            .filter((e: string) => e.startsWith('./')) // TODO: add proper check to exclude internal presets
+            .map((extendPath: string) => {
+              return followRef(
+                rootNodeDocument,
+                { $ref: extendPath },
+                {
+                  prev: null,
+                  node,
+                }
+              ).then((resolvedRef) => {
+                if (resolvedRef.resolved) {
+                  resolveRefsInParallel(
+                    resolvedRef.node,
+                    resolvedRef.document,
+                    resolvedRef.nodePointer!,
+                    type
+                  );
+                }
+              });
+            })
+        );
+        resolvePromises.push(promise as unknown as Promise<void>);
+      }
     }
 
     async function followRef(
