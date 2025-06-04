@@ -1,5 +1,5 @@
 openapi: 3.0.0
-servers: 
+servers:
   - url: http://test.com:3000
 info:
   title: Test API - Constructor Property
@@ -14,9 +14,9 @@ components:
       properties:
         id:
           type: string
-        constructor:  # This is the property we are testing
+        constructor: # This is the property we are testing
           type: object
-          description: "A property named constructor"
+          description: 'A property named constructor'
           properties:
             foo:
               type: string
@@ -32,6 +32,6 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SchemaWithConstructor' 
+                $ref: '#/components/schemas/SchemaWithConstructor'
         '400':
           description: Bad Request
