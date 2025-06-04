@@ -68,6 +68,7 @@ export async function resolveConfigFileAndRefs({
     rootDocument: document,
     rootType: NormalizedConfigTypes.ConfigRoot,
     externalRefResolver,
+    isConfig: true,
   });
 
   return { document, resolvedRefMap };
