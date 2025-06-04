@@ -47,7 +47,7 @@ type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 export function listOf(typeName: string) {
   return {
     name: `${typeName}List`,
-    properties: Object.create(null),
+    properties: {},
     items: typeName,
   };
 }
@@ -55,14 +55,14 @@ export function listOf(typeName: string) {
 export function mapOf(typeName: string) {
   return {
     name: `${typeName}Map`,
-    properties: Object.create(null),
+    properties: {},
     additionalProperties: () => typeName,
   };
 }
 
 export const SpecExtension: NormalizedNodeType = {
   name: 'SpecExtension',
-  properties: Object.create(null),
+  properties: {},
   // skip validation of additional properties for unknown extensions
   additionalProperties: { resolvable: true },
 };
@@ -98,9 +98,7 @@ export function normalizeTypes(
     }
 
     if (type.properties) {
-      // make sure to create a object without prototype so we don't need to check for hasOwnProperty
-      // see https://github.com/Redocly/redocly-cli/issues/2104
-      const mappedProps: Record<string, any> = Object.create(null);
+      const mappedProps: Record<string, any> = {};
       for (const [propName, prop] of Object.entries(type.properties)) {
         mappedProps[propName] = resolveType(prop);
 

@@ -1,7 +1,7 @@
 import { isNamedType, SpecExtension } from '../../types/index.js';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 import { isRef } from '../../ref-utils.js';
-import { isPlainObject } from '../../utils.js';
+import { getOwn, isPlainObject } from '../../utils.js';
 
 import type { UserContext } from '../../walk.js';
 import type {
@@ -102,7 +102,7 @@ export const Struct:
         const propLocation = location.child([propName]);
         let propValue = node[propName];
 
-        let propType = type.properties[propName];
+        let propType = getOwn(type.properties, propName);
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
 
