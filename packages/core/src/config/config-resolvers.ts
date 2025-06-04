@@ -168,6 +168,15 @@ export async function resolvePlugins(
 
           const pluginCreatorOptions = { contentDir: configDir };
 
+          const requiredPluginInstances = Array.isArray(requiredPlugin)
+            ? requiredPlugin
+            : [requiredPlugin];
+          for (const requiredPluginInstance of requiredPluginInstances) {
+            if (requiredPluginInstance?.id && isDeprecatedPluginFormat(requiredPluginInstance)) {
+              logger.info(`Deprecated plugin format detected: ${requiredPluginInstance.id}\n`);
+            }
+          }
+
           const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
             ? requiredPlugin
             : isCommonJsPlugin(requiredPlugin)
@@ -175,11 +184,6 @@ export async function resolvePlugins(
             : await requiredPlugin?.default?.(pluginCreatorOptions);
 
           const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
-          for (const pluginInstance of pluginInstances) {
-            if (pluginInstance?.id && isDeprecatedPluginFormat(pluginInstance)) {
-              logger.info(`Deprecated plugin format detected: ${pluginInstance.id}\n`);
-            }
-          }
 
           if (pluginModule) {
             pluginsCache.set(
