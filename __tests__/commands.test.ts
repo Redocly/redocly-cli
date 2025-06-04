@@ -74,6 +74,14 @@ describe('E2E', () => {
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
     });
+
+    test('lint file with constructor property in schema', async () => {
+      const testPath = join(__dirname, 'fixtures/constructor-property');
+      const args = getParams(indexEntryPoint, ['lint', 'openapi.yaml']);
+
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
   });
 
   describe('zero-config', () => {
