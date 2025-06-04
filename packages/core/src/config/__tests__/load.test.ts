@@ -103,12 +103,14 @@ describe('loadConfig', () => {
   it('should call externalRefResolver if such passed', async () => {
     const externalRefResolver = new BaseResolver();
     const resolverSpy = vi.spyOn(externalRefResolver, 'resolveDocument');
+    const configPath = path.join(__dirname, './fixtures/load-external.yaml');
     await loadConfig({
-      configPath: path.join(__dirname, './fixtures/load-external.yaml'),
+      configPath,
       externalRefResolver,
     });
-    expect(resolverSpy).toHaveBeenCalledWith(
-      null,
+    expect(resolverSpy).toHaveBeenNthCalledWith(
+      2,
+      configPath,
       'https://raw.githubusercontent.com/Redocly/redocly-cli-cookbook/main/rulesets/spec-compliant/redocly.yaml'
     );
   });
