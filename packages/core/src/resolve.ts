@@ -230,8 +230,9 @@ export async function resolveDocument(opts: {
   rootDocument: Document;
   externalRefResolver: BaseResolver;
   rootType: NormalizedNodeType;
+  isConfig?: boolean;
 }): Promise<ResolvedRefMap> {
-  const { rootDocument, externalRefResolver, rootType } = opts;
+  const { rootDocument, externalRefResolver, rootType, isConfig = false } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
 
@@ -366,11 +367,10 @@ export async function resolveDocument(opts: {
         resolvePromises.push(promise);
       }
 
-      if ('extends' in node) {
-        // TODO: check if config root
+      if ('extends' in node && isConfig) {
         const promise = Promise.all(
           node.extends
-            .filter((e: string) => e.startsWith('./')) // TODO: add proper check to exclude internal presets
+            .filter((e: string) => isAbsoluteUrl(e) || path.extname(e))
             .map((extendPath: string) => {
               return followRef(
                 rootNodeDocument,
