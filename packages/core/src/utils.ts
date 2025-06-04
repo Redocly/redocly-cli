@@ -296,6 +296,10 @@ export function dequal(foo: any, bar: any): boolean {
   return foo !== foo && bar !== bar;
 }
 
+export function getOwn(obj: Record<string, any>, key: string) {
+  return obj.hasOwnProperty(key) ? obj[key] : undefined;
+}
+
 export type CollectFn = (value: unknown) => void;
 
 export type StrictObject<T extends object> = T & { [key: string]: undefined };

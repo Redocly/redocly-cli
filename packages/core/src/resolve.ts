@@ -10,7 +10,7 @@ import {
   isExternalValue,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
-import { readFileFromUrl, parseYaml, nextTick } from './utils.js';
+import { readFileFromUrl, parseYaml, nextTick, getOwn } from './utils.js';
 
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import type { NormalizedNodeType } from './types/index.js';
@@ -299,7 +299,7 @@ export async function resolveDocument(opts: {
 
       for (const propName of Object.keys(node)) {
         let propValue = node[propName];
-        let propType = type.properties[propName];
+        let propType = getOwn(type.properties, propName);
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;

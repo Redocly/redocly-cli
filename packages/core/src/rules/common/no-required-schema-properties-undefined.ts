@@ -1,4 +1,5 @@
 import { isRef } from '../../ref-utils.js';
+import { getOwn } from '../../utils.js';
 
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -41,7 +42,7 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
         const allProperties = elevateProperties(schema);
 
         for (const [i, requiredProperty] of schema.required.entries()) {
-          if (!allProperties || allProperties[requiredProperty] === undefined) {
+          if (!allProperties || getOwn(allProperties, requiredProperty) === undefined) {
             report({
               message: `Required property '${requiredProperty}' is undefined.`,
               location: location.child(['required', i]),

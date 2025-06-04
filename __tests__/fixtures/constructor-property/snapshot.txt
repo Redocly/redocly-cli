@@ -1,0 +1,8 @@
+
+No configurations were provided -- using built in recommended configuration by default.
+
+validating openapi.yaml...
+openapi.yaml: validated in <test>ms
+
+Woohoo! Your API description is valid. 🎉
+

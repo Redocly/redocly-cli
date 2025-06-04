@@ -1,4 +1,5 @@
 import { SpecVersion } from '../../oas-types.js';
+import { getOwn } from '../../utils.js';
 
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
@@ -14,7 +15,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
       { report, location, oasVersion, resolve }: UserContext
     ) {
       for (const propName of Object.keys(properties)) {
-        const propSchema = resolve(properties[propName]).node;
+        const propSchema = resolve(getOwn(properties, propName)).node;
 
         if (!propSchema || !isScalarSchema(propSchema)) {
           continue;

@@ -1,0 +1,37 @@
+openapi: 3.0.0
+servers:
+  - url: http://test.com:3000
+info:
+  title: Test API - Constructor Property
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+components:
+  schemas:
+    SchemaWithConstructor:
+      type: object
+      properties:
+        id:
+          type: string
+        constructor: # This is the property we are testing
+          type: object
+          description: 'A property named constructor'
+          properties:
+            foo:
+              type: string
+paths:
+  /test:
+    get:
+      summary: Test endpoint
+      security: []
+      operationId: test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaWithConstructor'
+        '400':
+          description: Bad Request
