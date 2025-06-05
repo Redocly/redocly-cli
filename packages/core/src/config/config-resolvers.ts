@@ -3,7 +3,7 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { pickDefined, isNotString, isString, isDefined, keysOf, assignConfig } from '../utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
@@ -558,10 +558,14 @@ function getMergedRawStyleguideConfig(
   rootStyleguideConfig: StyleguideRawConfig,
   apiStyleguideConfig?: ApiStyleguideRawConfig
 ) {
+  // Handle severity override for assertion rules on APIs level
+  const mergedRules = { ...rootStyleguideConfig?.rules };
+  assignConfig(mergedRules, apiStyleguideConfig?.rules);
+
   const resultLint = {
     ...rootStyleguideConfig,
     ...pickDefined(apiStyleguideConfig),
-    rules: { ...rootStyleguideConfig?.rules, ...apiStyleguideConfig?.rules },
+    rules: mergedRules,
     oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
     oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },
     oas3_1Rules: { ...rootStyleguideConfig?.oas3_1Rules, ...apiStyleguideConfig?.oas3_1Rules },
