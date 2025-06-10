@@ -50,6 +50,10 @@ export type BundleOptions = {
 };
 
 function bundleExtends(node: any, ctx: UserContext) {
+  if (!node.extends) {
+    return node;
+  }
+
   const resolvedExtends = node.extends
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
@@ -64,7 +68,7 @@ function bundleExtends(node: any, ctx: UserContext) {
     })
     .filter(isTruthy);
 
-  return removeEmptyRules(mergeExtends([...resolvedExtends, { ...node, extends: undefined }]));
+  return removeEmptyRules(mergeExtends([...resolvedExtends.map((nested: any) => bundleExtends(nested, ctx)), { ...node, extends: undefined }]));
 }
 
 const bundleVisitor = () => {
