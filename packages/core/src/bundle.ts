@@ -66,7 +66,12 @@ function bundleExtends(node: any, ctx: UserContext) {
     })
     .filter(isTruthy);
 
-  return removeEmptyRules(mergeExtends([...resolvedExtends.map((nested: any) => bundleExtends(nested, ctx)), { ...node, extends: undefined }]));
+  return removeEmptyRules(
+    mergeExtends([
+      ...resolvedExtends.map((nested: any) => bundleExtends(nested, ctx)),
+      { ...node, extends: undefined },
+    ])
+  );
 }
 
 const bundleVisitor = () => {
