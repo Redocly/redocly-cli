@@ -236,11 +236,9 @@ export function keysOf<T>(obj: T) {
   return Object.keys(obj) as (keyof T)[];
 }
 
-export function pickDefined<T extends Record<string, unknown>>(
-  obj?: T
-): Record<string, unknown> | undefined {
+export function pickDefined<T extends Record<string, unknown>>(obj?: T): Partial<T> | undefined {
   if (!obj) return undefined;
-  const res: Record<string, unknown> = {};
+  const res: Partial<T> = {};
   for (const key in obj) {
     if (obj[key] !== undefined) {
       res[key] = obj[key];
@@ -259,6 +257,7 @@ export async function pause(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// TODO: move to a separate file
 /**
  * Checks if two objects are deeply equal.
  * Borrowed the source code from https://github.com/lukeed/dequal.
@@ -302,4 +301,4 @@ export function getOwn(obj: Record<string, any>, key: string) {
 
 export type CollectFn = (value: unknown) => void;
 
-export type StrictObject<T extends object> = T & { [key: string]: undefined };
+export type Exact<T extends object> = T & { [key: string]: undefined };

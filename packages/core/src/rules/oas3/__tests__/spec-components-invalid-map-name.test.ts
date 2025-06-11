@@ -1,7 +1,8 @@
-import { makeConfig, parseYamlToDocument } from '../../../../__tests__/utils.js';
+import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 spec-components-invalid-map-name', () => {
   it('should report about invalid keys inside components', async () => {
@@ -30,7 +31,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'spec-components-invalid-map-name': 'error',
         },
@@ -209,7 +210,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'spec-components-invalid-map-name': 'error',
         },
@@ -238,7 +239,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'spec-components-invalid-map-name': 'error',
         },

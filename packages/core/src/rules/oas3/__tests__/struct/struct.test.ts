@@ -1,26 +1,14 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../../lint.js';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
-import {
-  StyleguideConfig,
-  defaultPlugin,
-  resolvePlugins,
-  resolvePreset,
-} from '../../../../config/index.js';
-
+import { type Config, createConfig } from '../../../../config/index.js';
 import { BaseResolver } from '../../../../resolve.js';
 
-import type { Plugin, ResolvedStyleguideConfig } from '../../../../config/index.js';
-
 describe('Oas3 Structural visitor basic', () => {
-  let plugins: Plugin[];
-  let presets: ResolvedStyleguideConfig;
-  let allConfig: StyleguideConfig;
+  let allConfig: Config;
 
   beforeAll(async () => {
-    plugins = await resolvePlugins([defaultPlugin]);
-    presets = resolvePreset('all', plugins);
-    allConfig = new StyleguideConfig({ ...presets, plugins });
+    allConfig = await createConfig({ extends: ['all'] });
   });
 
   it('should report wrong types', async () => {

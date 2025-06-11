@@ -16,12 +16,12 @@ import { dequal, isPlainObject, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
+import { getGovernanceConfig, type Config } from './config/index.js';
 
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
 import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk.js';
-import type { Config, StyleguideConfig } from './config/index.js';
 import type { OasRef } from './typings/openapi.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { CollectFn } from './utils.js';
@@ -31,9 +31,10 @@ export enum OasVersion {
   Version3_0 = 'oas3_0',
   Version3_1 = 'oas3_1',
 }
-export type BundleOptions = {
+export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
+  alias?: string;
   dereference?: boolean;
   base?: string | null;
   removeUnusedComponents?: boolean;
@@ -81,7 +82,7 @@ export async function bundle(
     ref?: string;
     doc?: Document;
     collectSpecData?: CollectFn;
-  } & BundleOptions
+  } & CoreBundleOptions
 ) {
   const {
     ref,
@@ -104,7 +105,6 @@ export async function bundle(
   return bundleDocument({
     document,
     ...opts,
-    config: opts.config.styleguide,
     externalRefResolver,
   });
 }
@@ -113,7 +113,7 @@ export async function bundleFromString(
   opts: {
     source: string;
     absoluteRef?: string;
-  } & BundleOptions
+  } & CoreBundleOptions
 ) {
   const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = makeDocumentFromString(source, absoluteRef || '/');
@@ -122,7 +122,6 @@ export async function bundleFromString(
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.styleguide,
   });
 }
 
@@ -139,7 +138,8 @@ export type BundleResult = {
 
 export async function bundleDocument(opts: {
   document: Document;
-  config: StyleguideConfig;
+  config: Config;
+  alias?: string;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
@@ -149,6 +149,7 @@ export async function bundleDocument(opts: {
   const {
     document,
     config,
+    alias,
     customTypes,
     externalRefResolver,
     dereference = false,
@@ -157,14 +158,15 @@ export async function bundleDocument(opts: {
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
+  const governanceConfig = getGovernanceConfig(config, alias);
+  const rules = governanceConfig.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
-    config
+    governanceConfig.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    governanceConfig
   );
 
-  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  const decorators = initRules(rules, config, 'decorators', specVersion);
+  const preprocessors = initRules(rules, governanceConfig, 'preprocessors', specVersion);
+  const decorators = initRules(rules, governanceConfig, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
@@ -234,7 +236,7 @@ export async function bundleDocument(opts: {
 
   return {
     bundle: document,
-    problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
+    problems: ctx.problems.map((problem) => governanceConfig.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
     rootType: types.Root,
     refTypes: ctx.refTypes,

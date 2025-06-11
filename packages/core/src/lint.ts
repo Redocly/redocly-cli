@@ -9,8 +9,8 @@ import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-ty
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs.js';
+import { type Config, getGovernanceConfig } from './config/index.js';
 
-import type { StyleguideConfig, Config } from './config/index.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { ProblemSeverity, WalkContext } from './walk.js';
 import type { NodeType } from './types/index.js';
@@ -29,6 +29,7 @@ import type { CollectFn } from './utils.js';
 export async function lint(opts: {
   ref: string;
   config: Config;
+  alias?: string;
   externalRefResolver?: BaseResolver;
   collectSpecData?: CollectFn;
 }) {
@@ -40,7 +41,6 @@ export async function lint(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.styleguide,
   });
 }
 
@@ -48,6 +48,7 @@ export async function lintFromString(opts: {
   source: string;
   absoluteRef?: string;
   config: Config;
+  alias?: string;
   externalRefResolver?: BaseResolver;
 }) {
   const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
@@ -57,25 +58,26 @@ export async function lintFromString(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.styleguide,
   });
 }
 
 export async function lintDocument(opts: {
   document: Document;
-  config: StyleguideConfig;
+  config: Config;
+  alias?: string;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
-  const { document, customTypes, externalRefResolver, config } = opts;
+  const { document, customTypes, externalRefResolver, config, alias } = opts;
+  const governanceConfig = getGovernanceConfig(config, alias);
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
+  const rules = governanceConfig.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
-    config
+    governanceConfig.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    governanceConfig
   );
 
   const ctx: WalkContext = {
@@ -84,8 +86,8 @@ export async function lintDocument(opts: {
     visitorsData: {},
   };
 
-  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  const regularRules = initRules(rules, config, 'rules', specVersion);
+  const preprocessors = initRules(rules, governanceConfig, 'preprocessors', specVersion);
+  const regularRules = initRules(rules, governanceConfig, 'rules', specVersion);
 
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
@@ -118,7 +120,7 @@ export async function lintDocument(opts: {
     resolvedRefMap,
     ctx,
   });
-  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
+  return ctx.problems.map((problem) => governanceConfig.addProblemToIgnore(problem));
 }
 
 export async function lintConfig(opts: {
@@ -133,7 +135,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: SpecVersion.OAS3_0,
+    oasVersion: SpecVersion.OAS3_0, // TODO: use config-specific version
     visitorsData: {},
   };
 

@@ -22,21 +22,18 @@ import {
   ConfigValidationError,
   logger,
   HandledError,
+  type Config,
+  type BundleOutputFormat,
+  type StyleguideConfig,
+  type Oas3Definition,
+  type Oas2Definition,
+  type RawConfigProcessor,
 } from '@redocly/openapi-core';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
 
-import type {
-  BundleOutputFormat,
-  StyleguideConfig,
-  ResolvedApi,
-  Config,
-  Oas3Definition,
-  Oas2Definition,
-  RawConfigProcessor,
-} from '@redocly/openapi-core';
-import type { Totals, Entrypoint, ConfigApis, OutputExtensions } from '../types.js';
+import type { Totals, Entrypoint, OutputExtensions } from '../types.js';
 
 const globPromise = promisify(glob.glob);
 
@@ -44,12 +41,12 @@ export type ExitCode = 0 | 1 | 2;
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
-  config: ConfigApis
+  config: Config
 ): Promise<Entrypoint[]> {
-  const { apis } = config;
-  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsApis) && isNotEmptyObject(apis);
+  const shouldFallbackToAllDefinitions =
+    !isNotEmptyArray(argsApis) && isNotEmptyObject(config.rawConfig.apis);
   const res = shouldFallbackToAllDefinitions
-    ? fallbackToAllDefinitions(apis, config)
+    ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
@@ -62,7 +59,7 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: ConfigApis) {
+function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
@@ -74,37 +71,35 @@ function isApiPathValid(apiPath: string): string | void {
   return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
 
-function fallbackToAllDefinitions(
-  apis: Record<string, ResolvedApi>,
-  config: ConfigApis
-): Entrypoint[] {
-  return Object.entries(apis).map(([alias, { root, output }]) => ({
+function fallbackToAllDefinitions(config: Config): Entrypoint[] {
+  return Object.entries(config.rawConfig.apis || {}).map(([alias, { root, output }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
     output: output && resolve(getConfigDirectory(config), output),
   }));
 }
 
-function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
-  const configDir = getConfigDirectory(config);
-  const aliasApi = config.apis[aliasOrPath];
+function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+  const aliasApi = config.rawConfig.apis?.[aliasOrPath];
   return aliasApi
     ? {
-        path: isAbsoluteUrl(aliasApi.root) ? aliasApi.root : resolve(configDir, aliasApi.root),
+        path: isAbsoluteUrl(aliasApi.root)
+          ? aliasApi.root
+          : resolve(getConfigDirectory(config), aliasApi.root),
         alias: aliasOrPath,
-        output: aliasApi.output && resolve(configDir, aliasApi.output),
+        output: aliasApi.output && resolve(getConfigDirectory(config), aliasApi.output),
       }
     : {
         path: aliasOrPath,
         // find alias by path, take the first match
         alias:
-          Object.entries(config.apis).find(([_alias, api]) => {
-            return resolve(configDir, api.root) === resolve(aliasOrPath);
+          Object.entries(config.rawConfig.apis || {}).find(([_alias, api]) => {
+            return resolve(getConfigDirectory(config), api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };
 }
 
-async function expandGlobsInEntrypoints(argApis: string[], config: ConfigApis) {
+async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {
@@ -438,7 +433,8 @@ export async function loadConfigAndHandleErrors(
   } = {}
 ): Promise<Config | void> {
   try {
-    return await loadConfig(options);
+    const config = await loadConfig(options);
+    return config;
   } catch (e) {
     handleError(e, '');
   }
@@ -512,6 +508,7 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
     ...rules.async2,
     ...rules.async3,
     ...rules.arazzo1,
+    ...rules.overlay1,
   };
 
   if (isEmptyObject(ruleset)) {
@@ -543,7 +540,7 @@ export function notifyAboutIncompatibleConfigOptions(
 ) {
   if (isPlainObject(themeOpenapiOptions)) {
     const propertiesSet = Object.keys(themeOpenapiOptions);
-    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties);
+    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties); // TODO: remove this; remove @redocly/config from dependencies (v2)
     const intersection = propertiesSet.filter((prop) => deprecatedSet.includes(prop));
     if (intersection.length > 0) {
       logger.warn(

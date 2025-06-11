@@ -1,21 +1,22 @@
-import { assignOnlyExistingConfig, assignConfig, isDefined, isTruthy } from '../utils.js';
-import { Config } from './config.js';
+import { assignOnlyExistingConfig, assignConfig } from '../utils.js';
 import { logger, colorize } from '../logger.js';
 
 import type {
-  Api,
   ImportedPlugin,
-  FlatApi,
-  FlatRawConfig,
-  RawConfig,
   RawResolveConfig,
   ResolveConfig,
-  ResolvedStyleguideConfig,
-  RulesFields,
-  StyleguideRawConfig,
+  ResolvedGovernanceConfig,
   Plugin,
   PluginCreator,
 } from './types.js';
+import type {
+  Oas3RuleSet,
+  Oas2RuleSet,
+  Async3RuleSet,
+  Async2RuleSet,
+  Arazzo1RuleSet,
+  Overlay1RuleSet,
+} from '../oas-types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -26,104 +27,18 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
   }
 }
 
-function extractFlatConfig<T extends Partial<(Api & FlatApi) & (RawConfig & FlatRawConfig)>>({
-  plugins,
-  extends: _extends,
-
-  rules,
-  oas2Rules,
-  oas3_0Rules,
-  oas3_1Rules,
-  async2Rules,
-  async3Rules,
-  arazzo1Rules,
-  overlay1Rules,
-
-  preprocessors,
-  oas2Preprocessors,
-  oas3_0Preprocessors,
-  oas3_1Preprocessors,
-  async2Preprocessors,
-  async3Preprocessors,
-  arazzo1Preprocessors,
-  overlay1Preprocessors,
-
-  decorators,
-  oas2Decorators,
-  oas3_0Decorators,
-  oas3_1Decorators,
-  async2Decorators,
-  async3Decorators,
-  arazzo1Decorators,
-  overlay1Decorators,
-
-  ...rawConfigRest
-}: T): {
-  styleguideConfig?: StyleguideRawConfig;
-  rawConfigRest: Omit<T, 'plugins' | 'extends' | RulesFields>;
-} {
-  const styleguideConfig = {
-    plugins,
-    extends: _extends,
-
-    rules,
-    oas2Rules,
-    oas3_0Rules,
-    oas3_1Rules,
-    async2Rules,
-    async3Rules,
-    arazzo1Rules,
-    overlay1Rules,
-
-    preprocessors,
-    oas2Preprocessors,
-    oas3_0Preprocessors,
-    oas3_1Preprocessors,
-    async2Preprocessors,
-    async3Preprocessors,
-    arazzo1Preprocessors,
-    overlay1Preprocessors,
-
-    decorators,
-    oas2Decorators,
-    oas3_0Decorators,
-    oas3_1Decorators,
-    async2Decorators,
-    async3Decorators,
-    arazzo1Decorators,
-    overlay1Decorators,
-
-    doNotResolveExamples: rawConfigRest.resolve?.doNotResolveExamples,
-  };
-
-  return {
-    styleguideConfig: Object.values(styleguideConfig).some(isDefined)
-      ? styleguideConfig
-      : undefined,
-
-    rawConfigRest,
-  };
-}
-
-function transformApis(
-  legacyApis?: Record<string, Api & FlatApi>
-): Record<string, Api> | undefined {
-  if (!legacyApis) return undefined;
-  const apis: Record<string, Api> = {};
-  for (const [apiName, { ...apiContent }] of Object.entries(legacyApis)) {
-    const { styleguideConfig, rawConfigRest } = extractFlatConfig(apiContent);
-    apis[apiName] = {
-      styleguide: styleguideConfig,
-      ...rawConfigRest,
-    };
-  }
-  return apis;
-}
-
-export function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
+export function prefixRules<
+  T extends
+    | Oas3RuleSet
+    | Oas2RuleSet
+    | Async3RuleSet
+    | Async2RuleSet
+    | Arazzo1RuleSet
+    | Overlay1RuleSet
+>(rules: T, prefix: string) {
   if (!prefix) return rules;
 
-  const res: any = {};
+  const res = {} as T;
   for (const name of Object.keys(rules)) {
     res[`${prefix}/${name}`] = rules[name];
   }
@@ -131,9 +46,8 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
   return res;
 }
 
-export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
-  const result: Omit<ResolvedStyleguideConfig, RulesFields> &
-    Required<Pick<ResolvedStyleguideConfig, RulesFields>> = {
+export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
+  const result: Required<Omit<ResolvedGovernanceConfig, 'extends'>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -221,63 +135,12 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
 
-    result.plugins!.push(...(rulesConf.plugins || []));
-    result.pluginPaths!.push(...(rulesConf.pluginPaths || []));
-    result.extendPaths!.push(...new Set(rulesConf.extendPaths));
+    result.plugins.push(...(rulesConf.plugins || []));
+    result.pluginPaths.push(...(rulesConf.pluginPaths || []));
+    result.extendPaths.push(...new Set(rulesConf.extendPaths));
   }
 
   return result;
-}
-
-export function getMergedConfig(config: Config, apiName?: string): Config {
-  const extendPaths = [
-    ...Object.values(config.apis).map((api) => api?.styleguide?.extendPaths),
-    config.rawConfig?.styleguide?.extendPaths,
-  ]
-    .flat()
-    .filter(isTruthy);
-
-  const pluginPaths = [
-    ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
-    config.rawConfig?.styleguide?.pluginPaths,
-  ]
-    .flat()
-    .filter(isTruthy);
-
-  return apiName
-    ? new Config(
-        {
-          ...config.rawConfig,
-          styleguide: {
-            ...(config.apis[apiName]
-              ? config.apis[apiName].styleguide
-              : config.rawConfig.styleguide),
-            extendPaths,
-            pluginPaths,
-          },
-          // FIXME: theme is deprecated (2.0)
-          theme: {
-            ...config.rawConfig.theme,
-            ...config.apis[apiName]?.theme,
-          },
-          // TODO: merge everything else here
-        },
-        config.configFile
-      )
-    : config;
-}
-
-export function transformConfig(rawConfig: RawConfig & FlatRawConfig): RawConfig {
-  const { apis, ...rest } = rawConfig;
-
-  const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
-
-  const transformedConfig: RawConfig = {
-    apis: transformApis(apis),
-    styleguide: styleguideConfig,
-    ...rawConfigRest,
-  };
-  return transformedConfig;
 }
 
 export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {

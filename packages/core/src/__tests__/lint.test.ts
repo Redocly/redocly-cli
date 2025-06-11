@@ -3,7 +3,7 @@ import { outdent } from 'outdent';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig } from '../config/load.js';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { detectSpec } from '../oas-types.js';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
@@ -1374,7 +1374,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1453,7 +1453,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1489,11 +1489,12 @@ describe('lint', () => {
     const result = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { 'operation-operationId': 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { 'operation-operationId': 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
     expect(result).toHaveLength(1);
     expect(result).toMatchObject([
@@ -1555,11 +1556,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1631,11 +1633,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1670,11 +1673,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1726,11 +1730,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

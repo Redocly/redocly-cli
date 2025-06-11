@@ -1,7 +1,7 @@
 import { BaseResolver, Document } from '../../../../resolve.js';
-import { makeConfig, parseYamlToDocument } from '../../../../../__tests__/utils.js';
+import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
 import { lintDocument } from '../../../../lint.js';
-import { RuleConfig } from '../../../../config/index.js';
+import { createConfig, RuleConfig } from '../../../../config/index.js';
 
 export async function lintDocumentForTest(
   rules: Record<string, RuleConfig>,
@@ -18,6 +18,6 @@ export async function lintDocumentForTest(
   return await lintDocument({
     externalRefResolver: baseResolver,
     document,
-    config: await makeConfig({ rules }),
+    config: await createConfig({ rules }),
   });
 }

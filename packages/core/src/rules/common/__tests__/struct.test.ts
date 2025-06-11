@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 struct', () => {
   it('should report missing schema property', async () => {
@@ -29,7 +26,7 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -89,7 +86,7 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -161,7 +158,7 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -235,7 +232,7 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -326,7 +323,7 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -388,7 +385,7 @@ describe('Oas3.1 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -436,7 +433,7 @@ describe('Oas3.1 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -490,7 +487,7 @@ describe('Oas3.1 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -561,7 +558,7 @@ describe('Oas3.1 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -636,7 +633,7 @@ describe('Oas3.1 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
