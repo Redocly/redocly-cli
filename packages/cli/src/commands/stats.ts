@@ -14,13 +14,7 @@ import {
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
-import type {
-  StatsAccumulator,
-  StatsName,
-  WalkContext,
-  OutputFormat,
-  StyleguideConfig,
-} from '@redocly/openapi-core';
+import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
@@ -103,11 +97,10 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   collectSpecData?.(document.parsed);
-  const lintConfig: StyleguideConfig = config.styleguide;
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(
-    lintConfig.extendTypes(getTypes(specVersion), specVersion),
-    lintConfig
+    config.styleguide.extendTypes(getTypes(specVersion), specVersion),
+    config.styleguide
   );
 
   const startedAt = performance.now();

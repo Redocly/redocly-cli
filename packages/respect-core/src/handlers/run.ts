@@ -34,7 +34,10 @@ export type RespectOptions = {
 };
 
 const logger = DefaultLogger.getInstance();
-export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOptions>) {
+export async function handleRun({
+  argv,
+  collectSpecData /* TODO: , config */,
+}: CommandArgs<RespectOptions>) {
   const harOutputFile = argv['har-output'];
   if (harOutputFile && !harOutputFile.endsWith('.har')) {
     throw new Error('File for HAR logs should be in .har format');

@@ -15,11 +15,13 @@ import { cleanArgs } from '../utils/telemetry.js';
 import * as errorHandling from '../utils/error.js';
 import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import {
-  type ResolvedApi,
   type Totals,
   ResolveError,
   YamlParseError,
   HandledError,
+  type StyleguideConfig,
+  type Config,
+  type RawUniversalApi,
 } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
@@ -99,18 +101,17 @@ describe('printConfigLintTotals', () => {
   });
 });
 
-describe('getFallbackApisOrExit', () => {
+describe('getFallbackApisOrExit', async () => {
   const redColoretteMocks = vi.mocked(red);
   const yellowColoretteMocks = vi.mocked(yellow);
 
-  const apis: Record<string, ResolvedApi> = {
+  const apis: Record<string, RawUniversalApi> = {
     main: {
       root: 'someFile.yaml',
-      styleguide: {},
     },
   };
 
-  const config = { apis };
+  const config = await openapiCore.createConfig({ apis });
 
   beforeEach(() => {
     yellowColoretteMocks.mockImplementation((text) => text as string);
@@ -123,9 +124,9 @@ describe('getFallbackApisOrExit', () => {
   });
 
   it('should exit with error because no path provided', async () => {
-    const apisConfig = {
+    const apisConfig = await openapiCore.createConfig({
       apis: {},
-    };
+    });
     expect.assertions(1);
     try {
       await getFallbackApisOrExit([''], apisConfig);
@@ -167,9 +168,9 @@ describe('getFallbackApisOrExit', () => {
 
   it('should exit with error in case if invalid path provided as args', async () => {
     vi.spyOn(errorHandling, 'exitWithError');
-    const apisConfig = {
+    const apisConfig = await openapiCore.createConfig({
       apis: {},
-    };
+    });
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
 
@@ -186,9 +187,9 @@ describe('getFallbackApisOrExit', () => {
 
   it('should exit with error in case if invalid 2 path provided as args', async () => {
     vi.spyOn(errorHandling, 'exitWithError');
-    const apisConfig = {
+    const apisConfig = await openapiCore.createConfig({
       apis: {},
-    };
+    });
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
     expect.assertions(3);
     try {
@@ -208,10 +209,9 @@ describe('getFallbackApisOrExit', () => {
       ...apis,
       notExist: {
         root: 'notExist.yaml',
-        styleguide: {},
       },
     };
-    const configStub = { apis: apisStub };
+    const configStub = await openapiCore.createConfig({ apis: apisStub });
 
     const existSyncMock = vi
       .mocked(fs.existsSync)
@@ -236,14 +236,13 @@ describe('getFallbackApisOrExit', () => {
   it('should work ok if it is url passed', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => false);
 
-    const apisConfig = {
+    const apisConfig = await openapiCore.createConfig({
       apis: {
         main: {
           root: 'https://someLinkt/petstore.yaml?main',
-          styleguide: {},
         },
       },
-    };
+    });
 
     const result = await getFallbackApisOrExit(undefined, apisConfig);
 
@@ -257,16 +256,23 @@ describe('getFallbackApisOrExit', () => {
     ]);
   });
 
+  // TODO: remove backward guessing? v2
   it('should find alias by filename', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
-    const entry = await getFallbackApisOrExit(['./test.yaml'], {
-      apis: {
-        main: {
-          root: 'test.yaml',
-          styleguide: {},
+    const config = {
+      rawConfig: {
+        apis: {
+          main: {
+            root: 'test.yaml',
+          },
         },
       },
-    });
+      apisGovernance: {
+        main: {} as Partial<StyleguideConfig> as StyleguideConfig,
+      },
+      styleguide: {} as Partial<StyleguideConfig> as StyleguideConfig,
+    } as Partial<Config> as Config;
+    const entry = await getFallbackApisOrExit(['./test.yaml'], config);
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 
@@ -286,16 +292,22 @@ describe('getFallbackApisOrExit', () => {
 
   it('should return apis from config with paths and outputs resolved relatively to the config location', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
-    const entry = await getFallbackApisOrExit(undefined, {
-      apis: {
-        main: {
-          root: 'test.yaml',
-          output: 'output/test.yaml',
-          styleguide: {},
+    const config = {
+      rawConfig: {
+        apis: {
+          main: {
+            root: 'test.yaml',
+            output: 'output/test.yaml',
+          },
         },
       },
       configFile: 'project-folder/redocly.yaml',
-    });
+      apisGovernance: {
+        main: {} as Partial<StyleguideConfig> as StyleguideConfig,
+      },
+      styleguide: {} as Partial<StyleguideConfig> as StyleguideConfig,
+    } as Partial<Config> as Config;
+    const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {
         path: expect.stringMatching(/project\-folder\/test\.yaml$/),

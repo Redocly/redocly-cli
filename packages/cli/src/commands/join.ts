@@ -27,7 +27,7 @@ import { crawl, startsWithComponents } from './split/index.js';
 import type {
   Document,
   Referenced,
-  StrictObject,
+  Exact,
   BundleResult,
   Oas3Definition,
   Oas3_1Definition,
@@ -124,7 +124,7 @@ export async function handleJoin({
     documents.map((document) =>
       bundleDocument({
         document,
-        config: config.styleguide,
+        config: config,
         externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
@@ -576,7 +576,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: StrictObject<Oas3Definition | Oas3_1Definition>,
+    openapi: Exact<Oas3Definition | Oas3_1Definition>,
     {
       apiFilename,
       apiTitle,

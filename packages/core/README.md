@@ -169,6 +169,12 @@ async function loadConfig(options?: {
 }): Promise<Config>;
 ```
 
+<!-- FIXME:
+If you need the raw config object, use the `getRawConfig` method.
+If you need the resolved config object, use the `getResolvedConfig` method.
+...
+-->
+
 ### `lint`
 
 Lint an OpenAPI document from the file system.
@@ -179,6 +185,8 @@ async function lint(options: {
   ref: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -194,6 +202,8 @@ async function lintFromString(options: {
   absoluteRef?: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -207,6 +217,8 @@ async function bundle(options: {
   ref: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
   // whether to fully dereference $refs, resulting document won't have any $ref
   // warning: this can produce circular objects
   dereference?: boolean;
@@ -239,6 +251,8 @@ async function bundleFromString(options: {
   absoluteRef?: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
   // whether to fully dereference $refs, resulting document won't have any $ref
   // warning: this can produce circular objects
   dereference?: boolean;

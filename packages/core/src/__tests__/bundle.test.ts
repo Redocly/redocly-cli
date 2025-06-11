@@ -2,14 +2,8 @@ import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundleDocument, bundle, bundleFromString } from '../bundle.js';
-import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils.js';
-import {
-  StyleguideConfig,
-  Config,
-  ResolvedConfig,
-  createConfig,
-  loadConfig,
-} from '../config/index.js';
+import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
+import { Config, ResolvedConfig, createConfig, loadConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -52,7 +46,7 @@ describe('bundle', () => {
     const { bundle, problems } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: new StyleguideConfig({}),
+      config: await createConfig({}),
     });
 
     const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
@@ -85,7 +79,7 @@ describe('bundle', () => {
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),
-      config: new StyleguideConfig({}),
+      config: await createConfig({}),
       document: testDocument,
       dereference: true,
     });
@@ -167,7 +161,7 @@ describe('bundle', () => {
       ''
     );
 
-    const config = await makeConfig({ rules: {} });
+    const config = await createConfig({});
 
     const {
       bundle: { parsed },
@@ -221,7 +215,7 @@ describe('bundle', () => {
 
   it('should bundle schemas with properties named $ref and externalValues correctly', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-special-names-in-props.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -248,7 +242,7 @@ describe('bundle', () => {
       ''
     );
 
-    const config = await makeConfig({ rules: {} });
+    const config = await createConfig({});
 
     const {
       bundle: { parsed },
@@ -327,7 +321,7 @@ describe('bundle async', () => {
       ''
     );
 
-    const config = await makeConfig({ rules: {} });
+    const config = await createConfig({});
 
     const {
       bundle: { parsed },
@@ -397,7 +391,7 @@ describe('bundle async', () => {
       ''
     );
 
-    const config = await makeConfig({ rules: {} });
+    const config = await createConfig({});
 
     const {
       bundle: { parsed },

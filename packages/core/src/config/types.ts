@@ -1,3 +1,4 @@
+import type { ApiConfig, RedoclyConfig } from '@redocly/config';
 import type { Location } from '../ref-utils.js';
 import type { ProblemSeverity, UserContext } from '../walk.js';
 import type {
@@ -43,12 +44,7 @@ export type PreprocessorConfig =
 
 export type DecoratorConfig = PreprocessorConfig;
 
-export type StyleguideRawConfig<T = undefined> = {
-  plugins?: (string | Plugin)[];
-  extends?: string[];
-  doNotResolveExamples?: boolean;
-  recommendedFallback?: boolean;
-
+export type RawGovernanceConfig<T = undefined> = {
   rules?: RuleMap<string, RuleConfig, T>;
   oas2Rules?: RuleMap<string, RuleConfig, T>;
   oas3_0Rules?: RuleMap<string, RuleConfig, T>;
@@ -77,12 +73,9 @@ export type StyleguideRawConfig<T = undefined> = {
   overlay1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
-
-export type ResolvedStyleguideConfig = PluginStyleguideConfig & {
+export type ResolvedGovernanceConfig = RawGovernanceConfig & {
   plugins?: Plugin[];
-  recommendedFallback?: boolean;
-  extends?: void | never;
+  extends?: undefined;
   extendPaths?: string[];
   pluginPaths?: string[];
 };
@@ -137,7 +130,7 @@ export type AssertionsConfig = Record<string, CustomFunction>;
 export type Plugin<T = undefined> = {
   id: string;
 
-  configs?: Record<string, PluginStyleguideConfig>;
+  configs?: Record<string, RawGovernanceConfig>;
   rules?: RulesConfig<T>;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
@@ -175,11 +168,6 @@ export type ImportedPlugin =
   // Deprecated format
   | Plugin;
 
-export type PluginStyleguideConfig<T = undefined> = Omit<
-  StyleguideRawConfig<T>,
-  'plugins' | 'extends'
->;
-
 export type ResolveHeader =
   | {
       name: string;
@@ -211,72 +199,39 @@ export type ResolveConfig = {
 
 export type Telemetry = 'on' | 'off';
 
-export type Api = {
-  root: string;
-  output?: string;
-  styleguide?: ApiStyleguideRawConfig;
-} & ThemeConfig;
+export type RawUniversalApi = ApiConfig &
+  RawGovernanceConfig & {
+    extends?: string[]; // FIXME: reuse extends from redocly-config
+    plugins?: (string | Plugin)[]; // TODO: decide on including plugins in ApiConfig
+  };
 
-export type ResolvedApi = Omit<Api, 'styleguide'> & {
-  styleguide: ResolvedStyleguideConfig;
-};
+export type ResolvedApi = ApiConfig &
+  RawGovernanceConfig & {
+    extends?: string[]; // FIXME: reuse extends from redocly-config
+  } & ResolvedGovernanceConfig;
 
-export type RawConfig = {
-  apis?: Record<string, Api>;
-  styleguide?: StyleguideRawConfig;
-  resolve?: RawResolveConfig;
-  telemetry?: Telemetry;
-} & ThemeConfig;
+export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'plugins' | 'apis'> &
+  RawGovernanceConfig & {
+    plugins?: (string | Plugin)[];
+    apis?: Record<string, RawUniversalApi>;
 
-// RawConfig is legacy, use RawUniversalConfig in public APIs
-export type RawUniversalConfig = Omit<RawConfig, 'styleguide'> & StyleguideRawConfig;
-
-export type FlatApi = Omit<Api, 'styleguide'> &
-  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
-
-export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
-  Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
+    extends?: string[]; // FIXME: reuse extends from redocly-config
     resolve?: RawResolveConfig;
-    apis?: Record<string, FlatApi>;
-  } & ThemeRawConfig;
+    telemetry?: Telemetry;
 
-export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
-  apis: Record<string, ResolvedApi>;
-  styleguide: ResolvedStyleguideConfig;
-};
+    recommendedFallback?: boolean;
+  };
+
+export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
+  ResolvedGovernanceConfig & {
+    apis?: Record<string, ResolvedApi>;
+  };
 
 export type ThemeConfig = {
-  theme?: ThemeRawConfig;
+  theme?: ThemeRawConfig; // TODO: deprecated. use ThemeRawConfig
 };
 
 export type ThemeRawConfig = {
   openapi?: Record<string, any>;
   mockServer?: Record<string, any>;
 };
-
-// TODO: sync types
-export type RulesFields =
-  | 'rules'
-  | 'oas2Rules'
-  | 'oas3_0Rules'
-  | 'oas3_1Rules'
-  | 'async2Rules'
-  | 'async3Rules'
-  | 'arazzo1Rules'
-  | 'overlay1Rules'
-  | 'preprocessors'
-  | 'oas2Preprocessors'
-  | 'oas3_0Preprocessors'
-  | 'oas3_1Preprocessors'
-  | 'async2Preprocessors'
-  | 'async3Preprocessors'
-  | 'arazzo1Preprocessors'
-  | 'overlay1Preprocessors'
-  | 'decorators'
-  | 'oas2Decorators'
-  | 'oas3_0Decorators'
-  | 'oas3_1Decorators'
-  | 'async2Decorators'
-  | 'async3Decorators'
-  | 'arazzo1Decorators'
-  | 'overlay1Decorators';

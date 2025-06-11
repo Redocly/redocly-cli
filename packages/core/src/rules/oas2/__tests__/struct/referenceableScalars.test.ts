@@ -1,13 +1,10 @@
 import { outdent } from 'outdent';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
 import { lintDocument } from '../../../../lint.js';
 import { BaseResolver } from '../../../../resolve.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { createConfig } from '../../../../config/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -29,7 +26,7 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           struct: 'error',
         },

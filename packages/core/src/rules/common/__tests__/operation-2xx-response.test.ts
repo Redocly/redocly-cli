@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 operation-2xx-response', () => {
   it('should report missing 2xx response', async () => {
@@ -25,7 +22,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-2xx-response': 'error' } }),
+      config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -64,7 +61,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-2xx-response': 'error' } }),
+      config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -87,7 +84,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-2xx-response': 'error' } }),
+      config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -108,7 +105,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-2xx-response': 'error' } }),
+      config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -147,7 +144,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'operation-2xx-response': { severity: 'error', validateWebhooks: true },
         },
@@ -190,7 +187,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-2xx-response': 'error' } }),
+      config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

@@ -1,7 +1,7 @@
 export {
   type BundleOutputFormat,
   type CollectFn,
-  type StrictObject,
+  type Exact,
   readFileFromUrl,
   slash,
   doesYamlFileExist,
@@ -62,23 +62,22 @@ export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/
 export { Stats } from './rules/other/stats.js';
 
 export {
-  type RawConfigProcessor,
+  type RawConfigProcessor, // FIXME: remove this
   type ResolvedConfig,
   type Plugin,
-  Config,
-  StyleguideConfig,
-  RawConfig,
-  RawUniversalConfig,
+  type RuleConfig,
+  type Config,
+  type StyleguideConfig,
+  type RawUniversalConfig,
+  type RawUniversalApi,
   IGNORE_FILE,
-  getMergedConfig,
-  transformConfig,
+  getGovernanceConfig,
   loadConfig,
   getConfig,
   findConfig,
   CONFIG_FILE_NAMES,
-  RuleSeverity,
+  type RuleSeverity,
   createConfig,
-  ResolvedApi,
   ConfigValidationError,
   resolvePlugins,
 } from './config/index.js';

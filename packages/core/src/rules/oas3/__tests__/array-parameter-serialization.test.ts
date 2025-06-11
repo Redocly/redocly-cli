@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('oas3 array-parameter-serialization', () => {
   it('should report on array parameter without style and explode', async () => {
@@ -33,7 +30,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error', in: ['query'] },
         },
@@ -78,7 +75,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error', in: ['query'] },
         },
@@ -133,7 +130,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error', in: ['query'] },
         },
@@ -179,7 +176,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error', in: ['query'] },
         },
@@ -205,7 +202,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error', in: ['query'] },
         },
@@ -239,7 +236,7 @@ describe('oas3 array-parameter-serialization', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'array-parameter-serialization': { severity: 'error' },
         },

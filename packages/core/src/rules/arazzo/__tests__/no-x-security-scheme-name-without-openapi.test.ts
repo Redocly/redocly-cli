@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/load.js';
 
 describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
   const document = parseYamlToDocument(
@@ -62,7 +59,7 @@ describe('Arazzo no-x-security-scheme-name-without-openapi', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'no-x-security-scheme-name-without-openapi': 'error' },
       }),
     });

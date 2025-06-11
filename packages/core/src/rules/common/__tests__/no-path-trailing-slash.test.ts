@@ -1,10 +1,7 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('no-path-trailing-slash', () => {
@@ -23,7 +20,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
+      config: await createConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -64,7 +61,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
+      config: await createConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -101,7 +98,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
+      config: await createConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -122,7 +119,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
+      config: await createConfig({ rules: { 'no-path-trailing-slash': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

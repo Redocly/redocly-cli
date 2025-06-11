@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 oas3-no-server-example.com', () => {
   it('oas3-no-server-example.com: should report on server object with "example.com" url', async () => {
@@ -21,7 +18,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-server-example.com': 'error' } }),
+      config: await createConfig({ rules: { 'no-server-example.com': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -56,7 +53,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-server-example.com': 'error' } }),
+      config: await createConfig({ rules: { 'no-server-example.com': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -75,7 +72,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'no-server-example.com': 'error' } }),
+      config: await createConfig({ rules: { 'no-server-example.com': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

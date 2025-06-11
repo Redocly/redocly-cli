@@ -2,7 +2,7 @@ import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
   formatProblems,
-  getMergedConfig,
+  getGovernanceConfig,
   getTotals,
   lint,
   lintConfig,
@@ -36,7 +36,7 @@ export type LintOptions = {
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
   'skip-rule'?: string[];
-  'skip-preprocessor'?: string[]; // FIXME: do we need this? (2.0)
+  'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
 
 export async function handleLint({
@@ -61,15 +61,15 @@ export async function handleLint({
   for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
-      const resolvedConfig = getMergedConfig(config, alias);
-      const { styleguide } = resolvedConfig;
+      const governanceConfig = getGovernanceConfig(config, alias);
 
-      checkIfRulesetExist(styleguide.rules);
+      checkIfRulesetExist(governanceConfig.rules);
 
-      styleguide.skipRules(argv['skip-rule']);
-      styleguide.skipPreprocessors(argv['skip-preprocessor']);
+      governanceConfig.skipRules(argv['skip-rule']);
+      governanceConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (styleguide.recommendedFallback) {
+      // FIXME: remove recommendedFallback at all or at least from styleguide/governance config (put it in the root as _recommendedFallback)
+      if (config.styleguide.recommendedFallback) {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -79,7 +79,8 @@ export async function handleLint({
       logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
-        config: resolvedConfig,
+        config: config,
+        alias,
         collectSpecData,
       });
 

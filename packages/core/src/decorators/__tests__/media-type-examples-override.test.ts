@@ -1,7 +1,8 @@
-import { makeConfig, parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { outdent } from 'outdent';
 import { bundleDocument } from '../../bundle.js';
 import { BaseResolver } from '../../resolve.js';
+import { createConfig } from '../../config/index.js';
 
 describe('oas3 media-type-examples-override', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -28,8 +29,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -88,8 +88,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -153,8 +152,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -245,8 +243,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -345,8 +342,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -417,8 +413,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -489,8 +484,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -550,8 +544,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {
@@ -618,8 +611,7 @@ describe('oas3 media-type-examples-override', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'media-type-examples-override': {
             operationIds: {

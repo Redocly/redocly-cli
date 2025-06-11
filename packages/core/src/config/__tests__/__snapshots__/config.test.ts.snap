@@ -7,36 +7,12 @@ StyleguideConfig {
   "configFile": undefined,
   "decorators": {
     "arazzo1": {},
-    "async2": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "async3": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas2": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas3_0": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas3_1": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "overlay1": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
+    "async2": {},
+    "async3": {},
+    "oas2": {},
+    "oas3_0": {},
+    "oas3_1": {},
+    "overlay1": {},
   },
   "doNotResolveExamples": false,
   "extendPaths": [],
@@ -56,176 +32,42 @@ StyleguideConfig {
   "plugins": [],
   "preprocessors": {
     "arazzo1": {},
-    "async2": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "async3": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas2": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas3_0": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "oas3_1": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "overlay1": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-  },
-  "rawConfig": {
-    "_usedRules": Set {},
-    "_usedVersions": Set {},
-    "configFile": "redocly.yaml",
-    "decorators": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "doNotResolveExamples": false,
-    "ignore": {},
-    "plugins": [],
-    "preprocessors": {
-      "oas2": {},
-      "oas3_0": {},
-      "oas3_1": {},
-    },
-    "rawConfig": {
-      "plugins": [],
-      "rules": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-    },
-    "recommendedFallback": false,
-    "rules": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-    },
+    "async2": {},
+    "async3": {},
+    "oas2": {},
+    "oas3_0": {},
+    "oas3_1": {},
+    "overlay1": {},
   },
   "recommendedFallback": false,
   "rules": {
     "arazzo1": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "async2": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "async3": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "oas2": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "oas3_0": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "oas3_1": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
     "overlay1": {
-      "oas2": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
+      "no-empty-servers": "error",
+      "operation-summary": "error",
     },
   },
 }
