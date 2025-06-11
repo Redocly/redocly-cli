@@ -77,7 +77,7 @@
     "**/*.{ts,js,yaml,yml,json,md}": [
       "prettier --write"
     ],
-    "packages/**/*": [
+    "packages/**/*.ts": [
       "eslint --fix"
     ]
   }
