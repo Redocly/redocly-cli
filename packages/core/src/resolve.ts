@@ -234,9 +234,9 @@ export async function resolveDocument(opts: {
   const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
-  
+
   const resolvePromises: Array<Promise<void>> = [];
-  
+
   const resolvingRefs = new Set<string>();
   /** Ensures a ref is resolved only once, preventing race conditions and duplicate work */
   function resolveRefOnce<T>(options: {
@@ -246,13 +246,13 @@ export async function resolveDocument(opts: {
     onError?: (error: any) => void;
   }): boolean {
     const { refId, resolverFn, onSuccess, onError } = options;
-    
+
     if (resolvingRefs.has(refId) || resolvedRefMap.has(refId)) {
       return false; // Already resolving or resolved
     }
 
     resolvingRefs.add(refId);
-    
+
     const promise = resolverFn()
       .then((result) => {
         resolvingRefs.delete(refId);
@@ -268,7 +268,7 @@ export async function resolveDocument(opts: {
         }
         throw error;
       });
-    
+
     resolvePromises.push(promise as Promise<void>);
     return true; // Started resolving
   }
@@ -373,13 +373,14 @@ export async function resolveDocument(opts: {
 
       if (isRef(node)) {
         const refId = makeRefId(rootNodeDocument.source.absoluteRef, node.$ref);
-        
+
         resolveRefOnce({
           refId,
-          resolverFn: () => followRef(rootNodeDocument, node, {
-            prev: null,
-            node,
-          }),
+          resolverFn: () =>
+            followRef(rootNodeDocument, node, {
+              prev: null,
+              node,
+            }),
           onSuccess: (resolvedRef) => {
             if (resolvedRef.resolved) {
               resolveRefsInParallel(
@@ -389,23 +390,24 @@ export async function resolveDocument(opts: {
                 type
               );
             }
-          }
+          },
         });
       }
 
       if (isExternalValue(node)) {
         const refId = makeRefId(rootNodeDocument.source.absoluteRef, node.externalValue);
-        
+
         resolveRefOnce({
           refId,
-          resolverFn: () => followRef(
-            rootNodeDocument,
-            { $ref: node.externalValue },
-            {
-              prev: null,
-              node,
-            }
-          ),
+          resolverFn: () =>
+            followRef(
+              rootNodeDocument,
+              { $ref: node.externalValue },
+              {
+                prev: null,
+                node,
+              }
+            ),
           onSuccess: (resolvedRef) => {
             if (resolvedRef.resolved) {
               resolveRefsInParallel(
@@ -415,7 +417,7 @@ export async function resolveDocument(opts: {
                 type
               );
             }
-          }
+          },
         });
       }
     }
@@ -440,7 +442,7 @@ export async function resolveDocument(opts: {
           nodePointer: ref.$ref,
         };
         const refId = makeRefId(document.source.absoluteRef, ref.$ref);
-        
+
         setResolvedRef(refId, resolvedRef);
         return resolvedRef;
       }
@@ -463,7 +465,7 @@ export async function resolveDocument(opts: {
           error: error,
         };
         const refId = makeRefId(document.source.absoluteRef, ref.$ref);
-        
+
         setResolvedRef(refId, resolvedRef);
         return resolvedRef;
       }
@@ -509,7 +511,7 @@ export async function resolveDocument(opts: {
       if (resolvedRef.document && isRef(target)) {
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
       }
-      
+
       setResolvedRef(refId, resolvedRef);
       return { ...resolvedRef };
     }

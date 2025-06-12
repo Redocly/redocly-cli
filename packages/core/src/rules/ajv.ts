@@ -10,7 +10,7 @@ const ajvInstanceCache = new WeakMap<ResolveFn, Ajv>();
 
 function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   let ajvInstance = ajvInstanceCache.get(resolve);
-  
+
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -30,7 +30,7 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       },
       logger: false,
     });
-    
+
     ajvInstanceCache.set(resolve, ajvInstance);
   }
   return ajvInstance;
