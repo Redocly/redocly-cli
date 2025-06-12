@@ -59,7 +59,7 @@ You can use configurable rules for individual APIs.
 In the following example, `UserApi@1` has a configurable rule defined.
 This rule applies only to `UserApi@1`.
 
-{% partial file="../_partials/per-api-rules-example.md" %}
+{% partial file="../_partials/per-api-rules-example.md" /%}
 
 ## Resources
 
