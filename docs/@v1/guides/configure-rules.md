@@ -114,37 +114,7 @@ Not all APIs are made equal. Perhaps your newsletter signup microservice is held
 
 You can configure linting differently for multiple APIs in a Redocly configuration file. Here's an example with three APIs defined, and different rules applied for each:
 
-```yaml
-extends:
-  - recommended
-
-apis:
-  partnerApi@1:
-    root: partners.yaml
-    rules:
-      no-server-trailing-slash: off
-      operation-operationId: off
-
-  newsletter@3:
-    root: /absolute/path/to/folder/openapi.yaml
-    extends:
-      - minimal
-    rules:
-      no-server-trailing-slash: off
-
-  UserApi@1:
-    root: users.yaml
-    rules:
-      no-server-trailing-slash: off
-      operation-operationId: warn
-      assert/version-semver:
-        subject:
-          type: Info
-          property: version
-        assertions:
-          pattern: /1.[0-9]\.[0-9]/
-        message: API version must be in SemVer format, no major version release
-```
+{% partial file="../_partials/per-api-rules-example.md" %}
 
 There's a few things going on in the example, but let's look at each feature in turn:
 

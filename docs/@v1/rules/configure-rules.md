@@ -53,6 +53,14 @@ apis:
 
 Each API picks up the settings that relate to it and gets linted accordingly.
 
+## Per-API configuration with configurable rules
+
+You can use configurable rules for individual APIs.
+In the following example, `UserApi@1` has a configurable rule defined.
+This rule applies only to `UserApi@1`.
+
+{% partial file="../_partials/per-api-rules-example.md" %}
+
 ## Resources
 
 - Learn more about [rules and rulesets](../rules.md).
