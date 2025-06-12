@@ -114,7 +114,7 @@ Not all APIs are made equal. Perhaps your newsletter signup microservice is held
 
 You can configure linting differently for multiple APIs in a Redocly configuration file. Here's an example with three APIs defined, and different rules applied for each:
 
-{% partial file="../_partials/per-api-rules-example.md" /%}
+{% partial file="../../_partials/per-api-rules-example.md" /%}
 
 There's a few things going on in the example, but let's look at each feature in turn:
 
