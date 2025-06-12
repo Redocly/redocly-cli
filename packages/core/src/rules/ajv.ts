@@ -5,13 +5,12 @@ import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: Ajv | null = null;
-
-export function releaseAjvInstance() {
-  ajvInstance = null;
-}
+// Use per-resolve-function AJV instances to prevent race conditions
+const ajvInstanceCache = new WeakMap<ResolveFn, Ajv>();
 
 function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
+  let ajvInstance = ajvInstanceCache.get(resolve);
+  
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -31,6 +30,8 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       },
       logger: false,
     });
+    
+    ajvInstanceCache.set(resolve, ajvInstance);
   }
   return ajvInstance;
 }
@@ -43,11 +44,19 @@ function getAjvValidator(
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, allowAdditionalProperties);
 
-  if (!ajv.getSchema(loc.absolutePointer)) {
-    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+  const schemaId = loc.absolutePointer;
+  if (!ajv.getSchema(schemaId)) {
+    try {
+      ajv.addSchema({ $id: schemaId, ...schema }, schemaId);
+    } catch (error) {
+      // Handle concurrent schema registration
+      if (!error.message.includes('schema with key or id') && !ajv.getSchema(schemaId)) {
+        throw error;
+      }
+    }
   }
 
-  return ajv.getSchema(loc.absolutePointer);
+  return ajv.getSchema(schemaId);
 }
 
 export function validateJsonSchema(

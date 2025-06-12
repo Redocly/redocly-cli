@@ -4,7 +4,6 @@ import { normalizeVisitors } from './visitors.js';
 import { walkDocument } from './walk.js';
 import { initRules } from './config/rules.js';
 import { normalizeTypes } from './types/index.js';
-import { releaseAjvInstance } from './rules/ajv.js';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
@@ -67,8 +66,6 @@ export async function lintDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
-  releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
-
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
