@@ -122,3 +122,43 @@ export const thirdDocument = {
     },
   },
 };
+
+export const serverAndPaths = {
+  openapi: '3.0.0',
+  info: {
+    title: 'First API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/first',
+    },
+  ],
+  paths: {
+    '/foo': {
+      get: {
+        summary: 'Get Foo',
+      },
+    },
+  },
+};
+
+export const anotherServerAndPaths = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Second API',
+    version: '1.0.0',
+  },
+  servers: [
+    {
+      url: 'https://foo.com/api/v1/second',
+    },
+  ],
+  paths: {
+    '/bar': {
+      get: {
+        summary: 'Get Bar',
+      },
+    },
+  },
+};
