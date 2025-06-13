@@ -75,7 +75,6 @@ export type RawGovernanceConfig<T = undefined> = {
 
 export type ResolvedGovernanceConfig = RawGovernanceConfig & {
   plugins?: Plugin[];
-  extends?: undefined;
   extendPaths?: string[];
   pluginPaths?: string[];
 };
@@ -206,16 +205,17 @@ export type RawUniversalApi = ApiConfig &
   };
 
 export type ResolvedApi = ApiConfig &
+  Required<RawGovernanceConfig> &
+  ResolvedGovernanceConfig & {
+    extends?: never; // FIXME: reuse extends from redocly-config
+  };
+
+export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     extends?: string[]; // FIXME: reuse extends from redocly-config
-  } & ResolvedGovernanceConfig;
-
-export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'plugins' | 'apis'> &
-  RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApi>;
 
-    extends?: string[]; // FIXME: reuse extends from redocly-config
     resolve?: RawResolveConfig;
     telemetry?: Telemetry;
 

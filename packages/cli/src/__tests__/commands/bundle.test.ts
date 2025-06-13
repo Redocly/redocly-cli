@@ -5,6 +5,7 @@ import {
   logger,
   type StyleguideConfig,
   getGovernanceConfig,
+  type ResolvedApi,
 } from '@redocly/openapi-core';
 import { BundleOptions, handleBundle } from '../../commands/bundle.js';
 import {
@@ -153,7 +154,7 @@ describe('bundle', () => {
         },
       };
       const config = {
-        rawConfig: { apis },
+        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
         apisGovernance: {
           foo: {
             skipPreprocessors: vi.fn(),
@@ -201,7 +202,7 @@ describe('bundle', () => {
         },
       };
       const config = {
-        rawConfig: { apis },
+        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
         apisGovernance: {
           foo: {
             skipPreprocessors: vi.fn(),
@@ -246,7 +247,7 @@ describe('bundle', () => {
         },
       };
       const config = {
-        rawConfig: { apis },
+        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
         apisGovernance: {
           foo: {
             skipPreprocessors: vi.fn(),
@@ -288,7 +289,7 @@ describe('bundle', () => {
         },
       };
       const config = {
-        rawConfig: { apis },
+        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
         apisGovernance: {
           foo: {
             skipPreprocessors: vi.fn(),

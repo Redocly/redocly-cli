@@ -47,7 +47,7 @@ export function prefixRules<
 }
 
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
-  const result: Required<Omit<ResolvedGovernanceConfig, 'extends'>> = {
+  const result: Required<ResolvedGovernanceConfig> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -81,7 +81,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
   };
 
   for (const rulesConf of rulesConfList) {
-    if (rulesConf.extends) {
+    if ('extends' in rulesConf) {
       throw new Error(
         `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`
       );

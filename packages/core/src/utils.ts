@@ -236,17 +236,6 @@ export function keysOf<T>(obj: T) {
   return Object.keys(obj) as (keyof T)[];
 }
 
-export function pickDefined<T extends Record<string, unknown>>(obj?: T): Partial<T> | undefined {
-  if (!obj) return undefined;
-  const res: Partial<T> = {};
-  for (const key in obj) {
-    if (obj[key] !== undefined) {
-      res[key] = obj[key];
-    }
-  }
-  return res;
-}
-
 export function nextTick() {
   return new Promise((resolve) => {
     setTimeout(resolve);

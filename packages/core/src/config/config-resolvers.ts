@@ -3,7 +3,7 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { isNotString, isString, isDefined, keysOf } from '../utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
@@ -375,10 +375,10 @@ export async function resolveApis({
     if (apiContent?.extends?.some(isNotString)) {
       throw new Error(`Configuration format not detected in extends: values must be strings.`);
     }
-    const mergedRawApi: RawUniversalApi = getMergedApiConfig(rawConfigWithoutApis, apiContent);
-    const resolvedApiConfig: ResolvedGovernanceConfig =
+    const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
       await resolveStyleguideConfig<RawUniversalApi>({
-        styleguideConfig: mergedRawApi,
+        styleguideConfig: apiContent, // FIXME: rename styleguideConfig
+        rootRawConfig: rawConfigWithoutApis,
         configPath,
         resolver,
       });
@@ -392,33 +392,51 @@ async function resolveAndMergeNestedStyleguideConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >({
   styleguideConfig,
+  rootRawConfig,
   configPath = '',
   resolver = new BaseResolver(),
   parentConfigPaths = [],
   extendPaths = [],
 }: {
   styleguideConfig: T;
+  rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
   parentConfigPaths?: string[];
   extendPaths?: string[];
-}): Promise<ResolvedGovernanceConfig> {
+}): Promise<Required<ResolvedGovernanceConfig>> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
 
-  const _governanceConfig = styleguideConfig;
+  const {
+    extends: rootOrApiExtends = [],
+    plugins: rootOrApiPlugins = [],
+    ...rootOrApiConfig
+  } = styleguideConfig;
+  const {
+    extends: possiblyRootExtends = [],
+    plugins: possiblyRootPlugins = [],
+    ...possiblyRootConfig
+  } = rootRawConfig || {};
 
   const plugins = isBrowser
     ? // In browser, we don't support plugins from config file yet
       [defaultPlugin]
     : getUniquePlugins(
         await resolvePlugins(
-          [...(_governanceConfig?.plugins || []), defaultPlugin],
+          [
+            ...possiblyRootPlugins, // we need to merge in the root config first if it exists
+            ...rootOrApiPlugins,
+            defaultPlugin,
+          ],
           path.dirname(configPath)
         )
       );
-  const pluginPaths = _governanceConfig?.plugins
+  const pluginPaths = [
+    ...possiblyRootPlugins, // we need to merge in the root config first if it exists
+    ...rootOrApiPlugins,
+  ]
     ?.filter(isString)
     .map((p) => path.resolve(path.dirname(configPath), p));
 
@@ -427,7 +445,10 @@ async function resolveAndMergeNestedStyleguideConfig<
     : configPath && path.resolve(configPath);
 
   const extendConfigs: ResolvedGovernanceConfig[] = await Promise.all(
-    _governanceConfig?.extends?.map(async (presetItem) => {
+    [
+      ...possiblyRootExtends, // we need to merge in the root config first if it exists
+      ...rootOrApiExtends,
+    ].map(async (presetItem) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);
       }
@@ -444,15 +465,15 @@ async function resolveAndMergeNestedStyleguideConfig<
         parentConfigPaths: [...parentConfigPaths, resolvedConfigPath],
         extendPaths,
       });
-    }) || []
+    })
   );
 
   const { plugins: mergedPlugins = [], ...styleguide } = mergeExtends([
     ...extendConfigs,
+    structuredClone(possiblyRootConfig), // we need to merge in the root config first if it exists
     {
-      ..._governanceConfig,
+      ...structuredClone(rootOrApiConfig),
       plugins,
-      extends: undefined,
       extendPaths: [...parentConfigPaths, resolvedConfigPath],
       pluginPaths,
     },
@@ -470,17 +491,18 @@ export async function resolveStyleguideConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >(opts: {
   styleguideConfig: T; // FIXME: rename
+  rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
   parentConfigPaths?: string[];
   extendPaths?: string[];
-}): Promise<ResolvedGovernanceConfig> {
+}): Promise<Required<ResolvedGovernanceConfig>> {
+  // FIXME: do everything inside resolveAndMergeNestedStyleguideConfig and rename it to resolveGovernanceConfig
   const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig<T>(opts);
 
   return {
     ...resolvedStyleguideConfig,
-    rules:
-      resolvedStyleguideConfig.rules && groupStyleguideAssertionRules(resolvedStyleguideConfig),
+    rules: groupStyleguideAssertionRules(resolvedStyleguideConfig),
   };
 }
 
@@ -519,71 +541,12 @@ async function loadExtendStyleguideConfig(
   }
 }
 
-function getMergedApiConfig(
-  rawConfig: Omit<RawUniversalConfig, 'apis'>,
-  rawApiConfig: RawUniversalApi
-): RawUniversalApi {
-  const mergedConfig: RawUniversalApi = {
-    ...rawConfig,
-    ...(pickDefined<RawUniversalApi>(rawApiConfig) as RawUniversalApi),
-    rules: { ...rawConfig?.rules, ...rawApiConfig?.rules },
-    oas2Rules: { ...rawConfig?.oas2Rules, ...rawApiConfig?.oas2Rules },
-    oas3_0Rules: { ...rawConfig?.oas3_0Rules, ...rawApiConfig?.oas3_0Rules },
-    oas3_1Rules: { ...rawConfig?.oas3_1Rules, ...rawApiConfig?.oas3_1Rules },
-    async2Rules: { ...rawConfig?.async2Rules, ...rawApiConfig?.async2Rules },
-    async3Rules: { ...rawConfig?.async3Rules, ...rawApiConfig?.async3Rules },
-    arazzo1Rules: { ...rawConfig?.arazzo1Rules, ...rawApiConfig?.arazzo1Rules },
-    overlay1Rules: {
-      ...rawConfig?.overlay1Rules,
-      ...rawApiConfig?.overlay1Rules,
-    },
-    preprocessors: {
-      ...rawConfig?.preprocessors,
-      ...rawApiConfig?.preprocessors,
-    },
-    oas2Preprocessors: {
-      ...rawConfig?.oas2Preprocessors,
-      ...rawApiConfig?.oas2Preprocessors,
-    },
-    oas3_0Preprocessors: {
-      ...rawConfig?.oas3_0Preprocessors,
-      ...rawApiConfig?.oas3_0Preprocessors,
-    },
-    oas3_1Preprocessors: {
-      ...rawConfig?.oas3_1Preprocessors,
-      ...rawApiConfig?.oas3_1Preprocessors,
-    },
-    overlay1Preprocessors: {
-      ...rawConfig?.overlay1Preprocessors,
-      ...rawApiConfig?.overlay1Preprocessors,
-    },
-    decorators: { ...rawConfig?.decorators, ...rawApiConfig?.decorators },
-    oas2Decorators: {
-      ...rawConfig?.oas2Decorators,
-      ...rawApiConfig?.oas2Decorators,
-    },
-    oas3_0Decorators: {
-      ...rawConfig?.oas3_0Decorators,
-      ...rawApiConfig?.oas3_0Decorators,
-    },
-    oas3_1Decorators: {
-      ...rawConfig?.oas3_1Decorators,
-      ...rawApiConfig?.oas3_1Decorators,
-    },
-    overlay1Decorators: {
-      ...rawConfig?.overlay1Decorators,
-      ...rawApiConfig?.overlay1Decorators,
-    },
-  };
-  return mergedConfig;
-}
-
 function groupStyleguideAssertionRules({
   rules,
   plugins,
-}: ResolvedGovernanceConfig): Record<string, RuleConfig> | undefined {
+}: ResolvedGovernanceConfig): Record<string, RuleConfig> {
   if (!rules) {
-    return rules;
+    return {};
   }
 
   // Create a new record to avoid mutating original

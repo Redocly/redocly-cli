@@ -1,0 +1,19 @@
+rules:
+  rule/test-license: # the default severity (error) of this configurable rule will be overwritten in redocly.yaml
+    subject:
+      type: Info
+      property: license
+    assertions:
+      defined: true
+  rule/test-description:
+    subject:
+      type: Info
+      property: description
+    assertions:
+      defined: true
+
+apis:
+  main:
+    root: ./openapi.yaml
+    rules:
+      rule/test-license: warn # should not be highlighted
