@@ -17,9 +17,17 @@ import {
 } from '../../utils/miscellaneous.js';
 import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
-import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents.js';
+import {
+  firstDocument,
+  secondDocument,
+  thirdDocument,
+  serverAndPaths,
+  anotherServerAndPaths,
+} from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
+  let writeToFileByExtensionSpy: any;
+
   beforeEach(() => {
     vi.mock('../../utils/miscellaneous.js');
     vi.mock('../../utils/error.js');
@@ -30,7 +38,9 @@ describe('handleJoin', () => {
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
     vi.mocked(sortTopLevelKeysForOas).mockImplementation((document) => document);
-    vi.mocked(writeToFileByExtension).mockImplementation(() => {});
+    writeToFileByExtensionSpy = vi
+      .mocked(writeToFileByExtension)
+      .mockImplementation(() => undefined);
 
     vi.mock('colorette');
     vi.mocked(yellow).mockImplementation((text) => text as string);
@@ -49,6 +59,10 @@ describe('handleJoin', () => {
       .mockImplementationOnce(() =>
         Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
       );
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   it('should call exitWithError because only one entrypoint', async () => {
@@ -262,9 +276,6 @@ describe('handleJoin', () => {
           {
             url: 'http://localhost:8080',
           },
-          {
-            url: 'https://api.server.test/v1',
-          },
         ],
         tags: [
           {
@@ -364,5 +375,80 @@ describe('handleJoin', () => {
       'join-result.yaml',
       true
     );
+  });
+
+  describe('servers', () => {
+    it('should keep servers at root level if they are the same', async () => {
+      vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+      const docWithServers = {
+        ...serverAndPaths,
+        servers: [{ url: 'https://common.server.com' }],
+        info: { title: 'A' },
+      };
+      const anotherDocWithSameServers = {
+        ...anotherServerAndPaths,
+        servers: [{ url: 'https://common.server.com' }],
+        info: { title: 'B' },
+      };
+
+      vi.mocked(BaseResolver.prototype.resolveDocument)
+        .mockReset()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-a' },
+            parsed: docWithServers,
+          } as Document)
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-b' },
+            parsed: anotherDocWithSameServers,
+          } as Document)
+        );
+
+      await handleJoin({
+        argv: {
+          apis: ['a.yaml', 'b.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      });
+
+      const joinedDef = writeToFileByExtensionSpy.mock.calls[0][0];
+      expect(joinedDef.servers).toEqual([{ url: 'https://common.server.com' }]);
+      expect(joinedDef.paths['/foo'].servers).toBeUndefined();
+      expect(joinedDef.paths['/bar'].servers).toBeUndefined();
+    });
+
+    it('should move servers to path level if they are different', async () => {
+      vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+      vi.mocked(BaseResolver.prototype.resolveDocument)
+        .mockReset()
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-a' },
+            parsed: serverAndPaths,
+          } as Document)
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve({
+            source: { absoluteRef: 'ref-b' },
+            parsed: anotherServerAndPaths,
+          } as Document)
+        );
+
+      await handleJoin({
+        argv: {
+          apis: ['a.yaml', 'b.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      });
+
+      const joinedDef = writeToFileByExtensionSpy.mock.calls[0][0];
+      expect(joinedDef.servers).toBeUndefined();
+      expect(joinedDef.paths['/foo'].servers).toEqual([{ url: 'https://foo.com/api/v1/first' }]);
+      expect(joinedDef.paths['/bar'].servers).toEqual([{ url: 'https://foo.com/api/v1/second' }]);
+    });
   });
 });

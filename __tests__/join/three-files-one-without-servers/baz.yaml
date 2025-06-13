@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Baz Example OpenAPI 3 definition.
+  description: Information about API
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+paths:
+  '/cats/{petId}':
+    post:
+      summary: summary example
+      operationId: exampleBaz
+      responses:
+        '201':
+          description: example description
