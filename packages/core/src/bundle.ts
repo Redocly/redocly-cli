@@ -87,7 +87,17 @@ const bundleVisitor = () => {
               replaceRef(node, resolved, ctx);
             },
           },
-
+          ConfigStyleguide: {
+            leave(node: any, ctx: UserContext) {
+              if (node.extends) {
+                const bundled = bundleExtends(node, ctx);
+                Object.assign(node, bundled);
+                delete node.extends;
+                scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
+                delete bundled.plugins;
+              }
+            },
+          },
           'rootRedoclyConfigSchema.scorecard.levels_items': {
             leave(node: any, ctx: UserContext) {
               if (node.extends) {

@@ -5,6 +5,7 @@ export type ScalarSchema = {
   enum?: string[];
   isExample?: boolean;
   directResolveAs?: string;
+  itemsDirectResolveAs?: string;
   minimum?: number;
 };
 
@@ -26,6 +27,7 @@ export type NodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
+  itemsDirectResolveAs?: string;
 };
 export type PropType = string | NodeType | ScalarSchema | undefined | null;
 export type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -39,6 +41,7 @@ export type NormalizedNodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
+  directResolveAs?: NormalizedPropType;
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
@@ -95,6 +98,7 @@ export function normalizeTypes(
     }
     if (type.items) {
       type.items = resolveType(type.items);
+      type.directResolveAs = resolveType((type as NodeType).itemsDirectResolveAs);
     }
 
     if (type.properties) {
