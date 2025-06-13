@@ -22,6 +22,7 @@ import {
   type StyleguideConfig,
   type Config,
   type RawUniversalApi,
+  type ResolvedApi,
 } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
@@ -264,7 +265,7 @@ describe('getFallbackApisOrExit', async () => {
         apis: {
           main: {
             root: 'test.yaml',
-          },
+          } as ResolvedApi,
         },
       },
       apisGovernance: {
@@ -298,7 +299,7 @@ describe('getFallbackApisOrExit', async () => {
           main: {
             root: 'test.yaml',
             output: 'output/test.yaml',
-          },
+          } as ResolvedApi,
         },
       },
       configFile: 'project-folder/redocly.yaml',

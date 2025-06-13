@@ -240,6 +240,51 @@ describe('createConfig', () => {
       'my-plugin/test-rule': 'error',
     });
   });
+
+  it('should create a config with the apis section', async () => {
+    const testConfig: Config = await createConfig(
+      {
+        apis: {
+          'test@v1': {
+            root: 'resources/pets.yaml',
+            rules: {
+              'operation-summary': 'warn',
+              'rule/test': 'warn',
+            },
+          },
+        },
+        rules: {
+          'operation-summary': 'error',
+          'no-empty-servers': 'error',
+          'rule/test': {
+            subject: {
+              type: 'Operation',
+              property: 'x-test',
+            },
+            assertions: {
+              defined: true,
+            },
+          },
+        },
+        telemetry: 'on',
+        resolve: { http: { headers: [] } },
+      },
+      {
+        configPath: 'redocly.yaml',
+      }
+    );
+    // clean absolute paths and not needed fields
+    testConfig.styleguide.plugins = [];
+    testConfig.apisGovernance['test@v1'].plugins = [];
+    testConfig.rawConfig.plugins = [];
+    testConfig.rawConfig.apis!['test@v1'].plugins = [];
+    testConfig.styleguide.extendPaths = [];
+    testConfig.apisGovernance['test@v1'].extendPaths = [];
+    testConfig.rawConfig.extendPaths = [];
+    testConfig.rawConfig.apis!['test@v1'].extendPaths = [];
+
+    expect(testConfig).toMatchSnapshot();
+  });
 });
 
 function verifyExtendedConfig(
