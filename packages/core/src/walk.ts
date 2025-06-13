@@ -160,7 +160,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     const rawLocation = location;
     let currentLocation = location;
-    const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
+    // handle directResolveAs
+    const valueToResolve = typeof node === 'string' && isNamedType(type) ? { $ref: node } : node;
+    const { node: resolvedNode, location: resolvedLocation, error } = resolve(valueToResolve);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
     if (isRef(node)) {
