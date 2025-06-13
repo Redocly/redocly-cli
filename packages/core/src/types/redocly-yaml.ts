@@ -6,7 +6,7 @@ import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from './index.js';
+import type { NodeType, PropType } from './index.js';
 import type { Config } from '../config/index.js';
 
 const builtInOAS2Rules = [
@@ -183,11 +183,9 @@ type BuiltInRuleId = typeof builtInRules[number];
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
+      ...listOf('ConfigStyleguide'),
+      itemsDirectResolveAs: 'ConfigStyleguide',
+    } as PropType,
     rules: 'Rules',
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
@@ -309,6 +307,19 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   };
 }
 
+function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
+  return {
+    ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
+    properties: {
+      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'].properties,
+      extends: {
+        ...listOf('ConfigStyleguide'),
+        itemsDirectResolveAs: 'ConfigStyleguide',
+      } as PropType,
+    },
+  };
+}
+
 const AssertionDefinitionAssertions: NodeType = {
   properties: {
     enum: { type: 'array', items: { type: 'string' } },
@@ -391,6 +402,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
+    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
     ...nodeTypes,
   };
 }
