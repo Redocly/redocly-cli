@@ -270,6 +270,20 @@ describe('getFallbackApisOrExit', () => {
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 
+  it('should find alias by filename when config is in different directory', async () => {
+    vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
+    const entry = await getFallbackApisOrExit(['./test.yaml'], {
+      configFile: 'nested-folder/redocly.yaml',
+      apis: {
+        main: {
+          root: '../test.yaml',
+          styleguide: {},
+        },
+      },
+    });
+    expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
+  });
+
   it('should return apis from config with paths and outputs resolved relatively to the config location', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
     const entry = await getFallbackApisOrExit(undefined, {
