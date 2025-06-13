@@ -23,6 +23,7 @@ tags:
     x-displayName: other
 paths:
   /foo/{id}:
+    servers: []
     get:
       summary: Returns a single foo
       operationId: getFoo
@@ -36,6 +37,7 @@ paths:
       tags:
         - foo_other
   /bar/:
+    servers: []
     post:
       summary: Create a single bar
       operationId: createBar

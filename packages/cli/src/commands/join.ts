@@ -378,7 +378,9 @@ export async function handleJoin({
         }
 
         const pathItem = paths[path] as Oas3PathItem;
-        const servers = serversAreTheSame ? pathItem.servers : pathItem.servers || rootServers;
+        const servers = serversAreTheSame
+          ? pathItem.servers
+          : pathItem.servers || rootServers || [];
         if (servers) {
           collectPathServers(servers, path);
         }
@@ -386,9 +388,6 @@ export async function handleJoin({
         for (const field of keysOf(pathItem)) {
           if (operationsSet.has(field as Oas3Method)) {
             collectPathOperation(pathItem, path, field as Oas3Method);
-          }
-          if (field === 'servers') {
-            // already processed
           }
           if (field === 'parameters') {
             collectPathParameters(pathItem, path);
