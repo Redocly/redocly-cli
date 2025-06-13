@@ -5,6 +5,6 @@
     "outDir": "lib"
   },
   "references": [{ "path": "../core" }, { "path": "../respect-core" }],
-  "include": ["src/**/*.ts", "src/__tests__/fixtures/join/documents.ts1"],
+  "include": ["src/**/*.ts"],
   "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
 }
