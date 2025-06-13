@@ -1,9 +1,11 @@
+import path from 'path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
 import { SpecVersion, getTypes } from '../oas-types.js';
 import { isCustomRuleId } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType, PropType } from './index.js';
@@ -183,8 +185,18 @@ type BuiltInRuleId = typeof builtInRules[number];
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
-      ...listOf('ConfigStyleguide'),
-      itemsDirectResolveAs: 'ConfigStyleguide',
+      name: 'ConfigStyleguideList',
+      properties: {},
+      items: (node) => {
+        // check if it's preset name
+        if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+          return { type: 'string' };
+        }
+        return {
+          ...ConfigStyleguide,
+          directResolveAs: { name: 'ConfigStyleguide', ...ConfigStyleguide },
+        } as PropType;
+      },
     } as PropType,
     rules: 'Rules',
     oas2Rules: 'Rules',
@@ -311,11 +323,8 @@ function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeTy
   return {
     ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
     properties: {
-      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'].properties,
-      extends: {
-        ...listOf('ConfigStyleguide'),
-        itemsDirectResolveAs: 'ConfigStyleguide',
-      } as PropType,
+      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items']?.properties,
+      extends: ConfigStyleguide.properties.extends,
     },
   };
 }
