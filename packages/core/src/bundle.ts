@@ -75,7 +75,18 @@ function bundleExtends(node: any, ctx: UserContext) {
 }
 
 const bundleVisitor = () => {
-  const scorecardPlugins: string[] = [];
+  const collectedPlugins: string[] = [];
+
+  function handleNode(node: any, ctx: UserContext) {
+    if (node.extends) {
+      const bundled = bundleExtends(node, ctx);
+      Object.assign(node, bundled);
+      delete node.extends;
+      collectedPlugins.push(...(bundled.plugins as unknown as any[]));
+      delete bundled.plugins;
+    }
+  }
+
   return normalizeVisitors(
     [
       {
@@ -87,38 +98,32 @@ const bundleVisitor = () => {
               replaceRef(node, resolved, ctx);
             },
           },
-          ConfigStyleguide: {
+          ConfigGovernance: {
             leave(node: any, ctx: UserContext) {
-              if (node.extends) {
-                const bundled = bundleExtends(node, ctx);
-                Object.assign(node, bundled);
-                delete node.extends;
-                scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
-                delete bundled.plugins;
-              }
+              handleNode(node, ctx);
             },
           },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
+          ConfigStyleguideList: {
             leave(node: any, ctx: UserContext) {
-              if (node.extends) {
-                const bundled = bundleExtends(node, ctx);
-
-                Object.assign(node, bundled);
-                delete node.extends;
-                scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
-                delete bundled.plugins;
-              }
+              handleNode(node, ctx);
             },
-          },
+            'rootRedoclyConfigSchema.scorecard.levels_items': {
+              leave(node: any, ctx: UserContext) {
+                handleNode(node, ctx);
+              },
+            },
 
-          ConfigRoot: {
-            leave(node: any, ctx: UserContext) {
-              if (node.extends) {
-                const bundled = bundleExtends(node, ctx);
-                Object.assign(node, bundled);
-                node.plugins = Array.from(new Set([...(node.plugins || []), ...scorecardPlugins]));
-                delete node.extends;
-              }
+            ConfigRoot: {
+              leave(node: any, ctx: UserContext) {
+                if (node.extends) {
+                  const bundled = bundleExtends(node, ctx);
+                  Object.assign(node, bundled);
+                  node.plugins = Array.from(
+                    new Set([...(node.plugins || []), ...collectedPlugins])
+                  );
+                  delete node.extends;
+                }
+              },
             },
           },
         },

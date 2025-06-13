@@ -281,16 +281,17 @@ export async function resolveDocument(opts: {
         }
         const isTypeAFunction = typeof itemsType === 'function';
         for (let i = 0; i < node.length; i++) {
-          const itemType = isTypeAFunction
+          let itemType = isTypeAFunction
             ? itemsType(node[i], joinPointer(nodeAbsoluteRef, i))
             : itemsType;
           // we continue resolving unknown types, but stop early on known scalars
           if (itemType === undefined && type !== unknownType && type !== SpecExtension) {
             continue;
           }
-          // handle directResolveAs
-          const value =
-            typeof node[i] === 'string' && isNamedType(itemType) ? { $ref: node[i] } : node[i];
+
+          const value = itemType?.directResolveAs ? { $ref: node[i] } : node[i];
+          itemType = itemType?.directResolveAs || itemType;
+
           walk(
             value,
             isNamedType(itemType) ? itemType : unknownType,
