@@ -86,6 +86,7 @@ function fallbackToAllDefinitions(
 }
 
 function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
+  const configDir = getConfigDirectory(config);
   const aliasApi = config.apis[aliasOrPath];
   return aliasApi
     ? {
@@ -93,14 +94,14 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
           ? aliasApi.root
           : resolve(getConfigDirectory(config), aliasApi.root),
         alias: aliasOrPath,
-        output: aliasApi.output && resolve(getConfigDirectory(config), aliasApi.output),
+        output: aliasApi.output && resolve(configDir, aliasApi.output),
       }
     : {
         path: aliasOrPath,
         // find alias by path, take the first match
         alias:
           Object.entries(config.apis).find(([_alias, api]) => {
-            return resolve(api.root) === resolve(aliasOrPath);
+            return resolve(configDir, api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };
 }
