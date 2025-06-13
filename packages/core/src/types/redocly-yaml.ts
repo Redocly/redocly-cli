@@ -1,12 +1,14 @@
+import path from 'path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
 import { SpecVersion, getTypes } from '../oas-types.js';
 import { isCustomRuleId } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from './index.js';
+import type { NodeType, PropType } from './index.js';
 import type { Config } from '../config/index.js';
 
 const builtInOAS2Rules = [
@@ -183,11 +185,19 @@ type BuiltInRuleId = typeof builtInRules[number];
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
-      type: 'array',
-      items: {
-        type: 'string',
+      name: 'ConfigStyleguideList',
+      properties: {},
+      items: (node) => {
+        // check if it's preset name
+        if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+          return { type: 'string' };
+        }
+        return {
+          ...ConfigStyleguide,
+          directResolveAs: { name: 'ConfigStyleguide', ...ConfigStyleguide },
+        } as PropType;
       },
-    },
+    } as PropType,
     rules: 'Rules',
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
@@ -309,6 +319,16 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   };
 }
 
+function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
+  return {
+    ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
+    properties: {
+      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items']?.properties,
+      extends: ConfigStyleguide.properties.extends,
+    },
+  };
+}
+
 const AssertionDefinitionAssertions: NodeType = {
   properties: {
     enum: { type: 'array', items: { type: 'string' } },
@@ -391,6 +411,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
+    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
     ...nodeTypes,
   };
 }
