@@ -230,9 +230,8 @@ export async function resolveDocument(opts: {
   rootDocument: Document;
   externalRefResolver: BaseResolver;
   rootType: NormalizedNodeType;
-  isConfig?: boolean;
 }): Promise<ResolvedRefMap> {
-  const { rootDocument, externalRefResolver, rootType, isConfig = false } = opts;
+  const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seenNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
 
@@ -289,8 +288,11 @@ export async function resolveDocument(opts: {
           if (itemType === undefined && type !== unknownType && type !== SpecExtension) {
             continue;
           }
+          // handle directResolveAs
+          const value =
+            typeof node[i] === 'string' && isNamedType(itemType) ? { $ref: node[i] } : node[i];
           walk(
-            node[i],
+            value,
             isNamedType(itemType) ? itemType : unknownType,
             joinPointer(nodeAbsoluteRef, i)
           );
@@ -365,33 +367,6 @@ export async function resolveDocument(opts: {
           }
         });
         resolvePromises.push(promise);
-      }
-
-      if ('extends' in node && isConfig) {
-        const promise = Promise.all(
-          node.extends
-            .filter((e: string) => isAbsoluteUrl(e) || path.extname(e))
-            .map((extendPath: string) => {
-              return followRef(
-                rootNodeDocument,
-                { $ref: extendPath },
-                {
-                  prev: null,
-                  node,
-                }
-              ).then((resolvedRef) => {
-                if (resolvedRef.resolved) {
-                  resolveRefsInParallel(
-                    resolvedRef.node,
-                    resolvedRef.document,
-                    resolvedRef.nodePointer!,
-                    type
-                  );
-                }
-              });
-            })
-        );
-        resolvePromises.push(promise as unknown as Promise<void>);
       }
     }
 
