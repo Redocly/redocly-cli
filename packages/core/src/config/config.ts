@@ -6,6 +6,7 @@ import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+// import { type Document } from '../resolve.js';
 
 import type { NormalizedProblem } from '../walk.js';
 import type {
@@ -21,10 +22,9 @@ import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
+  // RawUniversalConfig,
   ResolveConfig,
-  ResolvedApi,
   ResolvedConfig,
-  ResolvedStyleguideConfig,
   RuleConfig,
   RuleSettings,
   Telemetry,
@@ -46,6 +46,7 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
   }
 }
 
+// FIXME: rename to GovernanceConfig
 export class StyleguideConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
@@ -57,48 +58,66 @@ export class StyleguideConfig {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
 
-  recommendedFallback: boolean;
+  recommendedFallback: boolean; // FIXME: remove recommendedFallback/ calculate it from raw config: if it's empty, then true
 
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(public rawConfig: ResolvedStyleguideConfig, public configFile?: string) {
-    this.plugins = rawConfig.plugins || [];
-    this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
-    this.recommendedFallback = rawConfig.recommendedFallback || false;
+  constructor(resolvedConfig: ResolvedConfig, public configFile?: string) {
+    this.plugins = resolvedConfig.plugins || [];
+    this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
+    this.recommendedFallback = resolvedConfig.recommendedFallback || false;
 
     this.rules = {
-      [SpecVersion.OAS2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
-      [SpecVersion.OAS3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
-      [SpecVersion.OAS3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
-      [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
-      [SpecVersion.Async3]: { ...rawConfig.rules, ...rawConfig.async3Rules },
-      [SpecVersion.Arazzo1]: { ...rawConfig.rules, ...rawConfig.arazzo1Rules },
-      [SpecVersion.Overlay1]: { ...rawConfig.rules, ...rawConfig.overlay1Rules },
+      [SpecVersion.OAS2]: { ...resolvedConfig.rules, ...resolvedConfig.oas2Rules },
+      [SpecVersion.OAS3_0]: { ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules },
+      [SpecVersion.OAS3_1]: { ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules },
+      [SpecVersion.Async2]: { ...resolvedConfig.rules, ...resolvedConfig.async2Rules },
+      [SpecVersion.Async3]: { ...resolvedConfig.rules, ...resolvedConfig.async3Rules },
+      [SpecVersion.Arazzo1]: { ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules },
+      [SpecVersion.Overlay1]: { ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules },
     };
 
     this.preprocessors = {
-      [SpecVersion.OAS2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
-      [SpecVersion.OAS3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
-      [SpecVersion.OAS3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
-      [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
-      [SpecVersion.Async3]: { ...rawConfig.preprocessors, ...rawConfig.async3Preprocessors },
-      [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Preprocessors },
-      [SpecVersion.Overlay1]: { ...rawConfig.preprocessors, ...rawConfig.overlay1Preprocessors },
+      [SpecVersion.OAS2]: { ...resolvedConfig.preprocessors, ...resolvedConfig.oas2Preprocessors },
+      [SpecVersion.OAS3_0]: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.oas3_0Preprocessors,
+      },
+      [SpecVersion.OAS3_1]: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.oas3_1Preprocessors,
+      },
+      [SpecVersion.Async2]: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.async2Preprocessors,
+      },
+      [SpecVersion.Async3]: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.async3Preprocessors,
+      },
+      [SpecVersion.Arazzo1]: { ...resolvedConfig.arazzo1Preprocessors },
+      [SpecVersion.Overlay1]: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.overlay1Preprocessors,
+      },
     };
 
     this.decorators = {
-      [SpecVersion.OAS2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
-      [SpecVersion.OAS3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
-      [SpecVersion.OAS3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
-      [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
-      [SpecVersion.Async3]: { ...rawConfig.decorators, ...rawConfig.async3Decorators },
-      [SpecVersion.Arazzo1]: { ...rawConfig.arazzo1Decorators },
-      [SpecVersion.Overlay1]: { ...rawConfig.decorators, ...rawConfig.overlay1Decorators },
+      [SpecVersion.OAS2]: { ...resolvedConfig.decorators, ...resolvedConfig.oas2Decorators },
+      [SpecVersion.OAS3_0]: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_0Decorators },
+      [SpecVersion.OAS3_1]: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_1Decorators },
+      [SpecVersion.Async2]: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
+      [SpecVersion.Async3]: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
+      [SpecVersion.Arazzo1]: { ...resolvedConfig.arazzo1Decorators },
+      [SpecVersion.Overlay1]: {
+        ...resolvedConfig.decorators,
+        ...resolvedConfig.overlay1Decorators,
+      },
     };
 
-    this.extendPaths = rawConfig.extendPaths || [];
-    this.pluginPaths = rawConfig.pluginPaths || [];
+    this.extendPaths = resolvedConfig.extendPaths || [];
+    this.pluginPaths = resolvedConfig.pluginPaths || [];
     this.resolveIgnore(getIgnoreFilePath(configFile));
   }
 
@@ -272,6 +291,7 @@ export class StyleguideConfig {
     };
   }
 
+  // TODO: revise
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case SpecMajorVersion.OAS3:
@@ -374,17 +394,31 @@ export class StyleguideConfig {
 }
 
 export class Config {
-  apis: Record<string, ResolvedApi>;
-  styleguide: StyleguideConfig;
+  apisGovernance: Record<string, StyleguideConfig>;
+  styleguide: StyleguideConfig; // FIXME: -> governanceConfig
   resolve: ResolveConfig;
   licenseKey?: string;
   theme: ThemeRawConfig; // FIXME: theme is deprecated (2.0)
   telemetry?: Telemetry;
+  // FIXME: rename rawConfig to resolvedConfig + introduce rawConfig / Document.parsed
+  // _rawConfig: RawUniversalConfig;
+  // _document: Document;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
-    this.apis = rawConfig.apis || {};
-    this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
+    this.apisGovernance = Object.fromEntries(
+      Object.entries(rawConfig.apis || {}).map(([alias, apiConfig]) => [
+        alias,
+        new StyleguideConfig(apiConfig, configFile),
+      ])
+    );
+    this.styleguide = new StyleguideConfig(rawConfig || {}, configFile); // FIXME: rename to governanceConfig/core/rootGovernanceConfig
     this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated (2.0)
     this.resolve = getResolveConfig(rawConfig?.resolve);
     this.telemetry = rawConfig.telemetry;
   }
+}
+
+export function getGovernanceConfig(config: Config, alias?: string) {
+  return alias === undefined
+    ? config.styleguide
+    : config.apisGovernance[alias] ?? config.styleguide;
 }

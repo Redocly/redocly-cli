@@ -1,9 +1,9 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
-import { Config } from '../config.js';
+import { type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
-import type { RuleConfig, FlatRawConfig } from './../types.js';
-import type { NormalizedProblem } from '../../walk.js';
+import { type RuleConfig, type RawUniversalConfig } from './../types.js';
+import { type NormalizedProblem } from '../../walk.js';
 import { BaseResolver } from '../../resolve.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -157,7 +157,7 @@ describe('findConfig', () => {
 
 describe('getConfig', () => {
   it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(getConfig()).toEqual(Promise.resolve({ rawConfig: {} }));
+    expect(getConfig({})).toEqual(Promise.resolve({ rawConfig: {} }));
   });
 
   it('should resolve refs in config', async () => {
@@ -168,11 +168,9 @@ describe('getConfig', () => {
       seo: {
         title: 1,
       },
-      styleguide: {
-        rules: {
-          'info-license': 'error',
-          'non-existing-rule': 'warn',
-        },
+      rules: {
+        'info-license': 'error',
+        'non-existing-rule': 'warn',
       },
     });
   });
@@ -194,7 +192,7 @@ describe('createConfig', () => {
   });
 
   it('should create config from object', async () => {
-    const rawConfig: FlatRawConfig = {
+    const rawConfig: RawUniversalConfig = {
       extends: ['minimal'],
       rules: {
         'info-license': 'off',
@@ -212,7 +210,7 @@ describe('createConfig', () => {
 
   it('should create config from object with a custom plugin', async () => {
     const testCustomRule = vi.fn();
-    const rawConfig: FlatRawConfig = {
+    const rawConfig: RawUniversalConfig = {
       extends: [],
       plugins: [
         {
@@ -242,6 +240,51 @@ describe('createConfig', () => {
       'my-plugin/test-rule': 'error',
     });
   });
+
+  it('should create a config with the apis section', async () => {
+    const testConfig: Config = await createConfig(
+      {
+        apis: {
+          'test@v1': {
+            root: 'resources/pets.yaml',
+            rules: {
+              'operation-summary': 'warn',
+              'rule/test': 'warn',
+            },
+          },
+        },
+        rules: {
+          'operation-summary': 'error',
+          'no-empty-servers': 'error',
+          'rule/test': {
+            subject: {
+              type: 'Operation',
+              property: 'x-test',
+            },
+            assertions: {
+              defined: true,
+            },
+          },
+        },
+        telemetry: 'on',
+        resolve: { http: { headers: [] } },
+      },
+      {
+        configPath: 'redocly.yaml',
+      }
+    );
+    // clean absolute paths and not needed fields
+    testConfig.styleguide.plugins = [];
+    testConfig.apisGovernance['test@v1'].plugins = [];
+    testConfig.rawConfig.plugins = [];
+    testConfig.rawConfig.apis!['test@v1'].plugins = [];
+    testConfig.styleguide.extendPaths = [];
+    testConfig.apisGovernance['test@v1'].extendPaths = [];
+    testConfig.rawConfig.extendPaths = [];
+    testConfig.rawConfig.apis!['test@v1'].extendPaths = [];
+
+    expect(testConfig).toMatchSnapshot();
+  });
 });
 
 function verifyExtendedConfig(
@@ -257,11 +300,10 @@ function verifyExtendedConfig(
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(
-    config.styleguide.rules.oas2,
-    overridesRules,
-    { ...recommendedRules?.rules, ...recommendedRules?.oas2Rules } || {}
-  );
+  verifyOasRules(config.styleguide.rules.oas2, overridesRules, {
+    ...recommendedRules?.rules,
+    ...recommendedRules?.oas2Rules,
+  });
 
   verifyOasRules(config.styleguide.rules.oas3_0, overridesRules, {
     ...recommendedRules?.rules,
@@ -272,6 +314,8 @@ function verifyExtendedConfig(
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_1Rules,
   });
+
+  // TODO: verify other rulesets
 }
 
 function verifyOasRules(

@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 operation-operationId-url-safe', () => {
   it('should report on invalid operationIds', async () => {
@@ -25,7 +22,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-operationId-url-safe': 'error' } }),
+      config: await createConfig({ rules: { 'operation-operationId-url-safe': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

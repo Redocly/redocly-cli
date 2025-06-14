@@ -1,10 +1,10 @@
-import type { PluginStyleguideConfig } from './types.js';
+import type { RawGovernanceConfig } from './types.js';
 
-const spec: PluginStyleguideConfig<'built-in'> = {
+const spec: RawGovernanceConfig<'built-in'> = {
   rules: {
     struct: 'error',
   },
-  // TODO: populate with spec-related rules similar to `arazzo1Rules`
+  // TODO: populate with spec-related rules similar to `arazzo1Rules` (v2)
   oas2Rules: {},
   oas3_0Rules: {},
   oas3_1Rules: {},

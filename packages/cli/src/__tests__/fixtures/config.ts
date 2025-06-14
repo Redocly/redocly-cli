@@ -1,7 +1,7 @@
 import { type StyleguideConfig, type Config } from '@redocly/openapi-core';
 
 export const configFixture: Config = {
-  apis: {},
+  apisGovernance: {},
   resolve: {
     http: {
       headers: [],
@@ -10,7 +10,6 @@ export const configFixture: Config = {
   theme: {},
   rawConfig: {
     apis: {},
-    styleguide: {},
   },
   configFile: undefined,
   styleguide: {
@@ -49,7 +48,6 @@ export const configFixture: Config = {
       arazzo1: {},
       overlay1: {},
     },
-    rawConfig: {},
     resolveIgnore: vi.fn(),
     addProblemToIgnore: vi.fn(),
     recommendedFallback: false,
@@ -61,5 +59,5 @@ export const configFixture: Config = {
     getRulesForSpecVersion: vi.fn(),
     extendPaths: [],
     pluginPaths: [],
-  } as unknown as StyleguideConfig,
+  } as Partial<StyleguideConfig> as StyleguideConfig,
 };

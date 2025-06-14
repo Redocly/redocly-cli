@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Arazzo respect-supported-versions', () => {
   const documentWithUnsupportedVersion = parseYamlToDocument(
@@ -70,7 +67,7 @@ describe('Arazzo respect-supported-versions', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: documentWithUnsupportedVersion,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'respect-supported-versions': 'error' },
       }),
     });
@@ -98,7 +95,7 @@ describe('Arazzo respect-supported-versions', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: documentWithSupportedVersion,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'respect-supported-versions': 'error' },
       }),
     });
@@ -110,7 +107,7 @@ describe('Arazzo respect-supported-versions', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: documentWithSupportedVersion,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {},
       }),
     });

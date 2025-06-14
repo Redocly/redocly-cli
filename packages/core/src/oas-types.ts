@@ -31,6 +31,7 @@ import type {
   Overlay1Rule,
 } from './visitors.js';
 
+// FIXME: replace enums with string literals (v2)
 export enum SpecVersion {
   OAS2 = 'oas2',
   OAS3_0 = 'oas3_0',

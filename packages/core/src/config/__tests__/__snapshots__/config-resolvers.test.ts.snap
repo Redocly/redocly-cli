@@ -45,7 +45,6 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "doNotResolveExamples": undefined,
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -223,7 +222,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "info-contact": "off",
   },
   "preprocessors": {},
-  "recommendedFallback": false,
+  "root": "some/path",
   "rules": {
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",
@@ -282,7 +281,6 @@ exports[`resolveStyleguideConfig > should resolve extends with local file config
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "doNotResolveExamples": undefined,
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -460,7 +458,6 @@ exports[`resolveStyleguideConfig > should resolve extends with local file config
     "info-contact": "off",
   },
   "preprocessors": {},
-  "recommendedFallback": undefined,
   "rules": {
     "assertions": [
       {

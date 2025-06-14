@@ -18,7 +18,8 @@ const __internalDirname = import.meta.url
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
-  config: Config
+  config: Config,
+  alias?: string
 ): JSON | Record<string, unknown> | Config {
   switch (typeof openapiOptions) {
     case 'object':
@@ -40,8 +41,8 @@ export function getObjectOrJSON(
     default: {
       if (config) {
         logger.info(`Found ${config.configFile} and using theme.openapi options\n`);
-
-        return config.theme.openapi ? config.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
+        const apiConfig = alias ? config.rawConfig.apis?.[alias] : config.rawConfig;
+        return apiConfig?.theme.openapi ? apiConfig.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
       }
       return {};
     }
