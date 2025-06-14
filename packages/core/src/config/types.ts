@@ -200,26 +200,20 @@ export type Telemetry = 'on' | 'off';
 
 export type RawUniversalApi = ApiConfig &
   RawGovernanceConfig & {
-    extends?: string[]; // FIXME: reuse extends from redocly-config
     plugins?: (string | Plugin)[]; // TODO: decide on including plugins in ApiConfig
   };
 
-export type ResolvedApi = ApiConfig &
-  Required<RawGovernanceConfig> &
-  ResolvedGovernanceConfig & {
-    extends?: never; // FIXME: reuse extends from redocly-config
-  };
+export type ResolvedApi = ApiConfig & Required<RawGovernanceConfig> & ResolvedGovernanceConfig;
 
 export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
-    extends?: string[]; // FIXME: reuse extends from redocly-config
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApi>;
 
     resolve?: RawResolveConfig;
     telemetry?: Telemetry;
 
-    recommendedFallback?: boolean;
+    recommendedFallback?: boolean; // FIXME: remove/rename
   };
 
 export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
