@@ -46,7 +46,7 @@ export async function handleBundle({
 }: CommandArgs<BundleOptions>) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
-    config.rawConfig?.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
+    config.resolvedConfig?.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
@@ -147,7 +147,7 @@ export async function handleBundle({
     }
   }
 
-  printUnusedWarnings(config.styleguide);
+  printUnusedWarnings(config.governance.root);
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');

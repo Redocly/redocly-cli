@@ -19,6 +19,7 @@ import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { type Config, StyleguideConfig } from './config.js';
 
 import type {
   Plugin,
@@ -72,42 +73,63 @@ export async function resolveConfigFileAndRefs({
   return { document, resolvedRefMap };
 }
 
+export type ConfigOptions = {
+  rawConfig?: RawUniversalConfig;
+  configPath?: string;
+  externalRefResolver?: BaseResolver;
+  customExtends?: string[];
+};
+
 export async function resolveConfig({
   rawConfig,
   configPath,
   externalRefResolver,
-}: {
-  rawConfig: RawUniversalConfig;
-  configPath?: string;
-  externalRefResolver?: BaseResolver;
-}): Promise<ResolvedConfig> {
-  if (rawConfig?.extends?.some(isNotString)) {
+  customExtends,
+}: ConfigOptions): Promise<Config> {
+  const config = rawConfig === undefined ? { extends: ['recommended'] } : { ...rawConfig };
+  if (customExtends !== undefined) {
+    config.extends = customExtends;
+  }
+  if (config?.extends?.some(isNotString)) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
-  // FIXME: move config metadata here
-
-  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(rawConfig.resolve));
+  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(config.resolve));
 
   const apis = await resolveApis({
-    rawConfig,
+    rawConfig: config,
     configPath,
     resolver,
   });
 
-  const rootGovernanceConfig: ResolvedConfig = await resolveStyleguideConfig({
-    styleguideConfig: rawConfig,
+  const rootGovernanceConfig = await resolveGovernanceConfig({
+    styleguideConfig: config,
     configPath,
     resolver,
   });
 
-  const { plugins: _plugins, extends: _extends, apis: _apis, ...rest } = rawConfig;
+  const { plugins: _plugins, extends: _extends, apis: _apis, ...rest } = config;
   const resolvedConfig: ResolvedConfig = {
     ...rest,
     ...rootGovernanceConfig,
     apis,
   };
-  return resolvedConfig;
+
+  return {
+    _rawConfig: rawConfig,
+    resolvedConfig,
+    configPath,
+    governance: {
+      root: new StyleguideConfig(resolvedConfig || {}, configPath),
+      apis: Object.fromEntries(
+        Object.entries(resolvedConfig.apis || {}).map(([alias, apiConfig]) => [
+          alias,
+          new StyleguideConfig(apiConfig, configPath),
+        ])
+      ),
+    },
+    resolve: getResolveConfig(config?.resolve),
+  };
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
@@ -376,7 +398,7 @@ export async function resolveApis({
       throw new Error(`Configuration format not detected in extends: values must be strings.`);
     }
     const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
-      await resolveStyleguideConfig<RawUniversalApi>({
+      await resolveGovernanceConfig<RawUniversalApi>({
         styleguideConfig: apiContent, // FIXME: rename styleguideConfig
         rootRawConfig: rawConfigWithoutApis,
         configPath,
@@ -388,7 +410,7 @@ export async function resolveApis({
   return resolvedApis;
 }
 
-async function resolveAndMergeNestedStyleguideConfig<
+async function resolveAndMergeNestedGovernanceConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >({
   styleguideConfig,
@@ -458,7 +480,7 @@ async function resolveAndMergeNestedStyleguideConfig<
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
       const extendedStyleguideConfig = await loadExtendStyleguideConfig(pathItem, resolver);
-      return await resolveAndMergeNestedStyleguideConfig({
+      return await resolveAndMergeNestedGovernanceConfig({
         styleguideConfig: extendedStyleguideConfig,
         configPath: pathItem,
         resolver,
@@ -479,15 +501,15 @@ async function resolveAndMergeNestedStyleguideConfig<
     },
   ]);
 
-  return {
+  const resolvedGovernanceConfig = {
     ...styleguide,
     extendPaths: styleguide.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
   };
+  return resolvedGovernanceConfig;
 }
 
-// FIXME: rename to resolveGovernanceConfig
-export async function resolveStyleguideConfig<
+export async function resolveGovernanceConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >(opts: {
   styleguideConfig: T; // FIXME: rename
@@ -497,8 +519,7 @@ export async function resolveStyleguideConfig<
   parentConfigPaths?: string[];
   extendPaths?: string[];
 }): Promise<Required<ResolvedGovernanceConfig>> {
-  // FIXME: do everything inside resolveAndMergeNestedStyleguideConfig and rename it to resolveGovernanceConfig
-  const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig<T>(opts);
+  const resolvedStyleguideConfig = await resolveAndMergeNestedGovernanceConfig<T>(opts);
 
   return {
     ...resolvedStyleguideConfig,

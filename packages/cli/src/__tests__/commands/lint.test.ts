@@ -7,9 +7,9 @@ import {
   doesYamlFileExist,
   logger,
   type Totals,
-  StyleguideConfig,
-  Config,
-  SpecVersion,
+  type StyleguideConfig,
+  type Config,
+  type SpecVersion,
   type RuleConfig,
 } from '@redocly/openapi-core';
 import {
@@ -51,7 +51,7 @@ describe('handleLint', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => 42);
 
     vi.mock('@redocly/openapi-core');
-    getGovernanceConfigMock.mockReturnValue(configFixture.styleguide);
+    getGovernanceConfigMock.mockReturnValue(configFixture.governance.root);
     vi.mocked(doesYamlFileExist).mockImplementation((path) => path === 'redocly.yaml');
     vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
 
@@ -131,8 +131,10 @@ describe('handleLint', () => {
         'skip-rule': ['rule'],
         'generate-ignore-file': true,
       });
-      expect(configFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(configFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(configFixture.governance.root.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(configFixture.governance.root.skipPreprocessors).toHaveBeenCalledWith([
+        'preprocessor',
+      ]);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
@@ -177,7 +179,7 @@ describe('handleLint', () => {
       expect(processExitMock).toHaveBeenCalledWith(1);
     });
 
-    it('should use recommended fallback if no config', async () => {
+    it('should use recommended fallback if there is no config', async () => {
       // Unmocking getGovernanceConfig
       const { getGovernanceConfig: originalGetGovernanceConfig } = await vi.importActual<
         typeof import('@redocly/openapi-core')
@@ -186,14 +188,16 @@ describe('handleLint', () => {
 
       vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
         return {
-          apisGovernance: {},
-          styleguide: {
-            recommendedFallback: true,
-            rules: {} as Record<SpecVersion, Record<string, RuleConfig>>,
-            skipRules: vi.fn(),
-            skipPreprocessors: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
-        } as Partial<Config> as Config;
+          resolvedConfig: {},
+          governance: {
+            apis: {},
+            root: {
+              rules: {} as Record<SpecVersion, Record<string, RuleConfig>>,
+              skipRules: vi.fn(),
+              skipPreprocessors: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+          },
+        } as Config;
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(

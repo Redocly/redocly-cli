@@ -66,8 +66,8 @@ export function commandWrapper<T extends CommandOptions>(
         customExtends: argv.extends as string[] | undefined,
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       })) as Config;
-      telemetry = config.telemetry;
-      hasConfig = !config.styleguide.recommendedFallback;
+      telemetry = config.resolvedConfig.telemetry;
+      hasConfig = !!config._rawConfig;
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData });

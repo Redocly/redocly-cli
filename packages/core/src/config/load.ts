@@ -1,38 +1,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { isEmptyObject } from '../utils.js';
 import { parseYaml } from '../js-yaml/index.js';
 import { ConfigValidationError, deepCloneMapWithJSON } from './utils.js';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers.js';
 import { bundleConfig } from '../bundle.js';
 import { type BaseResolver, type Document, type ResolvedRefMap } from '../resolve.js';
-import { Config } from './config.js';
-import { type RawUniversalConfig, type ResolvedConfig } from './types.js';
-
-// FIXME: Remove. Leave only resolveConfig?
-async function addConfigMetadata({
-  rawConfig,
-  customExtends,
-  configPath,
-  externalRefResolver,
-}: {
-  rawConfig: RawUniversalConfig;
-  customExtends?: string[];
-  configPath?: string;
-  externalRefResolver?: BaseResolver;
-}): Promise<ResolvedConfig> {
-  if (customExtends !== undefined) {
-    rawConfig.extends = customExtends;
-  } else if (!rawConfig || isEmptyObject(rawConfig)) {
-    rawConfig = { ...rawConfig, extends: ['recommended'], recommendedFallback: true }; // FIXME: remove recommendedFallback?
-  }
-
-  return resolveConfig({
-    rawConfig,
-    configPath,
-    externalRefResolver,
-  });
-}
+import { type Config } from './config.js';
+import { type RawUniversalConfig } from './types.js';
 
 export type RawConfigProcessor = (params: {
   document: Document;
@@ -45,12 +19,12 @@ export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: RawConfigProcessor;
+    processRawConfig?: RawConfigProcessor; ////-
     externalRefResolver?: BaseResolver;
   } = {}
 ): Promise<Config> {
   const {
-    configPath = findConfig(), // FIXME: duplication?
+    configPath = findConfig(),
     customExtends,
     processRawConfig,
     externalRefResolver,
@@ -61,8 +35,7 @@ export async function loadConfig(
     externalRefResolver,
   });
 
-  // FIXME: move inside Config?
-  const config = await addConfigMetadata({
+  const config = await resolveConfig({
     rawConfig,
     customExtends,
     configPath,
@@ -75,7 +48,7 @@ export async function loadConfig(
       await processRawConfig({
         document,
         resolvedRefMap,
-        config: new Config(config, configPath),
+        config,
         parsed: rawConfig,
       });
     } catch (e) {
@@ -86,7 +59,11 @@ export async function loadConfig(
     }
   }
 
-  return new Config(config, configPath);
+  return {
+    ...config,
+    document,
+    resolvedRefMap,
+  };
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
@@ -106,16 +83,15 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-// FIXME: rename to loadRawConfig , resolveRefsAndBundleConfig?
 export async function getConfig(options: {
   configPath?: string;
   externalRefResolver?: BaseResolver;
 }): Promise<{
-  rawConfig: RawUniversalConfig;
+  rawConfig?: RawUniversalConfig;
   document?: Document;
   resolvedRefMap?: ResolvedRefMap;
 }> {
-  if (!options.configPath) return { rawConfig: {} };
+  if (!options.configPath) return {};
 
   try {
     const { document, resolvedRefMap } = await resolveConfigFileAndRefs(options);
@@ -137,18 +113,14 @@ export async function getConfig(options: {
 }
 
 type CreateConfigOptions = {
-  extends?: string[];
   configPath?: string;
   externalRefResolver?: BaseResolver;
 };
 
 export async function createConfig(
-  config: string | RawUniversalConfig,
+  config?: string | RawUniversalConfig,
   options?: CreateConfigOptions
 ): Promise<Config> {
-  const resolvedConfig = await addConfigMetadata({
-    rawConfig: typeof config === 'string' ? (parseYaml(config) as RawUniversalConfig) : config,
-    ...options,
-  });
-  return new Config(resolvedConfig, options?.configPath);
+  const rawConfig = typeof config === 'string' ? (parseYaml(config) as RawUniversalConfig) : config;
+  return await resolveConfig({ rawConfig, ...options });
 }

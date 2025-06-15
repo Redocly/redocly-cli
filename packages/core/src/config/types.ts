@@ -212,8 +212,6 @@ export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'
 
     resolve?: RawResolveConfig;
     telemetry?: Telemetry;
-
-    recommendedFallback?: boolean; // FIXME: remove/rename
   };
 
 export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &

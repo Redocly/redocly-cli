@@ -57,7 +57,7 @@ describe('bundle', () => {
 
   it('should bundle external refs', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -66,7 +66,7 @@ describe('bundle', () => {
 
   it('should bundle external refs and warn for conflicting names', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
@@ -90,7 +90,7 @@ describe('bundle', () => {
 
   it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
     });
 
@@ -100,7 +100,7 @@ describe('bundle', () => {
 
   it('should not place referenced schema inline when component in question is not of type "schemas"', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
     });
 
@@ -110,7 +110,7 @@ describe('bundle', () => {
 
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
@@ -129,7 +129,7 @@ describe('bundle', () => {
 
   it('should not bundle url refs if used with keepUrlRefs', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({} as ResolvedConfig),
+      config: await createConfig({}),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
@@ -189,10 +189,11 @@ describe('bundle', () => {
     `);
   });
 
-  it('should throw an error when there is no document to bundle', () => {
+  it('should throw an error when there is no document to bundle', async () => {
+    const config = await createConfig({});
     const wrapper = () =>
       bundle({
-        config: new Config({} as ResolvedConfig),
+        config,
       });
 
     expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');

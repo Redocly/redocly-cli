@@ -228,8 +228,8 @@ describe('handleJoin', () => {
     });
 
     const config = await loadConfig();
-    expect(config.styleguide.skipDecorators).toHaveBeenCalled();
-    expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
+    expect(config.governance.root.skipDecorators).toHaveBeenCalled();
+    expect(config.governance.root.skipPreprocessors).toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {

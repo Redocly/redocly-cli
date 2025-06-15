@@ -137,15 +137,22 @@ describe('E2E', () => {
   describe('zero-config', () => {
     const folderPath = join(__dirname, 'zero-config');
 
-    it('default-recommended-fallback', async () => {
+    test('default-recommended-fallback', async () => {
       const testPath = join(folderPath, 'default-recommended-fallback');
       const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
-    it('no-default-recommended-fallback', async () => {
+    test('no-default-recommended-fallback', async () => {
       const testPath = join(folderPath, 'no-default-recommended-fallback');
+      const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('no-default-recommended-fallback-with-empty-config', async () => {
+      const testPath = join(folderPath, 'no-default-recommended-fallback-with-empty-config');
       const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));

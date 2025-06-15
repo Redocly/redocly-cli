@@ -39,9 +39,9 @@ export function getObjectOrJSON(
       }
       break;
     default: {
-      if (config) {
-        logger.info(`Found ${config.configFile} and using theme.openapi options\n`);
-        const apiConfig = alias ? config.rawConfig.apis?.[alias] : config.rawConfig;
+      if (config?.configPath) {
+        logger.info(`Found ${config.configPath} and using theme.openapi options\n`);
+        const apiConfig = alias ? config.resolvedConfig.apis?.[alias] : config.resolvedConfig;
         return apiConfig?.theme.openapi ? apiConfig.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
       }
       return {};

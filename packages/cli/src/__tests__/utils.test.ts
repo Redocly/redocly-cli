@@ -24,6 +24,7 @@ import {
   type RawUniversalApi,
   type ResolvedApi,
 } from '@redocly/openapi-core';
+import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import * as fs from 'node:fs';
@@ -257,50 +258,55 @@ describe('getFallbackApisOrExit', async () => {
     ]);
   });
 
-  // TODO: remove backward guessing? v2
   it('should find alias by filename', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
-    const config = {
-      rawConfig: {
+    const config: Config = {
+      resolvedConfig: {
         apis: {
           main: {
             root: 'test.yaml',
           } as ResolvedApi,
         },
       },
-      apisGovernance: {
-        main: {} as Partial<StyleguideConfig> as StyleguideConfig,
+      governance: {
+        apis: {
+          main: {} as StyleguideConfig,
+        },
+        root: {} as StyleguideConfig,
       },
-      styleguide: {} as Partial<StyleguideConfig> as StyleguideConfig,
-    } as Partial<Config> as Config;
+      resolve: {} as ResolveConfig,
+    };
     const entry = await getFallbackApisOrExit(['./test.yaml'], config);
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 
   it('should find alias by filename when config is in different directory', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
-    const config = {
-      rawConfig: {
+    const config: Config = {
+      resolvedConfig: {
         apis: {
           main: {
             root: '../test.yaml',
           } as ResolvedApi,
         },
       },
-      apisGovernance: {
-        main: {} as Partial<StyleguideConfig> as StyleguideConfig,
+      governance: {
+        apis: {
+          main: {} as StyleguideConfig,
+        },
+        root: {} as StyleguideConfig,
       },
-      styleguide: {} as Partial<StyleguideConfig> as StyleguideConfig,
-      configFile: 'nested-folder/redocly.yaml',
-    } as Partial<Config> as Config;
+      configPath: 'nested-folder/redocly.yaml',
+      resolve: {} as ResolveConfig,
+    };
     const entry = await getFallbackApisOrExit(['./test.yaml'], config);
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 
   it('should return apis from config with paths and outputs resolved relatively to the config location', async () => {
     vi.mocked(fs.existsSync).mockImplementationOnce(() => true);
-    const config = {
-      rawConfig: {
+    const config: Config = {
+      resolvedConfig: {
         apis: {
           main: {
             root: 'test.yaml',
@@ -308,12 +314,15 @@ describe('getFallbackApisOrExit', async () => {
           } as ResolvedApi,
         },
       },
-      configFile: 'project-folder/redocly.yaml',
-      apisGovernance: {
-        main: {} as Partial<StyleguideConfig> as StyleguideConfig,
+      configPath: 'project-folder/redocly.yaml',
+      governance: {
+        apis: {
+          main: {} as StyleguideConfig,
+        },
+        root: {} as StyleguideConfig,
       },
-      styleguide: {} as Partial<StyleguideConfig> as StyleguideConfig,
-    } as Partial<Config> as Config;
+      resolve: {} as ResolveConfig,
+    };
     const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {

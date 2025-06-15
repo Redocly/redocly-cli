@@ -7,7 +7,8 @@ import {
   getGovernanceConfig,
   type ResolvedApi,
 } from '@redocly/openapi-core';
-import { BundleOptions, handleBundle } from '../../commands/bundle.js';
+import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import { type BundleOptions, handleBundle } from '../../commands/bundle.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
@@ -147,29 +148,32 @@ describe('bundle', () => {
         foo: {
           root: 'foo.yaml',
           output: 'output/foo.yaml',
-        },
+        } as ResolvedApi,
         bar: {
           root: 'bar.yaml',
           output: 'output/bar.json',
-        },
+        } as ResolvedApi,
       };
-      const config = {
-        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
-        apisGovernance: {
-          foo: {
-            skipPreprocessors: vi.fn(),
-            skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
-          bar: {
+      const config: Config = {
+        resolvedConfig: { apis: apis },
+        governance: {
+          apis: {
+            foo: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+            bar: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+          },
+          root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
           } as Partial<StyleguideConfig> as StyleguideConfig,
         },
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        } as Partial<StyleguideConfig> as StyleguideConfig,
-      } as Partial<Config> as Config;
+        resolve: {} as ResolveConfig,
+      };
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
@@ -196,28 +200,31 @@ describe('bundle', () => {
         foo: {
           root: 'foo.yaml',
           output: 'output/foo.yaml',
-        },
+        } as ResolvedApi,
         bar: {
           root: 'bar.yaml',
-        },
+        } as ResolvedApi,
       };
-      const config = {
-        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
-        apisGovernance: {
-          foo: {
-            skipPreprocessors: vi.fn(),
-            skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
-          bar: {
+      const config: Config = {
+        resolvedConfig: { apis },
+        governance: {
+          apis: {
+            foo: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+            bar: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+          },
+          root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
           } as Partial<StyleguideConfig> as StyleguideConfig,
         },
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        } as Partial<StyleguideConfig> as StyleguideConfig,
-      } as Partial<Config> as Config;
+        resolve: {} as ResolveConfig,
+      };
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
@@ -244,21 +251,24 @@ describe('bundle', () => {
         foo: {
           root: 'foo.yaml',
           output: 'output/foo.yaml',
-        },
+        } as ResolvedApi,
       };
-      const config = {
-        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
-        apisGovernance: {
-          foo: {
+      const config: Config = {
+        resolvedConfig: { apis },
+        governance: {
+          apis: {
+            foo: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+          },
+          root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
           } as Partial<StyleguideConfig> as StyleguideConfig,
         },
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        } as Partial<StyleguideConfig> as StyleguideConfig,
-      } as Partial<Config> as Config;
+        resolve: {} as ResolveConfig,
+      };
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
       vi.mocked(getTotals).mockReturnValue({
@@ -282,29 +292,32 @@ describe('bundle', () => {
         foo: {
           root: 'foo.yaml',
           output: 'output/foo.yaml',
-        },
+        } as ResolvedApi,
         bar: {
           root: 'bar.yaml',
           output: 'output/bar.json',
-        },
+        } as ResolvedApi,
       };
-      const config = {
-        rawConfig: { apis: apis as Record<string, Partial<ResolvedApi>> },
-        apisGovernance: {
-          foo: {
-            skipPreprocessors: vi.fn(),
-            skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
-          bar: {
+      const config: Config = {
+        resolvedConfig: { apis },
+        governance: {
+          apis: {
+            foo: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+            bar: {
+              skipPreprocessors: vi.fn(),
+              skipDecorators: vi.fn(),
+            } as Partial<StyleguideConfig> as StyleguideConfig,
+          },
+          root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
           } as Partial<StyleguideConfig> as StyleguideConfig,
         },
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        } as Partial<StyleguideConfig> as StyleguideConfig,
-      } as Partial<Config> as Config;
+        resolve: {} as ResolveConfig,
+      };
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))

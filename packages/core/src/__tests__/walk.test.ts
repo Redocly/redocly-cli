@@ -990,7 +990,7 @@ describe('walk order', () => {
     await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await await createConfig({
+      config: await createConfig({
         plugins: [
           {
             id: 'test',
