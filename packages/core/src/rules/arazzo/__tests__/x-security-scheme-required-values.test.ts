@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/load.js';
 
 describe('Arazzo x-security-scheme-required-values', () => {
   it('should report when required values are missing for Basic Auth x-security schema', async () => {
@@ -48,7 +45,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
@@ -151,7 +148,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
@@ -230,7 +227,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
@@ -317,7 +314,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
@@ -394,7 +391,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });
@@ -493,7 +490,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'x-security-scheme-required-values': 'error' },
       }),
     });

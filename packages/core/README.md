@@ -164,7 +164,7 @@ it tries to find `redocly.yaml` in the current working directory.
 async function loadConfig(options?: {
   // optional path to the config file for resolving $refs and proper error locations
   configPath?: string;
-  // allows to add custom `extends` additionally to one from the config file
+  // allows to add custom `extends` instead of the one from the config file
   customExtends?: string[];
 }): Promise<Config>;
 ```
@@ -179,6 +179,8 @@ async function lint(options: {
   ref: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -194,6 +196,8 @@ async function lintFromString(options: {
   absoluteRef?: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -207,6 +211,8 @@ async function bundle(options: {
   ref: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
   // whether to fully dereference $refs, resulting document won't have any $ref
   // warning: this can produce circular objects
   dereference?: boolean;
@@ -239,6 +245,8 @@ async function bundleFromString(options: {
   absoluteRef?: string;
   // config object
   config: Config;
+  // optional alias for an API
+  alias?: string;
   // whether to fully dereference $refs, resulting document won't have any $ref
   // warning: this can produce circular objects
   dereference?: boolean;

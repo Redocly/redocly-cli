@@ -5,7 +5,7 @@ import { BuildDocsArgv } from '../../commands/build-docs/types.js';
 import { getPageHTML } from '../../commands/build-docs/utils.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { type OpenAPISpec } from 'redoc/typings/types';
-import { getMergedConfig } from '@redocly/openapi-core';
+import { createConfig } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 
 const config = {
@@ -39,8 +39,6 @@ describe('build-docs', () => {
       },
     }));
 
-    vi.mock('@redocly/openapi-core');
-    vi.mocked(getMergedConfig).mockImplementation((config) => config);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
@@ -68,7 +66,7 @@ describe('build-docs', () => {
         theme: { openapi: {} },
         api: '../some-path/openapi.yaml',
       } as BuildDocsArgv,
-      config: {} as any,
+      config: await createConfig({}),
       version: 'cli-version',
     });
     expect(loadAndBundleSpec).toBeCalledTimes(1);

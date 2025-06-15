@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/load.js';
 
 describe('Arazzo no-x-security-scheme-name-in-workflow', () => {
   it('should report when the `schemeName` is used in `x-security` in a workflow', async () => {
@@ -50,7 +47,7 @@ describe('Arazzo no-x-security-scheme-name-in-workflow', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'no-x-security-scheme-name-in-workflow': 'error' },
       }),
     });
@@ -112,7 +109,7 @@ describe('Arazzo no-x-security-scheme-name-in-workflow', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'no-x-security-scheme-name-in-workflow': 'error' },
       }),
     });

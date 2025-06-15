@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
-import {
-  makeConfig,
-  parseYamlToDocument,
-  replaceSourceWithRef,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('no-schema-type-mismatch rule', () => {
   it('should report a warning for object type with items field', async () => {
@@ -32,7 +29,7 @@ describe('no-schema-type-mismatch rule', () => {
     const results = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
     });
 
     expect(replaceSourceWithRef(results)).toEqual([
@@ -77,7 +74,7 @@ describe('no-schema-type-mismatch rule', () => {
     const results = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
     });
 
     expect(replaceSourceWithRef(results)).toEqual([
@@ -122,7 +119,7 @@ describe('no-schema-type-mismatch rule', () => {
     const results = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
     });
 
     expect(replaceSourceWithRef(results)).toEqual([]);

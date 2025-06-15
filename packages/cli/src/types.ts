@@ -1,4 +1,4 @@
-import type { BundleOutputFormat, Config, RuleSeverity } from '@redocly/openapi-core';
+import type { BundleOutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { RespectOptions, GenerateArazzoFileOptions } from '@redocly/respect-core';
 import type { LintOptions } from './commands/lint.js';
 import type { BundleOptions } from './commands/bundle.js';
@@ -46,5 +46,3 @@ export type VerifyConfigOptions = {
   config?: string;
   'lint-config'?: RuleSeverity;
 };
-
-export type ConfigApis = Pick<Config, 'apis' | 'configFile'>;

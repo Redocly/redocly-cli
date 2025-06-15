@@ -1,11 +1,8 @@
-import {
-  makeConfig,
-  parseYamlToDocument,
-  replaceSourceWithRef,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 spec-strict-refs', () => {
   it('should report about invalid usage of $ref', async () => {
@@ -37,7 +34,7 @@ describe('Oas3 spec-strict-refs', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'spec-strict-refs': 'error' } }),
+      config: await createConfig({ rules: { 'spec-strict-refs': 'error' } }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [

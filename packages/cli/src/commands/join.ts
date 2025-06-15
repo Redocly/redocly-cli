@@ -27,7 +27,7 @@ import { crawl, startsWithComponents } from './split/index.js';
 import type {
   Document,
   Referenced,
-  StrictObject,
+  Exact,
   BundleResult,
   Oas3Definition,
   Oas3_1Definition,
@@ -107,24 +107,24 @@ export async function handleJoin({
   );
 
   const decorators = new Set([
-    ...Object.keys(config.styleguide.decorators.oas3_0),
-    ...Object.keys(config.styleguide.decorators.oas3_1),
-    ...Object.keys(config.styleguide.decorators.oas2),
+    ...Object.keys(config.governance.root.decorators.oas3_0),
+    ...Object.keys(config.governance.root.decorators.oas3_1),
+    ...Object.keys(config.governance.root.decorators.oas2),
   ]);
-  config.styleguide.skipDecorators(Array.from(decorators));
+  config.governance.root.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
-    ...Object.keys(config.styleguide.preprocessors.oas3_0),
-    ...Object.keys(config.styleguide.preprocessors.oas3_1),
-    ...Object.keys(config.styleguide.preprocessors.oas2),
+    ...Object.keys(config.governance.root.preprocessors.oas3_0),
+    ...Object.keys(config.governance.root.preprocessors.oas3_1),
+    ...Object.keys(config.governance.root.preprocessors.oas2),
   ]);
-  config.styleguide.skipPreprocessors(Array.from(preprocessors));
+  config.governance.root.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>
       bundleDocument({
         document,
-        config: config.styleguide,
+        config: config,
         externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
@@ -576,7 +576,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: StrictObject<Oas3Definition | Oas3_1Definition>,
+    openapi: Exact<Oas3Definition | Oas3_1Definition>,
     {
       apiFilename,
       apiTitle,

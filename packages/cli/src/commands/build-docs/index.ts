@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
-import { getMergedConfig, isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { exitWithError } from '../../utils/error.js';
@@ -20,7 +20,7 @@ export const handlerBuildCommand = async ({
 }: CommandArgs<BuildDocsArgv>) => {
   const startedAt = performance.now();
 
-  const config = getMergedConfig(configFromFile, argv.api);
+  const config = configFromFile;
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const { path: pathToApi } = apis[0];
 
@@ -30,7 +30,7 @@ export const handlerBuildCommand = async ({
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.theme?.openapi, config),
+    redocOptions: getObjectOrJSON(argv.theme?.openapi, config, argv.api),
   };
 
   const redocCurrentVersion = packageJson.dependencies.redoc;

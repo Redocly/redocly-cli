@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { parseRef, refBaseName } from '../ref-utils.js';
 import { lintDocument } from '../lint.js';
-import { StyleguideConfig } from '../config/index.js';
+import { createConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
 
 describe('ref-utils', () => {
@@ -90,7 +90,7 @@ describe('ref-utils', () => {
     const result = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
-      config: new StyleguideConfig({}),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(result).toMatchInlineSnapshot(`[]`);
