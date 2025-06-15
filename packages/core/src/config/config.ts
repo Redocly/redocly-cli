@@ -6,7 +6,7 @@ import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-// import { type Document } from '../resolve.js';
+import { type Document, type ResolvedRefMap } from '../resolve.js';
 
 import type { NormalizedProblem } from '../walk.js';
 import type {
@@ -22,13 +22,11 @@ import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
-  // RawUniversalConfig,
+  RawUniversalConfig,
   ResolveConfig,
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
-  Telemetry,
-  ThemeRawConfig,
 } from './types.js';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
@@ -46,7 +44,7 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
   }
 }
 
-// FIXME: rename to GovernanceConfig
+// FIXME: rename to NormalizedGovernanceConfig
 export class StyleguideConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
@@ -58,15 +56,12 @@ export class StyleguideConfig {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
 
-  recommendedFallback: boolean; // FIXME: remove recommendedFallback/ calculate it from raw config: if it's empty, then true
-
   extendPaths: string[];
   pluginPaths: string[];
 
   constructor(resolvedConfig: ResolvedConfig, public configFile?: string) {
     this.plugins = resolvedConfig.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
-    this.recommendedFallback = resolvedConfig.recommendedFallback || false;
 
     this.rules = {
       [SpecVersion.OAS2]: { ...resolvedConfig.rules, ...resolvedConfig.oas2Rules },
@@ -393,32 +388,28 @@ export class StyleguideConfig {
   }
 }
 
+// TODO: left for backward compatibility with Redoc. Replace with a type along with replacing Redoc
 export class Config {
-  apisGovernance: Record<string, StyleguideConfig>;
-  styleguide: StyleguideConfig; // FIXME: -> governanceConfig
+  _rawConfig?: RawUniversalConfig;
+  governance: {
+    apis: Record<string, StyleguideConfig>;
+    root: StyleguideConfig;
+  };
   resolve: ResolveConfig;
-  licenseKey?: string;
-  theme: ThemeRawConfig; // FIXME: theme is deprecated (2.0)
-  telemetry?: Telemetry;
-  // FIXME: rename rawConfig to resolvedConfig + introduce rawConfig / Document.parsed
-  // _rawConfig: RawUniversalConfig;
-  // _document: Document;
-  constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
-    this.apisGovernance = Object.fromEntries(
-      Object.entries(rawConfig.apis || {}).map(([alias, apiConfig]) => [
-        alias,
-        new StyleguideConfig(apiConfig, configFile),
-      ])
-    );
-    this.styleguide = new StyleguideConfig(rawConfig || {}, configFile); // FIXME: rename to governanceConfig/core/rootGovernanceConfig
-    this.theme = rawConfig.theme || {}; // FIXME: theme is deprecated (2.0)
-    this.resolve = getResolveConfig(rawConfig?.resolve);
-    this.telemetry = rawConfig.telemetry;
+  document?: Document;
+  resolvedRefMap?: ResolvedRefMap;
+
+  constructor(public resolvedConfig: ResolvedConfig, public configPath?: string) {
+    this.governance = {
+      apis: {},
+      root: new StyleguideConfig(resolvedConfig || {}, configPath),
+    };
+    this.resolve = getResolveConfig(resolvedConfig?.resolve);
   }
 }
 
 export function getGovernanceConfig(config: Config, alias?: string) {
   return alias === undefined
-    ? config.styleguide
-    : config.apisGovernance[alias] ?? config.styleguide;
+    ? config.governance.root
+    : config.governance.apis[alias] ?? config.governance.root;
 }

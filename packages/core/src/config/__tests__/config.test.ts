@@ -1,5 +1,5 @@
 import { SpecVersion } from '../../oas-types.js';
-import { Config, StyleguideConfig } from '../config.js';
+import { type Config, StyleguideConfig } from '../config.js';
 import * as utils from '../../utils.js';
 import * as jsYaml from '../../js-yaml/index.js';
 import * as fs from 'node:fs';
@@ -37,12 +37,12 @@ const testConfig: Config = await createConfig(
     configPath: 'redocly.yaml',
   }
 );
-testConfig.styleguide.plugins = [];
-testConfig.apisGovernance['test@v1'].plugins = [];
-testConfig.rawConfig.plugins = [];
-testConfig.styleguide.extendPaths = [];
-testConfig.apisGovernance['test@v1'].extendPaths = [];
-testConfig.rawConfig.extendPaths = [];
+testConfig.governance.root.plugins = [];
+testConfig.governance.apis['test@v1'].plugins = [];
+testConfig.resolvedConfig.plugins = [];
+testConfig.governance.root.extendPaths = [];
+testConfig.governance.apis['test@v1'].extendPaths = [];
+testConfig.resolvedConfig.extendPaths = [];
 
 describe('getGovernanceConfig', () => {
   it('should get styleguide defined in "apis" section', () => {
@@ -74,7 +74,6 @@ describe('getGovernanceConfig', () => {
           "oas3_1": {},
           "overlay1": {},
         },
-        "recommendedFallback": false,
         "rules": {
           "arazzo1": {
             "no-empty-servers": "error",
@@ -113,10 +112,10 @@ describe('getGovernanceConfig', () => {
     expect(result.configFile).toEqual('redocly.yaml');
   });
   it('should return the same config when there is no alias provided', () => {
-    expect(getGovernanceConfig(testConfig)).toEqual(testConfig.styleguide);
+    expect(getGovernanceConfig(testConfig)).toEqual(testConfig.governance.root);
   });
   it('should handle wrong alias - return the same styleguide, empty features', () => {
-    expect(getGovernanceConfig(testConfig, 'wrong-alias')).toEqual(testConfig.styleguide);
+    expect(getGovernanceConfig(testConfig, 'wrong-alias')).toEqual(testConfig.governance.root);
   });
 });
 
@@ -161,7 +160,7 @@ describe('generation ignore object', () => {
     vi.spyOn(utils, 'doesYamlFileExist').mockImplementationOnce(() => true);
     vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 
-    const governanceConfig = new StyleguideConfig(testConfig.rawConfig);
+    const governanceConfig = new StyleguideConfig(testConfig.resolvedConfig);
 
     expect(governanceConfig).toMatchSnapshot();
   });

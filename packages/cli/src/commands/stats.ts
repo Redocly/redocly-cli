@@ -99,8 +99,8 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   collectSpecData?.(document.parsed);
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(
-    config.styleguide.extendTypes(getTypes(specVersion), specVersion),
-    config.styleguide
+    config.governance.root.extendTypes(getTypes(specVersion), specVersion),
+    config.governance.root
   );
 
   const startedAt = performance.now();

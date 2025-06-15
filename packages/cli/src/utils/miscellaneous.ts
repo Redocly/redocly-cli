@@ -44,7 +44,7 @@ export async function getFallbackApisOrExit(
   config: Config
 ): Promise<Entrypoint[]> {
   const shouldFallbackToAllDefinitions =
-    !isNotEmptyArray(argsApis) && isNotEmptyObject(config.rawConfig.apis);
+    !isNotEmptyArray(argsApis) && isNotEmptyObject(config.resolvedConfig.apis);
   const res = shouldFallbackToAllDefinitions
     ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
@@ -60,7 +60,7 @@ export async function getFallbackApisOrExit(
 }
 
 function getConfigDirectory(config: Config) {
-  return config.configFile ? dirname(config.configFile) : process.cwd();
+  return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 
 function isApiPathValid(apiPath: string): string | void {
@@ -72,7 +72,7 @@ function isApiPathValid(apiPath: string): string | void {
 }
 
 function fallbackToAllDefinitions(config: Config): Entrypoint[] {
-  return Object.entries(config.rawConfig.apis || {}).map(([alias, { root, output }]) => ({
+  return Object.entries(config.resolvedConfig.apis || {}).map(([alias, { root, output }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
     output: output && resolve(getConfigDirectory(config), output),
@@ -80,7 +80,7 @@ function fallbackToAllDefinitions(config: Config): Entrypoint[] {
 }
 
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
-  const aliasApi = config.rawConfig.apis?.[aliasOrPath];
+  const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi
     ? {
         path: isAbsoluteUrl(aliasApi.root)
@@ -93,7 +93,7 @@ function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
         path: aliasOrPath,
         // find alias by path, take the first match
         alias:
-          Object.entries(config.rawConfig.apis || {}).find(([_alias, api]) => {
+          Object.entries(config.resolvedConfig.apis || {}).find(([_alias, api]) => {
             return resolve(getConfigDirectory(config), api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };

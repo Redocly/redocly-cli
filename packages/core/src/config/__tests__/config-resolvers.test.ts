@@ -1,7 +1,7 @@
 import util from 'node:util';
 import { colorize } from '../../logger.js';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
-import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
+import { resolveGovernanceConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
 import recommended from '../recommended.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -17,20 +17,20 @@ const baseStyleguideConfig: RawGovernanceConfig<'built-in'> = {
   },
 };
 
-const minimalStyleguidePreset = resolveStyleguideConfig({
+const minimalStyleguidePreset = resolveGovernanceConfig({
   styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal'] },
 });
 
-const recommendedStyleguidePreset = resolveStyleguideConfig({
+const recommendedStyleguidePreset = resolveGovernanceConfig({
   styleguideConfig: { ...baseStyleguideConfig, extends: ['recommended'] },
 });
 
 const removeAbsolutePath = (item: string) =>
   item.match(/^.*\/packages\/core\/src\/config\/__tests__\/fixtures\/(.*)$/)![1];
 
-describe('resolveStyleguideConfig', () => {
+describe('resolveGovernanceConfig', () => {
   it('should return the config with no recommended', async () => {
-    const styleguide = await resolveStyleguideConfig({ styleguideConfig: baseStyleguideConfig });
+    const styleguide = await resolveGovernanceConfig({ styleguideConfig: baseStyleguideConfig });
     expect(styleguide.plugins?.length).toEqual(1);
     expect(styleguide.plugins?.[0].id).toEqual('');
     expect(styleguide.rules).toEqual({
@@ -40,19 +40,19 @@ describe('resolveStyleguideConfig', () => {
 
   it('should return the config with correct order by preset', async () => {
     expect(
-      await resolveStyleguideConfig({
+      await resolveGovernanceConfig({
         styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal', 'recommended'] },
       })
     ).toEqual(await recommendedStyleguidePreset);
     expect(
-      await resolveStyleguideConfig({
+      await resolveGovernanceConfig({
         styleguideConfig: { ...baseStyleguideConfig, extends: ['recommended', 'minimal'] },
       })
     ).toEqual(await minimalStyleguidePreset);
   });
 
   it('should return the same styleguideConfig when extends is empty array', async () => {
-    const configWithEmptyExtends = await resolveStyleguideConfig({
+    const configWithEmptyExtends = await resolveGovernanceConfig({
       styleguideConfig: { ...baseStyleguideConfig, extends: [] },
     });
     expect(configWithEmptyExtends.plugins?.length).toEqual(1);
@@ -68,7 +68,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+    const { plugins, ...styleguide } = await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
@@ -103,14 +103,14 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-plugin-init.yaml'],
     };
 
-    await resolveStyleguideConfig({
+    await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
 
     expect(deprecateSpy).toHaveBeenCalledTimes(1);
 
-    await resolveStyleguideConfig({
+    await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
@@ -125,7 +125,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-realm-plugin.yaml'],
     };
 
-    const { plugins } = await resolveStyleguideConfig({
+    const { plugins } = await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
@@ -153,7 +153,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-esm.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+    const { plugins, ...styleguide } = await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
@@ -194,7 +194,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-commonjs-export-function.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+    const { plugins, ...styleguide } = await resolveGovernanceConfig({
       styleguideConfig: config,
       configPath,
     });
@@ -236,7 +236,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-circular.yaml'],
     };
     expect(() => {
-      resolveStyleguideConfig({ styleguideConfig: config, configPath });
+      resolveGovernanceConfig({ styleguideConfig: config, configPath });
     }).toThrow('Circular dependency in config file');
   });
 
@@ -244,7 +244,7 @@ describe('resolveStyleguideConfig', () => {
     const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+    const { plugins, ...styleguide } = await resolveGovernanceConfig({
       styleguideConfig,
       configPath,
     });
@@ -278,7 +278,7 @@ describe('resolveStyleguideConfig', () => {
     const styleguideConfig = {
       extends: ['local-config-with-custom-function.yaml'],
     };
-    const { plugins } = await resolveStyleguideConfig({
+    const { plugins } = await resolveGovernanceConfig({
       styleguideConfig,
       configPath,
     });
@@ -293,7 +293,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-wrong-custom-function.yaml'],
     };
     try {
-      await resolveStyleguideConfig({
+      await resolveGovernanceConfig({
         styleguideConfig,
         configPath,
       });
@@ -313,7 +313,7 @@ describe('resolveStyleguideConfig', () => {
       extends: ['local-config-with-file.yaml'],
     };
 
-    const styleguide = await resolveStyleguideConfig({
+    const styleguide = await resolveGovernanceConfig({
       styleguideConfig,
       configPath,
     });
@@ -347,7 +347,7 @@ describe('resolveStyleguideConfig', () => {
       ],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
+    const { plugins, ...styleguide } = await resolveGovernanceConfig({
       styleguideConfig,
       configPath,
     });
@@ -380,7 +380,7 @@ describe('resolveStyleguideConfig', () => {
     }
     const recommendedStrictPreset = JSON.parse(
       JSON.stringify(
-        await resolveStyleguideConfig({
+        await resolveGovernanceConfig({
           styleguideConfig: { extends: ['recommended-strict'] },
         })
       )
@@ -396,7 +396,7 @@ describe('resolveApis', () => {
         'operation-2xx-response': 'error',
       },
     };
-    const mergedStyleguidePreset = resolveStyleguideConfig({
+    const mergedStyleguidePreset = resolveGovernanceConfig({
       styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal'] },
     });
     const rawConfig: RawUniversalConfig = {
@@ -518,7 +518,9 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    const {
+      resolvedConfig: { apis = {} },
+    } = await resolveConfig({ rawConfig, configPath });
 
     expect(apis['petstore'].plugins?.length).toEqual(1);
     expect(apis['petstore'].plugins?.[0].id).toEqual('');
@@ -550,7 +552,9 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    const {
+      resolvedConfig: { apis = {} },
+    } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
@@ -567,8 +571,6 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
     ]);
-
-    expect(apis['petstore'].recommendedFallback).toBe(undefined);
   });
 
   it('should ignore minimal from the root and read local file', async () => {
@@ -588,7 +590,9 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    const {
+      resolvedConfig: { apis = {} },
+    } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
@@ -627,7 +631,9 @@ describe('resolveConfig', () => {
       },
     };
 
-    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    const {
+      resolvedConfig: { apis = {} },
+    } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });

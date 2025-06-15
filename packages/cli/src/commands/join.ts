@@ -107,18 +107,18 @@ export async function handleJoin({
   );
 
   const decorators = new Set([
-    ...Object.keys(config.styleguide.decorators.oas3_0),
-    ...Object.keys(config.styleguide.decorators.oas3_1),
-    ...Object.keys(config.styleguide.decorators.oas2),
+    ...Object.keys(config.governance.root.decorators.oas3_0),
+    ...Object.keys(config.governance.root.decorators.oas3_1),
+    ...Object.keys(config.governance.root.decorators.oas2),
   ]);
-  config.styleguide.skipDecorators(Array.from(decorators));
+  config.governance.root.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
-    ...Object.keys(config.styleguide.preprocessors.oas3_0),
-    ...Object.keys(config.styleguide.preprocessors.oas3_1),
-    ...Object.keys(config.styleguide.preprocessors.oas2),
+    ...Object.keys(config.governance.root.preprocessors.oas3_0),
+    ...Object.keys(config.governance.root.preprocessors.oas3_1),
+    ...Object.keys(config.governance.root.preprocessors.oas2),
   ]);
-  config.styleguide.skipPreprocessors(Array.from(preprocessors));
+  config.governance.root.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>

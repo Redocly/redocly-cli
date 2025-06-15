@@ -135,13 +135,12 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: SpecVersion.OAS3_0, // TODO: use config-specific version
+    oasVersion: SpecVersion.OAS3_0, // TODO: use config-specific version; rename `oasVersion`
     visitorsData: {},
   };
 
   const types = normalizeTypes(
-    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config),
-    { doNotResolveExamples: config.styleguide.doNotResolveExamples }
+    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config)
   );
 
   const rules: (RuleInstanceConfig & {

@@ -52,7 +52,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    config.styleguide.ignore = {}; // clear ignore
+    config.governance.root.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
@@ -68,8 +68,7 @@ export async function handleLint({
       governanceConfig.skipRules(argv['skip-rule']);
       governanceConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      // FIXME: remove recommendedFallback at all or at least from styleguide/governance config (put it in the root as _recommendedFallback)
-      if (config.styleguide.recommendedFallback) {
+      if (typeof config._rawConfig === 'undefined') {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -91,7 +90,7 @@ export async function handleLint({
 
       if (argv['generate-ignore-file']) {
         for (const m of results) {
-          config.styleguide.addIgnore(m);
+          config.governance.root.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -111,7 +110,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    config.styleguide.saveIgnore();
+    config.governance.root.saveIgnore();
     logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
@@ -119,7 +118,7 @@ export async function handleLint({
     printLintTotals(totals, apis.length);
   }
 
-  printUnusedWarnings(config.styleguide);
+  printUnusedWarnings(config.governance.root);
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');

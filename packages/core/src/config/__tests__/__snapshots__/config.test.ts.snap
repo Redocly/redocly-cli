@@ -39,7 +39,6 @@ StyleguideConfig {
     "oas3_1": {},
     "overlay1": {},
   },
-  "recommendedFallback": false,
   "rules": {
     "arazzo1": {
       "no-empty-servers": "error",

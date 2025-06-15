@@ -228,7 +228,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    expect(config.styleguide.plugins[0]).toEqual({
+    expect(config.governance.root.plugins[0]).toEqual({
       id: 'my-plugin',
       rules: {
         oas3: {
@@ -236,7 +236,7 @@ describe('createConfig', () => {
         },
       },
     });
-    expect(config.styleguide.rules.oas3_0).toEqual({
+    expect(config.governance.root.rules.oas3_0).toEqual({
       'my-plugin/test-rule': 'error',
     });
   });
@@ -274,14 +274,14 @@ describe('createConfig', () => {
       }
     );
     // clean absolute paths and not needed fields
-    testConfig.styleguide.plugins = [];
-    testConfig.apisGovernance['test@v1'].plugins = [];
-    testConfig.rawConfig.plugins = [];
-    testConfig.rawConfig.apis!['test@v1'].plugins = [];
-    testConfig.styleguide.extendPaths = [];
-    testConfig.apisGovernance['test@v1'].extendPaths = [];
-    testConfig.rawConfig.extendPaths = [];
-    testConfig.rawConfig.apis!['test@v1'].extendPaths = [];
+    testConfig.governance.root.plugins = [];
+    testConfig.governance.apis['test@v1'].plugins = [];
+    testConfig.resolvedConfig.plugins = [];
+    testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
+    testConfig.governance.root.extendPaths = [];
+    testConfig.governance.apis['test@v1'].extendPaths = [];
+    testConfig.resolvedConfig.extendPaths = [];
+    testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
     expect(testConfig).toMatchSnapshot();
   });
@@ -294,23 +294,23 @@ function verifyExtendedConfig(
     overridesRules,
   }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
 ) {
-  const defaultPlugin = config.styleguide.plugins.find((plugin) => plugin.id === '');
+  const defaultPlugin = config.governance.root.plugins.find((plugin) => plugin.id === '');
   expect(defaultPlugin).toBeDefined();
 
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(config.styleguide.rules.oas2, overridesRules, {
+  verifyOasRules(config.governance.root.rules.oas2, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas2Rules,
   });
 
-  verifyOasRules(config.styleguide.rules.oas3_0, overridesRules, {
+  verifyOasRules(config.governance.root.rules.oas3_0, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_0Rules,
   });
 
-  verifyOasRules(config.styleguide.rules.oas3_1, overridesRules, {
+  verifyOasRules(config.governance.root.rules.oas3_1, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_1Rules,
   });

@@ -164,16 +164,10 @@ it tries to find `redocly.yaml` in the current working directory.
 async function loadConfig(options?: {
   // optional path to the config file for resolving $refs and proper error locations
   configPath?: string;
-  // allows to add custom `extends` additionally to one from the config file
+  // allows to add custom `extends` instead of the one from the config file
   customExtends?: string[];
 }): Promise<Config>;
 ```
-
-<!-- FIXME:
-If you need the raw config object, use the `getRawConfig` method.
-If you need the resolved config object, use the `getResolvedConfig` method.
-...
--->
 
 ### `lint`
 

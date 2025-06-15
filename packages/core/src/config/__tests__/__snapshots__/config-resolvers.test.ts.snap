@@ -236,7 +236,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
 }
 `;
 
-exports[`resolveStyleguideConfig > should resolve extends with local file config which contains path to nested config 1`] = `
+exports[`resolveGovernanceConfig > should resolve extends with local file config which contains path to nested config 1`] = `
 {
   "arazzo1Decorators": {},
   "arazzo1Preprocessors": {},
