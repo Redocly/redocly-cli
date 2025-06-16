@@ -1,4 +1,4 @@
-import { type StyleguideConfig, type Config } from '@redocly/openapi-core';
+import { type NormalizedGovernanceConfig, type Config } from '@redocly/openapi-core';
 
 export const configFixture: Config = {
   resolve: {
@@ -59,6 +59,9 @@ export const configFixture: Config = {
       getRulesForSpecVersion: vi.fn(),
       extendPaths: [],
       pluginPaths: [],
-    } as Omit<StyleguideConfig, '_usedRules' | '_usedVersions'> as StyleguideConfig,
+    } as Omit<
+      NormalizedGovernanceConfig,
+      '_usedRules' | '_usedVersions'
+    > as NormalizedGovernanceConfig,
   },
 };

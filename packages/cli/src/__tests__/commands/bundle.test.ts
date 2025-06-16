@@ -1,10 +1,10 @@
 import {
   bundle,
   getTotals,
-  type Config,
   logger,
-  type StyleguideConfig,
   getGovernanceConfig,
+  type Config,
+  type NormalizedGovernanceConfig,
   type ResolvedApi,
 } from '@redocly/openapi-core';
 import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
@@ -161,16 +161,16 @@ describe('bundle', () => {
             foo: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
             bar: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
           },
           root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
+          } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
         },
         resolve: {} as ResolveConfig,
       };
@@ -212,16 +212,16 @@ describe('bundle', () => {
             foo: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
             bar: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
           },
           root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
+          } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
         },
         resolve: {} as ResolveConfig,
       };
@@ -260,12 +260,12 @@ describe('bundle', () => {
             foo: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
           },
           root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
+          } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
         },
         resolve: {} as ResolveConfig,
       };
@@ -305,16 +305,16 @@ describe('bundle', () => {
             foo: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
             bar: {
               skipPreprocessors: vi.fn(),
               skipDecorators: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
           },
           root: {
             skipPreprocessors: vi.fn(),
             skipDecorators: vi.fn(),
-          } as Partial<StyleguideConfig> as StyleguideConfig,
+          } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
         },
         resolve: {} as ResolveConfig,
       };

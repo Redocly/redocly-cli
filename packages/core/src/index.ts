@@ -68,7 +68,7 @@ export {
   type Plugin,
   type RuleConfig,
   type Config,
-  type StyleguideConfig,
+  type NormalizedGovernanceConfig,
   type RawUniversalConfig,
   type RawUniversalApi,
   IGNORE_FILE,

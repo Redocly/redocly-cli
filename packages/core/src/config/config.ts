@@ -34,18 +34,17 @@ const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redocly.com/docs/cli/ for more information.\n`;
 
-function getIgnoreFilePath(configFile?: string): string | undefined {
-  if (configFile) {
-    return doesYamlFileExist(configFile)
-      ? path.join(path.dirname(configFile), IGNORE_FILE)
-      : path.join(configFile, IGNORE_FILE);
+function getIgnoreFilePath(configPath?: string): string | undefined {
+  if (configPath) {
+    return doesYamlFileExist(configPath)
+      ? path.join(path.dirname(configPath), IGNORE_FILE)
+      : path.join(configPath, IGNORE_FILE);
   } else {
     return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
 
-// FIXME: rename to NormalizedGovernanceConfig
-export class StyleguideConfig {
+export class NormalizedGovernanceConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
@@ -59,7 +58,7 @@ export class StyleguideConfig {
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(resolvedConfig: ResolvedConfig, public configFile?: string) {
+  constructor(resolvedConfig: ResolvedConfig, public configPath?: string) {
     this.plugins = resolvedConfig.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
@@ -113,7 +112,7 @@ export class StyleguideConfig {
 
     this.extendPaths = resolvedConfig.extendPaths || [];
     this.pluginPaths = resolvedConfig.pluginPaths || [];
-    this.resolveIgnore(getIgnoreFilePath(configFile));
+    this.resolveIgnore(getIgnoreFilePath(configPath));
   }
 
   resolveIgnore(ignoreFile?: string) {
@@ -142,7 +141,7 @@ export class StyleguideConfig {
   }
 
   saveIgnore() {
-    const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
+    const dir = this.configPath ? path.dirname(this.configPath) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
@@ -392,8 +391,8 @@ export class StyleguideConfig {
 export class Config {
   _rawConfig?: RawUniversalConfig;
   governance: {
-    apis: Record<string, StyleguideConfig>;
-    root: StyleguideConfig;
+    apis: Record<string, NormalizedGovernanceConfig>;
+    root: NormalizedGovernanceConfig;
   };
   resolve: ResolveConfig;
   document?: Document;
@@ -402,7 +401,7 @@ export class Config {
   constructor(public resolvedConfig: ResolvedConfig, public configPath?: string) {
     this.governance = {
       apis: {},
-      root: new StyleguideConfig(resolvedConfig || {}, configPath),
+      root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
     };
     this.resolve = getResolveConfig(resolvedConfig?.resolve);
   }

@@ -9,7 +9,7 @@ import type {
   Overlay1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
-import type { StyleguideConfig } from './config.js';
+import type { NormalizedGovernanceConfig } from './config.js';
 import type { ProblemSeverity } from '../walk.js';
 
 type InitializedRule = {
@@ -27,7 +27,7 @@ export function initRules(
     | Arazzo1RuleSet
     | Overlay1RuleSet
   )[],
-  config: StyleguideConfig,
+  config: NormalizedGovernanceConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: SpecVersion
 ): InitializedRule[] {

@@ -7,7 +7,7 @@ import {
   doesYamlFileExist,
   logger,
   type Totals,
-  type StyleguideConfig,
+  type NormalizedGovernanceConfig,
   type Config,
   type SpecVersion,
   type RuleConfig,
@@ -195,7 +195,7 @@ describe('handleLint', () => {
               rules: {} as Record<SpecVersion, Record<string, RuleConfig>>,
               skipRules: vi.fn(),
               skipPreprocessors: vi.fn(),
-            } as Partial<StyleguideConfig> as StyleguideConfig,
+            } as Partial<NormalizedGovernanceConfig> as NormalizedGovernanceConfig,
           },
         } as Config;
       });

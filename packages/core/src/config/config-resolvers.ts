@@ -19,7 +19,7 @@ import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { type Config, StyleguideConfig } from './config.js';
+import { type Config, NormalizedGovernanceConfig } from './config.js';
 
 import type {
   Plugin,
@@ -103,7 +103,7 @@ export async function resolveConfig({
   });
 
   const rootGovernanceConfig = await resolveGovernanceConfig({
-    styleguideConfig: config,
+    rootOrApiRawConfig: config,
     configPath,
     resolver,
   });
@@ -120,11 +120,11 @@ export async function resolveConfig({
     resolvedConfig,
     configPath,
     governance: {
-      root: new StyleguideConfig(resolvedConfig || {}, configPath),
+      root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
       apis: Object.fromEntries(
         Object.entries(resolvedConfig.apis || {}).map(([alias, apiConfig]) => [
           alias,
-          new StyleguideConfig(apiConfig, configPath),
+          new NormalizedGovernanceConfig(apiConfig, configPath),
         ])
       ),
     },
@@ -399,7 +399,7 @@ export async function resolveApis({
     }
     const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
       await resolveGovernanceConfig<RawUniversalApi>({
-        styleguideConfig: apiContent, // FIXME: rename styleguideConfig
+        rootOrApiRawConfig: apiContent,
         rootRawConfig: rawConfigWithoutApis,
         configPath,
         resolver,
@@ -413,14 +413,14 @@ export async function resolveApis({
 async function resolveAndMergeNestedGovernanceConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >({
-  styleguideConfig,
+  rootOrApiRawConfig,
   rootRawConfig,
   configPath = '',
   resolver = new BaseResolver(),
   parentConfigPaths = [],
   extendPaths = [],
 }: {
-  styleguideConfig: T;
+  rootOrApiRawConfig: T;
   rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
@@ -435,7 +435,7 @@ async function resolveAndMergeNestedGovernanceConfig<
     extends: rootOrApiExtends = [],
     plugins: rootOrApiPlugins = [],
     ...rootOrApiConfig
-  } = styleguideConfig;
+  } = rootOrApiRawConfig;
   const {
     extends: possiblyRootExtends = [],
     plugins: possiblyRootPlugins = [],
@@ -479,9 +479,9 @@ async function resolveAndMergeNestedGovernanceConfig<
         : isAbsoluteUrl(configPath)
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
-      const extendedStyleguideConfig = await loadExtendStyleguideConfig(pathItem, resolver);
+      const extendedRawConfig = await loadExtendConfig(pathItem, resolver);
       return await resolveAndMergeNestedGovernanceConfig({
-        styleguideConfig: extendedStyleguideConfig,
+        rootOrApiRawConfig: extendedRawConfig,
         configPath: pathItem,
         resolver,
         parentConfigPaths: [...parentConfigPaths, resolvedConfigPath],
@@ -490,7 +490,7 @@ async function resolveAndMergeNestedGovernanceConfig<
     })
   );
 
-  const { plugins: mergedPlugins = [], ...styleguide } = mergeExtends([
+  const { plugins: mergedPlugins = [], ...mergedConfig } = mergeExtends([
     ...extendConfigs,
     structuredClone(possiblyRootConfig), // we need to merge in the root config first if it exists
     {
@@ -502,8 +502,8 @@ async function resolveAndMergeNestedGovernanceConfig<
   ]);
 
   const resolvedGovernanceConfig = {
-    ...styleguide,
-    extendPaths: styleguide.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
+    ...mergedConfig,
+    extendPaths: mergedConfig.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
   };
   return resolvedGovernanceConfig;
@@ -512,18 +512,18 @@ async function resolveAndMergeNestedGovernanceConfig<
 export async function resolveGovernanceConfig<
   T extends RawUniversalConfig | RawUniversalApi
 >(opts: {
-  styleguideConfig: T; // FIXME: rename
+  rootOrApiRawConfig: T;
   rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
   parentConfigPaths?: string[];
   extendPaths?: string[];
 }): Promise<Required<ResolvedGovernanceConfig>> {
-  const resolvedStyleguideConfig = await resolveAndMergeNestedGovernanceConfig<T>(opts);
+  const resolvedGovernanceConfig = await resolveAndMergeNestedGovernanceConfig<T>(opts);
 
   return {
-    ...resolvedStyleguideConfig,
-    rules: groupStyleguideAssertionRules(resolvedStyleguideConfig),
+    ...resolvedGovernanceConfig,
+    rules: groupAssertionRules(resolvedGovernanceConfig),
   };
 }
 
@@ -549,7 +549,7 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): RawGoverna
   return preset;
 }
 
-async function loadExtendStyleguideConfig(
+async function loadExtendConfig(
   filePath: string,
   resolver: BaseResolver
 ): Promise<RawUniversalConfig> {
@@ -562,7 +562,7 @@ async function loadExtendStyleguideConfig(
   }
 }
 
-function groupStyleguideAssertionRules({
+function groupAssertionRules({
   rules,
   plugins,
 }: ResolvedGovernanceConfig): Record<string, RuleConfig> {

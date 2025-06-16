@@ -35,10 +35,10 @@ exports[`createConfig > should create a config with the apis section 1`] = `
   "configPath": "redocly.yaml",
   "governance": {
     "apis": {
-      "test@v1": StyleguideConfig {
+      "test@v1": NormalizedGovernanceConfig {
         "_usedRules": Set {},
         "_usedVersions": Set {},
-        "configFile": "redocly.yaml",
+        "configPath": "redocly.yaml",
         "decorators": {
           "arazzo1": {},
           "async2": {},
@@ -185,10 +185,10 @@ exports[`createConfig > should create a config with the apis section 1`] = `
         },
       },
     },
-    "root": StyleguideConfig {
+    "root": NormalizedGovernanceConfig {
       "_usedRules": Set {},
       "_usedVersions": Set {},
-      "configFile": "redocly.yaml",
+      "configPath": "redocly.yaml",
       "decorators": {
         "arazzo1": {},
         "async2": {},

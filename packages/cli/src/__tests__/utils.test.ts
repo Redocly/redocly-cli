@@ -19,7 +19,7 @@ import {
   ResolveError,
   YamlParseError,
   HandledError,
-  type StyleguideConfig,
+  type NormalizedGovernanceConfig,
   type Config,
   type RawUniversalApi,
   type ResolvedApi,
@@ -270,9 +270,9 @@ describe('getFallbackApisOrExit', async () => {
       },
       governance: {
         apis: {
-          main: {} as StyleguideConfig,
+          main: {} as NormalizedGovernanceConfig,
         },
-        root: {} as StyleguideConfig,
+        root: {} as NormalizedGovernanceConfig,
       },
       resolve: {} as ResolveConfig,
     };
@@ -292,9 +292,9 @@ describe('getFallbackApisOrExit', async () => {
       },
       governance: {
         apis: {
-          main: {} as StyleguideConfig,
+          main: {} as NormalizedGovernanceConfig,
         },
-        root: {} as StyleguideConfig,
+        root: {} as NormalizedGovernanceConfig,
       },
       configPath: 'nested-folder/redocly.yaml',
       resolve: {} as ResolveConfig,
@@ -317,9 +317,9 @@ describe('getFallbackApisOrExit', async () => {
       configPath: 'project-folder/redocly.yaml',
       governance: {
         apis: {
-          main: {} as StyleguideConfig,
+          main: {} as NormalizedGovernanceConfig,
         },
-        root: {} as StyleguideConfig,
+        root: {} as NormalizedGovernanceConfig,
       },
       resolve: {} as ResolveConfig,
     };

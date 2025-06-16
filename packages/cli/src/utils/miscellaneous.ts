@@ -24,7 +24,7 @@ import {
   HandledError,
   type Config,
   type BundleOutputFormat,
-  type StyleguideConfig,
+  type NormalizedGovernanceConfig,
   type Oas3Definition,
   type Oas2Definition,
   type RawConfigProcessor,
@@ -398,23 +398,23 @@ export function getOutputFileName({
   return { outputFile, ext };
 }
 
-export function printUnusedWarnings(config: StyleguideConfig) {
+export function printUnusedWarnings(config: NormalizedGovernanceConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     logger.warn(
-      `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`
+      `[WARNING] Unused rules found in ${blue(config.configPath || '')}: ${rules.join(', ')}.\n`
     );
   }
   if (preprocessors.length) {
     logger.warn(
       `[WARNING] Unused preprocessors found in ${blue(
-        config.configFile || ''
+        config.configPath || ''
       )}: ${preprocessors.join(', ')}.\n`
     );
   }
   if (decorators.length) {
     logger.warn(
-      `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+      `[WARNING] Unused decorators found in ${blue(config.configPath || '')}: ${decorators.join(
         ', '
       )}.\n`
     );
@@ -500,7 +500,7 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   return Object.assign(result, document);
 }
 
-export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rules) {
+export function checkIfRulesetExist(rules: typeof NormalizedGovernanceConfig.prototype.rules) {
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,
@@ -523,6 +523,7 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
+// FIXME: remove this
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
   for (const option of deprecatedOptions) {
     if (argv[option]) {

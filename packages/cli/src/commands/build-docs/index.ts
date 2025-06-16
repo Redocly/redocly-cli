@@ -15,12 +15,11 @@ const packageJson = createRequire(import.meta.url ?? __dirname)('../../../packag
 
 export const handlerBuildCommand = async ({
   argv,
-  config: configFromFile,
+  config,
   collectSpecData,
 }: CommandArgs<BuildDocsArgv>) => {
   const startedAt = performance.now();
 
-  const config = configFromFile;
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const { path: pathToApi } = apis[0];
 
