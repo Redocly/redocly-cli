@@ -11,32 +11,32 @@ Authenticate, update APIs, publish documentation, and use the other tools to man
 
 {% cards columns=1 %}
 
-  {% card
+{% card
     title="Great API docs"
     to="./api-docs"
   %}
-    Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
-  {% /card %}
-  
-  {% card
+Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
+{% /card %}
+
+{% card
     title="Manage OpenAPI files"
     to="./file-management"
   %}
-    Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
-  {% /card %}
+Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
+{% /card %}
 
-  {% card
+{% card
     title="Transform OpenAPI"
     to="./decorators"
   %}
-    Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
-  {% /card %}
+Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
+{% /card %}
 
-  {% card title="API governance"
+{% card title="API governance"
     to="./api-standards"
   %}
-    Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
-  {% /card %}
+Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
+{% /card %}
 
 {% /cards %}
 
