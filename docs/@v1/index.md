@@ -20,20 +20,20 @@ Authenticate, update APIs, publish documentation, and use the other tools to man
   
   {% card
     title="Manage OpenAPI files"
-    to="docs/cli/file-management"
+    to="./file-management"
   %}
     Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
   {% /card %}
 
   {% card
     title="Transform OpenAPI"
-    to="docs/cli/decorators"
+    to="./decorators"
   %}
     Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
   {% /card %}
 
   {% card title="API governance"
-    to="docs/cli/api-standards"
+    to="./api-standards"
   %}
     Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
   {% /card %}
