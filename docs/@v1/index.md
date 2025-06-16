@@ -13,7 +13,7 @@ Authenticate, update APIs, publish documentation, and use the other tools to man
 
   {% card
     title="Great API docs"
-    to="docs/cli/api-docs"
+    to="./api-docs"
   %}
     Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
   {% /card %}
