@@ -19,7 +19,7 @@ export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: RawConfigProcessor; ////-
+    processRawConfig?: RawConfigProcessor;
     externalRefResolver?: BaseResolver;
   } = {}
 ): Promise<Config> {

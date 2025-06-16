@@ -220,7 +220,7 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   };
 
 export type ThemeConfig = {
-  theme?: ThemeRawConfig; // TODO: deprecated. use ThemeRawConfig
+  theme?: ThemeRawConfig; // TODO: deprecated
 };
 
 export type ThemeRawConfig = {

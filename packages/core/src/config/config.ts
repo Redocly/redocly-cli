@@ -285,7 +285,7 @@ export class NormalizedGovernanceConfig {
     };
   }
 
-  // TODO: revise
+  // TODO: add default case for redocly.yaml
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case SpecMajorVersion.OAS3:

@@ -16,10 +16,10 @@ import {
   prefixRules,
 } from './utils.js';
 import { isBrowser } from '../env.js';
+import { type Config, NormalizedGovernanceConfig } from './config.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { type Config, NormalizedGovernanceConfig } from './config.js';
 
 import type {
   Plugin,
@@ -148,13 +148,13 @@ export async function resolvePlugins(
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
-  // TODO: implement or reuse Resolver approach so it will work in node and browser envs!
+  // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | undefined> => {
     if (isString(plugin)) {
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
-        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs?
+        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
             module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
@@ -501,12 +501,11 @@ async function resolveAndMergeNestedGovernanceConfig<
     },
   ]);
 
-  const resolvedGovernanceConfig = {
+  return {
     ...mergedConfig,
     extendPaths: mergedConfig.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
   };
-  return resolvedGovernanceConfig;
 }
 
 export async function resolveGovernanceConfig<

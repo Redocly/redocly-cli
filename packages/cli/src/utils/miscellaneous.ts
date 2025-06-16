@@ -22,17 +22,19 @@ import {
   ConfigValidationError,
   logger,
   HandledError,
-  type Config,
-  type BundleOutputFormat,
-  type NormalizedGovernanceConfig,
-  type Oas3Definition,
-  type Oas2Definition,
-  type RawConfigProcessor,
 } from '@redocly/openapi-core';
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
 
+import type {
+  Config,
+  BundleOutputFormat,
+  NormalizedGovernanceConfig,
+  Oas3Definition,
+  Oas2Definition,
+  RawConfigProcessor,
+} from '@redocly/openapi-core';
 import type { Totals, Entrypoint, OutputExtensions } from '../types.js';
 
 const globPromise = promisify(glob.glob);
@@ -80,21 +82,20 @@ function fallbackToAllDefinitions(config: Config): Entrypoint[] {
 }
 
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+  const configDir = getConfigDirectory(config);
   const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi
     ? {
-        path: isAbsoluteUrl(aliasApi.root)
-          ? aliasApi.root
-          : resolve(getConfigDirectory(config), aliasApi.root),
+        path: isAbsoluteUrl(aliasApi.root) ? aliasApi.root : resolve(configDir, aliasApi.root),
         alias: aliasOrPath,
-        output: aliasApi.output && resolve(getConfigDirectory(config), aliasApi.output),
+        output: aliasApi.output && resolve(configDir, aliasApi.output),
       }
     : {
         path: aliasOrPath,
         // find alias by path, take the first match
         alias:
           Object.entries(config.resolvedConfig.apis || {}).find(([_alias, api]) => {
-            return resolve(getConfigDirectory(config), api.root) === resolve(aliasOrPath);
+            return resolve(configDir, api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };
 }
@@ -433,8 +434,7 @@ export async function loadConfigAndHandleErrors(
   } = {}
 ): Promise<Config | void> {
   try {
-    const config = await loadConfig(options);
-    return config;
+    return await loadConfig(options);
   } catch (e) {
     handleError(e, '');
   }
@@ -523,7 +523,7 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-// FIXME: remove this
+// TODO: remove this
 export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
   for (const option of deprecatedOptions) {
     if (argv[option]) {
