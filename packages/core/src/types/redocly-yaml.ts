@@ -187,7 +187,7 @@ const configGovernanceProperties: Record<
   NodeType['properties'][string]
 > = {
   extends: {
-    name: 'ConfigStyleguideList',
+    name: 'ConfigGovernanceList',
     properties: {},
     items: (node) => {
       // check if it's preset name
