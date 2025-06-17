@@ -104,15 +104,14 @@ const bundleVisitor = () => {
             leave(node: any, ctx: UserContext) {
               if (node.extends) {
                 const bundled = bundleExtends(node, ctx);
-
                 Object.assign(node, bundled);
                 delete node.extends;
                 scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
                 delete bundled.plugins;
+                delete node.plugins;
               }
             },
           },
-
           ConfigRoot: {
             leave(node: any, ctx: UserContext) {
               if (node.extends) {
