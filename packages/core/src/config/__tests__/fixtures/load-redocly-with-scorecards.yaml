@@ -22,4 +22,4 @@ scorecard:
                 defined: true
     - name: Gold
       extends:
-        - recommended-strict
+        - ./gold.yaml
