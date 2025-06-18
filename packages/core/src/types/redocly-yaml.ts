@@ -420,8 +420,8 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
-    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
     ...nodeTypes,
+    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
   };
 }
 
