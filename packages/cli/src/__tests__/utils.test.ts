@@ -268,7 +268,7 @@ describe('getFallbackApisOrExit', async () => {
           } as ResolvedApi,
         },
       },
-      governance: {
+      _governance: {
         apis: {
           main: {} as NormalizedGovernanceConfig,
         },
@@ -290,7 +290,7 @@ describe('getFallbackApisOrExit', async () => {
           } as ResolvedApi,
         },
       },
-      governance: {
+      _governance: {
         apis: {
           main: {} as NormalizedGovernanceConfig,
         },
@@ -315,7 +315,7 @@ describe('getFallbackApisOrExit', async () => {
         },
       },
       configPath: 'project-folder/redocly.yaml',
-      governance: {
+      _governance: {
         apis: {
           main: {} as NormalizedGovernanceConfig,
         },

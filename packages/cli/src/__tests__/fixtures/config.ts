@@ -11,7 +11,7 @@ export const configFixture: Config = {
     apis: {},
   },
   configPath: undefined,
-  governance: {
+  _governance: {
     apis: {},
     root: {
       addIgnore: vi.fn(),

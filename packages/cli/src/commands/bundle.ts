@@ -64,8 +64,8 @@ export async function handleBundle({
         problems,
         ...meta
       } = await bundle({
-        config: config,
         ref: path,
+        config: config,
         alias: alias,
         dereference: argv.dereferenced,
         removeUnusedComponents,
@@ -147,7 +147,7 @@ export async function handleBundle({
     }
   }
 
-  printUnusedWarnings(config.governance.root);
+  printUnusedWarnings(getGovernanceConfig(config));
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');

@@ -156,7 +156,7 @@ describe('bundle', () => {
       };
       const config: Config = {
         resolvedConfig: { apis: apis },
-        governance: {
+        _governance: {
           apis: {
             foo: {
               skipPreprocessors: vi.fn(),
@@ -207,7 +207,7 @@ describe('bundle', () => {
       };
       const config: Config = {
         resolvedConfig: { apis },
-        governance: {
+        _governance: {
           apis: {
             foo: {
               skipPreprocessors: vi.fn(),
@@ -255,7 +255,7 @@ describe('bundle', () => {
       };
       const config: Config = {
         resolvedConfig: { apis },
-        governance: {
+        _governance: {
           apis: {
             foo: {
               skipPreprocessors: vi.fn(),
@@ -300,7 +300,7 @@ describe('bundle', () => {
       };
       const config: Config = {
         resolvedConfig: { apis },
-        governance: {
+        _governance: {
           apis: {
             foo: {
               skipPreprocessors: vi.fn(),

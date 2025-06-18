@@ -1,5 +1,5 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
-import { type Config } from '../config.js';
+import { getGovernanceConfig, type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { type RuleConfig, type RawUniversalConfig } from './../types.js';
@@ -226,7 +226,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    expect(config.governance.root.plugins[0]).toEqual({
+    expect(getGovernanceConfig(config).plugins[0]).toEqual({
       id: 'my-plugin',
       rules: {
         oas3: {
@@ -234,7 +234,7 @@ describe('createConfig', () => {
         },
       },
     });
-    expect(config.governance.root.rules.oas3_0).toEqual({
+    expect(getGovernanceConfig(config).rules.oas3_0).toEqual({
       'my-plugin/test-rule': 'error',
     });
   });
@@ -272,12 +272,12 @@ describe('createConfig', () => {
       }
     );
     // clean absolute paths and not needed fields
-    testConfig.governance.root.plugins = [];
-    testConfig.governance.apis['test@v1'].plugins = [];
+    getGovernanceConfig(testConfig).plugins = [];
+    getGovernanceConfig(testConfig, 'test@v1').plugins = [];
     testConfig.resolvedConfig.plugins = [];
     testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
-    testConfig.governance.root.extendPaths = [];
-    testConfig.governance.apis['test@v1'].extendPaths = [];
+    getGovernanceConfig(testConfig).extendPaths = [];
+    getGovernanceConfig(testConfig, 'test@v1').extendPaths = [];
     testConfig.resolvedConfig.extendPaths = [];
     testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
@@ -292,23 +292,23 @@ function verifyExtendedConfig(
     overridesRules,
   }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
 ) {
-  const defaultPlugin = config.governance.root.plugins.find((plugin) => plugin.id === '');
+  const defaultPlugin = getGovernanceConfig(config).plugins.find((plugin) => plugin.id === '');
   expect(defaultPlugin).toBeDefined();
 
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(config.governance.root.rules.oas2, overridesRules, {
+  verifyOasRules(getGovernanceConfig(config).rules.oas2, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas2Rules,
   });
 
-  verifyOasRules(config.governance.root.rules.oas3_0, overridesRules, {
+  verifyOasRules(getGovernanceConfig(config).rules.oas3_0, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_0Rules,
   });
 
-  verifyOasRules(config.governance.root.rules.oas3_1, overridesRules, {
+  verifyOasRules(getGovernanceConfig(config).rules.oas3_1, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_1Rules,
   });

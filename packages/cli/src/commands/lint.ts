@@ -51,8 +51,10 @@ export async function handleLint({
     exitWithError('No APIs were provided.');
   }
 
+  const rootGovernance = getGovernanceConfig(config);
+
   if (argv['generate-ignore-file']) {
-    config.governance.root.ignore = {}; // clear ignore
+    rootGovernance.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
@@ -90,7 +92,7 @@ export async function handleLint({
 
       if (argv['generate-ignore-file']) {
         for (const m of results) {
-          config.governance.root.addIgnore(m);
+          rootGovernance.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -110,7 +112,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    config.governance.root.saveIgnore();
+    rootGovernance.saveIgnore();
     logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
@@ -118,7 +120,7 @@ export async function handleLint({
     printLintTotals(totals, apis.length);
   }
 
-  printUnusedWarnings(config.governance.root);
+  printUnusedWarnings(rootGovernance);
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');

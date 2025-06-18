@@ -116,10 +116,11 @@ export async function resolveConfig({
   };
 
   return {
-    _rawConfig: rawConfig,
     resolvedConfig,
     configPath,
-    governance: {
+    resolve: getResolveConfig(config?.resolve),
+    _rawConfig: rawConfig,
+    _governance: {
       root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
       apis: Object.fromEntries(
         Object.entries(resolvedConfig.apis || {}).map(([alias, apiConfig]) => [
@@ -128,7 +129,6 @@ export async function resolveConfig({
         ])
       ),
     },
-    resolve: getResolveConfig(config?.resolve),
   };
 }
 

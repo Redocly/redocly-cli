@@ -7,6 +7,7 @@ import {
   BaseResolver,
   type SpecVersion,
   type Document,
+  getGovernanceConfig,
 } from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join.js';
 import {
@@ -20,7 +21,7 @@ import { configFixture } from '../fixtures/config.js';
 import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.mock('../../utils/miscellaneous.js');
     vi.mock('../../utils/error.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
@@ -49,6 +50,11 @@ describe('handleJoin', () => {
       .mockImplementationOnce(() =>
         Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
       );
+    // Unmock getGovernanceConfig:
+    const { getGovernanceConfig: originalGetGovernanceConfig } = await vi.importActual<
+      typeof import('@redocly/openapi-core')
+    >('@redocly/openapi-core');
+    vi.mocked(getGovernanceConfig).mockImplementation(originalGetGovernanceConfig);
   });
 
   it('should call exitWithError because only one entrypoint', async () => {
@@ -228,8 +234,8 @@ describe('handleJoin', () => {
     });
 
     const config = await loadConfig();
-    expect(config.governance.root.skipDecorators).toHaveBeenCalled();
-    expect(config.governance.root.skipPreprocessors).toHaveBeenCalled();
+    expect(config._governance.root.skipDecorators).toHaveBeenCalled();
+    expect(config._governance.root.skipPreprocessors).toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {

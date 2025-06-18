@@ -11,6 +11,7 @@ import {
   isRef,
   dequal,
   logger,
+  getGovernanceConfig,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -106,19 +107,21 @@ export async function handleJoin({
     )
   );
 
+  const rootGovernance = getGovernanceConfig(config);
+
   const decorators = new Set([
-    ...Object.keys(config.governance.root.decorators.oas3_0),
-    ...Object.keys(config.governance.root.decorators.oas3_1),
-    ...Object.keys(config.governance.root.decorators.oas2),
+    ...Object.keys(rootGovernance.decorators.oas3_0),
+    ...Object.keys(rootGovernance.decorators.oas3_1),
+    ...Object.keys(rootGovernance.decorators.oas2),
   ]);
-  config.governance.root.skipDecorators(Array.from(decorators));
+  rootGovernance.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
-    ...Object.keys(config.governance.root.preprocessors.oas3_0),
-    ...Object.keys(config.governance.root.preprocessors.oas3_1),
-    ...Object.keys(config.governance.root.preprocessors.oas2),
+    ...Object.keys(rootGovernance.preprocessors.oas3_0),
+    ...Object.keys(rootGovernance.preprocessors.oas3_1),
+    ...Object.keys(rootGovernance.preprocessors.oas2),
   ]);
-  config.governance.root.skipPreprocessors(Array.from(preprocessors));
+  rootGovernance.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>

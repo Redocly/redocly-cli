@@ -2,38 +2,7 @@
 
 exports[`createConfig > should create a config with the apis section 1`] = `
 {
-  "_rawConfig": {
-    "apis": {
-      "test@v1": {
-        "root": "resources/pets.yaml",
-        "rules": {
-          "operation-summary": "warn",
-          "rule/test": "warn",
-        },
-      },
-    },
-    "resolve": {
-      "http": {
-        "headers": [],
-      },
-    },
-    "rules": {
-      "no-empty-servers": "error",
-      "operation-summary": "error",
-      "rule/test": {
-        "assertions": {
-          "defined": true,
-        },
-        "subject": {
-          "property": "x-test",
-          "type": "Operation",
-        },
-      },
-    },
-    "telemetry": "on",
-  },
-  "configPath": "redocly.yaml",
-  "governance": {
+  "_governance": {
     "apis": {
       "test@v1": NormalizedGovernanceConfig {
         "_usedRules": Set {},
@@ -328,6 +297,37 @@ exports[`createConfig > should create a config with the apis section 1`] = `
       },
     },
   },
+  "_rawConfig": {
+    "apis": {
+      "test@v1": {
+        "root": "resources/pets.yaml",
+        "rules": {
+          "operation-summary": "warn",
+          "rule/test": "warn",
+        },
+      },
+    },
+    "resolve": {
+      "http": {
+        "headers": [],
+      },
+    },
+    "rules": {
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+      "rule/test": {
+        "assertions": {
+          "defined": true,
+        },
+        "subject": {
+          "property": "x-test",
+          "type": "Operation",
+        },
+      },
+    },
+    "telemetry": "on",
+  },
+  "configPath": "redocly.yaml",
   "resolve": {
     "http": {
       "customFetch": undefined,

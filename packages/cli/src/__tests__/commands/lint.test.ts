@@ -51,7 +51,7 @@ describe('handleLint', () => {
     vi.spyOn(performance, 'now').mockImplementation(() => 42);
 
     vi.mock('@redocly/openapi-core');
-    getGovernanceConfigMock.mockReturnValue(configFixture.governance.root);
+    getGovernanceConfigMock.mockReturnValue(configFixture._governance.root);
     vi.mocked(doesYamlFileExist).mockImplementation((path) => path === 'redocly.yaml');
     vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
 
@@ -139,8 +139,8 @@ describe('handleLint', () => {
         'skip-rule': ['rule'],
         'generate-ignore-file': true,
       });
-      expect(configFixture.governance.root.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(configFixture.governance.root.skipPreprocessors).toHaveBeenCalledWith([
+      expect(getGovernanceConfig(configFixture).skipRules).toHaveBeenCalledWith(['rule']);
+      expect(getGovernanceConfig(configFixture).skipPreprocessors).toHaveBeenCalledWith([
         'preprocessor',
       ]);
     });
@@ -197,7 +197,7 @@ describe('handleLint', () => {
       vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
         return {
           resolvedConfig: {},
-          governance: {
+          _governance: {
             apis: {},
             root: {
               rules: {} as Record<SpecVersion, Record<string, RuleConfig>>,

@@ -390,7 +390,7 @@ export class NormalizedGovernanceConfig {
 // TODO: left for backward compatibility with Redoc. Replace with a type along with replacing Redoc
 export class Config {
   _rawConfig?: RawUniversalConfig;
-  governance: {
+  _governance: {
     apis: Record<string, NormalizedGovernanceConfig>;
     root: NormalizedGovernanceConfig;
   };
@@ -399,7 +399,7 @@ export class Config {
   resolvedRefMap?: ResolvedRefMap;
 
   constructor(public resolvedConfig: ResolvedConfig, public configPath?: string) {
-    this.governance = {
+    this._governance = {
       apis: {},
       root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
     };
@@ -409,6 +409,6 @@ export class Config {
 
 export function getGovernanceConfig(config: Config, alias?: string) {
   return alias === undefined
-    ? config.governance.root
-    : config.governance.apis[alias] ?? config.governance.root;
+    ? config._governance.root
+    : config._governance.apis[alias] ?? config._governance.root;
 }

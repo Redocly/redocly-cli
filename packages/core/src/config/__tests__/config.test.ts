@@ -37,11 +37,11 @@ const testConfig: Config = await createConfig(
     configPath: 'redocly.yaml',
   }
 );
-testConfig.governance.root.plugins = [];
-testConfig.governance.apis['test@v1'].plugins = [];
+getGovernanceConfig(testConfig).plugins = [];
+getGovernanceConfig(testConfig, 'test@v1').plugins = [];
 testConfig.resolvedConfig.plugins = [];
-testConfig.governance.root.extendPaths = [];
-testConfig.governance.apis['test@v1'].extendPaths = [];
+getGovernanceConfig(testConfig).extendPaths = [];
+getGovernanceConfig(testConfig, 'test@v1').extendPaths = [];
 testConfig.resolvedConfig.extendPaths = [];
 
 describe('getGovernanceConfig', () => {
@@ -112,10 +112,10 @@ describe('getGovernanceConfig', () => {
     expect(result.configPath).toEqual('redocly.yaml');
   });
   it('should return the same config when there is no alias provided', () => {
-    expect(getGovernanceConfig(testConfig)).toEqual(testConfig.governance.root);
+    expect(getGovernanceConfig(testConfig)).toEqual(testConfig._governance.root);
   });
   it('should handle wrong alias - return the same governance config, empty features', () => {
-    expect(getGovernanceConfig(testConfig, 'wrong-alias')).toEqual(testConfig.governance.root);
+    expect(getGovernanceConfig(testConfig, 'wrong-alias')).toEqual(testConfig._governance.root);
   });
 });
 
