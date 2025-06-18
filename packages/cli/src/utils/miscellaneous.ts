@@ -26,6 +26,7 @@ import {
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
+import { lintConfigHandler } from '../commands/lint.js';
 
 import type {
   Config,
@@ -33,9 +34,9 @@ import type {
   NormalizedGovernanceConfig,
   Oas3Definition,
   Oas2Definition,
-  RawConfigProcessor,
+  Exact,
 } from '@redocly/openapi-core';
-import type { Totals, Entrypoint, OutputExtensions } from '../types.js';
+import type { Totals, Entrypoint, OutputExtensions, CommandOptions } from '../types.js';
 
 const globPromise = promisify(glob.glob);
 
@@ -288,25 +289,30 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
   return 'yaml';
 }
 
-export function handleError(e: Error, ref: string) {
+export function handleError(e: Error, ref: string): never {
   switch (e.constructor) {
     case HandledError: {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
+      exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
+      break;
     case YamlParseError:
-      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
+      exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
+      break;
     case CircularJSONNotSupportedError: {
-      return exitWithError(
+      exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
       );
+      break;
     }
     case SyntaxError:
-      return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+      exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+      break;
     case ConfigValidationError:
-      return exitWithError(e.message);
+      exitWithError(e.message);
+      break;
     default: {
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
@@ -352,7 +358,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
 export function printConfigLintTotals(totals: Totals, command?: string | number): void {
   if (totals.errors > 0) {
-    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`);
+    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`);
   } else if (totals.warnings > 0) {
     logger.warn(
       `⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`
@@ -427,14 +433,16 @@ export function printUnusedWarnings(config: NormalizedGovernanceConfig) {
 }
 
 export async function loadConfigAndHandleErrors(
-  options: {
-    configPath?: string;
-    customExtends?: string[];
-    processRawConfig?: RawConfigProcessor;
-  } = {}
-): Promise<Config | void> {
+  argv: Exact<CommandOptions>,
+  version: string
+): Promise<Config> {
   try {
-    return await loadConfig(options);
+    const config = await loadConfig({
+      configPath: argv.config,
+      customExtends: argv.extends as string[] | undefined,
+    });
+    await lintConfigHandler(argv, version, config);
+    return config;
   } catch (e) {
     handleError(e, '');
   }

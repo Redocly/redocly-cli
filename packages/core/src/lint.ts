@@ -11,7 +11,7 @@ import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs.js';
 import { type Config, getGovernanceConfig } from './config/index.js';
 
-import type { Document, ResolvedRefMap } from './resolve.js';
+import type { Document } from './resolve.js';
 import type { ProblemSeverity, WalkContext } from './walk.js';
 import type { NodeType } from './types/index.js';
 import type {
@@ -124,14 +124,15 @@ export async function lintDocument(opts: {
 }
 
 export async function lintConfig(opts: {
-  document: Document;
   config: Config;
-  resolvedRefMap?: ResolvedRefMap;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
   externalConfigTypes?: Record<string, NodeType>;
 }) {
-  const { document, severity, externalRefResolver = new BaseResolver(), config } = opts;
+  const { severity, externalRefResolver = new BaseResolver(), config } = opts;
+  if (!config.document) {
+    throw new Error('Config document is not set.');
+  }
 
   const ctx: WalkContext = {
     problems: [],
@@ -173,14 +174,14 @@ export async function lintConfig(opts: {
   ];
   const normalizedVisitors = normalizeVisitors(rules, types);
   const resolvedRefMap =
-    opts.resolvedRefMap ||
+    config.resolvedRefMap ||
     (await resolveDocument({
-      rootDocument: document,
+      rootDocument: config.document,
       rootType: types.ConfigRoot,
       externalRefResolver,
     }));
   walkDocument({
-    document,
+    document: config.document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
     resolvedRefMap,

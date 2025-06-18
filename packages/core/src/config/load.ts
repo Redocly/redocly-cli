@@ -19,6 +19,7 @@ export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
+    /** Deprecated */
     processRawConfig?: RawConfigProcessor;
     externalRefResolver?: BaseResolver;
   } = {}

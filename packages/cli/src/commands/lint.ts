@@ -25,7 +25,7 @@ import { AbortFlowError, exitWithError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
-import type { OutputFormat, ProblemSeverity, RawConfigProcessor } from '@redocly/openapi-core';
+import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
 import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
@@ -125,11 +125,12 @@ export async function handleLint({
   }
 }
 
-export function lintConfigCallback(
-  argv: CommandOptions & Record<string, undefined>,
-  version: string
-): RawConfigProcessor | undefined {
-  if (argv['lint-config'] === 'off') {
+export async function lintConfigHandler(
+  argv: Exact<CommandOptions>,
+  version: string,
+  config: Config
+) {
+  if (argv['lint-config'] === 'off' || config.document === undefined) {
     return;
   }
 
@@ -138,33 +139,29 @@ export function lintConfigCallback(
     return;
   }
 
-  return async ({ document, resolvedRefMap, config, parsed: { theme = {} } }) => {
-    const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
+  const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
-    if (command === 'check-config') {
-      notifyAboutIncompatibleConfigOptions(theme.openapi);
-    }
+  if (command === 'check-config') {
+    notifyAboutIncompatibleConfigOptions(config._rawConfig?.theme?.openapi);
+  }
 
-    const problems = await lintConfig({
-      document,
-      resolvedRefMap,
-      config,
-      severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
-    });
+  const problems = await lintConfig({
+    config,
+    severity: argv['lint-config'] || 'warn',
+  });
 
-    const fileTotals = getTotals(problems);
+  const fileTotals = getTotals(problems);
 
-    formatProblems(problems, {
-      format: argv.format,
-      maxProblems: argv['max-problems'],
-      totals: fileTotals,
-      version,
-    });
+  formatProblems(problems, {
+    format: argv.format,
+    maxProblems: argv['max-problems'],
+    totals: fileTotals,
+    version,
+  });
 
-    printConfigLintTotals(fileTotals, command);
+  printConfigLintTotals(fileTotals, command);
 
-    if (fileTotals.errors > 0) {
-      throw new ConfigValidationError();
-    }
-  };
+  if (fileTotals.errors > 0) {
+    throw new ConfigValidationError();
+  }
 }

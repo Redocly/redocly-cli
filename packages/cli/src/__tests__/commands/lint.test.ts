@@ -77,11 +77,14 @@ describe('handleLint', () => {
 
     it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
       await commandWrapper(handleLint)(argvMock);
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
-        configPath: undefined,
-        customExtends: undefined,
-        processRawConfig: undefined,
-      });
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+        {
+          apis: ['openapi.yaml'],
+          format: 'codeframe',
+          'lint-config': 'off',
+        },
+        '2.0.0'
+      );
       expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
 
@@ -91,11 +94,16 @@ describe('handleLint', () => {
         config: 'redocly.yaml',
         extends: ['some/path'],
       });
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
-        configPath: 'redocly.yaml',
-        customExtends: ['some/path'],
-        processRawConfig: undefined,
-      });
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+        {
+          apis: ['openapi.yaml'],
+          config: 'redocly.yaml',
+          extends: ['some/path'],
+          format: 'codeframe',
+          'lint-config': 'off',
+        },
+        '2.0.0'
+      );
     });
 
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {

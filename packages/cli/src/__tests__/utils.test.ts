@@ -84,8 +84,8 @@ describe('printConfigLintTotals', () => {
 
   it('should print errors if such exist', () => {
     printConfigLintTotals(totalProblemsMock);
-    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.');
-    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.');
+    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
   });
 
   it('should print warning if no error', () => {

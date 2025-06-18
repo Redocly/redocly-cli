@@ -8,11 +8,10 @@ import {
 import { version } from './utils/package.js';
 import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
 import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
-import { lintConfigCallback } from './commands/lint.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 
 import type { Arguments } from 'yargs';
-import type { Config, CollectFn, ArazzoDefinition } from '@redocly/openapi-core';
+import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
 import type { ExitCode } from './utils/miscellaneous.js';
 import type { CommandOptions } from './types.js';
 
@@ -61,11 +60,7 @@ export function commandWrapper<T extends CommandOptions>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please provide a valid path to the configuration file.');
       }
-      const config: Config = (await loadConfigAndHandleErrors({
-        configPath: argv.config,
-        customExtends: argv.extends as string[] | undefined,
-        processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
-      })) as Config;
+      const config: Config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
       telemetry = config.resolvedConfig.telemetry;
       hasConfig = !!config._rawConfig;
       code = 1;

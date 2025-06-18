@@ -39,10 +39,8 @@ describe('loadConfig', () => {
       processRawConfig: async ({ document, parsed, resolvedRefMap, config }) => {
         doc = parsed;
         problems = await lintConfig({
-          document,
           severity: 'warn',
-          resolvedRefMap,
-          config,
+          config: { ...config, document, resolvedRefMap },
         });
       },
     });
