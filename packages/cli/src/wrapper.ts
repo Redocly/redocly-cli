@@ -62,7 +62,7 @@ export function commandWrapper<T extends CommandOptions>(
       }
       const config: Config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
       telemetry = config.resolvedConfig.telemetry;
-      hasConfig = !!config._rawConfig;
+      hasConfig = !!config.rawConfig;
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData });

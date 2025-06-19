@@ -16,7 +16,6 @@ import {
   prefixRules,
 } from './utils.js';
 import { isBrowser } from '../env.js';
-import { type Config, NormalizedGovernanceConfig } from './config.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
@@ -50,7 +49,7 @@ export async function resolveConfigFileAndRefs({
   configPath,
   externalRefResolver = new BaseResolver(),
   base = null,
-}: Omit<CoreBundleOptions, 'config' | 'alias'> & { configPath?: string }): Promise<{
+}: Omit<CoreBundleOptions, 'config'> & { configPath?: string }): Promise<{
   document: Document;
   resolvedRefMap: ResolvedRefMap;
 }> {
@@ -85,7 +84,7 @@ export async function resolveConfig({
   configPath,
   externalRefResolver,
   customExtends,
-}: ConfigOptions): Promise<Config> {
+}: ConfigOptions): Promise<ResolvedConfig> {
   const config = rawConfig === undefined ? { extends: ['recommended'] } : { ...rawConfig };
   if (customExtends !== undefined) {
     config.extends = customExtends;
@@ -115,21 +114,7 @@ export async function resolveConfig({
     apis,
   };
 
-  return {
-    resolvedConfig,
-    configPath,
-    resolve: getResolveConfig(config?.resolve),
-    _rawConfig: rawConfig,
-    _governance: {
-      root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
-      apis: Object.fromEntries(
-        Object.entries(resolvedConfig.apis || {}).map(([alias, apiConfig]) => [
-          alias,
-          new NormalizedGovernanceConfig(apiConfig, configPath),
-        ])
-      ),
-    },
-  };
+  return resolvedConfig;
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {

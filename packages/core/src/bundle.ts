@@ -16,7 +16,7 @@ import { dequal, isPlainObject, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import { getGovernanceConfig, type Config } from './config/index.js';
+import { type Config } from './config/index.js';
 
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
@@ -34,7 +34,6 @@ export enum OasVersion {
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
-  alias?: string;
   dereference?: boolean;
   base?: string | null;
   removeUnusedComponents?: boolean;
@@ -139,7 +138,6 @@ export type BundleResult = {
 export async function bundleDocument(opts: {
   document: Document;
   config: Config;
-  alias?: string;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
@@ -149,7 +147,6 @@ export async function bundleDocument(opts: {
   const {
     document,
     config,
-    alias,
     customTypes,
     externalRefResolver,
     dereference = false,
@@ -158,15 +155,14 @@ export async function bundleDocument(opts: {
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const governanceConfig = getGovernanceConfig(config, alias);
-  const rules = governanceConfig.getRulesForSpecVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    governanceConfig.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
-    governanceConfig
+    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    config
   );
 
-  const preprocessors = initRules(rules, governanceConfig, 'preprocessors', specVersion);
-  const decorators = initRules(rules, governanceConfig, 'decorators', specVersion);
+  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+  const decorators = initRules(rules, config, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
@@ -236,7 +232,7 @@ export async function bundleDocument(opts: {
 
   return {
     bundle: document,
-    problems: ctx.problems.map((problem) => governanceConfig.addProblemToIgnore(problem)),
+    problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
     rootType: types.Root,
     refTypes: ctx.refTypes,

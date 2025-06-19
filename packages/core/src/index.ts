@@ -67,12 +67,10 @@ export {
   type ResolvedApi,
   type Plugin,
   type RuleConfig,
-  type Config,
-  type NormalizedGovernanceConfig,
+  Config, // FIXME: only export as a type
   type RawUniversalConfig,
   type RawUniversalApi,
   IGNORE_FILE,
-  getGovernanceConfig,
   loadConfig,
   getConfig,
   findConfig,

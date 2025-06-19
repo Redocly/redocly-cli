@@ -31,7 +31,6 @@ import { lintConfigHandler } from '../commands/lint.js';
 import type {
   Config,
   BundleOutputFormat,
-  NormalizedGovernanceConfig,
   Oas3Definition,
   Oas2Definition,
   Exact,
@@ -405,7 +404,7 @@ export function getOutputFileName({
   return { outputFile, ext };
 }
 
-export function printUnusedWarnings(config: NormalizedGovernanceConfig) {
+export function printUnusedWarnings(config: Config) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     logger.warn(
@@ -508,7 +507,7 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   return Object.assign(result, document);
 }
 
-export function checkIfRulesetExist(rules: typeof NormalizedGovernanceConfig.prototype.rules) {
+export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,

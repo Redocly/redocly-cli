@@ -9,7 +9,7 @@ import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-ty
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs.js';
-import { type Config, getGovernanceConfig } from './config/index.js';
+import { type Config } from './config/index.js';
 
 import type { Document } from './resolve.js';
 import type { ProblemSeverity, WalkContext } from './walk.js';
@@ -29,7 +29,6 @@ import type { CollectFn } from './utils.js';
 export async function lint(opts: {
   ref: string;
   config: Config;
-  alias?: string;
   externalRefResolver?: BaseResolver;
   collectSpecData?: CollectFn;
 }) {
@@ -48,7 +47,6 @@ export async function lintFromString(opts: {
   source: string;
   absoluteRef?: string;
   config: Config;
-  alias?: string;
   externalRefResolver?: BaseResolver;
 }) {
   const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
@@ -64,20 +62,18 @@ export async function lintFromString(opts: {
 export async function lintDocument(opts: {
   document: Document;
   config: Config;
-  alias?: string;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
-  const { document, customTypes, externalRefResolver, config, alias } = opts;
-  const governanceConfig = getGovernanceConfig(config, alias);
+  const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = governanceConfig.getRulesForSpecVersion(specMajorVersion);
+  const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    governanceConfig.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
-    governanceConfig
+    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    config
   );
 
   const ctx: WalkContext = {
@@ -86,8 +82,8 @@ export async function lintDocument(opts: {
     visitorsData: {},
   };
 
-  const preprocessors = initRules(rules, governanceConfig, 'preprocessors', specVersion);
-  const regularRules = initRules(rules, governanceConfig, 'rules', specVersion);
+  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+  const regularRules = initRules(rules, config, 'rules', specVersion);
 
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
@@ -120,7 +116,7 @@ export async function lintDocument(opts: {
     resolvedRefMap,
     ctx,
   });
-  return ctx.problems.map((problem) => governanceConfig.addProblemToIgnore(problem));
+  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
 export async function lintConfig(opts: {

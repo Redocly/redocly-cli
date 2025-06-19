@@ -1,13 +1,7 @@
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import {
-  formatProblems,
-  getTotals,
-  bundle,
-  logger,
-  getGovernanceConfig,
-} from '@redocly/openapi-core';
+import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -46,17 +40,16 @@ export async function handleBundle({
 }: CommandArgs<BundleOptions>) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
-    config.resolvedConfig?.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
+    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
   for (const { path, alias, output } of apis) {
     try {
       const startedAt = performance.now();
-      const governanceConfig = getGovernanceConfig(config, alias);
-
-      governanceConfig.skipPreprocessors(argv['skip-preprocessor']);
-      governanceConfig.skipDecorators(argv['skip-decorator']);
+      const aliasConfig = config.getFor(alias);
+      aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
+      aliasConfig.skipDecorators(argv['skip-decorator']);
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
       const {
@@ -65,8 +58,7 @@ export async function handleBundle({
         ...meta
       } = await bundle({
         ref: path,
-        config,
-        alias,
+        config: aliasConfig,
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
@@ -147,7 +139,7 @@ export async function handleBundle({
     }
   }
 
-  printUnusedWarnings(getGovernanceConfig(config));
+  printUnusedWarnings(config);
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');

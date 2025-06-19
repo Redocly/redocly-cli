@@ -2,7 +2,6 @@ import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
   formatProblems,
-  getGovernanceConfig,
   getTotals,
   lint,
   lintConfig,
@@ -51,10 +50,8 @@ export async function handleLint({
     exitWithError('No APIs were provided.');
   }
 
-  const rootGovernance = getGovernanceConfig(config);
-
   if (argv['generate-ignore-file']) {
-    rootGovernance.ignore = {}; // clear ignore
+    config.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
@@ -63,14 +60,14 @@ export async function handleLint({
   for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
-      const governanceConfig = getGovernanceConfig(config, alias);
+      const aliasConfig = config.getFor(alias);
 
-      checkIfRulesetExist(governanceConfig.rules);
+      checkIfRulesetExist(aliasConfig.rules);
 
-      governanceConfig.skipRules(argv['skip-rule']);
-      governanceConfig.skipPreprocessors(argv['skip-preprocessor']);
+      aliasConfig.skipRules(argv['skip-rule']);
+      aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config._rawConfig === 'undefined') {
+      if (typeof config.rawConfig === 'undefined') {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -80,8 +77,7 @@ export async function handleLint({
       logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
-        config,
-        alias,
+        config: aliasConfig,
         collectSpecData,
       });
 
@@ -92,7 +88,7 @@ export async function handleLint({
 
       if (argv['generate-ignore-file']) {
         for (const m of results) {
-          rootGovernance.addIgnore(m);
+          config.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -112,7 +108,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    rootGovernance.saveIgnore();
+    config.saveIgnore();
     logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
@@ -120,7 +116,7 @@ export async function handleLint({
     printLintTotals(totals, apis.length);
   }
 
-  printUnusedWarnings(rootGovernance);
+  printUnusedWarnings(config);
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');
@@ -144,7 +140,7 @@ export async function lintConfigHandler(
   const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
   if (command === 'check-config') {
-    notifyAboutIncompatibleConfigOptions(config._rawConfig?.theme?.openapi);
+    notifyAboutIncompatibleConfigOptions(config.rawConfig?.theme?.openapi);
   }
 
   const problems = await lintConfig({

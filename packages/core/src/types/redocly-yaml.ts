@@ -389,9 +389,7 @@ const Assert: NodeType = {
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
   const nodeNames = Object.values(SpecVersion).flatMap((version) => {
-    const types = config?._governance.root
-      ? config._governance.root.extendTypes(getTypes(version), version)
-      : getTypes(version);
+    const types = config ? config.extendTypes(getTypes(version), version) : getTypes(version);
     return Object.keys(types);
   });
   // Create types based on external schemas

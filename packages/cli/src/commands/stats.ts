@@ -11,7 +11,6 @@ import {
   Stats,
   bundle,
   logger,
-  getGovernanceConfig,
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
@@ -99,11 +98,7 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const { bundle: document } = await bundle({ config, ref: path });
   collectSpecData?.(document.parsed);
   const specVersion = detectSpec(document.parsed);
-  const rootGovernance = getGovernanceConfig(config);
-  const types = normalizeTypes(
-    rootGovernance.extendTypes(getTypes(specVersion), specVersion),
-    rootGovernance
-  );
+  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 
   const startedAt = performance.now();
   const ctx: WalkContext = {

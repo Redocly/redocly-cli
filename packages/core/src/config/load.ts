@@ -5,7 +5,7 @@ import { ConfigValidationError, deepCloneMapWithJSON } from './utils.js';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers.js';
 import { bundleConfig } from '../bundle.js';
 import { type BaseResolver, type Document, type ResolvedRefMap } from '../resolve.js';
-import { type Config } from './config.js';
+import { Config } from './config.js';
 import { type RawUniversalConfig } from './types.js';
 
 export type RawConfigProcessor = (params: {
@@ -36,11 +36,18 @@ export async function loadConfig(
     externalRefResolver,
   });
 
-  const config = await resolveConfig({
+  const resolvedConfig = await resolveConfig({
     rawConfig,
     customExtends,
     configPath,
     externalRefResolver,
+  });
+
+  const config = new Config(resolvedConfig, {
+    configPath,
+    rawConfig,
+    document,
+    resolvedRefMap,
   });
 
   // FIXME: remove processRawConfig
@@ -60,11 +67,7 @@ export async function loadConfig(
     }
   }
 
-  return {
-    ...config,
-    document,
-    resolvedRefMap,
-  };
+  return config;
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
@@ -123,5 +126,9 @@ export async function createConfig(
   options?: CreateConfigOptions
 ): Promise<Config> {
   const rawConfig = typeof config === 'string' ? (parseYaml(config) as RawUniversalConfig) : config;
-  return await resolveConfig({ rawConfig, ...options });
+  const resolvedConfig = await resolveConfig({ rawConfig, ...options });
+  return new Config(resolvedConfig, {
+    configPath: options?.configPath,
+    rawConfig,
+  });
 }

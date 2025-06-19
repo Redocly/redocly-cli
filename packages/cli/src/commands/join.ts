@@ -11,7 +11,6 @@ import {
   isRef,
   dequal,
   logger,
-  getGovernanceConfig,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -91,7 +90,6 @@ export async function handleJoin({
     );
   }
 
-  // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied (2.0)
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
     return exitWithError(`At least 2 APIs should be provided.`);
@@ -107,21 +105,19 @@ export async function handleJoin({
     )
   );
 
-  const rootGovernance = getGovernanceConfig(config);
-
   const decorators = new Set([
-    ...Object.keys(rootGovernance.decorators.oas3_0),
-    ...Object.keys(rootGovernance.decorators.oas3_1),
-    ...Object.keys(rootGovernance.decorators.oas2),
+    ...Object.keys(config.decorators.oas3_0),
+    ...Object.keys(config.decorators.oas3_1),
+    ...Object.keys(config.decorators.oas2),
   ]);
-  rootGovernance.skipDecorators(Array.from(decorators));
+  config.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
-    ...Object.keys(rootGovernance.preprocessors.oas3_0),
-    ...Object.keys(rootGovernance.preprocessors.oas3_1),
-    ...Object.keys(rootGovernance.preprocessors.oas2),
+    ...Object.keys(config.preprocessors.oas3_0),
+    ...Object.keys(config.preprocessors.oas3_1),
+    ...Object.keys(config.preprocessors.oas2),
   ]);
-  rootGovernance.skipPreprocessors(Array.from(preprocessors));
+  config.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>

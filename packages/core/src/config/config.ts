@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
-import { slash, doesYamlFileExist } from '../utils.js';
+import { slash, doesYamlFileExist, isPlainObject } from '../utils.js';
 import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
@@ -44,7 +44,15 @@ function getIgnoreFilePath(configPath?: string): string | undefined {
   }
 }
 
-export class NormalizedGovernanceConfig {
+export class Config {
+  resolvedConfig: ResolvedConfig;
+  rawConfig?: RawUniversalConfig;
+  configPath?: string;
+  document?: Document;
+  resolvedRefMap?: ResolvedRefMap;
+  resolve: ResolveConfig;
+  _alias?: string;
+
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
@@ -58,7 +66,24 @@ export class NormalizedGovernanceConfig {
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(resolvedConfig: ResolvedConfig, public configPath?: string) {
+  constructor(
+    resolvedConfig: ResolvedConfig,
+    opts: {
+      configPath?: string;
+      rawConfig?: RawUniversalConfig;
+      document?: Document;
+      resolvedRefMap?: ResolvedRefMap;
+      alias?: string;
+    } = {}
+  ) {
+    this.resolvedConfig = resolvedConfig;
+    this.rawConfig = opts.rawConfig;
+    this.configPath = opts.configPath;
+    this.document = opts.document;
+    this.resolvedRefMap = opts.resolvedRefMap;
+    this.resolve = getResolveConfig(this.resolvedConfig.resolve);
+    this._alias = opts.alias;
+
     this.plugins = resolvedConfig.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
@@ -112,7 +137,21 @@ export class NormalizedGovernanceConfig {
 
     this.extendPaths = resolvedConfig.extendPaths || [];
     this.pluginPaths = resolvedConfig.pluginPaths || [];
-    this.resolveIgnore(getIgnoreFilePath(configPath));
+    this.resolveIgnore(getIgnoreFilePath(opts.configPath));
+  }
+
+  getFor(alias?: string) {
+    if (alias === undefined || !isPlainObject(this.resolvedConfig?.apis?.[alias])) {
+      return this;
+    }
+
+    return new Config(this.resolvedConfig.apis[alias], {
+      configPath: this.configPath,
+      rawConfig: this.rawConfig,
+      document: this.document,
+      resolvedRefMap: this.resolvedRefMap,
+      alias,
+    });
   }
 
   resolveIgnore(ignoreFile?: string) {
@@ -385,30 +424,4 @@ export class NormalizedGovernanceConfig {
       }
     }
   }
-}
-
-// TODO: left for backward compatibility with Redoc. Replace with a type along with replacing Redoc
-export class Config {
-  _rawConfig?: RawUniversalConfig;
-  _governance: {
-    apis: Record<string, NormalizedGovernanceConfig>;
-    root: NormalizedGovernanceConfig;
-  };
-  resolve: ResolveConfig;
-  document?: Document;
-  resolvedRefMap?: ResolvedRefMap;
-
-  constructor(public resolvedConfig: ResolvedConfig, public configPath?: string) {
-    this._governance = {
-      apis: {},
-      root: new NormalizedGovernanceConfig(resolvedConfig || {}, configPath),
-    };
-    this.resolve = getResolveConfig(resolvedConfig?.resolve);
-  }
-}
-
-export function getGovernanceConfig(config: Config, alias?: string) {
-  return alias === undefined
-    ? config._governance.root
-    : config._governance.apis[alias] ?? config._governance.root;
 }
