@@ -1,12 +1,14 @@
+import path from 'path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
 import { SpecVersion, getTypes } from '../oas-types.js';
 import { isCustomRuleId } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from './index.js';
+import type { NodeType, PropType } from './index.js';
 import type { Config } from '../config/index.js';
 
 const builtInOAS2Rules = [
@@ -183,29 +185,43 @@ type BuiltInRuleId = typeof builtInRules[number];
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
-      type: 'array',
-      items: {
-        type: 'string',
+      name: 'ConfigStyleguideList',
+      properties: {},
+      items: (node) => {
+        // check if it's preset name
+        if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+          return { type: 'string' };
+        }
+        return {
+          ...ConfigStyleguide,
+          directResolveAs: { name: 'ConfigStyleguide', ...ConfigStyleguide },
+        } as PropType;
       },
-    },
+    } as PropType,
     rules: 'Rules',
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
     oas3_1Rules: 'Rules',
     async2Rules: 'Rules',
+    async3Rules: 'Rules',
     arazzo1Rules: 'Rules',
+    overlay1Rules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
     oas3_1Preprocessors: { type: 'object' },
     async2Preprocessors: { type: 'object' },
+    async3Preprocessors: { type: 'object' },
     arazzoPreprocessors: { type: 'object' },
+    overlay1Preprocessors: { type: 'object' },
     decorators: { type: 'object' },
     oas2Decorators: { type: 'object' },
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
     async2Decorators: { type: 'object' },
+    async3Decorators: { type: 'object' },
     arazzo1Decorators: { type: 'object' },
+    overlay1Decorators: { type: 'object' },
   },
 };
 
@@ -309,6 +325,16 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   };
 }
 
+function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
+  return {
+    ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
+    properties: {
+      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items']?.properties,
+      extends: ConfigStyleguide.properties.extends,
+    },
+  };
+}
+
 const AssertionDefinitionAssertions: NodeType = {
   properties: {
     enum: { type: 'array', items: { type: 'string' } },
@@ -392,6 +418,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
+    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
   };
 }
 

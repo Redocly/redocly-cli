@@ -12,16 +12,25 @@ import {
 import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
-import { dequal, isPlainObject, isTruthy } from './utils.js';
+import { dequal, isEmptyObject, isPlainObject, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
+import {
+  mergeExtends,
+  resolvePreset,
+  type Config,
+  type StyleguideConfig,
+  type ResolvedStyleguideConfig,
+  type RulesFields,
+} from './config/index.js';
+import path from 'path';
+import { defaultPlugin } from './config/builtIn.js';
 
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
 import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk.js';
-import type { Config, StyleguideConfig } from './config/index.js';
 import type { OasRef } from './typings/openapi.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { CollectFn } from './utils.js';
@@ -40,22 +49,94 @@ export type BundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-const bundleVisitor = normalizeVisitors(
-  [
-    {
-      severity: 'error',
-      ruleId: 'configBundler',
-      visitor: {
-        ref: {
-          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            replaceRef(node, resolved, ctx);
+function bundleExtends(node: any, ctx: UserContext) {
+  if (!node.extends) {
+    return node;
+  }
+
+  const resolvedExtends = node.extends
+    .map((presetItem: string) => {
+      if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
+        return resolvePreset(presetItem, [defaultPlugin]); // TODO: implement plugins
+      }
+
+      const resolvedRef = ctx.resolve({ $ref: presetItem });
+      if (resolvedRef.location && resolvedRef.node) {
+        return resolvedRef.node;
+      }
+      return null;
+    })
+    .filter(isTruthy);
+
+  return removeEmptyRules(
+    mergeExtends([
+      ...resolvedExtends.map((nested: any) => bundleExtends(nested, ctx)),
+      { ...node, extends: undefined },
+    ])
+  );
+}
+
+const bundleVisitor = () => {
+  const scorecardPlugins: string[] = [];
+  return normalizeVisitors(
+    [
+      {
+        severity: 'error',
+        ruleId: 'configBundler',
+        visitor: {
+          ref: {
+            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+              replaceRef(node, resolved, ctx);
+            },
+          },
+          ConfigStyleguide: {
+            leave(node: any, ctx: UserContext) {
+              if (node.extends) {
+                const bundled = bundleExtends(node, ctx);
+                Object.assign(node, bundled);
+                delete node.extends;
+                scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
+                delete bundled.plugins;
+              }
+            },
+          },
+          'rootRedoclyConfigSchema.scorecard.levels_items': {
+            leave(node: any, ctx: UserContext) {
+              if (node.extends) {
+                const bundled = bundleExtends(node, ctx);
+                Object.assign(node, bundled);
+                delete node.extends;
+                scorecardPlugins.push(...(bundled.plugins as unknown as any[]));
+                delete bundled.plugins;
+                delete node.plugins;
+              }
+            },
+          },
+          ConfigRoot: {
+            leave(node: any, ctx: UserContext) {
+              if (node.extends) {
+                const bundled = bundleExtends(node, ctx);
+                Object.assign(node, bundled);
+                node.plugins = Array.from(new Set([...(node.plugins || []), ...scorecardPlugins]));
+                delete node.extends;
+              }
+            },
           },
         },
       },
-    },
-  ],
-  NormalizedConfigTypes
-);
+    ],
+    NormalizedConfigTypes
+  );
+};
+
+function removeEmptyRules(config: Pick<ResolvedStyleguideConfig, RulesFields>) {
+  // TODO: convert strings to constants
+  return Object.fromEntries(
+    Object.entries(config).filter(
+      ([key, value]) => !isEmptyObject(value) && key !== 'pluginPaths' && key !== 'extendPaths'
+    )
+  );
+}
 
 export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
   const ctx: BundleContext = {
@@ -68,7 +149,7 @@ export async function bundleConfig(document: Document, resolvedRefMap: ResolvedR
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: bundleVisitor,
+    normalizedVisitors: bundleVisitor(),
     resolvedRefMap,
     ctx,
   });
