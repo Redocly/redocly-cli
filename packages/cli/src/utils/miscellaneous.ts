@@ -531,19 +531,6 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-// TODO: remove this
-export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
-  for (const option of deprecatedOptions) {
-    if (argv[option]) {
-      logger.warn(
-        `[WARNING] "${String(
-          option
-        )}" option is deprecated and will be removed in a future release. \n\n`
-      );
-    }
-  }
-}
-
 export function notifyAboutIncompatibleConfigOptions(
   themeOpenapiOptions: Record<string, unknown> | undefined
 ) {

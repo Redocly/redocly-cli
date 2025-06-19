@@ -65,8 +65,8 @@ export async function handleBundle({
         ...meta
       } = await bundle({
         ref: path,
-        config: config,
-        alias: alias,
+        config,
+        alias,
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],

@@ -115,7 +115,7 @@ describe('loadConfig', () => {
     const resolverSpy = vi.spyOn(externalRefResolver, 'resolveDocument');
     await loadConfig({
       configPath: path.join(__dirname, './fixtures/load-external.yaml'),
-      externalRefResolver: externalRefResolver as any,
+      externalRefResolver,
     });
     expect(resolverSpy).toHaveBeenCalledWith(
       null,

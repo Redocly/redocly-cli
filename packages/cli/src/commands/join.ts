@@ -127,7 +127,7 @@ export async function handleJoin({
     documents.map((document) =>
       bundleDocument({
         document,
-        config: config,
+        config,
         externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);

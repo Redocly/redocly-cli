@@ -80,7 +80,7 @@ export async function handleLint({
       logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
-        config: config,
+        config,
         alias,
         collectSpecData,
       });
