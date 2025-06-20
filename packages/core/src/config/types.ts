@@ -203,7 +203,9 @@ export type RawUniversalApi = ApiConfig &
     plugins?: (string | Plugin)[]; // TODO: decide on including plugins in ApiConfig
   };
 
-export type ResolvedApi = ApiConfig & Required<RawGovernanceConfig> & ResolvedGovernanceConfig;
+export type ResolvedApiConfig = ApiConfig &
+  Required<RawGovernanceConfig> &
+  ResolvedGovernanceConfig;
 
 export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
@@ -216,7 +218,7 @@ export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'
 
 export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   ResolvedGovernanceConfig & {
-    apis?: Record<string, ResolvedApi>;
+    apis?: Record<string, ResolvedApiConfig>;
   };
 
 export type ThemeConfig = {

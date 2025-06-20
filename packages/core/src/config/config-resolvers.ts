@@ -25,7 +25,7 @@ import type {
   RawUniversalConfig,
   RawUniversalApi,
   ResolvedConfig,
-  ResolvedApi,
+  ResolvedApiConfig,
   RawGovernanceConfig,
   ResolvedGovernanceConfig,
   RuleConfig,
@@ -375,9 +375,9 @@ export async function resolveApis({
   rawConfig: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
-}): Promise<Record<string, ResolvedApi>> {
+}): Promise<Record<string, ResolvedApiConfig>> {
   const { apis = {}, ...rawConfigWithoutApis } = rawConfig;
-  const resolvedApis: Record<string, ResolvedApi> = {};
+  const resolvedApis: Record<string, ResolvedApiConfig> = {};
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
     if (apiContent?.extends?.some(isNotString)) {
       throw new Error(`Configuration format not detected in extends: values must be strings.`);

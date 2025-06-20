@@ -123,7 +123,7 @@ export async function handleLint({
   }
 }
 
-export async function lintConfigHandler(
+export async function handleLintConfig(
   argv: Exact<CommandOptions>,
   version: string,
   config: Config

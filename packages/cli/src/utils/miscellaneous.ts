@@ -26,7 +26,7 @@ import {
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
-import { lintConfigHandler } from '../commands/lint.js';
+import { handleLintConfig } from '../commands/lint.js';
 
 import type {
   Config,
@@ -440,7 +440,7 @@ export async function loadConfigAndHandleErrors(
       configPath: argv.config,
       customExtends: argv.extends as string[] | undefined,
     });
-    await lintConfigHandler(argv, version, config);
+    await handleLintConfig(argv, version, config);
     return config;
   } catch (e) {
     handleError(e, '');
