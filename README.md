@@ -101,6 +101,37 @@ The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Ch
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
+### API contract testing with Respect
+
+Ensure your APIs match their OpenAPI descriptions with **Respect**, Redocly's API contract testing system. Respect sends real HTTP requests to your API server and validates that responses match the expectations defined in your OpenAPI description and Arazzo workflows.
+
+- Verify API responses match your OpenAPI schema
+- Test complex API sequences using OpenAPI Arazzo format
+- Catch API drift early in development and CI/CD
+- Ensure external APIs you depend on behave as expected
+- Track response times and detect anomalies
+
+#### Quick start
+
+```sh
+# Generate test workflows from your OpenAPI spec
+redocly generate-arazzo openapi.yaml
+
+# Run contract tests against your API
+redocly respect auto-generated.arazzo.yaml --verbose
+```
+
+#### Respect vs. Respect Monitoring
+
+Respect is Redocly's community-edition product. Looking for something more? We also offer continuous API monitoring with additional features including:
+
+- Real-time insights
+- Automated alerts via email or Slack
+- Automated API checks
+- Proactive API quality assurance
+
+Learn more about [Respect](https://redocly.com/respect) and [get started with API contract testing](https://redocly.com/docs/respect/get-started).
+
 ### Transform an OpenAPI description
 
 If your OpenAPI description isn't everything you hoped it would be, enhance it with the Redocly [decorators](https://redocly.com/docs/cli/decorators) feature.
