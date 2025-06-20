@@ -67,7 +67,7 @@ export {
   type ResolvedApiConfig,
   type Plugin,
   type RuleConfig,
-  Config, // FIXME: only export as a type
+  Config, // FIXME: only export as a type in v2
   type RawUniversalConfig,
   type RawUniversalApi,
   IGNORE_FILE,

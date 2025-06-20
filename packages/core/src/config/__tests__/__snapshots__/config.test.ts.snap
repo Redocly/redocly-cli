@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`generation ignore object > should generate config with absoluteUri for ignore 1`] = `
-NormalizedGovernanceConfig {
+Config {
+  "_alias": undefined,
   "_usedRules": Set {},
   "_usedVersions": Set {},
   "configPath": undefined,
@@ -15,6 +16,7 @@ NormalizedGovernanceConfig {
     "overlay1": {},
   },
   "doNotResolveExamples": false,
+  "document": undefined,
   "extendPaths": [],
   "ignore": {
     "https://some-path.yaml": {
@@ -39,6 +41,15 @@ NormalizedGovernanceConfig {
     "oas3_1": {},
     "overlay1": {},
   },
+  "rawConfig": undefined,
+  "resolve": {
+    "http": {
+      "customFetch": undefined,
+      "headers": [],
+    },
+  },
+  "resolvedConfig": "resolvedConfig stub",
+  "resolvedRefMap": undefined,
   "rules": {
     "arazzo1": {
       "no-empty-servers": "error",

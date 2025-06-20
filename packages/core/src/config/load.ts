@@ -119,16 +119,15 @@ export async function getConfig(options: {
 type CreateConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
+  document?: Document;
+  resolvedRefMap?: ResolvedRefMap;
 };
 
 export async function createConfig(
   config?: string | RawUniversalConfig,
-  options?: CreateConfigOptions
+  { configPath, externalRefResolver, document, resolvedRefMap }: CreateConfigOptions = {}
 ): Promise<Config> {
   const rawConfig = typeof config === 'string' ? (parseYaml(config) as RawUniversalConfig) : config;
-  const resolvedConfig = await resolveConfig({ rawConfig, ...options });
-  return new Config(resolvedConfig, {
-    configPath: options?.configPath,
-    rawConfig,
-  });
+  const resolvedConfig = await resolveConfig({ rawConfig, configPath, externalRefResolver });
+  return new Config(resolvedConfig, { configPath, rawConfig, document, resolvedRefMap });
 }

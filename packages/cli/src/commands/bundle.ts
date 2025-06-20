@@ -47,11 +47,12 @@ export async function handleBundle({
   for (const { path, alias, output } of apis) {
     try {
       const startedAt = performance.now();
-      const aliasConfig = config.getFor(alias);
+      const aliasConfig = config.forAlias(alias);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
+
       const {
         bundle: result,
         problems,

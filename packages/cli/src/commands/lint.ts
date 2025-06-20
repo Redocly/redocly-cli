@@ -60,7 +60,7 @@ export async function handleLint({
   for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
-      const aliasConfig = config.getFor(alias);
+      const aliasConfig = config.forAlias(alias);
 
       checkIfRulesetExist(aliasConfig.rules);
 

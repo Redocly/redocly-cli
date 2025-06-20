@@ -271,10 +271,8 @@ describe('resolveGovernanceConfig', () => {
       'resolve-config/api/plugin.js',
     ]);
 
-    // @ts-ignore
-    delete governanceConfig.extendPaths;
-    // @ts-ignore
-    delete governanceConfig.pluginPaths;
+    governanceConfig.extendPaths = ['extend paths stub'];
+    governanceConfig.pluginPaths = ['plugin paths stub'];
     expect(governanceConfig).toMatchSnapshot();
   });
 
@@ -490,7 +488,7 @@ describe('resolveApis', () => {
 
     const apisResult = await resolveApis({ rawConfig, configPath });
     expect(apisResult['petstore'].rules).toBeDefined();
-    expect(apisResult['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // think about prioritize in merge ???
+    expect(apisResult['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
     expect(apisResult['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apisResult['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
     expect(apisResult['petstore'].plugins?.length).toEqual(2);
@@ -522,9 +520,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {
-      resolvedConfig: { apis = {} },
-    } = await resolveConfig({ rawConfig, configPath });
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
 
     expect(apis['petstore'].plugins?.length).toEqual(1);
     expect(apis['petstore'].plugins?.[0].id).toEqual('');
@@ -556,9 +552,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {
-      resolvedConfig: { apis = {} },
-    } = await resolveConfig({ rawConfig, configPath });
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
@@ -594,9 +588,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {
-      resolvedConfig: { apis = {} },
-    } = await resolveConfig({ rawConfig, configPath });
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
@@ -635,9 +627,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {
-      resolvedConfig: { apis = {} },
-    } = await resolveConfig({ rawConfig, configPath });
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
     expect(apis['petstore'].rules).toBeDefined();
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });

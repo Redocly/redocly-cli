@@ -140,7 +140,7 @@ export class Config {
     this.resolveIgnore(getIgnoreFilePath(opts.configPath));
   }
 
-  getFor(alias?: string) {
+  forAlias(alias?: string) {
     if (alias === undefined || !isPlainObject(this.resolvedConfig?.apis?.[alias])) {
       return this;
     }

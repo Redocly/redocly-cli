@@ -200,7 +200,7 @@ export type Telemetry = 'on' | 'off';
 
 export type RawUniversalApi = ApiConfig &
   RawGovernanceConfig & {
-    plugins?: (string | Plugin)[]; // TODO: decide on including plugins in ApiConfig
+    plugins?: (string | Plugin)[];
   };
 
 export type ResolvedApiConfig = ApiConfig &

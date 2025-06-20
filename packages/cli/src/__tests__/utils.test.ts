@@ -19,10 +19,9 @@ import {
   ResolveError,
   YamlParseError,
   HandledError,
-  type NormalizedGovernanceConfig,
   type Config,
   type RawUniversalApi,
-  type ResolvedApi,
+  type ResolvedApiConfig,
 } from '@redocly/openapi-core';
 import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
 import * as openapiCore from '@redocly/openapi-core';
@@ -265,17 +264,11 @@ describe('getFallbackApisOrExit', async () => {
         apis: {
           main: {
             root: 'test.yaml',
-          } as ResolvedApi,
+          } as ResolvedApiConfig,
         },
-      },
-      _governance: {
-        apis: {
-          main: {} as NormalizedGovernanceConfig,
-        },
-        root: {} as NormalizedGovernanceConfig,
       },
       resolve: {} as ResolveConfig,
-    };
+    } as Partial<Config> as Config;
     const entry = await getFallbackApisOrExit(['./test.yaml'], config);
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
@@ -287,18 +280,12 @@ describe('getFallbackApisOrExit', async () => {
         apis: {
           main: {
             root: '../test.yaml',
-          } as ResolvedApi,
+          } as ResolvedApiConfig,
         },
-      },
-      _governance: {
-        apis: {
-          main: {} as NormalizedGovernanceConfig,
-        },
-        root: {} as NormalizedGovernanceConfig,
       },
       configPath: 'nested-folder/redocly.yaml',
       resolve: {} as ResolveConfig,
-    };
+    } as Partial<Config> as Config;
     const entry = await getFallbackApisOrExit(['./test.yaml'], config);
     expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
@@ -311,18 +298,12 @@ describe('getFallbackApisOrExit', async () => {
           main: {
             root: 'test.yaml',
             output: 'output/test.yaml',
-          } as ResolvedApi,
+          } as ResolvedApiConfig,
         },
       },
       configPath: 'project-folder/redocly.yaml',
-      _governance: {
-        apis: {
-          main: {} as NormalizedGovernanceConfig,
-        },
-        root: {} as NormalizedGovernanceConfig,
-      },
       resolve: {} as ResolveConfig,
-    };
+    } as Partial<Config> as Config;
     const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {

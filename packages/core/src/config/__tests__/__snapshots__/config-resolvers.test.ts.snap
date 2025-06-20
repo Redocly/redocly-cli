@@ -281,6 +281,9 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
     "tags-alphabetical": "off",
   },
   "decorators": {},
+  "extendPaths": [
+    "extend paths stub",
+  ],
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -457,6 +460,9 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
   "overlay1Rules": {
     "info-contact": "off",
   },
+  "pluginPaths": [
+    "plugin paths stub",
+  ],
   "preprocessors": {},
   "rules": {
     "assertions": [

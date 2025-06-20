@@ -1,9 +1,8 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
-import { getGovernanceConfig, type Config } from '../config.js';
+import { type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { type RuleConfig, type RawUniversalConfig } from './../types.js';
-import { type NormalizedProblem } from '../../walk.js';
 import { BaseResolver } from '../../resolve.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -30,22 +29,13 @@ describe('loadConfig', () => {
     expect(mockFn).toHaveBeenCalled();
   });
 
-  it('should resolve config and call processRawConfig', async () => {
-    let problems: NormalizedProblem[];
-    let doc: any;
-
-    await loadConfig({
+  it('should load config and lint it', async () => {
+    const config = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
-      processRawConfig: async ({ document, parsed, resolvedRefMap, config }) => {
-        doc = parsed;
-        problems = await lintConfig({
-          severity: 'warn',
-          config: { ...config, document, resolvedRefMap },
-        });
-      },
     });
+    const problems = await lintConfig({ severity: 'warn', config });
 
-    expect(replaceSourceWithRef(problems!, __dirname)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
       [
         {
           "from": {
@@ -96,7 +86,7 @@ describe('loadConfig', () => {
         },
       ]
     `);
-    expect(doc).toMatchInlineSnapshot(`
+    expect(config.rawConfig).toMatchInlineSnapshot(`
       {
         "rules": {
           "info-license": "error",
@@ -226,7 +216,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    expect(getGovernanceConfig(config).plugins[0]).toEqual({
+    expect(config.plugins[0]).toEqual({
       id: 'my-plugin',
       rules: {
         oas3: {
@@ -234,7 +224,7 @@ describe('createConfig', () => {
         },
       },
     });
-    expect(getGovernanceConfig(config).rules.oas3_0).toEqual({
+    expect(config.rules.oas3_0).toEqual({
       'my-plugin/test-rule': 'error',
     });
   });
@@ -272,13 +262,11 @@ describe('createConfig', () => {
       }
     );
     // clean absolute paths and not needed fields
-    getGovernanceConfig(testConfig).plugins = [];
-    getGovernanceConfig(testConfig, 'test@v1').plugins = [];
+    testConfig.plugins = [];
+    testConfig.extendPaths = [];
     testConfig.resolvedConfig.plugins = [];
-    testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
-    getGovernanceConfig(testConfig).extendPaths = [];
-    getGovernanceConfig(testConfig, 'test@v1').extendPaths = [];
     testConfig.resolvedConfig.extendPaths = [];
+    testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
     testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
     expect(testConfig).toMatchSnapshot();
@@ -292,28 +280,26 @@ function verifyExtendedConfig(
     overridesRules,
   }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
 ) {
-  const defaultPlugin = getGovernanceConfig(config).plugins.find((plugin) => plugin.id === '');
+  const defaultPlugin = config.plugins.find((plugin) => plugin.id === '');
   expect(defaultPlugin).toBeDefined();
 
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(getGovernanceConfig(config).rules.oas2, overridesRules, {
+  verifyOasRules(config.rules.oas2, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas2Rules,
   });
 
-  verifyOasRules(getGovernanceConfig(config).rules.oas3_0, overridesRules, {
+  verifyOasRules(config.rules.oas3_0, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_0Rules,
   });
 
-  verifyOasRules(getGovernanceConfig(config).rules.oas3_1, overridesRules, {
+  verifyOasRules(config.rules.oas3_1, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_1Rules,
   });
-
-  // TODO: verify other rulesets
 }
 
 function verifyOasRules(

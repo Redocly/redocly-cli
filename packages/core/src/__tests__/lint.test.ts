@@ -358,8 +358,8 @@ describe('lint', () => {
             layout: wrong-option
       `;
     const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({});
-    const results = await lintConfig({ config: { ...config, document } });
+    const config = await createConfig({}, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -404,8 +404,8 @@ describe('lint', () => {
           operation-2xx-response: warn
       `;
     const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig(testConfigContent);
-    const results = await lintConfig({ config: { ...config, document } });
+    const config = await createConfig(testConfigContent, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -443,8 +443,8 @@ describe('lint', () => {
         - './local-plugin.js'
       `;
     const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({});
-    const results = await lintConfig({ config: { ...config, document } });
+    const config = await createConfig({}, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -468,8 +468,8 @@ describe('lint', () => {
 
   it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
     const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent);
-    const results = await lintConfig({ config: { ...config, document } });
+    const config = await createConfig(testPortalConfigContent, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -1072,8 +1072,7 @@ describe('lint', () => {
 
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
     const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent);
-    config.document = document;
+    const config = await createConfig(testPortalConfigContent, { document });
     const results = await lintConfig({
       externalConfigTypes: createConfigTypes(
         {

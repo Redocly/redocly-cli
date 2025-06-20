@@ -12,13 +12,14 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if ! echo "$PR_TITLE" | grep -E "^(fix|feat|chore|docs)(\([a-z-]+\))?: (🔖 |🧪 )?[a-z].+[^.]$"; then
+          if ! echo "$PR_TITLE" | grep -E "^(fix|feat|chore|docs)(\([a-z-]+\))?(\!)?: (🔖 |🧪 )?[a-z].+[^.]$"; then
             echo "❌ PR title '$PR_TITLE' does not match the required format"
             echo "Required format: type(scope): subject"
             echo "Examples:"
             echo "  feat: add new feature"
             echo "  fix(core): fix bug"
             echo "  docs: update README"
+            echo "  chore!: breaking change"
             exit 1
           fi
           echo "✅ PR title format is valid"
