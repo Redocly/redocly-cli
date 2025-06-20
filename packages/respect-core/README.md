@@ -49,4 +49,4 @@ You **MUST** have a working API server running in order to run the tests because
 - [Use cases](https://redocly.com/docs/respect/use-cases)
 - [Arazzo workflow testing](https://redocly.com/docs/respect/guides/test-api-sequences)
 - [Command reference](https://redocly.com/docs/respect/commands/respect)
-- [Respect CLI Overview](https://redocly.com/respect-cli)
+- [Respect CLI overview](https://redocly.com/respect-cli)

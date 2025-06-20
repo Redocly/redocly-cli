@@ -121,7 +121,8 @@ redocly generate-arazzo openapi.yaml
 redocly respect auto-generated.arazzo.yaml --verbose
 ```
 
-Respect vs. Respect Monitoring
+#### Respect vs. Respect Monitoring
+
 Respect is Redocly's community-edition product. Looking for something more? We also offer continuous API monitoring with additional features including:
 
 - Real-time insights
