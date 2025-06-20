@@ -2,42 +2,75 @@
 seo:
   title: Redocly CLI guides
   description: Browse how-to guides for working with Redocly CLI
-content:
-  cards:
-    - header: Redocly CLI quickstart
-      link: docs/cli/quickstart
-      text: Take your first steps with Redocly CLI.
-    - header: OpenAPI starter project
-      link: docs/cli/openapi-starter
-      text: Get started with OpenAPI and Redocly, using this sample project.
-    - header: Enforce response contents
-      link: docs/cli/guides/response-contains-property
-      text: How to create a custom rule to enforce response contents.
-    - header: Lint and bundle in one command
-      link: docs/cli/guides/lint-and-bundle
-      text: Combine lint and bundle commands, and check each command succeeds.
-    - header: Hide internal APIs
-      link: docs/cli/guides/hide-apis
-      text: How to hide internal APIs.
-    - header: Replace the server URL
-      link: docs/cli/guides/replace-servers-url
-      text: How to replace the server URL in different environments.
-    - header: Lint AsyncAPI descriptions
-      link: docs/cli/guides/lint-asyncapi
-      text: API governance for async and streaming API applications.
-    - header: Lint Arazzo descriptions
-      link: docs/cli/guides/lint-arazzo
-      text: Check the validity of Arazzo descriptions for workflows.
-    - header: Change the OAuth2 token URL
-      link: docs/cli/guides/change-token-url
-      text: How to change the OAuth2 token URL.
-    - header: Hide OpenAPI specification extensions
-      link: docs/cli/guides/hide-specification-extensions
-      text: How to create a custom decorator to hide OpenAPI specification extensions.
 ---
 
 # Redocly CLI guides
 
 A selection of guides to common tasks with Redocly CLI.
 
-{% wideTileCards content=$frontmatter.content /%}
+{% cards columns=1 %}
+
+{% card
+    title="Redocly CLI quickstart"
+    to="../quickstart"
+  %}
+Take your first steps with Redocly CLI.
+{% /card %}
+
+{% card
+    title="OpenAPI starter project"
+    to="../openapi-starter"
+  %}
+Get started with OpenAPI and Redocly, using this sample project.
+{% /card %}
+
+{% card
+    title="Enforce response contents"
+    to="./response-contains-property"
+  %}
+Create a custom rule to enforce response contents.
+{% /card %}
+
+{% card title="Lint and bundle in one command"
+    to="./lint-and-bundle"
+  %}
+Combine lint and bundle commands, and check each command succeeds.
+{% /card %}
+
+{% card title="Hide internal APIs"
+    to="./hide-apis"
+  %}
+Prevent APIs from being viewed by external audiences.
+{% /card %}
+
+{% card title="Replace the server URL"
+    to="./replace-servers-url"
+  %}
+Replace the server URL in different environments.
+{% /card %}
+
+{% card title="Lint AsyncAPI descriptions"
+    to="./lint-asyncapi"
+  %}
+API governance for async and streaming API applications.
+{% /card %}
+
+{% card title="Lint Arazzo descriptions"
+    to="./lint-arazzo"
+  %}
+Check the validity of Arazzo descriptions for workflows.
+{% /card %}
+
+{% card title="Change the OAuth2 token URL"
+    to="./change-token-url"
+  %}
+How to change the OAuth2 token URL.
+{% /card %}
+
+{% card title="Hide OpenAPI specification extensions"
+    to="./hide-specification-extensions"
+  %}
+How to create a custom decorator to hide OpenAPI specification extensions.
+{% /card %}
+
+{% /cards %}

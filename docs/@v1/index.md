@@ -1,19 +1,5 @@
 ---
 tocMaxDepth: 2
-content:
-  cards:
-    - header: Great API docs
-      link: docs/cli/api-docs
-      text: Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
-    - header: Manage OpenAPI files
-      link: docs/cli/file-management
-      text: Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
-    - header: Transform OpenAPI
-      link: docs/cli/decorators
-      text: Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
-    - header: API governance
-      link: docs/cli/api-standards
-      text: Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
 ---
 
 # Redocly CLI
@@ -23,7 +9,36 @@ Redocly CLI is an open source command-line tool for working with OpenAPI descrip
 `redocly` brings together the open source goodness with the rest of the Redocly offerings.
 Authenticate, update APIs, publish documentation, and use the other tools to manage, polish and share the APIs throughout the API lifecycle.
 
-{% wideTileCards content=$frontmatter.content /%}
+{% cards columns=1 %}
+
+{% card
+    title="Great API docs"
+    to="./api-docs"
+  %}
+Use open source Redoc or our hosted tools to create clear and useful documentation with local previews and static builds available.
+{% /card %}
+
+{% card
+    title="Manage OpenAPI files"
+    to="./file-management"
+  %}
+Split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
+{% /card %}
+
+{% card
+    title="Transform OpenAPI"
+    to="./decorators"
+  %}
+Publish a subset of endpoints, or use decorators to enhance your existing OpenAPI by adding, changing, or removing content.
+{% /card %}
+
+{% card title="API governance"
+    to="./api-standards"
+  %}
+Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
+{% /card %}
+
+{% /cards %}
 
 ## About Redocly and Redoc
 
