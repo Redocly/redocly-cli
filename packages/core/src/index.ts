@@ -69,7 +69,7 @@ export {
   type RuleConfig,
   Config, // FIXME: only export as a type in v2
   type RawUniversalConfig,
-  type RawUniversalApi,
+  type RawUniversalApiConfig,
   IGNORE_FILE,
   loadConfig,
   getConfig,

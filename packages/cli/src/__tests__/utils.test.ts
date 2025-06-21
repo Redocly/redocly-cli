@@ -20,7 +20,7 @@ import {
   YamlParseError,
   HandledError,
   type Config,
-  type RawUniversalApi,
+  type RawUniversalApiConfig,
   type ResolvedApiConfig,
 } from '@redocly/openapi-core';
 import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
@@ -106,7 +106,7 @@ describe('getFallbackApisOrExit', async () => {
   const redColoretteMocks = vi.mocked(red);
   const yellowColoretteMocks = vi.mocked(yellow);
 
-  const apis: Record<string, RawUniversalApi> = {
+  const apis: Record<string, RawUniversalApiConfig> = {
     main: {
       root: 'someFile.yaml',
     },

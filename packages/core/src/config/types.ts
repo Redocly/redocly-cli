@@ -198,7 +198,7 @@ export type ResolveConfig = {
 
 export type Telemetry = 'on' | 'off';
 
-export type RawUniversalApi = ApiConfig &
+export type RawUniversalApiConfig = ApiConfig &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
   };
@@ -210,7 +210,7 @@ export type ResolvedApiConfig = ApiConfig &
 export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
-    apis?: Record<string, RawUniversalApi>;
+    apis?: Record<string, RawUniversalApiConfig>;
 
     resolve?: RawResolveConfig;
     telemetry?: Telemetry;

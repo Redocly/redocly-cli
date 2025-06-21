@@ -23,7 +23,7 @@ import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type {
   Plugin,
   RawUniversalConfig,
-  RawUniversalApi,
+  RawUniversalApiConfig,
   ResolvedConfig,
   ResolvedApiConfig,
   RawGovernanceConfig,
@@ -383,7 +383,7 @@ export async function resolveApis({
       throw new Error(`Configuration format not detected in extends: values must be strings.`);
     }
     const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
-      await resolveGovernanceConfig<RawUniversalApi>({
+      await resolveGovernanceConfig<RawUniversalApiConfig>({
         rootOrApiRawConfig: apiContent,
         rootRawConfig: rawConfigWithoutApis,
         configPath,
@@ -396,7 +396,7 @@ export async function resolveApis({
 }
 
 async function resolveAndMergeNestedGovernanceConfig<
-  T extends RawUniversalConfig | RawUniversalApi
+  T extends RawUniversalConfig | RawUniversalApiConfig
 >({
   rootOrApiRawConfig,
   rootRawConfig,
@@ -494,7 +494,7 @@ async function resolveAndMergeNestedGovernanceConfig<
 }
 
 export async function resolveGovernanceConfig<
-  T extends RawUniversalConfig | RawUniversalApi
+  T extends RawUniversalConfig | RawUniversalApiConfig
 >(opts: {
   rootOrApiRawConfig: T;
   rootRawConfig?: RawUniversalConfig;
