@@ -2,8 +2,9 @@ import path from 'node:path';
 import { outdent } from 'outdent';
 import { lintDocument } from '../../lint.js';
 import { BaseResolver } from '../../resolve.js';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { fileURLToPath } from 'node:url';
+import { createConfig } from '../../config/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,7 +25,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -66,7 +67,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -125,7 +126,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -151,7 +152,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -200,7 +201,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -231,7 +232,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },
@@ -262,7 +263,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'no-unresolved-refs': 'error',
         },

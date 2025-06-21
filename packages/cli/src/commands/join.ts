@@ -27,7 +27,7 @@ import { crawl, startsWithComponents } from './split/index.js';
 import type {
   Document,
   Referenced,
-  StrictObject,
+  Exact,
   BundleResult,
   Oas3Definition,
   Oas3_1Definition,
@@ -90,7 +90,6 @@ export async function handleJoin({
     );
   }
 
-  // FIXME: decide on the behaviour. Can we join by aliases? If yes, then I'd expect decorators to be applied (2.0)
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
     return exitWithError(`At least 2 APIs should be provided.`);
@@ -107,24 +106,24 @@ export async function handleJoin({
   );
 
   const decorators = new Set([
-    ...Object.keys(config.styleguide.decorators.oas3_0),
-    ...Object.keys(config.styleguide.decorators.oas3_1),
-    ...Object.keys(config.styleguide.decorators.oas2),
+    ...Object.keys(config.decorators.oas3_0),
+    ...Object.keys(config.decorators.oas3_1),
+    ...Object.keys(config.decorators.oas2),
   ]);
-  config.styleguide.skipDecorators(Array.from(decorators));
+  config.skipDecorators(Array.from(decorators));
 
   const preprocessors = new Set([
-    ...Object.keys(config.styleguide.preprocessors.oas3_0),
-    ...Object.keys(config.styleguide.preprocessors.oas3_1),
-    ...Object.keys(config.styleguide.preprocessors.oas2),
+    ...Object.keys(config.preprocessors.oas3_0),
+    ...Object.keys(config.preprocessors.oas3_1),
+    ...Object.keys(config.preprocessors.oas2),
   ]);
-  config.styleguide.skipPreprocessors(Array.from(preprocessors));
+  config.skipPreprocessors(Array.from(preprocessors));
 
   const bundleResults = await Promise.all(
     documents.map((document) =>
       bundleDocument({
         document,
-        config: config.styleguide,
+        config,
         externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
@@ -576,7 +575,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: StrictObject<Oas3Definition | Oas3_1Definition>,
+    openapi: Exact<Oas3Definition | Oas3_1Definition>,
     {
       apiFilename,
       apiTitle,

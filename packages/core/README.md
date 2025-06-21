@@ -137,6 +137,17 @@ const bundleResults = await bundleFromString({
 });
 ```
 
+### Load and lint a configuration file
+
+[Lint](https://redocly.com/docs/cli/commands/lint/) a configuration file to validate its structure and rules.
+
+```js
+import { lintConfig, loadConfig } from '@redocly/openapi-core';
+
+const config = await loadConfig({ configPath: 'redocly.yaml' });
+const configProblems = await lintConfig({ config });
+```
+
 ## API
 
 ### `createConfig`
@@ -164,9 +175,26 @@ it tries to find `redocly.yaml` in the current working directory.
 async function loadConfig(options?: {
   // optional path to the config file for resolving $refs and proper error locations
   configPath?: string;
-  // allows to add custom `extends` additionally to one from the config file
+  // allows to add custom `extends` instead of the one from the config file
   customExtends?: string[];
 }): Promise<Config>;
+```
+
+### `lintConfig`
+
+Lint a configuration file to validate its structure and rules.
+
+```ts
+async function lintConfig(options: {
+  // config object to validate
+  config: Config;
+  // optional severity level for validation
+  severity?: ProblemSeverity;
+  // optional external reference resolver
+  externalRefResolver?: BaseResolver;
+  // optional override for config types
+  externalConfigTypes?: Record<string, NodeType>;
+}): Promise<NormalizedProblem[]>;
 ```
 
 ### `lint`
@@ -179,6 +207,8 @@ async function lint(options: {
   ref: string;
   // config object
   config: Config;
+  // optional external reference resolver
+  externalRefResolver?: BaseResolver;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -194,6 +224,8 @@ async function lintFromString(options: {
   absoluteRef?: string;
   // config object
   config: Config;
+  // optional external reference resolver
+  externalRefResolver?: BaseResolver;
 }): Promise<NormalizedProblem[]>;
 ```
 
@@ -204,7 +236,9 @@ Bundle an OpenAPI document from the file system.
 ```ts
 async function bundle(options: {
   // path to the OpenAPI document root
-  ref: string;
+  ref?: string;
+  // optional document object (alternative to ref)
+  doc?: Document;
   // config object
   config: Config;
   // whether to fully dereference $refs, resulting document won't have any $ref
@@ -214,6 +248,10 @@ async function bundle(options: {
   removeUnusedComponents?: boolean;
   // whether to keep $ref pointers to the http URLs and resolve only local fs $refs
   keepUrlRefs?: boolean;
+  // optional external reference resolver
+  externalRefResolver?: BaseResolver;
+  // optional base path for resolution
+  base?: string | null;
 }): Promise<{
     bundle: {
       parsed: object; // OpenAPI document object as js object
@@ -223,7 +261,6 @@ async function bundle(options: {
     rootType
     refTypes
     visitorsData
-
   }>;
 ```
 
@@ -246,6 +283,8 @@ async function bundleFromString(options: {
   removeUnusedComponents?: boolean;
   // whether to keep $ref pointers to the http URLs and resolve only local fs $refs
   keepUrlRefs?: boolean;
+  // optional external reference resolver
+  externalRefResolver?: BaseResolver;
 }): Promise<{
     bundle: {
       parsed: object; // OpenAPI document object as js object
@@ -255,7 +294,6 @@ async function bundleFromString(options: {
     rootType
     refTypes
     visitorsData
-
   }>;
 ```
 

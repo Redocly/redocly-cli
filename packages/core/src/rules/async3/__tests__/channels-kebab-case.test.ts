@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Async2 channels-kebab-case', () => {
   it('should report on no kebab-case channel path', async () => {
@@ -27,7 +24,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'channels-kebab-case': 'error' } }),
+      config: await createConfig({ rules: { 'channels-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -68,7 +65,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'channels-kebab-case': 'error' } }),
+      config: await createConfig({ rules: { 'channels-kebab-case': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -109,7 +106,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'paths-kebab-case': 'error',
           'no-path-trailing-slash': 'off',
@@ -138,7 +135,7 @@ describe('Async2 channels-kebab-case', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'paths-kebab-case': 'error',
         },

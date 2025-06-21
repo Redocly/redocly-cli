@@ -28,7 +28,7 @@ describe('commandWrapper', () => {
 
   it('should send telemetry if there is "telemetry: on" in the config', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
       return 'oas3_1' as SpecVersion;
@@ -55,7 +55,7 @@ describe('commandWrapper', () => {
 
   it('should not collect spec version if the file is not parsed to json', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }: any) => {
       collectSpecData();
@@ -79,7 +79,7 @@ describe('commandWrapper', () => {
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'off', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'off' } } as Config;
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 

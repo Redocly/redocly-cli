@@ -3,7 +3,7 @@ import { outdent } from 'outdent';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig } from '../config/load.js';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { detectSpec } from '../oas-types.js';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
@@ -11,8 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const testPortalConfig = parseYamlToDocument(
-  outdent`
+const testPortalConfigContent = outdent`
     licenseKey: 123 # Must be a string
 
     apis:
@@ -262,9 +261,7 @@ const testPortalConfig = parseYamlToDocument(
                 publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
             minimumLevel: Silver
 
-  `,
-  ''
-);
+  `;
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -335,8 +332,7 @@ describe('lint', () => {
   });
 
   it('lintConfig should work', async () => {
-    const document = parseYamlToDocument(
-      outdent`
+    const testConfigContent = outdent`
         apis: error string
         plugins:
           - './local-plugin.js'
@@ -360,11 +356,10 @@ describe('lint', () => {
           openapi:
             showConsole: true # Not expected anymore
             layout: wrong-option
-      `,
-      ''
-    );
-    const config = await createConfig({});
-    const results = await lintConfig({ document, config });
+      `;
+    const document = parseYamlToDocument(testConfigContent, '');
+    const config = await createConfig({}, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -401,18 +396,16 @@ describe('lint', () => {
   });
 
   it('lintConfig should detect wrong fields and suggest correct ones', async () => {
-    const document = parseYamlToDocument(
-      outdent`
+    const testConfigContent = outdent`
         api:
           name@version:
             root: ./file.yaml
         rules:
           operation-2xx-response: warn
-      `,
-      ''
-    );
-    const config = await createConfig({});
-    const results = await lintConfig({ document, config });
+      `;
+    const document = parseYamlToDocument(testConfigContent, '');
+    const config = await createConfig(testConfigContent, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -440,8 +433,7 @@ describe('lint', () => {
   });
 
   it("'plugins' shouldn't be allowed in 'apis'", async () => {
-    const document = parseYamlToDocument(
-      outdent`
+    const testConfigContent = outdent`
         apis:
           main:
             root: ./main.yaml
@@ -449,11 +441,10 @@ describe('lint', () => {
             - './local-plugin.js'
         plugins:
         - './local-plugin.js'
-      `,
-      ''
-    );
-    const config = await createConfig({});
-    const results = await lintConfig({ document, config });
+      `;
+    const document = parseYamlToDocument(testConfigContent, '');
+    const config = await createConfig({}, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -476,9 +467,9 @@ describe('lint', () => {
   });
 
   it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
-    const document = testPortalConfig;
-    const config = await createConfig({});
-    const results = await lintConfig({ document, config });
+    const document = parseYamlToDocument(testPortalConfigContent, '');
+    const config = await createConfig(testPortalConfigContent, { document });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
@@ -1080,10 +1071,9 @@ describe('lint', () => {
   });
 
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
-    const document = testPortalConfig;
-    const config = await createConfig({});
+    const document = parseYamlToDocument(testPortalConfigContent, '');
+    const config = await createConfig(testPortalConfigContent, { document });
     const results = await lintConfig({
-      document,
       externalConfigTypes: createConfigTypes(
         {
           type: 'object',
@@ -1374,7 +1364,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1453,7 +1443,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { struct: 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1489,11 +1479,12 @@ describe('lint', () => {
     const result = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { 'operation-operationId': 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { 'operation-operationId': 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
     expect(result).toHaveLength(1);
     expect(result).toMatchObject([
@@ -1555,11 +1546,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1631,11 +1623,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -1670,11 +1663,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1726,11 +1720,12 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
-        rules: { struct: 'error' },
-        decorators: undefined,
-        configPath: configFilePath,
-      }),
+      config: await createConfig(
+        {
+          rules: { struct: 'error' },
+        },
+        { configPath: configFilePath }
+      ),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

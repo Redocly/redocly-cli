@@ -92,7 +92,7 @@ export type NormalizedProblem = {
 
 export type WalkContext = {
   problems: NormalizedProblem[];
-  oasVersion: SpecVersion;
+  oasVersion: SpecVersion; // TODO: rename to specVersion
   visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;
 };

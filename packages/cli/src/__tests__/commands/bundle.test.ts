@@ -1,6 +1,12 @@
-import { bundle, getTotals, getMergedConfig, Config, logger } from '@redocly/openapi-core';
-
-import { BundleOptions, handleBundle } from '../../commands/bundle.js';
+import {
+  bundle,
+  getTotals,
+  logger,
+  Config,
+  type ResolvedApiConfig,
+  type ResolvedConfig,
+} from '@redocly/openapi-core';
+import { type BundleOptions, handleBundle } from '../../commands/bundle.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
@@ -24,14 +30,24 @@ describe('bundle', () => {
       return process.on(_e, cb);
     });
 
-    vi.mock('@redocly/openapi-core');
-    vi.mocked(bundle).mockImplementation(
-      async (): Promise<any> => ({
-        bundle: { parsed: null },
-        problems: null,
-      })
-    );
-    vi.mocked(getMergedConfig).mockImplementation((config) => config);
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return {
+        ...actual,
+        bundle: vi.fn(
+          async (): Promise<any> => ({
+            bundle: { parsed: null },
+            problems: [],
+          })
+        ),
+        getTotals: vi.fn(),
+        logger: {
+          info: vi.fn(),
+          warn: vi.fn(),
+          output: vi.fn(),
+        },
+      };
+    });
 
     vi.mock('../../utils/miscellaneous.js');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
@@ -132,26 +148,26 @@ describe('bundle', () => {
 
   describe('per api output', () => {
     it('should store bundled API descriptions in the output files described in the apis section of config IF no positional apis provided AND output is specified for both apis', async () => {
-      const apis = {
-        foo: {
-          root: 'foo.yaml',
-          output: 'output/foo.yaml',
-        },
-        bar: {
-          root: 'bar.yaml',
-          output: 'output/bar.json',
+      const resolvedConfigMock: ResolvedConfig = {
+        apis: {
+          foo: {
+            root: 'foo.yaml',
+            output: 'output/foo.yaml',
+          } as ResolvedApiConfig,
+          bar: {
+            root: 'bar.yaml',
+            output: 'output/bar.json',
+          } as ResolvedApiConfig,
         },
       };
-      const config = {
-        apis,
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        },
-      } as unknown as Config;
+      const config = new Config(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
-        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+        Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({
+          ...api,
+          path: root,
+          alias,
+        }))
       );
       vi.mocked(getTotals).mockReturnValue({
         errors: 0,
@@ -171,25 +187,25 @@ describe('bundle', () => {
     });
 
     it('should store bundled API descriptions in the output files described in the apis section of config AND print the bundled api without the output specified to the terminal IF no positional apis provided AND output is specified for one api', async () => {
-      const apis = {
-        foo: {
-          root: 'foo.yaml',
-          output: 'output/foo.yaml',
-        },
-        bar: {
-          root: 'bar.yaml',
+      const resolvedConfigMock: ResolvedConfig = {
+        apis: {
+          foo: {
+            root: 'foo.yaml',
+            output: 'output/foo.yaml',
+          } as ResolvedApiConfig,
+          bar: {
+            root: 'bar.yaml',
+          } as ResolvedApiConfig,
         },
       };
-      const config = {
-        apis,
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        },
-      } as unknown as Config;
+      const config = new Config(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
-        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+        Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({
+          ...api,
+          path: root,
+          alias,
+        }))
       );
       vi.mocked(getTotals).mockReturnValue({
         errors: 0,
@@ -209,19 +225,15 @@ describe('bundle', () => {
     });
 
     it('should NOT store bundled API descriptions in the output files described in the apis section of config IF there is a positional api provided', async () => {
-      const apis = {
-        foo: {
-          root: 'foo.yaml',
-          output: 'output/foo.yaml',
+      const resolvedConfigMock: ResolvedConfig = {
+        apis: {
+          foo: {
+            root: 'foo.yaml',
+            output: 'output/foo.yaml',
+          } as ResolvedApiConfig,
         },
       };
-      const config = {
-        apis,
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        },
-      } as unknown as Config;
+      const config = new Config(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
       vi.mocked(getTotals).mockReturnValue({
@@ -241,26 +253,27 @@ describe('bundle', () => {
     });
 
     it('should store bundled API descriptions in the directory specified in argv IF multiple positional apis provided AND --output specified', async () => {
-      const apis = {
-        foo: {
-          root: 'foo.yaml',
-          output: 'output/foo.yaml',
-        },
-        bar: {
-          root: 'bar.yaml',
-          output: 'output/bar.json',
+      const resolvedConfigMock: ResolvedConfig = {
+        apis: {
+          foo: {
+            root: 'foo.yaml',
+            output: 'output/foo.yaml',
+          } as ResolvedApiConfig,
+          bar: {
+            root: 'bar.yaml',
+            output: 'output/bar.json',
+          } as ResolvedApiConfig,
         },
       };
-      const config = {
-        apis,
-        styleguide: {
-          skipPreprocessors: vi.fn(),
-          skipDecorators: vi.fn(),
-        },
-      } as unknown as Config;
+
+      const config = new Config(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
-        Object.entries(apis).map(([alias, { root, ...api }]) => ({ ...api, path: root, alias }))
+        Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({
+          ...api,
+          path: root,
+          alias,
+        }))
       );
       vi.mocked(getTotals).mockReturnValue({
         errors: 0,

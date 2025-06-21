@@ -26,17 +26,16 @@ import {
 import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
+import { handleLintConfig } from '../commands/lint.js';
 
 import type {
-  BundleOutputFormat,
-  StyleguideConfig,
-  ResolvedApi,
   Config,
+  BundleOutputFormat,
   Oas3Definition,
   Oas2Definition,
-  RawConfigProcessor,
+  Exact,
 } from '@redocly/openapi-core';
-import type { Totals, Entrypoint, ConfigApis, OutputExtensions } from '../types.js';
+import type { Totals, Entrypoint, OutputExtensions, CommandOptions } from '../types.js';
 
 const globPromise = promisify(glob.glob);
 
@@ -44,12 +43,12 @@ export type ExitCode = 0 | 1 | 2;
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
-  config: ConfigApis
+  config: Config
 ): Promise<Entrypoint[]> {
-  const { apis } = config;
-  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsApis) && isNotEmptyObject(apis);
+  const shouldFallbackToAllDefinitions =
+    !isNotEmptyArray(argsApis) && isNotEmptyObject(config.resolvedConfig.apis);
   const res = shouldFallbackToAllDefinitions
-    ? fallbackToAllDefinitions(apis, config)
+    ? fallbackToAllDefinitions(config)
     : await expandGlobsInEntrypoints(argsApis!, config);
 
   const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
@@ -62,8 +61,8 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: ConfigApis) {
-  return config.configFile ? dirname(config.configFile) : process.cwd();
+function getConfigDirectory(config: Config) {
+  return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 
 function isApiPathValid(apiPath: string): string | void {
@@ -74,20 +73,17 @@ function isApiPathValid(apiPath: string): string | void {
   return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
 
-function fallbackToAllDefinitions(
-  apis: Record<string, ResolvedApi>,
-  config: ConfigApis
-): Entrypoint[] {
-  return Object.entries(apis).map(([alias, { root, output }]) => ({
+function fallbackToAllDefinitions(config: Config): Entrypoint[] {
+  return Object.entries(config.resolvedConfig.apis || {}).map(([alias, { root, output }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
     output: output && resolve(getConfigDirectory(config), output),
   }));
 }
 
-function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
+function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
   const configDir = getConfigDirectory(config);
-  const aliasApi = config.apis[aliasOrPath];
+  const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi
     ? {
         path: isAbsoluteUrl(aliasApi.root) ? aliasApi.root : resolve(configDir, aliasApi.root),
@@ -98,13 +94,13 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
         path: aliasOrPath,
         // find alias by path, take the first match
         alias:
-          Object.entries(config.apis).find(([_alias, api]) => {
+          Object.entries(config.resolvedConfig.apis || {}).find(([_alias, api]) => {
             return resolve(configDir, api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };
 }
 
-async function expandGlobsInEntrypoints(argApis: string[], config: ConfigApis) {
+async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {
@@ -292,25 +288,30 @@ export function getAndValidateFileExtension(fileName: string): NonNullable<Outpu
   return 'yaml';
 }
 
-export function handleError(e: Error, ref: string) {
+export function handleError(e: Error, ref: string): never {
   switch (e.constructor) {
     case HandledError: {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
+      exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
+      break;
     case YamlParseError:
-      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
+      exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
+      break;
     case CircularJSONNotSupportedError: {
-      return exitWithError(
+      exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
       );
+      break;
     }
     case SyntaxError:
-      return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+      exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+      break;
     case ConfigValidationError:
-      return exitWithError(e.message);
+      exitWithError(e.message);
+      break;
     default: {
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
@@ -356,7 +357,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
 export function printConfigLintTotals(totals: Totals, command?: string | number): void {
   if (totals.errors > 0) {
-    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`);
+    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`);
   } else if (totals.warnings > 0) {
     logger.warn(
       `⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`
@@ -403,23 +404,23 @@ export function getOutputFileName({
   return { outputFile, ext };
 }
 
-export function printUnusedWarnings(config: StyleguideConfig) {
+export function printUnusedWarnings(config: Config) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     logger.warn(
-      `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`
+      `[WARNING] Unused rules found in ${blue(config.configPath || '')}: ${rules.join(', ')}.\n`
     );
   }
   if (preprocessors.length) {
     logger.warn(
       `[WARNING] Unused preprocessors found in ${blue(
-        config.configFile || ''
+        config.configPath || ''
       )}: ${preprocessors.join(', ')}.\n`
     );
   }
   if (decorators.length) {
     logger.warn(
-      `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+      `[WARNING] Unused decorators found in ${blue(config.configPath || '')}: ${decorators.join(
         ', '
       )}.\n`
     );
@@ -431,14 +432,16 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 }
 
 export async function loadConfigAndHandleErrors(
-  options: {
-    configPath?: string;
-    customExtends?: string[];
-    processRawConfig?: RawConfigProcessor;
-  } = {}
-): Promise<Config | void> {
+  argv: Exact<CommandOptions>,
+  version: string
+): Promise<Config> {
   try {
-    return await loadConfig(options);
+    const config = await loadConfig({
+      configPath: argv.config,
+      customExtends: argv.extends as string[] | undefined,
+    });
+    await handleLintConfig(argv, version, config);
+    return config;
   } catch (e) {
     handleError(e, '');
   }
@@ -504,7 +507,7 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   return Object.assign(result, document);
 }
 
-export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rules) {
+export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
   const ruleset = {
     ...rules.oas2,
     ...rules.oas3_0,
@@ -512,6 +515,7 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
     ...rules.async2,
     ...rules.async3,
     ...rules.arazzo1,
+    ...rules.overlay1,
   };
 
   if (isEmptyObject(ruleset)) {
@@ -526,24 +530,12 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
-  for (const option of deprecatedOptions) {
-    if (argv[option]) {
-      logger.warn(
-        `[WARNING] "${String(
-          option
-        )}" option is deprecated and will be removed in a future release. \n\n`
-      );
-    }
-  }
-}
-
 export function notifyAboutIncompatibleConfigOptions(
   themeOpenapiOptions: Record<string, unknown> | undefined
 ) {
   if (isPlainObject(themeOpenapiOptions)) {
     const propertiesSet = Object.keys(themeOpenapiOptions);
-    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties);
+    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties); // TODO: remove this; remove @redocly/config from dependencies (v2)
     const intersection = propertiesSet.filter((prop) => deprecatedSet.includes(prop));
     if (intersection.length > 0) {
       logger.warn(

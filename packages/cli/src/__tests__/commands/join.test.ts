@@ -20,7 +20,7 @@ import { configFixture } from '../fixtures/config.js';
 import { firstDocument, secondDocument, thirdDocument } from '../fixtures/join/documents.js';
 
 describe('handleJoin', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.mock('../../utils/miscellaneous.js');
     vi.mock('../../utils/error.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
@@ -228,8 +228,8 @@ describe('handleJoin', () => {
     });
 
     const config = await loadConfig();
-    expect(config.styleguide.skipDecorators).toHaveBeenCalled();
-    expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
+    expect(config.skipDecorators).toHaveBeenCalled();
+    expect(config.skipPreprocessors).toHaveBeenCalled();
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {

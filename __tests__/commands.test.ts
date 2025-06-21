@@ -82,20 +82,77 @@ describe('E2E', () => {
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
+
+    test('lint file by alias using file path (at the config level)', async () => {
+      const dirName = 'assertions-severity-override';
+      const testPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams(indexEntryPoint, ['lint', 'openapi.yaml']);
+
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('lint file by alias using file path (not from the config level)', async () => {
+      const dirName = 'assertions-severity-override';
+      const testPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams(indexEntryPoint, [
+        'lint',
+        join(testPath, 'openapi.yaml'),
+        '--config',
+        join(testPath, 'redocly.yaml'),
+      ]);
+
+      const result = getCommandOutput(args, {}, {});
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+    });
+
+    test('lint file by alias using file path (without using extends in config) (at the config level)', async () => {
+      const dirName = 'assertions-severity-override-without-extends';
+      const testPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams(indexEntryPoint, ['lint', 'openapi.yaml']);
+
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('lint file by alias using file path (without using extends in config) (not from the config level)', async () => {
+      const dirName = 'assertions-severity-override-without-extends';
+      const testPath = join(__dirname, `lint/${dirName}`);
+
+      const args = getParams(indexEntryPoint, [
+        'lint',
+        join(testPath, 'openapi.yaml'),
+        '--config',
+        join(testPath, 'redocly.yaml'),
+      ]);
+
+      const result = getCommandOutput(args, {}, {});
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
+    });
   });
 
   describe('zero-config', () => {
     const folderPath = join(__dirname, 'zero-config');
 
-    it('default-recommended-fallback', async () => {
+    test('default-recommended-fallback', async () => {
       const testPath = join(folderPath, 'default-recommended-fallback');
       const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
-    it('no-default-recommended-fallback', async () => {
+    test('no-default-recommended-fallback', async () => {
       const testPath = join(folderPath, 'no-default-recommended-fallback');
+      const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('no-default-recommended-fallback-with-empty-config', async () => {
+      const testPath = join(folderPath, 'no-default-recommended-fallback-with-empty-config');
       const args = getParams(indexEntryPoint, ['lint', './openapi.yaml']);
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
@@ -596,6 +653,21 @@ describe('E2E', () => {
       ]);
       const result = getCommandOutput(args, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_3.txt'));
+    });
+
+    test('lint a specific api when alias is: specified (1); not specified (used the file path) (2)', async () => {
+      const testPath = join(folderPath, 'apply-per-api-decorators');
+      const args1 = getParams(indexEntryPoint, ['lint', '--config=nested/redocly.yaml', 'test@fs']);
+      const result1 = getCommandOutput(args1, {}, { testPath });
+      await expect(cleanupOutput(result1)).toMatchFileSnapshot(join(testPath, 'snapshot_4.txt'));
+
+      const args2 = getParams(indexEntryPoint, [
+        'lint',
+        '--config=nested/redocly.yaml',
+        'nested/openapi/main.yaml',
+      ]);
+      const result2 = getCommandOutput(args2, {}, { testPath });
+      await expect(cleanupOutput(result2)).toMatchFileSnapshot(join(testPath, 'snapshot_4.txt'));
     });
   });
 

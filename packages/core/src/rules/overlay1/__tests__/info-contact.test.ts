@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/load.js';
 
 describe('Overlay 1.0 Description', () => {
   it('should not report if the Contact Object is valid', async () => {
@@ -27,7 +24,7 @@ describe('Overlay 1.0 Description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'info-contact': { severity: 'error' },
         },
@@ -51,7 +48,7 @@ describe('Overlay 1.0 Description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'info-contact': { severity: 'error' },
         },
@@ -88,7 +85,7 @@ describe('Overlay 1.0 Description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           struct: { severity: 'error' },
         },

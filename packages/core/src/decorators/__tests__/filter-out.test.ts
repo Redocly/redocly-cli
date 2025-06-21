@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
 import { bundleDocument } from '../../bundle.js';
 import { BaseResolver } from '../../resolve.js';
-import { makeConfig, parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { createConfig } from '../../config/index.js';
 
 describe('oas3 filter-out', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -52,8 +53,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: { 'filter-out': { property: 'x-access', value: 'private' } },
       }),
     });
@@ -71,8 +71,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-out': {
             property: 'x-audience',
@@ -102,8 +101,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-out': {
             property: 'x-audience',
@@ -141,8 +139,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-out': {
             property: 'x-access',
@@ -195,8 +192,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: { 'filter-out': { property: 'x-prop', value: false } },
       }),
     });
@@ -250,8 +246,7 @@ describe('oas3 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: { 'filter-out': { property: 'x-prop', value: null } },
       }),
     });
@@ -314,8 +309,7 @@ describe('oas2 filter-out', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-out': {
             property: 'x-access',

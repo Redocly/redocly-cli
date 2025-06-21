@@ -1,6 +1,6 @@
-import type { PluginStyleguideConfig } from './types.js';
+import { type RawGovernanceConfig } from './types.js';
 
-const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
+const recommendedStrict: RawGovernanceConfig<'built-in'> = {
   rules: {
     struct: 'error',
   },

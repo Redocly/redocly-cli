@@ -1,104 +1,101 @@
 import { SpecVersion } from '../../oas-types.js';
-import { Config, StyleguideConfig } from '../config.js';
-import { getMergedConfig } from '../utils.js';
-import { doesYamlFileExist } from '../../utils.js';
-import { parseYaml } from '../../js-yaml/index.js';
-import { readFileSync } from 'node:fs';
+import { Config } from '../config.js';
+import * as utils from '../../utils.js';
+import * as jsYaml from '../../js-yaml/index.js';
+import * as fs from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'node:path';
+import { createConfig, type ResolvedConfig } from '../index.js';
 
-vi.mock('../../utils.js');
-vi.mock('../../js-yaml/index.js');
-vi.mock('node:fs');
+vi.mock('../../js-yaml/index.js', async () => {
+  const actual = await vi.importActual('../../js-yaml/index.js');
+  return { ...actual };
+});
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return { ...actual };
+});
 vi.mock('node:path', async () => {
   const actual = await vi.importActual('node:path');
   return { ...actual };
 });
 
-const testConfig: Config = {
-  rawConfig: {
+// Create the config and clean up not needed props for consistency
+const testConfig: Config = await createConfig(
+  {
     apis: {
       'test@v1': {
         root: 'resources/pets.yaml',
-        styleguide: { rules: { 'operation-summary': 'warn' } },
+        rules: { 'operation-summary': 'warn' },
       },
     },
     telemetry: 'on',
-    styleguide: {
-      rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
-      plugins: [],
-    },
+    rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
+    resolve: { http: { headers: [] } },
   },
-  configFile: 'redocly.yaml',
-  apis: {
-    'test@v1': {
-      root: 'resources/pets.yaml',
-      styleguide: { rules: { 'operation-summary': 'warn' } },
-    },
-  },
+  {
+    configPath: 'redocly.yaml',
+  }
+);
+testConfig.plugins = [];
+testConfig.extendPaths = [];
+testConfig.resolvedConfig.plugins = [];
+testConfig.resolvedConfig.extendPaths = [];
+testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
+testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
-  styleguide: {
-    rawConfig: {
-      rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
-      plugins: [],
-    },
-    configFile: 'redocly.yaml',
-    ignore: {},
-    _usedRules: new Set(),
-    _usedVersions: new Set(),
-    recommendedFallback: false,
-    plugins: [],
-    doNotResolveExamples: false,
-    rules: {
-      oas2: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
-      oas3_0: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
-      oas3_1: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
-    },
-    preprocessors: { oas2: {}, oas3_0: {}, oas3_1: {} },
-    decorators: { oas2: {}, oas3_0: {}, oas3_1: {} },
-  } as unknown as StyleguideConfig,
-  theme: {
-    openapi: {},
-    mockServer: {},
-  },
-  resolve: { http: { headers: [] } },
-};
-
-describe('getMergedConfig', () => {
-  it('should get styleguide defined in "apis" section', () => {
-    expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
+describe('Config.forAlias', () => {
+  it('should get config instance for an alias defined in the "apis" section', () => {
+    const aliasConfig = testConfig.forAlias('test@v1');
+    expect(aliasConfig).toMatchInlineSnapshot(`
       Config {
-        "apis": {
-          "test@v1": {
-            "root": "resources/pets.yaml",
-            "styleguide": {
+        "_alias": "test@v1",
+        "_usedRules": Set {},
+        "_usedVersions": Set {},
+        "configPath": "redocly.yaml",
+        "decorators": {
+          "arazzo1": {},
+          "async2": {},
+          "async3": {},
+          "oas2": {},
+          "oas3_0": {},
+          "oas3_1": {},
+          "overlay1": {},
+        },
+        "doNotResolveExamples": false,
+        "document": undefined,
+        "extendPaths": [],
+        "ignore": {},
+        "pluginPaths": [],
+        "plugins": [],
+        "preprocessors": {
+          "arazzo1": {},
+          "async2": {},
+          "async3": {},
+          "oas2": {},
+          "oas3_0": {},
+          "oas3_1": {},
+          "overlay1": {},
+        },
+        "rawConfig": {
+          "apis": {
+            "test@v1": {
+              "root": "resources/pets.yaml",
               "rules": {
                 "operation-summary": "warn",
               },
             },
           },
-        },
-        "configFile": "redocly.yaml",
-        "rawConfig": {
-          "apis": {
-            "test@v1": {
-              "root": "resources/pets.yaml",
-              "styleguide": {
-                "rules": {
-                  "operation-summary": "warn",
-                },
-              },
+          "resolve": {
+            "http": {
+              "headers": [],
             },
           },
-          "styleguide": {
-            "extendPaths": [],
-            "pluginPaths": [],
-            "rules": {
-              "operation-summary": "warn",
-            },
+          "rules": {
+            "no-empty-servers": "error",
+            "operation-summary": "error",
           },
           "telemetry": "on",
-          "theme": {},
         },
         "resolve": {
           "http": {
@@ -106,200 +103,89 @@ describe('getMergedConfig', () => {
             "headers": [],
           },
         },
-        "styleguide": StyleguideConfig {
-          "_usedRules": Set {},
-          "_usedVersions": Set {},
-          "configFile": "redocly.yaml",
-          "decorators": {
-            "arazzo1": {},
-            "async2": {},
-            "async3": {},
-            "oas2": {},
-            "oas3_0": {},
-            "oas3_1": {},
-            "overlay1": {},
-          },
-          "doNotResolveExamples": false,
+        "resolvedConfig": {
+          "arazzo1Decorators": {},
+          "arazzo1Preprocessors": {},
+          "arazzo1Rules": {},
+          "async2Decorators": {},
+          "async2Preprocessors": {},
+          "async2Rules": {},
+          "async3Decorators": {},
+          "async3Preprocessors": {},
+          "async3Rules": {},
+          "decorators": {},
           "extendPaths": [],
-          "ignore": {},
+          "oas2Decorators": {},
+          "oas2Preprocessors": {},
+          "oas2Rules": {},
+          "oas3_0Decorators": {},
+          "oas3_0Preprocessors": {},
+          "oas3_0Rules": {},
+          "oas3_1Decorators": {},
+          "oas3_1Preprocessors": {},
+          "oas3_1Rules": {},
+          "overlay1Decorators": {},
+          "overlay1Preprocessors": {},
+          "overlay1Rules": {},
           "pluginPaths": [],
           "plugins": [],
-          "preprocessors": {
-            "arazzo1": {},
-            "async2": {},
-            "async3": {},
-            "oas2": {},
-            "oas3_0": {},
-            "oas3_1": {},
-            "overlay1": {},
-          },
-          "rawConfig": {
-            "extendPaths": [],
-            "pluginPaths": [],
-            "rules": {
-              "operation-summary": "warn",
-            },
-          },
-          "recommendedFallback": false,
+          "preprocessors": {},
+          "root": "resources/pets.yaml",
           "rules": {
-            "arazzo1": {
-              "operation-summary": "warn",
-            },
-            "async2": {
-              "operation-summary": "warn",
-            },
-            "async3": {
-              "operation-summary": "warn",
-            },
-            "oas2": {
-              "operation-summary": "warn",
-            },
-            "oas3_0": {
-              "operation-summary": "warn",
-            },
-            "oas3_1": {
-              "operation-summary": "warn",
-            },
-            "overlay1": {
-              "operation-summary": "warn",
-            },
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
           },
         },
-        "telemetry": "on",
-        "theme": {},
+        "resolvedRefMap": undefined,
+        "rules": {
+          "arazzo1": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "async2": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "async3": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "oas2": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "oas3_0": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "oas3_1": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "overlay1": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+        },
       }
     `);
   });
   it('should take into account a config file', () => {
-    const result = getMergedConfig(testConfig, 'test@v1');
-    expect(result.configFile).toEqual('redocly.yaml');
-    expect(result.styleguide.configFile).toEqual('redocly.yaml');
+    const aliasConfig = testConfig.forAlias('test@v1');
+    expect(aliasConfig.configPath).toEqual('redocly.yaml');
   });
   it('should return the same config when there is no alias provided', () => {
-    expect(getMergedConfig(testConfig)).toEqual(testConfig);
+    expect(testConfig.forAlias()).toEqual(testConfig);
   });
-  it('should handle wrong alias - return the same styleguide, empty features', () => {
-    expect(getMergedConfig(testConfig, 'wrong-alias')).toMatchInlineSnapshot(`
-      Config {
-        "apis": {
-          "test@v1": {
-            "root": "resources/pets.yaml",
-            "styleguide": {
-              "rules": {
-                "operation-summary": "warn",
-              },
-            },
-          },
-        },
-        "configFile": "redocly.yaml",
-        "rawConfig": {
-          "apis": {
-            "test@v1": {
-              "root": "resources/pets.yaml",
-              "styleguide": {
-                "rules": {
-                  "operation-summary": "warn",
-                },
-              },
-            },
-          },
-          "styleguide": {
-            "extendPaths": [],
-            "pluginPaths": [],
-            "plugins": [],
-            "rules": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-          },
-          "telemetry": "on",
-          "theme": {},
-        },
-        "resolve": {
-          "http": {
-            "customFetch": undefined,
-            "headers": [],
-          },
-        },
-        "styleguide": StyleguideConfig {
-          "_usedRules": Set {},
-          "_usedVersions": Set {},
-          "configFile": "redocly.yaml",
-          "decorators": {
-            "arazzo1": {},
-            "async2": {},
-            "async3": {},
-            "oas2": {},
-            "oas3_0": {},
-            "oas3_1": {},
-            "overlay1": {},
-          },
-          "doNotResolveExamples": false,
-          "extendPaths": [],
-          "ignore": {},
-          "pluginPaths": [],
-          "plugins": [],
-          "preprocessors": {
-            "arazzo1": {},
-            "async2": {},
-            "async3": {},
-            "oas2": {},
-            "oas3_0": {},
-            "oas3_1": {},
-            "overlay1": {},
-          },
-          "rawConfig": {
-            "extendPaths": [],
-            "pluginPaths": [],
-            "plugins": [],
-            "rules": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-          },
-          "recommendedFallback": false,
-          "rules": {
-            "arazzo1": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "async2": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "async3": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "oas2": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "oas3_0": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "oas3_1": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-            "overlay1": {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-          },
-        },
-        "telemetry": "on",
-        "theme": {},
-      }
-    `);
+  it('should handle wrong alias - return the same governance config, empty features', () => {
+    expect(testConfig.forAlias('wrong-alias')).toEqual(testConfig);
   });
 });
 
-describe('StyleguideConfig.extendTypes', () => {
+describe('Config.extendTypes', () => {
   let oas3 = vi.fn();
   let oas2 = vi.fn();
-  let testRawConfigStyleguide = {
+  let testResolvedConfig: ResolvedConfig = {
     plugins: [
       {
         id: 'test-types-plugin',
@@ -311,20 +197,20 @@ describe('StyleguideConfig.extendTypes', () => {
     ],
   };
   it('should call only oas3 types extension', () => {
-    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, SpecVersion.OAS3_0);
+    const config = new Config(testResolvedConfig);
+    config.extendTypes({}, SpecVersion.OAS3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
-    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, SpecVersion.OAS2);
+    const config = new Config(testResolvedConfig);
+    config.extendTypes({}, SpecVersion.OAS2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
   it('should throw error if for oas version different from 2 and 3', () => {
-    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    expect(() => styleguideConfig.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
+    const config = new Config(testResolvedConfig);
+    expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
       'Not implemented'
     );
   });
@@ -332,14 +218,14 @@ describe('StyleguideConfig.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    vi.mocked(readFileSync).mockImplementationOnce(() => '');
-    vi.mocked(parseYaml).mockImplementationOnce(() => ignoredFileStub);
-    vi.mocked(doesYamlFileExist).mockImplementationOnce(() => true);
-
+    vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => '');
+    vi.spyOn(jsYaml, 'parseYaml').mockImplementationOnce(() => ignoredFileStub);
+    vi.spyOn(utils, 'doesYamlFileExist').mockImplementationOnce(() => true);
     vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 
-    const styleguideConfig = new StyleguideConfig(testConfig.styleguide);
+    const config = new Config(testConfig.resolvedConfig);
+    config.resolvedConfig = 'resolvedConfig stub' as any;
 
-    expect(styleguideConfig).toMatchSnapshot();
+    expect(config).toMatchSnapshot();
   });
 });

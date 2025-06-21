@@ -1,9 +1,8 @@
 import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
 import { lintDocument } from '../../../../lint.js';
-import { StyleguideConfig } from '../../../../index.js';
 import { BaseResolver } from '../../../../resolve.js';
-import { resolveStyleguideConfig } from '../../../../config/index.js';
+import { createConfig } from '../../../../config/index.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -27,17 +26,12 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new StyleguideConfig(
-        await resolveStyleguideConfig({
-          styleguideConfig: {
-            extends: [],
-            rules: {
-              struct: 'error',
-              'no-unresolved-refs': 'error',
-            },
-          },
-        })
-      ),
+      config: await createConfig({
+        rules: {
+          struct: 'error',
+          'no-unresolved-refs': 'error',
+        },
+      }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
@@ -64,17 +58,14 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new StyleguideConfig(
-        await resolveStyleguideConfig({
-          styleguideConfig: {
-            extends: [],
-            rules: {
-              'no-unresolved-refs': 'error',
-            },
-            doNotResolveExamples: true,
-          },
-        })
-      ),
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+        resolve: {
+          doNotResolveExamples: true,
+        },
+      }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
