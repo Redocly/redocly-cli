@@ -34,6 +34,7 @@ export type Analytics = {
 };
 
 export async function sendTelemetry({
+  residency,
   argv,
   exit_code,
   has_config,
@@ -42,6 +43,7 @@ export async function sendTelemetry({
   spec_full_version,
   respect_x_security_auth_types,
 }: {
+  residency: string | undefined;
   argv: Arguments | undefined;
   exit_code: ExitCode;
   has_config: boolean | undefined;
@@ -62,7 +64,7 @@ export async function sendTelemetry({
     const event_time = new Date().toISOString();
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
-    const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
+    const reuniteUrl = getReuniteUrl(residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
     const data: Analytics = {
       event: 'cli_command',

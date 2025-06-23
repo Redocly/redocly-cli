@@ -10,14 +10,14 @@ export type LoginOptions = {
   config?: string;
 };
 
-export async function handleLogin({ argv, version }: CommandArgs<LoginOptions>) {
+export async function handleLogin({ argv, version, config }: CommandArgs<LoginOptions>) {
+  const residency = argv.residency || config.rawConfig.residency;
+  const reuniteUrl = getReuniteUrl(residency);
   try {
-    const reuniteUrl = getReuniteUrl(argv.residency);
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     await oauthClient.login(reuniteUrl);
   } catch {
     if (argv.residency) {
-      const reuniteUrl = getReuniteUrl(argv.residency);
       exitWithError(`❌ Connection to ${reuniteUrl} failed.`);
     } else {
       exitWithError(`❌ Login failed. Please check your credentials and try again.`);

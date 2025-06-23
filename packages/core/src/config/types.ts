@@ -219,7 +219,8 @@ export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'
 export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   ResolvedGovernanceConfig & {
     apis?: Record<string, ResolvedApiConfig>;
-  };
+    residency?: string;
+};
 
 export type ThemeConfig = {
   theme?: ThemeRawConfig; // TODO: deprecated
