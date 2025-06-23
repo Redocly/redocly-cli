@@ -63,15 +63,14 @@ redocly build-docs --theme.openapi.theme.sidebar.width='300px' openapi.yaml
 
 Configuration belongs in a file named `redocly.yaml`, or in a file name specified with the `--config` command-line parameter. You can read more about the [configuration file structure](../configuration/index.md) in the documentation, and changes between this and older versions are listed here.
 
-Options named `features.openapi.*` should be re-prefixed to `theme.openapi.*`, either at the top level of the configuration, or per API. So a configuration file to change one of the colours to a rather lurid purple would look something like the example below:
+Options named `features.openapi.*` should be re-named to `openapi.*`, either at the top level of the configuration, or per API. So a configuration file to change one of the colours to a rather lurid purple would look something like the example below:
 
 ```yaml
-theme:
-  openapi:
-    theme:
-      colors:
-        primary:
-          main: '#ff00ff'
+openapi:
+  theme:
+    colors:
+      primary:
+        main: '#ff00ff'
 ```
 
 Define the base customization; older versions of the tools defaulted to using `recommended`, but this is no longer assumed. Set it in `redocly.yaml` like this:

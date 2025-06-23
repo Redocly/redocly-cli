@@ -33,17 +33,15 @@ apis:
       no-ambiguous-paths: error
   external@v1:
     root: ./openapi/external.yaml
-    theme:
-      openapi:
-        hideLogo: true
+    openapi:
+      hideLogo: true
 
-theme:
-  openapi:
-    schemaExpansionLevel: 2
-    generateCodeSamples:
-      languages:
-        - lang: curl
-        - lang: Python
+openapi:
+  schemaExpansionLevel: 2
+  generateCodeSamples:
+    languages:
+      - lang: curl
+      - lang: Python
 ```
 
 Read on to learn more about the various configuration sections and what you can do with each one.
@@ -232,12 +230,10 @@ Splitting a config file is possible by using references in a config similar to h
 ```yaml
 extends:
   - recommended
-
-theme:
-  openapi:
-    $ref: ./openapi-theme.yaml
-  mockServer:
-    $ref: ./mockserver.yaml
+openapi:
+  $ref: ./openapi-theme.yaml
+mockServer:
+  $ref: ./mockserver.yaml
 ```
 
 {% admonition type="info" %}
