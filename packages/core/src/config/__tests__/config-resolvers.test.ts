@@ -365,9 +365,10 @@ describe('resolveGovernanceConfig', () => {
     expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
   it('should resolve `recommended-strict` ruleset correctly', async () => {
-    const expectedStrict = JSON.parse(
-      JSON.stringify(recommended)
-    ) as RawGovernanceConfig<'built-in'>;
+    const expectedStrict = JSON.parse(JSON.stringify(recommended)) as Omit<
+      RawGovernanceConfig<'built-in'>,
+      'extends'
+    >;
     for (const section of Object.values(expectedStrict)) {
       for (let ruleName in section) {
         if (section[ruleName] === 'warn') {

@@ -74,7 +74,7 @@ export type RawGovernanceConfig<T = undefined> = {
   overlay1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedGovernanceConfig = RawGovernanceConfig & {
+export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends'> & {
   plugins?: Plugin[];
   extendPaths?: string[];
   pluginPaths?: string[];
@@ -205,7 +205,7 @@ export type RawUniversalApiConfig = ApiConfig &
   };
 
 export type ResolvedApiConfig = ApiConfig &
-  Required<RawGovernanceConfig> &
+  Required<Omit<RawGovernanceConfig, 'extends'>> &
   ResolvedGovernanceConfig;
 
 export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
