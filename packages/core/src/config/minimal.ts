@@ -80,7 +80,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'warn',
     'no-server-variables-empty-enum': 'error',
-    'nullable-type-sibling': 'error',
+    'nullable-type-sibling': 'warn',
     'operation-summary': 'warn',
     'operation-operationId': 'warn',
     'operation-operationId-unique': 'warn',

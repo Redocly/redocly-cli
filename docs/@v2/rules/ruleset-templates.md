@@ -107,7 +107,7 @@ rules:
   operation-singular-tag: off
   no-unresolved-refs: error
   no-enum-type-mismatch: warn
-  nullable-type-sibling: error
+  nullable-type-sibling: warn
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -385,6 +385,7 @@ rules:
   operation-singular-tag: off
   no-unresolved-refs: error
   no-enum-type-mismatch: error
+  nullable-type-sibling: error
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
