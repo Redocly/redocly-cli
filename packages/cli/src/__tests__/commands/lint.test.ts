@@ -55,6 +55,7 @@ describe('handleLint', () => {
         logger: {
           info: vi.fn(),
           warn: vi.fn(),
+          error: vi.fn(),
           output: vi.fn(),
         },
         formatProblems: vi.fn(),
