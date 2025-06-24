@@ -158,39 +158,11 @@ describe('Oas3 struct', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { struct: 'error' } }),
+      config: await createConfig({ rules: { 'nullable-type-sibling': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "The field \`paths\` must be present on this level.",
-          "ruleId": "struct",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "The field \`info\` must be present on this level.",
-          "ruleId": "struct",
-          "severity": "error",
-          "suggest": [],
-        },
         {
           "location": [
             {
@@ -200,7 +172,7 @@ describe('Oas3 struct', () => {
             },
           ],
           "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
-          "ruleId": "struct",
+          "ruleId": "nullable-type-sibling",
           "severity": "error",
           "suggest": [],
         },
@@ -225,6 +197,71 @@ describe('Oas3 struct', () => {
             TestSchema:
               title: TestSchema
               type: object
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'nullable-type-sibling': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
+          "ruleId": "nullable-type-sibling",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on nullable with type defined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      components:
+        requestBodies:
+          TestRequestBody:
+            content:
+              application/json:
+                schema:
+                  nullable: true
+                  type: object
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'nullable-type-sibling': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report on nullable without type with the struct rule', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          requestBodies:
+            TestRequestBody:
+              content:
+                application/json:
+                  schema:
+                    nullable: true
         `,
       'foobar.yaml'
     );
@@ -261,47 +298,6 @@ describe('Oas3 struct', () => {
             },
           ],
           "message": "The field \`info\` must be present on this level.",
-          "ruleId": "struct",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "location": [
-            {
-              "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
-          "ruleId": "struct",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/components/requestBodies/schemas",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "The field \`content\` must be present on this level.",
-          "ruleId": "struct",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/components/requestBodies/schemas/TestSchema",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Property \`TestSchema\` is not expected here.",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],
