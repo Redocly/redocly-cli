@@ -12,19 +12,14 @@ import {
 import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
-import { dequal, isEmptyObject, isPlainObject, isTruthy } from './utils.js';
+import { dequal, isPlainObject, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import {
-  mergeExtends,
-  resolvePreset,
-  type ResolvedGovernanceConfig,
-  type Config,
-} from './config/index.js';
+import { mergeExtends, resolvePreset, type Config } from './config/index.js';
 import path from 'path';
-import { defaultPlugin } from './config/builtIn.js';
 
+import type { Plugin } from './config/types.js';
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
@@ -47,15 +42,15 @@ export type CoreBundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-function bundleExtends(node: any, ctx: UserContext) {
+function bundleExtends({ node, ctx, plugins }: { node: any; ctx: UserContext; plugins: Plugin[] }) {
   if (!node.extends) {
     return node;
   }
 
-  const resolvedExtends = node.extends
+  const resolvedExtends = (node.extends || [])
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, [defaultPlugin]); // TODO: implement plugins
+        return resolvePreset(presetItem, plugins);
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });
@@ -66,26 +61,14 @@ function bundleExtends(node: any, ctx: UserContext) {
     })
     .filter(isTruthy);
 
-  return removeEmptyRules(
-    mergeExtends([
-      ...resolvedExtends.map((nested: any) => bundleExtends(nested, ctx)),
-      { ...node, extends: undefined },
-    ])
-  );
+  return mergeExtends([
+    ...resolvedExtends.map((nested: any) => bundleExtends({ node: nested, ctx, plugins })),
+    { ...node, extends: undefined },
+  ]);
 }
 
-const bundleVisitor = () => {
-  const collectedPlugins: string[] = [];
-
-  function handleNode(node: any, ctx: UserContext) {
-    if (node.extends) {
-      const bundled = bundleExtends(node, ctx);
-      Object.assign(node, bundled);
-      delete node.extends;
-      collectedPlugins.push(...(bundled.plugins as unknown as any[]));
-      delete bundled.plugins;
-    }
-  }
+function configBundleVisitor(plugins: Plugin[]) {
+  // let rootConfig: RawUniversalConfig | undefined;
 
   return normalizeVisitors(
     [
@@ -103,27 +86,24 @@ const bundleVisitor = () => {
               handleNode(node, ctx);
             },
           },
-          ConfigStyleguideList: {
+          ConfigApisProperties: {
+            leave(node: any, ctx: UserContext) {
+              // ignore extends from root config if defined in the current node
+              handleNode(node, ctx);
+            },
+          },
+          'rootRedoclyConfigSchema.scorecard.levels_items': {
             leave(node: any, ctx: UserContext) {
               handleNode(node, ctx);
             },
-            'rootRedoclyConfigSchema.scorecard.levels_items': {
-              leave(node: any, ctx: UserContext) {
-                handleNode(node, ctx);
-              },
-            },
-
-            ConfigRoot: {
-              leave(node: any, ctx: UserContext) {
-                if (node.extends) {
-                  const bundled = bundleExtends(node, ctx);
-                  Object.assign(node, bundled);
-                  node.plugins = Array.from(
-                    new Set([...(node.plugins || []), ...collectedPlugins])
-                  );
-                  delete node.extends;
-                }
-              },
+          },
+          ConfigRoot: {
+            leave(node: any, ctx: UserContext) {
+              if (node.extends) {
+                const bundled = bundleExtends({ node, ctx, plugins });
+                Object.assign(node, bundled);
+                delete node.extends;
+              }
             },
           },
         },
@@ -131,18 +111,66 @@ const bundleVisitor = () => {
     ],
     NormalizedConfigTypes
   );
-};
 
-function removeEmptyRules(config: ResolvedGovernanceConfig) {
-  // TODO: convert strings to constants
-  return Object.fromEntries(
-    Object.entries(config).filter(
-      ([key, value]) => !isEmptyObject(value) && key !== 'pluginPaths' && key !== 'extendPaths'
-    )
-  );
+  function handleNode(node: any, ctx: UserContext) {
+    if (node.extends) {
+      const bundled = bundleExtends({ node, ctx, plugins });
+      Object.assign(node, bundled);
+      delete node.extends;
+    }
+  }
 }
 
-export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
+function collectPluginsVisitor() {
+  const plugins: (string | Plugin)[] = [];
+  return normalizeVisitors(
+    [
+      {
+        severity: 'error',
+        ruleId: 'configBundler',
+        visitor: {
+          ref: {},
+          ConfigGovernance: {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+          ConfigApisProperties: {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+          'rootRedoclyConfigSchema.scorecard.levels_items': {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+          ConfigRoot: {
+            leave(node: any) {
+              if ((Array.isArray(node.plugins) && node.plugins.length > 0) || plugins.length > 0) {
+                node.plugins = [...(node.plugins || []), ...plugins];
+              }
+            },
+          },
+        },
+      },
+    ],
+    NormalizedConfigTypes
+  );
+
+  function handleNode(node: any, ctx: UserContext) {
+    if (Array.isArray(node.plugins)) {
+      plugins.push(
+        ...node.plugins.map((p: string) =>
+          typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
+        )
+      );
+      delete node.plugins;
+    }
+  }
+}
+
+export function collectConfigPlugins(document: Document, resolvedRefMap: ResolvedRefMap) {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
@@ -153,7 +181,30 @@ export async function bundleConfig(document: Document, resolvedRefMap: ResolvedR
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: bundleVisitor(),
+    normalizedVisitors: collectPluginsVisitor(),
+    resolvedRefMap,
+    ctx,
+  });
+
+  return document.parsed ?? {};
+}
+
+export function bundleConfig(
+  document: Document,
+  resolvedRefMap: ResolvedRefMap,
+  plugins: Plugin[]
+) {
+  const ctx: BundleContext = {
+    problems: [],
+    oasVersion: SpecVersion.OAS3_0,
+    refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
+  };
+
+  walkDocument({
+    document,
+    rootType: NormalizedConfigTypes.ConfigRoot,
+    normalizedVisitors: configBundleVisitor(plugins),
     resolvedRefMap,
     ctx,
   });
