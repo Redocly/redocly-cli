@@ -27,7 +27,6 @@ export function commandWrapper<T extends CommandOptions>(
 ) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
-    let hasConfig;
     let telemetry;
     let specVersion: string | undefined;
     let specKeyword: string | undefined;
@@ -63,7 +62,6 @@ export function commandWrapper<T extends CommandOptions>(
       }
       config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
       telemetry = config.resolvedConfig.telemetry;
-      hasConfig = !!config.rawConfig;
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData });
@@ -83,12 +81,10 @@ export function commandWrapper<T extends CommandOptions>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        const residency = (argv.residency as string) || config?.rawConfig?.residency;
         await sendTelemetry({
-          residency,
+          config,
           argv,
           exit_code: code,
-          has_config: hasConfig,
           spec_version: specVersion,
           spec_keyword: specKeyword,
           spec_full_version: specFullVersion,
