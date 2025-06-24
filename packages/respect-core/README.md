@@ -16,28 +16,6 @@ Respect is Redocly's API contract testing system that validates your APIs match 
 - Links API requests to OpenAPI descriptions automatically
 - Catch problems early in development and CI/CD pipelines
 
-## Getting Started
-
-1. **Install Redocly CLI** (if not already installed):
-
-   ```sh
-   npm install @redocly/cli -g
-   ```
-
-2. **Generate test workflows** from your OpenAPI spec:
-
-   ```sh
-   redocly generate-arazzo openapi.yaml
-   ```
-
-3. **Run your first test**:
-
-   ```sh
-   redocly respect auto-generated.arazzo.yaml --verbose
-   ```
-
-4. **Create custom workflows** using Arazzo format for complex testing scenarios
-
 ## Requirements
 
 You **MUST** have a working API server running in order to run the tests because Respect sends real HTTP requests.
