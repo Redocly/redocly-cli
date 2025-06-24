@@ -129,6 +129,9 @@ export async function createConfig(
 }
 
 function cloneConfigDocument(document: Document<RawUniversalConfig>) {
+  if (!document.parsed) {
+    return document;
+  }
   const { plugins, ...rest } = document.parsed;
   const cloned = {
     ...structuredClone(rest),
