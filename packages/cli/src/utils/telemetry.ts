@@ -6,7 +6,7 @@ import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 
 import type { ExitCode } from './miscellaneous.js';
-import type { ArazzoDefinition } from '@redocly/openapi-core';
+import type { ArazzoDefinition, Config } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
 import type { CommandOptions } from '../types.js';
@@ -34,17 +34,17 @@ export type Analytics = {
 };
 
 export async function sendTelemetry({
+  config,
   argv,
   exit_code,
-  has_config,
   spec_version,
   spec_keyword,
   spec_full_version,
   respect_x_security_auth_types,
 }: {
+  config: Config | undefined;
   argv: Arguments | undefined;
   exit_code: ExitCode;
-  has_config: boolean | undefined;
   spec_version: string | undefined;
   spec_keyword: string | undefined;
   spec_full_version: string | undefined;
@@ -60,9 +60,10 @@ export async function sendTelemetry({
       ...args
     } = argv;
     const event_time = new Date().toISOString();
+    const residency = (argv.residency as string) || config?.rawConfig?.residency;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
-    const reuniteUrl = getReuniteUrl(argv.residency as string | undefined);
+    const reuniteUrl = getReuniteUrl(residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
     const data: Analytics = {
       event: 'cli_command',
@@ -78,7 +79,7 @@ export async function sendTelemetry({
       environment: process.env.REDOCLY_ENVIRONMENT,
       metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
       environment_ci: process.env.CI,
-      has_config: has_config ? 'yes' : 'no',
+      has_config: typeof config?.rawConfig === 'undefined' ? 'no' : 'yes',
       spec_version,
       spec_keyword,
       spec_full_version,

@@ -27,11 +27,11 @@ export function commandWrapper<T extends CommandOptions>(
 ) {
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
-    let hasConfig;
     let telemetry;
     let specVersion: string | undefined;
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
+    let config: Config | undefined;
     const respectXSecurityAuthTypes: string[] = [];
     const collectSpecData: CollectFn = (document) => {
       specVersion = detectSpec(document);
@@ -60,9 +60,8 @@ export function commandWrapper<T extends CommandOptions>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please provide a valid path to the configuration file.');
       }
-      const config: Config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
+      config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
       telemetry = config.resolvedConfig.telemetry;
-      hasConfig = !!config.rawConfig;
       code = 1;
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData });
@@ -83,9 +82,9 @@ export function commandWrapper<T extends CommandOptions>(
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         await sendTelemetry({
+          config,
           argv,
           exit_code: code,
-          has_config: hasConfig,
           spec_version: specVersion,
           spec_keyword: specKeyword,
           spec_full_version: specFullVersion,
