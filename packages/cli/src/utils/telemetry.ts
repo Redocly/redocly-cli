@@ -61,7 +61,6 @@ export async function sendTelemetry({
     } = argv;
     const event_time = new Date().toISOString();
     const residency = (argv.residency as string) || config?.rawConfig?.residency;
-    const has_config = !!config?.rawConfig;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
     const reuniteUrl = getReuniteUrl(residency);
@@ -80,7 +79,7 @@ export async function sendTelemetry({
       environment: process.env.REDOCLY_ENVIRONMENT,
       metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
       environment_ci: process.env.CI,
-      has_config: has_config ? 'yes' : 'no',
+      has_config: typeof config?.rawConfig === 'undefined' ? 'no' : 'yes',
       spec_version,
       spec_keyword,
       spec_full_version,
