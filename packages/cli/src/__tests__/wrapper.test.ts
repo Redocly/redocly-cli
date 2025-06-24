@@ -43,9 +43,13 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith({
+      config: {
+        resolvedConfig: {
+          telemetry: 'on',
+        },
+      },
       argv: {},
       exit_code: 0,
-      has_config: false,
       spec_version: 'oas3_1',
       spec_keyword: 'openapi',
       spec_full_version: '3.1.0',
@@ -67,9 +71,13 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith({
+      config: {
+        resolvedConfig: {
+          telemetry: 'on',
+        },
+      },
       argv: {},
       exit_code: 0,
-      has_config: false,
       spec_version: undefined,
       spec_keyword: undefined,
       spec_full_version: undefined,
