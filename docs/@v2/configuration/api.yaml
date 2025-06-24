@@ -4,15 +4,13 @@ description: >-
   Lets you configure one or more API description files.
   This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
 additionalProperties:
-  x-additionalPropertiesName: '{name}@{version}'
+  x-additionalPropertiesName: '{name}'
   type: object
   title: API object
-  minItems: 1
   required:
     - root
   description: >-
-    Specifies the name and version of an API associated with the root API description with the pattern `{name}@{version}`.
-    If the version is omitted, Redocly apps interpret it as 'latest' by default.
+    Specifies the name of an API associated with the root API description.
   properties:
     root:
       type: string
@@ -104,18 +102,25 @@ additionalProperties:
                   - off
                 description: The severity level if the problem occurs.
             additionalProperties: true
-    theme:
+    extends:
+      type: array
+      description: >-
+        Inherits configurations.
+        In case of conflicts, priority goes to configurations further down the list.
+        Explicit inline declarations take precedence over configurations inherited through the `extends` feature.
+        Built-in configurations include `recommended` and `minimal`.
+      items:
+        type: string
+        example: recommended
+    openapi:
       type: object
-      properties:
-        openapi:
-          type: object
-          description: >-
-            Defines theming and functionality for an API description.
-            Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
-            API-level configuration always overrides the root configuration.
-        mockServer:
-          type: object
-          description: >-
-            Defines mock server behavior for an API description.
-            Supports the same format and options as the root `mockServer` object.
-            API-level configuration always overrides the root configuration.
+      description: >-
+        Defines theming and functionality for an API description.
+        Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+        API-level configuration always overrides the root configuration.
+    mockServer:
+      type: object
+      description: >-
+        Defines mock server behavior for an API description.
+        Supports the same format and options as the root `mockServer` object.
+        API-level configuration always overrides the root configuration.
