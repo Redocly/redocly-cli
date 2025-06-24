@@ -91,6 +91,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'operation-parameters-unique': 'error',
     'operation-tag-defined': 'off',
     'operation-singular-tag': 'off',
+    'nullable-type-sibling': 'error',
     'parameter-description': 'off',
     'path-declaration-must-exist': 'error',
     'path-not-include-query': 'error',

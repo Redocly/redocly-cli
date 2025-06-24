@@ -119,6 +119,7 @@ const builtInOAS3Rules = [
   'spec-components-invalid-map-name',
   'array-parameter-serialization',
   'no-duplicated-tag-names',
+  'nullable-type-sibling',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
