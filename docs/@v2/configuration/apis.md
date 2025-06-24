@@ -1,6 +1,6 @@
 # Per-API configuration
 
-The `apis` object is used to configure one or more APIs differently from the main configuration.
+Use the `apis` object to configure one or more APIs separately from the main configuration.
 Every API in the object is identified by its unique name.
 
 For every API listed in the object, you must provide the path to the OpenAPI description using the `root` property.

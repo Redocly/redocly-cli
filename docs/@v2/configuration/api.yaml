@@ -105,10 +105,10 @@ additionalProperties:
     extends:
       type: array
       description: >-
-        Inherit configurations.
-        In case of conflict, priority goes to configurations further down the list.
-        Finally, explicit declarations inline takes precedence over configurations inherited through the `extends` feature.
-        Built in configurations include `recommended` and `minimal`.
+        Inherits configurations.
+        In case of conflicts, priority goes to configurations further down the list.
+        Explicit inline declarations take precedence over configurations inherited through the `extends` feature.
+        Built-in configurations include `recommended` and `minimal`.
       items:
         type: string
         example: recommended
