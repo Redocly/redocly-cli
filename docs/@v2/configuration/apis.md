@@ -1,9 +1,7 @@
 # Per-API configuration
 
-The `apis` object is used to configure one or more APIs.
-Every API in the object is identified by its name and version in the format `name@version`.
-The version is optional, and when not provided, Redocly apps interpret it as `latest` by default.
-Every `name@version` combination listed in the object must be unique.
+Use the `apis` object to configure one or more APIs separately from the main configuration.
+Every API in the object is identified by its unique name.
 
 For every API listed in the object, you must provide the path to the OpenAPI description using the `root` property.
 
@@ -13,7 +11,7 @@ If the same `rules`, `decorators`, or `preprocessors` are defined on `apis` and 
 
 For example, if you include the same `decorator` at the root level and for a specific API, but with different properties, the API-level settings replace the root ones.
 
-So if you have the following `redocly.yaml` configuration, adding `filter-in` and `plugin/change-title` at the root level and applying `plugin/change-title` with a different `title` property to the `storefront@latest` API:
+So if you have the following `redocly.yaml` configuration, adding `filter-in` and `plugin/change-title` at the root level and applying `plugin/change-title` with a different `title` property to the `storefront` API:
 
 ```yaml
 decorators:
@@ -27,15 +25,15 @@ decorators:
 
 
 apis:
-  storefront@latest:
+  storefront:
     decorators:
       plugin/change-title:
         title: Storefront APIs
 ```
 
-The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront@latest` API with the value `Storefront APIs`, and the `filter-in` decorator is also applied to the `storefront@latest` API.
+The `plugin/change-title` decorator with the "Storefront APIs" `title` property is applied to the `storefront` API with the value `Storefront APIs`, and the `filter-in` decorator is also applied to the `storefront` API.
 
-For all other APIs, not including the `storefront@latest` API, `filter-in` and `plugin/change-title` with the "Core" `title` and `extraProperty` properties are applied.
+For all other APIs, not including the `storefront` API, `filter-in` and `plugin/change-title` with the "Core" `title` and `extraProperty` properties are applied.
 
 ## Patterned properties
 
@@ -49,7 +47,7 @@ For all other APIs, not including the `storefront@latest` API, `filter-in` and `
 
 ```yaml
 apis:
-  name@version:
+  name:
     root: ./openapi/openapi.yaml
     openapi: {}
     output: ./openapi/bundled.yaml
