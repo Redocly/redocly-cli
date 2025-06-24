@@ -77,21 +77,24 @@ export class YamlParseError extends Error {
   }
 }
 
-export type Document = {
+export type Document<T = any> = {
   source: Source;
-  parsed: any;
+  parsed: T;
 };
 
 export function makeRefId(absoluteRef: string, pointer: string) {
   return absoluteRef + '::' + pointer;
 }
 
-export function makeDocumentFromString(sourceString: string, absoluteRef: string) {
+export function makeDocumentFromString<T = any>(
+  sourceString: string,
+  absoluteRef: string
+): Document<T> {
   const source = new Source(absoluteRef, sourceString);
   try {
     return {
       source,
-      parsed: parseYaml(sourceString, { filename: absoluteRef }),
+      parsed: parseYaml(sourceString, { filename: absoluteRef }) as T,
     };
   } catch (e) {
     throw new YamlParseError(e, source);
@@ -158,11 +161,11 @@ export class BaseResolver {
     }
   }
 
-  async resolveDocument(
+  async resolveDocument<T = any>(
     base: string | null,
     ref: string,
     isRoot: boolean = false
-  ): Promise<Document | ResolveError | YamlParseError> {
+  ): Promise<Document<T> | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
 
     const cachedDocument = this.cache.get(absoluteRef);

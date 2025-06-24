@@ -76,12 +76,14 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     overlay1Decorators: {},
 
     plugins: [],
-    pluginPaths: [],
-    extendPaths: [],
   };
 
   for (const rulesConf of rulesConfList) {
-    if ('extends' in rulesConf) {
+    if (
+      typeof rulesConf === 'object' &&
+      'extends' in rulesConf &&
+      rulesConf.extends !== undefined
+    ) {
       throw new Error(
         `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`
       );
@@ -136,8 +138,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
 
     result.plugins.push(...(rulesConf.plugins || []));
-    result.pluginPaths.push(...(rulesConf.pluginPaths || []));
-    result.extendPaths.push(...new Set(rulesConf.extendPaths));
   }
 
   return result;

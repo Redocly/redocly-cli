@@ -76,8 +76,6 @@ export type RawGovernanceConfig<T = undefined> = {
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends'> & {
   plugins?: Plugin[];
-  extendPaths?: string[];
-  pluginPaths?: string[];
 };
 
 export type PreprocessorsConfig = {

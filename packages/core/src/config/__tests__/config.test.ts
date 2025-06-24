@@ -38,15 +38,13 @@ const testConfig: Config = await createConfig(
   }
 );
 testConfig.plugins = [];
-testConfig.extendPaths = [];
 testConfig.resolvedConfig.plugins = [];
-testConfig.resolvedConfig.extendPaths = [];
 testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
-testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
 describe('Config.forAlias', () => {
   it('should get config instance for an alias defined in the "apis" section', () => {
     const aliasConfig = testConfig.forAlias('test@v1');
+    aliasConfig.document = undefined;
     expect(aliasConfig).toMatchInlineSnapshot(`
       Config {
         "_alias": "test@v1",
@@ -64,9 +62,7 @@ describe('Config.forAlias', () => {
         },
         "doNotResolveExamples": false,
         "document": undefined,
-        "extendPaths": [],
         "ignore": {},
-        "pluginPaths": [],
         "plugins": [],
         "preprocessors": {
           "arazzo1": {},
@@ -114,7 +110,6 @@ describe('Config.forAlias', () => {
           "async3Preprocessors": {},
           "async3Rules": {},
           "decorators": {},
-          "extendPaths": [],
           "oas2Decorators": {},
           "oas2Preprocessors": {},
           "oas2Rules": {},
@@ -127,7 +122,6 @@ describe('Config.forAlias', () => {
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
-          "pluginPaths": [],
           "plugins": [],
           "preprocessors": {},
           "root": "resources/pets.yaml",
@@ -136,7 +130,7 @@ describe('Config.forAlias', () => {
             "operation-summary": "warn",
           },
         },
-        "resolvedRefMap": undefined,
+        "resolvedRefMap": Map {},
         "rules": {
           "arazzo1": {
             "no-empty-servers": "error",

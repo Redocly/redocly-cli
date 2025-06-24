@@ -63,9 +63,6 @@ export class Config {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
 
-  extendPaths: string[];
-  pluginPaths: string[];
-
   constructor(
     resolvedConfig: ResolvedConfig,
     opts: {
@@ -135,8 +132,6 @@ export class Config {
       },
     };
 
-    this.extendPaths = resolvedConfig.extendPaths || [];
-    this.pluginPaths = resolvedConfig.pluginPaths || [];
     this.resolveIgnore(getIgnoreFilePath(opts.configPath));
   }
 

@@ -184,7 +184,7 @@ export const assignConfig = <T extends string | { severity?: string }>(
   if (!obj) return;
   for (const k of Object.keys(obj)) {
     if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
-      target[k].severity = obj[k];
+      target[k] = { ...(target[k] as any), severity: obj[k] };
     } else {
       target[k] = obj[k];
     }

@@ -357,11 +357,13 @@ describe('lint', () => {
             showConsole: true # Not expected anymore
             layout: wrong-option
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({}, { document });
+    const cwd = path.join(__dirname, 'fixtures');
+    const config = await createConfig(testConfigContent, {
+      configPath: path.join(cwd, 'redocly.yaml'),
+    });
     const results = await lintConfig({ config });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, cwd)).toMatchInlineSnapshot(`
       [
         {
           "from": undefined,
@@ -369,7 +371,7 @@ describe('lint', () => {
             {
               "pointer": "#/apis",
               "reportOnKey": false,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
@@ -383,7 +385,7 @@ describe('lint', () => {
             {
               "pointer": "#/theme/openapi/layout",
               "reportOnKey": false,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "\`layout\` can be one of the following only: "stacked", "three-panel".",
@@ -403,8 +405,7 @@ describe('lint', () => {
         rules:
           operation-2xx-response: warn
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig(testConfigContent, { document });
+    const config = await createConfig(testConfigContent);
     const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -442,11 +443,13 @@ describe('lint', () => {
         plugins:
         - './local-plugin.js'
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({}, { document });
+    const cwd = path.join(__dirname, 'fixtures');
+    const config = await createConfig(testConfigContent, {
+      configPath: path.join(cwd, 'redocly.yaml'),
+    });
     const results = await lintConfig({ config });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, cwd)).toMatchInlineSnapshot(`
       [
         {
           "from": undefined,
@@ -454,7 +457,7 @@ describe('lint', () => {
             {
               "pointer": "#/apis/main/plugins",
               "reportOnKey": true,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "Property \`plugins\` is not expected here.",
@@ -467,8 +470,7 @@ describe('lint', () => {
   });
 
   it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
-    const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent, { document });
+    const config = await createConfig(testPortalConfigContent);
     const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1071,17 +1073,13 @@ describe('lint', () => {
   });
 
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
-    const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent, { document });
+    const config = await createConfig(testPortalConfigContent);
     const results = await lintConfig({
-      externalConfigTypes: createConfigTypes(
-        {
-          type: 'object',
-          properties: { theme: rootRedoclyConfigSchema.properties.theme },
-          additionalProperties: false,
-        },
-        config
-      ),
+      externalConfigTypes: createConfigTypes({
+        type: 'object',
+        properties: { theme: rootRedoclyConfigSchema.properties.theme },
+        additionalProperties: false,
+      }),
       config,
     });
 

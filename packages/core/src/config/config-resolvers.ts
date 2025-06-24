@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { isNotString, isString, isDefined, keysOf } from '../utils.js';
-import { resolveDocument, BaseResolver } from '../resolve.js';
+import { resolveDocument, BaseResolver, Source } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
   getResolveConfig,
@@ -19,15 +19,13 @@ import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { bundleConfig, collectConfigPlugins } from '../bundle.js';
 
 import type {
   Plugin,
   RawUniversalConfig,
-  RawUniversalApiConfig,
   ResolvedConfig,
-  ResolvedApiConfig,
   RawGovernanceConfig,
-  ResolvedGovernanceConfig,
   RuleConfig,
   ImportedPlugin,
 } from './types.js';
@@ -37,7 +35,6 @@ import type {
   RawAssertion,
 } from '../rules/common/assertions/index.js';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
-import type { CoreBundleOptions } from '../bundle.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
@@ -45,47 +42,24 @@ const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
 
-export async function resolveConfigFileAndRefs({
-  configPath,
-  externalRefResolver = new BaseResolver(),
-  base = null,
-}: Omit<CoreBundleOptions, 'config'> & { configPath?: string }): Promise<{
-  document: Document;
-  resolvedRefMap: ResolvedRefMap;
-}> {
-  if (!configPath) {
-    throw new Error('Reference to a config is required.\n');
-  }
-
-  const document = await externalRefResolver.resolveDocument(base, configPath, true);
-
-  if (document instanceof Error) {
-    throw document;
-  }
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: NormalizedConfigTypes.ConfigRoot,
-    externalRefResolver,
-  });
-
-  return { document, resolvedRefMap };
-}
-
 export type ConfigOptions = {
-  rawConfig?: RawUniversalConfig;
+  rawConfigDocument?: Document<RawUniversalConfig>;
   configPath?: string;
   externalRefResolver?: BaseResolver;
   customExtends?: string[];
 };
 
 export async function resolveConfig({
-  rawConfig,
+  rawConfigDocument,
   configPath,
   externalRefResolver,
   customExtends,
-}: ConfigOptions): Promise<ResolvedConfig> {
-  const config = rawConfig === undefined ? { extends: ['recommended'] } : { ...rawConfig };
+}: ConfigOptions): Promise<{ resolvedConfig: ResolvedConfig; resolvedRefMap: ResolvedRefMap }> {
+  const config =
+    rawConfigDocument === undefined
+      ? { extends: ['recommended'] }
+      : { ...rawConfigDocument.parsed };
+
   if (customExtends !== undefined) {
     config.extends = customExtends;
   }
@@ -93,28 +67,60 @@ export async function resolveConfig({
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
-  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(rawConfig?.resolve));
-
-  const apis = await resolveApis({
-    rawConfig: config,
-    configPath,
-    resolver,
+  const rootDocument = rawConfigDocument ?? {
+    source: new Source(configPath ?? '', JSON.stringify(config)),
+    parsed: config,
+  };
+  const resolvedRefMap = await resolveDocument({
+    rootDocument,
+    rootType: NormalizedConfigTypes.ConfigRoot,
+    externalRefResolver: externalRefResolver ?? new BaseResolver(getResolveConfig(config?.resolve)),
   });
 
-  const rootGovernanceConfig = await resolveGovernanceConfig({
-    rootOrApiRawConfig: config,
-    configPath,
-    resolver,
-  });
+  const withCollectedPlugins = collectConfigPlugins(rootDocument, resolvedRefMap);
 
-  const { plugins: _plugins, extends: _extends, apis: _apis, ...rest } = config;
+  const { plugins = [] } = withCollectedPlugins;
+  const resolvedPlugins = isBrowser // In browser, we don't support plugins from config file yet
+    ? [defaultPlugin]
+    : getUniquePlugins(
+        await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''))
+      );
+
+  const bundledConfig = (await bundleConfig(
+    rootDocument,
+    resolvedRefMap,
+    resolvedPlugins
+  )) as ResolvedConfig;
+
   const resolvedConfig: ResolvedConfig = {
-    ...rest,
-    ...rootGovernanceConfig,
-    apis,
+    ...bundledConfig,
+    plugins: resolvedPlugins,
   };
 
-  return resolvedConfig;
+  if (resolvedConfig.apis) {
+    resolvedConfig.apis = Object.fromEntries(
+      Object.entries(resolvedConfig.apis).map(([key, value]) => {
+        const merged = mergeExtends([resolvedConfig, value]);
+        return [
+          key,
+          {
+            ...merged,
+            plugins: resolvedPlugins,
+            root: value.root,
+            rules: groupAssertionRules(merged, resolvedPlugins),
+          },
+        ];
+      })
+    );
+  }
+
+  return {
+    resolvedConfig: {
+      ...resolvedConfig,
+      rules: groupAssertionRules(resolvedConfig, resolvedPlugins),
+    },
+    resolvedRefMap,
+  };
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
@@ -252,19 +258,22 @@ export async function resolvePlugins(
                 )
               );
             }
-
-            if (seenPluginIds.has(id)) {
-              const pluginPath = seenPluginIds.get(id)!;
-              throw new Error(
-                colorize.red(
-                  `Plugin "id" must be unique. Plugin ${colorize.blue(
-                    p.toString()
-                  )} uses id "${colorize.blue(id)}" already seen in ${colorize.blue(pluginPath)}`
-                )
-              );
+            const pluginPath = pluginInstance.absolutePath ?? p.toString();
+            const existingPluginPath = seenPluginIds.get(id);
+            if (existingPluginPath) {
+              if (pluginPath !== existingPluginPath) {
+                throw new Error(
+                  colorize.red(
+                    `Plugin "id" must be unique. Plugin ${colorize.blue(
+                      pluginPath
+                    )} uses id "${colorize.blue(id)}" already seen in ${colorize.blue(pluginPath)}`
+                  )
+                );
+              }
+              return undefined;
             }
 
-            seenPluginIds.set(id, p.toString());
+            seenPluginIds.set(id, pluginPath);
 
             const plugin: Plugin = {
               id,
@@ -398,150 +407,6 @@ export async function resolvePlugins(
   return instances.filter(isDefined).flat();
 }
 
-export async function resolveApis({
-  rawConfig,
-  configPath = '',
-  resolver,
-}: {
-  rawConfig: RawUniversalConfig;
-  configPath?: string;
-  resolver?: BaseResolver;
-}): Promise<Record<string, ResolvedApiConfig>> {
-  const { apis = {}, ...rawConfigWithoutApis } = rawConfig;
-  const resolvedApis: Record<string, ResolvedApiConfig> = {};
-  for (const [apiName, apiContent] of Object.entries(apis || {})) {
-    if (apiContent?.extends?.some(isNotString)) {
-      throw new Error(`Configuration format not detected in extends: values must be strings.`);
-    }
-    const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
-      await resolveGovernanceConfig<RawUniversalApiConfig>({
-        rootOrApiRawConfig: apiContent,
-        rootRawConfig: rawConfigWithoutApis,
-        configPath,
-        resolver,
-      });
-    const { extends: _extends, plugins: _plugins, ...rest } = apiContent;
-    resolvedApis[apiName] = { ...rest, ...resolvedApiConfig };
-  }
-  return resolvedApis;
-}
-
-async function resolveAndMergeNestedGovernanceConfig<
-  T extends RawUniversalConfig | RawUniversalApiConfig
->({
-  rootOrApiRawConfig,
-  rootRawConfig,
-  configPath = '',
-  resolver = new BaseResolver(),
-  parentConfigPaths = [],
-  extendPaths = [],
-}: {
-  rootOrApiRawConfig: T;
-  rootRawConfig?: RawUniversalConfig;
-  configPath?: string;
-  resolver?: BaseResolver;
-  parentConfigPaths?: string[];
-  extendPaths?: string[];
-}): Promise<Required<ResolvedGovernanceConfig>> {
-  if (parentConfigPaths.includes(configPath)) {
-    throw new Error(`Circular dependency in config file: "${configPath}"`);
-  }
-
-  const {
-    extends: rootOrApiExtends = [],
-    plugins: rootOrApiPlugins = [],
-    ...rootOrApiConfig
-  } = rootOrApiRawConfig;
-  const {
-    extends: possiblyRootExtends = [],
-    plugins: possiblyRootPlugins = [],
-    ...possiblyRootConfig
-  } = rootRawConfig || {};
-
-  const plugins = isBrowser
-    ? // In browser, we don't support plugins from config file yet
-      [defaultPlugin]
-    : getUniquePlugins(
-        await resolvePlugins(
-          [
-            ...possiblyRootPlugins, // we need to merge in the root config first if it exists
-            ...rootOrApiPlugins,
-            defaultPlugin,
-          ],
-          path.dirname(configPath)
-        )
-      );
-  const pluginPaths = [
-    ...possiblyRootPlugins, // we need to merge in the root config first if it exists
-    ...rootOrApiPlugins,
-  ]
-    ?.filter(isString)
-    .map((p) => path.resolve(path.dirname(configPath), p));
-
-  const resolvedConfigPath = isAbsoluteUrl(configPath)
-    ? configPath
-    : configPath && path.resolve(configPath);
-
-  const extendConfigs: ResolvedGovernanceConfig[] = await Promise.all(
-    [
-      ...possiblyRootExtends, // we need to merge in the root config first if it exists
-      ...rootOrApiExtends,
-    ].map(async (presetItem) => {
-      if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins);
-      }
-      const pathItem = isAbsoluteUrl(presetItem)
-        ? presetItem
-        : isAbsoluteUrl(configPath)
-        ? new URL(presetItem, configPath).href
-        : path.resolve(path.dirname(configPath), presetItem);
-      const extendedRawConfig = await loadExtendConfig(pathItem, resolver);
-      return await resolveAndMergeNestedGovernanceConfig({
-        rootOrApiRawConfig: extendedRawConfig,
-        configPath: pathItem,
-        resolver,
-        parentConfigPaths: [...parentConfigPaths, resolvedConfigPath],
-        extendPaths,
-      });
-    })
-  );
-
-  const { plugins: mergedPlugins = [], ...mergedConfig } = mergeExtends([
-    ...extendConfigs,
-    structuredClone(possiblyRootConfig), // we need to merge in the root config first if it exists
-    {
-      ...structuredClone(rootOrApiConfig),
-      plugins,
-      extendPaths: [...parentConfigPaths, resolvedConfigPath],
-      pluginPaths,
-    },
-  ]);
-
-  return {
-    ...mergedConfig,
-    extendPaths: mergedConfig.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
-    plugins: getUniquePlugins(mergedPlugins),
-  };
-}
-
-export async function resolveGovernanceConfig<
-  T extends RawUniversalConfig | RawUniversalApiConfig
->(opts: {
-  rootOrApiRawConfig: T;
-  rootRawConfig?: RawUniversalConfig;
-  configPath?: string;
-  resolver?: BaseResolver;
-  parentConfigPaths?: string[];
-  extendPaths?: string[];
-}): Promise<Required<ResolvedGovernanceConfig>> {
-  const resolvedGovernanceConfig = await resolveAndMergeNestedGovernanceConfig<T>(opts);
-
-  return {
-    ...resolvedGovernanceConfig,
-    rules: groupAssertionRules(resolvedGovernanceConfig),
-  };
-}
-
 export function resolvePreset(presetName: string, plugins: Plugin[]): RawGovernanceConfig {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
@@ -564,24 +429,11 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): RawGoverna
   return preset;
 }
 
-async function loadExtendConfig(
-  filePath: string,
-  resolver: BaseResolver
-): Promise<RawUniversalConfig> {
-  try {
-    const { parsed } = (await resolver.resolveDocument(null, filePath)) as Document;
-
-    return parsed;
-  } catch (error) {
-    throw new Error(`Failed to load "${filePath}": ${error.message}`);
-  }
-}
-
-function groupAssertionRules({
-  rules,
-  plugins,
-}: ResolvedGovernanceConfig): Record<string, RuleConfig> {
-  if (!rules) {
+function groupAssertionRules(
+  config: RawGovernanceConfig,
+  plugins: Plugin[]
+): Record<string, RuleConfig> {
+  if (!config.rules) {
     return {};
   }
 
@@ -590,7 +442,7 @@ function groupAssertionRules({
 
   // Collect assertion rules
   const assertions: Assertion[] = [];
-  for (const [ruleKey, rule] of Object.entries(rules)) {
+  for (const [ruleKey, rule] of Object.entries(config.rules)) {
     if (ruleKey.startsWith('rule/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule as RawAssertion;
 

@@ -1,4 +1,4 @@
-import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
+import { loadConfig, findConfig, createConfig } from '../load.js';
 import { type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
@@ -33,7 +33,11 @@ describe('loadConfig', () => {
     const config = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
     });
-    const problems = await lintConfig({ severity: 'warn', config });
+
+    const problems = await lintConfig({
+      severity: 'warn',
+      config,
+    });
 
     expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
       [
@@ -86,7 +90,8 @@ describe('loadConfig', () => {
         },
       ]
     `);
-    expect(config.rawConfig).toMatchInlineSnapshot(`
+    const { plugins, ...rest } = config.resolvedConfig;
+    expect(rest).toMatchInlineSnapshot(`
       {
         "rules": {
           "info-license": "error",
@@ -130,6 +135,8 @@ describe('loadConfig', () => {
         "ignoreNonCompliant": true,
         "levels": [
           {
+            "arazzo1Decorators": {},
+            "arazzo1Preprocessors": {},
             "arazzo1Rules": {
               "criteria-unique": "off",
               "no-criteria-xpath": "off",
@@ -148,6 +155,8 @@ describe('loadConfig', () => {
               "workflowId-unique": "error",
               "x-security-scheme-required-values": "off",
             },
+            "async2Decorators": {},
+            "async2Preprocessors": {},
             "async2Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -157,6 +166,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "async3Decorators": {},
+            "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -166,7 +177,10 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "decorators": {},
             "name": "Baseline",
+            "oas2Decorators": {},
+            "oas2Preprocessors": {},
             "oas2Rules": {
               "boolean-parameter-prefixes": {
                 "severity": "off",
@@ -215,6 +229,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_0Decorators": {},
+            "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": {
@@ -278,6 +294,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_1Decorators": {},
+            "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": {
@@ -338,9 +356,13 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "overlay1Decorators": {},
+            "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
             },
+            "plugins": [],
+            "preprocessors": {},
             "rules": {
               "boolean-parameter-prefixes": {
                 "severity": "off",
@@ -349,6 +371,8 @@ describe('loadConfig', () => {
             },
           },
           {
+            "arazzo1Decorators": {},
+            "arazzo1Preprocessors": {},
             "arazzo1Rules": {
               "criteria-unique": "warn",
               "no-criteria-xpath": "off",
@@ -367,6 +391,8 @@ describe('loadConfig', () => {
               "workflowId-unique": "error",
               "x-security-scheme-required-values": "off",
             },
+            "async2Decorators": {},
+            "async2Preprocessors": {},
             "async2Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -376,6 +402,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "async3Decorators": {},
+            "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -385,7 +413,10 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "decorators": {},
             "name": "Silver",
+            "oas2Decorators": {},
+            "oas2Preprocessors": {},
             "oas2Rules": {
               "boolean-parameter-prefixes": "off",
               "info-contact": "off",
@@ -432,6 +463,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_0Decorators": {},
+            "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": "off",
@@ -493,6 +526,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_1Decorators": {},
+            "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": "off",
@@ -551,9 +586,13 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "overlay1Decorators": {},
+            "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
             },
+            "plugins": [],
+            "preprocessors": {},
             "rules": {
               "rule/operation-summary": {
                 "subject": {
@@ -575,6 +614,8 @@ describe('loadConfig', () => {
             },
           },
           {
+            "arazzo1Decorators": {},
+            "arazzo1Preprocessors": {},
             "arazzo1Rules": {
               "criteria-unique": "off",
               "no-criteria-xpath": "off",
@@ -593,6 +634,8 @@ describe('loadConfig', () => {
               "workflowId-unique": "error",
               "x-security-scheme-required-values": "off",
             },
+            "async2Decorators": {},
+            "async2Preprocessors": {},
             "async2Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -602,6 +645,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "async3Decorators": {},
+            "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
               "info-contact": "off",
@@ -611,7 +656,10 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "decorators": {},
             "name": "Gold",
+            "oas2Decorators": {},
+            "oas2Preprocessors": {},
             "oas2Rules": {
               "boolean-parameter-prefixes": "off",
               "info-contact": "off",
@@ -658,6 +706,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_0Decorators": {},
+            "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": "off",
@@ -719,6 +769,8 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "oas3_1Decorators": {},
+            "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
               "boolean-parameter-prefixes": "off",
@@ -777,9 +829,13 @@ describe('loadConfig', () => {
               "tag-description": "warn",
               "tags-alphabetical": "off",
             },
+            "overlay1Decorators": {},
+            "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
             },
+            "plugins": [],
+            "preprocessors": {},
             "rules": {
               "no-ambiguous-paths": "error",
               "no-invalid-schema-examples": "error",
@@ -873,6 +929,24 @@ describe('loadConfig', () => {
       }
     `);
   });
+
+  it('should keep the original config document', async () => {
+    const {
+      resolvedConfig: { plugins, ...rest },
+    } = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
+    });
+    expect(rest).toEqual({
+      seo: {
+        title: 1,
+      },
+      rules: {
+        'info-license': 'error',
+        'non-existing-rule': 'warn',
+      },
+      theme: undefined,
+    });
+  });
 });
 
 describe('findConfig', () => {
@@ -901,27 +975,6 @@ describe('findConfig', () => {
     vi.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
     const configName = findConfig('dir');
     expect(configName).toStrictEqual('dir/redocly.yaml');
-  });
-});
-
-describe('getConfig', () => {
-  it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(getConfig({})).toEqual(Promise.resolve({ rawConfig: {} }));
-  });
-
-  it('should resolve refs in config', async () => {
-    const { rawConfig } = await getConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
-    });
-    expect(rawConfig).toEqual({
-      seo: {
-        title: 1,
-      },
-      rules: {
-        'info-license': 'error',
-        'non-existing-rule': 'warn',
-      },
-    });
   });
 });
 
@@ -1024,13 +1077,16 @@ describe('createConfig', () => {
     );
     // clean absolute paths and not needed fields
     testConfig.plugins = [];
-    testConfig.extendPaths = [];
+    testConfig.document = undefined;
     testConfig.resolvedConfig.plugins = [];
-    testConfig.resolvedConfig.extendPaths = [];
+    testConfig.resolvedRefMap = undefined;
     testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
-    testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
     expect(testConfig).toMatchSnapshot();
+  });
+
+  it('should return empty object if there is no configPath and config file is not found', () => {
+    expect(createConfig({})).toEqual(Promise.resolve({ rawConfig: {} }));
   });
 });
 
