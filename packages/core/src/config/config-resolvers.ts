@@ -7,6 +7,7 @@ import { isNotString, isString, isDefined, keysOf } from '../utils.js';
 import { resolveDocument, BaseResolver, Source } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
+  deepCloneMapWithJSON,
   getResolveConfig,
   getUniquePlugins,
   isCommonJsPlugin,
@@ -88,7 +89,7 @@ export async function resolveConfig({
 
   const bundledConfig = (await bundleConfig(
     rootDocument,
-    resolvedRefMap,
+    deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins
   )) as ResolvedConfig;
 
