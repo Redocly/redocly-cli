@@ -3,7 +3,7 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { pickDefined, isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { isNotString, isString, isDefined, keysOf } from '../utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
@@ -14,21 +14,20 @@ import {
   mergeExtends,
   parsePresetName,
   prefixRules,
-  transformConfig,
 } from './utils.js';
 import { isBrowser } from '../env.js';
-import { Config } from './config.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 
 import type {
-  StyleguideRawConfig,
-  ApiStyleguideRawConfig,
   Plugin,
-  RawConfig,
-  ResolvedApi,
-  ResolvedStyleguideConfig,
+  RawUniversalConfig,
+  RawUniversalApiConfig,
+  ResolvedConfig,
+  ResolvedApiConfig,
+  RawGovernanceConfig,
+  ResolvedGovernanceConfig,
   RuleConfig,
   ImportedPlugin,
 } from './types.js';
@@ -38,7 +37,7 @@ import type {
   RawAssertion,
 } from '../rules/common/assertions/index.js';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
-import type { BundleOptions } from '../bundle.js';
+import type { CoreBundleOptions } from '../bundle.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 
 const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
@@ -50,7 +49,7 @@ export async function resolveConfigFileAndRefs({
   configPath,
   externalRefResolver = new BaseResolver(),
   base = null,
-}: Omit<BundleOptions, 'config'> & { configPath?: string }): Promise<{
+}: Omit<CoreBundleOptions, 'config'> & { configPath?: string }): Promise<{
   document: Document;
   resolvedRefMap: ResolvedRefMap;
 }> {
@@ -73,43 +72,49 @@ export async function resolveConfigFileAndRefs({
   return { document, resolvedRefMap };
 }
 
+export type ConfigOptions = {
+  rawConfig?: RawUniversalConfig;
+  configPath?: string;
+  externalRefResolver?: BaseResolver;
+  customExtends?: string[];
+};
+
 export async function resolveConfig({
   rawConfig,
   configPath,
   externalRefResolver,
-}: {
-  rawConfig: RawConfig;
-  configPath?: string;
-  externalRefResolver?: BaseResolver;
-}): Promise<Config> {
-  if (rawConfig.styleguide?.extends?.some(isNotString)) {
-    throw new Error(
-      `Error configuration format not detected in extends value must contain strings`
-    );
+  customExtends,
+}: ConfigOptions): Promise<ResolvedConfig> {
+  const config = rawConfig === undefined ? { extends: ['recommended'] } : { ...rawConfig };
+  if (customExtends !== undefined) {
+    config.extends = customExtends;
+  }
+  if (config?.extends?.some(isNotString)) {
+    throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
-  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(rawConfig.resolve));
+  const resolver = externalRefResolver ?? new BaseResolver(getResolveConfig(config.resolve));
 
   const apis = await resolveApis({
-    rawConfig,
+    rawConfig: config,
     configPath,
     resolver,
   });
 
-  const styleguide = await resolveStyleguideConfig({
-    styleguideConfig: rawConfig.styleguide,
+  const rootGovernanceConfig = await resolveGovernanceConfig({
+    rootOrApiRawConfig: config,
     configPath,
     resolver,
   });
 
-  return new Config(
-    {
-      ...rawConfig,
-      apis,
-      styleguide,
-    },
-    configPath
-  );
+  const { plugins: _plugins, extends: _extends, apis: _apis, ...rest } = config;
+  const resolvedConfig: ResolvedConfig = {
+    ...rest,
+    ...rootGovernanceConfig,
+    apis,
+  };
+
+  return resolvedConfig;
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
@@ -134,7 +139,7 @@ export async function resolvePlugins(
       try {
         const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
 
-        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath)
+        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
           ? maybeAbsolutePluginPath
           : // For plugins imported from packages specifically
             module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
@@ -367,58 +372,78 @@ export async function resolveApis({
   configPath = '',
   resolver,
 }: {
-  rawConfig: RawConfig;
+  rawConfig: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
-}): Promise<Record<string, ResolvedApi>> {
-  const { apis = {}, styleguide: styleguideConfig = {} } = rawConfig;
-  const resolvedApis: Record<string, ResolvedApi> = {};
+}): Promise<Record<string, ResolvedApiConfig>> {
+  const { apis = {}, ...rawConfigWithoutApis } = rawConfig;
+  const resolvedApis: Record<string, ResolvedApiConfig> = {};
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
-    if (apiContent.styleguide?.extends?.some(isNotString)) {
-      throw new Error(
-        `Error configuration format not detected in extends value must contain strings`
-      );
+    if (apiContent?.extends?.some(isNotString)) {
+      throw new Error(`Configuration format not detected in extends: values must be strings.`);
     }
-    const rawStyleguideConfig = getMergedRawStyleguideConfig(
-      styleguideConfig,
-      apiContent.styleguide
-    );
-    const resolvedApiConfig = await resolveStyleguideConfig({
-      styleguideConfig: rawStyleguideConfig,
-      configPath,
-      resolver,
-    });
-    resolvedApis[apiName] = { ...apiContent, styleguide: resolvedApiConfig };
+    const resolvedApiConfig: Required<ResolvedGovernanceConfig> =
+      await resolveGovernanceConfig<RawUniversalApiConfig>({
+        rootOrApiRawConfig: apiContent,
+        rootRawConfig: rawConfigWithoutApis,
+        configPath,
+        resolver,
+      });
+    const { extends: _extends, plugins: _plugins, ...rest } = apiContent;
+    resolvedApis[apiName] = { ...rest, ...resolvedApiConfig };
   }
   return resolvedApis;
 }
 
-async function resolveAndMergeNestedStyleguideConfig({
-  styleguideConfig,
+async function resolveAndMergeNestedGovernanceConfig<
+  T extends RawUniversalConfig | RawUniversalApiConfig
+>({
+  rootOrApiRawConfig,
+  rootRawConfig,
   configPath = '',
   resolver = new BaseResolver(),
   parentConfigPaths = [],
   extendPaths = [],
 }: {
-  styleguideConfig?: StyleguideRawConfig;
+  rootOrApiRawConfig: T;
+  rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
   parentConfigPaths?: string[];
   extendPaths?: string[];
-}): Promise<ResolvedStyleguideConfig> {
+}): Promise<Required<ResolvedGovernanceConfig>> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
+
+  const {
+    extends: rootOrApiExtends = [],
+    plugins: rootOrApiPlugins = [],
+    ...rootOrApiConfig
+  } = rootOrApiRawConfig;
+  const {
+    extends: possiblyRootExtends = [],
+    plugins: possiblyRootPlugins = [],
+    ...possiblyRootConfig
+  } = rootRawConfig || {};
+
   const plugins = isBrowser
     ? // In browser, we don't support plugins from config file yet
       [defaultPlugin]
     : getUniquePlugins(
         await resolvePlugins(
-          [...(styleguideConfig?.plugins || []), defaultPlugin],
+          [
+            ...possiblyRootPlugins, // we need to merge in the root config first if it exists
+            ...rootOrApiPlugins,
+            defaultPlugin,
+          ],
           path.dirname(configPath)
         )
       );
-  const pluginPaths = styleguideConfig?.plugins
+  const pluginPaths = [
+    ...possiblyRootPlugins, // we need to merge in the root config first if it exists
+    ...rootOrApiPlugins,
+  ]
     ?.filter(isString)
     .map((p) => path.resolve(path.dirname(configPath), p));
 
@@ -426,8 +451,11 @@ async function resolveAndMergeNestedStyleguideConfig({
     ? configPath
     : configPath && path.resolve(configPath);
 
-  const extendConfigs: ResolvedStyleguideConfig[] = await Promise.all(
-    styleguideConfig?.extends?.map(async (presetItem) => {
+  const extendConfigs: ResolvedGovernanceConfig[] = await Promise.all(
+    [
+      ...possiblyRootExtends, // we need to merge in the root config first if it exists
+      ...rootOrApiExtends,
+    ].map(async (presetItem) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);
       }
@@ -436,54 +464,54 @@ async function resolveAndMergeNestedStyleguideConfig({
         : isAbsoluteUrl(configPath)
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
-      const extendedStyleguideConfig = await loadExtendStyleguideConfig(pathItem, resolver);
-      return await resolveAndMergeNestedStyleguideConfig({
-        styleguideConfig: extendedStyleguideConfig,
+      const extendedRawConfig = await loadExtendConfig(pathItem, resolver);
+      return await resolveAndMergeNestedGovernanceConfig({
+        rootOrApiRawConfig: extendedRawConfig,
         configPath: pathItem,
         resolver,
         parentConfigPaths: [...parentConfigPaths, resolvedConfigPath],
         extendPaths,
       });
-    }) || []
+    })
   );
 
-  const { plugins: mergedPlugins = [], ...styleguide } = mergeExtends([
+  const { plugins: mergedPlugins = [], ...mergedConfig } = mergeExtends([
     ...extendConfigs,
+    structuredClone(possiblyRootConfig), // we need to merge in the root config first if it exists
     {
-      ...styleguideConfig,
+      ...structuredClone(rootOrApiConfig),
       plugins,
-      extends: undefined,
       extendPaths: [...parentConfigPaths, resolvedConfigPath],
       pluginPaths,
     },
   ]);
 
   return {
-    ...styleguide,
-    extendPaths: styleguide.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
+    ...mergedConfig,
+    extendPaths: mergedConfig.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
-    recommendedFallback: styleguideConfig?.recommendedFallback,
-    doNotResolveExamples: styleguideConfig?.doNotResolveExamples,
   };
 }
 
-export async function resolveStyleguideConfig(opts: {
-  styleguideConfig?: StyleguideRawConfig;
+export async function resolveGovernanceConfig<
+  T extends RawUniversalConfig | RawUniversalApiConfig
+>(opts: {
+  rootOrApiRawConfig: T;
+  rootRawConfig?: RawUniversalConfig;
   configPath?: string;
   resolver?: BaseResolver;
   parentConfigPaths?: string[];
   extendPaths?: string[];
-}): Promise<ResolvedStyleguideConfig> {
-  const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig(opts);
+}): Promise<Required<ResolvedGovernanceConfig>> {
+  const resolvedGovernanceConfig = await resolveAndMergeNestedGovernanceConfig<T>(opts);
 
   return {
-    ...resolvedStyleguideConfig,
-    rules:
-      resolvedStyleguideConfig.rules && groupStyleguideAssertionRules(resolvedStyleguideConfig),
+    ...resolvedGovernanceConfig,
+    rules: groupAssertionRules(resolvedGovernanceConfig),
   };
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedStyleguideConfig {
+export function resolvePreset(presetName: string, plugins: Plugin[]): RawGovernanceConfig {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
@@ -505,91 +533,25 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedSt
   return preset;
 }
 
-async function loadExtendStyleguideConfig(
+async function loadExtendConfig(
   filePath: string,
   resolver: BaseResolver
-): Promise<StyleguideRawConfig> {
+): Promise<RawUniversalConfig> {
   try {
     const { parsed } = (await resolver.resolveDocument(null, filePath)) as Document;
-    const rawConfig = transformConfig(parsed as RawConfig);
-    if (!rawConfig.styleguide) {
-      throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
-    }
 
-    return rawConfig.styleguide;
+    return parsed;
   } catch (error) {
     throw new Error(`Failed to load "${filePath}": ${error.message}`);
   }
 }
 
-function getMergedRawStyleguideConfig(
-  rootStyleguideConfig: StyleguideRawConfig,
-  apiStyleguideConfig?: ApiStyleguideRawConfig
-) {
-  const resultLint = {
-    ...rootStyleguideConfig,
-    ...pickDefined(apiStyleguideConfig),
-    rules: { ...rootStyleguideConfig?.rules, ...apiStyleguideConfig?.rules },
-    oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
-    oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },
-    oas3_1Rules: { ...rootStyleguideConfig?.oas3_1Rules, ...apiStyleguideConfig?.oas3_1Rules },
-    async2Rules: { ...rootStyleguideConfig?.async2Rules, ...apiStyleguideConfig?.async2Rules },
-    async3Rules: { ...rootStyleguideConfig?.async3Rules, ...apiStyleguideConfig?.async3Rules },
-    arazzo1Rules: { ...rootStyleguideConfig?.arazzo1Rules, ...apiStyleguideConfig?.arazzo1Rules },
-    overlay1Rules: {
-      ...rootStyleguideConfig?.overlay1Rules,
-      ...apiStyleguideConfig?.overlay1Rules,
-    },
-    preprocessors: {
-      ...rootStyleguideConfig?.preprocessors,
-      ...apiStyleguideConfig?.preprocessors,
-    },
-    oas2Preprocessors: {
-      ...rootStyleguideConfig?.oas2Preprocessors,
-      ...apiStyleguideConfig?.oas2Preprocessors,
-    },
-    oas3_0Preprocessors: {
-      ...rootStyleguideConfig?.oas3_0Preprocessors,
-      ...apiStyleguideConfig?.oas3_0Preprocessors,
-    },
-    oas3_1Preprocessors: {
-      ...rootStyleguideConfig?.oas3_1Preprocessors,
-      ...apiStyleguideConfig?.oas3_1Preprocessors,
-    },
-    overlay1Preprocessors: {
-      ...rootStyleguideConfig?.overlay1Preprocessors,
-      ...apiStyleguideConfig?.overlay1Preprocessors,
-    },
-    decorators: { ...rootStyleguideConfig?.decorators, ...apiStyleguideConfig?.decorators },
-    oas2Decorators: {
-      ...rootStyleguideConfig?.oas2Decorators,
-      ...apiStyleguideConfig?.oas2Decorators,
-    },
-    oas3_0Decorators: {
-      ...rootStyleguideConfig?.oas3_0Decorators,
-      ...apiStyleguideConfig?.oas3_0Decorators,
-    },
-    oas3_1Decorators: {
-      ...rootStyleguideConfig?.oas3_1Decorators,
-      ...apiStyleguideConfig?.oas3_1Decorators,
-    },
-    overlay1Decorators: {
-      ...rootStyleguideConfig?.overlay1Decorators,
-      ...apiStyleguideConfig?.overlay1Decorators,
-    },
-    recommendedFallback: apiStyleguideConfig?.extends
-      ? false
-      : rootStyleguideConfig.recommendedFallback,
-  };
-  return resultLint;
-}
-
-function groupStyleguideAssertionRules({
+function groupAssertionRules({
   rules,
   plugins,
-}: ResolvedStyleguideConfig): Record<string, RuleConfig> | undefined {
+}: ResolvedGovernanceConfig): Record<string, RuleConfig> {
   if (!rules) {
-    return rules;
+    return {};
   }
 
   // Create a new record to avoid mutating original

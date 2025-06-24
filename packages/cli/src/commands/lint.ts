@@ -2,7 +2,6 @@ import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
   formatProblems,
-  getMergedConfig,
   getTotals,
   lint,
   lintConfig,
@@ -25,7 +24,7 @@ import { AbortFlowError, exitWithError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
 
 import type { Arguments } from 'yargs';
-import type { OutputFormat, ProblemSeverity, RawConfigProcessor } from '@redocly/openapi-core';
+import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
 import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
@@ -36,7 +35,7 @@ export type LintOptions = {
   format: OutputFormat;
   'generate-ignore-file'?: boolean;
   'skip-rule'?: string[];
-  'skip-preprocessor'?: string[]; // FIXME: do we need this? (2.0)
+  'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
 
 export async function handleLint({
@@ -52,7 +51,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    config.styleguide.ignore = {}; // clear ignore
+    config.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
@@ -61,15 +60,14 @@ export async function handleLint({
   for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
-      const resolvedConfig = getMergedConfig(config, alias);
-      const { styleguide } = resolvedConfig;
+      const aliasConfig = config.forAlias(alias);
 
-      checkIfRulesetExist(styleguide.rules);
+      checkIfRulesetExist(aliasConfig.rules);
 
-      styleguide.skipRules(argv['skip-rule']);
-      styleguide.skipPreprocessors(argv['skip-preprocessor']);
+      aliasConfig.skipRules(argv['skip-rule']);
+      aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (styleguide.recommendedFallback) {
+      if (typeof config.rawConfig === 'undefined') {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -79,7 +77,7 @@ export async function handleLint({
       logger.info(gray(`validating ${formatPath(path)}...\n`));
       const results = await lint({
         ref: path,
-        config: resolvedConfig,
+        config: aliasConfig,
         collectSpecData,
       });
 
@@ -90,7 +88,7 @@ export async function handleLint({
 
       if (argv['generate-ignore-file']) {
         for (const m of results) {
-          config.styleguide.addIgnore(m);
+          config.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -110,7 +108,7 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    config.styleguide.saveIgnore();
+    config.saveIgnore();
     logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
@@ -118,18 +116,19 @@ export async function handleLint({
     printLintTotals(totals, apis.length);
   }
 
-  printUnusedWarnings(config.styleguide);
+  printUnusedWarnings(config);
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');
   }
 }
 
-export function lintConfigCallback(
-  argv: CommandOptions & Record<string, undefined>,
-  version: string
-): RawConfigProcessor | undefined {
-  if (argv['lint-config'] === 'off') {
+export async function handleLintConfig(
+  argv: Exact<CommandOptions>,
+  version: string,
+  config: Config
+) {
+  if (argv['lint-config'] === 'off' || config.document === undefined) {
     return;
   }
 
@@ -138,33 +137,29 @@ export function lintConfigCallback(
     return;
   }
 
-  return async ({ document, resolvedRefMap, config, parsed: { theme = {} } }) => {
-    const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
+  const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
-    if (command === 'check-config') {
-      notifyAboutIncompatibleConfigOptions(theme.openapi);
-    }
+  if (command === 'check-config') {
+    notifyAboutIncompatibleConfigOptions(config.rawConfig?.theme?.openapi);
+  }
 
-    const problems = await lintConfig({
-      document,
-      resolvedRefMap,
-      config,
-      severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
-    });
+  const problems = await lintConfig({
+    config,
+    severity: argv['lint-config'] || 'warn',
+  });
 
-    const fileTotals = getTotals(problems);
+  const fileTotals = getTotals(problems);
 
-    formatProblems(problems, {
-      format: argv.format,
-      maxProblems: argv['max-problems'],
-      totals: fileTotals,
-      version,
-    });
+  formatProblems(problems, {
+    format: argv.format,
+    maxProblems: argv['max-problems'],
+    totals: fileTotals,
+    version,
+  });
 
-    printConfigLintTotals(fileTotals, command);
+  printConfigLintTotals(fileTotals, command);
 
-    if (fileTotals.errors > 0) {
-      throw new ConfigValidationError();
-    }
-  };
+  if (fileTotals.errors > 0) {
+    throw new ConfigValidationError();
+  }
 }

@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { formatProblems, getTotals, getMergedConfig, bundle, logger } from '@redocly/openapi-core';
+import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -11,7 +11,6 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeysForOas,
-  checkForDeprecatedOptions,
   formatPath,
 } from '../utils/miscellaneous.js';
 import { AbortFlowError } from '../utils/error.js';
@@ -41,21 +40,16 @@ export async function handleBundle({
 }: CommandArgs<BundleOptions>) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
-    config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
+    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-  const deprecatedOptions: Array<keyof BundleOptions> = [];
-
-  checkForDeprecatedOptions(argv, deprecatedOptions);
 
   for (const { path, alias, output } of apis) {
     try {
       const startedAt = performance.now();
-      const resolvedConfig = getMergedConfig(config, alias);
-      const { styleguide } = resolvedConfig;
-
-      styleguide.skipPreprocessors(argv['skip-preprocessor']);
-      styleguide.skipDecorators(argv['skip-decorator']);
+      const aliasConfig = config.forAlias(alias);
+      aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
+      aliasConfig.skipDecorators(argv['skip-decorator']);
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
@@ -64,8 +58,8 @@ export async function handleBundle({
         problems,
         ...meta
       } = await bundle({
-        config: resolvedConfig,
         ref: path,
+        config: aliasConfig,
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
@@ -146,7 +140,7 @@ export async function handleBundle({
     }
   }
 
-  printUnusedWarnings(config.styleguide);
+  printUnusedWarnings(config);
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new AbortFlowError('Bundle failed.');

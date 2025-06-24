@@ -1,0 +1,283 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createConfig > should create a config with the apis section 1`] = `
+Config {
+  "_alias": undefined,
+  "_usedRules": Set {},
+  "_usedVersions": Set {},
+  "configPath": "redocly.yaml",
+  "decorators": {
+    "arazzo1": {},
+    "async2": {},
+    "async3": {},
+    "oas2": {},
+    "oas3_0": {},
+    "oas3_1": {},
+    "overlay1": {},
+  },
+  "doNotResolveExamples": false,
+  "document": undefined,
+  "extendPaths": [],
+  "ignore": {},
+  "pluginPaths": [],
+  "plugins": [],
+  "preprocessors": {
+    "arazzo1": {},
+    "async2": {},
+    "async3": {},
+    "oas2": {},
+    "oas3_0": {},
+    "oas3_1": {},
+    "overlay1": {},
+  },
+  "rawConfig": {
+    "apis": {
+      "test@v1": {
+        "root": "resources/pets.yaml",
+        "rules": {
+          "operation-summary": "warn",
+          "rule/test": "warn",
+        },
+      },
+    },
+    "resolve": {
+      "http": {
+        "headers": [],
+      },
+    },
+    "rules": {
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+      "rule/test": {
+        "assertions": {
+          "defined": true,
+        },
+        "subject": {
+          "property": "x-test",
+          "type": "Operation",
+        },
+      },
+    },
+    "telemetry": "on",
+  },
+  "resolve": {
+    "http": {
+      "customFetch": undefined,
+      "headers": [],
+    },
+  },
+  "resolvedConfig": {
+    "apis": {
+      "test@v1": {
+        "arazzo1Decorators": {},
+        "arazzo1Preprocessors": {},
+        "arazzo1Rules": {},
+        "async2Decorators": {},
+        "async2Preprocessors": {},
+        "async2Rules": {},
+        "async3Decorators": {},
+        "async3Preprocessors": {},
+        "async3Rules": {},
+        "decorators": {},
+        "extendPaths": [],
+        "oas2Decorators": {},
+        "oas2Preprocessors": {},
+        "oas2Rules": {},
+        "oas3_0Decorators": {},
+        "oas3_0Preprocessors": {},
+        "oas3_0Rules": {},
+        "oas3_1Decorators": {},
+        "oas3_1Preprocessors": {},
+        "oas3_1Rules": {},
+        "overlay1Decorators": {},
+        "overlay1Preprocessors": {},
+        "overlay1Rules": {},
+        "pluginPaths": [],
+        "plugins": [],
+        "preprocessors": {},
+        "root": "resources/pets.yaml",
+        "rules": {
+          "assertions": [
+            {
+              "assertionId": "rule/test",
+              "assertions": {
+                "defined": true,
+              },
+              "severity": "warn",
+              "subject": {
+                "property": "x-test",
+                "type": "Operation",
+              },
+            },
+          ],
+          "no-empty-servers": "error",
+          "operation-summary": "warn",
+        },
+      },
+    },
+    "arazzo1Decorators": {},
+    "arazzo1Preprocessors": {},
+    "arazzo1Rules": {},
+    "async2Decorators": {},
+    "async2Preprocessors": {},
+    "async2Rules": {},
+    "async3Decorators": {},
+    "async3Preprocessors": {},
+    "async3Rules": {},
+    "decorators": {},
+    "extendPaths": [],
+    "oas2Decorators": {},
+    "oas2Preprocessors": {},
+    "oas2Rules": {},
+    "oas3_0Decorators": {},
+    "oas3_0Preprocessors": {},
+    "oas3_0Rules": {},
+    "oas3_1Decorators": {},
+    "oas3_1Preprocessors": {},
+    "oas3_1Rules": {},
+    "overlay1Decorators": {},
+    "overlay1Preprocessors": {},
+    "overlay1Rules": {},
+    "pluginPaths": [],
+    "plugins": [],
+    "preprocessors": {},
+    "resolve": {
+      "http": {
+        "headers": [],
+      },
+    },
+    "rules": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "telemetry": "on",
+  },
+  "resolvedRefMap": undefined,
+  "rules": {
+    "arazzo1": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "async2": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "async3": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "oas2": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "oas3_0": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "oas3_1": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+    "overlay1": {
+      "assertions": [
+        {
+          "assertionId": "rule/test",
+          "assertions": {
+            "defined": true,
+          },
+          "subject": {
+            "property": "x-test",
+            "type": "Operation",
+          },
+        },
+      ],
+      "no-empty-servers": "error",
+      "operation-summary": "error",
+    },
+  },
+}
+`;

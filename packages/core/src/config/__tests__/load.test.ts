@@ -1,9 +1,8 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load.js';
-import { Config } from '../config.js';
+import { type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
-import type { RuleConfig, FlatRawConfig } from './../types.js';
-import type { NormalizedProblem } from '../../walk.js';
+import { type RuleConfig, type RawUniversalConfig } from './../types.js';
 import { BaseResolver } from '../../resolve.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -30,24 +29,13 @@ describe('loadConfig', () => {
     expect(mockFn).toHaveBeenCalled();
   });
 
-  it('should resolve config and call processRawConfig', async () => {
-    let problems: NormalizedProblem[];
-    let doc: any;
-
-    await loadConfig({
+  it('should load config and lint it', async () => {
+    const config = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
-      processRawConfig: async ({ document, parsed, resolvedRefMap, config }) => {
-        doc = parsed;
-        problems = await lintConfig({
-          document,
-          severity: 'warn',
-          resolvedRefMap,
-          config,
-        });
-      },
     });
+    const problems = await lintConfig({ severity: 'warn', config });
 
-    expect(replaceSourceWithRef(problems!, __dirname)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(problems, __dirname)).toMatchInlineSnapshot(`
       [
         {
           "from": {
@@ -98,7 +86,7 @@ describe('loadConfig', () => {
         },
       ]
     `);
-    expect(doc).toMatchInlineSnapshot(`
+    expect(config.rawConfig).toMatchInlineSnapshot(`
       {
         "rules": {
           "info-license": "error",
@@ -117,7 +105,7 @@ describe('loadConfig', () => {
     const resolverSpy = vi.spyOn(externalRefResolver, 'resolveDocument');
     await loadConfig({
       configPath: path.join(__dirname, './fixtures/load-external.yaml'),
-      externalRefResolver: externalRefResolver as any,
+      externalRefResolver,
     });
     expect(resolverSpy).toHaveBeenCalledWith(
       null,
@@ -157,7 +145,7 @@ describe('findConfig', () => {
 
 describe('getConfig', () => {
   it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(getConfig()).toEqual(Promise.resolve({ rawConfig: {} }));
+    expect(getConfig({})).toEqual(Promise.resolve({ rawConfig: {} }));
   });
 
   it('should resolve refs in config', async () => {
@@ -168,11 +156,9 @@ describe('getConfig', () => {
       seo: {
         title: 1,
       },
-      styleguide: {
-        rules: {
-          'info-license': 'error',
-          'non-existing-rule': 'warn',
-        },
+      rules: {
+        'info-license': 'error',
+        'non-existing-rule': 'warn',
       },
     });
   });
@@ -194,7 +180,7 @@ describe('createConfig', () => {
   });
 
   it('should create config from object', async () => {
-    const rawConfig: FlatRawConfig = {
+    const rawConfig: RawUniversalConfig = {
       extends: ['minimal'],
       rules: {
         'info-license': 'off',
@@ -212,7 +198,7 @@ describe('createConfig', () => {
 
   it('should create config from object with a custom plugin', async () => {
     const testCustomRule = vi.fn();
-    const rawConfig: FlatRawConfig = {
+    const rawConfig: RawUniversalConfig = {
       extends: [],
       plugins: [
         {
@@ -230,7 +216,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    expect(config.styleguide.plugins[0]).toEqual({
+    expect(config.plugins[0]).toEqual({
       id: 'my-plugin',
       rules: {
         oas3: {
@@ -238,9 +224,52 @@ describe('createConfig', () => {
         },
       },
     });
-    expect(config.styleguide.rules.oas3_0).toEqual({
+    expect(config.rules.oas3_0).toEqual({
       'my-plugin/test-rule': 'error',
     });
+  });
+
+  it('should create a config with the apis section', async () => {
+    const testConfig: Config = await createConfig(
+      {
+        apis: {
+          'test@v1': {
+            root: 'resources/pets.yaml',
+            rules: {
+              'operation-summary': 'warn',
+              'rule/test': 'warn',
+            },
+          },
+        },
+        rules: {
+          'operation-summary': 'error',
+          'no-empty-servers': 'error',
+          'rule/test': {
+            subject: {
+              type: 'Operation',
+              property: 'x-test',
+            },
+            assertions: {
+              defined: true,
+            },
+          },
+        },
+        telemetry: 'on',
+        resolve: { http: { headers: [] } },
+      },
+      {
+        configPath: 'redocly.yaml',
+      }
+    );
+    // clean absolute paths and not needed fields
+    testConfig.plugins = [];
+    testConfig.extendPaths = [];
+    testConfig.resolvedConfig.plugins = [];
+    testConfig.resolvedConfig.extendPaths = [];
+    testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
+    testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
+
+    expect(testConfig).toMatchSnapshot();
   });
 });
 
@@ -251,24 +280,23 @@ function verifyExtendedConfig(
     overridesRules,
   }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
 ) {
-  const defaultPlugin = config.styleguide.plugins.find((plugin) => plugin.id === '');
+  const defaultPlugin = config.plugins.find((plugin) => plugin.id === '');
   expect(defaultPlugin).toBeDefined();
 
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(
-    config.styleguide.rules.oas2,
-    overridesRules,
-    { ...recommendedRules?.rules, ...recommendedRules?.oas2Rules } || {}
-  );
+  verifyOasRules(config.rules.oas2, overridesRules, {
+    ...recommendedRules?.rules,
+    ...recommendedRules?.oas2Rules,
+  });
 
-  verifyOasRules(config.styleguide.rules.oas3_0, overridesRules, {
+  verifyOasRules(config.rules.oas3_0, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_0Rules,
   });
 
-  verifyOasRules(config.styleguide.rules.oas3_1, overridesRules, {
+  verifyOasRules(config.rules.oas3_1, overridesRules, {
     ...recommendedRules?.rules,
     ...recommendedRules?.oas3_1Rules,
   });

@@ -16,12 +16,12 @@ import { dequal, isPlainObject, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
+import { type Config } from './config/index.js';
 
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
 import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk.js';
-import type { Config, StyleguideConfig } from './config/index.js';
 import type { OasRef } from './typings/openapi.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { CollectFn } from './utils.js';
@@ -31,7 +31,7 @@ export enum OasVersion {
   Version3_0 = 'oas3_0',
   Version3_1 = 'oas3_1',
 }
-export type BundleOptions = {
+export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
@@ -81,7 +81,7 @@ export async function bundle(
     ref?: string;
     doc?: Document;
     collectSpecData?: CollectFn;
-  } & BundleOptions
+  } & CoreBundleOptions
 ) {
   const {
     ref,
@@ -104,7 +104,6 @@ export async function bundle(
   return bundleDocument({
     document,
     ...opts,
-    config: opts.config.styleguide,
     externalRefResolver,
   });
 }
@@ -113,7 +112,7 @@ export async function bundleFromString(
   opts: {
     source: string;
     absoluteRef?: string;
-  } & BundleOptions
+  } & CoreBundleOptions
 ) {
   const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = makeDocumentFromString(source, absoluteRef || '/');
@@ -122,7 +121,6 @@ export async function bundleFromString(
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.styleguide,
   });
 }
 
@@ -139,7 +137,7 @@ export type BundleResult = {
 
 export async function bundleDocument(opts: {
   document: Document;
-  config: StyleguideConfig;
+  config: Config;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;

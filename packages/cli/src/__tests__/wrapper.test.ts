@@ -28,7 +28,7 @@ describe('commandWrapper', () => {
 
   it('should send telemetry if there is "telemetry: on" in the config', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
       return 'oas3_1' as SpecVersion;
@@ -43,9 +43,13 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith({
+      config: {
+        resolvedConfig: {
+          telemetry: 'on',
+        },
+      },
       argv: {},
       exit_code: 0,
-      has_config: false,
       spec_version: 'oas3_1',
       spec_keyword: 'openapi',
       spec_full_version: '3.1.0',
@@ -55,7 +59,7 @@ describe('commandWrapper', () => {
 
   it('should not collect spec version if the file is not parsed to json', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'on', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }: any) => {
       collectSpecData();
@@ -67,9 +71,13 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledWith({
+      config: {
+        resolvedConfig: {
+          telemetry: 'on',
+        },
+      },
       argv: {},
       exit_code: 0,
-      has_config: false,
       spec_version: undefined,
       spec_keyword: undefined,
       spec_full_version: undefined,
@@ -79,7 +87,7 @@ describe('commandWrapper', () => {
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
     vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-      return { telemetry: 'off', styleguide: { recommendedFallback: true } } as Config;
+      return { resolvedConfig: { telemetry: 'off' } } as Config;
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 

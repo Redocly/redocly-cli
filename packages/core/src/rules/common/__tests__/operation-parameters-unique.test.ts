@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 operation-parameters-unique', () => {
   it('should report on duplicated path params', async () => {
@@ -26,7 +23,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -69,7 +66,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -99,7 +96,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -147,7 +144,7 @@ describe('Oas3 operation-parameters-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-parameters-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

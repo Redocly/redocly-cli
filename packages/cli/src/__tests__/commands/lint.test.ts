@@ -1,12 +1,12 @@
 import { handleLint, LintOptions } from '../../commands/lint.js';
 import {
-  getMergedConfig,
+  createConfig,
   lint,
   getTotals,
   formatProblems,
-  doesYamlFileExist,
   logger,
   type Totals,
+  type NormalizedProblem,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -33,7 +33,6 @@ const argvMock = {
 describe('handleLint', () => {
   let processExitMock: MockInstance;
   let exitCb: any;
-  const getMergedConfigMock = vi.mocked(getMergedConfig);
 
   beforeEach(() => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -46,10 +45,21 @@ describe('handleLint', () => {
     vi.mock('perf_hooks');
     vi.spyOn(performance, 'now').mockImplementation(() => 42);
 
-    vi.mock('@redocly/openapi-core');
-    getMergedConfigMock.mockReturnValue(configFixture);
-    vi.mocked(doesYamlFileExist).mockImplementation((path) => path === 'redocly.yaml');
-    vi.mocked(getTotals).mockReturnValue({ errors: 0 } as Totals);
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual('@redocly/openapi-core');
+      return {
+        ...actual,
+        lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
+        getTotals: vi.fn(() => ({ errors: 0 } as Totals)),
+        doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
+        logger: {
+          info: vi.fn(),
+          warn: vi.fn(),
+          output: vi.fn(),
+        },
+        formatProblems: vi.fn(),
+      };
+    });
 
     vi.mock('../../utils/miscellaneous.js');
     vi.mock('../../utils/error.js');
@@ -73,11 +83,14 @@ describe('handleLint', () => {
 
     it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
       await commandWrapper(handleLint)(argvMock);
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
-        configPath: undefined,
-        customExtends: undefined,
-        processRawConfig: undefined,
-      });
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+        {
+          apis: ['openapi.yaml'],
+          format: 'codeframe',
+          'lint-config': 'off',
+        },
+        '2.0.0'
+      );
       expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
 
@@ -87,16 +100,21 @@ describe('handleLint', () => {
         config: 'redocly.yaml',
         extends: ['some/path'],
       });
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
-        configPath: 'redocly.yaml',
-        customExtends: ['some/path'],
-        processRawConfig: undefined,
-      });
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+        {
+          apis: ['openapi.yaml'],
+          config: 'redocly.yaml',
+          extends: ['some/path'],
+          format: 'codeframe',
+          'lint-config': 'off',
+        },
+        '2.0.0'
+      );
     });
 
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
       await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
-      expect(getMergedConfigMock).toHaveBeenCalled();
+      expect(configFixture.forAlias).toHaveBeenCalledWith(undefined);
     });
 
     it('should check if ruleset exist', async () => {
@@ -112,10 +130,10 @@ describe('handleLint', () => {
   });
 
   describe('loop through entrypoints and lint stage', () => {
-    it('should call getMergedConfig and lint ', async () => {
+    it('should call getMergedConfig and lint', async () => {
       await commandWrapper(handleLint)(argvMock);
       expect(performance.now).toHaveBeenCalled();
-      expect(getMergedConfigMock).toHaveBeenCalled();
+      expect(configFixture.forAlias).toHaveBeenCalledTimes(1);
       expect(lint).toHaveBeenCalled();
     });
 
@@ -127,8 +145,8 @@ describe('handleLint', () => {
         'skip-rule': ['rule'],
         'generate-ignore-file': true,
       });
-      expect(configFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(configFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(configFixture.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(configFixture.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
@@ -151,7 +169,7 @@ describe('handleLint', () => {
     });
   });
 
-  describe('erros and warning handle after lint stage', () => {
+  describe('errors and warning handle after lint stage', () => {
     it('should call printLintTotals and printLintTotals', async () => {
       await commandWrapper(handleLint)(argvMock);
       expect(printUnusedWarnings).toHaveBeenCalled();
@@ -159,7 +177,7 @@ describe('handleLint', () => {
 
     it('should call exit with 0 if no errors', async () => {
       vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-        return { ...configFixture };
+        return configFixture;
       });
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();
@@ -173,16 +191,9 @@ describe('handleLint', () => {
       expect(processExitMock).toHaveBeenCalledWith(1);
     });
 
-    it('should use recommended fallback if no config', async () => {
-      vi.mocked(getMergedConfig).mockImplementation((): any => {
-        return {
-          styleguide: {
-            recommendedFallback: true,
-            rules: {},
-            skipRules: vi.fn(),
-            skipPreprocessors: vi.fn(),
-          },
-        };
+    it('should use recommended fallback if there is no config', async () => {
+      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+        return await createConfig();
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(

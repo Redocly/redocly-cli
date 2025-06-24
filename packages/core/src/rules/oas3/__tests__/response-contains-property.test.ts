@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils.js';
+import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 response-contains-property', () => {
   it('should report a response object not containing the property', async () => {
@@ -26,7 +27,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -104,7 +105,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -234,7 +235,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -264,7 +265,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -307,7 +308,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -340,7 +341,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',
@@ -371,7 +372,7 @@ describe('Oas3 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({
+      config: await createConfig({
         rules: {
           'response-contains-property': {
             severity: 'error',

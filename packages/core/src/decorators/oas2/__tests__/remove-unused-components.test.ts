@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, makeConfig } from '../../../../__tests__/utils.js';
+import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { bundleDocument } from '../../../bundle.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('oas2 remove-unused-components', () => {
   it('should remove unused components', async () => {
@@ -38,7 +39,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: {} }),
+      config: await createConfig({}),
       removeUnusedComponents: true,
     });
 
@@ -111,7 +112,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: {} }),
+      config: await createConfig({}),
       removeUnusedComponents: true,
     });
 
@@ -192,7 +193,7 @@ describe('oas2 remove-unused-components', () => {
     const results = await bundleDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: {} }),
+      config: await createConfig({}),
       removeUnusedComponents: true,
     });
 

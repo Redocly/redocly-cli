@@ -6,7 +6,7 @@ import { isURL } from '../../utils/is-url.js';
 
 export async function bundleOpenApi(path: string = '', workflowPath: string): Promise<any> {
   const isUrl = isURL(path);
-  const config = await loadConfig();
+  const config = await loadConfig(); // FIXME: accept config from the run handler
   let bundleDocument: BundleResult;
 
   if (isUrl) {

@@ -1,59 +1,61 @@
 import util from 'node:util';
 import { colorize } from '../../logger.js';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
-import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
+import { resolveGovernanceConfig, resolveApis, resolveConfig } from '../config-resolvers.js';
 import recommended from '../recommended.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types.js';
+import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
-const baseStyleguideConfig: StyleguideRawConfig = {
+const baseGovernanceConfig: RawGovernanceConfig<'built-in'> = {
   rules: {
     'operation-2xx-response': 'warn',
   },
 };
 
-const minimalStyleguidePreset = resolveStyleguideConfig({
-  styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal'] },
+const minimalGovernancePreset = resolveGovernanceConfig({
+  rootOrApiRawConfig: { ...baseGovernanceConfig, extends: ['minimal'] },
 });
 
-const recommendedStyleguidePreset = resolveStyleguideConfig({
-  styleguideConfig: { ...baseStyleguideConfig, extends: ['recommended'] },
+const recommendedGovernancePreset = resolveGovernanceConfig({
+  rootOrApiRawConfig: { ...baseGovernanceConfig, extends: ['recommended'] },
 });
 
 const removeAbsolutePath = (item: string) =>
   item.match(/^.*\/packages\/core\/src\/config\/__tests__\/fixtures\/(.*)$/)![1];
 
-describe('resolveStyleguideConfig', () => {
+describe('resolveGovernanceConfig', () => {
   it('should return the config with no recommended', async () => {
-    const styleguide = await resolveStyleguideConfig({ styleguideConfig: baseStyleguideConfig });
-    expect(styleguide.plugins?.length).toEqual(1);
-    expect(styleguide.plugins?.[0].id).toEqual('');
-    expect(styleguide.rules).toEqual({
+    const governanceConfig = await resolveGovernanceConfig({
+      rootOrApiRawConfig: baseGovernanceConfig,
+    });
+    expect(governanceConfig.plugins?.length).toEqual(1);
+    expect(governanceConfig.plugins?.[0].id).toEqual('');
+    expect(governanceConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
   });
 
   it('should return the config with correct order by preset', async () => {
     expect(
-      await resolveStyleguideConfig({
-        styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal', 'recommended'] },
+      await resolveGovernanceConfig({
+        rootOrApiRawConfig: { ...baseGovernanceConfig, extends: ['minimal', 'recommended'] },
       })
-    ).toEqual(await recommendedStyleguidePreset);
+    ).toEqual(await recommendedGovernancePreset);
     expect(
-      await resolveStyleguideConfig({
-        styleguideConfig: { ...baseStyleguideConfig, extends: ['recommended', 'minimal'] },
+      await resolveGovernanceConfig({
+        rootOrApiRawConfig: { ...baseGovernanceConfig, extends: ['recommended', 'minimal'] },
       })
-    ).toEqual(await minimalStyleguidePreset);
+    ).toEqual(await minimalGovernancePreset);
   });
 
-  it('should return the same styleguideConfig when extends is empty array', async () => {
-    const configWithEmptyExtends = await resolveStyleguideConfig({
-      styleguideConfig: { ...baseStyleguideConfig, extends: [] },
+  it('should return the same rootOrApiRawConfig when extends is empty array', async () => {
+    const configWithEmptyExtends = await resolveGovernanceConfig({
+      rootOrApiRawConfig: { ...baseGovernanceConfig, extends: [] },
     });
     expect(configWithEmptyExtends.plugins?.length).toEqual(1);
     expect(configWithEmptyExtends.plugins?.[0].id).toEqual('');
@@ -64,27 +66,29 @@ describe('resolveStyleguideConfig', () => {
 
   it('should resolve extends with local file config', async () => {
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
-      styleguideConfig: config,
+    const { plugins, ...governanceConfig } = await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
-    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
-    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual(['resolve-config/plugin.js']);
+    expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin.js',
+    ]);
 
-    expect(styleguide.rules).toEqual({
+    expect(governanceConfig.rules).toEqual({
       'boolean-parameter-prefixes': 'error',
       'local/operation-id-not-test': 'error',
       'no-invalid-media-type-examples': 'error',
@@ -99,19 +103,19 @@ describe('resolveStyleguideConfig', () => {
     const deprecateSpy = vi.spyOn(util, 'deprecate');
 
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config-with-plugin-init.yaml'],
     };
 
-    await resolveStyleguideConfig({
-      styleguideConfig: config,
+    await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
     expect(deprecateSpy).toHaveBeenCalledTimes(1);
 
-    await resolveStyleguideConfig({
-      styleguideConfig: config,
+    await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
@@ -121,12 +125,12 @@ describe('resolveStyleguideConfig', () => {
 
   it('should resolve realm plugin properties', async () => {
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config-with-realm-plugin.yaml'],
     };
 
-    const { plugins } = await resolveStyleguideConfig({
-      styleguideConfig: config,
+    const { plugins } = await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
@@ -149,16 +153,16 @@ describe('resolveStyleguideConfig', () => {
 
   it('should resolve local file config with esm plugin', async () => {
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config-with-esm.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
-      styleguideConfig: config,
+    const { plugins, ...governanceConfig } = await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
-    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
@@ -174,32 +178,32 @@ describe('resolveStyleguideConfig', () => {
       },
     });
 
-    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config-with-esm.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin-esm.mjs',
     ]);
 
-    expect(styleguide.rules).toEqual({
+    expect(governanceConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
   });
 
   it('should resolve local file config with commonjs plugin with a default export function', async () => {
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config-with-commonjs-export-function.yaml'],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
-      styleguideConfig: config,
+    const { plugins, ...governanceConfig } = await resolveGovernanceConfig({
+      rootOrApiRawConfig: config,
       configPath,
     });
 
-    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
@@ -215,16 +219,16 @@ describe('resolveStyleguideConfig', () => {
       },
     });
 
-    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config-with-commonjs-export-function.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin-with-export-function.cjs',
     ]);
 
-    expect(styleguide.rules).toEqual({
+    expect(governanceConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
   });
@@ -232,52 +236,52 @@ describe('resolveStyleguideConfig', () => {
   // TODO: fix circular test
   it.skip('should throw circular error', () => {
     const config = {
-      ...baseStyleguideConfig,
+      ...baseGovernanceConfig,
       extends: ['local-config-with-circular.yaml'],
     };
     expect(() => {
-      resolveStyleguideConfig({ styleguideConfig: config, configPath });
+      resolveGovernanceConfig({ rootOrApiRawConfig: config, configPath });
     }).toThrow('Circular dependency in config file');
   });
 
   it('should resolve extends with local file config which contains path to nested config', async () => {
-    const styleguideConfig = {
+    const rootOrApiRawConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
-      styleguideConfig,
+    const { plugins, ...governanceConfig } = await resolveGovernanceConfig({
+      rootOrApiRawConfig,
       configPath,
     });
 
-    expect(styleguide?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
-    expect(styleguide?.rules?.['operation-4xx-response']).toEqual('off');
-    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('error');
+    expect(governanceConfig?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
+    expect(governanceConfig?.rules?.['operation-4xx-response']).toEqual('off');
+    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('error');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(3);
 
-    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config-with-file.yaml',
       'resolve-config/api/nested-config.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/api/plugin.js',
       'resolve-config/plugin.js',
       'resolve-config/api/plugin.js',
     ]);
 
-    delete styleguide.extendPaths;
-    delete styleguide.pluginPaths;
-    expect(styleguide).toMatchSnapshot();
+    governanceConfig.extendPaths = ['extend paths stub'];
+    governanceConfig.pluginPaths = ['plugin paths stub'];
+    expect(governanceConfig).toMatchSnapshot();
   });
 
   it('should resolve custom assertion from plugin', async () => {
-    const styleguideConfig = {
+    const rootOrApiRawConfig = {
       extends: ['local-config-with-custom-function.yaml'],
     };
-    const { plugins } = await resolveStyleguideConfig({
-      styleguideConfig,
+    const { plugins } = await resolveGovernanceConfig({
+      rootOrApiRawConfig,
       configPath,
     });
 
@@ -287,12 +291,12 @@ describe('resolveStyleguideConfig', () => {
   });
 
   it('should throw error when custom assertion load not exist plugin', async () => {
-    const styleguideConfig = {
+    const rootOrApiRawConfig = {
       extends: ['local-config-with-wrong-custom-function.yaml'],
     };
     try {
-      await resolveStyleguideConfig({
-        styleguideConfig,
+      await resolveGovernanceConfig({
+        rootOrApiRawConfig,
         configPath,
       });
     } catch (e) {
@@ -307,17 +311,17 @@ describe('resolveStyleguideConfig', () => {
   });
 
   it('should correctly merge assertions from nested config', async () => {
-    const styleguideConfig = {
+    const rootOrApiRawConfig = {
       extends: ['local-config-with-file.yaml'],
     };
 
-    const styleguide = await resolveStyleguideConfig({
-      styleguideConfig,
+    const governanceConfig = await resolveGovernanceConfig({
+      rootOrApiRawConfig,
       configPath,
     });
 
-    expect(Array.isArray(styleguide.rules?.assertions)).toEqual(true);
-    expect(styleguide.rules?.assertions).toMatchObject([
+    expect(Array.isArray(governanceConfig.rules?.assertions)).toEqual(true);
+    expect(governanceConfig.rules?.assertions).toMatchObject([
       {
         subject: 'PathItem',
         property: 'get',
@@ -338,37 +342,35 @@ describe('resolveStyleguideConfig', () => {
   });
 
   it('should resolve extends with url file config which contains path to nested config', async () => {
-    const styleguideConfig = {
+    const rootOrApiRawConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
         'https://raw.githubusercontent.com/Redocly/redocly-cli/main/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
       ],
     };
 
-    const { plugins, ...styleguide } = await resolveStyleguideConfig({
-      styleguideConfig,
+    const { plugins, ...governanceConfig } = await resolveGovernanceConfig({
+      rootOrApiRawConfig,
       configPath,
     });
 
-    expect(styleguide?.rules?.['operation-4xx-response']).toEqual('error');
-    expect(styleguide?.rules?.['operation-2xx-response']).toEqual('error');
-    expect(Object.keys(styleguide.rules || {}).length).toBe(2);
+    expect(governanceConfig?.rules?.['operation-4xx-response']).toEqual('error');
+    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('error');
+    expect(Object.keys(governanceConfig.rules || {}).length).toBe(2);
 
-    expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(governanceConfig.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+    expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
   it('should resolve `recommended-strict` ruleset correctly', async () => {
     const expectedStrict = JSON.parse(
       JSON.stringify(recommended)
-    ) as PluginStyleguideConfig<'built-in'>;
+    ) as RawGovernanceConfig<'built-in'>;
     for (const section of Object.values(expectedStrict)) {
-      for (let ruleName in section as any) {
-        // @ts-ignore
+      for (let ruleName in section) {
         if (section[ruleName] === 'warn') {
-          // @ts-ignore
           section[ruleName] = 'error';
         }
         // @ts-ignore
@@ -380,8 +382,8 @@ describe('resolveStyleguideConfig', () => {
     }
     const recommendedStrictPreset = JSON.parse(
       JSON.stringify(
-        await resolveStyleguideConfig({
-          styleguideConfig: { extends: ['recommended-strict'] },
+        await resolveGovernanceConfig({
+          rootOrApiRawConfig: { extends: ['recommended-strict'] },
         })
       )
     );
@@ -390,131 +392,113 @@ describe('resolveStyleguideConfig', () => {
 });
 
 describe('resolveApis', () => {
-  it('should resolve apis styleguideConfig and merge minimal extends', async () => {
-    const baseStyleguideConfig: StyleguideRawConfig = {
+  it('should resolve apis rootOrApiRawConfig and merge minimal extends', async () => {
+    const baseGovernanceConfig: RawGovernanceConfig<'built-in'> = {
       oas3_1Rules: {
         'operation-2xx-response': 'error',
       },
     };
-    const mergedStyleguidePreset = resolveStyleguideConfig({
-      styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal'] },
+    const mergedGovernancePreset = resolveGovernanceConfig({
+      rootOrApiRawConfig: { ...baseGovernanceConfig, extends: ['minimal'] },
     });
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            oas3_1Rules: {
-              'operation-2xx-response': 'error',
-            },
+          oas3_1Rules: {
+            'operation-2xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        extends: ['minimal'],
-      },
+      extends: ['minimal'],
     };
     const apisResult = await resolveApis({ rawConfig });
-    expect(apisResult['petstore'].styleguide).toEqual(await mergedStyleguidePreset);
+    expect(apisResult['petstore']).toEqual({
+      ...(await mergedGovernancePreset),
+      root: 'some/path',
+    });
   });
 
   it('should not merge recommended extends by default by every level', async () => {
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {},
         },
       },
-      styleguide: {},
     };
 
     const apisResult = await resolveApis({ rawConfig, configPath });
 
-    expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apisResult['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
     ]);
-    expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+    expect(apisResult['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([]);
 
-    expect(apisResult['petstore'].styleguide.rules).toEqual({});
-    //@ts-ignore
-    expect(apisResult['petstore'].styleguide.plugins.length).toEqual(1);
-    //@ts-ignore
-    expect(apisResult['petstore'].styleguide.plugins[0].id).toEqual('');
+    expect(apisResult['petstore'].rules).toEqual({});
+    expect(apisResult['petstore'].plugins?.length).toEqual(1);
+    expect(apisResult['petstore'].plugins?.[0].id).toEqual('');
   });
 
-  it('should resolve apis styleguideConfig when it contains file and not set recommended', async () => {
-    const rawConfig: RawConfig = {
+  it('should resolve apis rootOrApiRawConfig when it contains file and not set recommended', async () => {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
     const apisResult = await resolveApis({ rawConfig, configPath });
-    expect(apisResult['petstore'].styleguide.rules).toEqual({
+    expect(apisResult['petstore'].rules).toEqual({
       'operation-2xx-response': 'warn',
       'operation-4xx-response': 'error',
     });
-    //@ts-ignore
-    expect(apisResult['petstore'].styleguide.plugins.length).toEqual(1);
-    //@ts-ignore
-    expect(apisResult['petstore'].styleguide.plugins[0].id).toEqual('');
+    expect(apisResult['petstore'].plugins?.length).toEqual(1);
+    expect(apisResult['petstore'].plugins?.[0].id).toEqual('');
 
-    expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apisResult['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
     ]);
-    expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+    expect(apisResult['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
 
-  it('should resolve apis styleguideConfig when it contains file', async () => {
-    const rawConfig: RawConfig = {
+  it('should resolve apis rootOrApiRawConfig when it contains file', async () => {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            extends: ['local-config.yaml'],
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          extends: ['local-config.yaml'],
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        extends: ['minimal'],
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      extends: ['minimal'],
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
     const apisResult = await resolveApis({ rawConfig, configPath });
-    expect(apisResult['petstore'].styleguide.rules).toBeDefined();
-    expect(apisResult['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // think about prioritize in merge ???
-    expect(apisResult['petstore'].styleguide.rules?.['operation-4xx-response']).toEqual('error');
-    expect(apisResult['petstore'].styleguide.rules?.['local/operation-id-not-test']).toEqual(
-      'error'
-    );
-    //@ts-ignore
-    expect(apisResult['petstore'].styleguide.plugins.length).toEqual(2);
+    expect(apisResult['petstore'].rules).toBeDefined();
+    expect(apisResult['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apisResult['petstore'].rules?.['operation-4xx-response']).toEqual('error');
+    expect(apisResult['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
+    expect(apisResult['petstore'].plugins?.length).toEqual(2);
 
-    expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apisResult['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apisResult['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
     ]);
   });
@@ -522,149 +506,129 @@ describe('resolveApis', () => {
 
 describe('resolveConfig', () => {
   it('should NOT add recommended to top level by default IF there is a config file', async () => {
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
-    const { apis } = await resolveConfig({ rawConfig, configPath });
-    //@ts-ignore
-    expect(apis['petstore'].styleguide.plugins.length).toEqual(1);
-    //@ts-ignore
-    expect(apis['petstore'].styleguide.plugins[0].id).toEqual('');
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
 
-    expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apis['petstore'].plugins?.length).toEqual(1);
+    expect(apis['petstore'].plugins?.[0].id).toEqual('');
+
+    expect(apis['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
     ]);
-    expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+    expect(apis['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([]);
 
-    expect(apis['petstore'].styleguide.rules).toEqual({
+    expect(apis['petstore'].rules).toEqual({
       'operation-2xx-response': 'warn',
       'operation-4xx-response': 'error',
     });
   });
 
   it('should not add recommended to top level by default when apis have extends file', async () => {
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            extends: ['local-config.yaml'],
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          extends: ['local-config.yaml'],
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
-    const { apis } = await resolveConfig({ rawConfig, configPath });
-    expect(apis['petstore'].styleguide.rules).toBeDefined();
-    expect(Object.keys(apis['petstore'].styleguide.rules || {}).length).toEqual(7);
-    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn');
-    expect(apis['petstore'].styleguide.rules?.['operation-4xx-response']).toEqual('error');
-    expect(apis['petstore'].styleguide.rules?.['operation-description']).toEqual('error'); // from extends file config
-    //@ts-ignore
-    expect(apis['petstore'].styleguide.plugins.length).toEqual(2);
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apis['petstore'].plugins?.length).toEqual(2);
+
+    expect(apis['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apis['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
     ]);
-
-    expect(apis['petstore'].styleguide.recommendedFallback).toBe(false);
   });
 
   it('should ignore minimal from the root and read local file', async () => {
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            extends: ['recommended', 'local-config.yaml'],
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          extends: ['recommended', 'local-config.yaml'],
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        extends: ['minimal'],
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      extends: ['minimal'],
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
-    const { apis } = await resolveConfig({ rawConfig, configPath });
-    expect(apis['petstore'].styleguide.rules).toBeDefined();
-    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn');
-    expect(apis['petstore'].styleguide.rules?.['operation-4xx-response']).toEqual('error');
-    expect(apis['petstore'].styleguide.rules?.['operation-description']).toEqual('error'); // from extends file config
-    //@ts-ignore
-    expect(apis['petstore'].styleguide.plugins.length).toEqual(2);
-    //@ts-ignore
-    delete apis['petstore'].styleguide.plugins;
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apis['petstore'].plugins?.length).toEqual(2);
+    delete apis['petstore'].plugins;
+
+    expect(apis['petstore'].extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
       'resolve-config/redocly.yaml',
     ]);
-    expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apis['petstore'].pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
     ]);
 
-    delete apis['petstore'].styleguide.extendPaths;
-    delete apis['petstore'].styleguide.pluginPaths;
-    expect(apis['petstore'].styleguide).toMatchSnapshot();
+    delete apis['petstore'].extendPaths;
+    delete apis['petstore'].pluginPaths;
+    expect(apis['petstore']).toMatchSnapshot();
   });
 
   it('should default to the extends from the main config if no extends defined', async () => {
-    const rawConfig: RawConfig = {
+    const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {
           root: 'some/path',
-          styleguide: {
-            rules: {
-              'operation-4xx-response': 'error',
-            },
+          rules: {
+            'operation-4xx-response': 'error',
           },
         },
       },
-      styleguide: {
-        extends: ['minimal'],
-        rules: {
-          'operation-2xx-response': 'warn',
-        },
+      extends: ['minimal'],
+      rules: {
+        'operation-2xx-response': 'warn',
       },
     };
 
-    const { apis } = await resolveConfig({ rawConfig, configPath });
-    expect(apis['petstore'].styleguide.rules).toBeDefined();
-    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
+    const { apis = {} } = await resolveConfig({ rawConfig, configPath });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });

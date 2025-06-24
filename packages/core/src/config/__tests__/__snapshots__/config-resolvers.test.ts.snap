@@ -45,7 +45,6 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "doNotResolveExamples": undefined,
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -223,7 +222,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "info-contact": "off",
   },
   "preprocessors": {},
-  "recommendedFallback": false,
+  "root": "some/path",
   "rules": {
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",
@@ -237,7 +236,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
 }
 `;
 
-exports[`resolveStyleguideConfig > should resolve extends with local file config which contains path to nested config 1`] = `
+exports[`resolveGovernanceConfig > should resolve extends with local file config which contains path to nested config 1`] = `
 {
   "arazzo1Decorators": {},
   "arazzo1Preprocessors": {},
@@ -282,7 +281,9 @@ exports[`resolveStyleguideConfig > should resolve extends with local file config
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "doNotResolveExamples": undefined,
+  "extendPaths": [
+    "extend paths stub",
+  ],
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -459,8 +460,10 @@ exports[`resolveStyleguideConfig > should resolve extends with local file config
   "overlay1Rules": {
     "info-contact": "off",
   },
+  "pluginPaths": [
+    "plugin paths stub",
+  ],
   "preprocessors": {},
-  "recommendedFallback": undefined,
   "rules": {
     "assertions": [
       {

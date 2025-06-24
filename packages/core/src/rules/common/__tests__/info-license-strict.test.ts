@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('license-strict', () => {
   it('should report on info.license with no url or identifier for OpenAPI 3.1', async () => {
@@ -22,7 +19,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'info-license-strict': 'error' } }),
+      config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -59,7 +56,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'info-license-strict': 'error' } }),
+      config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -80,7 +77,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'info-license-strict': 'error' } }),
+      config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -100,7 +97,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'info-license-strict': 'error' } }),
+      config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -137,7 +134,7 @@ describe('license-strict', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'info-license-strict': 'error' } }),
+      config: await createConfig({ rules: { 'info-license-strict': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

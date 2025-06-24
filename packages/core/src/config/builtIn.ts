@@ -27,10 +27,9 @@ import { decorators as async2Decorators } from '../decorators/async2/index.js';
 import { decorators as async3Decorators } from '../decorators/async3/index.js';
 import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
+import { type Plugin, type RawGovernanceConfig } from './types.js';
 
-import type { StyleguideRawConfig, Plugin } from './types.js';
-
-export const builtInConfigs: Record<string, StyleguideRawConfig> = {
+export const builtInConfigs: Record<string, RawGovernanceConfig> = {
   recommended,
   'recommended-strict': recommendedStrict,
   minimal,

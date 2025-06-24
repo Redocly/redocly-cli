@@ -4,6 +4,8 @@ apis:
     decorators:
       test/version: on
       remove-unused-components: on
+    rules:
+      info-license: error
   test@external-url:
     root: https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml
     rules:

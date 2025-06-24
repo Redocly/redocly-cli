@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 operation-operationId-unique', () => {
   it('should report on for non-unique opid', async () => {
@@ -30,7 +27,7 @@ describe('Oas3 operation-operationId-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'operation-operationId-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-operationId-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -72,7 +69,7 @@ describe('Oas3 operation-operationId-unique', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ rules: { 'peration-operationId-unique': 'error' } }),
+      config: await createConfig({ rules: { 'operation-operationId-unique': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

@@ -1,11 +1,8 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint.js';
-import {
-  parseYamlToDocument,
-  replaceSourceWithRef,
-  makeConfig,
-} from '../../../../__tests__/utils.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Arazzo sourceDescriptions-not-empty', () => {
   const document1 = parseYamlToDocument(
@@ -70,7 +67,7 @@ describe('Arazzo sourceDescriptions-not-empty', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: document1,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'sourceDescriptions-not-empty': 'error' },
       }),
     });
@@ -82,7 +79,7 @@ describe('Arazzo sourceDescriptions-not-empty', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document: document2,
-      config: await makeConfig({
+      config: await createConfig({
         rules: { 'sourceDescriptions-not-empty': 'error' },
       }),
     });

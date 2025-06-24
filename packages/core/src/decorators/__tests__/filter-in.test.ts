@@ -1,7 +1,8 @@
 import { outdent } from 'outdent';
 import { bundleDocument } from '../../bundle.js';
 import { BaseResolver } from '../../resolve.js';
-import { makeConfig, parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { createConfig } from '../../config/index.js';
 
 describe('oas3 filter-in', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -56,8 +57,7 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: { 'filter-in': { value: 'public', property: 'x-access' } },
       }),
     });
@@ -79,8 +79,7 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-in': {
             property: 'x-audience',
@@ -133,8 +132,7 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-in': {
             property: 'x-audience',
@@ -174,8 +172,7 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-in': {
             property: 'x-audience',
@@ -223,8 +220,7 @@ describe('oas3 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-in': {
             property: 'x-audience',
@@ -282,8 +278,7 @@ describe('oas2 filter-in', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({
-        rules: {},
+      config: await createConfig({
         decorators: {
           'filter-in': {
             property: 'x-access',
