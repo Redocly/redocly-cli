@@ -1,5 +1,4 @@
 import { assignOnlyExistingConfig, assignConfig, isPlainObject } from '../utils.js';
-import { logger, colorize } from '../logger.js';
 
 import type {
   ImportedPlugin,
@@ -146,20 +145,6 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
       customFetch: undefined,
     },
   };
-}
-
-export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
-  const seen = new Set();
-  const results = [];
-  for (const p of plugins) {
-    if (!seen.has(p.id)) {
-      results.push(p);
-      seen.add(p.id);
-    } else if (p.id) {
-      logger.warn(`Duplicate plugin id "${colorize.red(p.id)}".\n`);
-    }
-  }
-  return results;
 }
 
 export class ConfigValidationError extends Error {}
