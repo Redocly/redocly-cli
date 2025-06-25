@@ -184,7 +184,7 @@ export const assignConfig = <T extends string | { severity?: string }>(
   if (!obj) return;
   for (const k of Object.keys(obj)) {
     if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
-      target[k] = { ...(target[k] as any), severity: obj[k] };
+      target[k] = { ...(target[k] as Record<string, unknown>), severity: obj[k] } as T;
     } else {
       target[k] = obj[k];
     }
@@ -199,7 +199,7 @@ export function assignOnlyExistingConfig<T extends string | { severity?: string 
   for (const k of Object.keys(obj)) {
     if (!target.hasOwnProperty(k)) continue;
     if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
-      target[k].severity = obj[k];
+      target[k] = { ...(target[k] as Record<string, unknown>), severity: obj[k] } as T;
     } else {
       target[k] = obj[k];
     }
