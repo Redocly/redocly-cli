@@ -88,22 +88,17 @@ export async function resolveConfig({
     resolvedPlugins
   );
 
-  const resolvedConfig: ResolvedConfig = {
-    ...bundledConfig,
-    plugins: resolvedPlugins,
-  };
-
-  if (resolvedConfig.apis) {
-    resolvedConfig.apis = Object.fromEntries(
-      Object.entries(resolvedConfig.apis).map(([key, value]) => {
-        const merged = mergeExtends([resolvedConfig, value]);
+  if (bundledConfig.apis) {
+    bundledConfig.apis = Object.fromEntries(
+      Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
+        const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
         return [
           key,
           {
-            ...merged,
+            ...mergedConfig,
+            root: apiConfig.root,
             plugins: resolvedPlugins,
-            root: value.root,
-            rules: groupAssertionRules(merged, resolvedPlugins),
+            rules: groupAssertionRules(mergedConfig, resolvedPlugins),
           },
         ];
       })
@@ -112,8 +107,9 @@ export async function resolveConfig({
 
   return {
     resolvedConfig: {
-      ...resolvedConfig,
-      rules: groupAssertionRules(resolvedConfig, resolvedPlugins),
+      ...bundledConfig,
+      plugins: resolvedPlugins,
+      rules: groupAssertionRules(bundledConfig, resolvedPlugins),
     },
     resolvedRefMap,
   };
