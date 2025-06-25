@@ -22,7 +22,6 @@ import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
-  RawUniversalConfig,
   ResolveConfig,
   ResolvedConfig,
   RuleConfig,
@@ -46,7 +45,6 @@ function getIgnoreFilePath(configPath?: string): string | undefined {
 
 export class Config {
   resolvedConfig: ResolvedConfig;
-  rawConfig?: RawUniversalConfig;
   configPath?: string;
   document?: Document;
   resolvedRefMap?: ResolvedRefMap;
@@ -67,14 +65,12 @@ export class Config {
     resolvedConfig: ResolvedConfig,
     opts: {
       configPath?: string;
-      rawConfig?: RawUniversalConfig;
       document?: Document;
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
-    this.rawConfig = opts.rawConfig;
     this.configPath = opts.configPath;
     this.document = opts.document;
     this.resolvedRefMap = opts.resolvedRefMap;
@@ -142,7 +138,6 @@ export class Config {
 
     return new Config(this.resolvedConfig.apis[alias], {
       configPath: this.configPath,
-      rawConfig: this.rawConfig,
       document: this.document,
       resolvedRefMap: this.resolvedRefMap,
       alias,

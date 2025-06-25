@@ -44,7 +44,6 @@ testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
 describe('Config.forAlias', () => {
   it('should get config instance for an alias defined in the "apis" section', () => {
     const aliasConfig = testConfig.forAlias('test@v1');
-    aliasConfig.document = undefined;
     expect(aliasConfig).toMatchInlineSnapshot(`
       Config {
         "_alias": "test@v1",
@@ -61,7 +60,33 @@ describe('Config.forAlias', () => {
           "overlay1": {},
         },
         "doNotResolveExamples": false,
-        "document": undefined,
+        "document": {
+          "parsed": {
+            "apis": {
+              "test@v1": {
+                "root": "resources/pets.yaml",
+                "rules": {
+                  "operation-summary": "warn",
+                },
+              },
+            },
+            "resolve": {
+              "http": {
+                "headers": [],
+              },
+            },
+            "rules": {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
+            "telemetry": "on",
+          },
+          "source": Source {
+            "absoluteRef": "redocly.yaml",
+            "body": "",
+            "mimeType": undefined,
+          },
+        },
         "ignore": {},
         "plugins": [],
         "preprocessors": {
@@ -72,26 +97,6 @@ describe('Config.forAlias', () => {
           "oas3_0": {},
           "oas3_1": {},
           "overlay1": {},
-        },
-        "rawConfig": {
-          "apis": {
-            "test@v1": {
-              "root": "resources/pets.yaml",
-              "rules": {
-                "operation-summary": "warn",
-              },
-            },
-          },
-          "resolve": {
-            "http": {
-              "headers": [],
-            },
-          },
-          "rules": {
-            "no-empty-servers": "error",
-            "operation-summary": "error",
-          },
-          "telemetry": "on",
         },
         "resolve": {
           "http": {
