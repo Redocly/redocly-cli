@@ -1,5 +1,0 @@
-plugins: 
-  - ./plugin.js
-rules:
-  plugin1/operation-id-not-test: error
-  plugin2/operation-id-not-test: error
