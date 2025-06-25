@@ -6,7 +6,6 @@ export const configFixture: Config = {
       headers: [],
     },
   },
-  rawConfig: {},
   resolvedConfig: {
     apis: {},
   },

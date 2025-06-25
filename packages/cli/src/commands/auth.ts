@@ -11,7 +11,7 @@ export type LoginOptions = {
 };
 
 export async function handleLogin({ argv, version, config }: CommandArgs<LoginOptions>) {
-  const residency = argv.residency || config?.rawConfig?.residency;
+  const residency = argv.residency || config?.resolvedConfig?.residency;
   const reuniteUrl = getReuniteUrl(residency);
   try {
     const oauthClient = new RedoclyOAuthClient('redocly-cli', version);

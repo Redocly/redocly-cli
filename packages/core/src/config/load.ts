@@ -53,7 +53,6 @@ export async function loadConfig(
 
   const config = new Config(resolvedConfig, {
     configPath,
-    rawConfig: rawConfigDocument?.parsed,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
   });
@@ -122,7 +121,6 @@ export async function createConfig(
   });
   return new Config(resolvedConfig, {
     configPath,
-    rawConfig: rawConfigDocument.parsed,
     document: rawConfigDocument,
     resolvedRefMap,
   });
