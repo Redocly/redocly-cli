@@ -72,7 +72,6 @@ export {
   type RawUniversalApiConfig,
   IGNORE_FILE,
   loadConfig,
-  // getConfig, TODO: need for Redoc?
   findConfig,
   CONFIG_FILE_NAMES,
   type RuleSeverity,
