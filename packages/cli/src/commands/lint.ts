@@ -67,7 +67,7 @@ export async function handleLint({
       aliasConfig.skipRules(argv['skip-rule']);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config.rawConfig === 'undefined') {
+      if (typeof config.document?.parsed === 'undefined') {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
@@ -140,7 +140,7 @@ export async function handleLintConfig(
   const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
 
   if (command === 'check-config') {
-    notifyAboutIncompatibleConfigOptions(config.rawConfig?.theme?.openapi);
+    notifyAboutIncompatibleConfigOptions(config.resolvedConfig?.theme?.openapi);
   }
 
   const problems = await lintConfig({

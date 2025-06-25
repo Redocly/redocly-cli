@@ -28,36 +28,6 @@ Config {
     "oas3_1": {},
     "overlay1": {},
   },
-  "rawConfig": {
-    "apis": {
-      "test@v1": {
-        "root": "resources/pets.yaml",
-        "rules": {
-          "operation-summary": "warn",
-          "rule/test": "warn",
-        },
-      },
-    },
-    "resolve": {
-      "http": {
-        "headers": [],
-      },
-    },
-    "rules": {
-      "no-empty-servers": "error",
-      "operation-summary": "error",
-      "rule/test": {
-        "assertions": {
-          "defined": true,
-        },
-        "subject": {
-          "property": "x-test",
-          "type": "Operation",
-        },
-      },
-    },
-    "telemetry": "on",
-  },
   "resolve": {
     "http": {
       "customFetch": undefined,

@@ -1087,7 +1087,7 @@ describe('createConfig', () => {
   });
 
   it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(createConfig({})).toEqual(Promise.resolve({ rawConfig: {} }));
+    expect(createConfig({})).toEqual(Promise.resolve({ resolvedConfig: {} }));
   });
 });
 
