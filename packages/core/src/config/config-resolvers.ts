@@ -9,7 +9,6 @@ import { defaultPlugin } from './builtIn.js';
 import {
   deepCloneMapWithJSON,
   getResolveConfig,
-  getUniquePlugins,
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
   mergeExtends,
@@ -57,9 +56,7 @@ export async function resolveConfig({
   customExtends,
 }: ConfigOptions): Promise<{ resolvedConfig: ResolvedConfig; resolvedRefMap: ResolvedRefMap }> {
   const config =
-    rawConfigDocument === undefined
-      ? { extends: ['recommended'] }
-      : { ...rawConfigDocument.parsed };
+    rawConfigDocument === undefined ? { extends: ['recommended'] } : rawConfigDocument.parsed;
 
   if (customExtends !== undefined) {
     config.extends = customExtends;
@@ -83,9 +80,7 @@ export async function resolveConfig({
   const { plugins = [] } = withCollectedPlugins;
   const resolvedPlugins = isBrowser // In browser, we don't support plugins from config file yet
     ? [defaultPlugin]
-    : getUniquePlugins(
-        await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''))
-      );
+    : await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''));
 
   const bundledConfig = bundleConfig(
     rootDocument,

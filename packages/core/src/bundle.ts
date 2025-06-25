@@ -9,15 +9,15 @@ import {
   SpecMajorVersion,
   SpecVersion,
 } from './oas-types.js';
-import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils.js';
+import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
-import { dequal, isPlainObject, isTruthy } from './utils.js';
+import { dequal, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import { mergeExtends, resolvePreset, type Config } from './config/index.js';
-import path from 'node:path';
+import { type Config } from './config/index.js';
+import { makeConfigBundlerVisitor, makePluginsCollectorVisitor } from './config/visitors.js';
 
 import type { Plugin, ResolvedConfig } from './config/types.js';
 import type { Location } from './ref-utils.js';
@@ -42,31 +42,6 @@ export type CoreBundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-function bundleExtends({ node, ctx, plugins }: { node: any; ctx: UserContext; plugins: Plugin[] }) {
-  if (!node.extends) {
-    return node;
-  }
-
-  const resolvedExtends = (node.extends || [])
-    .map((presetItem: string) => {
-      if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins);
-      }
-
-      const resolvedRef = ctx.resolve({ $ref: presetItem });
-      if (resolvedRef.location && resolvedRef.node) {
-        return resolvedRef.node;
-      }
-      return null;
-    })
-    .filter(isTruthy);
-
-  return mergeExtends([
-    ...resolvedExtends.map((nested: any) => bundleExtends({ node: nested, ctx, plugins })),
-    { ...node, extends: undefined },
-  ]);
-}
-
 export function collectConfigPlugins(document: Document, resolvedRefMap: ResolvedRefMap) {
   const ctx: BundleContext = {
     problems: [],
@@ -75,58 +50,10 @@ export function collectConfigPlugins(document: Document, resolvedRefMap: Resolve
     visitorsData: {},
   };
 
-  function handleNode(node: any, ctx: UserContext) {
-    if (Array.isArray(node.plugins)) {
-      plugins.push(
-        ...node.plugins.map((p: string) =>
-          typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
-        )
-      );
-      delete node.plugins;
-    }
-  }
-
-  const plugins: (string | Plugin)[] = [];
-
-  const visitors = normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {},
-          ConfigGovernance: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigApisProperties: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigRoot: {
-            leave(node: any) {
-              if ((Array.isArray(node.plugins) && node.plugins.length > 0) || plugins.length > 0) {
-                node.plugins = [...(node.plugins || []), ...plugins];
-              }
-            },
-          },
-        },
-      },
-    ],
-    NormalizedConfigTypes
-  );
-
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: visitors,
+    normalizedVisitors: makePluginsCollectorVisitor(),
     resolvedRefMap,
     ctx,
   });
@@ -139,14 +66,6 @@ export function bundleConfig(
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
 ): ResolvedConfig {
-  function handleNode(node: any, ctx: UserContext) {
-    if (node.extends) {
-      const bundled = bundleExtends({ node, ctx, plugins });
-      Object.assign(node, bundled);
-      delete node.extends;
-    }
-  }
-
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
@@ -154,48 +73,10 @@ export function bundleConfig(
     visitorsData: {},
   };
 
-  const visitors = normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {
-            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx);
-            },
-          },
-          ConfigGovernance: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigApisProperties: {
-            leave(node: any, ctx: UserContext) {
-              // ignore extends from root config if defined in the current node
-              handleNode(node, ctx);
-            },
-          },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigRoot: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-        },
-      },
-    ],
-    NormalizedConfigTypes
-  );
-
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: visitors,
+    normalizedVisitors: makeConfigBundlerVisitor(plugins),
     resolvedRefMap,
     ctx,
   });
@@ -434,18 +315,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-  }
-}
-
-function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-  if (!isPlainObject(resolved.node)) {
-    ctx.parent[ctx.key] = resolved.node;
-  } else {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete ref.$ref;
-    const obj = Object.assign({}, resolved.node, ref);
-    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
   }
 }
 
