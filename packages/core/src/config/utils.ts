@@ -1,4 +1,4 @@
-import { assignOnlyExistingConfig, assignConfig } from '../utils.js';
+import { assignOnlyExistingConfig, assignConfig, isPlainObject } from '../utils.js';
 import { logger, colorize } from '../logger.js';
 
 import type {
@@ -79,11 +79,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
   };
 
   for (const rulesConf of rulesConfList) {
-    if (
-      typeof rulesConf === 'object' &&
-      'extends' in rulesConf &&
-      rulesConf.extends !== undefined
-    ) {
+    if (isPlainObject(rulesConf) && 'extends' in rulesConf && rulesConf.extends !== undefined) {
       throw new Error(
         `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`
       );

@@ -17,9 +17,9 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorato
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
 import { mergeExtends, resolvePreset, type Config } from './config/index.js';
-import path from 'path';
+import path from 'node:path';
 
-import type { Plugin } from './config/types.js';
+import type { Plugin, ResolvedConfig } from './config/types.js';
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
@@ -67,63 +67,28 @@ function bundleExtends({ node, ctx, plugins }: { node: any; ctx: UserContext; pl
   ]);
 }
 
-function configBundleVisitor(plugins: Plugin[]) {
-  // let rootConfig: RawUniversalConfig | undefined;
-
-  return normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {
-            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx);
-            },
-          },
-          ConfigGovernance: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigApisProperties: {
-            leave(node: any, ctx: UserContext) {
-              // ignore extends from root config if defined in the current node
-              handleNode(node, ctx);
-            },
-          },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
-          },
-          ConfigRoot: {
-            leave(node: any, ctx: UserContext) {
-              if (node.extends) {
-                const bundled = bundleExtends({ node, ctx, plugins });
-                Object.assign(node, bundled);
-                delete node.extends;
-              }
-            },
-          },
-        },
-      },
-    ],
-    NormalizedConfigTypes
-  );
+export function collectConfigPlugins(document: Document, resolvedRefMap: ResolvedRefMap) {
+  const ctx: BundleContext = {
+    problems: [],
+    oasVersion: SpecVersion.OAS3_0, // TODO: change it after we rename oasVersion to specVersion
+    refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
+  };
 
   function handleNode(node: any, ctx: UserContext) {
-    if (node.extends) {
-      const bundled = bundleExtends({ node, ctx, plugins });
-      Object.assign(node, bundled);
-      delete node.extends;
+    if (Array.isArray(node.plugins)) {
+      plugins.push(
+        ...node.plugins.map((p: string) =>
+          typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
+        )
+      );
+      delete node.plugins;
     }
   }
-}
 
-function collectPluginsVisitor() {
   const plugins: (string | Plugin)[] = [];
-  return normalizeVisitors(
+
+  const visitors = normalizeVisitors(
     [
       {
         severity: 'error',
@@ -158,30 +123,10 @@ function collectPluginsVisitor() {
     NormalizedConfigTypes
   );
 
-  function handleNode(node: any, ctx: UserContext) {
-    if (Array.isArray(node.plugins)) {
-      plugins.push(
-        ...node.plugins.map((p: string) =>
-          typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
-        )
-      );
-      delete node.plugins;
-    }
-  }
-}
-
-export function collectConfigPlugins(document: Document, resolvedRefMap: ResolvedRefMap) {
-  const ctx: BundleContext = {
-    problems: [],
-    oasVersion: SpecVersion.OAS3_0,
-    refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {},
-  };
-
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: collectPluginsVisitor(),
+    normalizedVisitors: visitors,
     resolvedRefMap,
     ctx,
   });
@@ -193,7 +138,15 @@ export function bundleConfig(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
-) {
+): ResolvedConfig {
+  function handleNode(node: any, ctx: UserContext) {
+    if (node.extends) {
+      const bundled = bundleExtends({ node, ctx, plugins });
+      Object.assign(node, bundled);
+      delete node.extends;
+    }
+  }
+
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
@@ -201,10 +154,48 @@ export function bundleConfig(
     visitorsData: {},
   };
 
+  const visitors = normalizeVisitors(
+    [
+      {
+        severity: 'error',
+        ruleId: 'configBundler',
+        visitor: {
+          ref: {
+            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+              replaceRef(node, resolved, ctx);
+            },
+          },
+          ConfigGovernance: {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+          ConfigApisProperties: {
+            leave(node: any, ctx: UserContext) {
+              // ignore extends from root config if defined in the current node
+              handleNode(node, ctx);
+            },
+          },
+          'rootRedoclyConfigSchema.scorecard.levels_items': {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+          ConfigRoot: {
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
+            },
+          },
+        },
+      },
+    ],
+    NormalizedConfigTypes
+  );
+
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: configBundleVisitor(plugins),
+    normalizedVisitors: visitors,
     resolvedRefMap,
     ctx,
   });

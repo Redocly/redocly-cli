@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
 import { SpecVersion, getTypes } from '../oas-types.js';

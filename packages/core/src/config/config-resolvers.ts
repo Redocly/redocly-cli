@@ -87,11 +87,11 @@ export async function resolveConfig({
         await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''))
       );
 
-  const bundledConfig = (await bundleConfig(
+  const bundledConfig = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins
-  )) as ResolvedConfig;
+  );
 
   const resolvedConfig: ResolvedConfig = {
     ...bundledConfig,
