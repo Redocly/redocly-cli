@@ -113,6 +113,7 @@ describe('loadConfig', () => {
       configPath,
       externalRefResolver,
     });
+    expect(resolverSpy).toHaveBeenCalledWith(null, configPath);
     expect(resolverSpy).toHaveBeenNthCalledWith(
       2,
       configPath,
