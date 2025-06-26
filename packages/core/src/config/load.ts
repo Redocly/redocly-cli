@@ -130,10 +130,11 @@ function cloneConfigDocument(document: Document<RawUniversalConfig>) {
   if (!document.parsed) {
     return document;
   }
-  const { plugins, ...rest } = document.parsed;
+  const { plugins, resolve, ...rest } = document.parsed;
   const cloned = {
     ...structuredClone(rest),
     plugins: plugins?.slice(),
+    ...(resolve && { resolve: { ...resolve } }),
   };
   return {
     ...document,
