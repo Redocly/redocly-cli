@@ -50,15 +50,17 @@ export function collectConfigPlugins(document: Document, resolvedRefMap: Resolve
     visitorsData: {},
   };
 
+  const plugins: (string | Plugin)[] = [];
+
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: makePluginsCollectorVisitor(),
+    normalizedVisitors: makePluginsCollectorVisitor(plugins),
     resolvedRefMap,
     ctx,
   });
 
-  return document.parsed ?? {};
+  return plugins;
 }
 
 export function bundleConfig(
