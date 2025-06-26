@@ -63,13 +63,15 @@ export { Stats } from './rules/other/stats.js';
 
 export {
   type RawConfigProcessor, // FIXME: remove this
+  type RawUniversalConfig,
+  type RawUniversalApiConfig,
+  type RawGovernanceConfig,
   type ResolvedConfig,
   type ResolvedApiConfig,
+  type ResolvedGovernanceConfig,
   type Plugin,
   type RuleConfig,
   Config, // FIXME: only export as a type in v2
-  type RawUniversalConfig,
-  type RawUniversalApiConfig,
   IGNORE_FILE,
   loadConfig,
   findConfig,
