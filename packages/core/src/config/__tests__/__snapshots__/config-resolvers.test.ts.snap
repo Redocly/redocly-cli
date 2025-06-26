@@ -63,7 +63,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-required-schema-properties-undefined": "off",
     "no-schema-type-mismatch": "warn",
     "no-unresolved-refs": "error",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
     "operation-operationId": "warn",
@@ -124,7 +124,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-undefined-server-variable": "error",
     "no-unresolved-refs": "error",
     "no-unused-components": "warn",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-problem-details-rfc7807": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
@@ -184,7 +184,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-undefined-server-variable": "error",
     "no-unresolved-refs": "error",
     "no-unused-components": "warn",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-problem-details-rfc7807": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
@@ -227,7 +227,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",
     "no-invalid-media-type-examples": "error",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
     "path-http-verbs-order": "error",
@@ -281,9 +281,6 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "extendPaths": [
-    "extend paths stub",
-  ],
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -460,9 +457,6 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
   "overlay1Rules": {
     "info-contact": "off",
   },
-  "pluginPaths": [
-    "plugin paths stub",
-  ],
   "preprocessors": {},
   "rules": {
     "assertions": [

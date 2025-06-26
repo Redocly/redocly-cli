@@ -1,5 +1,4 @@
-import { assignOnlyExistingConfig, assignConfig } from '../utils.js';
-import { logger, colorize } from '../logger.js';
+import { assignOnlyExistingConfig, assignConfig, isPlainObject } from '../utils.js';
 
 import type {
   ImportedPlugin,
@@ -74,14 +73,10 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Decorators: {},
     arazzo1Decorators: {},
     overlay1Decorators: {},
-
-    plugins: [],
-    pluginPaths: [],
-    extendPaths: [],
   };
 
   for (const rulesConf of rulesConfList) {
-    if ('extends' in rulesConf) {
+    if (isPlainObject(rulesConf) && 'extends' in rulesConf && rulesConf.extends !== undefined) {
       throw new Error(
         `'extends' is not supported in shared configs yet:\n${JSON.stringify(rulesConf, null, 2)}`
       );
@@ -134,10 +129,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
-
-    result.plugins.push(...(rulesConf.plugins || []));
-    result.pluginPaths.push(...(rulesConf.pluginPaths || []));
-    result.extendPaths.push(...new Set(rulesConf.extendPaths));
   }
 
   return result;
@@ -150,20 +141,6 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
       customFetch: undefined,
     },
   };
-}
-
-export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
-  const seen = new Set();
-  const results = [];
-  for (const p of plugins) {
-    if (!seen.has(p.id)) {
-      results.push(p);
-      seen.add(p.id);
-    } else if (p.id) {
-      logger.warn(`Duplicate plugin id "${colorize.red(p.id)}".\n`);
-    }
-  }
-  return results;
 }
 
 export class ConfigValidationError extends Error {}

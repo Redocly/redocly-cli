@@ -17,9 +17,7 @@ Config {
   },
   "doNotResolveExamples": false,
   "document": undefined,
-  "extendPaths": [],
   "ignore": {},
-  "pluginPaths": [],
   "plugins": [],
   "preprocessors": {
     "arazzo1": {},
@@ -29,36 +27,6 @@ Config {
     "oas3_0": {},
     "oas3_1": {},
     "overlay1": {},
-  },
-  "rawConfig": {
-    "apis": {
-      "test@v1": {
-        "root": "resources/pets.yaml",
-        "rules": {
-          "operation-summary": "warn",
-          "rule/test": "warn",
-        },
-      },
-    },
-    "resolve": {
-      "http": {
-        "headers": [],
-      },
-    },
-    "rules": {
-      "no-empty-servers": "error",
-      "operation-summary": "error",
-      "rule/test": {
-        "assertions": {
-          "defined": true,
-        },
-        "subject": {
-          "property": "x-test",
-          "type": "Operation",
-        },
-      },
-    },
-    "telemetry": "on",
   },
   "resolve": {
     "http": {
@@ -79,7 +47,6 @@ Config {
         "async3Preprocessors": {},
         "async3Rules": {},
         "decorators": {},
-        "extendPaths": [],
         "oas2Decorators": {},
         "oas2Preprocessors": {},
         "oas2Rules": {},
@@ -92,8 +59,6 @@ Config {
         "overlay1Decorators": {},
         "overlay1Preprocessors": {},
         "overlay1Rules": {},
-        "pluginPaths": [],
-        "plugins": [],
         "preprocessors": {},
         "root": "resources/pets.yaml",
         "rules": {
@@ -115,32 +80,7 @@ Config {
         },
       },
     },
-    "arazzo1Decorators": {},
-    "arazzo1Preprocessors": {},
-    "arazzo1Rules": {},
-    "async2Decorators": {},
-    "async2Preprocessors": {},
-    "async2Rules": {},
-    "async3Decorators": {},
-    "async3Preprocessors": {},
-    "async3Rules": {},
-    "decorators": {},
-    "extendPaths": [],
-    "oas2Decorators": {},
-    "oas2Preprocessors": {},
-    "oas2Rules": {},
-    "oas3_0Decorators": {},
-    "oas3_0Preprocessors": {},
-    "oas3_0Rules": {},
-    "oas3_1Decorators": {},
-    "oas3_1Preprocessors": {},
-    "oas3_1Rules": {},
-    "overlay1Decorators": {},
-    "overlay1Preprocessors": {},
-    "overlay1Rules": {},
-    "pluginPaths": [],
-    "plugins": [],
-    "preprocessors": {},
+    "plugins": undefined,
     "resolve": {
       "http": {
         "headers": [],

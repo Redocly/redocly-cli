@@ -1,0 +1,59 @@
+extends:
+  - minimal
+rules:
+  no-ambiguous-paths: error # This rule enforces paths match only one PathItem entry, including template variables
+  no-invalid-schema-examples: error # This rule enforces schema examples to match their declared types
+  spec-strict-refs: error # This rule enforces $refs to reference elements in the component section
+  paths-kebab-case: error # This rule enforces all paths to be written using kebab case
+  rule/operationId-casing: # The following configurable three rules enforce camel case for operation ids, parameters, and schema properties
+    subject:
+      type: Operation
+      property: operationId
+    assertions:
+      casing: camelCase
+  rule/parameter-casing:
+    subject:
+      type: Parameter
+    assertions:
+      casing: camelCase
+  rule/schema-properties-casing:
+    subject:
+      type: Schema
+      property: properties
+    assertions:
+      casing: camelCase
+  rule/headers-include-example: # The following two configurable rules enforce that headers and parameters include examples
+    subject:
+      type: Header
+    assertions:
+      requireAny:
+        - example
+        - examples
+  rule/params-must-include-examples:
+    subject:
+      type: Parameter
+    assertions:
+      requireAny:
+        - example
+        - examples
+      mutuallyExclusive:
+        - example
+        - examples
+  rule/operation-security-defined: # This configurable rule enforces the security property of the Paths Operation OpenAPI node type is defined
+    subject:
+      type: Operation
+      property: security
+    where:
+      - subject:
+          type: Paths
+        assertions:
+          defined: true
+    assertions:
+      defined: true
+    message: 'Property `security` must be defined'
+  rule/terms-url: # This configurable rule enforces the terms of service property of the Info OpenAPI node type is defined
+    subject:
+      type: Info
+      property: termsOfService
+    assertions:
+      defined: true
