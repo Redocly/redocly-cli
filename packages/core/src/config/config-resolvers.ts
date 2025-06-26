@@ -122,6 +122,22 @@ function getDefaultPluginPath(configDir: string): string | undefined {
   return;
 }
 
+export const preResolvePluginPath = (plugin: string, configDir: string) => {
+  const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
+
+  return fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
+    ? maybeAbsolutePluginPath
+    : // For plugins imported from packages specifically
+      module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+        paths: [
+          // Plugins imported from the node_modules in the project directory
+          configDir,
+          // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
+          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+        ],
+      });
+};
+
 export async function resolvePlugins(
   plugins: (string | Plugin)[] | null,
   configDir: string = ''
@@ -132,19 +148,7 @@ export async function resolvePlugins(
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
     if (isString(plugin)) {
       try {
-        const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
-
-        const absolutePluginPath = fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
-          ? maybeAbsolutePluginPath
-          : // For plugins imported from packages specifically
-            module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
-              paths: [
-                // Plugins imported from the node_modules in the project directory
-                configDir,
-                // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-                import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
-              ],
-            });
+        const absolutePluginPath = preResolvePluginPath(plugin, configDir);
 
         if (!pluginsCache.has(absolutePluginPath)) {
           let requiredPlugin: ImportedPlugin | undefined;

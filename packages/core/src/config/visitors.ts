@@ -3,6 +3,8 @@ import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { normalizeVisitors } from '../visitors.js';
 import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
+import { isString } from '../utils.js';
+import { preResolvePluginPath } from './config-resolvers.js';
 
 import type { OasRef } from '../typings/openapi.js';
 import type { Plugin } from './types.js';
@@ -13,7 +15,7 @@ export function makePluginsCollectorVisitor(plugins: (string | Plugin)[]) {
     if (Array.isArray(node.plugins)) {
       plugins.push(
         ...node.plugins.map((p: string) =>
-          typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
+          isString(p) ? preResolvePluginPath(p, path.dirname(ctx.location.source.absoluteRef)) : p
         )
       );
     }
