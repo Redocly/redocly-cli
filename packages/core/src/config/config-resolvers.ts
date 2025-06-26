@@ -74,10 +74,7 @@ export async function resolveConfig({
     rootType: NormalizedConfigTypes.ConfigRoot,
     externalRefResolver: externalRefResolver ?? new BaseResolver(getResolveConfig(config?.resolve)),
   });
-
-  const withCollectedPlugins = collectConfigPlugins(rootDocument, resolvedRefMap);
-
-  const { plugins = [] } = withCollectedPlugins;
+  const plugins = collectConfigPlugins(rootDocument, resolvedRefMap);
   const resolvedPlugins = isBrowser // In browser, we don't support plugins from config file yet
     ? [defaultPlugin]
     : await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''));

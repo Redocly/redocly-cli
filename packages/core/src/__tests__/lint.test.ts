@@ -302,6 +302,97 @@ describe('lint', () => {
     `);
   });
 
+  it('lintFromString should work with plugins', async () => {
+    const source = outdent`
+      openapi: 3.0.2
+      info:
+        title: Example Schema
+        version: '1.0'
+      paths:
+        /user:
+          get:
+            # operationId: test
+            # x-operation-extra: on
+            responses:
+              '200':
+                description: OK
+    `;
+    const results = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await loadConfig({
+        configPath: path.join(
+          __dirname,
+          'fixtures/lint-with-refs-and-plugins/config-with-plugin.yaml'
+        ),
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1user/get/operationId",
+              "reportOnKey": true,
+              "source": "/test/spec.yaml",
+            },
+          ],
+          "message": "Operation object should contain \`operationId\` field.",
+          "ruleId": "operation-operationId",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1user/get",
+              "reportOnKey": false,
+              "source": "/test/spec.yaml",
+            },
+          ],
+          "message": "Operation must have \`x-operation-extra\` property",
+          "ruleId": "custom/operation-extra",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+
+    const results_with_ref = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await loadConfig({
+        configPath: path.join(
+          __dirname,
+          'fixtures/lint-with-refs-and-plugins/config-with-ref-to-plugin.yaml'
+        ),
+      }),
+    });
+    expect(replaceSourceWithRef(results_with_ref)).toEqual(replaceSourceWithRef(results));
+
+    const results_with_createConfig = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await createConfig(
+        outdent`
+          plugins:
+            - custom-plugin.js
+          rules:
+            operation-operationId: warn
+            custom/operation-extra: error
+        `,
+        {
+          configPath: path.join(
+            __dirname,
+            'fixtures/lint-with-refs-and-plugins/config-with-plugin.yaml'
+          ),
+        }
+      ),
+    });
+    expect(replaceSourceWithRef(results_with_createConfig)).toEqual(replaceSourceWithRef(results));
+  });
+
   it('lint should work', async () => {
     const results = await lint({
       ref: path.join(__dirname, 'fixtures/lint/openapi.yaml'),
