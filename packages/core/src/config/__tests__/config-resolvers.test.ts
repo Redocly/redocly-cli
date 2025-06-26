@@ -11,7 +11,7 @@ import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
-const baseGovernanceConfig: RawGovernanceConfig<'built-in'> = {
+const baseGovernanceConfig: RawGovernanceConfig = {
   rules: {
     'operation-2xx-response': 'warn',
   },
@@ -365,9 +365,7 @@ describe('resolveGovernanceConfig', () => {
     expect(governanceConfig.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
   it('should resolve `recommended-strict` ruleset correctly', async () => {
-    const expectedStrict = JSON.parse(
-      JSON.stringify(recommended)
-    ) as RawGovernanceConfig<'built-in'>;
+    const expectedStrict = JSON.parse(JSON.stringify(recommended)) as RawGovernanceConfig;
     for (const section of Object.values(expectedStrict)) {
       for (let ruleName in section) {
         if (section[ruleName] === 'warn') {
@@ -393,7 +391,7 @@ describe('resolveGovernanceConfig', () => {
 
 describe('resolveApis', () => {
   it('should resolve apis rootOrApiRawConfig and merge minimal extends', async () => {
-    const baseGovernanceConfig: RawGovernanceConfig<'built-in'> = {
+    const baseGovernanceConfig: RawGovernanceConfig = {
       oas3_1Rules: {
         'operation-2xx-response': 'error',
       },
