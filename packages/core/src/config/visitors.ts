@@ -8,9 +8,7 @@ import type { OasRef } from '../typings/openapi.js';
 import type { Plugin } from './types.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 
-export function makePluginsCollectorVisitor() {
-  const plugins: (string | Plugin)[] = [];
-
+export function makePluginsCollectorVisitor(plugins: (string | Plugin)[]) {
   function handleNode(node: any, ctx: UserContext) {
     if (Array.isArray(node.plugins)) {
       plugins.push(
@@ -18,7 +16,6 @@ export function makePluginsCollectorVisitor() {
           typeof p === 'string' ? path.resolve(path.dirname(ctx.location.source.absoluteRef), p) : p
         )
       );
-      delete node.plugins;
     }
   }
 
@@ -45,10 +42,8 @@ export function makePluginsCollectorVisitor() {
             },
           },
           ConfigRoot: {
-            leave(node: any) {
-              if ((Array.isArray(node.plugins) && node.plugins.length > 0) || plugins.length > 0) {
-                node.plugins = [...(node.plugins || []), ...plugins];
-              }
+            leave(node: any, ctx: UserContext) {
+              handleNode(node, ctx);
             },
           },
         },
