@@ -60,6 +60,18 @@ components:
     Correct:
       type: string
       nullable: true
+    CorrectWithAllOf:
+      type: object
+      nullable: true
+      allOf:
+        - type: object
+          properties:
+            name:
+              type: string
+        - type: object
+          properties:
+            age:
+              type: number
 ```
 
 ## Related rules
