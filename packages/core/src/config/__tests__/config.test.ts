@@ -38,8 +38,6 @@ const testConfig: Config = await createConfig(
   }
 );
 testConfig.plugins = [];
-testConfig.resolvedConfig.plugins = [];
-testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
 
 describe('Config.forAlias', () => {
   it('should get config instance for an alias defined in the "apis" section', () => {
@@ -127,7 +125,6 @@ describe('Config.forAlias', () => {
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
-          "plugins": [],
           "preprocessors": {},
           "root": "resources/pets.yaml",
           "rules": {
@@ -184,31 +181,30 @@ describe('Config.forAlias', () => {
 describe('Config.extendTypes', () => {
   let oas3 = vi.fn();
   let oas2 = vi.fn();
-  let testResolvedConfig: ResolvedConfig = {
-    plugins: [
-      {
-        id: 'test-types-plugin',
-        typeExtension: {
-          oas3,
-          oas2,
-        },
+  let plugins = [
+    {
+      id: 'test-types-plugin',
+      typeExtension: {
+        oas3,
+        oas2,
       },
-    ],
-  };
+    },
+  ];
+
   it('should call only oas3 types extension', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     config.extendTypes({}, SpecVersion.OAS3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     config.extendTypes({}, SpecVersion.OAS2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
   it('should throw error if for oas version different from 2 and 3', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
       'Not implemented'
     );

@@ -74,9 +74,7 @@ export type RawGovernanceConfig<T = undefined> = {
   overlay1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends'> & {
-  plugins?: Plugin[];
-};
+export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends'>;
 
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;
@@ -202,9 +200,7 @@ export type RawUniversalApiConfig = ApiConfig &
     plugins?: (string | Plugin)[];
   };
 
-export type ResolvedApiConfig = ApiConfig &
-  Required<Omit<RawGovernanceConfig, 'extends'>> &
-  ResolvedGovernanceConfig;
+export type ResolvedApiConfig = ApiConfig & Required<ResolvedGovernanceConfig>;
 
 export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
