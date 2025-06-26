@@ -73,8 +73,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Decorators: {},
     arazzo1Decorators: {},
     overlay1Decorators: {},
-
-    plugins: [],
   };
 
   for (const rulesConf of rulesConfList) {
@@ -131,8 +129,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
-
-    result.plugins.push(...(rulesConf.plugins || []));
   }
 
   return result;

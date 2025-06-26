@@ -59,7 +59,6 @@ Config {
         "overlay1Decorators": {},
         "overlay1Preprocessors": {},
         "overlay1Rules": {},
-        "plugins": [],
         "preprocessors": {},
         "root": "resources/pets.yaml",
         "rules": {
@@ -81,7 +80,7 @@ Config {
         },
       },
     },
-    "plugins": [],
+    "plugins": undefined,
     "resolve": {
       "http": {
         "headers": [],

@@ -54,7 +54,11 @@ export async function resolveConfig({
   configPath,
   externalRefResolver,
   customExtends,
-}: ConfigOptions): Promise<{ resolvedConfig: ResolvedConfig; resolvedRefMap: ResolvedRefMap }> {
+}: ConfigOptions): Promise<{
+  resolvedConfig: ResolvedConfig;
+  resolvedRefMap: ResolvedRefMap;
+  plugins: Plugin[];
+}> {
   const config =
     rawConfigDocument === undefined ? { extends: ['recommended'] } : rawConfigDocument.parsed;
 
@@ -94,7 +98,6 @@ export async function resolveConfig({
           {
             ...mergedConfig,
             root: apiConfig.root,
-            plugins: resolvedPlugins,
             rules: groupAssertionRules(mergedConfig, resolvedPlugins),
           },
         ];
@@ -105,10 +108,10 @@ export async function resolveConfig({
   return {
     resolvedConfig: {
       ...bundledConfig,
-      plugins: resolvedPlugins,
       rules: groupAssertionRules(bundledConfig, resolvedPlugins),
     },
     resolvedRefMap,
+    plugins: resolvedPlugins,
   };
 }
 
