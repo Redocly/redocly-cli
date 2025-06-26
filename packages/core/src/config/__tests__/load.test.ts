@@ -90,9 +90,9 @@ describe('loadConfig', () => {
         },
       ]
     `);
-    const { plugins, ...rest } = config.resolvedConfig;
-    expect(rest).toMatchInlineSnapshot(`
+    expect(config.resolvedConfig).toMatchInlineSnapshot(`
       {
+        "plugins": undefined,
         "rules": {
           "info-license": "error",
           "non-existing-rule": "warn",
@@ -362,7 +362,6 @@ describe('loadConfig', () => {
             "overlay1Rules": {
               "info-contact": "off",
             },
-            "plugins": [],
             "preprocessors": {},
             "rules": {
               "boolean-parameter-prefixes": {
@@ -592,7 +591,6 @@ describe('loadConfig', () => {
             "overlay1Rules": {
               "info-contact": "off",
             },
-            "plugins": [],
             "preprocessors": {},
             "rules": {
               "rule/operation-summary": {
@@ -835,7 +833,6 @@ describe('loadConfig', () => {
             "overlay1Rules": {
               "info-contact": "off",
             },
-            "plugins": [],
             "preprocessors": {},
             "rules": {
               "no-ambiguous-paths": "error",
@@ -932,12 +929,10 @@ describe('loadConfig', () => {
   });
 
   it('should keep the original config document', async () => {
-    const {
-      resolvedConfig: { plugins, ...rest },
-    } = await loadConfig({
+    const { resolvedConfig } = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
     });
-    expect(rest).toEqual({
+    expect(resolvedConfig).toEqual({
       seo: {
         title: 1,
       },
@@ -1079,9 +1074,7 @@ describe('createConfig', () => {
     // clean absolute paths and not needed fields
     testConfig.plugins = [];
     testConfig.document = undefined;
-    testConfig.resolvedConfig.plugins = [];
     testConfig.resolvedRefMap = undefined;
-    testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
 
     expect(testConfig).toMatchSnapshot();
   });

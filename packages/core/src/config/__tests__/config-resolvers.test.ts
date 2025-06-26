@@ -38,11 +38,11 @@ const removeAbsolutePath = (item: string) =>
 
 describe('resolveGovernanceConfig', () => {
   it('should return the config with no recommended', async () => {
-    const { resolvedConfig } = await resolveConfig({
+    const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(baseGovernanceConfig),
     });
-    expect(resolvedConfig.plugins?.length).toEqual(1);
-    expect(resolvedConfig.plugins?.[0].id).toEqual('');
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
     expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
@@ -68,11 +68,11 @@ describe('resolveGovernanceConfig', () => {
   });
 
   it('should return the same rootOrApiRawConfig when extends is empty array', async () => {
-    const { resolvedConfig } = await resolveConfig({
+    const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument({ ...baseGovernanceConfig, extends: [] }),
     });
-    expect(resolvedConfig.plugins?.length).toEqual(1);
-    expect(resolvedConfig.plugins?.[0].id).toEqual('');
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
     expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
@@ -84,17 +84,16 @@ describe('resolveGovernanceConfig', () => {
       extends: ['local-config.yaml'],
     };
 
-    const { resolvedConfig } = await resolveConfig({
+    const { plugins, resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
-    const { plugins, ...governanceConfig } = resolvedConfig;
 
-    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
-    expect(governanceConfig.rules).toEqual({
+    expect(resolvedConfig.rules).toEqual({
       'boolean-parameter-prefixes': 'error',
       'local/operation-id-not-test': 'error',
       'no-invalid-media-type-examples': 'error',
@@ -135,9 +134,7 @@ describe('resolveGovernanceConfig', () => {
       extends: ['local-config-with-realm-plugin.yaml'],
     };
 
-    const {
-      resolvedConfig: { plugins },
-    } = await resolveConfig({
+    const { plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
@@ -165,14 +162,12 @@ describe('resolveGovernanceConfig', () => {
       extends: ['local-config-with-esm.yaml'],
     };
 
-    const {
-      resolvedConfig: { plugins, ...governanceConfig },
-    } = await resolveConfig({
+    const { plugins, resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
 
-    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
@@ -188,7 +183,7 @@ describe('resolveGovernanceConfig', () => {
       },
     });
 
-    expect(governanceConfig.rules).toEqual({
+    expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
   });
@@ -199,14 +194,12 @@ describe('resolveGovernanceConfig', () => {
       extends: ['local-config-with-commonjs-export-function.yaml'],
     };
 
-    const {
-      resolvedConfig: { plugins, ...governanceConfig },
-    } = await resolveConfig({
+    const { plugins, resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(config, configPath),
       configPath,
     });
 
-    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
 
@@ -222,7 +215,7 @@ describe('resolveGovernanceConfig', () => {
       },
     });
 
-    expect(governanceConfig.rules).toEqual({
+    expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
   });
@@ -242,29 +235,25 @@ describe('resolveGovernanceConfig', () => {
     const rootOrApiRawConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const {
-      resolvedConfig: { plugins, ...governanceConfig },
-    } = await resolveConfig({
+    const { plugins, resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
 
-    expect(governanceConfig?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
-    expect(governanceConfig?.rules?.['operation-4xx-response']).toEqual('off');
-    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('error');
+    expect(resolvedConfig?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
+    expect(resolvedConfig?.rules?.['operation-4xx-response']).toEqual('off');
+    expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('error');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(3);
 
-    expect(governanceConfig).toMatchSnapshot();
+    expect(resolvedConfig).toMatchSnapshot();
   });
 
   it('should resolve custom assertion from plugin', async () => {
     const rootOrApiRawConfig = {
       extends: ['local-config-with-custom-function.yaml'],
     };
-    const {
-      resolvedConfig: { plugins },
-    } = await resolveConfig({
+    const { plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
@@ -333,16 +322,14 @@ describe('resolveGovernanceConfig', () => {
       ],
     };
 
-    const {
-      resolvedConfig: { plugins, ...governanceConfig },
-    } = await resolveConfig({
+    const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
 
-    expect(governanceConfig?.rules?.['operation-4xx-response']).toEqual('error');
-    expect(governanceConfig?.rules?.['operation-2xx-response']).toEqual('error');
-    expect(Object.keys(governanceConfig.rules || {}).length).toBe(2);
+    expect(resolvedConfig?.rules?.['operation-4xx-response']).toEqual('error');
+    expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('error');
+    expect(Object.keys(resolvedConfig.rules || {}).length).toBe(2);
   });
   it('should resolve `recommended-strict` ruleset correctly', async () => {
     const expectedStrict = JSON.parse(JSON.stringify(recommended)) as Omit<
@@ -421,11 +408,12 @@ describe('resolveApis', () => {
 
     const {
       resolvedConfig: { apis },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
 
     expect(apis?.['petstore'].rules).toEqual({});
-    expect(apis?.['petstore'].plugins?.length).toEqual(1);
-    expect(apis?.['petstore'].plugins?.[0].id).toEqual('');
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
   });
 
   it('should resolve apis rootOrApiRawConfig when it contains file and not set recommended', async () => {
@@ -445,13 +433,14 @@ describe('resolveApis', () => {
 
     const {
       resolvedConfig: { apis },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
     expect(apis?.['petstore'].rules).toEqual({
       'operation-2xx-response': 'warn',
       'operation-4xx-response': 'error',
     });
-    expect(apis?.['petstore'].plugins?.length).toEqual(1);
-    expect(apis?.['petstore'].plugins?.[0].id).toEqual('');
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
   });
 
   it('should resolve apis rootOrApiRawConfig when it contains file', async () => {
@@ -473,12 +462,13 @@ describe('resolveApis', () => {
 
     const {
       resolvedConfig: { apis, rules },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
     expect(apis?.['petstore'].rules).toBeDefined();
     expect(apis?.['petstore'].rules?.['operation-2xx-response']).toEqual('off');
     expect(apis?.['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis?.['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
-    expect(apis?.['petstore'].plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(2);
     expect(rules?.['operation-2xx-response']).toEqual('warn');
   });
 });
@@ -501,10 +491,11 @@ describe('resolveConfig', () => {
 
     const {
       resolvedConfig: { apis = {} },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
 
-    expect(apis['petstore'].plugins?.length).toEqual(1);
-    expect(apis['petstore'].plugins?.[0].id).toEqual('');
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
 
     expect(apis['petstore'].rules).toEqual({
       'operation-2xx-response': 'warn',
@@ -530,6 +521,7 @@ describe('resolveConfig', () => {
 
     const {
       resolvedConfig: { apis = {} },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
     expect(apis['petstore'].rules).toBeDefined();
     expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
@@ -537,7 +529,7 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(apis['petstore'].plugins?.length).toEqual(2); // all plugins
+    expect(plugins?.length).toEqual(2); // all plugins
   });
 
   it('should ignore minimal from the root and read local file', async () => {
@@ -559,14 +551,14 @@ describe('resolveConfig', () => {
 
     const {
       resolvedConfig: { apis = {} },
+      plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
     expect(apis['petstore'].rules).toBeDefined();
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(apis['petstore'].plugins?.length).toEqual(2);
-    delete apis['petstore'].plugins;
+    expect(plugins?.length).toEqual(2);
 
     expect(apis['petstore']).toMatchSnapshot();
   });

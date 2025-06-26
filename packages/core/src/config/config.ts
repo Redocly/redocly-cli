@@ -68,6 +68,7 @@ export class Config {
       document?: Document;
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
+      plugins?: Plugin[];
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -77,7 +78,7 @@ export class Config {
     this.resolve = getResolveConfig(this.resolvedConfig.resolve);
     this._alias = opts.alias;
 
-    this.plugins = resolvedConfig.plugins || [];
+    this.plugins = opts.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
     this.rules = {
@@ -141,6 +142,7 @@ export class Config {
       document: this.document,
       resolvedRefMap: this.resolvedRefMap,
       alias,
+      plugins: this.plugins,
     });
   }
 
