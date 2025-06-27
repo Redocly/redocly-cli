@@ -318,6 +318,7 @@ describe('E2E', () => {
           ...process.env,
           NODE_ENV: 'production',
           NO_COLOR: 'TRUE',
+          NODE_NO_WARNINGS: '1',
         },
       });
 
@@ -344,6 +345,7 @@ describe('E2E', () => {
           ...process.env,
           NODE_ENV: 'production',
           NO_COLOR: 'TRUE',
+          NODE_NO_WARNINGS: '1',
         },
       });
 

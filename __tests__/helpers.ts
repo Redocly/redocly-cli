@@ -39,6 +39,7 @@ export function getCommandOutput(params: string[], folderPath: string) {
       ...process.env,
       NODE_ENV: 'test',
       NO_COLOR: 'TRUE',
+      NODE_NO_WARNINGS: '1',
     },
   });
   const out = result.stdout.toString('utf-8');
