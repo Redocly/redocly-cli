@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue with a message injected by dotenv@16.6.0.
+Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
