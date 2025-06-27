@@ -64,6 +64,9 @@ export async function runTestFile(
       clientKey: argv['client-key'],
       caCert: argv['ca-cert'],
     },
+    maxSteps: argv['max-steps'],
+    maxFetchTimeout: argv['max-fetch-timeout'],
+    executionTimeout: argv['execution-timeout'],
   };
 
   const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
@@ -282,6 +285,9 @@ export async function resolveWorkflowContext(
           server: ctx.options.server || undefined,
           severity: ctx.options.severity || undefined,
           verbose: ctx.options.verbose || undefined,
+          maxSteps: ctx.options.maxSteps,
+          maxFetchTimeout: ctx.options.maxFetchTimeout,
+          executionTimeout: ctx.options.executionTimeout,
         },
         ctx.apiClient
       )

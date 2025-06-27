@@ -1,23 +1,25 @@
-import { DEFAULT_RESPECT_TIMEOUT } from '../../consts.js';
-
 export class Timer {
   private static instance: Timer;
   private startTime: number;
+  private timeout: number;
 
-  private constructor() {
+  private constructor(timeout: number) {
     this.startTime = Date.now();
+    this.timeout = timeout;
   }
 
-  public static getInstance(): Timer {
+  public static getInstance(timeout: number): Timer {
     if (!Timer.instance) {
-      Timer.instance = new Timer();
+      Timer.instance = new Timer(timeout);
     }
     return Timer.instance;
   }
 
+  public static reset(): void {
+    Timer.instance = undefined as any;
+  }
+
   public isTimedOut(): boolean {
-    const parsedTimeout = parseInt(process.env.RESPECT_TIMEOUT as string, 10);
-    const timeout = isNaN(parsedTimeout) ? DEFAULT_RESPECT_TIMEOUT : parsedTimeout;
-    return Date.now() - this.startTime > timeout;
+    return Date.now() - this.startTime > this.timeout;
   }
 }

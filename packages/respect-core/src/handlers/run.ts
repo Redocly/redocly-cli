@@ -28,9 +28,11 @@ export type RespectOptions = {
   'client-cert'?: string;
   'client-key'?: string;
   'ca-cert'?: string;
-  'max-steps'?: number;
+  'max-steps': number;
   severity?: string;
   config?: never;
+  'max-fetch-timeout': number;
+  'execution-timeout': number;
 };
 
 const logger = DefaultLogger.getInstance();
@@ -54,7 +56,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   }
 
   try {
-    Timer.getInstance();
+    Timer.getInstance(argv['execution-timeout']);
     const startedAt = performance.now();
     const testsRunProblemsStatus: boolean[] = [];
     const { files } = argv;
