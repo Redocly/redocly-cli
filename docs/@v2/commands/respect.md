@@ -144,7 +144,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
 - --max-steps
 - number
-- Maximum number of steps to run in milliseconds (default: 2000).
+- Maximum number of steps to run (default: 2000).
   For example, the following command sets the maximum number of steps to 50:
 
   `npx @redocly/cli@latest respect test-file.yaml --max-steps=50`

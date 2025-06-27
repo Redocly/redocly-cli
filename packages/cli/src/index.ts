@@ -750,7 +750,7 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
           'max-steps': {
-            describe: 'Maximum number of steps to run in milliseconds (default: 2000).',
+            describe: 'Maximum number of steps to run (default: 2000).',
             type: 'number',
             default: 2000,
             coerce: validatePositiveNumber('max-steps', true),
