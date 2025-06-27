@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.4 (2025-06-27)
+
+### Patch Changes
+
+- Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
+- Updated @redocly/respect-core to v1.34.4.
+
 ## 1.34.3 (2025-04-22)
 
 ### Patch Changes

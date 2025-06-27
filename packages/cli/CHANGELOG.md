@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.4
+
+### Patch Changes
+
+- Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
+- Updated @redocly/respect-core to v1.34.4.
+
 ## 1.34.3
 
 ### Patch Changes
