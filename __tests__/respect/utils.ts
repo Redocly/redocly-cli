@@ -16,6 +16,7 @@ export function getCommandOutput(args: string[], env?: Record<string, string>) {
       NODE_ENV: 'test',
       NO_COLOR: 'TRUE',
       FORCE_COLOR: '0',
+      NODE_NO_WARNINGS: '1',
       ...env,
     },
   });
