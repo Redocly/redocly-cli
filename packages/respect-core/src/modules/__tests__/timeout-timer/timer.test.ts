@@ -14,7 +14,7 @@ describe('Timer', () => {
 
   it('should return true if the timer is timed out', async () => {
     const timer = Timer.getInstance(1);
-    await pause(2000);
+    await pause(200);
     expect(timer.isTimedOut()).toBe(true);
   });
 
