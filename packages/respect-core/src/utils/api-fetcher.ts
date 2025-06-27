@@ -18,7 +18,6 @@ import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { createMtlsClient } from './mtls/create-mtls-client.js';
 import { DefaultLogger } from './logger/logger.js';
-import { DEFAULT_RESPECT_MAX_FETCH_TIMEOUT } from '../consts.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
@@ -263,7 +262,7 @@ export class ApiFetcher implements IFetcher {
         body: encodedBody,
       }),
       redirect: 'follow',
-      signal: AbortSignal.timeout(DEFAULT_RESPECT_MAX_FETCH_TIMEOUT),
+      signal: AbortSignal.timeout(ctx.options.maxFetchTimeout),
       // Required for application/octet-stream content type requests
       ...(headers['content-type'] === 'application/octet-stream' && {
         duplex: 'half',

@@ -19,7 +19,6 @@ import {
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 import { Timer } from '../timeout-timer/timer.js';
-import { DEFAULT_RESPECT_MAX_STEPS } from '../../consts.js';
 
 import type {
   Check,
@@ -34,8 +33,6 @@ import type {
 import type { ParameterWithoutIn } from '../context-parser/index.js';
 
 const logger = DefaultLogger.getInstance();
-const parsedMaxSteps = parseInt(process.env.RESPECT_MAX_STEPS as string, 10);
-const maxSteps = isNaN(parsedMaxSteps) ? DEFAULT_RESPECT_MAX_STEPS : parsedMaxSteps;
 let stepsRun = 0;
 
 export async function runStep({
@@ -149,17 +146,17 @@ export async function runStep({
   ctx.executedSteps.push(step);
 
   stepsRun++;
-  if (stepsRun > maxSteps) {
+  if (stepsRun > ctx.options.maxSteps) {
     step.checks.push({
       name: CHECKS.MAX_STEPS_REACHED_ERROR,
-      message: `Max steps (${maxSteps}) reached`,
+      message: `Max steps (${ctx.options.maxSteps}) reached`,
       passed: false,
       severity: ctx.severity['MAX_STEPS_REACHED_ERROR'],
     });
     return { shouldEnd: true };
   }
 
-  if (Timer.getInstance().isTimedOut()) {
+  if (Timer.getInstance(ctx.options.executionTimeout).isTimedOut()) {
     step.checks.push({
       name: CHECKS.GLOBAL_TIMEOUT_ERROR,
       message: `Global Respect timer reached`,

@@ -47,6 +47,9 @@ const options: AppOptions = {
   workflow: undefined,
   metadata: {},
   verbose: false,
+  maxSteps: 2000,
+  maxFetchTimeout: 40_000,
+  executionTimeout: 3_600_000,
 };
 
 describe('createRuntimeExpressionCtx', () => {
