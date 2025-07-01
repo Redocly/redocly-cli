@@ -8,24 +8,29 @@ import type { UserContext } from '../../walk.js';
 export const TagsDuplicatedNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule = ({
   ignoreCase = false,
 }) => {
+  const tagNames = new Set<string>();
+
   return {
-    Root(
-      root: Oas2Definition | Oas3Definition | Oas3_1Definition,
-      { report, location }: UserContext
-    ) {
-      if (!root.tags) return;
-      const tagNames = new Set<string>();
-      for (const [i, tag] of root.tags.entries()) {
+    Tag: {
+      leave(
+        tag: { name: string },
+        ctx: UserContext,
+        root: Oas2Definition | Oas3Definition | Oas3_1Definition
+      ) {
+        if (!root.tags) return;
+
         const tagName = getTagName(tag, ignoreCase);
+        const index = root.tags.findIndex((t) => t === tag);
+
         if (tagNames.has(tagName)) {
-          report({
+          ctx.report({
             message: `Duplicate tag name found: '${tag.name}'`,
-            location: location.child(['tags', i]),
+            location: ctx.location.child(['tags', index]),
           });
         } else {
           tagNames.add(tagName);
         }
-      }
+      },
     },
   };
 };
