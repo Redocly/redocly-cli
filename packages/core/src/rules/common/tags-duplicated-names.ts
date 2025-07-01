@@ -13,11 +13,11 @@ export const TagsDuplicatedNames: Oas3Rule | Oas2Rule = ({ ignoreCase = false })
     ) {
       if (!root.tags) return;
       const tagNames = new Set<string>();
-      for (let i = 0; i < root.tags.length; i++) {
-        const tagName = getTagName(root.tags[i], ignoreCase);
+      for (const [i, tag] of root.tags.entries()) {
+        const tagName = getTagName(tag, ignoreCase);
         if (tagNames.has(tagName)) {
           report({
-            message: `Duplicate tag name found: '${root.tags[i].name}'`,
+            message: `Duplicate tag name found: '${tag.name}'`,
             location: location.child(['tags', i]),
           });
         } else {
