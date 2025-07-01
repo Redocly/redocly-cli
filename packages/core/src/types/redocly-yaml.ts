@@ -54,6 +54,7 @@ const builtInOAS2Rules = [
   'request-mime-type',
   'response-contains-property',
   'response-mime-type',
+  'tags-duplicated-names',
 ] as const;
 
 export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
@@ -115,6 +116,7 @@ const builtInOAS3Rules = [
   'response-mime-type',
   'spec-components-invalid-map-name',
   'array-parameter-serialization',
+  'tags-duplicated-names',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
@@ -127,6 +129,7 @@ const builtInAsync2Rules = [
   'tags-alphabetical',
   'channels-kebab-case',
   'no-channel-trailing-slash',
+  'tags-duplicated-names',
 ] as const;
 
 const builtInAsync3Rules = [
@@ -137,6 +140,7 @@ const builtInAsync3Rules = [
   'tags-alphabetical',
   'channels-kebab-case',
   'no-channel-trailing-slash',
+  'tags-duplicated-names',
 ] as const;
 
 export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];

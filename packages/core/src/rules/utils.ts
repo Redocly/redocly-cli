@@ -3,8 +3,9 @@ import { Location } from '../ref-utils.js';
 import { validateJsonSchema } from './ajv.js';
 import { isPlainObject } from '../utils.js';
 
-import type { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi.js';
+import type { Oas3Schema, Oas3Tag, Oas3_1Schema, Referenced } from '../typings/openapi.js';
 import type { UserContext } from '../walk.js';
+import type { Oas2Tag } from '../typings/swagger.js';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -206,4 +207,8 @@ export function validateResponseCodes(
       location: { reportOnKey: true },
     });
   }
+}
+
+export function getTagName(tag: Oas2Tag | Oas3Tag, ignoreCase: boolean): string {
+  return ignoreCase ? tag.name.toLowerCase() : tag.name;
 }

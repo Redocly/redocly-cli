@@ -201,6 +201,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
+    'tags-duplicate-names': 'error',
   },
   async3Rules: {
     'channels-kebab-case': 'error',
@@ -210,6 +211,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
+    'tags-duplicate-names': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
