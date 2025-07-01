@@ -10,7 +10,8 @@ This rule prevents duplication of tag names which could lead to inconsistent API
 
 ## API design principles
 
-Tags are used to group operations in AsyncAPI specifications. Each tag should be unique to clearly categorize operations.
+Tags are used to group operations in AsyncAPI specifications.
+Create unique tags to clearly categorize operations.
 Having duplicate tags can cause confusion in documentation rendering tools, makes the specification harder to maintain,
 and may lead to operations being grouped incorrectly.
 
@@ -70,7 +71,7 @@ tags:
     description: Operations about user
 ```
 
-With **ignoreCase: true**, this would also be incorrect:
+With `ignoreCase: true`, this would also be incorrect:
 
 ```yaml
 tags:
