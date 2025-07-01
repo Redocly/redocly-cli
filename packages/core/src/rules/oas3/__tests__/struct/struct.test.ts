@@ -49,19 +49,6 @@ describe('Oas3 Structural visitor basic', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
-          "location": [
-            {
-              "pointer": "#/tags/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'undefined'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
           "from": undefined,
           "location": [
             {
