@@ -1,8 +1,7 @@
-swagger: '2.0'
+openapi: 3.0.2
 info:
   title: Tags Duplicated Names Test
   version: '1.0.0'
-paths: {}
 tags:
   - name: pet
     description: Everything about your Pets
@@ -10,3 +9,25 @@ tags:
     description: Access to Petstore orders
   - name: store
     description: YOU DO NOT SEE THIS
+paths:
+  /pet:
+    get:
+      summary: Get a pet
+      operationId: getPet
+      responses:
+        '200':
+          description: OK
+  /store:
+    get:
+      summary: Get store info
+      operationId: getStore
+      responses:
+        '200':
+          description: OK
+  /store2:
+    get:
+      summary: Get store info 2
+      operationId: getStore2
+      responses:
+        '200':
+          description: OK
