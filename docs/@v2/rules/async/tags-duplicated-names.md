@@ -82,10 +82,6 @@ tags:
     description: Case-sensitive duplicate
 ```
 
-## Related rules
-
-- [tag-description](./tag-description.md)
-
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/tags-duplicated-names.ts)
