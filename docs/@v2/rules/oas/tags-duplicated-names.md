@@ -23,7 +23,7 @@ and may lead to operations being grouped incorrectly.
 
 | Option     | Type    | Description                                                                                                                                                                  |
 | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| severity   | string  | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration).                                                                                   |
+| severity   | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration).                                                                                    |
 | ignoreCase | boolean | Possible values: `true`, `false`. Default `false` (in `recommended` configuration). Set to `true` to treat tags with different casing as duplicates (e.g., "Pet" and "pet"). |
 
 An example configuration:
