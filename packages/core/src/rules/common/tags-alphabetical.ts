@@ -22,6 +22,7 @@ export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) =>
   };
 };
 
+//TODO: import from utils
 function getTagName(tag: Oas2Tag | Oas3Tag, ignoreCase: boolean): string {
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
 }
