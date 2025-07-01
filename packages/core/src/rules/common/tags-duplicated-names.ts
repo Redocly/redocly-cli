@@ -2,10 +2,12 @@ import { getTagName } from '../utils.js';
 
 import type { Oas3Definition, Oas3_1Definition } from '../../typings/openapi.js';
 import type { Oas2Definition } from '../../typings/swagger.js';
-import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { Async2Rule, Async3Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-export const TagsDuplicatedNames: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) => {
+export const TagsDuplicatedNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule = ({
+  ignoreCase = false,
+}) => {
   return {
     Root(
       root: Oas2Definition | Oas3Definition | Oas3_1Definition,
