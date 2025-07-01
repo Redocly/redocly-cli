@@ -149,7 +149,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
   `npx @redocly/cli@latest respect test-file.yaml --max-steps=50`
 
-  You can also pass maximum number of steps as an environment variable, as in the following example:
+  You can also pass the maximum number of steps as an environment variable, as in the following example:
 
   `REDOCLY_CLI_RESPECT_MAX_STEPS=50 npx @redocly/cli@latest respect test-file.yaml`
 
@@ -162,7 +162,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
   `npx @redocly/cli@latest respect test-file.yaml --max-fetch-timeout=60000`
 
-  You can also pass maximum time to wait as an environment variable, as in the following example:
+  You can also pass the maximum time to wait as an environment variable, as in the following example:
 
   `REDOCLY_CLI_RESPECT_MAX_FETCH_TIMEOUT=60000 npx @redocly/cli@latest respect test-file.yaml`
 
@@ -175,7 +175,7 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
   `npx @redocly/cli@latest respect test-file.yaml --execution-timeout=1800000`
 
-  You can also pass maximum time to wait as an environment variable, as in the following example:
+  You can also pass the maximum time to wait as an environment variable, as in the following example:
 
   `REDOCLY_CLI_RESPECT_EXECUTION_TIMEOUT=1800000 npx @redocly/cli@latest respect test-file.yaml`
 
