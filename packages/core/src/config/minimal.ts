@@ -111,6 +111,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'tags-duplicated-names': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
