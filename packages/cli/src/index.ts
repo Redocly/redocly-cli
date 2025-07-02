@@ -22,6 +22,7 @@ import { handleTranslations } from './commands/translations.js';
 import { handleEject } from './commands/eject.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { version } from './utils/package.js';
+import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
@@ -32,20 +33,6 @@ import type { EjectOptions } from './commands/eject.js';
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
 cacheLatestVersion();
-
-// Validation functions for numeric options
-const validatePositiveNumber =
-  (optionName: string, requireInteger = false) =>
-  (arg: any) => {
-    const num = Number(arg);
-    if (isNaN(num) || num <= 0) {
-      throw new Error(`${optionName} must be a positive number`);
-    }
-    if (requireInteger && !Number.isInteger(num)) {
-      throw new Error(`${optionName} must be a positive integer`);
-    }
-    return num;
-  };
 
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 yargs(hideBin(process.argv))

@@ -21,7 +21,7 @@ import {
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
 import { AbortFlowError, exitWithError } from '../utils/error.js';
-import { getCommandNameFromArgs } from '../utils/getCommandNameFromArgs.js';
+import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 
 import type { Arguments } from 'yargs';
 import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
