@@ -4,7 +4,7 @@ import { getCommandOutput, getParams } from '../../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-test('should quit an infinite loop on RESPECT_MAX_STEPS', () => {
+test('should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'arazzo.yaml');
   const args = getParams(indexEntryPoint, [
@@ -16,7 +16,7 @@ test('should quit an infinite loop on RESPECT_MAX_STEPS', () => {
   ]);
 
   const result = getCommandOutput(args, {
-    RESPECT_MAX_STEPS: '10',
+    REDOCLY_CLI_RESPECT_MAX_STEPS: '10',
   });
 
   expect(result).toMatchSnapshot();

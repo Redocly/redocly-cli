@@ -22,6 +22,7 @@ import { handleTranslations } from './commands/translations.js';
 import { handleEject } from './commands/eject.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { version } from './utils/package.js';
+import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
@@ -37,7 +38,7 @@ cacheLatestVersion();
 yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-  .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
+  .parserConfiguration({ 'greedy-arrays': false })
   .command(
     'stats [api]',
     'Show statistics for an API description.',
@@ -181,6 +182,7 @@ yargs(hideBin(process.argv))
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
+            coerce: validatePositiveNumber('max-execution-time'),
           },
           'continue-on-deploy-failures': {
             description: 'Command does not fail even if the deployment fails.',
@@ -285,6 +287,7 @@ yargs(hideBin(process.argv))
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
+            coerce: validatePositiveNumber('max-execution-time'),
           },
           'wait-for-deployment': {
             description: 'Wait for build to finish.',
@@ -330,6 +333,7 @@ yargs(hideBin(process.argv))
           description: 'Reduce output to a maximum of N problems.',
           type: 'number',
           default: 100,
+          coerce: validatePositiveNumber('max-problems', true),
         },
         'generate-ignore-file': {
           description: 'Generate an ignore file.',
@@ -516,6 +520,7 @@ yargs(hideBin(process.argv))
           type: 'number',
           description: 'Preview port.',
           default: 4000,
+          coerce: validatePositiveNumber('port', true),
         },
         'project-dir': {
           alias: ['d', 'source-dir'],
@@ -708,10 +713,12 @@ yargs(hideBin(process.argv))
           'har-output': {
             describe: 'Har file output name.',
             type: 'string',
+            alias: 'H',
           },
           'json-output': {
             describe: 'JSON file output name.',
             type: 'string',
+            alias: 'J',
           },
           'client-cert': {
             describe: 'Mutual TLS client certificate.',
@@ -728,6 +735,26 @@ yargs(hideBin(process.argv))
           severity: {
             describe: 'Severity of the check.',
             type: 'string',
+          },
+          'max-steps': {
+            describe: 'Maximum number of steps to run (default: 2000).',
+            type: 'number',
+            default: 2000,
+            coerce: validatePositiveNumber('max-steps', true),
+          },
+          'max-fetch-timeout': {
+            describe:
+              'Maximum time to wait for API response per request in milliseconds (default: 40 seconds).',
+            type: 'number',
+            default: 40_000,
+            coerce: validatePositiveNumber('max-fetch-timeout', false),
+          },
+          'execution-timeout': {
+            describe:
+              'Maximum time to wait for the Respect execution in milliseconds (default: 1 hour).',
+            type: 'number',
+            default: 3_600_000,
+            coerce: validatePositiveNumber('execution-timeout', false),
           },
         });
     },

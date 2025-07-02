@@ -52,6 +52,9 @@ describe('createTestContext', () => {
       harLogsFile: 'har-output',
       metadata: {},
       verbose: false,
+      maxSteps: 2000,
+      maxFetchTimeout: 40_000,
+      executionTimeout: 3_600_000,
     } as AppOptions;
 
     process.env.AUTH_TOKEN = '1234567890';
@@ -554,6 +557,9 @@ describe('createTestContext', () => {
       harOutput: 'har-output',
       metadata: {},
       verbose: false,
+      maxSteps: 2000,
+      maxFetchTimeout: 40_000,
+      executionTimeout: 3_600_000,
     };
 
     const apiClient = new ApiFetcher({
@@ -598,6 +604,9 @@ describe('createTestContext', () => {
       harOutput: 'har-output',
       metadata: {},
       verbose: false,
+      maxSteps: 2000,
+      maxFetchTimeout: 40_000,
+      executionTimeout: 3_600_000,
     };
 
     const apiClient = new ApiFetcher({

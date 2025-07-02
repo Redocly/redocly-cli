@@ -325,6 +325,9 @@ describe('callAPIAndAnalyzeResults', () => {
         $0: 'respect',
         file: 'simple.yaml',
       },
+      maxSteps: 2000,
+      maxFetchTimeout: 40_000,
+      executionTimeout: 3_600_000,
     },
     'x-serverUrl': 'https://catfact.ninja/',
     info: {

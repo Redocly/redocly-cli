@@ -118,6 +118,9 @@ export type AppOptions = {
   server?: string | string[];
   severity?: string | string[];
   mutualTls?: Partial<TestContext['mtlsCerts']>;
+  maxSteps: number;
+  maxFetchTimeout: number;
+  executionTimeout: number;
 };
 export type RegexpSuccessCriteria = {
   condition: string;

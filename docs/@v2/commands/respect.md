@@ -10,7 +10,7 @@ Use this command to execute API tests described in an Arazzo description.
 ## Usage
 
 ```sh
-npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output]
+npx @redocly/cli@latest respect <your-test-file | multiple files | files bash query> [-w | --workflow] [-s | --skip] [-v | --verbose] [-i | --input] [-S | --server] [-H | --har-output] [-J | --json-output] [--max-steps] [--max-fetch-timeout] [--execution-timeout] [--severity]
 ```
 
 ## Options
@@ -139,6 +139,45 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   For example, the following command sets status code errors to the warning severity level:
 
   `npx @redocly/cli respect test-file.yaml --severity='{"STATUS_CODE_CHECK":"warn"}'`
+
+---
+
+- --max-steps
+- number
+- Maximum number of steps to run (default: 2000).
+  For example, the following command sets the maximum number of steps to 50:
+
+  `npx @redocly/cli@latest respect test-file.yaml --max-steps=50`
+
+  You can also pass the maximum number of steps as an environment variable, as in the following example:
+
+  `REDOCLY_CLI_RESPECT_MAX_STEPS=50 npx @redocly/cli@latest respect test-file.yaml`
+
+---
+
+- --max-fetch-timeout
+- number
+- Maximum time to wait for API response per request in milliseconds (default: 40 seconds).
+  For example, the following command sets the maximum fetch timeout to 60 seconds:
+
+  `npx @redocly/cli@latest respect test-file.yaml --max-fetch-timeout=60000`
+
+  You can also pass the maximum time to wait as an environment variable, as in the following example:
+
+  `REDOCLY_CLI_RESPECT_MAX_FETCH_TIMEOUT=60000 npx @redocly/cli@latest respect test-file.yaml`
+
+---
+
+- --execution-timeout
+- number
+- Maximum time to wait for the Respect execution in milliseconds (default: 1 hour).
+  For example, the following command sets the execution timeout to 30 minutes:
+
+  `npx @redocly/cli@latest respect test-file.yaml --execution-timeout=1800000`
+
+  You can also pass the maximum time to wait as an environment variable, as in the following example:
+
+  `REDOCLY_CLI_RESPECT_EXECUTION_TIMEOUT=1800000 npx @redocly/cli@latest respect test-file.yaml`
 
 {% /table %}
 
