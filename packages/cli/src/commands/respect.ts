@@ -25,16 +25,16 @@ export async function handleRespect({
       throw new Error('File for JSON logs should be in .json format');
     }
 
-    const options = {
-      jsonOutputFile,
-      harOutputFile,
-    };
+    // const options = {
+    //   jsonOutputFile,
+    //   harOutputFile,
+    // };
 
-    console.log('options', options);
-    console.log('argv', argv);
+    // console.log('options', options);
+    // console.log('argv', argv);
 
     // TODO: continue refactoring
-    handleRun({ argv, config, version, collectSpecData });
+    await handleRun({ argv, config, version, collectSpecData });
   } catch (error) {
     throw new HandledError((error as Error)?.message ?? error);
   }

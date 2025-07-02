@@ -9,7 +9,6 @@ import {
   composeJsonLogsFiles,
 } from '../modules/cli-output/index.js';
 import { DefaultLogger } from '../utils/logger/logger.js';
-// import { exitWithError } from '../utils/exit-with-error.js';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
@@ -40,7 +39,6 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   const harOutputFile = argv['har-output'];
   const jsonOutputFile = argv['json-output'];
 
-  // try {
   Timer.getInstance(argv['execution-timeout']);
   const startedAt = performance.now();
   const testsRunProblemsStatus: boolean[] = [];
@@ -96,11 +94,6 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
   if (hasProblems) {
     throw new Error(' Tests exited with error ');
   }
-  // } catch (err) {
-  //   console.log("err ==>", err);
-  //   // throw new Error((err as Error)?.message ?? err);
-  //   exitWithError((err as Error)?.message ?? err);
-  // }
 }
 
 async function runFile(
