@@ -73,7 +73,8 @@ describe('generateArazzoDescription', () => {
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description@35.oas.yaml',
-        'output-file': './final-test-location/output.yaml',
+        outputFile: './final-test-location/output.yaml',
+        version: '1.0.0',
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -138,6 +139,7 @@ describe('generateArazzoDescription', () => {
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
+        version: '1.0.0',
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -181,6 +183,7 @@ describe('generateArazzoDescription', () => {
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
+        version: '1.0.0',
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -226,6 +229,7 @@ describe('generateArazzoDescription', () => {
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
+        version: '1.0.0',
       })
     ).toEqual({
       arazzo: '1.0.1',

@@ -1,5 +1,5 @@
 import type { BundleOutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { RespectOptions, GenerateArazzoFileOptions } from '@redocly/respect-core';
+import type { RespectOptions, GenerateArazzoOptions } from '@redocly/respect-core';
 import type { LintOptions } from './commands/lint.js';
 import type { BundleOptions } from './commands/bundle.js';
 import type { JoinOptions } from './commands/join.js';
@@ -40,7 +40,7 @@ export type CommandOptions =
   | TranslationsOptions
   | EjectOptions
   | RespectOptions
-  | GenerateArazzoFileOptions;
+  | GenerateArazzoOptions;
 
 export type VerifyConfigOptions = {
   config?: string;
