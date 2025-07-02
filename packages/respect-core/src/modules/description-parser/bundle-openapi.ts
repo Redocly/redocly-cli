@@ -39,11 +39,5 @@ export async function bundleOpenApi(path: string = '', workflowPath: string): Pr
 
   if (!bundleDocument) return;
 
-  const {
-    bundle: {
-      parsed: { paths, servers, info, security, components },
-    },
-  } = bundleDocument;
-
-  return { paths, servers, info, security, components };
+  return bundleDocument.bundle.parsed;
 }

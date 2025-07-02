@@ -21,14 +21,12 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
 export async function generateArazzoDescription({
   descriptionPath,
   outputFile,
+  collectSpecData,
 }: GenerateArazzoOptions) {
-  const {
-    paths: pathsObject,
-    info,
-    security: rootSecurity,
-    components,
-  } = (await bundleOpenApi(descriptionPath, '')) || {};
+  const document = (await bundleOpenApi(descriptionPath, '')) || {};
+  collectSpecData?.(document);
 
+  const { paths: pathsObject, info, security: rootSecurity, components } = document;
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
   const resolvedDescriptionPath = outputFile
     ? path.relative(path.dirname(outputFile), path.resolve(descriptionPath))
