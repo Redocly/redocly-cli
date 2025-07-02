@@ -4,7 +4,7 @@ import { generateWorkflowsFromDescription } from './generate-workflows-from-desc
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';
 
 import type { TestDescription } from '../../types.js';
-import type { GenerateArazzoFileOptions } from '../../handlers/generate.js';
+import type { GenerateArazzoOptions } from '../../handlers/generate.js';
 
 export const infoSubstitute = {
   title: '[REPLACE WITH API title]',
@@ -20,8 +20,8 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
 
 export async function generateArazzoDescription({
   descriptionPath,
-  'output-file': outputFile,
-}: GenerateArazzoFileOptions) {
+  outputFile,
+}: GenerateArazzoOptions) {
   const {
     paths: pathsObject,
     info,

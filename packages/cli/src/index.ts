@@ -21,12 +21,16 @@ import { previewProject } from './commands/preview-project/index.js';
 import { handleTranslations } from './commands/translations.js';
 import { handleEject } from './commands/eject.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import {
+  handleGenerateArazzo,
+  type GenerateArazzoCommandArgs,
+} from './commands/generate-arazzo.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
+import type { RespectOptions } from '@redocly/respect-core';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { EjectOptions } from './commands/eject.js';
 
@@ -797,8 +801,7 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'generate-arazzo';
-      const { handleGenerate } = await import('@redocly/respect-core');
-      commandWrapper(handleGenerate)(argv as Arguments<GenerateArazzoFileOptions>);
+      commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgs>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
