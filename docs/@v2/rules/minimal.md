@@ -28,6 +28,7 @@ Warnings:
 - [no-server-example.com](./oas/no-server-example-com.md)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
 - [no-unused-components](./oas/no-unused-components.md)
+- [nullable-type-sibling](./oas/nullable-type-sibling.md)
 - [operation-2xx-response](./oas/operation-2xx-response.md)
 - [operation-operationId-unique](./oas/operation-operationId-unique.md)
 - [operation-operationId-url-safe](./oas/operation-operationId-url-safe.md)
