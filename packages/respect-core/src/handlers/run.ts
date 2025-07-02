@@ -1,4 +1,4 @@
-import { blue, green, red } from 'colorette';
+import { blue, green } from 'colorette';
 import { type CollectFn } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import {
@@ -9,7 +9,7 @@ import {
   composeJsonLogsFiles,
 } from '../modules/cli-output/index.js';
 import { DefaultLogger } from '../utils/logger/logger.js';
-import { exitWithError } from '../utils/exit-with-error.js';
+// import { exitWithError } from '../utils/exit-with-error.js';
 import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
@@ -38,82 +38,69 @@ export type RespectOptions = {
 const logger = DefaultLogger.getInstance();
 export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOptions>) {
   const harOutputFile = argv['har-output'];
-  if (harOutputFile && !harOutputFile.endsWith('.har')) {
-    throw new Error('File for HAR logs should be in .har format');
-  }
-
   const jsonOutputFile = argv['json-output'];
-  if (jsonOutputFile && !jsonOutputFile.endsWith('.json')) {
-    throw new Error('File for JSON logs should be in .json format');
+
+  // try {
+  Timer.getInstance(argv['execution-timeout']);
+  const startedAt = performance.now();
+  const testsRunProblemsStatus: boolean[] = [];
+  const { files } = argv;
+  const runAllFilesResult = [];
+
+  if (files.length > 1 && harOutputFile) {
+    // TODO: implement multiple run files HAR output
+    throw new Error(
+      'Currently only a single file can be run with --har-output. Please run a single file at a time.'
+    );
   }
 
-  const { skip, workflow } = argv;
-
-  if (skip && workflow) {
-    logger.printNewLine();
-    logger.log(red(`Cannot use both --skip and --workflow flags at the same time.`));
-    return;
+  for (const path of files) {
+    const result = await runFile(
+      { ...argv, file: path },
+      performance.now(),
+      {
+        harFile: harOutputFile,
+      },
+      collectSpecData
+    );
+    testsRunProblemsStatus.push(result.hasProblems);
+    runAllFilesResult.push(result);
   }
 
-  try {
-    Timer.getInstance(argv['execution-timeout']);
-    const startedAt = performance.now();
-    const testsRunProblemsStatus: boolean[] = [];
-    const { files } = argv;
-    const runAllFilesResult = [];
+  const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
+  const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
 
-    if (files.length > 1 && harOutputFile) {
-      // TODO: implement multiple run files HAR output
-      throw new Error(
-        'Currently only a single file can be run with --har-output. Please run a single file at a time.'
-      );
-    }
+  logger.printNewLine();
+  displayFilesSummaryTable(runAllFilesResult);
+  logger.printNewLine();
 
-    for (const path of files) {
-      const result = await runFile(
-        { ...argv, file: path },
-        performance.now(),
+  if (jsonOutputFile) {
+    writeFileSync(
+      jsonOutputFile,
+      JSON.stringify(
         {
-          harFile: harOutputFile,
-        },
-        collectSpecData
-      );
-      testsRunProblemsStatus.push(result.hasProblems);
-      runAllFilesResult.push(result);
-    }
-
-    const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
-    const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
-
+          files: composeJsonLogsFiles(runAllFilesResult),
+          status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
+          totalTime: performance.now() - startedAt,
+        } as JsonLogs,
+        null,
+        2
+      ),
+      'utf-8'
+    );
+    logger.log(blue(indent(`JSON logs saved in ${green(jsonOutputFile)}`, 2)));
     logger.printNewLine();
-    displayFilesSummaryTable(runAllFilesResult);
     logger.printNewLine();
-
-    if (jsonOutputFile) {
-      writeFileSync(
-        jsonOutputFile,
-        JSON.stringify(
-          {
-            files: composeJsonLogsFiles(runAllFilesResult),
-            status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
-            totalTime: performance.now() - startedAt,
-          } as JsonLogs,
-          null,
-          2
-        ),
-        'utf-8'
-      );
-      logger.log(blue(indent(`JSON logs saved in ${green(jsonOutputFile)}`, 2)));
-      logger.printNewLine();
-      logger.printNewLine();
-    }
-
-    if (hasProblems) {
-      throw new Error(' Tests exited with error ');
-    }
-  } catch (err) {
-    exitWithError((err as Error)?.message ?? err);
   }
+
+  if (hasProblems) {
+    throw new Error(' Tests exited with error ');
+  }
+  // } catch (err) {
+  //   console.log("err ==>", err);
+  //   // throw new Error((err as Error)?.message ?? err);
+  //   exitWithError((err as Error)?.message ?? err);
+  // }
 }
 
 async function runFile(

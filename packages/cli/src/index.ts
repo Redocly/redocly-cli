@@ -25,6 +25,7 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgs,
 } from './commands/generate-arazzo.js';
+import { handleRespect } from './commands/respect.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
@@ -776,8 +777,7 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'respect';
-      const { handleRun } = await import('@redocly/respect-core');
-      commandWrapper(handleRun)(argv as Arguments<RespectOptions>);
+      commandWrapper(handleRespect)(argv as Arguments<RespectOptions>);
     }
   )
   .command(

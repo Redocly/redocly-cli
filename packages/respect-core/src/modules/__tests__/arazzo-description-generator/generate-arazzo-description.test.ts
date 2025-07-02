@@ -70,11 +70,14 @@ const BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID = {
 describe('generateArazzoDescription', () => {
   it('should generate arazzo description when output file is provided', async () => {
     vi.mocked(bundleOpenApi).mockResolvedValue(BUNDLED_DESCRIPTION_MOCK);
+    const mockCollectSpecData = vi.fn();
+
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description@35.oas.yaml',
         outputFile: './final-test-location/output.yaml',
         version: '1.0.0',
+        collectSpecData: mockCollectSpecData,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -111,6 +114,8 @@ describe('generateArazzoDescription', () => {
         },
       ],
     });
+
+    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK);
   });
 
   it('should generate arazzo description with operationId', async () => {
@@ -136,10 +141,13 @@ describe('generateArazzoDescription', () => {
       ],
     } as OpenApiRequestData);
 
+    const mockCollectSpecData = vi.fn();
+
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
         version: '1.0.0',
+        collectSpecData: mockCollectSpecData,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -176,14 +184,19 @@ describe('generateArazzoDescription', () => {
         },
       ],
     });
+
+    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK);
   });
 
   it('should generate arazzo description with not existing description', async () => {
     vi.mocked(bundleOpenApi).mockResolvedValue(undefined);
+    const mockCollectSpecData = vi.fn();
+
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
         version: '1.0.0',
+        collectSpecData: mockCollectSpecData,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -191,7 +204,6 @@ describe('generateArazzoDescription', () => {
         title: '[REPLACE WITH API title]',
         version: '[REPLACE WITH API version]',
       },
-      serverUrl: undefined,
       sourceDescriptions: [
         {
           name: 'description',
@@ -201,6 +213,8 @@ describe('generateArazzoDescription', () => {
       ],
       workflows: [],
     });
+
+    expect(mockCollectSpecData).toHaveBeenCalledWith({});
   });
 
   it('should generate arazzo description with operationPath', async () => {
@@ -226,10 +240,13 @@ describe('generateArazzoDescription', () => {
       ],
     } as OpenApiRequestData);
 
+    const mockCollectSpecData = vi.fn();
+
     expect(
       await generateArazzoDescription({
         descriptionPath: 'description.yaml',
         version: '1.0.0',
+        collectSpecData: mockCollectSpecData,
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -266,5 +283,7 @@ describe('generateArazzoDescription', () => {
         },
       ],
     });
+
+    expect(mockCollectSpecData).toHaveBeenCalledWith(BUNDLED_DESCRIPTION_MOCK_WITHOUT_OPERATION_ID);
   });
 });
