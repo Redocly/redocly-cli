@@ -12,6 +12,5 @@ export type GenerateArazzoOptions = {
 
 export async function generateArazzo(options: GenerateArazzoOptions): Promise<string> {
   const arazzoDocument = await generateArazzoDescription(options);
-  options.collectSpecData?.(arazzoDocument); //TODO: collect OPENAPI data
   return stringifyYaml(arazzoDocument);
 }
