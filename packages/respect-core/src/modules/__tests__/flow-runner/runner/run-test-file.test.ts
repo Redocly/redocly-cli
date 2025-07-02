@@ -72,6 +72,37 @@ describe('runTestFile', () => {
       info: { title: 'Cat Facts API', version: '1.0' },
     });
     vi.mocked(lint).mockResolvedValue([]);
+
+    // Set up default mock for bundle to return proper structure
+    vi.mocked(bundle).mockResolvedValue({
+      bundle: {
+        parsed: {
+          paths: {
+            '/test': {
+              get: {
+                operationId: 'testOperation',
+                responses: {
+                  200: {
+                    description: 'OK',
+                  },
+                },
+              },
+            },
+          },
+          servers: [
+            {
+              url: 'https://test.example.com',
+            },
+          ],
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          security: [],
+          components: {},
+        },
+      },
+    } as any);
   });
 
   it(`should trow error if filename is not correct`, async () => {
