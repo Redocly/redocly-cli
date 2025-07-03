@@ -1,13 +1,32 @@
-import { handleRun, type RespectOptions } from '@redocly/respect-core';
+import { handleRun } from '@redocly/respect-core';
 import { type CommandArgs } from '../wrapper';
 import { HandledError } from '@redocly/openapi-core';
+
+export type RespectArgv = {
+  files: string[];
+  input?: string;
+  server?: string;
+  workflow?: string[];
+  skip?: string[];
+  verbose?: boolean;
+  'har-output'?: string;
+  'json-output'?: string;
+  'client-cert'?: string;
+  'client-key'?: string;
+  'ca-cert'?: string;
+  'max-steps': number;
+  severity?: string;
+  config?: string;
+  'max-fetch-timeout': number;
+  'execution-timeout': number;
+};
 
 export async function handleRespect({
   argv,
   config,
   version,
   collectSpecData,
-}: CommandArgs<RespectOptions>) {
+}: CommandArgs<RespectArgv>) {
   try {
     const harOutputFile = argv['har-output'];
     const jsonOutputFile = argv['json-output'];

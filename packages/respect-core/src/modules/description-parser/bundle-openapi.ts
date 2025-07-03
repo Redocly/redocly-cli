@@ -7,13 +7,13 @@ type BundleOpenApiOptions = {
   config: Config;
 };
 
-export async function bundleOpenApi(opts: BundleOpenApiOptions): Promise<any> {
-  const { descriptionPath, externalRefResolver, base } = opts;
+export async function bundleOpenApi(options: BundleOpenApiOptions): Promise<any> {
+  const { descriptionPath, externalRefResolver, base } = options;
 
   const bundled = await bundle({
     base,
     ref: descriptionPath,
-    config: opts.config,
+    config: options.config,
     dereference: true,
     externalRefResolver,
   });
