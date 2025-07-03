@@ -18,12 +18,9 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
     .replace(/[^A-Za-z0-9_-]/g, '');
 }
 
-export async function generateArazzoDescription({
-  descriptionPath,
-  outputFile,
-  collectSpecData,
-}: GenerateArazzoOptions) {
-  const document = (await bundleOpenApi(descriptionPath, '')) || {};
+export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
+  const { descriptionPath, outputFile, collectSpecData } = opts;
+  const document = (await bundleOpenApi(opts)) || {};
   collectSpecData?.(document);
 
   const { paths: pathsObject, info, security: rootSecurity, components } = document;

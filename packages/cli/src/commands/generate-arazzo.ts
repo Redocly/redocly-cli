@@ -7,12 +7,12 @@ import { HandledError, logger } from '@redocly/openapi-core';
 export type GenerateArazzoCommandArgs = {
   descriptionPath: string;
   'output-file'?: string;
-  config?: never;
+  config?: string;
 };
 
 export async function handleGenerateArazzo({
   argv,
-  config: _config,
+  config,
   version,
   collectSpecData,
 }: CommandArgs<GenerateArazzoCommandArgs>) {
@@ -22,6 +22,7 @@ export async function handleGenerateArazzo({
     descriptionPath: argv.descriptionPath,
     collectSpecData,
     version,
+    config,
   };
 
   try {
