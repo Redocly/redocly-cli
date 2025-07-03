@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'node:path';
+import path, { dirname, resolve } from 'node:path';
 import {
   type TestDescription,
   type AppOptions,
@@ -36,7 +36,11 @@ export async function createTestContext(
     await Promise.all(
       sourceDescriptions.map(async (sourceDescription) => {
         if (sourceDescription.type === 'openapi') {
-          const parsedDocument = await bundleOpenApi(sourceDescription.url, options.workflowPath);
+          const parsedDocument = await bundleOpenApi({
+            descriptionPath: sourceDescription.url,
+            config: options.config,
+            base: path.dirname(options.workflowPath),
+          });
           const { paths, servers, info, security, components } = parsedDocument;
           bundledDescriptions[sourceDescription.name] = {
             paths,

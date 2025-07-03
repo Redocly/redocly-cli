@@ -1,13 +1,15 @@
 import { stringifyYaml } from '../utils/yaml.js';
 import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
-import { type CollectFn } from '@redocly/openapi-core';
+
+import type { BaseResolver, CollectFn, Config } from '@redocly/openapi-core';
 
 export type GenerateArazzoOptions = {
   descriptionPath: string;
   outputFile?: string;
-  config?: never;
+  config: Config;
   version: string;
   collectSpecData?: CollectFn;
+  externalRefResolver?: BaseResolver;
 };
 
 export async function generateArazzo(options: GenerateArazzoOptions): Promise<string> {
