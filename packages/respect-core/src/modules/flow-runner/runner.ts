@@ -16,7 +16,7 @@ import { calculateTotals, maskSecrets } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { CollectFn } from '@redocly/openapi-core';
+import type { CollectFn, Config } from '@redocly/openapi-core';
 import type {
   TestDescription,
   AppOptions,
@@ -34,6 +34,7 @@ const logger = DefaultLogger.getInstance();
 export async function runTestFile(
   argv: RunArgv,
   output: { harFile?: string; jsonFile?: string },
+  config: Config,
   collectSpecData?: CollectFn
 ) {
   const {
@@ -67,6 +68,7 @@ export async function runTestFile(
     maxSteps: argv['max-steps'],
     maxFetchTimeout: argv['max-fetch-timeout'],
     executionTimeout: argv['execution-timeout'],
+    config,
   };
 
   const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
@@ -102,7 +104,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx });
+      await handleDependsOn({ workflow, ctx, config: options.config });
     }
 
     const workflowExecutionResult = await runWorkflow({
@@ -233,13 +235,21 @@ export async function runWorkflow({
   };
 }
 
-async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
+async function handleDependsOn({
+  workflow,
+  ctx,
+  config,
+}: {
+  workflow: Workflow;
+  ctx: TestContext;
+  config: Config;
+}) {
   if (!workflow.dependsOn?.length) return;
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
       const resolvedWorkflow = getValueFromContext(workflowId, ctx);
-      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId);
       return runWorkflow({
@@ -261,7 +271,8 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext
+  ctx: TestContext,
+  config: Config
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
@@ -288,6 +299,7 @@ export async function resolveWorkflowContext(
           maxSteps: ctx.options.maxSteps,
           maxFetchTimeout: ctx.options.maxFetchTimeout,
           executionTimeout: ctx.options.executionTimeout,
+          config,
         },
         ctx.apiClient
       )

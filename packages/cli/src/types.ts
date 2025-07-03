@@ -1,5 +1,6 @@
+import type { GenerateArazzoCommandArgs } from './commands/generate-arazzo.js';
 import type { BundleOutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { RespectOptions, GenerateArazzoOptions } from '@redocly/respect-core';
+import type { RespectOptions } from '@redocly/respect-core';
 import type { LintOptions } from './commands/lint.js';
 import type { BundleOptions } from './commands/bundle.js';
 import type { JoinOptions } from './commands/join.js';
@@ -40,7 +41,7 @@ export type CommandOptions =
   | TranslationsOptions
   | EjectOptions
   | RespectOptions
-  | GenerateArazzoOptions;
+  | GenerateArazzoCommandArgs; // todo: rename to be consistent
 
 export type VerifyConfigOptions = {
   config?: string;

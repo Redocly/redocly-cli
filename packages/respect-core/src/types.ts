@@ -121,6 +121,7 @@ export type AppOptions = {
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
+  config: Config;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
