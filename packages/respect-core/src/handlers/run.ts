@@ -1,5 +1,5 @@
 import { blue, green } from 'colorette';
-import { type CollectFn } from '@redocly/openapi-core';
+import { type Config, type CollectFn } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import {
   displayErrors,
@@ -29,13 +29,13 @@ export type RespectOptions = {
   'ca-cert'?: string;
   'max-steps': number;
   severity?: string;
-  config?: never;
+  config?: string;
   'max-fetch-timeout': number;
   'execution-timeout': number;
 };
 
 const logger = DefaultLogger.getInstance();
-export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOptions>) {
+export async function handleRun({ argv, collectSpecData, config }: CommandArgs<RespectOptions>) {
   const harOutputFile = argv['har-output'];
   const jsonOutputFile = argv['json-output'];
 
@@ -59,6 +59,7 @@ export async function handleRun({ argv, collectSpecData }: CommandArgs<RespectOp
       {
         harFile: harOutputFile,
       },
+      config,
       collectSpecData
     );
     testsRunProblemsStatus.push(result.hasProblems);
@@ -100,9 +101,10 @@ async function runFile(
   argv: RunArgv,
   startedAt: number,
   output: { harFile: string | undefined },
+  config: Config,
   collectSpecData?: CollectFn
 ) {
-  const { executedWorkflows, ctx } = await runTestFile(argv, output, collectSpecData);
+  const { executedWorkflows, ctx } = await runTestFile(argv, output, config, collectSpecData);
 
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
