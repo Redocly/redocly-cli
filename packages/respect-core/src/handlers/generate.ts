@@ -1,4 +1,3 @@
-import { stringifyYaml } from '../utils/yaml.js';
 import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
 
 import type { BaseResolver, CollectFn, Config } from '@redocly/openapi-core';
@@ -13,6 +12,5 @@ export type GenerateArazzoOptions = {
 };
 
 export async function generateArazzo(options: GenerateArazzoOptions): Promise<string> {
-  const arazzoDocument = await generateArazzoDescription(options);
-  return stringifyYaml(arazzoDocument);
+  return await generateArazzoDescription(options);
 }

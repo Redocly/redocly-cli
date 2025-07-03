@@ -5,12 +5,12 @@ import { getReuniteUrl } from '../reunite/api/index.js';
 
 import type { CommandArgs } from '../wrapper.js';
 
-export type LoginOptions = {
+export type LoginArgv = {
   residency?: string;
   config?: string;
 };
 
-export async function handleLogin({ argv, version, config }: CommandArgs<LoginOptions>) {
+export async function handleLogin({ argv, version, config }: CommandArgs<LoginArgv>) {
   const residency = argv.residency || config?.resolvedConfig?.residency;
   const reuniteUrl = getReuniteUrl(residency);
   try {
@@ -25,11 +25,11 @@ export async function handleLogin({ argv, version, config }: CommandArgs<LoginOp
   }
 }
 
-export type LogoutOptions = {
+export type LogoutArgv = {
   config?: string;
 };
 
-export async function handleLogout({ version }: CommandArgs<LogoutOptions>) {
+export async function handleLogout({ version }: CommandArgs<LogoutArgv>) {
   const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
   oauthClient.logout();
 
