@@ -2,9 +2,9 @@ import { blue, gray, yellow } from 'colorette';
 import { generateArazzo } from '@redocly/respect-core';
 import { type CommandArgs } from '../wrapper.js';
 import { writeFileSync } from 'node:fs';
-import { HandledError, logger } from '@redocly/openapi-core';
+import { HandledError, logger, stringifyYaml } from '@redocly/openapi-core';
 
-export type GenerateArazzoCommandArgs = {
+export type GenerateArazzoCommandArgv = {
   descriptionPath: string;
   'output-file'?: string;
   config?: string;
@@ -15,7 +15,7 @@ export async function handleGenerateArazzo({
   config,
   version,
   collectSpecData,
-}: CommandArgs<GenerateArazzoCommandArgs>) {
+}: CommandArgs<GenerateArazzoCommandArgv>) {
   const outputFile = argv['output-file'] || 'auto-generated.arazzo.yaml';
   const options = {
     outputFile,
@@ -29,7 +29,7 @@ export async function handleGenerateArazzo({
     logger.info(gray('\n  Generating Arazzo description... \n'));
 
     const generatedArazzo = await generateArazzo(options);
-    writeFileSync(outputFile, generatedArazzo);
+    writeFileSync(outputFile, stringifyYaml(generatedArazzo));
 
     logger.info(
       '\n' + blue(`Arazzo description ${yellow(outputFile)} successfully generated.`) + '\n'

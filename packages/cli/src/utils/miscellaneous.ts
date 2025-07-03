@@ -35,7 +35,7 @@ import type {
   Oas2Definition,
   Exact,
 } from '@redocly/openapi-core';
-import type { Totals, Entrypoint, OutputExtensions, CommandOptions } from '../types.js';
+import type { Totals, Entrypoint, OutputExtensions, CommandArgv } from '../types.js';
 
 const globPromise = promisify(glob.glob);
 
@@ -432,7 +432,7 @@ export function printUnusedWarnings(config: Config) {
 }
 
 export async function loadConfigAndHandleErrors(
-  argv: Exact<CommandOptions>,
+  argv: Exact<CommandArgv>,
   version: string
 ): Promise<Config> {
   try {
