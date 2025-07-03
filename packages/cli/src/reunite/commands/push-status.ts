@@ -19,7 +19,7 @@ import type { VerifyConfigOptions } from '../../types.js';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 
-export type PushStatusOptions = {
+export type PushStatusArgv = {
   organization: string;
   project: string;
   pushId: string;
@@ -42,7 +42,7 @@ export interface PushStatusSummary {
 export async function handlePushStatus({
   argv,
   version,
-}: CommandArgs<PushStatusOptions>): Promise<PushStatusSummary | void> {
+}: CommandArgs<PushStatusArgv>): Promise<PushStatusSummary | void> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 

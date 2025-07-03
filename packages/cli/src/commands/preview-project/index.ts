@@ -5,10 +5,10 @@ import { logger } from '@redocly/openapi-core';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
 import { getPlatformSpawnArgs } from '../../utils/platform.js';
 
-import type { PreviewProjectOptions, Product } from './types.js';
+import type { PreviewProjectArgv, Product } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
-export const previewProject = async ({ argv }: CommandArgs<PreviewProjectOptions>) => {
+export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) => {
   const { plan, port } = argv;
   const projectDir = argv['project-dir'];
 

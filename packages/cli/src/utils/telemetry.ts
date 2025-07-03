@@ -9,7 +9,7 @@ import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
-import type { CommandOptions } from '../types.js';
+import type { CommandArgv } from '../types.js';
 
 export type Analytics = {
   event: string;
@@ -172,7 +172,7 @@ function replaceArgs(
   return commandInput;
 }
 
-export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
+export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[]> = {};
