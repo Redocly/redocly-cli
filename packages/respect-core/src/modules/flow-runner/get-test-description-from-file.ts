@@ -1,33 +1,32 @@
 import { bold, red } from 'colorette';
-import { getTotals, formatProblems, lint, bundle, createConfig } from '@redocly/openapi-core';
-import { type CollectFn } from '@redocly/openapi-core';
+import {
+  getTotals,
+  formatProblems,
+  lint,
+  bundle,
+  createConfig,
+  type BaseResolver,
+  type CollectFn,
+} from '@redocly/openapi-core';
 import * as path from 'node:path';
-import { existsSync } from 'node:fs';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
-import { readYaml } from '../../utils/yaml.js';
 import { version } from '../../utils/package.js';
 
-export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn) {
+type BundleArazzoOptions = {
+  filePath: string;
+  base?: string;
+  externalRefResolver?: BaseResolver;
+  collectSpecData?: CollectFn;
+};
+
+export async function bundleArazzo(options: BundleArazzoOptions) {
+  const { filePath, base, externalRefResolver, collectSpecData } = options;
+
   const fileName = path.basename(filePath);
 
   if (!fileName) {
     throw new Error('Invalid file name');
-  }
-
-  if (!existsSync(filePath)) {
-    const relativePath = path.relative(process.cwd(), filePath);
-    throw new Error(
-      `Could not find source description file '${fileName}' at path '${relativePath}'`
-    );
-  }
-
-  const fileContent = await readYaml(filePath);
-
-  if (!isTestFile(fileName, fileContent)) {
-    throw new Error(
-      `No test files found. File ${fileName} does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.`
-    );
   }
 
   const config = await createConfig({
@@ -58,10 +57,22 @@ export async function bundleArazzo(filePath: string, collectSpecData?: CollectFn
   }
 
   const bundledDocument = await bundle({
+    base,
     ref: filePath,
     config,
     dereference: true,
+    externalRefResolver,
   });
+
+  if (!bundledDocument) {
+    throw new Error(`Could not find source description file '${fileName}'.`);
+  }
+
+  if (!isTestFile(fileName, bundledDocument.bundle.parsed)) {
+    throw new Error(
+      `No test files found. File ${fileName} does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.`
+    );
+  }
 
   collectSpecData?.(bundledDocument.bundle.parsed || {});
 

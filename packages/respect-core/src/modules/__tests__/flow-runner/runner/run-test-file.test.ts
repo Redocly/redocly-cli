@@ -1,4 +1,10 @@
-import { makeDocumentFromString, lint, bundle, type LocationObject } from '@redocly/openapi-core';
+import {
+  makeDocumentFromString,
+  lint,
+  bundle,
+  type LocationObject,
+  createConfig,
+} from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
@@ -44,9 +50,10 @@ vi.mock('node:fs', () => {
 
 const mockExistsSync = vi.mocked(fs.existsSync);
 const defaultRespectOptions = {
-  'execution-timeout': 3_600_000,
-  'max-steps': 2000,
-  'max-fetch-timeout': 40_000,
+  executionTimeout: 3_600_000,
+  maxSteps: 2000,
+  maxFetchTimeout: 40_000,
+  config: await createConfig({}),
 };
 
 describe('runTestFile', () => {
@@ -111,7 +118,7 @@ describe('runTestFile', () => {
     );
   });
 
-  it(`should trow error if file is not valid Arazzo test file`, async () => {
+  it(`should throw error if file is not valid Arazzo test file`, async () => {
     const mockDocument = makeDocumentFromString(
       JSON.stringify({
         openapi: '1.0.0',
@@ -167,7 +174,11 @@ describe('runTestFile', () => {
       },
     ]);
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
+    vi.mocked(bundle).mockResolvedValueOnce({
+      bundle: {
+        parsed: mockDocument.parsed,
+      },
+    } as any);
 
     await expect(
       runTestFile(
@@ -516,11 +527,13 @@ describe('runTestFile', () => {
 
     vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
-    vi.mocked(bundle).mockResolvedValueOnce({
-      bundle: {
-        parsed: mockDocument.parsed,
-      },
-    } as any);
+    vi.mocked(bundle).mockImplementationOnce(() => {
+      return Promise.resolve({
+        bundle: {
+          parsed: mockDocument.parsed,
+        },
+      } as any);
+    });
 
     vi.mocked(runStep).mockImplementation(
       async ({ step, ctx }: { step: Step; ctx: TestContext }) => {
@@ -585,10 +598,14 @@ describe('runTestFile', () => {
         parsed: mockDocument.parsed,
       },
     } as any);
+    vi.mocked(bundle).mockResolvedValueOnce(undefined as any);
     await expect(
-      runTestFile({ file: 'test.yaml', ...defaultRespectOptions }, {})
+      runTestFile(
+        { file: 'test.yaml', ...{ ...defaultRespectOptions, workflowPath: 'test.yaml' } },
+        {}
+      )
     ).rejects.toThrowError(
-      `Could not find source description file 'api-samples/not-existing.yaml' at path 'test.yaml'`
+      `Could not find source description file 'api-samples/not-existing.yaml'.`
     );
   });
 
@@ -601,11 +618,6 @@ describe('runTestFile', () => {
           version: '1.0',
         },
         sourceDescriptions: [
-          {
-            name: 'cats',
-            type: 'openapi',
-            url: 'api-samples/cats.yaml',
-          },
           {
             name: 'cats',
             type: 'arazzo',
@@ -642,18 +654,18 @@ describe('runTestFile', () => {
         parsed: mockDocument.parsed,
       },
     } as any);
+    vi.mocked(bundle).mockResolvedValueOnce(undefined as any);
     await expect(
       runTestFile(
         {
           file: 'test.yaml',
-          'execution-timeout': 3_600_000,
-          'max-steps': 2000,
-          'max-fetch-timeout': 40_000,
+          executionTimeout: 3_600_000,
+          maxSteps: 2000,
+          maxFetchTimeout: 40_000,
+          config: await createConfig({}),
         },
         {}
       )
-    ).rejects.toThrowError(
-      `Could not find source description file 'not-existing-arazzo.yaml' at path 'api-samples/not-existing-arazzo.yaml'`
-    );
+    ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });
 });

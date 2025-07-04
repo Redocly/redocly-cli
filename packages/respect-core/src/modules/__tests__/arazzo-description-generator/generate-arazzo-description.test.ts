@@ -1,3 +1,4 @@
+import { createConfig } from '@redocly/openapi-core';
 import { generateArazzoDescription } from '../../arazzo-description-generator/index.js';
 import { type ParameterWithIn } from '../../context-parser/index.js';
 import {
@@ -78,6 +79,7 @@ describe('generateArazzoDescription', () => {
         outputFile: './final-test-location/output.yaml',
         version: '1.0.0',
         collectSpecData: mockCollectSpecData,
+        config: await createConfig({}),
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -148,6 +150,7 @@ describe('generateArazzoDescription', () => {
         descriptionPath: 'description.yaml',
         version: '1.0.0',
         collectSpecData: mockCollectSpecData,
+        config: await createConfig({}),
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -197,6 +200,7 @@ describe('generateArazzoDescription', () => {
         descriptionPath: 'description.yaml',
         version: '1.0.0',
         collectSpecData: mockCollectSpecData,
+        config: await createConfig({}),
       })
     ).toEqual({
       arazzo: '1.0.1',
@@ -247,6 +251,7 @@ describe('generateArazzoDescription', () => {
         descriptionPath: 'description.yaml',
         version: '1.0.0',
         collectSpecData: mockCollectSpecData,
+        config: await createConfig({}),
       })
     ).toEqual({
       arazzo: '1.0.1',

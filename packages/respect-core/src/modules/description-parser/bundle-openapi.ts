@@ -9,7 +9,6 @@ type BundleOpenApiOptions = {
 
 export async function bundleOpenApi(options: BundleOpenApiOptions): Promise<any> {
   const { descriptionPath, externalRefResolver, base } = options;
-
   const bundled = await bundle({
     base,
     ref: descriptionPath,
@@ -18,7 +17,9 @@ export async function bundleOpenApi(options: BundleOpenApiOptions): Promise<any>
     externalRefResolver,
   });
 
-  if (!bundled) return;
+  if (!bundled) {
+    throw new Error(`Could not find source description file '${descriptionPath}'.`);
+  }
 
   return bundled.bundle.parsed;
 }

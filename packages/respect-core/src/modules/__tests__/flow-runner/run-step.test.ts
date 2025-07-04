@@ -5,6 +5,7 @@ import type {
   Check,
   WorkflowExecutionResult,
 } from '../../../types.js';
+import { createConfig } from '@redocly/openapi-core';
 import {
   runStep,
   callAPIAndAnalyzeResults,
@@ -2935,6 +2936,7 @@ describe('runStep', () => {
       checks: [],
       response: {} as any,
     };
+    const config = await createConfig({});
     const localCTX = {
       $request: undefined,
       $response: undefined,
@@ -3342,6 +3344,12 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -3398,7 +3406,8 @@ describe('runStep', () => {
           },
         ],
       },
-      localCTX
+      localCTX,
+      config
     );
     expect(runWorkflow).toHaveBeenCalledTimes(1);
   });
