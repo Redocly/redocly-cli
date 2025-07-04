@@ -44,16 +44,31 @@ export async function handleRespect({
       throw new Error('File for JSON logs should be in .json format');
     }
 
-    // const options = {
-    //   jsonOutputFile,
-    //   harOutputFile,
-    // };
-
-    // console.log('options', options);
-    // console.log('argv', argv);
+    const options = {
+      jsonOutputFile,
+      harOutputFile,
+      files: argv.files,
+      input: argv.input,
+      server: argv.server,
+      workflow: argv.workflow,
+      skip: argv.skip,
+      verbose: argv.verbose,
+      config,
+      version,
+      collectSpecData,
+      severity: argv.severity,
+      harOutput: argv['har-output'],
+      jsonOutput: argv['json-output'],
+      clientCert: argv['client-cert'],
+      clientKey: argv['client-key'],
+      caCert: argv['ca-cert'],
+      maxSteps: argv['max-steps'],
+      maxFetchTimeout: argv['max-fetch-timeout'],
+      executionTimeout: argv['execution-timeout'],
+    };
 
     // TODO: continue refactoring
-    await handleRun({ argv, config, version, collectSpecData });
+    await handleRun(options);
   } catch (error) {
     throw new HandledError((error as Error)?.message ?? error);
   }
