@@ -25,7 +25,7 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
-import { handleRespect, type RespectArgv } from './commands/respect.js';
+import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
