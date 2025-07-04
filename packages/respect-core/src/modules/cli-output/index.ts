@@ -5,4 +5,3 @@ export * from './calculate-tests-passed.js';
 export * from './display-files-summary-table.js';
 export * from './verbose-logs.js';
 export * from './mask-secrets.js';
-export * from './json-logs.js';

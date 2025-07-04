@@ -1,6 +1,6 @@
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
 import type { BundleOutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { RespectArgv } from './commands/respect.js';
+import type { RespectArgv } from './commands/respect/index.js';
 import type { LintArgv } from './commands/lint.js';
 import type { BundleArgv } from './commands/bundle.js';
 import type { JoinArgv } from './commands/join.js';
