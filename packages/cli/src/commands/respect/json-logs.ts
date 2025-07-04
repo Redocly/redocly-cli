@@ -1,5 +1,4 @@
-import { maskSecrets } from './mask-secrets.js';
-import { calculateTotals } from './calculate-tests-passed.js';
+import { maskSecrets, calculateTotals } from '@redocly/respect-core';
 
 import type {
   TestContext,
@@ -9,7 +8,7 @@ import type {
   Step,
   StepExecutionResult,
   Check,
-} from '../../types.js';
+} from '@redocly/respect-core';
 
 export function composeJsonLogsFiles(
   filesResult: {

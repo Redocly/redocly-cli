@@ -228,6 +228,18 @@ export interface StepExecutionResult {
   checks: (Check & { status: ExecutionStatus })[];
 }
 
+export type RunFileResult = {
+  hasProblems: boolean;
+  hasWarnings: boolean;
+  file: string;
+  executedWorkflows: WorkflowExecutionResult[];
+  options: RunOptions;
+  ctx: TestContext;
+  totalTimeMs: number;
+  totalRequests: number;
+  globalTimeoutError: boolean;
+};
+
 export interface WorkflowExecutionResult {
   type: 'workflow';
   workflowId: string;
