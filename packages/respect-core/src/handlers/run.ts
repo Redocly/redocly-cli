@@ -13,7 +13,7 @@ import { writeFileSync } from 'node:fs';
 import { indent } from '../utils/cli-outputs.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
 
-import type { JsonLogs, CommandArgs, RunArgv } from '../types.js';
+import type { JsonLogs, RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -22,30 +22,28 @@ export type RespectOptions = {
   workflow?: string[];
   skip?: string[];
   verbose?: boolean;
-  'har-output'?: string;
-  'json-output'?: string;
-  'client-cert'?: string;
-  'client-key'?: string;
-  'ca-cert'?: string;
-  'max-steps': number;
   severity?: string;
-  config?: string;
-  'max-fetch-timeout': number;
-  'execution-timeout': number;
+  config: Config;
+  harOutput?: string;
+  jsonOutput?: string;
+  clientCert?: string;
+  clientKey?: string;
+  caCert?: string;
+  maxSteps: number;
+  maxFetchTimeout: number;
+  executionTimeout: number;
+  collectSpecData?: CollectFn;
 };
 
 const logger = DefaultLogger.getInstance();
-export async function handleRun({ argv, collectSpecData, config }: CommandArgs<RespectOptions>) {
-  const harOutputFile = argv['har-output'];
-  const jsonOutputFile = argv['json-output'];
-
-  Timer.getInstance(argv['execution-timeout']);
+export async function handleRun(options: RespectOptions) {
+  const { files, executionTimeout, harOutput, jsonOutput, collectSpecData } = options;
+  Timer.getInstance(executionTimeout);
   const startedAt = performance.now();
   const testsRunProblemsStatus: boolean[] = [];
-  const { files } = argv;
   const runAllFilesResult = [];
 
-  if (files.length > 1 && harOutputFile) {
+  if (files.length > 1 && harOutput) {
     // TODO: implement multiple run files HAR output
     throw new Error(
       'Currently only a single file can be run with --har-output. Please run a single file at a time.'
@@ -53,15 +51,14 @@ export async function handleRun({ argv, collectSpecData, config }: CommandArgs<R
   }
 
   for (const path of files) {
-    const result = await runFile(
-      { ...argv, file: path },
-      performance.now(),
-      {
-        harFile: harOutputFile,
+    const result = await runFile({
+      options: { ...options, file: path },
+      startedAt: performance.now(),
+      output: {
+        harFile: harOutput,
       },
-      config,
-      collectSpecData
-    );
+      collectSpecData,
+    });
     testsRunProblemsStatus.push(result.hasProblems);
     runAllFilesResult.push(result);
   }
@@ -73,9 +70,9 @@ export async function handleRun({ argv, collectSpecData, config }: CommandArgs<R
   displayFilesSummaryTable(runAllFilesResult);
   logger.printNewLine();
 
-  if (jsonOutputFile) {
+  if (jsonOutput) {
     writeFileSync(
-      jsonOutputFile,
+      jsonOutput,
       JSON.stringify(
         {
           files: composeJsonLogsFiles(runAllFilesResult),
@@ -87,7 +84,7 @@ export async function handleRun({ argv, collectSpecData, config }: CommandArgs<R
       ),
       'utf-8'
     );
-    logger.log(blue(indent(`JSON logs saved in ${green(jsonOutputFile)}`, 2)));
+    logger.log(blue(indent(`JSON logs saved in ${green(jsonOutput)}`, 2)));
     logger.printNewLine();
     logger.printNewLine();
   }
@@ -97,14 +94,18 @@ export async function handleRun({ argv, collectSpecData, config }: CommandArgs<R
   }
 }
 
-async function runFile(
-  argv: RunArgv,
-  startedAt: number,
-  output: { harFile: string | undefined },
-  config: Config,
-  collectSpecData?: CollectFn
-) {
-  const { executedWorkflows, ctx } = await runTestFile(argv, output, config, collectSpecData);
+async function runFile({
+  options,
+  startedAt,
+  output,
+  collectSpecData,
+}: {
+  options: RunOptions;
+  startedAt: number;
+  output: { harFile: string | undefined };
+  collectSpecData?: CollectFn;
+}) {
+  const { executedWorkflows, ctx } = await runTestFile(options, output, collectSpecData);
 
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
@@ -115,14 +116,14 @@ async function runFile(
     displayErrors(executedWorkflows);
   }
 
-  displaySummary(startedAt, executedWorkflows, argv);
+  displaySummary(startedAt, executedWorkflows, options);
 
   return {
     hasProblems,
     hasWarnings,
-    file: argv.file,
+    file: options.file,
     executedWorkflows,
-    argv,
+    options,
     ctx,
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,

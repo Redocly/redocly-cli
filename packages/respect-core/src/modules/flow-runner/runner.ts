@@ -21,7 +21,7 @@ import type {
   TestDescription,
   AppOptions,
   TestContext,
-  RunArgv,
+  RunOptions,
   Workflow,
   SourceDescription,
   Check,
@@ -32,47 +32,23 @@ import type {
 const logger = DefaultLogger.getInstance();
 
 export async function runTestFile(
-  argv: RunArgv,
+  options: RunOptions,
   output: { harFile?: string; jsonFile?: string },
-  config: Config,
   collectSpecData?: CollectFn
 ) {
-  const {
-    file: filePath,
-    workflow,
-    verbose,
-    input,
-    skip,
-    server,
-    'har-output': harOutput,
-    'json-output': jsonOutput,
-    severity,
-  } = argv;
-
-  const options = {
-    workflowPath: filePath, // filePath or documentPath
-    workflow,
-    skip,
-    verbose,
-    harOutput,
-    jsonOutput,
-    metadata: { ...argv },
-    input,
-    server,
-    severity,
+  const workflowOptions = {
+    ...options,
+    workflowPath: options.file, // filePath or documentPath
+    metadata: { ...options },
     mutualTls: {
-      clientCert: argv['client-cert'],
-      clientKey: argv['client-key'],
-      caCert: argv['ca-cert'],
+      clientCert: options.clientCert,
+      clientKey: options.clientKey,
+      caCert: options.caCert,
     },
-    maxSteps: argv['max-steps'],
-    maxFetchTimeout: argv['max-fetch-timeout'],
-    executionTimeout: argv['execution-timeout'],
-    config,
   };
 
-  const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
-  const result = await runWorkflows(bundledTestDescription, options);
+  const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
+  const result = await runWorkflows(bundledTestDescription, workflowOptions);
 
   if (output?.harFile && Object.keys(result.harLogs).length) {
     const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
