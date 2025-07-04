@@ -1,6 +1,5 @@
 import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
-
-import type { BaseResolver, CollectFn, Config } from '@redocly/openapi-core';
+import { type BaseResolver, type CollectFn, type Config } from '@redocly/openapi-core';
 
 export type GenerateArazzoOptions = {
   descriptionPath: string;

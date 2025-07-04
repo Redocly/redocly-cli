@@ -77,7 +77,7 @@ type AdditionalStepProps = {
 
 export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
-export type RunArgv = Omit<RespectOptions, 'files'> & {
+export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
   testDescription?: TestDescription;
   input?: string | string[];
