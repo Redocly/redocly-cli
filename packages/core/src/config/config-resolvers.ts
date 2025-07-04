@@ -78,10 +78,17 @@ export async function resolveConfig({
     rootType: NormalizedConfigTypes.ConfigRoot,
     externalRefResolver: externalRefResolver ?? new BaseResolver(getResolveConfig(config?.resolve)),
   });
-  const plugins = collectConfigPlugins(rootDocument, resolvedRefMap);
-  const resolvedPlugins = isBrowser // In browser, we don't support plugins from config file yet
-    ? [defaultPlugin]
-    : await resolvePlugins([...plugins, defaultPlugin], path.dirname(configPath ?? ''));
+
+  let resolvedPlugins: Plugin[];
+  if (isBrowser) {
+    // In browser, we don't support plugins from config file yet
+    resolvedPlugins = [defaultPlugin];
+  } else {
+    const rootConfigDir = path.dirname(configPath ?? '');
+    const pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
+    const plugins = await resolvePlugins(pluginsOrPaths, rootConfigDir);
+    resolvedPlugins = [...plugins, defaultPlugin];
+  }
 
   const bundledConfig = bundleConfig(
     rootDocument,
@@ -125,8 +132,16 @@ function getDefaultPluginPath(configDir: string): string | undefined {
   return;
 }
 
-export const preResolvePluginPath = (plugin: string, configDir: string) => {
-  const maybeAbsolutePluginPath = path.resolve(configDir, plugin);
+export const preResolvePluginPath = (
+  plugin: string | Plugin,
+  base: string,
+  rootConfigDir: string
+) => {
+  if (!isString(plugin)) {
+    return plugin;
+  }
+
+  const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
   return fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
     ? maybeAbsolutePluginPath
@@ -134,7 +149,7 @@ export const preResolvePluginPath = (plugin: string, configDir: string) => {
       module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
         paths: [
           // Plugins imported from the node_modules in the project directory
-          configDir,
+          rootConfigDir,
           // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
           import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
         ],
@@ -142,69 +157,69 @@ export const preResolvePluginPath = (plugin: string, configDir: string) => {
 };
 
 export async function resolvePlugins(
-  plugins: (string | Plugin)[] | null,
-  configDir: string = ''
+  plugins: (string | Plugin)[],
+  configDir: string
 ): Promise<Plugin[]> {
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
   const requireFunc = async (plugin: string | Plugin): Promise<Plugin | Plugin[] | undefined> => {
-    if (isString(plugin)) {
-      try {
-        const absolutePluginPath = preResolvePluginPath(plugin, configDir);
+    if (!isString(plugin)) {
+      return plugin;
+    }
 
-        if (!pluginsCache.has(absolutePluginPath)) {
-          let requiredPlugin: ImportedPlugin | undefined;
+    try {
+      const absolutePluginPath = plugin;
 
+      if (!pluginsCache.has(absolutePluginPath)) {
+        let requiredPlugin: ImportedPlugin | undefined;
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore FIXME: investigate if we still need this (2.0)
+        if (typeof __webpack_require__ === 'function') {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore FIXME: investigate if we still need this (2.0)
-          if (typeof __webpack_require__ === 'function') {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore FIXME: investigate if we still need this (2.0)
-            requiredPlugin = __non_webpack_require__(absolutePluginPath);
-          } else {
-            const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
-            requiredPlugin = mod.default || mod;
-          }
+          requiredPlugin = __non_webpack_require__(absolutePluginPath);
+        } else {
+          const mod = await import(url.pathToFileURL(absolutePluginPath).pathname);
+          requiredPlugin = mod.default || mod;
+        }
 
-          const pluginCreatorOptions = { contentDir: configDir };
+        const pluginCreatorOptions = { contentDir: configDir };
 
-          const requiredPluginInstances = Array.isArray(requiredPlugin)
-            ? requiredPlugin
-            : [requiredPlugin];
-          for (const requiredPluginInstance of requiredPluginInstances) {
-            if (requiredPluginInstance?.id && isDeprecatedPluginFormat(requiredPluginInstance)) {
-              logger.info(`Deprecated plugin format detected: ${requiredPluginInstance.id}\n`);
-            }
-          }
-
-          const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
-            ? requiredPlugin
-            : isCommonJsPlugin(requiredPlugin)
-            ? await requiredPlugin(pluginCreatorOptions)
-            : await requiredPlugin?.default?.(pluginCreatorOptions);
-
-          const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
-
-          if (pluginModule) {
-            pluginsCache.set(
-              absolutePluginPath,
-              pluginInstances.map((p) => ({
-                ...p,
-                path: plugin,
-                absolutePath: absolutePluginPath,
-              }))
-            );
+        const requiredPluginInstances = Array.isArray(requiredPlugin)
+          ? requiredPlugin
+          : [requiredPlugin];
+        for (const requiredPluginInstance of requiredPluginInstances) {
+          if (requiredPluginInstance?.id && isDeprecatedPluginFormat(requiredPluginInstance)) {
+            logger.info(`Deprecated plugin format detected: ${requiredPluginInstance.id}\n`);
           }
         }
 
-        return pluginsCache.get(absolutePluginPath);
-      } catch (e) {
-        throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
-      }
-    }
+        const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
+          ? requiredPlugin
+          : isCommonJsPlugin(requiredPlugin)
+          ? await requiredPlugin(pluginCreatorOptions)
+          : await requiredPlugin?.default?.(pluginCreatorOptions);
 
-    return plugin;
+        const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
+
+        if (pluginModule) {
+          pluginsCache.set(
+            absolutePluginPath,
+            pluginInstances.map((p) => ({
+              ...p,
+              path: plugin,
+              absolutePath: absolutePluginPath,
+            }))
+          );
+        }
+      }
+
+      return pluginsCache.get(absolutePluginPath);
+    } catch (e) {
+      throw new Error(`Failed to load plugin "${plugin}": ${e.message}\n\n${e.stack}`);
+    }
   };
 
   const seenPluginIds = new Map<string, string>();
@@ -225,6 +240,7 @@ export async function resolvePlugins(
         if (isAbsoluteUrl(p)) {
           throw new Error(colorize.red(`We don't support remote plugins yet.`));
         }
+
         if (resolvedPlugins.has(p)) {
           return;
         }
