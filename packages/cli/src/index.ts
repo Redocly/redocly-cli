@@ -43,19 +43,22 @@ yargs(hideBin(process.argv))
     'stats [api]',
     'Show statistics for an API description.',
     (yargs) =>
-      yargs.positional('api', { type: 'string' }).option({
-        config: { description: 'Path to the config file.', type: 'string' },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-        format: {
-          description: 'Use a specific output format.',
-          choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
-          default: 'stylish' as OutputFormat,
-        },
-      }),
+      yargs
+        .env('REDOCLY_CLI_STATS')
+        .positional('api', { type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
+            default: 'stylish' as OutputFormat,
+          },
+        }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'stats';
       commandWrapper(handleStats)(argv);
@@ -66,6 +69,7 @@ yargs(hideBin(process.argv))
     'Split an API description into a multi-file structure.',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_SPLIT')
         .positional('api', {
           description: 'API description file that you want to split',
           type: 'string',
@@ -104,6 +108,7 @@ yargs(hideBin(process.argv))
     'Join multiple API descriptions into one [experimental].',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_JOIN')
         .positional('apis', {
           array: true,
           type: 'string',
@@ -154,6 +159,7 @@ yargs(hideBin(process.argv))
     false,
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_PUSH_STATUS')
         .positional('pushId', {
           description: 'Push id.',
           type: 'string',
@@ -205,6 +211,7 @@ yargs(hideBin(process.argv))
     'Push documents to Reunite.',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_PUSH')
         .positional('files', {
           type: 'string',
           array: true,
@@ -313,59 +320,61 @@ yargs(hideBin(process.argv))
     'lint [apis...]',
     'Lint an API or Arazzo description.',
     (yargs) =>
-      yargs.positional('apis', { array: true, type: 'string', demandOption: true }).option({
-        format: {
-          description: 'Use a specific output format.',
-          choices: [
-            'stylish',
-            'codeframe',
-            'json',
-            'checkstyle',
-            'codeclimate',
-            'summary',
-            'markdown',
-            'github-actions',
-          ] as ReadonlyArray<OutputFormat>,
-          default: 'codeframe' as OutputFormat,
-        },
-        'max-problems': {
-          requiresArg: true,
-          description: 'Reduce output to a maximum of N problems.',
-          type: 'number',
-          default: 100,
-          coerce: validatePositiveNumber('max-problems', true),
-        },
-        'generate-ignore-file': {
-          description: 'Generate an ignore file.',
-          type: 'boolean',
-        },
-        'skip-rule': {
-          description: 'Ignore certain rules.',
-          array: true,
-          type: 'string',
-        },
-        'skip-preprocessor': {
-          description: 'Ignore certain preprocessors.',
-          array: true,
-          type: 'string',
-        },
-        'lint-config': {
-          description: 'Severity level for config file linting.',
-          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-          default: 'warn' as RuleSeverity,
-        },
-        config: {
-          description: 'Path to the config file.',
-          requiresArg: true,
-          type: 'string',
-        },
-        extends: {
-          description: 'Override extends configurations (defaults or config file settings).',
-          requiresArg: true,
-          array: true,
-          type: 'string',
-        },
-      }),
+      yargs
+        .env('REDOCLY_CLI_LINT')
+        .positional('apis', { array: true, type: 'string', demandOption: true })
+        .option({
+          format: {
+            description: 'Use a specific output format.',
+            choices: [
+              'stylish',
+              'codeframe',
+              'json',
+              'checkstyle',
+              'codeclimate',
+              'summary',
+              'markdown',
+              'github-actions',
+            ] as ReadonlyArray<OutputFormat>,
+            default: 'codeframe' as OutputFormat,
+          },
+          'max-problems': {
+            requiresArg: true,
+            description: 'Reduce output to a maximum of N problems.',
+            type: 'number',
+            default: 100,
+          },
+          'generate-ignore-file': {
+            description: 'Generate an ignore file.',
+            type: 'boolean',
+          },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
+          'skip-preprocessor': {
+            description: 'Ignore certain preprocessors.',
+            array: true,
+            type: 'string',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          config: {
+            description: 'Path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
+          extends: {
+            description: 'Override extends configurations (defaults or config file settings).',
+            requiresArg: true,
+            array: true,
+            type: 'string',
+          },
+        }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'lint';
       commandWrapper(handleLint)(argv);
@@ -376,6 +385,7 @@ yargs(hideBin(process.argv))
     'Bundle a multi-file API description to a single file.',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_BUNDLE')
         .positional('apis', { array: true, type: 'string', demandOption: true })
         .options({
           output: {
@@ -453,7 +463,7 @@ yargs(hideBin(process.argv))
     'check-config',
     'Lint the Redocly configuration file.',
     async (yargs) =>
-      yargs.option({
+      yargs.env('REDOCLY_CLI_CHECK_CONFIG').option({
         config: {
           description: 'Path to the config file.',
           type: 'string',
@@ -473,7 +483,7 @@ yargs(hideBin(process.argv))
     'login',
     'Log in to Redocly.',
     async (yargs) =>
-      yargs.options({
+      yargs.env('REDOCLY_CLI_LOGIN').options({
         residency: {
           description: 'Residency of the application. Defaults to `us`.',
           alias: ['r'],
@@ -503,7 +513,7 @@ yargs(hideBin(process.argv))
     'preview',
     'Preview Redocly project using one of the product NPM packages.',
     (yargs) =>
-      yargs.options({
+      yargs.env('REDOCLY_CLI_PREVIEW').options({
         product: {
           type: 'string',
           choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
@@ -605,6 +615,7 @@ yargs(hideBin(process.argv))
     'Creates or updates translations.yaml files and fills them with missing built-in translations and translations from the redocly.yaml and sidebars.yaml files.',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_TRANSLATE')
         .positional('locale', {
           description:
             'Locale code to generate translations for, or `all` for all current project locales.',
@@ -635,6 +646,7 @@ yargs(hideBin(process.argv))
     'Helper function to eject project elements for customization.',
     (yargs) =>
       yargs
+        .env('REDOCLY_CLI_EJECT')
         .positional('type', {
           description:
             'Specifies what type of project element to eject. Currently this value must be `component`.',
@@ -675,13 +687,13 @@ yargs(hideBin(process.argv))
     'Run Arazzo tests.',
     (yargs) => {
       return yargs
+        .env('REDOCLY_CLI_RESPECT')
         .positional('files', {
           describe: 'Test files or glob pattern.',
           type: 'string',
           array: true,
           default: [],
         })
-        .env('REDOCLY_CLI_RESPECT')
         .options({
           input: {
             alias: 'i',
@@ -769,11 +781,11 @@ yargs(hideBin(process.argv))
     'Auto-generate arazzo description file from an API description.',
     (yargs) => {
       return yargs
+        .env('REDOCLY_CLI_GENERATE_ARAZZO')
         .positional('descriptionPath', {
           describe: 'Description file path.',
           type: 'string',
         })
-        .env('REDOCLY_CLI_RESPECT')
         .options({
           'output-file': {
             alias: 'o',
