@@ -22,7 +22,6 @@ import type {
   DecoratorConfig,
   Plugin,
   PreprocessorConfig,
-  RawUniversalConfig,
   ResolveConfig,
   ResolvedConfig,
   RuleConfig,
@@ -46,7 +45,6 @@ function getIgnoreFilePath(configPath?: string): string | undefined {
 
 export class Config {
   resolvedConfig: ResolvedConfig;
-  rawConfig?: RawUniversalConfig;
   configPath?: string;
   document?: Document;
   resolvedRefMap?: ResolvedRefMap;
@@ -63,28 +61,24 @@ export class Config {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
 
-  extendPaths: string[];
-  pluginPaths: string[];
-
   constructor(
     resolvedConfig: ResolvedConfig,
     opts: {
       configPath?: string;
-      rawConfig?: RawUniversalConfig;
       document?: Document;
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
+      plugins?: Plugin[];
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
-    this.rawConfig = opts.rawConfig;
     this.configPath = opts.configPath;
     this.document = opts.document;
     this.resolvedRefMap = opts.resolvedRefMap;
     this.resolve = getResolveConfig(this.resolvedConfig.resolve);
     this._alias = opts.alias;
 
-    this.plugins = resolvedConfig.plugins || [];
+    this.plugins = opts.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
     this.rules = {
@@ -135,8 +129,6 @@ export class Config {
       },
     };
 
-    this.extendPaths = resolvedConfig.extendPaths || [];
-    this.pluginPaths = resolvedConfig.pluginPaths || [];
     this.resolveIgnore(getIgnoreFilePath(opts.configPath));
   }
 
@@ -147,10 +139,10 @@ export class Config {
 
     return new Config(this.resolvedConfig.apis[alias], {
       configPath: this.configPath,
-      rawConfig: this.rawConfig,
       document: this.document,
       resolvedRefMap: this.resolvedRefMap,
       alias,
+      plugins: this.plugins,
     });
   }
 

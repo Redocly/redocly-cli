@@ -6,7 +6,6 @@ export const configFixture: Config = {
       headers: [],
     },
   },
-  rawConfig: {},
   resolvedConfig: {
     apis: {},
   },
@@ -54,7 +53,5 @@ export const configFixture: Config = {
   getDecoratorSettings: vi.fn(),
   getUnusedRules: vi.fn(),
   getRulesForSpecVersion: vi.fn(),
-  extendPaths: [],
-  pluginPaths: [],
   forAlias: vi.fn(() => configFixture),
 } as Omit<Config, '_usedRules' | '_usedVersions'> as Config;

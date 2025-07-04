@@ -9,15 +9,17 @@ import {
   SpecMajorVersion,
   SpecVersion,
 } from './oas-types.js';
-import { isAbsoluteUrl, isExternalValue, isRef, refBaseName } from './ref-utils.js';
+import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
-import { dequal, isPlainObject, isTruthy } from './utils.js';
+import { dequal, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
 import { type Config } from './config/index.js';
+import { makeConfigBundlerVisitor, makePluginsCollectorVisitor } from './config/visitors.js';
 
+import type { Plugin, ResolvedConfig } from './config/types.js';
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
 import type { NormalizedNodeType, NodeType } from './types/index.js';
@@ -40,24 +42,36 @@ export type CoreBundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-const bundleVisitor = normalizeVisitors(
-  [
-    {
-      severity: 'error',
-      ruleId: 'configBundler',
-      visitor: {
-        ref: {
-          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            replaceRef(node, resolved, ctx);
-          },
-        },
-      },
-    },
-  ],
-  NormalizedConfigTypes
-);
+export function collectConfigPlugins(
+  document: Document,
+  resolvedRefMap: ResolvedRefMap,
+  rootConfigDir: string
+) {
+  const ctx: BundleContext = {
+    problems: [],
+    oasVersion: SpecVersion.OAS3_0, // TODO: change it after we rename oasVersion to specVersion
+    refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
+  };
 
-export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
+  const plugins: (string | Plugin)[] = [];
+
+  walkDocument({
+    document,
+    rootType: NormalizedConfigTypes.ConfigRoot,
+    normalizedVisitors: makePluginsCollectorVisitor(plugins, rootConfigDir),
+    resolvedRefMap,
+    ctx,
+  });
+
+  return plugins;
+}
+
+export function bundleConfig(
+  document: Document,
+  resolvedRefMap: ResolvedRefMap,
+  plugins: Plugin[]
+): ResolvedConfig {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
@@ -68,7 +82,7 @@ export async function bundleConfig(document: Document, resolvedRefMap: ResolvedR
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: bundleVisitor,
+    normalizedVisitors: makeConfigBundlerVisitor(plugins),
     resolvedRefMap,
     ctx,
   });
@@ -307,18 +321,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-  }
-}
-
-function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-  if (!isPlainObject(resolved.node)) {
-    ctx.parent[ctx.key] = resolved.node;
-  } else {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete ref.$ref;
-    const obj = Object.assign({}, resolved.node, ref);
-    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
   }
 }
 
