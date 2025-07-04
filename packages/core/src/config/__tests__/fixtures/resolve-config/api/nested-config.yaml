@@ -3,9 +3,11 @@ plugins:
 rules:
   operation-2xx-response: error
   rule/path-item-get-defined:
-    subject: PathItem
-    property: get
+    subject:
+      type: PathItem
+      property: get
     message: Every path item must have a GET operation.
-    defined: true
+    assertions:
+      defined: true
 extends:
   - test-plugin-nested/all

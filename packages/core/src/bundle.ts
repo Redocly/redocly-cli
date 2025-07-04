@@ -42,7 +42,11 @@ export type CoreBundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-export function collectConfigPlugins(document: Document, resolvedRefMap: ResolvedRefMap) {
+export function collectConfigPlugins(
+  document: Document,
+  resolvedRefMap: ResolvedRefMap,
+  rootConfigDir: string
+) {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0, // TODO: change it after we rename oasVersion to specVersion
@@ -55,7 +59,7 @@ export function collectConfigPlugins(document: Document, resolvedRefMap: Resolve
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: makePluginsCollectorVisitor(plugins),
+    normalizedVisitors: makePluginsCollectorVisitor(plugins, rootConfigDir),
     resolvedRefMap,
     ctx,
   });

@@ -2,12 +2,14 @@ rules:
   no-invalid-media-type-examples: warn
   operation-4xx-response: off
   rule/tag-description:
-    subject: Tag
-    property: description
+    subject:
+      type: Tag
+      property: description
     message: Tag description must be at least 13 characters and end with a full stop.
     severity: error
-    minLength: 13
-    pattern: /\.$/
+    assertions:
+      minLength: 13
+      pattern: /\.$/
 plugins:
   - plugin.js
   - api/plugin.js

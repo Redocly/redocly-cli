@@ -183,7 +183,7 @@ const builtInRules = [
 type BuiltInRuleId = typeof builtInRules[number];
 
 const configGovernanceProperties: Record<
-  keyof RawGovernanceConfig | 'extends',
+  keyof RawGovernanceConfig,
   NodeType['properties'][string]
 > = {
   extends: {
@@ -200,6 +200,7 @@ const configGovernanceProperties: Record<
       } as PropType;
     },
   } as PropType,
+
   rules: 'Rules',
   oas2Rules: 'Rules',
   oas3_0Rules: 'Rules',

@@ -33,10 +33,7 @@ function makeDocument(rawConfig: RawUniversalConfig, configPath: string = '') {
   };
 }
 
-const removeAbsolutePath = (item: string) =>
-  item.match(/^.*\/packages\/core\/src\/config\/__tests__\/fixtures\/(.*)$/)![1];
-
-describe('resolveGovernanceConfig', () => {
+describe('resolveConfig', () => {
   it('should return the config with no recommended', async () => {
     const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(baseGovernanceConfig),
@@ -245,6 +242,15 @@ describe('resolveGovernanceConfig', () => {
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('error');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(3);
+    expect(
+      plugins
+        ?.filter(({ id }) => id !== '') // filter out the default plugin
+        .map(({ absolutePath, path, ...rest }) => ({
+          ...rest,
+          absolutePath: absolutePath?.replace(__dirname, '...'),
+          path: path?.replace(__dirname, '...'),
+        })) // clean up absolute paths
+    ).toMatchSnapshot();
 
     expect(resolvedConfig).toMatchSnapshot();
   });
@@ -288,27 +294,29 @@ describe('resolveGovernanceConfig', () => {
       extends: ['local-config-with-file.yaml'],
     };
 
-    const { resolvedConfig: governanceConfig } = await resolveConfig({
+    const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
 
-    expect(Array.isArray(governanceConfig.rules?.assertions)).toEqual(true);
-    expect(governanceConfig.rules?.assertions).toMatchObject([
+    expect(Array.isArray(resolvedConfig.rules?.assertions)).toEqual(true);
+    expect(resolvedConfig.rules?.assertions).toMatchObject([
       {
-        subject: 'PathItem',
-        property: 'get',
+        subject: { type: 'PathItem', property: 'get' },
         message: 'Every path item must have a GET operation.',
-        defined: true,
+        assertions: {
+          defined: true,
+        },
         assertionId: 'rule/path-item-get-defined',
       },
       {
-        subject: 'Tag',
-        property: 'description',
+        subject: { type: 'Tag', property: 'description' },
         message: 'Tag description must be at least 13 characters and end with a full stop.',
         severity: 'error',
-        minLength: 13,
-        pattern: '/\\.$/',
+        assertions: {
+          minLength: 13,
+          pattern: '/\\.$/',
+        },
         assertionId: 'rule/tag-description',
       },
     ]);
@@ -358,6 +366,118 @@ describe('resolveGovernanceConfig', () => {
       )
     );
     expect(recommendedStrictPreset).toMatchObject(expectedStrict);
+  });
+
+  it('should NOT add recommended to top level by default IF there is a config file', async () => {
+    const rawConfig: RawUniversalConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          rules: {
+            'operation-4xx-response': 'error',
+          },
+        },
+      },
+      rules: {
+        'operation-2xx-response': 'warn',
+      },
+    };
+
+    const {
+      resolvedConfig: { apis = {} },
+      plugins,
+    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
+
+    expect(plugins?.length).toEqual(1);
+    expect(plugins?.[0].id).toEqual('');
+
+    expect(apis['petstore'].rules).toEqual({
+      'operation-2xx-response': 'warn',
+      'operation-4xx-response': 'error',
+    });
+  });
+
+  it('should not add recommended to top level by default when apis have extends file', async () => {
+    const rawConfig: RawUniversalConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          extends: ['local-config.yaml'],
+          rules: {
+            'operation-4xx-response': 'error',
+          },
+        },
+      },
+      rules: {
+        'operation-2xx-response': 'warn',
+      },
+    };
+
+    const {
+      resolvedConfig: { apis = {} },
+      plugins,
+    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
+    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
+
+    expect(plugins?.length).toEqual(2); // all plugins
+  });
+
+  it('should ignore minimal from the root and read local file', async () => {
+    const rawConfig: RawUniversalConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          extends: ['recommended', 'local-config.yaml'],
+          rules: {
+            'operation-4xx-response': 'error',
+          },
+        },
+      },
+      extends: ['minimal'],
+      rules: {
+        'operation-2xx-response': 'warn',
+      },
+    };
+
+    const {
+      resolvedConfig: { apis = {} },
+      plugins,
+    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
+    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
+
+    expect(plugins?.length).toEqual(2);
+
+    expect(apis['petstore']).toMatchSnapshot();
+  });
+
+  it('should default to the extends from the main config if no extends defined', async () => {
+    const rawConfig: RawUniversalConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          rules: {
+            'operation-4xx-response': 'error',
+          },
+        },
+      },
+      extends: ['minimal'],
+      rules: {
+        'operation-2xx-response': 'warn',
+      },
+    };
+
+    const {
+      resolvedConfig: { apis = {} },
+    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
+    expect(apis['petstore'].rules).toBeDefined();
+    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });
 
@@ -470,119 +590,5 @@ describe('resolveApis', () => {
     expect(apis?.['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
     expect(plugins?.length).toEqual(2);
     expect(rules?.['operation-2xx-response']).toEqual('warn');
-  });
-});
-
-describe('resolveConfig', () => {
-  it('should NOT add recommended to top level by default IF there is a config file', async () => {
-    const rawConfig: RawUniversalConfig = {
-      apis: {
-        petstore: {
-          root: 'some/path',
-          rules: {
-            'operation-4xx-response': 'error',
-          },
-        },
-      },
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const {
-      resolvedConfig: { apis = {} },
-      plugins,
-    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
-
-    expect(plugins?.length).toEqual(1);
-    expect(plugins?.[0].id).toEqual('');
-
-    expect(apis['petstore'].rules).toEqual({
-      'operation-2xx-response': 'warn',
-      'operation-4xx-response': 'error',
-    });
-  });
-
-  it('should not add recommended to top level by default when apis have extends file', async () => {
-    const rawConfig: RawUniversalConfig = {
-      apis: {
-        petstore: {
-          root: 'some/path',
-          extends: ['local-config.yaml'],
-          rules: {
-            'operation-4xx-response': 'error',
-          },
-        },
-      },
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const {
-      resolvedConfig: { apis = {} },
-      plugins,
-    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
-    expect(apis['petstore'].rules).toBeDefined();
-    expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
-    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
-    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
-    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
-
-    expect(plugins?.length).toEqual(2); // all plugins
-  });
-
-  it('should ignore minimal from the root and read local file', async () => {
-    const rawConfig: RawUniversalConfig = {
-      apis: {
-        petstore: {
-          root: 'some/path',
-          extends: ['recommended', 'local-config.yaml'],
-          rules: {
-            'operation-4xx-response': 'error',
-          },
-        },
-      },
-      extends: ['minimal'],
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const {
-      resolvedConfig: { apis = {} },
-      plugins,
-    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
-    expect(apis['petstore'].rules).toBeDefined();
-    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
-    expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
-    expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
-
-    expect(plugins?.length).toEqual(2);
-
-    expect(apis['petstore']).toMatchSnapshot();
-  });
-
-  it('should default to the extends from the main config if no extends defined', async () => {
-    const rawConfig: RawUniversalConfig = {
-      apis: {
-        petstore: {
-          root: 'some/path',
-          rules: {
-            'operation-4xx-response': 'error',
-          },
-        },
-      },
-      extends: ['minimal'],
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const {
-      resolvedConfig: { apis = {} },
-    } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
-    expect(apis['petstore'].rules).toBeDefined();
-    expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });

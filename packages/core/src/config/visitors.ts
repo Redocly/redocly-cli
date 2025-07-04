@@ -1,22 +1,24 @@
-import path from 'node:path';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { normalizeVisitors } from '../visitors.js';
 import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
-import { isString } from '../utils.js';
 import { preResolvePluginPath } from './config-resolvers.js';
 
 import type { OasRef } from '../typings/openapi.js';
 import type { Plugin } from './types.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 
-export function makePluginsCollectorVisitor(plugins: (string | Plugin)[]) {
+export function makePluginsCollectorVisitor(plugins: (string | Plugin)[], rootConfigDir: string) {
   function handleNode(node: any, ctx: UserContext) {
     if (Array.isArray(node.plugins)) {
       plugins.push(
-        ...node.plugins.map((p: string) =>
-          isString(p) ? preResolvePluginPath(p, path.dirname(ctx.location.source.absoluteRef)) : p
-        )
+        ...node.plugins.map((p: string | Plugin) => {
+          return preResolvePluginPath(
+            p,
+            ctx.location.source.absoluteRef.replace(/^file:\/\//, ''), // remove file URL prefix for OpenAPI language server
+            rootConfigDir
+          );
+        })
       );
     }
   }

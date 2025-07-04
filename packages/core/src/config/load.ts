@@ -37,7 +37,7 @@ export async function loadConfig(
   const resolver = externalRefResolver ?? new BaseResolver();
 
   const rawConfigDocument = configPath
-    ? await resolver.resolveDocument<RawUniversalConfig>(null, configPath)
+    ? await resolver.resolveDocument<RawUniversalConfig>(null, configPath, true)
     : undefined;
 
   if (rawConfigDocument instanceof Error) {
