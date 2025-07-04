@@ -1,4 +1,3 @@
-import { blue, green } from 'colorette';
 import { type Config, type CollectFn } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import {
@@ -6,14 +5,11 @@ import {
   displaySummary,
   displayFilesSummaryTable,
   calculateTotals,
-  composeJsonLogsFiles,
 } from '../modules/cli-output/index.js';
 import { DefaultLogger } from '../utils/logger/logger.js';
-import { writeFileSync } from 'node:fs';
-import { indent } from '../utils/cli-outputs.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
 
-import type { JsonLogs, RunOptions } from '../types.js';
+import type { RunFileResult, RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -36,19 +32,13 @@ export type RespectOptions = {
 };
 
 const logger = DefaultLogger.getInstance();
-export async function handleRun(options: RespectOptions) {
-  const { files, executionTimeout, harOutput, jsonOutput, collectSpecData } = options;
+export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
+  const { files, executionTimeout, harOutput, collectSpecData } = options;
+
   Timer.getInstance(executionTimeout);
-  const startedAt = performance.now();
+
   const testsRunProblemsStatus: boolean[] = [];
   const runAllFilesResult = [];
-
-  if (files.length > 1 && harOutput) {
-    // TODO: implement multiple run files HAR output
-    throw new Error(
-      'Currently only a single file can be run with --har-output. Please run a single file at a time.'
-    );
-  }
 
   for (const path of files) {
     const result = await runFile({
@@ -63,35 +53,12 @@ export async function handleRun(options: RespectOptions) {
     runAllFilesResult.push(result);
   }
 
-  const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
-  const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
-
+  // TODO: move to cli output
   logger.printNewLine();
   displayFilesSummaryTable(runAllFilesResult);
   logger.printNewLine();
 
-  if (jsonOutput) {
-    writeFileSync(
-      jsonOutput,
-      JSON.stringify(
-        {
-          files: composeJsonLogsFiles(runAllFilesResult),
-          status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
-          totalTime: performance.now() - startedAt,
-        } as JsonLogs,
-        null,
-        2
-      ),
-      'utf-8'
-    );
-    logger.log(blue(indent(`JSON logs saved in ${green(jsonOutput)}`, 2)));
-    logger.printNewLine();
-    logger.printNewLine();
-  }
-
-  if (hasProblems) {
-    throw new Error(' Tests exited with error ');
-  }
+  return runAllFilesResult;
 }
 
 async function runFile({
@@ -104,7 +71,7 @@ async function runFile({
   startedAt: number;
   output: { harFile: string | undefined };
   collectSpecData?: CollectFn;
-}) {
+}): Promise<RunFileResult> {
   const { executedWorkflows, ctx } = await runTestFile(options, output, collectSpecData);
 
   const totals = calculateTotals(executedWorkflows);
