@@ -5,12 +5,12 @@ import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/pla
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
-export type TranslationsOptions = {
+export type TranslationsArgv = {
   locale: string;
   'project-dir'?: string;
 } & VerifyConfigOptions;
 
-export const handleTranslations = async ({ argv }: CommandArgs<TranslationsOptions>) => {
+export const handleTranslations = async ({ argv }: CommandArgs<TranslationsArgv>) => {
   logger.info(`\nLaunching translate using NPX.\n\n`);
   const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 

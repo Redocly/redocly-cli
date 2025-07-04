@@ -53,7 +53,7 @@ type JoinDocumentContext = {
   componentsPrefix: string | undefined;
 };
 
-export type JoinOptions = {
+export type JoinArgv = {
   apis: string[];
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
@@ -67,7 +67,7 @@ export async function handleJoin({
   config,
   version: packageVersion,
   collectSpecData,
-}: CommandArgs<JoinOptions>) {
+}: CommandArgs<JoinArgv>) {
   const startedAt = performance.now();
 
   const {

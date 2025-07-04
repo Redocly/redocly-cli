@@ -25,10 +25,10 @@ import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 
 import type { Arguments } from 'yargs';
 import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
-import type { CommandOptions, Totals, VerifyConfigOptions } from '../types.js';
+import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
-export type LintOptions = {
+export type LintArgv = {
   apis?: string[];
   'max-problems': number;
   extends?: string[];
@@ -43,7 +43,7 @@ export async function handleLint({
   config,
   version,
   collectSpecData,
-}: CommandArgs<LintOptions>) {
+}: CommandArgs<LintArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
@@ -123,11 +123,7 @@ export async function handleLint({
   }
 }
 
-export async function handleLintConfig(
-  argv: Exact<CommandOptions>,
-  version: string,
-  config: Config
-) {
+export async function handleLintConfig(argv: Exact<CommandArgv>, version: string, config: Config) {
   if (argv['lint-config'] === 'off' || config.document === undefined) {
     return;
   }

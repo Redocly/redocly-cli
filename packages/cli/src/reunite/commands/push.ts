@@ -12,7 +12,7 @@ import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper.js';
 import type { VerifyConfigOptions } from '../../types.js';
 
-export type PushOptions = {
+export type PushArgv = {
   files: string[];
   organization: string;
   project: string;
@@ -40,7 +40,7 @@ export async function handlePush({
   argv,
   config,
   version,
-}: CommandArgs<PushOptions>): Promise<{ pushId: string } | void> {
+}: CommandArgs<PushArgv>): Promise<{ pushId: string } | void> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
 

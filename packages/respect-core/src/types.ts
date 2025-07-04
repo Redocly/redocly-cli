@@ -77,7 +77,7 @@ type AdditionalStepProps = {
 
 export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
-export type RunArgv = Omit<RespectOptions, 'files'> & {
+export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
   testDescription?: TestDescription;
   input?: string | string[];
@@ -121,6 +121,7 @@ export type AppOptions = {
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
+  config: Config;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -226,6 +227,18 @@ export interface StepExecutionResult {
   };
   checks: (Check & { status: ExecutionStatus })[];
 }
+
+export type RunFileResult = {
+  hasProblems: boolean;
+  hasWarnings: boolean;
+  file: string;
+  executedWorkflows: WorkflowExecutionResult[];
+  options: RunOptions;
+  ctx: TestContext;
+  totalTimeMs: number;
+  totalRequests: number;
+  globalTimeoutError: boolean;
+};
 
 export interface WorkflowExecutionResult {
   type: 'workflow';

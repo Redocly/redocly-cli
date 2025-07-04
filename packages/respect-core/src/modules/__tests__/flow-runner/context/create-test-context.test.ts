@@ -1,3 +1,4 @@
+import { createConfig, type Config } from '@redocly/openapi-core';
 import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
@@ -13,12 +14,12 @@ describe('createTestContext', () => {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       workflows: [
@@ -47,7 +48,7 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      workflowPath: 'modules/description-parser/test.test.yaml',
       workflow: undefined,
       harLogsFile: 'har-output',
       metadata: {},
@@ -55,6 +56,7 @@ describe('createTestContext', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
     } as AppOptions;
 
     process.env.AUTH_TOKEN = '1234567890';
@@ -511,7 +513,7 @@ describe('createTestContext', () => {
       harLogs: expect.any(Object),
       mtlsCerts: undefined,
       options: {
-        workflowPath: 'test.test.yaml',
+        workflowPath: 'modules/description-parser/test.test.yaml',
         workflow: undefined,
         harLogsFile: 'har-output',
         metadata: {},
@@ -522,12 +524,12 @@ describe('createTestContext', () => {
       secretFields: {},
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       apiClient: expect.any(ApiFetcher),
@@ -560,6 +562,7 @@ describe('createTestContext', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
     };
 
     const apiClient = new ApiFetcher({
@@ -607,6 +610,7 @@ describe('createTestContext', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
     };
 
     const apiClient = new ApiFetcher({

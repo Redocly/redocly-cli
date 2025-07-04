@@ -16,12 +16,12 @@ import { calculateTotals, maskSecrets } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { CollectFn } from '@redocly/openapi-core';
+import type { CollectFn, Config } from '@redocly/openapi-core';
 import type {
   TestDescription,
   AppOptions,
   TestContext,
-  RunArgv,
+  RunOptions,
   Workflow,
   SourceDescription,
   Check,
@@ -32,45 +32,23 @@ import type {
 const logger = DefaultLogger.getInstance();
 
 export async function runTestFile(
-  argv: RunArgv,
+  options: RunOptions,
   output: { harFile?: string; jsonFile?: string },
   collectSpecData?: CollectFn
 ) {
-  const {
-    file: filePath,
-    workflow,
-    verbose,
-    input,
-    skip,
-    server,
-    'har-output': harOutput,
-    'json-output': jsonOutput,
-    severity,
-  } = argv;
-
-  const options = {
-    workflowPath: filePath, // filePath or documentPath
-    workflow,
-    skip,
-    verbose,
-    harOutput,
-    jsonOutput,
-    metadata: { ...argv },
-    input,
-    server,
-    severity,
+  const workflowOptions = {
+    ...options,
+    workflowPath: options.file, // filePath or documentPath
+    metadata: { ...options },
     mutualTls: {
-      clientCert: argv['client-cert'],
-      clientKey: argv['client-key'],
-      caCert: argv['ca-cert'],
+      clientCert: options.clientCert,
+      clientKey: options.clientKey,
+      caCert: options.caCert,
     },
-    maxSteps: argv['max-steps'],
-    maxFetchTimeout: argv['max-fetch-timeout'],
-    executionTimeout: argv['execution-timeout'],
   };
 
-  const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
-  const result = await runWorkflows(bundledTestDescription, options);
+  const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
+  const result = await runWorkflows(bundledTestDescription, workflowOptions);
 
   if (output?.harFile && Object.keys(result.harLogs).length) {
     const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
@@ -102,7 +80,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx });
+      await handleDependsOn({ workflow, ctx, config: options.config });
     }
 
     const workflowExecutionResult = await runWorkflow({
@@ -233,13 +211,21 @@ export async function runWorkflow({
   };
 }
 
-async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
+async function handleDependsOn({
+  workflow,
+  ctx,
+  config,
+}: {
+  workflow: Workflow;
+  ctx: TestContext;
+  config: Config;
+}) {
   if (!workflow.dependsOn?.length) return;
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
       const resolvedWorkflow = getValueFromContext(workflowId, ctx);
-      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId);
       return runWorkflow({
@@ -261,7 +247,8 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext
+  ctx: TestContext,
+  config: Config
 ) {
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
@@ -288,6 +275,7 @@ export async function resolveWorkflowContext(
           maxSteps: ctx.options.maxSteps,
           maxFetchTimeout: ctx.options.maxFetchTimeout,
           executionTimeout: ctx.options.executionTimeout,
+          config,
         },
         ctx.apiClient
       )

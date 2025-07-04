@@ -36,14 +36,24 @@ export async function createTestContext(
     await Promise.all(
       sourceDescriptions.map(async (sourceDescription) => {
         if (sourceDescription.type === 'openapi') {
-          bundledDescriptions[sourceDescription.name] = await bundleOpenApi(
-            sourceDescription.url,
-            options.workflowPath
-          );
+          const parsedDocument = await bundleOpenApi({
+            descriptionPath: sourceDescription.url,
+            config: options.config,
+            base: options.workflowPath,
+            // externalRefResolver: options.externalRefResolver,
+          });
+          const { paths, servers, info, security, components } = parsedDocument;
+          bundledDescriptions[sourceDescription.name] = {
+            paths,
+            servers,
+            info,
+            security,
+            components,
+          };
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
           const filePath = resolve(dirname(options.workflowPath), sourceDescriptionPath);
-          const bundledTestDescription = await bundleArazzo(filePath);
+          const bundledTestDescription = await bundleArazzo({ filePath });
 
           bundledDescriptions[name] = bundledTestDescription;
         }

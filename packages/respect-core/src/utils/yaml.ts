@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore broken types for js-yaml
-import { JSON_SCHEMA, types, load, dump } from 'js-yaml';
+import { JSON_SCHEMA, types, load } from 'js-yaml';
 import { readFileSync } from 'fs';
 
-import type { LoadOptions, DumpOptions } from 'js-yaml';
+import type { LoadOptions } from 'js-yaml';
 
 const DEFAULT_SCHEMA_WITHOUT_TIMESTAMP = JSON_SCHEMA.extend({
   implicit: [types.merge],
@@ -12,10 +12,6 @@ const DEFAULT_SCHEMA_WITHOUT_TIMESTAMP = JSON_SCHEMA.extend({
 
 export function parseYaml(str: string, opts?: LoadOptions): unknown {
   return load(str, { schema: DEFAULT_SCHEMA_WITHOUT_TIMESTAMP, ...opts });
-}
-
-export function stringifyYaml(obj: any, opts?: DumpOptions): string {
-  return dump(obj, opts);
 }
 
 export function readYaml(path: string): unknown {
