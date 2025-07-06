@@ -5,7 +5,7 @@ import type { Oas2Definition } from '../../typings/swagger.js';
 import type { Async2Rule, Async3Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
-export const TagsDuplicatedNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule = ({
+export const NoDuplicatedTagNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule = ({
   ignoreCase = false,
 }) => {
   const tagNames = new Set<string>();

@@ -58,7 +58,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'scalar-property-missing-example': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
-    'tags-duplicated-names': 'error',
+    'no-duplicated-tag-names': 'error',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'error',
@@ -126,7 +126,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
-    'tags-duplicated-names': 'error',
+    'no-duplicated-tag-names': 'error',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'error',
@@ -194,7 +194,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
-    'tags-duplicated-names': 'error',
+    'no-duplicated-tag-names': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',
@@ -204,7 +204,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
-    'tags-duplicated-names': 'error',
+    'no-duplicated-tag-names': 'error',
   },
   async3Rules: {
     'channels-kebab-case': 'error',
@@ -214,7 +214,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'error',
     'tag-description': 'error',
     'tags-alphabetical': 'error',
-    'tags-duplicated-names': 'error',
+    'no-duplicated-tag-names': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',

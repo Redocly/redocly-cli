@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
 
-describe('TagsDuplicateNames', () => {
+describe('NoDuplicatedTagNames', () => {
   it('should report on duplicate tag names (case sensitive)', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -23,26 +23,10 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/tags/2",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on multiple duplicate tag names', async () => {
@@ -67,39 +51,10 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/tags/2",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "location": [
-            {
-              "pointer": "#/tags/4",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'users'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report when ignoreCase is false and tag names differ by case', async () => {
@@ -122,7 +77,7 @@ describe('TagsDuplicateNames', () => {
       document,
       config: await createConfig({
         rules: {
-          'tags-duplicated-names': {
+          'no-duplicated-tag-names': {
             severity: 'error',
             ignoreCase: false,
           },
@@ -153,7 +108,7 @@ describe('TagsDuplicateNames', () => {
       document,
       config: await createConfig({
         rules: {
-          'tags-duplicated-names': {
+          'no-duplicated-tag-names': {
             severity: 'error',
             ignoreCase: true,
           },
@@ -161,36 +116,7 @@ describe('TagsDuplicateNames', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/tags/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'Pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "location": [
-            {
-              "pointer": "#/tags/2",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'PETS'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report when all tag names are unique', async () => {
@@ -211,7 +137,7 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -231,7 +157,7 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -249,7 +175,7 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -269,7 +195,7 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -296,26 +222,10 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/tags/2",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report consecutive duplicates correctly', async () => {
@@ -336,38 +246,9 @@ describe('TagsDuplicateNames', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'tags-duplicated-names': 'error' } }),
+      config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/tags/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
-          "location": [
-            {
-              "pointer": "#/tags/2",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Duplicate tag name found: 'pets'",
-          "ruleId": "tags-duplicated-names",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

@@ -1,4 +1,4 @@
-# tags-duplicated-names
+# no-duplicated-tag-names
 
 Ensures that tag names in the `tags` array are unique.
 This rule prevents duplication of tag names which could lead to inconsistent API documentation.
@@ -26,14 +26,14 @@ An example configuration:
 
 ```yaml
 rules:
-  tags-duplicated-names: error
+  no-duplicated-tag-names: error
 ```
 
 With ignoring case:
 
 ```yaml
 rules:
-  tags-duplicated-names:
+  no-duplicated-tag-names:
     severity: error
     ignoreCase: true
 ```
@@ -44,7 +44,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  tags-duplicated-names: error
+  no-duplicated-tag-names: error
 ```
 
 Example of **incorrect** tags:
@@ -85,5 +85,5 @@ tags:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/tags-duplicated-names.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-duplicated-tag-names.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)

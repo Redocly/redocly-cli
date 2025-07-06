@@ -74,7 +74,7 @@ rules:
   response-contains-property: off
   response-mime-type: off
   array-parameter-serialization: off
-  tags-duplicated-names: off
+  no-duplicated-tag-names: off
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -137,7 +137,7 @@ rules:
   response-contains-property: off
   response-mime-type: off
   array-parameter-serialization: off
-  tags-duplicated-names: off
+  no-duplicated-tag-names: off
 ```
 
 ### Minimal ruleset: OpenAPI 2.0
@@ -188,7 +188,7 @@ rules:
   request-mime-type: off
   response-contains-property: off
   response-mime-type: off
-  tags-duplicated-names: off
+  no-duplicated-tag-names: off
 ```
 
 ### Minimal ruleset: AsyncAPI 3.0
@@ -203,7 +203,7 @@ rules:
   tags-alphabetical: off
   channels-kebab-case: off
   no-channel-trailing-slash: off
-  tags-duplicated-names: off
+  no-duplicated-tag-names: off
 ```
 
 ### Minimal ruleset: AsyncAPI 2.6
@@ -218,7 +218,7 @@ rules:
   tags-alphabetical: off
   channels-kebab-case: off
   no-channel-trailing-slash: off
-  tags-duplicated-names: off
+  no-duplicated-tag-names: off
 ```
 
 ### Minimal ruleset: Arazzo 1.0
@@ -351,7 +351,7 @@ oas3_1Rules:
   response-contains-property: off
   response-mime-type: off
   array-parameter-serialization: off
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
@@ -414,7 +414,7 @@ rules:
   response-contains-property: off
   response-mime-type: off
   array-parameter-serialization: off
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn
 ```
 
 ### Recommended ruleset: OpenAPI 2.0
@@ -465,7 +465,7 @@ rules:
   request-mime-type: off
   response-contains-property: off
   response-mime-type: off
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn
 ```
 
 ### Recommended ruleset: AsyncAPI 3.0
@@ -480,7 +480,7 @@ rules:
   tags-alphabetical: off
   channels-kebab-case: off
   no-channel-trailing-slash: off
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn
 ```
 
 ### Recommended ruleset: AsyncAPI 2.6
@@ -495,7 +495,7 @@ rules:
   tags-alphabetical: off
   channels-kebab-case: off
   no-channel-trailing-slash: off
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn
 ```
 
 ### Recommended ruleset: Arazzo 1.0

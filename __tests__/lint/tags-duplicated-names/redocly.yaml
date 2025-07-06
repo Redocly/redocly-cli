@@ -3,4 +3,4 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  tags-duplicated-names: warn
+  no-duplicated-tag-names: warn

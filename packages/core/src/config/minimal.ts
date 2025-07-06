@@ -49,7 +49,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'scalar-property-missing-example': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'tags-duplicated-names': 'off',
+    'no-duplicated-tag-names': 'off',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'off',
@@ -111,7 +111,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'tags-duplicated-names': 'off',
+    'no-duplicated-tag-names': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -170,7 +170,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'tags-duplicated-names': 'off',
+    'no-duplicated-tag-names': 'off',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
@@ -180,7 +180,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'tags-duplicated-names': 'off',
+    'no-duplicated-tag-names': 'off',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -190,7 +190,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
-    'tags-duplicated-names': 'off',
+    'no-duplicated-tag-names': 'off',
   },
   arazzo1Rules: {
     'criteria-unique': 'off',

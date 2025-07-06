@@ -55,7 +55,7 @@ import { ComponentNameUnique } from './component-name-unique.js';
 import { ArrayParameterSerialization } from './array-parameter-serialization.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
-import { TagsDuplicatedNames } from '../common/tags-duplicated-names.js';
+import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
@@ -119,7 +119,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'array-parameter-serialization': ArrayParameterSerialization,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Oas3Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas3Rule,
-  'tags-duplicated-names': TagsDuplicatedNames as Oas3Rule,
+  'no-duplicated-tag-names': NoDuplicatedTagNames as Oas3Rule,
 };
 
 export const preprocessors = {};
