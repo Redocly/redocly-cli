@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
 
-describe('NoDuplicatedTagNames', () => {
+describe('TagsDuplicateNames', () => {
   it('should report on duplicate tag names (case sensitive)', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -26,7 +26,23 @@ describe('NoDuplicatedTagNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should report on multiple duplicate tag names', async () => {
@@ -54,7 +70,36 @@ describe('NoDuplicatedTagNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/tags/4",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'users'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should not report when ignoreCase is false and tag names differ by case', async () => {
@@ -116,7 +161,36 @@ describe('NoDuplicatedTagNames', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/tags/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'Pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'PETS'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should not report when all tag names are unique', async () => {
@@ -225,7 +299,23 @@ describe('NoDuplicatedTagNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should report consecutive duplicates correctly', async () => {
@@ -249,6 +339,35 @@ describe('NoDuplicatedTagNames', () => {
       config: await createConfig({ rules: { 'no-duplicated-tag-names': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/tags/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Duplicate tag name found: 'pets'",
+          "ruleId": "no-duplicated-tag-names",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
