@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  title: Tags Duplicated Names Test
+  title: No Duplicated Tag Names Test
   version: '1.0.0'
 tags:
   - name: pet
