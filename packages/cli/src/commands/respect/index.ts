@@ -1,4 +1,4 @@
-import { handleRun, type JsonLogs } from '@redocly/respect-core';
+import { handleRun, maskSecrets, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
 import { writeFileSync } from 'node:fs';
@@ -95,6 +95,17 @@ export async function handleRespect({
       logger.output(blue(logger.indent(`JSON logs saved in ${green(options.jsonOutput)}`, 2)));
       logger.printNewLine();
       logger.printNewLine();
+    }
+
+    if (options.harOutput) {
+      // TODO: implement multiple run files HAR output
+      for (const result of runAllFilesResult) {
+        const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
+        writeFileSync(options.harOutput, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
+        logger.output(blue(`Har logs saved in ${green(options.harOutput)}`));
+        logger.printNewLine();
+        logger.printNewLine();
+      }
     }
 
     if (hasProblems) {
