@@ -45,6 +45,7 @@ export async function runTestFile(
       clientKey: options.clientKey,
       caCert: options.caCert,
     },
+    requestFileLoader: options.requestFileLoader,
   };
 
   const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
@@ -276,6 +277,7 @@ export async function resolveWorkflowContext(
           maxFetchTimeout: ctx.options.maxFetchTimeout,
           executionTimeout: ctx.options.executionTimeout,
           config,
+          requestFileLoader: ctx.requestFileLoader,
         },
         ctx.apiClient
       )

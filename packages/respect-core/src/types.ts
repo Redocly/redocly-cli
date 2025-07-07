@@ -122,6 +122,7 @@ export type AppOptions = {
   maxFetchTimeout: number;
   executionTimeout: number;
   config: Config;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -281,6 +282,7 @@ export type TestContext = RuntimeExpressionContext & {
     caCert?: string;
   };
   apiClient: ApiFetcher;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
 };
 
 export type TestDescription = Partial<

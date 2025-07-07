@@ -57,6 +57,11 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
     } as AppOptions;
 
     process.env.AUTH_TOKEN = '1234567890';
@@ -563,6 +568,11 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
     };
 
     const apiClient = new ApiFetcher({
@@ -611,6 +621,11 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
     };
 
     const apiClient = new ApiFetcher({

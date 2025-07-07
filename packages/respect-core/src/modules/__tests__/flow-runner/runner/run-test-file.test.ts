@@ -54,6 +54,11 @@ const defaultRespectOptions = {
   maxSteps: 2000,
   maxFetchTimeout: 40_000,
   config: await createConfig({}),
+  requestFileLoader: {
+    getFileBody: async (filePath: string) => {
+      return new Blob([filePath]);
+    },
+  },
 };
 
 describe('runTestFile', () => {
@@ -663,6 +668,11 @@ describe('runTestFile', () => {
           maxSteps: 2000,
           maxFetchTimeout: 40_000,
           config: await createConfig({}),
+          requestFileLoader: {
+            getFileBody: async (filePath: string) => {
+              return new Blob([filePath]);
+            },
+          },
         },
         {}
       )

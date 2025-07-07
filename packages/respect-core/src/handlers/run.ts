@@ -29,6 +29,7 @@ export type RespectOptions = {
   maxFetchTimeout: number;
   executionTimeout: number;
   collectSpecData?: CollectFn;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
 };
 
 const logger = DefaultLogger.getInstance();

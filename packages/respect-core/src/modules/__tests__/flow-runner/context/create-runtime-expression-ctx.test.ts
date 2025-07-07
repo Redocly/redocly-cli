@@ -52,6 +52,11 @@ const options: AppOptions = {
   maxFetchTimeout: 40_000,
   executionTimeout: 3_600_000,
   config: await createConfig({}),
+  requestFileLoader: {
+    getFileBody: async (filePath: string) => {
+      return new Blob([filePath]);
+    },
+  },
 };
 
 describe('createRuntimeExpressionCtx', () => {

@@ -1,8 +1,5 @@
 import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore this works but some types are not working
-import concat from 'concat-stream';
 import {
   type OperationMethod,
   type VerboseLog,
@@ -201,29 +198,19 @@ export class ApiFetcher implements IFetcher {
     } else if (isXmlContentType(contentType)) {
       encodedBody = requestBody;
     } else if (contentType.includes('multipart/form-data')) {
-      // Get the form data buffer
-      encodedBody = await new Promise((resolve, reject) => {
-        requestBody.pipe(
-          concat((data: Buffer) => {
-            resolve(data);
-          })
-        );
-
-        requestBody.on('error', reject);
-      });
-
-      // Ensure the content-type header includes the boundary
-      headers['content-type'] = `multipart/form-data; boundary=${requestBody._boundary}`;
+      // Ensure the content-type header is not set so the client can set it
+      /**
+       * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects#sending_files_using_a_formdata_object
+       *
+       * Warning: When using FormData to submit POST requests using XMLHttpRequest or the Fetch API with the multipart/form-data content type
+       * (e.g., when uploading files and blobs to the server), do not explicitly set the Content-Type header on the request.
+       * Doing so will prevent the browser from being able to set the Content-Type header with the boundary expression
+       * it will use to delimit form fields in the request body.
+       */
+      delete headers['content-type'];
     } else if (contentType === 'application/octet-stream') {
       // Convert ReadStream to Blob for undici fetch
-      encodedBody = await new Promise((resolve, reject) => {
-        const chunks: Uint8Array[] = [];
-        requestBody.on('data', (chunk: Buffer) => {
-          chunks.push(new Uint8Array(chunk.buffer));
-        });
-        requestBody.on('end', () => resolve(Buffer.concat(chunks)));
-        requestBody.on('error', reject);
-      });
+      encodedBody = requestBody;
 
       const fileName = requestBody.path.split('/').pop();
       headers['content-disposition'] = `attachment; filename=${fileName}`;
