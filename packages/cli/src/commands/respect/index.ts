@@ -4,6 +4,7 @@ import { type CommandArgs } from '../../wrapper';
 import { writeFileSync } from 'node:fs';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
+import { displayFilesSummaryTable } from './display-files-summary-table.js';
 
 export type RespectArgv = {
   files: string[];
@@ -74,6 +75,10 @@ export async function handleRespect({
     const startedAt = performance.now();
     // TODO: continue refactoring
     const runAllFilesResult = await handleRun(options);
+
+    logger.printNewLine();
+    displayFilesSummaryTable(runAllFilesResult);
+    logger.printNewLine();
 
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
     const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);

@@ -1,12 +1,11 @@
 import { green, red, gray, yellow } from 'colorette';
 import * as path from 'node:path';
-import { calculateTotals } from './calculate-tests-passed.js';
-import { RESET_ESCAPE_CODE } from '../../utils/cli-outputs.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
-
-import type { WorkflowExecutionResult } from '../../types.js';
-
-const logger = DefaultLogger.getInstance();
+import {
+  RESET_ESCAPE_CODE,
+  calculateTotals,
+  type WorkflowExecutionResult,
+} from '@redocly/respect-core';
+import { logger } from '@redocly/openapi-core';
 
 export function displayFilesSummaryTable(
   filesResult: {
@@ -94,5 +93,5 @@ export function displayFilesSummaryTable(
   )}${RESET_ESCAPE_CODE}\n`;
 
   // Add a single reset at the very end
-  logger.log(output);
+  logger.output(output);
 }
