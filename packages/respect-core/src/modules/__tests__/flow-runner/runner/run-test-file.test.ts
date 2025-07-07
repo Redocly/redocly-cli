@@ -8,14 +8,12 @@ import {
 import * as fs from 'node:fs';
 import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
-import { readYaml } from '../../../../utils/yaml.js';
 
 vi.mock('../../../../utils/yaml.js', () => {
   const originalModule = vi.importActual('../../../../utils/yaml.js');
 
   return {
     ...originalModule, // In case there are other exports you want to preserve
-    readYaml: vi.fn(),
   };
 });
 
@@ -60,11 +58,6 @@ const defaultRespectOptions = {
 describe('runTestFile', () => {
   beforeEach(() => {
     mockExistsSync.mockImplementation((path: any) => {
-      // Always return true for test files to allow readYaml to be called
-      if (path.includes('test.yaml') || path.includes('test.yml')) {
-        return true;
-      }
-
       // Return true for source description files (both relative and absolute paths)
       if (path.includes('cats.yaml')) {
         return true;
@@ -74,10 +67,6 @@ describe('runTestFile', () => {
         return false;
       }
       return false;
-    });
-    vi.mocked(readYaml).mockResolvedValue({
-      openapi: '1.0.0',
-      info: { title: 'Cat Facts API', version: '1.0' },
     });
     vi.mocked(lint).mockResolvedValue([]);
 
@@ -127,8 +116,6 @@ describe('runTestFile', () => {
       }),
       'test.yml'
     );
-
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
 
     await expect(runTestFile({ file: 'test.yaml', ...defaultRespectOptions })).rejects.toThrowError(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
@@ -241,7 +228,6 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
@@ -332,7 +318,6 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
@@ -424,7 +409,6 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
@@ -515,7 +499,6 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockImplementationOnce(() => {
       return Promise.resolve({
@@ -578,7 +561,6 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
@@ -631,7 +613,6 @@ describe('runTestFile', () => {
       'api-test-framework/test.yml'
     );
 
-    vi.mocked(readYaml).mockResolvedValue(mockDocument.parsed);
     vi.mocked(lint).mockResolvedValueOnce([]);
     vi.mocked(bundle).mockResolvedValueOnce({
       bundle: {
