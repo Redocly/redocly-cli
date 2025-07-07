@@ -1,6 +1,5 @@
-import { blue, green } from 'colorette';
+import { blue } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
-import { writeFileSync } from 'node:fs';
 import { createHarLog } from '../../utils/har-logs/index.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
@@ -12,7 +11,7 @@ import { bundleArazzo } from './get-test-description-from-file.js';
 import { CHECKS } from '../checks/index.js';
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { calculateTotals, maskSecrets } from '../cli-output/index.js';
+import { calculateTotals } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 
@@ -31,11 +30,7 @@ import type {
 
 const logger = DefaultLogger.getInstance();
 
-export async function runTestFile(
-  options: RunOptions,
-  output: { harFile?: string; jsonFile?: string },
-  collectSpecData?: CollectFn
-) {
+export async function runTestFile(options: RunOptions, collectSpecData?: CollectFn) {
   const workflowOptions = {
     ...options,
     workflowPath: options.file, // filePath or documentPath
@@ -48,17 +43,7 @@ export async function runTestFile(
   };
 
   const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
-  const result = await runWorkflows(bundledTestDescription, workflowOptions);
-
-  if (output?.harFile && Object.keys(result.harLogs).length) {
-    const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
-    writeFileSync(output.harFile, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
-    logger.log(blue(`Har logs saved in ${green(output.harFile)}`));
-    logger.printNewLine();
-    logger.printNewLine();
-  }
-
-  return result;
+  return await runWorkflows(bundledTestDescription, workflowOptions);
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
