@@ -1,12 +1,6 @@
 import { type Config, type CollectFn } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
-import {
-  displayErrors,
-  displaySummary,
-  displayFilesSummaryTable,
-  calculateTotals,
-} from '../modules/cli-output/index.js';
-import { DefaultLogger } from '../utils/logger/logger.js';
+import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
 
 import type { RunFileResult, RunOptions } from '../types.js';
@@ -31,7 +25,6 @@ export type RespectOptions = {
   collectSpecData?: CollectFn;
 };
 
-const logger = DefaultLogger.getInstance();
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
   const { files, executionTimeout, harOutput, collectSpecData } = options;
 
@@ -52,11 +45,6 @@ export async function handleRun(options: RespectOptions): Promise<RunFileResult[
     testsRunProblemsStatus.push(result.hasProblems);
     runAllFilesResult.push(result);
   }
-
-  // TODO: move to cli output
-  logger.printNewLine();
-  displayFilesSummaryTable(runAllFilesResult);
-  logger.printNewLine();
 
   return runAllFilesResult;
 }
