@@ -2,7 +2,7 @@ import { type Config, type CollectFn } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
-import { type RunFileResult, type RunOptions } from '../types.js';
+import { type TestContext, type RunFileResult, type RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -15,9 +15,7 @@ export type RespectOptions = {
   config: Config;
   harOutput?: string;
   jsonOutput?: string;
-  clientCert?: string;
-  clientKey?: string;
-  caCert?: string;
+  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
