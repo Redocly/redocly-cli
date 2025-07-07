@@ -147,16 +147,12 @@ export const preResolvePluginPath = (
   return fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
     ? maybeAbsolutePluginPath
     : // For plugins imported from packages specifically
-      module.createRequire('.').resolve(plugin, {
+      module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
         paths: [
           // Plugins imported from the node_modules in the project directory
           rootConfigDir,
           // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-          import.meta?.url
-            ? path.dirname(url.fileURLToPath(import.meta.url))
-            : typeof __dirname === 'string'
-            ? __dirname
-            : '',
+          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
         ],
       });
 };
