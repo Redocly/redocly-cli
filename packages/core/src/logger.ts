@@ -32,7 +32,7 @@ class Logger {
   }
 
   output(str: string) {
-    return isBrowser ? console.info(str) : process.stdout.write(str);
+    return isBrowser ? console.log(str) : process.stdout.write(str);
   }
 
   printNewLine() {
