@@ -169,7 +169,7 @@ export async function resolvePlugins(
     }
 
     try {
-      const absolutePluginPath = plugin;
+      const absolutePluginPath = path.resolve(configDir, plugin);
 
       if (!pluginsCache.has(absolutePluginPath)) {
         let requiredPlugin: ImportedPlugin | undefined;
