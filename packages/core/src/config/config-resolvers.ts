@@ -20,6 +20,7 @@ import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { bundleConfig, collectConfigPlugins } from '../bundle.js';
+import { CONFIG_FILE_NAME } from './load.js';
 
 import type {
   Plugin,
@@ -146,12 +147,16 @@ export const preResolvePluginPath = (
   return fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
     ? maybeAbsolutePluginPath
     : // For plugins imported from packages specifically
-      module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+      module.createRequire('.').resolve(plugin, {
         paths: [
           // Plugins imported from the node_modules in the project directory
           rootConfigDir,
           // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+          import.meta?.url
+            ? path.dirname(url.fileURLToPath(import.meta.url))
+            : typeof __dirname === 'string'
+            ? __dirname
+            : '',
         ],
       });
 };
@@ -169,7 +174,13 @@ export async function resolvePlugins(
     }
 
     try {
-      const absolutePluginPath = path.resolve(configDir, plugin);
+      const absolutePluginPath = path.isAbsolute(plugin)
+        ? plugin
+        : (preResolvePluginPath(
+            plugin,
+            path.join(configDir, CONFIG_FILE_NAME),
+            configDir
+          ) as string);
 
       if (!pluginsCache.has(absolutePluginPath)) {
         let requiredPlugin: ImportedPlugin | undefined;

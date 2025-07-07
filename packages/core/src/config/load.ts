@@ -79,6 +79,7 @@ export async function loadConfig(
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
+export const CONFIG_FILE_NAME = 'redocly.yaml';
 
 export function findConfig(dir?: string): string | undefined {
   if (!fs?.existsSync) return;
