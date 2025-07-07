@@ -52,17 +52,12 @@ const options: AppOptions = {
   maxFetchTimeout: 40_000,
   executionTimeout: 3_600_000,
   config: await createConfig({}),
+  envVariables: {
+    AUTH_TOKEN: '1234567890',
+  },
 };
 
 describe('createRuntimeExpressionCtx', () => {
-  beforeEach(() => {
-    process.env.AUTH_TOKEN = '1234567890';
-  });
-
-  afterEach(() => {
-    delete process.env.AUTH_TOKEN;
-  });
-
   it('should create limited runtime expression context when workflowId and step provided', async () => {
     const apiClient = new ApiFetcher({
       harLogs: undefined,
