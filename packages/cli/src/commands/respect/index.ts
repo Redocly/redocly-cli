@@ -2,10 +2,12 @@ import { handleRun, maskSecrets, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
 import { writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
+import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
 
 export type RespectArgv = {
   files: string[];
@@ -32,7 +34,25 @@ export async function handleRespect({
   version,
   collectSpecData,
 }: CommandArgs<RespectArgv>) {
+  let mtlsCerts;
+
   try {
+    const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
+
+    if (argv['client-cert'] || argv['client-key'] || argv['ca-cert']) {
+      mtlsCerts =
+        argv['client-cert'] || argv['client-key'] || argv['ca-cert']
+          ? resolveMtlsCertificates(
+              {
+                clientCert: argv['client-cert'],
+                clientKey: argv['client-key'],
+                caCert: argv['ca-cert'],
+              },
+              workingDir
+            )
+          : undefined;
+    }
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -46,13 +66,11 @@ export async function handleRespect({
       severity: argv.severity,
       harOutput: argv['har-output'],
       jsonOutput: argv['json-output'],
-      clientCert: argv['client-cert'],
-      clientKey: argv['client-key'],
-      caCert: argv['ca-cert'],
+      mtlsCerts,
       maxSteps: argv['max-steps'],
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
-      envVariables: readEnvVariables(process.cwd()) || {},
+      envVariables: readEnvVariables(workingDir) || {},
     };
 
     if (options.skip && options.workflow) {

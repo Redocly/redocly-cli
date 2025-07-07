@@ -35,11 +35,6 @@ export async function runTestFile(options: RunOptions, collectSpecData?: Collect
     ...options,
     workflowPath: options.file, // filePath or documentPath
     metadata: { ...options },
-    mutualTls: {
-      clientCert: options.clientCert,
-      clientKey: options.clientKey,
-      caCert: options.caCert,
-    },
   };
 
   const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
