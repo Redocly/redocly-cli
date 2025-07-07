@@ -5,6 +5,7 @@ import { writeFileSync } from 'node:fs';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
+import { readEnvVariables } from '../../utils/read-env-variables.js';
 
 export type RespectArgv = {
   files: string[];
@@ -51,6 +52,7 @@ export async function handleRespect({
       maxSteps: argv['max-steps'],
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
+      envVariables: readEnvVariables(process.cwd()) || {},
     };
 
     if (options.skip && options.workflow) {

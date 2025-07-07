@@ -57,9 +57,11 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      envVariables: {
+        AUTH_TOKEN: '1234567890',
+      },
     } as AppOptions;
 
-    process.env.AUTH_TOKEN = '1234567890';
     const apiClient = new ApiFetcher({
       harLogs: undefined,
     });
@@ -534,14 +536,9 @@ describe('createTestContext', () => {
       ],
       apiClient: expect.any(ApiFetcher),
     });
-
-    delete process.env.AUTH_TOKEN;
   });
 
   it('should clean environment variables', async () => {
-    process.env.TEST_VAR = 'test value';
-    process.env.ANOTHER_VAR = 'another value';
-
     const testDescription: TestDescription = {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
@@ -563,6 +560,10 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      envVariables: {
+        TEST_VAR: 'test value',
+        ANOTHER_VAR: 'another value',
+      },
     };
 
     const apiClient = new ApiFetcher({
@@ -571,9 +572,6 @@ describe('createTestContext', () => {
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.test.inputs).toEqual(undefined);
-
-    delete process.env.TEST_VAR;
-    delete process.env.ANOTHER_VAR;
   }, 8000);
 
   it('should handle workflows with inputs and env variables', async () => {
@@ -611,6 +609,7 @@ describe('createTestContext', () => {
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      envVariables: {},
     };
 
     const apiClient = new ApiFetcher({
@@ -747,9 +746,10 @@ describe('createTestContext', () => {
 
     const options = {
       workflowPath: 'test.test.yaml',
+      envVariables: {
+        ENV_VAR: 'value',
+      },
     } as unknown as AppOptions;
-
-    process.env = { ENV_VAR: 'value' };
 
     const apiClient = new ApiFetcher({
       harLogs: undefined,
@@ -757,8 +757,6 @@ describe('createTestContext', () => {
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1?.inputs?.env?.ENV_VAR).toBe('value');
-
-    delete process.env.ENV_VAR;
   });
 });
 

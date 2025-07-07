@@ -48,7 +48,6 @@
     "colorette": "^2.0.20",
     "concat-stream": "^2.0.0",
     "cookie": "^0.7.2",
-    "dotenv": "16.4.7",
     "form-data": "4.0.0",
     "jest-diff": "^29.3.1",
     "jest-matcher-utils": "^29.3.1",

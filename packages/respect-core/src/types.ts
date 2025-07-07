@@ -122,6 +122,7 @@ export type AppOptions = {
   maxFetchTimeout: number;
   executionTimeout: number;
   config: Config;
+  envVariables: Record<string, string>;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
