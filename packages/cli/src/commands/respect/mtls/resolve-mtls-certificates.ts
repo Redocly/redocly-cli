@@ -1,21 +1,21 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { type TestContext } from '../../types.js';
+import { type TestContext } from '@redocly/respect-core';
 
 export function resolveMtlsCertificates(
   mtlsCertificates: Partial<TestContext['mtlsCerts']> = {},
-  arazzoFilePath: string
+  workingDir: string
 ) {
   const { clientCert, clientKey, caCert } = mtlsCertificates;
 
   return {
-    clientCert: resolveCertificate(clientCert, arazzoFilePath),
-    clientKey: resolveCertificate(clientKey, arazzoFilePath),
-    caCert: resolveCertificate(caCert, arazzoFilePath),
+    clientCert: resolveCertificate(clientCert, workingDir),
+    clientKey: resolveCertificate(clientKey, workingDir),
+    caCert: resolveCertificate(caCert, workingDir),
   };
 }
 
-function resolveCertificate(cert: string | undefined, arazzoFilePath: string): string | undefined {
+function resolveCertificate(cert: string | undefined, workingDir: string): string | undefined {
   if (!cert) return undefined;
 
   try {
@@ -23,8 +23,7 @@ function resolveCertificate(cert: string | undefined, arazzoFilePath: string): s
     const isCertContent = cert.includes('-----BEGIN') && cert.includes('-----END');
 
     if (!isCertContent) {
-      const currentArazzoFileFolder = path.dirname(arazzoFilePath);
-      const certPath = path.resolve(currentArazzoFileFolder, cert);
+      const certPath = path.resolve(workingDir, cert);
 
       // If not a certificate content, treat as file path
       fs.accessSync(certPath, fs.constants.R_OK);

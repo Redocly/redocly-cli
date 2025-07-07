@@ -117,7 +117,7 @@ export type AppOptions = {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  mutualTls?: Partial<TestContext['mtlsCerts']>;
+  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
