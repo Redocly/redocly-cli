@@ -13,7 +13,6 @@ import { formatCliInputs } from '../inputs/index.js';
 import { bundleArazzo } from '../get-test-description-from-file.js';
 import { getNestedValue } from '../../../utils/get-nested-value.js';
 import { getPublicWorkflows } from './set-public-workflows.js';
-import { resolveMtlsCertificates } from '../../../utils/mtls/resolve-mtls-certificates.js';
 import { resolveSeverityConfiguration } from '../../checks/index.js';
 
 const faker = createFaker();
@@ -91,10 +90,7 @@ export async function createTestContext(
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
     secretFields: new Set<string>(),
-    mtlsCerts:
-      options.mutualTls?.clientCert || options.mutualTls?.clientKey || options.mutualTls?.caCert
-        ? resolveMtlsCertificates(options.mutualTls, options.workflowPath)
-        : undefined,
+    mtlsCerts: options?.mtlsCerts || undefined,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
   };
