@@ -282,7 +282,10 @@ export type TestContext = RuntimeExpressionContext & {
     caCert?: string;
   };
   apiClient: ApiFetcher;
-  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  requestFileLoader: {
+    getFileBody: (filePath: string) => Promise<Blob>;
+    createFormData?: () => FormData;
+  };
 };
 
 export type TestDescription = Partial<

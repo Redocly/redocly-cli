@@ -5,6 +5,7 @@ import { access, constants, readFileSync, writeFileSync } from 'node:fs';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
 import path from 'node:path';
+import { FormData } from 'undici';
 
 export type RespectArgv = {
   files: string[];
@@ -66,6 +67,7 @@ export async function handleRespect({
           const buffer = readFileSync(filePath);
           return new Blob([buffer]);
         },
+        createFormData: () => new FormData(),
       },
     };
 
