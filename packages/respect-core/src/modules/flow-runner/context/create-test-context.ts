@@ -11,7 +11,6 @@ import { createFaker } from '../../faker.js';
 import { infoSubstitute } from '../../arazzo-description-generator/index.js';
 import { formatCliInputs } from '../inputs/index.js';
 import { bundleArazzo } from '../get-test-description-from-file.js';
-import { readEnvVariables } from '../read-env-variables.js';
 import { getNestedValue } from '../../../utils/get-nested-value.js';
 import { getPublicWorkflows } from './set-public-workflows.js';
 import { resolveMtlsCertificates } from '../../../utils/mtls/resolve-mtls-certificates.js';
@@ -76,7 +75,7 @@ export async function createTestContext(
     $workflows: getPublicWorkflows({
       workflows: testDescription.workflows || [],
       inputs: formatCliInputs(options?.input),
-      env: readEnvVariables(options.workflowPath) || {},
+      env: options.envVariables || {},
     }),
     $steps: {},
     $components: testDescription.components || {},

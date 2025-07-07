@@ -54,6 +54,7 @@ const defaultRespectOptions = {
   maxSteps: 2000,
   maxFetchTimeout: 40_000,
   config: await createConfig({}),
+  envVariables: {},
 };
 
 describe('runTestFile', () => {
@@ -645,6 +646,7 @@ describe('runTestFile', () => {
         maxSteps: 2000,
         maxFetchTimeout: 40_000,
         config: await createConfig({}),
+        envVariables: {},
       })
     ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });
