@@ -238,6 +238,7 @@ export type RunFileResult = {
   totalTimeMs: number;
   totalRequests: number;
   globalTimeoutError: boolean;
+  harLogs: any;
 };
 
 export interface WorkflowExecutionResult {
