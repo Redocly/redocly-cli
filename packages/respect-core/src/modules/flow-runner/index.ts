@@ -11,5 +11,4 @@ export * from './get-server-url.js';
 export * from './call-api-and-analyze-results.js';
 export * from './run-step.js';
 export * from './prepare-request.js';
-export * from './read-env-variables.js';
 export * from './resolve-running-workflows.js';

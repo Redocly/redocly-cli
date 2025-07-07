@@ -22,6 +22,7 @@ export type RespectOptions = {
   maxFetchTimeout: number;
   executionTimeout: number;
   collectSpecData?: CollectFn;
+  envVariables: Record<string, string>;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
