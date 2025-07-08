@@ -34,7 +34,7 @@ rules:
   no-duplicated-tag-names: error
 ```
 
-With ignoring case:
+Configuration that ignores case:
 
 ```yaml
 rules:
