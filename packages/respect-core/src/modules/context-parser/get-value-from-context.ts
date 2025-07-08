@@ -1,5 +1,4 @@
 import { red } from 'colorette';
-import { createContext, runInContext } from 'node:vm';
 import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types.js';
@@ -58,6 +57,13 @@ export function replaceFakerVariablesInString(
   } else {
     return input;
   }
+}
+
+function runInContext(code: string, context: any) {
+  const contextKeys = Object.keys(context);
+  const contextValues = Object.values(context);
+
+  return new Function(...contextKeys, `return ${code}`)(...contextValues);
 }
 
 function replaceVariablesInString(
@@ -172,7 +178,6 @@ export function getFakeData(pointer: string, ctx: TestContext | RuntimeExpressio
   const fakerContext = { ctx: { faker: ctx.$faker } };
 
   try {
-    createContext(fakerContext);
     const escapedSegments = segments
       .map((segment) => segment.trim())
       .map((segment, idx) =>
