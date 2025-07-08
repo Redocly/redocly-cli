@@ -15,7 +15,7 @@ export const NoDuplicatedTagNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule
 
         if (tagNames.has(tagName)) {
           ctx.report({
-            message: `Duplicate tag name found: '${tag.name}'`,
+            message: `Duplicate tag name found: '${tag.name}'.`,
             location: ctx.location,
           });
         } else {
