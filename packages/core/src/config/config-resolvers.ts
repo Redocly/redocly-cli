@@ -104,8 +104,8 @@ export async function resolveConfig({
         return [
           key,
           {
+            ...apiConfig,
             ...mergedConfig,
-            root: apiConfig.root,
             rules: groupAssertionRules(mergedConfig, resolvedPlugins),
           },
         ];

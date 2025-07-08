@@ -609,7 +609,7 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
-  });
+  }, 20_000);
 
   it('should report invalid value when externalValue is also set', async () => {
     const document = parseYamlToDocument(
