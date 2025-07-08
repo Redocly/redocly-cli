@@ -50,7 +50,7 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
-const harLogs = createHarLog();
+const harLogs = createHarLog({ version: '1.0.0' });
 const apiClient = new ApiFetcher({
   harLogs,
 });
