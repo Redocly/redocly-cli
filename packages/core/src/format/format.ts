@@ -86,7 +86,7 @@ export function formatProblems(
     format?: OutputFormat;
     color?: boolean;
     totals: Totals;
-    version: string;
+    version?: string;
   }
 ) {
   const {

@@ -51,7 +51,10 @@ export async function createTestContext(
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
           const filePath = resolve(dirname(options.workflowPath), sourceDescriptionPath);
-          const bundledTestDescription = await bundleArazzo({ filePath });
+          const bundledTestDescription = await bundleArazzo({
+            filePath,
+            version: options?.version,
+          });
 
           bundledDescriptions[name] = bundledTestDescription;
         }

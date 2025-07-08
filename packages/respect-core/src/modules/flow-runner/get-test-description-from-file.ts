@@ -11,17 +11,17 @@ import {
 import * as path from 'node:path';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
-import { version } from '../../utils/package.js';
 
 type BundleArazzoOptions = {
   filePath: string;
   base?: string;
   externalRefResolver?: BaseResolver;
   collectSpecData?: CollectFn;
+  version?: string;
 };
 
 export async function bundleArazzo(options: BundleArazzoOptions) {
-  const { filePath, base, externalRefResolver, collectSpecData } = options;
+  const { filePath, base, externalRefResolver, collectSpecData, version } = options;
 
   const fileName = path.basename(filePath);
 

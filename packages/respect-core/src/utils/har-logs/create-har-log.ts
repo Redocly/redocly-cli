@@ -1,12 +1,20 @@
-import { name as packageName, version as packageVersion } from '../package.js';
-
-export function createHarLog(entries: any[] = [], pageInfo: any = {}): any {
+export function createHarLog(
+  {
+    entries = [],
+    pageInfo = {},
+    version,
+  }: { entries?: any[]; pageInfo?: any; version?: string } = {
+    entries: [],
+    pageInfo: {},
+    version: undefined,
+  }
+): any {
   return {
     log: {
       version: '1.2',
       creator: {
-        name: packageName,
-        version: packageVersion,
+        name: '@redocly/respect-core',
+        version: version,
       },
       pages: [
         Object.assign(

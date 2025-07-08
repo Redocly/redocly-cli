@@ -5,7 +5,7 @@ describe('createHarLog', () => {
     const mockDate = new Date('2024-01-01T00:00:00.000Z');
     vi.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
 
-    const harLog = createHarLog();
+    const harLog = createHarLog({ version: '1.0.0' });
     expect(harLog).toEqual({
       log: {
         version: '1.2',
