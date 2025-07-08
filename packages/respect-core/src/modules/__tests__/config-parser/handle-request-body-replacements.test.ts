@@ -55,7 +55,7 @@ describe('handlePayloadReplacements', () => {
     const payload = {
       foo: 'bar',
     };
-    const replacements = [{ target: 1, value: 'baz' }];
+    const replacements = [{ target: 1, value: 'baz' }] as any;
     const expressionContext = {
       step: {
         outputs: {
@@ -63,7 +63,7 @@ describe('handlePayloadReplacements', () => {
         },
       },
     } as unknown as RuntimeExpressionContext;
-    // @ts-expect-error
+
     expect(() =>
       handlePayloadReplacements({ payload, replacements, expressionContext, logger })
     ).toThrowError('Invalid JSON Pointer: 1');
