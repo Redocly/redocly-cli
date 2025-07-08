@@ -48,7 +48,7 @@ class Logger {
       .repeat(Math.ceil(windowWidth / separator.length))
       .slice(0, windowWidth);
 
-    return isBrowser ? console.info(separatorLine) : process.stdout.write(separatorLine);
+    return isBrowser ? console.log(separatorLine) : process.stdout.write(separatorLine);
   }
 
   indent(str: string, level: number) {

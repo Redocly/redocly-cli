@@ -123,6 +123,7 @@ export type AppOptions = {
   executionTimeout: number;
   config: Config;
   envVariables: Record<string, string>;
+  version?: string;
 };
 export type RegexpSuccessCriteria = {
   condition: string;

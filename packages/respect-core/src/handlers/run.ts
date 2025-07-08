@@ -21,6 +21,7 @@ export type RespectOptions = {
   executionTimeout: number;
   collectSpecData?: CollectFn;
   envVariables: Record<string, string>;
+  version?: string;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
