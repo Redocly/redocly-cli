@@ -98,7 +98,7 @@ export async function handleRespect({
     const runAllFilesResult = await handleRun(options);
 
     logger.printNewLine();
-    displayFilesSummaryTable(runAllFilesResult);
+    displayFilesSummaryTable(runAllFilesResult, logger);
     logger.printNewLine();
 
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
