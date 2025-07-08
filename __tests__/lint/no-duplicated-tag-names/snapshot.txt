@@ -1,6 +1,6 @@
 [1] openapi.yaml:10:5 at #/tags/2
 
-Duplicate tag name found: 'store'
+Duplicate tag name found: 'store'.
 
  8 |   - name: store
  9 |     description: Access to Petstore orders
