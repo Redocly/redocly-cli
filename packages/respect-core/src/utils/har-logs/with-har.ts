@@ -9,7 +9,6 @@
 
 import { URL } from 'url';
 import { Client } from 'undici';
-import * as crypto from 'node:crypto';
 import { addHeaders } from './helpers/add-headers.js';
 import { getDuration } from './helpers/get-duration.js';
 import { buildRequestCookies } from './helpers/build-request-cookies.js';

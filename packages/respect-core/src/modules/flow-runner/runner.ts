@@ -37,12 +37,16 @@ export async function runTestFile(options: RunOptions, collectSpecData?: Collect
     metadata: { ...options },
   };
 
-  const bundledTestDescription = await bundleArazzo({ filePath: options.file, collectSpecData });
+  const bundledTestDescription = await bundleArazzo({
+    filePath: options.file,
+    collectSpecData,
+    version: options?.version,
+  });
   return await runWorkflows(bundledTestDescription, workflowOptions);
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
-  const harLogs = options?.harOutput && createHarLog();
+  const harLogs = options?.harOutput && createHarLog({ version: options?.version });
   const apiClient = new ApiFetcher({
     harLogs,
   });
