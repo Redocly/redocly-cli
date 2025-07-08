@@ -1,0 +1,25 @@
+scorecard:
+  ignoreNonCompliant: true
+  levels:
+    - name: Baseline
+      extends:
+        - minimal
+      rules:
+        boolean-parameter-prefixes:
+          severity: off
+    - name: Silver
+      extends:
+        - recommended
+      rules:
+        rule/operation-summary:
+          subject:
+            type: Operation
+            property: summary
+          where:
+            - subject:
+                type: Paths
+              assertions:
+                defined: true
+    - name: Gold
+      extends:
+        - ./gold.yaml

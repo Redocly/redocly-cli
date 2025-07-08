@@ -63,7 +63,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-required-schema-properties-undefined": "off",
     "no-schema-type-mismatch": "warn",
     "no-unresolved-refs": "error",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
     "operation-operationId": "warn",
@@ -124,7 +124,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-undefined-server-variable": "error",
     "no-unresolved-refs": "error",
     "no-unused-components": "warn",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-problem-details-rfc7807": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
@@ -184,7 +184,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "no-undefined-server-variable": "error",
     "no-unresolved-refs": "error",
     "no-unused-components": "warn",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-problem-details-rfc7807": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
@@ -227,7 +227,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",
     "no-invalid-media-type-examples": "error",
-    "operation-2xx-response": "warn",
+    "operation-2xx-response": "off",
     "operation-4xx-response": "error",
     "operation-description": "error",
     "path-http-verbs-order": "error",
@@ -236,7 +236,71 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
 }
 `;
 
-exports[`resolveGovernanceConfig > should resolve extends with local file config which contains path to nested config 1`] = `
+exports[`resolveConfig > should resolve extends with local file config which contains path to nested config 1`] = `
+[
+  {
+    "absolutePath": ".../fixtures/resolve-config/api/plugin.js",
+    "configs": {
+      "all": {
+        "rules": {
+          "boolean-parameter-prefixes": "error",
+          "local/operation-id-not-test": "error",
+        },
+      },
+    },
+    "decorators": {
+      "oas3": {
+        "test-plugin-nested/inject-x-stats": [Function],
+      },
+    },
+    "id": "test-plugin-nested",
+    "path": ".../fixtures/resolve-config/api/plugin.js",
+    "preprocessors": {
+      "oas2": {
+        "test-plugin-nested/description-preprocessor": [Function],
+      },
+    },
+    "rules": {
+      "oas3": {
+        "test-plugin-nested/openid-connect-url-well-known": [Function],
+      },
+    },
+  },
+  {
+    "absolutePath": ".../fixtures/resolve-config/plugin.js",
+    "assertions": {
+      "checkWordsCount": [Function],
+    },
+    "configs": {
+      "all": {
+        "rules": {
+          "boolean-parameter-prefixes": "error",
+          "local/operation-id-not-test": "error",
+        },
+      },
+    },
+    "decorators": {
+      "oas3": {
+        "test-plugin/inject-x-stats": [Function],
+      },
+    },
+    "id": "test-plugin",
+    "path": ".../fixtures/resolve-config/plugin.js",
+    "preprocessors": {
+      "oas2": {
+        "test-plugin/description-preprocessor": [Function],
+      },
+    },
+    "rules": {
+      "oas3": {
+        "test-plugin/openid-connect-url-well-known": [Function],
+      },
+    },
+  },
+]
+`;
+
+exports[`resolveConfig > should resolve extends with local file config which contains path to nested config 2`] = `
 {
   "arazzo1Decorators": {},
   "arazzo1Preprocessors": {},
@@ -281,9 +345,6 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
     "tags-alphabetical": "off",
   },
   "decorators": {},
-  "extendPaths": [
-    "extend paths stub",
-  ],
   "oas2Decorators": {},
   "oas2Preprocessors": {},
   "oas2Rules": {
@@ -460,27 +521,32 @@ exports[`resolveGovernanceConfig > should resolve extends with local file config
   "overlay1Rules": {
     "info-contact": "off",
   },
-  "pluginPaths": [
-    "plugin paths stub",
-  ],
   "preprocessors": {},
   "rules": {
     "assertions": [
       {
         "assertionId": "rule/path-item-get-defined",
-        "defined": true,
+        "assertions": {
+          "defined": true,
+        },
         "message": "Every path item must have a GET operation.",
-        "property": "get",
-        "subject": "PathItem",
+        "subject": {
+          "property": "get",
+          "type": "PathItem",
+        },
       },
       {
         "assertionId": "rule/tag-description",
+        "assertions": {
+          "minLength": 13,
+          "pattern": "/\\.$/",
+        },
         "message": "Tag description must be at least 13 characters and end with a full stop.",
-        "minLength": 13,
-        "pattern": "/\\.$/",
-        "property": "description",
         "severity": "error",
-        "subject": "Tag",
+        "subject": {
+          "property": "description",
+          "type": "Tag",
+        },
       },
     ],
     "boolean-parameter-prefixes": "error",

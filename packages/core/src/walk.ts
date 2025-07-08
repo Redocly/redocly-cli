@@ -273,11 +273,18 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           if (itemsType !== undefined) {
             const isTypeAFunction = typeof itemsType === 'function';
             for (let i = 0; i < resolvedNode.length; i++) {
-              const itemType = isTypeAFunction
+              let itemType = isTypeAFunction
                 ? itemsType(resolvedNode[i], resolvedLocation.child([i]).absolutePointer)
                 : itemsType;
+              let itemValue = resolvedNode[i];
+
+              if (itemType?.directResolveAs) {
+                itemType = itemType.directResolveAs;
+                itemValue = { $ref: itemValue };
+              }
+
               if (isNamedType(itemType)) {
-                walkNode(resolvedNode[i], itemType, resolvedLocation.child([i]), resolvedNode, i);
+                walkNode(itemValue, itemType, resolvedLocation.child([i]), resolvedNode, i);
               }
             }
           }

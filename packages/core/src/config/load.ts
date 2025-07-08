@@ -1,10 +1,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseYaml } from '../js-yaml/index.js';
-import { ConfigValidationError, deepCloneMapWithJSON } from './utils.js';
-import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers.js';
-import { bundleConfig } from '../bundle.js';
-import { type BaseResolver, type Document, type ResolvedRefMap } from '../resolve.js';
+import { ConfigValidationError } from './utils.js';
+import { resolveConfig } from './config-resolvers.js';
+import {
+  BaseResolver,
+  makeDocumentFromString,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
 import { Config } from './config.js';
 import { type RawUniversalConfig } from './types.js';
 
@@ -31,13 +34,18 @@ export async function loadConfig(
     externalRefResolver,
   } = options;
 
-  const { rawConfig, document, resolvedRefMap } = await getConfig({
-    configPath,
-    externalRefResolver,
-  });
+  const resolver = externalRefResolver ?? new BaseResolver();
 
-  const resolvedConfig = await resolveConfig({
-    rawConfig,
+  const rawConfigDocument = configPath
+    ? await resolver.resolveDocument<RawUniversalConfig>(null, configPath, true)
+    : undefined;
+
+  if (rawConfigDocument instanceof Error) {
+    throw rawConfigDocument;
+  }
+
+  const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
+    rawConfigDocument: rawConfigDocument ? cloneConfigDocument(rawConfigDocument) : undefined,
     customExtends,
     configPath,
     externalRefResolver,
@@ -45,19 +53,19 @@ export async function loadConfig(
 
   const config = new Config(resolvedConfig, {
     configPath,
-    rawConfig,
-    document,
-    resolvedRefMap,
+    document: rawConfigDocument,
+    resolvedRefMap: resolvedRefMap,
+    plugins,
   });
 
   // FIXME: remove processRawConfig
-  if (document && rawConfig && resolvedRefMap && typeof processRawConfig === 'function') {
+  if (rawConfigDocument && resolvedRefMap && typeof processRawConfig === 'function') {
     try {
       await processRawConfig({
-        document,
+        document: rawConfigDocument,
         resolvedRefMap,
         config,
-        parsed: rawConfig,
+        parsed: resolvedConfig,
       });
     } catch (e) {
       if (e instanceof ConfigValidationError) {
@@ -71,6 +79,7 @@ export async function loadConfig(
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
+export const CONFIG_FILE_NAME = 'redocly.yaml';
 
 export function findConfig(dir?: string): string | undefined {
   if (!fs?.existsSync) return;
@@ -87,47 +96,51 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(options: {
-  configPath?: string;
-  externalRefResolver?: BaseResolver;
-}): Promise<{
-  rawConfig?: RawUniversalConfig;
-  document?: Document;
-  resolvedRefMap?: ResolvedRefMap;
-}> {
-  if (!options.configPath) return {};
-
-  try {
-    const { document, resolvedRefMap } = await resolveConfigFileAndRefs(options);
-
-    const bundledRefMap = deepCloneMapWithJSON(resolvedRefMap);
-    const rawConfig = (await bundleConfig(
-      JSON.parse(JSON.stringify(document)),
-      bundledRefMap
-    )) as RawUniversalConfig;
-
-    return {
-      rawConfig,
-      document,
-      resolvedRefMap,
-    };
-  } catch (e) {
-    throw new Error(`Error parsing config file at '${options.configPath}': ${e.message}`);
-  }
-}
-
 type CreateConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
-  document?: Document;
   resolvedRefMap?: ResolvedRefMap;
 };
 
 export async function createConfig(
   config?: string | RawUniversalConfig,
-  { configPath, externalRefResolver, document, resolvedRefMap }: CreateConfigOptions = {}
+  { configPath, externalRefResolver }: CreateConfigOptions = {}
 ): Promise<Config> {
-  const rawConfig = typeof config === 'string' ? (parseYaml(config) as RawUniversalConfig) : config;
-  const resolvedConfig = await resolveConfig({ rawConfig, configPath, externalRefResolver });
-  return new Config(resolvedConfig, { configPath, rawConfig, document, resolvedRefMap });
+  const rawConfigSource = typeof config === 'string' ? config : '';
+  const rawConfigDocument = makeDocumentFromString<RawUniversalConfig>(
+    rawConfigSource,
+    configPath ?? ''
+  );
+
+  if (typeof config !== 'string' && config) {
+    rawConfigDocument.parsed = config;
+  }
+
+  const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
+    rawConfigDocument: cloneConfigDocument(rawConfigDocument),
+    configPath,
+    externalRefResolver,
+  });
+  return new Config(resolvedConfig, {
+    configPath,
+    document: rawConfigDocument,
+    resolvedRefMap,
+    plugins,
+  });
+}
+
+function cloneConfigDocument(document: Document<RawUniversalConfig>) {
+  if (!document.parsed) {
+    return document;
+  }
+  const { plugins, resolve, ...rest } = document.parsed;
+  const cloned = {
+    ...structuredClone(rest),
+    plugins: plugins?.slice(),
+    ...(resolve && { resolve: { ...resolve } }),
+  };
+  return {
+    ...document,
+    parsed: cloned,
+  };
 }

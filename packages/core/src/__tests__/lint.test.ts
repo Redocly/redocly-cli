@@ -302,6 +302,97 @@ describe('lint', () => {
     `);
   });
 
+  it('lintFromString should work with plugins', async () => {
+    const source = outdent`
+      openapi: 3.0.2
+      info:
+        title: Example Schema
+        version: '1.0'
+      paths:
+        /user:
+          get:
+            # operationId: test
+            # x-operation-extra: on
+            responses:
+              '200':
+                description: OK
+    `;
+    const results = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await loadConfig({
+        configPath: path.join(
+          __dirname,
+          'fixtures/lint-with-refs-and-plugins/config-with-plugin.yaml'
+        ),
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1user/get/operationId",
+              "reportOnKey": true,
+              "source": "/test/spec.yaml",
+            },
+          ],
+          "message": "Operation object should contain \`operationId\` field.",
+          "ruleId": "operation-operationId",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1user/get",
+              "reportOnKey": false,
+              "source": "/test/spec.yaml",
+            },
+          ],
+          "message": "Operation must have \`x-operation-extra\` property",
+          "ruleId": "custom/operation-extra",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+
+    const results_with_ref = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await loadConfig({
+        configPath: path.join(
+          __dirname,
+          'fixtures/lint-with-refs-and-plugins/config-with-ref-to-plugin.yaml'
+        ),
+      }),
+    });
+    expect(replaceSourceWithRef(results_with_ref)).toEqual(replaceSourceWithRef(results));
+
+    const results_with_createConfig = await lintFromString({
+      absoluteRef: '/test/spec.yaml',
+      source,
+      config: await createConfig(
+        outdent`
+          plugins:
+            - custom-plugin.js
+          rules:
+            operation-operationId: warn
+            custom/operation-extra: error
+        `,
+        {
+          configPath: path.join(
+            __dirname,
+            'fixtures/lint-with-refs-and-plugins/config-with-plugin.yaml'
+          ),
+        }
+      ),
+    });
+    expect(replaceSourceWithRef(results_with_createConfig)).toEqual(replaceSourceWithRef(results));
+  });
+
   it('lint should work', async () => {
     const results = await lint({
       ref: path.join(__dirname, 'fixtures/lint/openapi.yaml'),
@@ -357,11 +448,13 @@ describe('lint', () => {
             showConsole: true # Not expected anymore
             layout: wrong-option
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({}, { document });
+    const cwd = path.join(__dirname, 'fixtures');
+    const config = await createConfig(testConfigContent, {
+      configPath: path.join(cwd, 'redocly.yaml'),
+    });
     const results = await lintConfig({ config });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, cwd)).toMatchInlineSnapshot(`
       [
         {
           "from": undefined,
@@ -369,7 +462,7 @@ describe('lint', () => {
             {
               "pointer": "#/apis",
               "reportOnKey": false,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
@@ -383,7 +476,7 @@ describe('lint', () => {
             {
               "pointer": "#/theme/openapi/layout",
               "reportOnKey": false,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "\`layout\` can be one of the following only: "stacked", "three-panel".",
@@ -403,8 +496,7 @@ describe('lint', () => {
         rules:
           operation-2xx-response: warn
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig(testConfigContent, { document });
+    const config = await createConfig(testConfigContent);
     const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -442,11 +534,13 @@ describe('lint', () => {
         plugins:
         - './local-plugin.js'
       `;
-    const document = parseYamlToDocument(testConfigContent, '');
-    const config = await createConfig({}, { document });
+    const cwd = path.join(__dirname, 'fixtures');
+    const config = await createConfig(testConfigContent, {
+      configPath: path.join(cwd, 'redocly.yaml'),
+    });
     const results = await lintConfig({ config });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, cwd)).toMatchInlineSnapshot(`
       [
         {
           "from": undefined,
@@ -454,7 +548,7 @@ describe('lint', () => {
             {
               "pointer": "#/apis/main/plugins",
               "reportOnKey": true,
-              "source": "",
+              "source": "redocly.yaml",
             },
           ],
           "message": "Property \`plugins\` is not expected here.",
@@ -467,8 +561,7 @@ describe('lint', () => {
   });
 
   it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
-    const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent, { document });
+    const config = await createConfig(testPortalConfigContent);
     const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -1071,8 +1164,7 @@ describe('lint', () => {
   });
 
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
-    const document = parseYamlToDocument(testPortalConfigContent, '');
-    const config = await createConfig(testPortalConfigContent, { document });
+    const config = await createConfig(testPortalConfigContent);
     const results = await lintConfig({
       externalConfigTypes: createConfigTypes(
         {

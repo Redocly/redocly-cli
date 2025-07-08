@@ -1,5 +1,6 @@
 import { isPlainObject, isTruthy } from './utils.js';
 
+import type { ResolveResult, UserContext } from './walk.js';
 import type { Source } from './resolve.js';
 import type { OasRef } from './typings/openapi.js';
 
@@ -88,4 +89,16 @@ export function isMappingRef(mapping: string) {
 
 export function isAnchor(ref: string) {
   return /^#[A-Za-z][A-Za-z0-9\-_:.]*$/.test(ref);
+}
+
+export function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+  if (!isPlainObject(resolved.node)) {
+    ctx.parent[ctx.key] = resolved.node;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete ref.$ref;
+    const obj = Object.assign({}, resolved.node, ref);
+    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
+  }
 }

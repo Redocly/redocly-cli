@@ -17,7 +17,6 @@ Config {
   },
   "doNotResolveExamples": false,
   "document": undefined,
-  "extendPaths": [],
   "ignore": {
     "https://some-path.yaml": {
       "no-unused-components": Set {
@@ -30,7 +29,6 @@ Config {
       },
     },
   },
-  "pluginPaths": [],
   "plugins": [],
   "preprocessors": {
     "arazzo1": {},
@@ -41,7 +39,6 @@ Config {
     "oas3_1": {},
     "overlay1": {},
   },
-  "rawConfig": undefined,
   "resolve": {
     "http": {
       "customFetch": undefined,

@@ -38,11 +38,6 @@ const testConfig: Config = await createConfig(
   }
 );
 testConfig.plugins = [];
-testConfig.extendPaths = [];
-testConfig.resolvedConfig.plugins = [];
-testConfig.resolvedConfig.extendPaths = [];
-testConfig.resolvedConfig.apis!['test@v1'].plugins = [];
-testConfig.resolvedConfig.apis!['test@v1'].extendPaths = [];
 
 describe('Config.forAlias', () => {
   it('should get config instance for an alias defined in the "apis" section', () => {
@@ -63,10 +58,34 @@ describe('Config.forAlias', () => {
           "overlay1": {},
         },
         "doNotResolveExamples": false,
-        "document": undefined,
-        "extendPaths": [],
+        "document": {
+          "parsed": {
+            "apis": {
+              "test@v1": {
+                "root": "resources/pets.yaml",
+                "rules": {
+                  "operation-summary": "warn",
+                },
+              },
+            },
+            "resolve": {
+              "http": {
+                "headers": [],
+              },
+            },
+            "rules": {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
+            "telemetry": "on",
+          },
+          "source": Source {
+            "absoluteRef": "redocly.yaml",
+            "body": "",
+            "mimeType": undefined,
+          },
+        },
         "ignore": {},
-        "pluginPaths": [],
         "plugins": [],
         "preprocessors": {
           "arazzo1": {},
@@ -76,26 +95,6 @@ describe('Config.forAlias', () => {
           "oas3_0": {},
           "oas3_1": {},
           "overlay1": {},
-        },
-        "rawConfig": {
-          "apis": {
-            "test@v1": {
-              "root": "resources/pets.yaml",
-              "rules": {
-                "operation-summary": "warn",
-              },
-            },
-          },
-          "resolve": {
-            "http": {
-              "headers": [],
-            },
-          },
-          "rules": {
-            "no-empty-servers": "error",
-            "operation-summary": "error",
-          },
-          "telemetry": "on",
         },
         "resolve": {
           "http": {
@@ -114,7 +113,6 @@ describe('Config.forAlias', () => {
           "async3Preprocessors": {},
           "async3Rules": {},
           "decorators": {},
-          "extendPaths": [],
           "oas2Decorators": {},
           "oas2Preprocessors": {},
           "oas2Rules": {},
@@ -127,8 +125,6 @@ describe('Config.forAlias', () => {
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
-          "pluginPaths": [],
-          "plugins": [],
           "preprocessors": {},
           "root": "resources/pets.yaml",
           "rules": {
@@ -136,7 +132,7 @@ describe('Config.forAlias', () => {
             "operation-summary": "warn",
           },
         },
-        "resolvedRefMap": undefined,
+        "resolvedRefMap": Map {},
         "rules": {
           "arazzo1": {
             "no-empty-servers": "error",
@@ -185,31 +181,30 @@ describe('Config.forAlias', () => {
 describe('Config.extendTypes', () => {
   let oas3 = vi.fn();
   let oas2 = vi.fn();
-  let testResolvedConfig: ResolvedConfig = {
-    plugins: [
-      {
-        id: 'test-types-plugin',
-        typeExtension: {
-          oas3,
-          oas2,
-        },
+  let plugins = [
+    {
+      id: 'test-types-plugin',
+      typeExtension: {
+        oas3,
+        oas2,
       },
-    ],
-  };
+    },
+  ];
+
   it('should call only oas3 types extension', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     config.extendTypes({}, SpecVersion.OAS3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     config.extendTypes({}, SpecVersion.OAS2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
   it('should throw error if for oas version different from 2 and 3', () => {
-    const config = new Config(testResolvedConfig);
+    const config = new Config({}, { plugins });
     expect(() => config.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
       'Not implemented'
     );

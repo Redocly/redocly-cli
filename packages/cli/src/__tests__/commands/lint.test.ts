@@ -7,6 +7,7 @@ import {
   logger,
   type Totals,
   type NormalizedProblem,
+  loadConfig,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -55,6 +56,7 @@ describe('handleLint', () => {
         logger: {
           info: vi.fn(),
           warn: vi.fn(),
+          error: vi.fn(),
           output: vi.fn(),
         },
         formatProblems: vi.fn(),
@@ -191,9 +193,9 @@ describe('handleLint', () => {
       expect(processExitMock).toHaveBeenCalledWith(1);
     });
 
-    it('should use recommended fallback if there is no config', async () => {
+    it('should suggest recommended fallback if there is no config', async () => {
       vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
-        return await createConfig();
+        return await loadConfig({});
       });
       await commandWrapper(handleLint)(argvMock);
       expect(logger.info).toHaveBeenCalledWith(

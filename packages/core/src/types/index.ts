@@ -39,6 +39,7 @@ export type NormalizedNodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
+  directResolveAs?: NormalizedPropType;
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;

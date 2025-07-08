@@ -70,11 +70,11 @@ const configs = {
   },
 };
 
-module.exports = {
+export default () => ({
   id,
   preprocessors,
   rules,
   decorators,
   configs,
   assertions,
-};
+});
