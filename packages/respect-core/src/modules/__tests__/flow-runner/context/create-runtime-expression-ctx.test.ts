@@ -1,4 +1,4 @@
-import { createConfig } from '@redocly/openapi-core';
+import { createConfig, logger } from '@redocly/openapi-core';
 import { type Step, type AppOptions, type TestDescription } from '../../../../types.js';
 import {
   createRuntimeExpressionCtx,
@@ -55,6 +55,7 @@ const options: AppOptions = {
   envVariables: {
     AUTH_TOKEN: '1234567890',
   },
+  logger,
 };
 
 describe('createRuntimeExpressionCtx', () => {

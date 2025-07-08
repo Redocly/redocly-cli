@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import {
   normalizeHeaders,
   isJsonContentType,
@@ -148,7 +149,11 @@ describe('ApiFetcher', () => {
   describe('fetchResults', () => {
     it('should throw an error if no serverUrl', async () => {
       const apiFetcher = new ApiFetcher({});
-      const ctx = {} as any;
+      const ctx = {
+        options: {
+          logger,
+        },
+      } as any;
       const step = {} as any;
       const requestData = {
         serverUrl: undefined,

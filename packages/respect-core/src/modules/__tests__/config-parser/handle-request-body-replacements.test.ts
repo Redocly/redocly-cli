@@ -1,4 +1,5 @@
-import type { RuntimeExpressionContext } from '../../../types.js';
+import { logger } from '@redocly/openapi-core';
+import { type RuntimeExpressionContext } from '../../../types.js';
 import { handlePayloadReplacements } from '../../context-parser/index.js';
 
 describe('handlePayloadReplacements', () => {
@@ -20,7 +21,7 @@ describe('handlePayloadReplacements', () => {
       },
     } as unknown as RuntimeExpressionContext;
 
-    handlePayloadReplacements(payload, replacements, expressionContext);
+    handlePayloadReplacements({ payload, replacements, expressionContext, logger });
 
     expect(payload).toEqual({
       foo: 'baz',
@@ -45,9 +46,9 @@ describe('handlePayloadReplacements', () => {
       },
     } as unknown as RuntimeExpressionContext;
 
-    expect(() => handlePayloadReplacements(payload, replacements, expressionContext)).toThrowError(
-      'Invalid JSON Pointer: /bar'
-    );
+    expect(() =>
+      handlePayloadReplacements({ payload, replacements, expressionContext, logger })
+    ).toThrowError('Invalid JSON Pointer: /bar');
   });
 
   it('should throw an error if the target is not a string', () => {
@@ -63,8 +64,8 @@ describe('handlePayloadReplacements', () => {
       },
     } as unknown as RuntimeExpressionContext;
     // @ts-expect-error
-    expect(() => handlePayloadReplacements(payload, replacements, expressionContext)).toThrowError(
-      'Invalid JSON Pointer: 1'
-    );
+    expect(() =>
+      handlePayloadReplacements({ payload, replacements, expressionContext, logger })
+    ).toThrowError('Invalid JSON Pointer: 1');
   });
 });

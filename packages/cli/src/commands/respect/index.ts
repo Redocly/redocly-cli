@@ -71,6 +71,7 @@ export async function handleRespect({
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
       envVariables: readEnvVariables(workingDir) || {},
+      logger,
     };
 
     if (options.skip && options.workflow) {

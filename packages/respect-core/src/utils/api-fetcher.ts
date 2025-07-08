@@ -17,13 +17,10 @@ import { getVerboseLogs, maskSecrets } from '../modules/cli-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { createMtlsClient } from './mtls/create-mtls-client.js';
-import { DefaultLogger } from './logger/logger.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
-
-const logger = DefaultLogger.getInstance();
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -135,7 +132,7 @@ export class ApiFetcher implements IFetcher {
   }): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
-      logger.error(bgRed(` No server url provided `));
+      ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
     }
 
@@ -179,7 +176,7 @@ export class ApiFetcher implements IFetcher {
     const urlToFetch = `${trimTrailingSlash(resolvedServerUrl)}${pathWithSearchParams}`;
 
     if (urlToFetch.startsWith('/')) {
-      logger.error(
+      ctx.options.logger.error(
         bgRed(` Wrong url: ${inverse(urlToFetch)} `) +
           ` Did you forget to provide a correct "serverUrl"?\n`
       );
@@ -187,7 +184,7 @@ export class ApiFetcher implements IFetcher {
 
     const contentType = headers['content-type'] || '';
     if (requestBody && !contentType) {
-      logger.error(
+      ctx.options.logger.error(
         bgRed(` Incorrect request `) +
           ` Please provide a correct "content-type" header or specify the "content-type" field in the test case itself. \n`
       );

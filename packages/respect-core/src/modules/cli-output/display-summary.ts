@@ -5,20 +5,22 @@ import { getExecutionTime } from '../../utils/time.js';
 import { calculateTotals } from './calculate-tests-passed.js';
 import { indent } from '../../utils/cli-outputs.js';
 import { resolveRunningWorkflows } from '../flow-runner/index.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { ResultsOfTests, WorkflowExecutionResult } from '../../types.js';
+import type { ResultsOfTests, RunOptions, WorkflowExecutionResult } from '../../types.js';
 
-const logger = DefaultLogger.getInstance();
-
-export function displaySummary(
-  startedAt: number,
-  workflows: WorkflowExecutionResult[],
-  argv?: { workflow?: string[]; skip?: string[]; file?: string }
-) {
-  const fileName = path.basename(argv?.file || '');
-  const workflowArgv = resolveRunningWorkflows(argv?.workflow) || [];
-  const skippedWorkflowArgv = resolveRunningWorkflows(argv?.skip) || [];
+export function displaySummary({
+  startedAt,
+  workflows,
+  options,
+}: {
+  startedAt: number;
+  workflows: WorkflowExecutionResult[];
+  options: RunOptions;
+}) {
+  const { logger } = options;
+  const fileName = path.basename(options?.file || '');
+  const workflowArgv = resolveRunningWorkflows(options?.workflow) || [];
+  const skippedWorkflowArgv = resolveRunningWorkflows(options?.skip) || [];
 
   let executedWorkflows =
     workflowArgv && workflowArgv.length
@@ -34,7 +36,7 @@ export function displaySummary(
 
   const executionTime = getExecutionTime(startedAt);
   logger.printNewLine();
-  logger.log(
+  logger.output(
     outdent`
         ${yellow(indent(`Summary for ${blue(fileName)}`, 2))}
         ${indent('', 2)}

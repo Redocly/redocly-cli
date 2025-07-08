@@ -1,7 +1,5 @@
+import { logger } from '@redocly/openapi-core';
 import { getWorkflowsToRun } from '../../flow-runner/index.js';
-import { DefaultLogger } from '../../../utils/logger/logger.js';
-
-const logger = DefaultLogger.getInstance();
 
 describe('getWorkflowsToRun', () => {
   const workflows = [
@@ -15,16 +13,21 @@ describe('getWorkflowsToRun', () => {
     },
   ];
   it('should return all workflows if no workflowToRun and no workflowsToSkip are provided', () => {
-    const workflowToRun = undefined;
+    const workflowsToRun = undefined;
     const workflowsToSkip = undefined;
-    const result = getWorkflowsToRun(workflows, workflowToRun, workflowsToSkip);
+    const result = getWorkflowsToRun({ workflows, workflowsToRun, workflowsToSkip, logger });
 
     expect(result).toEqual(workflows);
   });
 
   it('should return all workflows if workflowIds are empty', () => {
     const workflowIds = [] as string[];
-    const result = getWorkflowsToRun(workflows, workflowIds, undefined);
+    const result = getWorkflowsToRun({
+      workflows,
+      workflowsToRun: workflowIds,
+      workflowsToSkip: undefined,
+      logger,
+    });
 
     expect(result).toEqual(workflows);
   });
@@ -33,7 +36,12 @@ describe('getWorkflowsToRun', () => {
     const workflowIds = ['flow3'];
 
     try {
-      getWorkflowsToRun(workflows, workflowIds, undefined);
+      getWorkflowsToRun({
+        workflows,
+        workflowsToRun: workflowIds,
+        workflowsToSkip: undefined,
+        logger,
+      });
     } catch (error) {
       expect(error.message).toEqual(`Following workflows don't exist: ${workflowIds.join(', ')}`);
     }
@@ -41,15 +49,25 @@ describe('getWorkflowsToRun', () => {
 
   it('should return only the workflows that match the workflowIds', () => {
     const workflowIds = ['flow1'];
-    const result = getWorkflowsToRun(workflows, workflowIds, undefined);
+    const result = getWorkflowsToRun({
+      workflows,
+      workflowsToRun: workflowIds,
+      workflowsToSkip: undefined,
+      logger,
+    });
 
     expect(result).toEqual([workflows[0]]);
   });
 
   it('should return only the workflows that match the workflowIds and ignore the one does not exist', () => {
-    const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
+    const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
     const workflowIds = ['flow1', 'flow2', 'flow3'];
-    const result = getWorkflowsToRun(workflows, workflowIds, undefined);
+    const result = getWorkflowsToRun({
+      workflows,
+      workflowsToRun: workflowIds,
+      workflowsToSkip: undefined,
+      logger,
+    });
 
     expect(result).toEqual(workflows);
 
@@ -59,11 +77,16 @@ describe('getWorkflowsToRun', () => {
   });
 
   it('should return not skipped workflows when skip option is provided', () => {
-    const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
+    const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
 
     const workflowToRun = undefined;
     const workflowsToSkip = ['flow1'];
-    const result = getWorkflowsToRun(workflows, workflowToRun, workflowsToSkip);
+    const result = getWorkflowsToRun({
+      workflows,
+      workflowsToRun: workflowToRun,
+      workflowsToSkip,
+      logger,
+    });
 
     expect(mockLogger).toHaveBeenCalledTimes(1);
     expect(mockLogger).toHaveBeenCalledWith(
@@ -80,11 +103,16 @@ describe('getWorkflowsToRun', () => {
   });
 
   it('should return empty workflows list and write warning when all workflows are skipped', () => {
-    const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
+    const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
 
     const workflowToRun = undefined;
     const workflowsToSkip = ['flow1', 'flow2'];
-    const result = getWorkflowsToRun(workflows, workflowToRun, workflowsToSkip);
+    const result = getWorkflowsToRun({
+      workflows,
+      workflowsToRun: workflowToRun,
+      workflowsToSkip,
+      logger,
+    });
 
     expect(mockLogger).toHaveBeenCalledTimes(1);
     expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('All workflows are skipped'));
