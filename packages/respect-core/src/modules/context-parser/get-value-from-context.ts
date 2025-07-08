@@ -199,6 +199,7 @@ function modifyJSON(value: any, ctx: TestContext | RuntimeExpressionContext): an
     typeof value === 'number' ||
     typeof value === 'boolean' ||
     typeof value === 'undefined' ||
+    value instanceof Blob ||
     value === null
   )
     return;

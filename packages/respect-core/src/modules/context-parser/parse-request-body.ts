@@ -1,10 +1,5 @@
 import * as path from 'node:path';
 import { type TestContext, type RequestBody } from '../../types.js';
-import * as url from 'node:url';
-
-const __internalDirname = import.meta.url
-  ? path.dirname(url.fileURLToPath(import.meta.url))
-  : __dirname;
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
   /^image\/(png|jpeg|gif|bmp|webp|svg\+xml)|application\/pdf$/;
@@ -73,7 +68,10 @@ const getRequestBodyMultipartFormData = async (
 const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: TestContext) => {
   if (typeof payload === 'string' && payload.startsWith('$file(') && payload.endsWith(')')) {
     // fixme, remove this
-    const filePath = path.resolve(__internalDirname, '../', stripFileDecorator(payload));
+    const filePath = path.resolve(
+      path.dirname(ctx.options.workflowPath),
+      stripFileDecorator(payload)
+    );
 
     return ctx.requestFileLoader.getFileBody(filePath);
   } else {

@@ -198,6 +198,7 @@ export class ApiFetcher implements IFetcher {
     } else if (isXmlContentType(contentType)) {
       encodedBody = requestBody;
     } else if (contentType.includes('multipart/form-data')) {
+      encodedBody = requestBody;
       // Ensure the content-type header is not set so the client can set it
       /**
        * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects#sending_files_using_a_formdata_object
@@ -209,11 +210,11 @@ export class ApiFetcher implements IFetcher {
        */
       delete headers['content-type'];
     } else if (contentType === 'application/octet-stream') {
-      // Convert ReadStream to Blob for undici fetch
       encodedBody = requestBody;
-
-      const fileName = requestBody.path.split('/').pop();
-      headers['content-disposition'] = `attachment; filename=${fileName}`;
+      if (requestBody instanceof File) {
+        const fileName = requestBody.name;
+        headers['content-disposition'] = `attachment; filename=${fileName}`;
+      }
     } else {
       encodedBody = requestBody;
     }

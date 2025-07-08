@@ -65,7 +65,7 @@ export async function handleRespect({
             });
           });
           const buffer = readFileSync(filePath);
-          return new Blob([buffer]);
+          return new File([buffer], path.basename(filePath));
         },
         createFormData: () => new FormData(),
       },
