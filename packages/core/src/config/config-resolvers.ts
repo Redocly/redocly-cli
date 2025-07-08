@@ -144,7 +144,7 @@ export const preResolvePluginPath = (
 
   const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
-  return fs.existsSync(maybeAbsolutePluginPath) // TODO: replace with externalRefResolver.fs
+  return fs.existsSync(maybeAbsolutePluginPath)
     ? maybeAbsolutePluginPath
     : // For plugins imported from packages specifically
       module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
