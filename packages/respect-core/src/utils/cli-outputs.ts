@@ -1,11 +1,8 @@
 import { pluralize } from 'jest-matcher-utils'; // TODO: decide what to use: jest-matcher-utils or pluralize
 import { red, yellow, bold, blue } from 'colorette';
-import { type Totals } from '@redocly/openapi-core';
+import { type LoggerInterface, type Totals } from '@redocly/openapi-core';
 import { type Check, type VerboseLog, type Step } from '../types.js';
 import { displayChecks } from '../modules/cli-output/index.js';
-import { DefaultLogger } from './logger/logger.js';
-
-const logger = DefaultLogger.getInstance();
 
 export const RESET_ESCAPE_CODE = process.env.NO_COLOR ? '' : '\x1B[0m';
 
@@ -30,46 +27,58 @@ export function indent(str: string, level: number) {
     .join('\n');
 }
 
-export function printWorkflowSeparatorLine() {
+export function printWorkflowSeparatorLine(logger: LoggerInterface) {
   logger.printSeparator('\u2500');
   logger.printNewLine();
   logger.printNewLine();
 }
 
-export function printWorkflowSeparator(
-  fileName: string,
-  workflowName: string | undefined,
-  skipLineSeparator?: boolean
-) {
+export function printWorkflowSeparator({
+  fileName,
+  workflowName,
+  skipLineSeparator,
+  logger,
+}: {
+  fileName: string;
+  workflowName: string | undefined;
+  skipLineSeparator?: boolean;
+  logger: LoggerInterface;
+}) {
   if (!skipLineSeparator) {
-    printWorkflowSeparatorLine();
+    printWorkflowSeparatorLine(logger);
   }
-  logger.log(`  ${bold('Running workflow')} ${blue(`${fileName} / ${workflowName}`)}`);
+  logger.output(`  ${bold('Running workflow')} ${blue(`${fileName} / ${workflowName}`)}`);
   logger.printNewLine();
 }
 
-export function printRequiredWorkflowSeparator(parentWorkflowId: string) {
+export function printRequiredWorkflowSeparator(parentWorkflowId: string, logger: LoggerInterface) {
   logger.printNewLine();
-  logger.log(
+  logger.output(
     `  ${bold('Running required')} workflow for ${blue(parentWorkflowId)}${RESET_ESCAPE_CODE}\n`
   );
 }
 
-export function printChildWorkflowSeparator(parentStepId: string) {
+export function printChildWorkflowSeparator(parentStepId: string, logger: LoggerInterface) {
   logger.printNewLine();
-  logger.log(
+  logger.output(
     `  ${bold('Running child')} workflow for the step ${blue(parentStepId)}${RESET_ESCAPE_CODE}`
   );
   logger.printNewLine();
 }
 
-export function printActionsSeparator(
-  stepId: string,
-  actionName: string,
-  kind: 'failure' | 'success'
-) {
+export function printActionsSeparator({
+  stepId,
+  actionName,
+  kind,
+  logger,
+}: {
+  stepId: string;
+  actionName: string;
+  kind: 'failure' | 'success';
+  logger: LoggerInterface;
+}) {
   logger.printNewLine();
-  logger.log(
+  logger.output(
     `  ${bold(`Running ${kind} action`)} ${blue(actionName)} for the step ${blue(
       stepId
     )}${RESET_ESCAPE_CODE}`
@@ -77,11 +86,11 @@ export function printActionsSeparator(
   logger.printNewLine();
 }
 
-export function printStepSeparatorLine() {
+export function printStepSeparatorLine(logger: LoggerInterface) {
   logger.printNewLine();
 }
 
-export function printConfigLintTotals(totals: Totals): void {
+export function printConfigLintTotals(totals: Totals, logger: LoggerInterface): void {
   if (totals.errors > 0) {
     logger.error(
       red(
@@ -108,17 +117,19 @@ export function printStepDetails({
   checks,
   verboseLogs,
   verboseResponseLogs,
+  logger,
 }: {
   testNameToDisplay: string;
   checks: Check[];
   verboseLogs?: VerboseLog;
   verboseResponseLogs?: VerboseLog;
+  logger: LoggerInterface;
 }) {
-  printStepSeparatorLine();
-  displayChecks(testNameToDisplay, checks, verboseLogs, verboseResponseLogs);
+  printStepSeparatorLine(logger);
+  displayChecks({ testNameToDisplay, checks, verboseLogs, verboseResponseLogs, logger });
 }
 
-export function printUnknownStep(step: Step) {
-  printStepSeparatorLine();
-  displayChecks(step.stepId, step.checks);
+export function printUnknownStep(step: Step, logger: LoggerInterface) {
+  printStepSeparatorLine(logger);
+  displayChecks({ testNameToDisplay: step.stepId, checks: step.checks, logger });
 }

@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 import { lintExpression } from './lint.js';
 import { replaceJSONPointers } from './replace-json-pointers.js';
 import { getFakeData, parseJson } from '../context-parser/index.js';
@@ -10,30 +10,34 @@ export function evaluateRuntimeExpressionPayload({
   payload,
   context,
   contentType,
+  logger,
 }: {
   payload: any;
   context: RuntimeExpressionContext;
   contentType?: string;
+  logger: LoggerInterface;
 }): any {
   if (
     contentType?.includes('application/octet-stream') ||
     contentType?.includes('multipart/form-data')
   ) {
-    return parseJson(payload, context); // Return parsed file content as JSON
+    return parseJson(payload, context, logger); // Return parsed file content as JSON
   }
   if (typeof payload === 'string') {
     // Resolve string expressions
     return isPureRuntimeExpression(payload)
-      ? evaluateRuntimeExpression(payload, context)
-      : evaluateExpressionsInString(payload, context);
+      ? evaluateRuntimeExpression(payload, context, logger)
+      : evaluateExpressionsInString(payload, context, logger);
   } else if (isPlainObject(payload)) {
     return Object.entries(payload).reduce((acc, [key, value]) => {
-      acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context });
+      acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context, logger });
       return acc;
     }, {} as Record<string, any>);
   } else if (Array.isArray(payload)) {
     // Handle each element in an array
-    return payload.map((item) => evaluateRuntimeExpressionPayload({ payload: item, context }));
+    return payload.map((item) =>
+      evaluateRuntimeExpressionPayload({ payload: item, context, logger })
+    );
   } else {
     // Return the payload as-is if it's not a string, object, or array
     return payload;
@@ -41,31 +45,39 @@ export function evaluateRuntimeExpressionPayload({
 }
 
 // Evaluate runtime expressions in a given expression object. Used in SuccessCriteria conditions.
-export function evaluateRuntimeExpression(expression: any, context: RuntimeExpressionContext): any {
+export function evaluateRuntimeExpression(
+  expression: any,
+  context: RuntimeExpressionContext,
+  logger: LoggerInterface
+): any {
   if (typeof expression === 'string') {
-    return evaluateExpressionString(expression, context);
+    return evaluateExpressionString(expression, context, logger);
   } else if (isPlainObject(expression)) {
     return Object.entries(expression).reduce((acc, [key, value]) => {
-      acc[key] = value && evaluateRuntimeExpression(value, context);
+      acc[key] = value && evaluateRuntimeExpression(value, context, logger);
       return acc;
     }, {} as Record<string, any>);
   } else if (Array.isArray(expression)) {
-    return expression.map((exp) => evaluateRuntimeExpression(exp, context));
+    return expression.map((exp) => evaluateRuntimeExpression(exp, context, logger));
   } else {
     return expression;
   }
 }
 
-function evaluateExpressionString(expression: string, context: RuntimeExpressionContext) {
+function evaluateExpressionString(
+  expression: string,
+  context: RuntimeExpressionContext,
+  logger: LoggerInterface
+) {
   // Replace $faker expressions with fake data as it is not the part of the Runtime
   // Expressions and should be evaluated separately
   if (/^\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?$/.test(expression)) {
-    return getFakeData(expression.slice(1), context);
+    return getFakeData({ pointer: expression.slice(1), ctx: context, logger });
   } else if (expression.includes('$faker.')) {
     const fakerRegex = /\$faker\.[a-zA-Z0-9._-]+(\([^\\)]*\))?/g;
     expression = expression
       .replace(fakerRegex, (match) => {
-        return getFakeData(match.slice(1), context);
+        return getFakeData({ pointer: match.slice(1), ctx: context, logger });
       })
       .replace(/{(.*?)}/g, '$1');
   }
@@ -182,7 +194,8 @@ function convertNumericIndices(expression: string): string {
 // Helper function to evaluate expressions within a string
 function evaluateExpressionsInString(
   expression: string,
-  context: RuntimeExpressionContext
+  context: RuntimeExpressionContext,
+  logger: LoggerInterface
 ): string {
   const regex = /\{(?:[^{}]|\{[^{}]*\})*\}|\$[^\s{}]+(?:\([^()]*\))*/g;
 
@@ -190,7 +203,7 @@ function evaluateExpressionsInString(
     const exprToEvaluate = match.trim();
 
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
-    const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context);
+    const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context, logger);
 
     // Return evaluated value or the original match if undefined
     return evaluatedValue !== undefined ? evaluatedValue : match;

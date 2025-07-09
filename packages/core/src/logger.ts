@@ -18,7 +18,17 @@ export const colorize = new Proxy(colorette, {
   },
 });
 
-class Logger {
+export interface LoggerInterface {
+  info(message: string): void;
+  warn(message: string): void;
+  output(message: string): void;
+  error(message: string): void;
+  printNewLine(): void;
+  printSeparator(separator: string): void;
+  indent(str: string, level: number): string;
+}
+
+class Logger implements LoggerInterface {
   info(str: string) {
     return isBrowser ? console.info(str) : process.stderr.write(str);
   }
@@ -36,9 +46,11 @@ class Logger {
   }
 
   printNewLine() {
-    return isBrowser
-      ? console.info('\n')
-      : process.stdout.write(`${RESET_ESCAPE_CODE_IN_TERMINAL}\n`);
+    if (isBrowser) {
+      console.log('\n');
+    } else {
+      process.stdout.write(`${RESET_ESCAPE_CODE_IN_TERMINAL}\n`);
+    }
   }
 
   printSeparator(separator: string) {

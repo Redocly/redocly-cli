@@ -19,7 +19,7 @@ import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
 import type { RespectOptions } from './handlers/run.js';
-import type { Config, CollectFn, RuleSeverity } from '@redocly/openapi-core';
+import type { Config, CollectFn, RuleSeverity, LoggerInterface } from '@redocly/openapi-core';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -124,6 +124,7 @@ export type AppOptions = {
   config: Config;
   envVariables: Record<string, string>;
   version?: string;
+  logger: LoggerInterface;
 };
 export type RegexpSuccessCriteria = {
   condition: string;

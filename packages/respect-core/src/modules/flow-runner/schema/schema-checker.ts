@@ -11,9 +11,6 @@ import { CHECKS } from '../../checks/index.js';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
-import { DefaultLogger } from '../../../utils/logger/logger.js';
-
-const logger = DefaultLogger.getInstance();
 
 const ajvStrict = new Ajv({
   schemaId: '$id',
@@ -75,8 +72,8 @@ function checkSchemaFromDescription({
   const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
   if (isSchemaWithCircularRef) {
-    logger.log(`${yellow('WARNING: schema have circular references')}`);
-    logger.printNewLine();
+    ctx.options.logger.output(`${yellow('WARNING: schema have circular references')}`);
+    ctx.options.logger.printNewLine();
   }
 
   if (schemaFromDescription && !isSchemaWithCircularRef) {

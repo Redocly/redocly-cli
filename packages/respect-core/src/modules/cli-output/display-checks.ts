@@ -3,37 +3,45 @@ import { outdent } from 'outdent';
 import { combineUrl } from '../../utils/url.js';
 import { isJSON } from '../../utils/is-json.js';
 import { indent, RESET_ESCAPE_CODE } from '../../utils/cli-outputs.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { RuleSeverity } from '@redocly/openapi-core';
+import type { LoggerInterface, RuleSeverity } from '@redocly/openapi-core';
 import type { Check, VerboseLog } from '../../types.js';
 
-const logger = DefaultLogger.getInstance();
 const MAX_CRITERIA_CONDITION_DISPLAY_LENGTH = 50;
 
-export function displayChecks(
-  testNameToDisplay: string,
-  checks: Check[],
-  verboseLogs?: VerboseLog,
-  verboseResponseLogs?: VerboseLog
-) {
+export function displayChecks({
+  testNameToDisplay,
+  checks,
+  verboseLogs,
+  verboseResponseLogs,
+  logger,
+}: {
+  testNameToDisplay: string;
+  checks: Check[];
+  verboseLogs?: VerboseLog;
+  verboseResponseLogs?: VerboseLog;
+  logger: LoggerInterface;
+}) {
   const allChecksPassed = checks.every(({ passed }) => passed);
-  logger.log(`  ${allChecksPassed ? green('✓') : red('✗')} ${blue(testNameToDisplay)}`);
+  logger.output(`  ${allChecksPassed ? green('✓') : red('✗')} ${blue(testNameToDisplay)}`);
 
   if (verboseLogs) {
-    logger.log(`${RESET_ESCAPE_CODE}\n` + (displayVerboseLogs(verboseLogs) || ''));
+    logger.output(
+      `${RESET_ESCAPE_CODE}\n` + (displayVerboseLogs({ logs: verboseLogs, logger }) || '')
+    );
     logger.printNewLine();
   }
   if (verboseResponseLogs) {
-    logger.log(
-      `${RESET_ESCAPE_CODE}\n` + (displayVerboseLogs(verboseResponseLogs, 'response') || '')
+    logger.output(
+      `${RESET_ESCAPE_CODE}\n` +
+        (displayVerboseLogs({ logs: verboseResponseLogs, type: 'response', logger }) || '')
     );
     logger.printNewLine();
   }
   logger.printNewLine();
 
   for (const check of checks) {
-    logger.log(`${indent(displayCheckInfo(check, check.severity), 4)}\n`);
+    logger.output(`${indent(displayCheckInfo(check, check.severity), 4)}\n`);
   }
 }
 
@@ -54,7 +62,15 @@ function displayCheckInfo(check: Check, severity: RuleSeverity): string {
   }`;
 }
 
-function displayVerboseLogs(logs: VerboseLog, type: 'request' | 'response' = 'request'): string {
+function displayVerboseLogs({
+  logs,
+  type = 'request',
+  logger,
+}: {
+  logs: VerboseLog;
+  type?: 'request' | 'response';
+  logger: LoggerInterface;
+}): string {
   const { path, host, headerParams, body, statusCode } = logs;
   const responseTime = process.env.NODE_ENV === 'test' ? '<test>' : logs.responseTime;
 

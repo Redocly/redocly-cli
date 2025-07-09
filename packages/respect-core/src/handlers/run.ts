@@ -1,4 +1,4 @@
-import { type Config, type CollectFn } from '@redocly/openapi-core';
+import { type Config, type CollectFn, type LoggerInterface } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
@@ -22,6 +22,7 @@ export type RespectOptions = {
   collectSpecData?: CollectFn;
   envVariables: Record<string, string>;
   version?: string;
+  logger: LoggerInterface;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
@@ -64,10 +65,10 @@ async function runFile({
   const hasGlobalTimeoutError = executedWorkflows.some((workflow) => workflow.globalTimeoutError);
 
   if (totals.steps.failed > 0 || totals.steps.warnings > 0 || totals.steps.skipped > 0) {
-    displayErrors(executedWorkflows);
+    displayErrors(executedWorkflows, options.logger);
   }
 
-  displaySummary(startedAt, executedWorkflows, options);
+  displaySummary({ startedAt, workflows: executedWorkflows, options });
 
   return {
     hasProblems,

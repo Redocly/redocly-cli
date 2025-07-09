@@ -63,10 +63,11 @@ export function getServerUrl({
       return undefined;
     }
 
-    const serverObject = getValueFromContext(
-      `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
-      ctx
-    );
+    const serverObject = getValueFromContext({
+      value: `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
+      ctx,
+      logger: ctx.options.logger,
+    });
 
     return resolveOpenApiServerUrlWithVariables(serverObject);
   }
