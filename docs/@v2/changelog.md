@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.0-next.1 (2025-07-09)
+
+### Minor Changes
+
+- Extracted `nullable` validation from the `struct` rule into a new `nullable-type-sibling` rule for OpenAPI 3.0. This allows users to disable `nullable` validation separately from other structural checks.
+- Added the `no-duplicated-tag-names` rule to check for duplications in the `tags` field in API descriptions.
+- Implemented automatic masking of sensitive fields (such as tokens and passwords) in response bodies to enhance security and prevent accidental exposure of secrets in logs and outputs.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.0.0-next.1.
+
 ## 2.0.0-next.0 (2025-07-09)
 
 ### Major Changes
