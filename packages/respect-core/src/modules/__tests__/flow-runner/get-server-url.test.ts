@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import type { ExtendedOperation, TestContext } from '../../../types.js';
 import type { OperationDetails } from '../../description-parser/index.js';
 
@@ -9,6 +10,9 @@ describe('getServerUrl', () => {
       $sourceDescriptions: {
         test: { servers: [{ url: 'https://example.com' }, { url: 'https://example2.com' }] },
       },
+      options: {
+        logger,
+      },
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
@@ -18,6 +22,9 @@ describe('getServerUrl', () => {
   it('should return undefined when path does not include url and no servers provided', () => {
     const ctx = {
       $sourceDescriptions: {},
+      options: {
+        logger,
+      },
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
@@ -34,6 +41,9 @@ describe('getServerUrl', () => {
       ],
       $sourceDescriptions: {
         test: { servers: [{ url: 'https://example.com' }] },
+      },
+      options: {
+        logger,
       },
     } as unknown as TestContext;
     const descriptionName = 'test';
@@ -67,6 +77,9 @@ describe('getServerUrl', () => {
           ],
         },
       },
+      options: {
+        logger,
+      },
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
@@ -89,6 +102,9 @@ describe('getServerUrl', () => {
       $sourceDescriptions: {
         test: { servers: [{ url: 'https://example.com' }] },
       },
+      options: {
+        logger,
+      },
     } as unknown as TestContext;
     const descriptionName = 'test';
     const result = getServerUrl({ ctx, descriptionName });
@@ -107,6 +123,9 @@ describe('getServerUrl', () => {
             },
           },
         },
+      },
+      options: {
+        logger,
       },
     } as unknown as TestContext;
     const openapiOperation = {
@@ -128,6 +147,9 @@ describe('getServerUrl', () => {
       ],
       $sourceDescriptions: {
         test: { servers: [{ url: 'https://example.com' }] },
+      },
+      options: {
+        logger,
       },
     } as unknown as TestContext;
     const descriptionName = '';

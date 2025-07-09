@@ -4,18 +4,11 @@ import {
   bundle,
   type LocationObject,
   createConfig,
+  logger,
 } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
-
-vi.mock('../../../../utils/yaml.js', () => {
-  const originalModule = vi.importActual('../../../../utils/yaml.js');
-
-  return {
-    ...originalModule, // In case there are other exports you want to preserve
-  };
-});
 
 vi.mock('@redocly/openapi-core', async () => {
   const originalModule = await vi.importActual('@redocly/openapi-core');
@@ -25,6 +18,15 @@ vi.mock('@redocly/openapi-core', async () => {
     formatProblems: vi.fn(), // Mock formatProblems to do nothing
     lint: vi.fn(),
     bundle: vi.fn(),
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      output: vi.fn(),
+      error: vi.fn(),
+      printNewLine: vi.fn(),
+      printSeparator: vi.fn(),
+      indent: vi.fn(),
+    },
   };
 });
 
@@ -53,6 +55,7 @@ const defaultRespectOptions = {
   maxFetchTimeout: 40_000,
   config: await createConfig({}),
   envVariables: {},
+  logger: logger,
 };
 
 describe('runTestFile', () => {
@@ -628,6 +631,7 @@ describe('runTestFile', () => {
         maxFetchTimeout: 40_000,
         config: await createConfig({}),
         envVariables: {},
+        logger: logger,
       })
     ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });
