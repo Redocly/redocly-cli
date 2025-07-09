@@ -1,5 +1,49 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.0
+
+### Major Changes
+
+- Removed backward compatibility for the `spec` rule. Use `struct` instead.
+- Removed support for the deprecated `apiDefinitions` option in the Redocly config. Use `apis` instead.
+  Removed the `labels` field within the `apis` section, which was associated with the legacy Redocly API Registry product.
+- Removed support for the deprecated `features.openapi` and `features.mockServer` configuration options. Use `openapi` and `mockServer` directly instead.
+- Removed backward compatibility for the deprecated `lint` and `styleguide` options in the Redocly config.
+  Use `rules`, `decorators` and other related options on the root level instead.
+- Removed the deprecated `disallowAdditionalProperties` option support in rules. Use `allowAdditionalProperties` instead.
+- Removed the deprecated `undefined` assertion. Use `defined` instead.
+- Removed support for the legacy Redocly API Registry in favor of the new Reunite platform.
+  Reunite provides improved API management capabilities and better integration with Redocly's tooling ecosystem.
+  Migrated the `login` and `push` commands to work exclusively with Reunite.
+  Removed the `preview-docs` command as part of platform modernization.
+  Use the `preview` command instead.
+- Removed support for the deprecated `referenceDocs` option, which was related to the legacy Reference docs product.
+- Added support for `extends` bundling and array-based plugin configuration.
+  Fixed the extends order in the configuration.
+- Removed support for the deprecated `assert/` prefix in configurable rules. Use `rule/` prefix instead.
+- Migrated the codebase to ES Modules from CommonJS, bringing improved code organization and better support for modern JavaScript features.
+  Update to Node.js version 20.19.0+, 22.12.0+, or 23+.
+- Streamlined Redocly configuration interfaces for improved developer experience.
+  Removed `StyleguideConfig` class in favor of the unified `Config` class.
+  Removed `getMergedConfig` function - use `Config.forAlias()` method instead to retrieve API-specific configurations.
+
+### Minor Changes
+
+- Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
+  Use this extension to:
+
+  - Define security schemes at the step level using either predefined schemes or inline definitions
+  - Pass values of secrets (passwords, tokens, API keys)
+  - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect
+  - Automatically transform security parameters into appropriate HTTP headers or query parameters
+
+### Patch Changes
+
+- Fixed an issue where the `ignoreLastPathSegment` option of the `path-segment-plural` rule had no effect if the path contained only one segment, resulting in an error.
+- Updated @redocly/config to v0.24.1.
+- Fixed Redocly CLI to correctly read `residency` from the Redocly configuration file.
+- Fixed incorrect validation logic for the `constructor` property.
+
 ## 1.34.2
 
 ### Patch Changes
