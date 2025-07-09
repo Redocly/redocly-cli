@@ -13,7 +13,11 @@ import {
 import { withHar } from '../utils/har-logs/index.js';
 import { isEmpty } from './is-empty.js';
 import { resolvePath } from '../modules/context-parser/index.js';
-import { getVerboseLogs, maskSecrets } from '../modules/cli-output/index.js';
+import {
+  getVerboseLogs,
+  maskSecrets,
+  findPotentiallySecretObjectFields,
+} from '../modules/cli-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { createMtlsClient } from './mtls/create-mtls-client.js';
@@ -373,6 +377,11 @@ export class ApiFetcher implements IFetcher {
     });
 
     collectSecretFields(ctx, responseSchema, transformedBody);
+
+    const foundResponseBodySecrets = findPotentiallySecretObjectFields(transformedBody);
+    for (const secretItem of foundResponseBodySecrets) {
+      ctx.secretFields.add(secretItem);
+    }
 
     const maskedResponseBody = isJsonContentType(responseContentType)
       ? maskSecrets(transformedBody, ctx.secretFields || new Set())
