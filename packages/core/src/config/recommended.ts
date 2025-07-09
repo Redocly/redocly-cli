@@ -49,6 +49,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'scalar-property-missing-example': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'no-duplicated-tag-names': 'warn',
   },
   oas3_0Rules: {
     'array-parameter-serialization': 'off',
@@ -110,6 +111,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'no-duplicated-tag-names': 'warn',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -168,6 +170,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'no-duplicated-tag-names': 'warn',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
@@ -177,6 +180,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'no-duplicated-tag-names': 'warn',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
@@ -186,6 +190,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'operation-operationId': 'warn',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
+    'no-duplicated-tag-names': 'warn',
   },
   arazzo1Rules: {
     'criteria-unique': 'warn',

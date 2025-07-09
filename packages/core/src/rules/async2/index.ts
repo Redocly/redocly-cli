@@ -7,6 +7,7 @@ import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
+import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 
 import type { Async2Rule } from '../../visitors.js';
 import type { Async2RuleSet } from '../../oas-types.js';
@@ -21,6 +22,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription as Async2Rule,
   'tags-alphabetical': TagsAlphabetical as Async2Rule,
+  'no-duplicated-tag-names': NoDuplicatedTagNames as Async2Rule,
 };
 
 export const preprocessors = {};

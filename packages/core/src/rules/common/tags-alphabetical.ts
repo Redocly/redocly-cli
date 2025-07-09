@@ -1,6 +1,8 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2Definition, Oas2Tag } from '../../typings/swagger.js';
-import type { Oas3Definition, Oas3Tag, Oas3_1Definition } from '../../typings/openapi.js';
+import { getTagName } from '../utils.js';
+
+import type { Oas3Definition, Oas3_1Definition } from '../../typings/openapi.js';
+import type { Oas2Definition } from '../../typings/swagger.js';
+import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) => {
@@ -21,7 +23,3 @@ export const TagsAlphabetical: Oas3Rule | Oas2Rule = ({ ignoreCase = false }) =>
     },
   };
 };
-
-function getTagName(tag: Oas2Tag | Oas3Tag, ignoreCase: boolean): string {
-  return ignoreCase ? tag.name.toLowerCase() : tag.name;
-}
