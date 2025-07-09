@@ -160,7 +160,7 @@ It only checks links within the local docs (it can't check links to other docs s
 
 ## Built-in rules changes
 
-After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error) and `all` rulesets with appropriate severity levels.
+After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error), `spec`, and `all` rulesets with appropriate severity levels.
 The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 

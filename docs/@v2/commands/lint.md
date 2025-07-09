@@ -24,19 +24,19 @@ redocly lint --version
 
 ## Options
 
-| Option                 | Type     | Description                                                                                                                                                                                         |
-| ---------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                   | [string] | Array of API or Arazzo description filenames that need to be linted. See [the API section](#specify-api) for more options.                                                                          |
-| --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                           |
-| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). Build-in rulesets are: `minimal`, `recommended`, `recommended-strict`. Default value is `recommended`. |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                |
-| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                      |
-| --help                 | boolean  | Show help.                                                                                                                                                                                          |
-| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                  |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#limit-the-displayed-problems-count). Default value is 100.                                                                   |
-| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                        |
-| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                |
-| --version              | boolean  | Show version number.                                                                                                                                                                                |
+| Option                 | Type     | Description                                                                                                                                                                                                 |
+| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                   | [string] | Array of API or Arazzo description filenames that need to be linted. See [the API section](#specify-api) for more options.                                                                                  |
+| --config               | string   | Specify path to the [configuration file](#use-custom-configuration-file).                                                                                                                                   |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings). Build-in rulesets are: `spec`, `minimal`, `recommended`, `recommended-strict`. Default value is `recommended`. |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `github-actions`, `markdown`, `summary`. Default value is `codeframe`.                        |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                                                                              |
+| --help                 | boolean  | Show help.                                                                                                                                                                                                  |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                          |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#limit-the-displayed-problems-count). Default value is 100.                                                                           |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                        |
+| --version              | boolean  | Show version number.                                                                                                                                                                                        |
 
 ## Examples
 
@@ -113,7 +113,7 @@ redocly lint --config=./another/directory/config.yaml
 ### Extend configuration
 
 The `--extends` option allows you to extend the existing configuration.
-This option accepts one of the following values: `minimal`, `recommended`, or `recommended-strict`.
+This option accepts one of the following values: `minimal`, `recommended`, `recommended-strict`, or `spec`.
 Each of the values is a base set of rules that the `lint` command uses.
 You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
 For more details, see [rulesets](../rules.md).
@@ -304,8 +304,8 @@ Running the `lint` command with `--format=markdown` produces output like the fol
 
 | Severity | Location | Problem | Message |
 |---|---|---|---|
-| error | line 42:11 | [struct](https://redocly.com/docs/cli/rules/oas/struct) | Must contain at least one of the following fields: schema, content. |
-| error | line 44:11 | [struct](https://redocly.com/docs/cli/rules/oas/struct) | Property `type` is not expected here. |
+| error | line 42:11 | [struct](https://redocly.com/docs/cli/rules/common/struct) | Must contain at least one of the following fields: schema, content. |
+| error | line 44:11 | [struct](https://redocly.com/docs/cli/rules/common/struct) | Property `type` is not expected here. |
 
 Validation failed
 Errors: 2
@@ -369,7 +369,7 @@ Example of an ignore file:
 
 ```yaml .redocly.lint-ignore.yaml file
 # This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
-# See https://redoc.ly/docs/cli/ for more information.
+# See https://redocly.com/docs/cli/ for more information.
 museum-with-errors.yaml:
   struct:
     - '#/paths/~1museum-hours/get/operationIds'

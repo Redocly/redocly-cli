@@ -27,7 +27,7 @@ Errors:
 - [path-parameters-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
-- [struct](./oas/struct.md)
+- [struct](./common/struct.md)
 - [parameters-unique](./arazzo/parameters-unique.md)
 - [sourceDescription-type](./arazzo/sourceDescriptions-type.md)
 - [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)

@@ -70,7 +70,7 @@ run `redocly lint --generate-ignore-file` to add all problems to the ignore file
 
 ## Configure the linting rules
 
-Choose from the ready-made rulesets (`minimal`, `recommended` or `recommended-strict`), or go one better and configure the rules that suit your use case.
+Choose from the ready-made rulesets (`spec`, `minimal`, `recommended` or `recommended-strict`), or go one better and configure the rules that suit your use case.
 There's a full [list of built-in rules for Arazzo](../rules/built-in-rules.md#arazzo-rules) to refer to.
 
 Add the rules to `redocly.yaml`, but for Arazzo specifications, the rules go in their own configuration section called `arazzoRules`.
