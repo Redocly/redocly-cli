@@ -12,7 +12,7 @@ import { Source } from '../../resolve.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
-const baseGovernanceConfig: RawGovernanceConfig = {
+const baseGovernanceConfig: RawGovernanceConfig<'built-in'> = {
   rules: {
     'operation-2xx-response': 'warn',
   },
