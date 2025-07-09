@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { TestContext } from '../../../types.js';
 
 import { createFaker } from '../../faker.js';
@@ -12,24 +14,23 @@ describe('getValueFromContext', () => {
     const ctx = {
       $some: 'test',
     } as unknown as TestContext;
-    expect(getValueFromContext('$some', ctx)).toEqual('test');
+    expect(getValueFromContext({ value: '$some', ctx, logger })).toEqual('test');
   });
 
   it('should return custom list of objects value', () => {
     const ctx = {
       $some: 'John Wick',
     } as unknown as TestContext;
-    expect(getValueFromContext([{ name: '$some' }, { name: 'Jonny Mnemonic' }], ctx)).toEqual([
-      { name: 'John Wick' },
-      { name: 'Jonny Mnemonic' },
-    ]);
+    expect(
+      getValueFromContext({ value: [{ name: '$some' }, { name: 'Jonny Mnemonic' }], ctx, logger })
+    ).toEqual([{ name: 'John Wick' }, { name: 'Jonny Mnemonic' }]);
   });
 
   it('should return custom list value', () => {
     const ctx = {
       $some: 'John Wick',
     } as unknown as TestContext;
-    expect(getValueFromContext(['Jonny Mnemonic', 'John Wick'], ctx)).toEqual([
+    expect(getValueFromContext({ value: ['Jonny Mnemonic', 'John Wick'], ctx, logger })).toEqual([
       'Jonny Mnemonic',
       'John Wick',
     ]);
@@ -39,7 +40,9 @@ describe('getValueFromContext', () => {
     const ctx = {
       $some: 'John',
     } as unknown as TestContext;
-    expect(getValueFromContext({ name: '$some', lastname: 'Mnemonic' }, ctx)).toEqual({
+    expect(
+      getValueFromContext({ value: { name: '$some', lastname: 'Mnemonic' }, ctx, logger })
+    ).toEqual({
       name: 'John',
       lastname: 'Mnemonic',
     });
@@ -51,7 +54,9 @@ describe('getValueFromContext', () => {
         token: 'test',
       },
     } as unknown as TestContext;
-    expect(getValueFromContext('bearer {$env.token}', ctx)).toEqual('bearer test');
+    expect(getValueFromContext({ value: 'bearer {$env.token}', ctx, logger })).toEqual(
+      'bearer test'
+    );
   });
 
   it('should return multiple complex value from context', () => {
@@ -62,7 +67,11 @@ describe('getValueFromContext', () => {
       $faker: createFaker(),
     } as unknown as TestContext;
     expect(
-      getValueFromContext('bearer {$env.token} {$faker.number.integer({min:5,max:5})}', ctx)
+      getValueFromContext({
+        value: 'bearer {$env.token} {$faker.number.integer({min:5,max:5})}',
+        ctx,
+        logger,
+      })
     ).toEqual('bearer test 5');
   });
 
@@ -74,10 +83,12 @@ describe('getValueFromContext', () => {
       $faker: createFaker(),
     } as unknown as TestContext;
     expect(
-      getValueFromContext(
-        '  "name": "respect-test-project-name-{$faker.number.integer({ min: 5, max: 5 })}::{$faker.number.integer({ min: 5, max: 5 })}",',
-        ctx
-      )
+      getValueFromContext({
+        value:
+          '  "name": "respect-test-project-name-{$faker.number.integer({ min: 5, max: 5 })}::{$faker.number.integer({ min: 5, max: 5 })}",',
+        ctx,
+        logger,
+      })
     ).toEqual('  "name": "respect-test-project-name-5::5",');
   });
 
@@ -87,39 +98,49 @@ describe('getValueFromContext', () => {
         token: 'test',
       },
     } as unknown as TestContext;
-    expect(getValueFromContext('custom.domain.com', ctx)).toEqual('custom.domain.com');
+    expect(getValueFromContext({ value: 'custom.domain.com', ctx, logger })).toEqual(
+      'custom.domain.com'
+    );
   });
 
   it('should return faker generated data', () => {
     const ctx = {
       $faker: createFaker(),
     } as unknown as TestContext;
-    expect(getValueFromContext('$faker.number.integer({ min: 5, max: 5 })', ctx)).toEqual(5);
+    expect(
+      getValueFromContext({ value: '$faker.number.integer({ min: 5, max: 5 })', ctx, logger })
+    ).toEqual(5);
   });
 
   it('should return faker generated data with additional text', () => {
     const ctx = {
       $faker: createFaker(),
     } as unknown as TestContext;
-    expect(getValueFromContext('number is {$faker.number.integer({min:5,max:5})}', ctx)).toEqual(
-      'number is 5'
-    );
+    expect(
+      getValueFromContext({
+        value: 'number is {$faker.number.integer({min:5,max:5})}',
+        ctx,
+        logger,
+      })
+    ).toEqual('number is 5');
   });
 
   it('should return faker generated data', () => {
     const ctx = {
       $faker: createFaker(),
     } as unknown as TestContext;
-    expect(getValueFromContext('city is {$faker.address.city}', ctx)).not.toMatch(
-      '{$faker.address.city}'
-    );
+    expect(
+      getValueFromContext({ value: 'city is {$faker.address.city}', ctx, logger })
+    ).not.toMatch('{$faker.address.city}');
   });
 
   it('should remove `$file` identifier from the value', () => {
     const ctx = {
       $faker: createFaker(),
     } as unknown as TestContext;
-    expect(getValueFromContext("$file('./test.yaml')", ctx)).toEqual('./test.yaml');
+    expect(getValueFromContext({ value: "$file('./test.yaml')", ctx, logger })).toEqual(
+      './test.yaml'
+    );
   });
 
   // $sourceDescriptions.<name>.workflows.<workflowId>
@@ -136,7 +157,13 @@ describe('getValueFromContext', () => {
         },
       },
     } as unknown as TestContext;
-    expect(getValueFromContext('$sourceDescriptions.test.workflows.workflowTestId', ctx)).toEqual({
+    expect(
+      getValueFromContext({
+        value: '$sourceDescriptions.test.workflows.workflowTestId',
+        ctx,
+        logger,
+      })
+    ).toEqual({
       workflowId: 'workflowTestId',
       steps: [],
     });
@@ -156,7 +183,11 @@ describe('getValueFromContext', () => {
       },
     } as unknown as TestContext;
     expect(
-      getValueFromContext('$sourceDescriptions.notExistingName.workflows.workflowTestId', ctx)
+      getValueFromContext({
+        value: '$sourceDescriptions.notExistingName.workflows.workflowTestId',
+        ctx,
+        logger,
+      })
     ).toEqual(undefined);
   });
 
@@ -173,9 +204,9 @@ describe('getValueFromContext', () => {
         },
       },
     } as unknown as TestContext;
-    expect(getValueFromContext('$sourceDescriptions.notExistingName.workflows.', ctx)).toEqual(
-      undefined
-    );
+    expect(
+      getValueFromContext({ value: '$sourceDescriptions.notExistingName.workflows.', ctx, logger })
+    ).toEqual(undefined);
   });
 
   it('should return undefined if getFakeData had error resolving value', () => {
@@ -191,7 +222,7 @@ describe('getValueFromContext', () => {
         },
       },
     } as unknown as TestContext;
-    expect(getValueFromContext('{$faker.city}', ctx)).toEqual('undefined');
+    expect(getValueFromContext({ value: '{$faker.city}', ctx, logger })).toEqual('undefined');
   });
 });
 

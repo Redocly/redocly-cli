@@ -13,7 +13,6 @@ import { createRuntimeExpressionCtx } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { calculateTotals } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { CollectFn, Config } from '@redocly/openapi-core';
 import type {
@@ -28,8 +27,6 @@ import type {
   WorkflowExecutionResult,
 } from '../../types.js';
 
-const logger = DefaultLogger.getInstance();
-
 export async function runTestFile(options: RunOptions, collectSpecData?: CollectFn) {
   const workflowOptions = {
     ...options,
@@ -41,6 +38,7 @@ export async function runTestFile(options: RunOptions, collectSpecData?: Collect
     filePath: options.file,
     collectSpecData,
     version: options?.version,
+    logger: options.logger,
   });
   return await runWorkflows(bundledTestDescription, workflowOptions);
 }
@@ -56,7 +54,12 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
   const workflowsToRun = resolveRunningWorkflows(options.workflow);
   const workflowsToSkip = resolveRunningWorkflows(options.skip);
 
-  const workflows = getWorkflowsToRun(ctx.workflows, workflowsToRun, workflowsToSkip);
+  const workflows = getWorkflowsToRun({
+    workflows: ctx.workflows,
+    workflowsToRun,
+    workflowsToSkip,
+    logger: ctx.options.logger,
+  });
 
   const executedWorkflows: WorkflowExecutionResult[] = [];
 
@@ -86,6 +89,7 @@ export async function runWorkflow({
   parentStepId,
   invocationContext,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
+  const { logger } = ctx.options;
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
   const workflow =
@@ -100,7 +104,12 @@ export async function runWorkflow({
   const workflowId = workflow.workflowId;
 
   if (!fromStepId) {
-    printWorkflowSeparator(fileBaseName, workflowId, skipLineSeparator);
+    printWorkflowSeparator({
+      fileName: fileBaseName,
+      workflowName: workflowId,
+      skipLineSeparator,
+      logger,
+    });
   }
 
   const fromStepIndex = fromStepId
@@ -165,6 +174,7 @@ export async function runWorkflow({
         outputs[outputKey] = evaluateRuntimeExpressionPayload({
           payload: workflow.outputs[outputKey],
           context: runtimeExpressionContext,
+          logger: ctx.options.logger,
         });
       } catch (error: any) {
         throw new Error(
@@ -208,10 +218,14 @@ async function handleDependsOn({
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
-      const resolvedWorkflow = getValueFromContext(workflowId, ctx);
+      const resolvedWorkflow = getValueFromContext({
+        value: workflowId,
+        ctx,
+        logger: ctx.options.logger,
+      });
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
-      printRequiredWorkflowSeparator(workflow.workflowId);
+      printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
@@ -234,6 +248,7 @@ export async function resolveWorkflowContext(
   ctx: TestContext,
   config: Config
 ) {
+  const { logger } = ctx.options;
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
 
@@ -261,6 +276,7 @@ export async function resolveWorkflowContext(
           executionTimeout: ctx.options.executionTimeout,
           config,
           envVariables: ctx.options.envVariables,
+          logger,
         },
         ctx.apiClient
       )

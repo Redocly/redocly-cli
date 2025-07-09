@@ -17,7 +17,6 @@ import {
   resolveReusableComponentItem,
 } from '../context-parser/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 import { Timer } from '../timeout-timer/timer.js';
 
 import type {
@@ -32,7 +31,6 @@ import type {
 } from '../../types.js';
 import type { ParameterWithoutIn } from '../context-parser/index.js';
 
-const logger = DefaultLogger.getInstance();
 let stepsRun = 0;
 
 export async function runStep({
@@ -65,7 +63,7 @@ export async function runStep({
   if (targetWorkflowRef) {
     const targetWorkflow =
       ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
-      getValueFromContext(targetWorkflowRef, ctx);
+      getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger });
 
     if (!targetWorkflow) {
       const failedCall: Check = {
@@ -91,14 +89,18 @@ export async function runStep({
         .filter(isParameterWithoutIn)
         .reduce((acc, parameter: ParameterWithoutIn) => {
           // Ensure parameter is of type ParameterWithoutIn
-          acc[parameter.name] = getValueFromContext(parameter.value, ctx);
+          acc[parameter.name] = getValueFromContext({
+            value: parameter.value,
+            ctx,
+            logger: ctx.options.logger,
+          });
           return acc;
         }, {} as Record<string, any>);
 
       workflowCtx.$workflows[targetWorkflow.workflowId].inputs = workflowInputParameters;
     }
 
-    printChildWorkflowSeparator(stepId);
+    printChildWorkflowSeparator(stepId, ctx.options.logger);
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
@@ -119,6 +121,7 @@ export async function runStep({
             context: {
               $outputs: workflowCtx.$outputs?.[targetWorkflow.workflowId] || {},
             } as RuntimeExpressionContext,
+            logger: ctx.options.logger,
           });
         }
       } catch (error: any) {
@@ -228,9 +231,10 @@ export async function runStep({
       checks: step.checks,
       verboseLogs,
       verboseResponseLogs,
+      logger: ctx.options.logger,
     });
   } else {
-    printUnknownStep(step);
+    printUnknownStep(step, ctx.options.logger);
   }
 
   if (!allChecksPassed) {
@@ -279,7 +283,7 @@ export async function runStep({
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId
-          ? getValueFromContext(action.workflowId, ctx)
+          ? getValueFromContext({ value: action.workflowId, ctx, logger: ctx.options.logger })
           : undefined;
         const targetCtx = action.workflowId
           ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx, ctx.options.config)
@@ -297,7 +301,12 @@ export async function runStep({
           await delay(retryAfter);
 
           if (targetWorkflow || targetStep) {
-            printActionsSeparator(stepId, action.name, kind);
+            printActionsSeparator({
+              stepId,
+              actionName: action.name,
+              kind,
+              logger: ctx.options.logger,
+            });
           }
 
           if (targetWorkflow) {
@@ -320,7 +329,7 @@ export async function runStep({
             });
           }
 
-          logger.log(
+          ctx.options.logger.output(
             `\n  Retrying step ${blue(stepId)} (${retryLimit - retriesLeft + 1}/${retryLimit})\n`
           );
 
@@ -341,7 +350,12 @@ export async function runStep({
           }
 
           if (targetWorkflow || targetStep) {
-            printActionsSeparator(stepId, action.name, kind);
+            printActionsSeparator({
+              stepId,
+              actionName: action.name,
+              kind,
+              logger: ctx.options.logger,
+            });
           }
 
           const stepWorkflowResult = await runWorkflow({

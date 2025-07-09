@@ -1,9 +1,7 @@
 import { red } from 'colorette';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types.js';
-
-const logger = DefaultLogger.getInstance();
+import type { LoggerInterface } from '@redocly/openapi-core';
 
 export interface ParsedParameters {
   queryParams: Record<string, string>;
@@ -15,12 +13,20 @@ const hasCurlyBraces = (input: string) => {
   return /\{.*?\}/.test(input);
 };
 
-export function getValueFromContext(value: any, ctx: TestContext | RuntimeExpressionContext): any {
+export function getValueFromContext({
+  value,
+  ctx,
+  logger,
+}: {
+  value: any;
+  ctx: TestContext | RuntimeExpressionContext;
+  logger: LoggerInterface;
+}): any {
   if (!value) return value;
 
   if (typeof value === 'object') {
     for (const key in value) {
-      value[key] = getValueFromContext(value[key], ctx);
+      value[key] = getValueFromContext({ value: value[key], ctx, logger });
     }
     return value;
   }
@@ -30,28 +36,29 @@ export function getValueFromContext(value: any, ctx: TestContext | RuntimeExpres
   }
 
   if (value.toString().startsWith('$faker.')) {
-    return getFakeData(value.slice(1), ctx);
+    return getFakeData({ pointer: value.slice(1), ctx, logger });
   }
 
   if (hasCurlyBraces(value)) {
     // multiple variables in string => {$var1} {$var2}
-    return replaceVariablesInString(value, ctx);
+    return replaceVariablesInString(value, ctx, logger);
   } else {
     // single variable in string => $var1
-    return resolveValue(value, ctx);
+    return resolveValue(value, ctx, logger);
   }
 }
 
 export function replaceFakerVariablesInString(
   input: string,
-  ctx: TestContext | RuntimeExpressionContext
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
 ) {
   const startIndex = input.indexOf('{');
 
   if (startIndex !== -1) {
     const substringAfterFirstBrace = input.substring(startIndex + 1);
     const fakerFunction = substringAfterFirstBrace.slice(0, -1);
-    const fakerValue = getFakeData(fakerFunction.slice(1), ctx);
+    const fakerValue = getFakeData({ pointer: fakerFunction.slice(1), ctx, logger });
 
     return fakerValue && input.replace(/{(.*)}/, fakerValue);
   } else {
@@ -68,7 +75,8 @@ function runInContext(code: string, context: any) {
 
 function replaceVariablesInString(
   input: string,
-  ctx: TestContext | RuntimeExpressionContext
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
 ): string {
   // Regular expression to match content inside ${...}
   const regex = /\{\$(\{[^{}]*\}|[^{}])*\}/g;
@@ -76,24 +84,32 @@ function replaceVariablesInString(
 
   // Replace each match with its interpolated value
   result = result.replace(regex, (match, _code) => {
-    return interpolate(match, ctx);
+    return interpolate(match, ctx, logger);
   });
 
   return result;
 }
 
-function interpolate(part: string, ctx: TestContext | RuntimeExpressionContext): string {
+function interpolate(
+  part: string,
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
+): string {
   if (!part.includes('$')) return part;
 
   if (part.includes('$faker.')) {
-    return replaceFakerVariablesInString(part, ctx);
+    return replaceFakerVariablesInString(part, ctx, logger);
   }
 
   const value = getFrom(ctx)(removeFigureBrackets(part));
   return value !== undefined ? value : '';
 }
 
-const resolveValue = (value: string | null, ctx: TestContext | RuntimeExpressionContext) => {
+const resolveValue = (
+  value: string | null,
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
+) => {
   if (!value) return value;
 
   const path = value.toString();
@@ -130,7 +146,7 @@ const resolveValue = (value: string | null, ctx: TestContext | RuntimeExpression
   }
 
   if (path && path.trim().startsWith('faker.')) {
-    return getFakeData(path, ctx);
+    return getFakeData({ pointer: path, ctx, logger });
   }
 
   return path
@@ -173,7 +189,15 @@ const getFrom =
     return getFrom($[key], originalPointer)(rest.join('.'));
   };
 
-export function getFakeData(pointer: string, ctx: TestContext | RuntimeExpressionContext): any {
+export function getFakeData({
+  pointer,
+  ctx,
+  logger,
+}: {
+  pointer: string;
+  ctx: TestContext | RuntimeExpressionContext;
+  logger: LoggerInterface;
+}): any {
   const segments = pointer.split('.');
   const fakerContext = { ctx: { faker: ctx.$faker } };
 
@@ -195,9 +219,13 @@ export function getFakeData(pointer: string, ctx: TestContext | RuntimeExpressio
   }
 }
 
-function modifyJSON(value: any, ctx: TestContext | RuntimeExpressionContext): any {
+function modifyJSON(
+  value: any,
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
+): any {
   if (typeof value === 'string') {
-    if (value) return getValueFromContext(value, ctx);
+    if (value) return getValueFromContext({ value, ctx, logger });
   }
   if (
     typeof value === 'string' ||
@@ -210,15 +238,19 @@ function modifyJSON(value: any, ctx: TestContext | RuntimeExpressionContext): an
 
   for (const i in value as Record<string, unknown> | unknown[]) {
     if (typeof value[i] === 'string') {
-      if (value[i]) value[i] = getValueFromContext(value[i], ctx);
+      if (value[i]) value[i] = getValueFromContext({ value: value[i], ctx, logger });
     } else {
-      modifyJSON(value[i], ctx);
+      modifyJSON(value[i], ctx, logger);
     }
   }
 }
 
-export function parseJson(objectToResolve: any, ctx: TestContext | RuntimeExpressionContext): any {
-  return modifyJSON(objectToResolve, ctx) || objectToResolve;
+export function parseJson(
+  objectToResolve: any,
+  ctx: TestContext | RuntimeExpressionContext,
+  logger: LoggerInterface
+): any {
+  return modifyJSON(objectToResolve, ctx, logger) || objectToResolve;
 }
 
 export function resolvePath(

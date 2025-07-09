@@ -1,4 +1,4 @@
-import { createConfig, type Config } from '@redocly/openapi-core';
+import { createConfig, logger } from '@redocly/openapi-core';
 import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
@@ -60,6 +60,7 @@ describe('createTestContext', () => {
       envVariables: {
         AUTH_TOKEN: '1234567890',
       },
+      logger,
     } as AppOptions;
 
     const apiClient = new ApiFetcher({
@@ -564,6 +565,7 @@ describe('createTestContext', () => {
         TEST_VAR: 'test value',
         ANOTHER_VAR: 'another value',
       },
+      logger,
     };
 
     const apiClient = new ApiFetcher({
@@ -610,6 +612,7 @@ describe('createTestContext', () => {
       executionTimeout: 3_600_000,
       config: await createConfig({}),
       envVariables: {},
+      logger: logger,
     };
 
     const apiClient = new ApiFetcher({

@@ -71,6 +71,7 @@ export async function handleRespect({
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
       envVariables: readEnvVariables(workingDir) || {},
+      logger,
     };
 
     if (options.skip && options.workflow) {
@@ -97,7 +98,7 @@ export async function handleRespect({
     const runAllFilesResult = await handleRun(options);
 
     logger.printNewLine();
-    displayFilesSummaryTable(runAllFilesResult);
+    displayFilesSummaryTable(runAllFilesResult, logger);
     logger.printNewLine();
 
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);

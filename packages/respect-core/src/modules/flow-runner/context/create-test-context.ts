@@ -54,6 +54,7 @@ export async function createTestContext(
           const bundledTestDescription = await bundleArazzo({
             filePath,
             version: options?.version,
+            logger: options.logger,
           });
 
           bundledDescriptions[name] = bundledTestDescription;

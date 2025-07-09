@@ -5,7 +5,7 @@ import {
   calculateTotals,
   type WorkflowExecutionResult,
 } from '@redocly/respect-core';
-import { logger } from '@redocly/openapi-core';
+import { type LoggerInterface } from '@redocly/openapi-core';
 
 export function displayFilesSummaryTable(
   filesResult: {
@@ -13,7 +13,8 @@ export function displayFilesSummaryTable(
     hasProblems: boolean;
     executedWorkflows: WorkflowExecutionResult[];
     argv?: { workflow?: string[]; skip?: string[] };
-  }[]
+  }[],
+  logger: LoggerInterface
 ) {
   const DEFAULT_FILENAME_PADDING = 40;
   const maxFilenameLength = Math.max(
