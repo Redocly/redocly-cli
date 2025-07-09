@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Add new CLI options for the `respect` command to improve test execution control.
+Added new CLI options for the `respect` command to improve test execution control.
