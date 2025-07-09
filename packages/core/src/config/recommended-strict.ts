@@ -80,6 +80,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
+    'nullable-type-sibling': 'error',
     'operation-summary': 'error',
     'operation-operationId': 'error',
     'operation-operationId-unique': 'error',

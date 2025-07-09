@@ -17,6 +17,7 @@ Errors:
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
 - [no-unresolved-refs](./oas/no-unresolved-refs.md)
+- [nullable-type-sibling](./oas/nullable-type-sibling.md)
 - [operation-operationId-unique](./oas/operation-operationId-unique.md)
 - [operation-operationId-url-safe](./oas/operation-operationId-url-safe.md)
 - [operation-parameters-unique](./oas/operation-parameters-unique.md)
