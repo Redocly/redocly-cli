@@ -49,7 +49,6 @@ const builtInOAS2Rules = [
   'scalar-property-missing-example',
   'security-defined',
   'spec-strict-refs',
-  'no-unresolved-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
   'boolean-parameter-prefixes',
@@ -99,7 +98,6 @@ const builtInOAS3Rules = [
   'scalar-property-missing-example',
   'security-defined',
   'spec-strict-refs',
-  'no-unresolved-refs',
   'no-required-schema-properties-undefined',
   'no-schema-type-mismatch',
   'boolean-parameter-prefixes',
@@ -175,6 +173,10 @@ const builtInOverlay1Rules = ['info-contact'] as const;
 
 export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
 
+const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
+
+export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
+
 const builtInRules = [
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
@@ -182,7 +184,7 @@ const builtInRules = [
   ...builtInAsync3Rules,
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
-  'struct',
+  ...builtInCommonRules,
 ] as const;
 
 type BuiltInRuleId = typeof builtInRules[number];

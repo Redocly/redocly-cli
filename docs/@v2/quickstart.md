@@ -63,7 +63,7 @@ You have 1 warning.
 
 The output shows any aspects where the OpenAPI doesn't meet the standard. If you get too much output, try adding the `--format summary` parameter to the command.
 
-Feeling brave and highly API compliant? Try the `spec` or `recommended` standard instead and see how yours measures up.
+Feeling brave and highly API compliant? Try the `recommended` or `spec` ruleset instead and see how yours measures up.
 
 ## Craft a custom ruleset
 

@@ -34,6 +34,7 @@ import type {
   BuiltInAsync3RuleId,
   BuiltInArazzo1RuleId,
   BuiltInOverlay1RuleId,
+  BuiltInCommonRuleId,
 } from '../types/redocly-yaml.js';
 
 export type RuleSeverity = ProblemSeverity | 'off';
@@ -55,7 +56,7 @@ export type DecoratorConfig = PreprocessorConfig;
 export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = {
   extends?: string[];
 
-  rules?: RuleMap<'struct', RuleConfig, T>;
+  rules?: RuleMap<BuiltInCommonRuleId, RuleConfig, T>;
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
   oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
   oas3_1Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;

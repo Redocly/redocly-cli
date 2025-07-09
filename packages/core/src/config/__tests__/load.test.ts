@@ -202,7 +202,6 @@ describe('loadConfig', () => {
               "no-path-trailing-slash": "warn",
               "no-required-schema-properties-undefined": "off",
               "no-schema-type-mismatch": "off",
-              "no-unresolved-refs": "error",
               "operation-2xx-response": "warn",
               "operation-4xx-response": "off",
               "operation-description": "off",
@@ -265,7 +264,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "warn",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "nullable-type-sibling": "warn",
               "operation-2xx-response": "warn",
@@ -329,7 +327,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "warn",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "operation-2xx-response": "warn",
               "operation-4xx-problem-details-rfc7807": "off",
@@ -373,6 +370,7 @@ describe('loadConfig', () => {
               "boolean-parameter-prefixes": {
                 "severity": "off",
               },
+              "no-unresolved-refs": "error",
               "struct": "error",
             },
           },
@@ -441,7 +439,6 @@ describe('loadConfig', () => {
               "no-path-trailing-slash": "error",
               "no-required-schema-properties-undefined": "off",
               "no-schema-type-mismatch": "warn",
-              "no-unresolved-refs": "error",
               "operation-2xx-response": "warn",
               "operation-4xx-response": "warn",
               "operation-description": "off",
@@ -502,7 +499,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "error",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "nullable-type-sibling": "error",
               "operation-2xx-response": "warn",
@@ -564,7 +560,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "error",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "operation-2xx-response": "warn",
               "operation-4xx-problem-details-rfc7807": "off",
@@ -605,6 +600,7 @@ describe('loadConfig', () => {
             },
             "preprocessors": {},
             "rules": {
+              "no-unresolved-refs": "error",
               "rule/operation-summary": {
                 "subject": {
                   "property": "summary",
@@ -689,7 +685,6 @@ describe('loadConfig', () => {
               "no-path-trailing-slash": "warn",
               "no-required-schema-properties-undefined": "off",
               "no-schema-type-mismatch": "off",
-              "no-unresolved-refs": "error",
               "operation-2xx-response": "warn",
               "operation-4xx-response": "off",
               "operation-description": "off",
@@ -750,7 +745,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "warn",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "nullable-type-sibling": "warn",
               "operation-2xx-response": "warn",
@@ -812,7 +806,6 @@ describe('loadConfig', () => {
               "no-server-trailing-slash": "error",
               "no-server-variables-empty-enum": "error",
               "no-undefined-server-variable": "warn",
-              "no-unresolved-refs": "error",
               "no-unused-components": "warn",
               "operation-2xx-response": "warn",
               "operation-4xx-problem-details-rfc7807": "off",
@@ -855,6 +848,7 @@ describe('loadConfig', () => {
             "rules": {
               "no-ambiguous-paths": "error",
               "no-invalid-schema-examples": "error",
+              "no-unresolved-refs": "error",
               "paths-kebab-case": "error",
               "rule/headers-include-example": {
                 "assertions": {

@@ -94,7 +94,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'parameter-description': ParameterDescription as Oas3Rule,
   'operation-singular-tag': OperationSingularTag as Oas3Rule,
   'security-defined': SecurityDefined as Oas3Rule,
-  'no-unresolved-refs': NoUnresolvedRefs,
+  'no-unresolved-refs': NoUnresolvedRefs as Oas3Rule,
   'paths-kebab-case': PathsKebabCase as Oas3Rule,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas3Rule,

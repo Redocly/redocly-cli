@@ -3,6 +3,7 @@ import type { RawGovernanceConfig } from './types.js';
 const spec: RawGovernanceConfig<'built-in'> = {
   rules: {
     struct: 'error',
+    'no-unresolved-refs': 'error',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'off',
@@ -18,7 +19,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'off',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'operation-summary': 'off',
@@ -67,7 +67,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'off',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': {
@@ -130,7 +129,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'off',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': 'off',
@@ -176,21 +174,21 @@ const spec: RawGovernanceConfig<'built-in'> = {
   async2Rules: {
     'channels-kebab-case': 'off',
     'info-contact': 'off',
-    'info-license-strict': 'error',
+    'info-license-strict': 'off',
     'no-channel-trailing-slash': 'off',
     'no-duplicated-tag-names': 'off',
-    'operation-operationId': 'error',
-    'tag-description': 'error',
+    'operation-operationId': 'off',
+    'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
   async3Rules: {
     'channels-kebab-case': 'off',
     'info-contact': 'off',
-    'info-license-strict': 'error',
+    'info-license-strict': 'off',
     'no-channel-trailing-slash': 'off',
     'no-duplicated-tag-names': 'off',
-    'operation-operationId': 'error',
-    'tag-description': 'error',
+    'operation-operationId': 'off',
+    'tag-description': 'off',
     'tags-alphabetical': 'off',
   },
   arazzo1Rules: {

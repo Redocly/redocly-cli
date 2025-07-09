@@ -3,6 +3,7 @@ import { type RawGovernanceConfig } from './types.js';
 const minimal: RawGovernanceConfig<'built-in'> = {
   rules: {
     struct: 'error',
+    'no-unresolved-refs': 'error',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'off',
@@ -17,7 +18,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'warn',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'operation-summary': 'warn',
@@ -66,7 +66,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'warn',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': {
@@ -129,7 +128,6 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'off',
     'no-http-verbs-in-paths': 'off',
     'no-enum-type-mismatch': 'warn',
-    'no-unresolved-refs': 'error',
     'no-required-schema-properties-undefined': 'off',
     'no-schema-type-mismatch': 'off',
     'no-invalid-media-type-examples': 'warn',

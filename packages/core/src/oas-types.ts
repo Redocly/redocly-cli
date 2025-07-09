@@ -15,6 +15,7 @@ import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
   BuiltInOverlay1RuleId,
+  BuiltInCommonRuleId,
 } from './types/redocly-yaml.js';
 import type {
   Oas3Rule,
@@ -66,33 +67,33 @@ export type RuleMap<Key extends string, RuleConfig, T> = Record<
   RuleConfig
 >;
 export type Oas3RuleSet<T = undefined> = RuleMap<
-  BuiltInOAS3RuleId | 'struct' | 'assertions',
+  BuiltInOAS3RuleId | BuiltInCommonRuleId | 'assertions',
   Oas3Rule,
   T
 >;
 export type Oas2RuleSet<T = undefined> = RuleMap<
-  BuiltInOAS2RuleId | 'struct' | 'assertions',
+  BuiltInOAS2RuleId | BuiltInCommonRuleId | 'assertions',
   Oas2Rule,
   T
 >;
 export type Async2RuleSet<T = undefined> = RuleMap<
-  BuiltInAsync2RuleId | 'struct' | 'assertions',
+  BuiltInAsync2RuleId | BuiltInCommonRuleId | 'assertions',
   Async2Rule,
   T
 >;
 export type Async3RuleSet<T = undefined> = RuleMap<
-  BuiltInAsync3RuleId | 'struct' | 'assertions',
+  BuiltInAsync3RuleId | BuiltInCommonRuleId | 'assertions',
   Async3Rule,
   T
 >;
 export type Arazzo1RuleSet<T = undefined> = RuleMap<
-  BuiltInArazzo1RuleId | 'struct' | 'assertions',
+  BuiltInArazzo1RuleId | BuiltInCommonRuleId | 'assertions',
   Arazzo1Rule,
   T
 >;
 
 export type Overlay1RuleSet<T = undefined> = RuleMap<
-  BuiltInOverlay1RuleId | 'struct' | 'assertions',
+  BuiltInOverlay1RuleId | BuiltInCommonRuleId | 'assertions',
   Overlay1Rule,
   T
 >;

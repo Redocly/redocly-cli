@@ -8,12 +8,14 @@ import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
+import { NoUnresolvedRefs } from '../no-unresolved-refs.js';
 
 import type { Async3Rule } from '../../visitors.js';
 import type { Async3RuleSet } from '../../oas-types.js';
 
 export const rules: Async3RuleSet<'built-in'> = {
   struct: Struct as Async3Rule,
+  'no-unresolved-refs': NoUnresolvedRefs as Async3Rule,
   assertions: Assertions as Async3Rule,
   'info-contact': InfoContact as Async3Rule,
   'info-license-strict': InfoLicenseStrict as Async3Rule,
