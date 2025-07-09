@@ -76,7 +76,7 @@ components:
 
 ## Related rules
 
-- [struct](./struct.md)
+- [struct](../common/struct.md)
 
 ## Resources
 

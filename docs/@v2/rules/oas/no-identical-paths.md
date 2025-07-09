@@ -77,7 +77,7 @@ paths:
 ## Related rules
 
 - [no-ambiguous-paths](./no-ambiguous-paths.md)
-- [struct](./struct.md)
+- [struct](../common/struct.md)
 
 ## Resources
 
