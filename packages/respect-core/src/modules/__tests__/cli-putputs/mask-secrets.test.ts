@@ -15,7 +15,7 @@ describe('findPotentiallySecretObjectFields', () => {
       id_token: 'id_token901',
       accessToken2: 'accessToken234',
       idToken2: 'idToken567',
-      password2: 'password890',
+      client_secret: 'some_client_secret',
       access_token2: 'access_token123',
       id_token2: 'id_token456',
       name: 'John Doe',
@@ -39,6 +39,7 @@ describe('findPotentiallySecretObjectFields', () => {
       'password345',
       'access_token678',
       'id_token901',
+      'some_client_secret',
       'password123',
     ]);
   });

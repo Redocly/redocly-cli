@@ -1,4 +1,10 @@
-export const POTENTIALLY_SECRET_FIELDS = ['token', 'access_token', 'id_token', 'password'];
+export const POTENTIALLY_SECRET_FIELDS = [
+  'token',
+  'access_token',
+  'id_token',
+  'password',
+  'client_secret',
+];
 
 export function maskSecrets<T extends { [x: string]: any } | string>(
   target: T,
