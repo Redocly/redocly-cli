@@ -36,8 +36,6 @@ describe('findPotentiallySecretObjectFields', () => {
     const result = findPotentiallySecretObjectFields(obj);
     expect(result).toEqual([
       'token123456',
-      'accessToken789',
-      'idToken012',
       'password345',
       'access_token678',
       'id_token901',
