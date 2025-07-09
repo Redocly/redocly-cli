@@ -124,5 +124,5 @@ export {
 
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 
-export { logger } from './logger.js';
+export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';

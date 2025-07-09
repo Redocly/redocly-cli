@@ -31,7 +31,7 @@ export function resolveReusableObjectReference<T extends ReusableObject>(
     );
   }
 
-  const component = getValueFromContext(reference, ctx);
+  const component = getValueFromContext({ value: reference, ctx, logger: ctx.options.logger });
 
   if ('value' in component && valueOverride) {
     return {

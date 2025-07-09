@@ -4,23 +4,26 @@ exports[`runStep > should run step and display checks 1`] = `
 [MockFunction spy] {
   "calls": [
     [
-      "GET [37mhttp://localhost:3000/bird[39m [34m- step[39m [37m[1mget-bird[22m[39m",
-      [
-        {
-          "message": "",
-          "name": "status code check",
-          "passed": true,
-          "severity": "error",
-        },
-        {
-          "message": "",
-          "name": "content-type check",
-          "passed": true,
-          "severity": "error",
-        },
-      ],
-      undefined,
-      undefined,
+      {
+        "checks": [
+          {
+            "message": "",
+            "name": "status code check",
+            "passed": true,
+            "severity": "error",
+          },
+          {
+            "message": "",
+            "name": "content-type check",
+            "passed": true,
+            "severity": "error",
+          },
+        ],
+        "logger": Logger {},
+        "testNameToDisplay": "GET [37mhttp://localhost:3000/bird[39m [34m- step[39m [37m[1mget-bird[22m[39m",
+        "verboseLogs": undefined,
+        "verboseResponseLogs": undefined,
+      },
     ],
   ],
   "results": [

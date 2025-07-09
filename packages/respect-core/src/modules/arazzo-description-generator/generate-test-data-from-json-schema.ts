@@ -1,10 +1,8 @@
+import { type LoggerInterface } from '@redocly/openapi-core';
 import * as Sampler from 'openapi-sampler';
 import { bgRed } from 'colorette';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
-const logger = DefaultLogger.getInstance();
-
-export function generateTestDataFromJsonSchema(schema: any) {
+export function generateTestDataFromJsonSchema(schema: any, logger: LoggerInterface) {
   if (!schema) return;
   try {
     return Sampler.sample(schema, { skipReadOnly: true, skipNonRequired: false, quiet: true });
