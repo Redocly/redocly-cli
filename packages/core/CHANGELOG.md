@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.1
+
+### Minor Changes
+
+- Extracted `nullable` validation from the `struct` rule into a new `nullable-type-sibling` rule for OpenAPI 3.0. This allows users to disable `nullable` validation separately from other structural checks.
+- Added the `no-duplicated-tag-names` rule to check for duplications in the `tags` field in API descriptions.
+
 ## 2.0.0-next.0
 
 ### Major Changes

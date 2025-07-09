@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 2.0.0-next.1
+
+### Minor Changes
+
+- Implemented automatic masking of sensitive fields (such as tokens and passwords) in response bodies to enhance security and prevent accidental exposure of secrets in logs and outputs.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.0.0-next.1.
+
 ## 2.0.0-next.0
 
 ### Major Changes
