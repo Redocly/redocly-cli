@@ -3,4 +3,4 @@
 "@redocly/cli": major
 ---
 
-Removed support for the deprecated `features.openapi` and `features.mockServer` configuration options. Please use `openapi` and `mockServer` directly instead.
+Removed support for the deprecated `features.openapi` and `features.mockServer` configuration options. Use `openapi` and `mockServer` directly instead.
