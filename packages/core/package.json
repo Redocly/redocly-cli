@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "1.34.2",
+  "version": "2.0.0-next.0",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
