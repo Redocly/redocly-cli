@@ -1,11 +1,10 @@
 import { handleRun, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
-import { access, constants, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
 import path from 'node:path';
-import { FormData } from 'undici';
 
 export type RespectArgv = {
   files: string[];
@@ -54,20 +53,13 @@ export async function handleRespect({
       executionTimeout: argv['execution-timeout'],
       requestFileLoader: {
         getFileBody: async (filePath: string) => {
-          await new Promise((resolve, reject) => {
-            access(filePath, constants.F_OK | constants.R_OK, (err) => {
-              if (err) {
-                const relativePath = path.relative(process.cwd(), filePath);
-                reject(new Error(`File ${relativePath} doesn't exist or isn't readable.`));
-              } else {
-                resolve(filePath);
-              }
-            });
-          });
+          if (!existsSync(filePath)) {
+            throw new Error(`File ${filePath} doesn't exist or isn't readable.`);
+          }
+
           const buffer = readFileSync(filePath);
           return new File([buffer], path.basename(filePath));
         },
-        createFormData: () => new FormData(),
       },
     };
 

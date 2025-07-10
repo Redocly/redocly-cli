@@ -107,7 +107,7 @@ export async function parseRequestBody(
   const { payload, contentType } = stepRequestBody;
 
   if (contentType === 'multipart/form-data') {
-    const formData = ctx.requestFileLoader.createFormData?.() ?? new FormData();
+    const formData = new FormData();
     const workflowFilePath = path.resolve(ctx.options.workflowPath);
 
     await getRequestBodyMultipartFormData(payload, formData, workflowFilePath, ctx);

@@ -284,7 +284,6 @@ export type TestContext = RuntimeExpressionContext & {
   apiClient: ApiFetcher;
   requestFileLoader: {
     getFileBody: (filePath: string) => Promise<Blob>;
-    createFormData?: () => FormData;
   };
 };
 
