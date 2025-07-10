@@ -12,7 +12,7 @@ All the rules are of severity `error`:
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
-- [no-unresolved-refs](./oas/no-unresolved-refs.md)
+- [no-unresolved-refs](./common/no-unresolved-refs.md)
 - [no-x-security-scheme-name-in-workflow](./respect/no-x-security-scheme-name-in-workflow.md)
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md)
 - [nullable-type-sibling](./oas/nullable-type-sibling.md)

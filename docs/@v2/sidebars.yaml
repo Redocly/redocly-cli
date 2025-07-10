@@ -84,6 +84,7 @@
           items:
             - separator: Common
             - page: rules/common/struct.md
+            - page: rules/common/no-unresolved-refs.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -107,7 +108,6 @@
             - page: rules/oas/no-server-trailing-slash.md
             - page: rules/oas/no-server-variables-empty-enum.md
             - page: rules/oas/no-undefined-server-variable.md
-            - page: rules/oas/no-unresolved-refs.md
             - page: rules/oas/no-unused-components.md
             - page: rules/oas/nullable-type-sibling.md
             - page: rules/oas/operation-2xx-response.md

@@ -1,7 +1,5 @@
 ---
 slug: /docs/cli/v2/rules/common/struct
-# slug: /docs/cli/v2/rules/oas/struct
-# slug: /docs/cli/v2/rules/arazzo/struct
 ---
 
 # struct

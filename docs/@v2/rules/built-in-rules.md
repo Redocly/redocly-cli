@@ -29,7 +29,7 @@ The rules list is split into sections.
 
 ### Special rules
 
-- [no-unresolved-refs](./oas/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
