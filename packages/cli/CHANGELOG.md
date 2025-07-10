@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.0.0-next.2
+
+### Patch Changes
+
+- Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
+- Updated @redocly/openapi-core to v2.0.0-next.2.
+
 ## 2.0.0-next.1
 
 ### Minor Changes

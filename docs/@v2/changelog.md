@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.0-next.2 (2025-07-10)
+
+### Patch Changes
+
+- Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
+- Updated @redocly/openapi-core to v2.0.0-next.2.
+
 ## 2.0.0-next.1 (2025-07-09)
 
 ### Minor Changes
