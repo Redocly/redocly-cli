@@ -1,6 +1,6 @@
 import { blue } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
-import { createHarLog } from '../../utils/har-logs/index.js';
+import { createHarLog } from '../../utils/har-logs.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
 import { getValueFromContext } from '../context-parser/index.js';
@@ -47,6 +47,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
   const harLogs = options?.harOutput && createHarLog({ version: options?.version });
   const apiClient = new ApiFetcher({
     harLogs,
+    fetch: options.fetch,
   });
 
   const ctx = await createTestContext(testDescription, options, apiClient);
@@ -278,6 +279,7 @@ export async function resolveWorkflowContext(
           requestFileLoader: ctx.requestFileLoader,
           envVariables: ctx.options.envVariables,
           logger,
+          fetch: ctx.options.fetch,
         },
         ctx.apiClient
       )

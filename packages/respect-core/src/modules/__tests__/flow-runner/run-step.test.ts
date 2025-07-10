@@ -15,7 +15,7 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { createHarLog } from '../../../utils/har-logs/index.js';
+import { createHarLog } from '../../../utils/har-logs.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { displayChecks } from '../../cli-output/index.js';
 import { cleanColors } from '../../../utils/clean-colors.js';

@@ -24,6 +24,7 @@ export type RespectOptions = {
   envVariables: Record<string, string>;
   version?: string;
   logger: LoggerInterface;
+  fetch: typeof fetch;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {

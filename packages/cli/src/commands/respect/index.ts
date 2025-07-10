@@ -8,6 +8,8 @@ import { composeJsonLogsFiles } from './json-logs.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
+import { withMtlsClientIfNeeded } from './mtls/create-mtls-client.js';
+import { withHar } from './har-logs/index.js';
 
 export type RespectArgv = {
   files: string[];
@@ -53,6 +55,11 @@ export async function handleRespect({
           : undefined;
     }
 
+    let customFetch = withMtlsClientIfNeeded(mtlsCerts);
+    if (argv['har-output']) {
+      customFetch = withHar(customFetch, { har: argv['har-output'] });
+    }
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -82,6 +89,7 @@ export async function handleRespect({
       },
       envVariables: readEnvVariables(workingDir) || {},
       logger,
+      fetch: customFetch as unknown as typeof fetch,
     };
 
     if (options.skip && options.workflow) {

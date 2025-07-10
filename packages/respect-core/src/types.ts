@@ -123,6 +123,7 @@ export type AppOptions = {
   executionTimeout: number;
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  fetch: typeof fetch;
   envVariables: Record<string, string>;
   version?: string;
   logger: LoggerInterface;

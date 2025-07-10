@@ -1,4 +1,3 @@
-import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
 import {
   type OperationMethod,
@@ -7,13 +6,11 @@ import {
   type ResponseContext,
   type Step,
 } from '../types.js';
-import { withHar } from '../utils/har-logs/index.js';
 import { isEmpty } from './is-empty.js';
 import { resolvePath } from '../modules/context-parser/index.js';
 import { getVerboseLogs, maskSecrets } from '../modules/cli-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
-import { createMtlsClient } from './mtls/create-mtls-client.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
@@ -233,7 +230,7 @@ export class ApiFetcher implements IFetcher {
       body: maskedBody,
     });
 
-    const wrappedFetch = this.harLogs ? withHar(this.fetch, { har: this.harLogs }) : fetch;
+    const customFetch = ctx.options.fetch;
     const startTime = performance.now();
 
     let fetchResult;
@@ -246,13 +243,12 @@ export class ApiFetcher implements IFetcher {
       ...(!isEmpty(requestBody) && {
         body: encodedBody,
       }),
-      redirect: 'follow',
+      redirect: 'follow' as const,
       signal: AbortSignal.timeout(ctx.options.maxFetchTimeout),
       // Required for application/octet-stream content type requests
       ...(headers['content-type'] === 'application/octet-stream' && {
         duplex: 'half',
       }),
-      dispatcher: ctx.mtlsCerts ? createMtlsClient(urlToFetch, ctx.mtlsCerts) : undefined,
     };
 
     const workflowLevelXSecurityParameters =
@@ -274,7 +270,7 @@ export class ApiFetcher implements IFetcher {
       // FETCH WITH DIGEST AUTH
       // Digest auth perform two requests to establish the connection
       // We need to wait for the second request to complete before returning the response
-      const first401Result = await wrappedFetch(urlToFetch, fetchParams);
+      const first401Result = await customFetch(urlToFetch, fetchParams);
       const body401 = await first401Result.text();
       const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
 
@@ -325,7 +321,7 @@ export class ApiFetcher implements IFetcher {
         headerParams: maskSecrets(updatedHeaders, ctx.secretFields || new Set()),
       });
 
-      fetchResult = await wrappedFetch(urlToFetch, {
+      fetchResult = await customFetch(urlToFetch, {
         ...fetchParams,
         headers: updatedHeaders,
       });
@@ -334,7 +330,7 @@ export class ApiFetcher implements IFetcher {
       responseBody = await fetchResult.text();
     } else {
       // REGULAR FETCH
-      fetchResult = await wrappedFetch(urlToFetch, fetchParams);
+      fetchResult = await customFetch(urlToFetch, fetchParams);
       responseTime = Math.ceil(performance.now() - startTime);
       responseBody = await fetchResult.text();
     }
