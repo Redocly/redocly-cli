@@ -1,9 +1,7 @@
 import * as Sampler from 'openapi-sampler';
+import { logger } from '@redocly/openapi-core';
 
-import { DefaultLogger } from '../../../utils/logger/logger.js';
 import { generateTestDataFromJsonSchema } from '../../arazzo-description-generator/index.js';
-
-const logger = DefaultLogger.getInstance();
 
 vi.mock('openapi-sampler');
 
@@ -15,34 +13,40 @@ describe('generateTestDataFromJsonSchema', () => {
     vi.mocked(Sampler.sample).mockReturnValue({ name: 'string' });
 
     expect(
-      generateTestDataFromJsonSchema({
-        type: 'object',
-        properties: {
-          name: {
-            type: 'string',
+      generateTestDataFromJsonSchema(
+        {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
           },
         },
-      })
+        logger
+      )
     ).toEqual({
       name: 'string',
     });
   });
 
   it('should return undefined if schema is not provided', () => {
-    expect(generateTestDataFromJsonSchema(undefined)).toBeUndefined();
+    expect(generateTestDataFromJsonSchema(undefined, logger)).toBeUndefined();
   });
 
   it('should return null if schema is not valid', () => {
     vi.mocked(Sampler.sample).mockReturnValue(null);
     expect(
-      generateTestDataFromJsonSchema({
-        type: 'unknown',
-        properties: {
-          name: {
-            type: 'string',
+      generateTestDataFromJsonSchema(
+        {
+          type: 'unknown',
+          properties: {
+            name: {
+              type: 'string',
+            },
           },
         },
-      })
+        logger
+      )
     ).toBeNull();
   });
 
@@ -54,14 +58,17 @@ describe('generateTestDataFromJsonSchema', () => {
     });
 
     expect(
-      generateTestDataFromJsonSchema({
-        type: 'unknown',
-        properties: {
-          name: {
-            type: 'string',
+      generateTestDataFromJsonSchema(
+        {
+          type: 'unknown',
+          properties: {
+            name: {
+              type: 'string',
+            },
           },
         },
-      })
+        logger
+      )
     ).toBeUndefined();
     expect(mockLogger).toHaveBeenCalledWith(
       expect.stringContaining('Mocked error from openapi-sampler')

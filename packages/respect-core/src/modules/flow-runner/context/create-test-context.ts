@@ -11,10 +11,8 @@ import { createFaker } from '../../faker.js';
 import { infoSubstitute } from '../../arazzo-description-generator/index.js';
 import { formatCliInputs } from '../inputs/index.js';
 import { bundleArazzo } from '../get-test-description-from-file.js';
-import { readEnvVariables } from '../read-env-variables.js';
 import { getNestedValue } from '../../../utils/get-nested-value.js';
 import { getPublicWorkflows } from './set-public-workflows.js';
-import { resolveMtlsCertificates } from '../../../utils/mtls/resolve-mtls-certificates.js';
 import { resolveSeverityConfiguration } from '../../checks/index.js';
 
 const faker = createFaker();
@@ -53,7 +51,11 @@ export async function createTestContext(
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
           const filePath = resolve(dirname(options.workflowPath), sourceDescriptionPath);
-          const bundledTestDescription = await bundleArazzo({ filePath });
+          const bundledTestDescription = await bundleArazzo({
+            filePath,
+            version: options?.version,
+            logger: options.logger,
+          });
 
           bundledDescriptions[name] = bundledTestDescription;
         }
@@ -76,7 +78,7 @@ export async function createTestContext(
     $workflows: getPublicWorkflows({
       workflows: testDescription.workflows || [],
       inputs: formatCliInputs(options?.input),
-      env: readEnvVariables(options.workflowPath) || {},
+      env: options.envVariables || {},
     }),
     $steps: {},
     $components: testDescription.components || {},
@@ -92,10 +94,7 @@ export async function createTestContext(
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
     secretFields: new Set<string>(),
-    mtlsCerts:
-      options.mutualTls?.clientCert || options.mutualTls?.clientKey || options.mutualTls?.caCert
-        ? resolveMtlsCertificates(options.mutualTls, options.workflowPath)
-        : undefined,
+    mtlsCerts: options?.mtlsCerts || undefined,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
     requestFileLoader: options.requestFileLoader,

@@ -71,14 +71,16 @@ export function checkCriteria({
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          passed: regex.test(evaluateRuntimeExpression(context, criteriaContext)),
+          passed: regex.test(
+            evaluateRuntimeExpression(context, criteriaContext, ctx.options.logger)
+          ),
           message: `Checking regex criteria: ${JSON.stringify(criteria)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
           condition: condition,
         });
       } else if (isJSONPathSuccessCriteria(criteria)) {
         const { context } = criteria;
-        const data = evaluateRuntimeExpression(context, criteriaContext);
+        const data = evaluateRuntimeExpression(context, criteriaContext, ctx.options.logger);
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
@@ -90,7 +92,7 @@ export function checkCriteria({
       } else {
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          passed: evaluateRuntimeExpression(condition, criteriaContext),
+          passed: evaluateRuntimeExpression(condition, criteriaContext, ctx.options.logger),
           message: `Checking simple criteria: ${JSON.stringify(criteria)}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
           condition: condition,

@@ -1,4 +1,4 @@
-import { createConfig } from '@redocly/openapi-core';
+import { createConfig, logger } from '@redocly/openapi-core';
 import { type Step, type AppOptions, type TestDescription } from '../../../../types.js';
 import {
   createRuntimeExpressionCtx,
@@ -57,17 +57,13 @@ const options: AppOptions = {
       return new Blob([filePath]);
     },
   },
+  envVariables: {
+    AUTH_TOKEN: '1234567890',
+  },
+  logger,
 };
 
 describe('createRuntimeExpressionCtx', () => {
-  beforeEach(() => {
-    process.env.AUTH_TOKEN = '1234567890';
-  });
-
-  afterEach(() => {
-    delete process.env.AUTH_TOKEN;
-  });
-
   it('should create limited runtime expression context when workflowId and step provided', async () => {
     const apiClient = new ApiFetcher({
       harLogs: undefined,

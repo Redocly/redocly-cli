@@ -1,15 +1,8 @@
-import { type Config, type CollectFn } from '@redocly/openapi-core';
+import { type Config, type CollectFn, type LoggerInterface } from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
-import {
-  displayErrors,
-  displaySummary,
-  displayFilesSummaryTable,
-  calculateTotals,
-} from '../modules/cli-output/index.js';
-import { DefaultLogger } from '../utils/logger/logger.js';
+import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
-
-import type { RunFileResult, RunOptions } from '../types.js';
+import { type TestContext, type RunFileResult, type RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -22,19 +15,19 @@ export type RespectOptions = {
   config: Config;
   harOutput?: string;
   jsonOutput?: string;
-  clientCert?: string;
-  clientKey?: string;
-  caCert?: string;
+  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
   collectSpecData?: CollectFn;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  envVariables: Record<string, string>;
+  version?: string;
+  logger: LoggerInterface;
 };
 
-const logger = DefaultLogger.getInstance();
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
-  const { files, executionTimeout, harOutput, collectSpecData } = options;
+  const { files, executionTimeout, collectSpecData } = options;
 
   Timer.getInstance(executionTimeout);
 
@@ -45,19 +38,12 @@ export async function handleRun(options: RespectOptions): Promise<RunFileResult[
     const result = await runFile({
       options: { ...options, file: path },
       startedAt: performance.now(),
-      output: {
-        harFile: harOutput,
-      },
       collectSpecData,
     });
+
     testsRunProblemsStatus.push(result.hasProblems);
     runAllFilesResult.push(result);
   }
-
-  // TODO: move to cli output
-  logger.printNewLine();
-  displayFilesSummaryTable(runAllFilesResult);
-  logger.printNewLine();
 
   return runAllFilesResult;
 }
@@ -65,26 +51,25 @@ export async function handleRun(options: RespectOptions): Promise<RunFileResult[
 async function runFile({
   options,
   startedAt,
-  output,
   collectSpecData,
 }: {
   options: RunOptions;
   startedAt: number;
-  output: { harFile: string | undefined };
   collectSpecData?: CollectFn;
 }): Promise<RunFileResult> {
-  const { executedWorkflows, ctx } = await runTestFile(options, output, collectSpecData);
+  const result = await runTestFile(options, collectSpecData);
 
+  const { executedWorkflows, ctx, harLogs } = result;
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
   const hasGlobalTimeoutError = executedWorkflows.some((workflow) => workflow.globalTimeoutError);
 
   if (totals.steps.failed > 0 || totals.steps.warnings > 0 || totals.steps.skipped > 0) {
-    displayErrors(executedWorkflows);
+    displayErrors(executedWorkflows, options.logger);
   }
 
-  displaySummary(startedAt, executedWorkflows, options);
+  displaySummary({ startedAt, workflows: executedWorkflows, options });
 
   return {
     hasProblems,
@@ -96,5 +81,6 @@ async function runFile({
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
+    harLogs,
   };
 }

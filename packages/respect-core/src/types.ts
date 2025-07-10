@@ -19,7 +19,7 @@ import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
 import type { RespectOptions } from './handlers/run.js';
-import type { Config, CollectFn, RuleSeverity } from '@redocly/openapi-core';
+import type { Config, CollectFn, RuleSeverity, LoggerInterface } from '@redocly/openapi-core';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -117,12 +117,15 @@ export type AppOptions = {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  mutualTls?: Partial<TestContext['mtlsCerts']>;
+  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  envVariables: Record<string, string>;
+  version?: string;
+  logger: LoggerInterface;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -239,6 +242,7 @@ export type RunFileResult = {
   totalTimeMs: number;
   totalRequests: number;
   globalTimeoutError: boolean;
+  harLogs: any;
 };
 
 export interface WorkflowExecutionResult {

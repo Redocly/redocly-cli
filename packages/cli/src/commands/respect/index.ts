@@ -1,10 +1,13 @@
-import { handleRun, type JsonLogs } from '@redocly/respect-core';
+import { handleRun, maskSecrets, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, basename } from 'node:path';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
-import path from 'node:path';
+import { displayFilesSummaryTable } from './display-files-summary-table.js';
+import { readEnvVariables } from '../../utils/read-env-variables.js';
+import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
 
 export type RespectArgv = {
   files: string[];
@@ -31,7 +34,25 @@ export async function handleRespect({
   version,
   collectSpecData,
 }: CommandArgs<RespectArgv>) {
+  let mtlsCerts;
+
   try {
+    const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
+
+    if (argv['client-cert'] || argv['client-key'] || argv['ca-cert']) {
+      mtlsCerts =
+        argv['client-cert'] || argv['client-key'] || argv['ca-cert']
+          ? resolveMtlsCertificates(
+              {
+                clientCert: argv['client-cert'],
+                clientKey: argv['client-key'],
+                caCert: argv['ca-cert'],
+              },
+              workingDir
+            )
+          : undefined;
+    }
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -45,9 +66,7 @@ export async function handleRespect({
       severity: argv.severity,
       harOutput: argv['har-output'],
       jsonOutput: argv['json-output'],
-      clientCert: argv['client-cert'],
-      clientKey: argv['client-key'],
-      caCert: argv['ca-cert'],
+      mtlsCerts,
       maxSteps: argv['max-steps'],
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
@@ -58,9 +77,11 @@ export async function handleRespect({
           }
 
           const buffer = readFileSync(filePath);
-          return new File([buffer], path.basename(filePath));
+          return new File([buffer], basename(filePath));
         },
       },
+      envVariables: readEnvVariables(workingDir) || {},
+      logger,
     };
 
     if (options.skip && options.workflow) {
@@ -86,6 +107,10 @@ export async function handleRespect({
     // TODO: continue refactoring
     const runAllFilesResult = await handleRun(options);
 
+    logger.printNewLine();
+    displayFilesSummaryTable(runAllFilesResult, logger);
+    logger.printNewLine();
+
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
     const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
 
@@ -101,6 +126,17 @@ export async function handleRespect({
       logger.output(blue(logger.indent(`JSON logs saved in ${green(options.jsonOutput)}`, 2)));
       logger.printNewLine();
       logger.printNewLine();
+    }
+
+    if (options.harOutput) {
+      // TODO: implement multiple run files HAR output
+      for (const result of runAllFilesResult) {
+        const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
+        writeFileSync(options.harOutput, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
+        logger.output(blue(`Har logs saved in ${green(options.harOutput)}`));
+        logger.printNewLine();
+        logger.printNewLine();
+      }
     }
 
     if (hasProblems) {

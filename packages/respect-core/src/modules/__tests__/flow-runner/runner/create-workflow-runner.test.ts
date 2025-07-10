@@ -1,11 +1,10 @@
+import { logger } from '@redocly/openapi-core';
+import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
+import { type ResponseContext } from '../../../../types.js';
+
 import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import type { Workflow, TestContext } from '../../../../types.js';
 
-import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
-import { DefaultLogger } from '../../../../utils/logger/logger.js';
-import { type ResponseContext } from '../../../../types.js';
-
-const logger = DefaultLogger.getInstance();
 describe('runWorkflow', () => {
   const fileName = 'test.yaml';
   it('should run workflow', async () => {
@@ -93,6 +92,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
     } as unknown as TestContext;
 
@@ -117,6 +117,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
     } as unknown as TestContext;
 
@@ -136,6 +137,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
     } as unknown as TestContext;
     await expect(runWorkflow({ workflowInput: 'test', ctx })).rejects.toThrowError();
@@ -219,6 +221,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
       $outputs: {},
     } as unknown as TestContext;
@@ -290,6 +293,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
       $outputs: {},
     } as unknown as TestContext;
@@ -300,7 +304,7 @@ describe('runWorkflow', () => {
   });
 
   it('should run workflow within step execution', async () => {
-    const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
+    const loggerSpy = vi.spyOn(logger, 'output').mockImplementation(() => {});
     const apiClient = {
       fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
@@ -343,6 +347,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
       $outputs: {},
     } as unknown as TestContext;
@@ -352,9 +357,9 @@ describe('runWorkflow', () => {
       ctx,
     });
 
-    expect(mockLogger).toMatchSnapshot();
+    expect(loggerSpy).toMatchSnapshot();
 
-    mockLogger.mockRestore();
+    loggerSpy.mockRestore();
   });
 
   it('should accept workflow as an input', async () => {
@@ -442,6 +447,7 @@ describe('runWorkflow', () => {
       options: {
         verbose: false,
         workflowPath: fileName,
+        logger,
       },
       $outputs: {},
     } as unknown as TestContext;

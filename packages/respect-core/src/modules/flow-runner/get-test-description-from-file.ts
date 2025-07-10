@@ -7,21 +7,23 @@ import {
   createConfig,
   type BaseResolver,
   type CollectFn,
+  type LoggerInterface,
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
-import { version } from '../../utils/package.js';
 
 type BundleArazzoOptions = {
   filePath: string;
   base?: string;
   externalRefResolver?: BaseResolver;
   collectSpecData?: CollectFn;
+  version?: string;
+  logger: LoggerInterface;
 };
 
 export async function bundleArazzo(options: BundleArazzoOptions) {
-  const { filePath, base, externalRefResolver, collectSpecData } = options;
+  const { filePath, base, externalRefResolver, collectSpecData, version } = options;
 
   const fileName = path.basename(filePath);
 
@@ -53,7 +55,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
       version,
     });
 
-    printConfigLintTotals(fileTotals);
+    printConfigLintTotals(fileTotals, options.logger);
   }
 
   const bundledDocument = await bundle({

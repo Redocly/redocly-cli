@@ -1,4 +1,4 @@
-import { createConfig, type Config } from '@redocly/openapi-core';
+import { createConfig, logger } from '@redocly/openapi-core';
 import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
@@ -62,9 +62,12 @@ describe('createTestContext', () => {
           return new Blob([filePath]);
         },
       },
+      envVariables: {
+        AUTH_TOKEN: '1234567890',
+      },
+      logger,
     } as AppOptions;
 
-    process.env.AUTH_TOKEN = '1234567890';
     const apiClient = new ApiFetcher({
       harLogs: undefined,
     });
@@ -539,14 +542,9 @@ describe('createTestContext', () => {
       ],
       apiClient: expect.any(ApiFetcher),
     });
-
-    delete process.env.AUTH_TOKEN;
   });
 
   it('should clean environment variables', async () => {
-    process.env.TEST_VAR = 'test value';
-    process.env.ANOTHER_VAR = 'another value';
-
     const testDescription: TestDescription = {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
@@ -573,6 +571,11 @@ describe('createTestContext', () => {
           return new Blob([filePath]);
         },
       },
+      envVariables: {
+        TEST_VAR: 'test value',
+        ANOTHER_VAR: 'another value',
+      },
+      logger,
     };
 
     const apiClient = new ApiFetcher({
@@ -581,9 +584,6 @@ describe('createTestContext', () => {
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.test.inputs).toEqual(undefined);
-
-    delete process.env.TEST_VAR;
-    delete process.env.ANOTHER_VAR;
   }, 8000);
 
   it('should handle workflows with inputs and env variables', async () => {
@@ -626,6 +626,8 @@ describe('createTestContext', () => {
           return new Blob([filePath]);
         },
       },
+      envVariables: {},
+      logger: logger,
     };
 
     const apiClient = new ApiFetcher({
@@ -762,9 +764,10 @@ describe('createTestContext', () => {
 
     const options = {
       workflowPath: 'test.test.yaml',
+      envVariables: {
+        ENV_VAR: 'value',
+      },
     } as unknown as AppOptions;
-
-    process.env = { ENV_VAR: 'value' };
 
     const apiClient = new ApiFetcher({
       harLogs: undefined,
@@ -772,8 +775,6 @@ describe('createTestContext', () => {
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1?.inputs?.env?.ENV_VAR).toBe('value');
-
-    delete process.env.ENV_VAR;
   });
 });
 

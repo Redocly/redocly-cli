@@ -5,7 +5,7 @@ import type {
   Check,
   WorkflowExecutionResult,
 } from '../../../types.js';
-import { createConfig } from '@redocly/openapi-core';
+import { createConfig, logger } from '@redocly/openapi-core';
 import {
   runStep,
   callAPIAndAnalyzeResults,
@@ -50,7 +50,7 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
-const harLogs = createHarLog();
+const harLogs = createHarLog({ version: '1.0.0' });
 const apiClient = new ApiFetcher({
   harLogs,
 });
@@ -626,6 +626,7 @@ const basicCTX = {
       file: 'runStepTest.yml',
     },
     input: undefined,
+    logger: logger,
   },
   info: { title: 'Test API', version: '1.0' },
   arazzo: '1.0.1',
@@ -2496,6 +2497,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -2908,6 +2910,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -3350,6 +3353,7 @@ describe('runStep', () => {
         maxFetchTimeout: 40_000,
         server: undefined,
         severity: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -3811,6 +3815,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',

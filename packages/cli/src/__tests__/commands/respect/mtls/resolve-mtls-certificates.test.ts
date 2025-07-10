@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 
-import { resolveMtlsCertificates } from '../../mtls/resolve-mtls-certificates.js';
+import { resolveMtlsCertificates } from '../../../../../src/commands/respect/mtls/resolve-mtls-certificates.js';
 
 // vi.mock must come before any variable declarations
 vi.mock('node:fs', async () => {
