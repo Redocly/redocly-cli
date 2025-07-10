@@ -61,6 +61,7 @@ const defaultRespectOptions = {
   },
   envVariables: {},
   logger: logger,
+  fetch,
 };
 
 describe('runTestFile', () => {
@@ -642,6 +643,7 @@ describe('runTestFile', () => {
             return new Blob([filePath]);
           },
         },
+        fetch,
       })
     ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });

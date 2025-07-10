@@ -1,4 +1,3 @@
-import { fetch } from 'undici';
 import type { TestContext } from '../../../types.js';
 
 import {
@@ -7,7 +6,17 @@ import {
 } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
-vi.mock('undici');
+const originalFetch = global.fetch;
+
+beforeAll(() => {
+  // Reset fetch mock before each test
+  global.fetch = vi.fn();
+});
+
+afterAll(() => {
+  // Restore original fetch after each test
+  global.fetch = originalFetch;
+});
 
 describe('callAPIAndAnalyzeResults', () => {
   const apiClient = new ApiFetcher({
@@ -328,6 +337,7 @@ describe('callAPIAndAnalyzeResults', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      fetch,
     },
     'x-serverUrl': 'https://catfact.ninja/',
     info: {
@@ -358,7 +368,7 @@ describe('callAPIAndAnalyzeResults', () => {
       headers: new Headers(),
     };
 
-    vi.mocked(fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
 
     const result = await callAPIAndAnalyzeResults({
       ctx,

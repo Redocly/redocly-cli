@@ -2,7 +2,10 @@ import { Client, type RequestInfo, type RequestInit, fetch } from 'undici';
 
 import type { TestContext } from '@redocly/respect-core/src/types.js';
 
-function createMtlsClient(parsedPathToFetch: string, mtlsCerts: TestContext['mtlsCerts'] = {}) {
+export function createMtlsClient(
+  parsedPathToFetch: string,
+  mtlsCerts: TestContext['mtlsCerts'] = {}
+) {
   const { clientCert, clientKey, caCert } = mtlsCerts;
   const baseUrl = new URL(parsedPathToFetch).origin;
 

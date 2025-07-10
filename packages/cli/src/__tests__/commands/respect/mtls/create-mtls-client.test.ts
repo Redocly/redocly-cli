@@ -1,4 +1,4 @@
-import { createMtlsClient } from '../../../../../cli/src/commands/respect/mtls/create-mtls-client.js';
+import { createMtlsClient } from '../../../../commands/respect/mtls/create-mtls-client.js';
 
 describe('createMtlsClient', () => {
   it('should create a client with the correct certificates', () => {

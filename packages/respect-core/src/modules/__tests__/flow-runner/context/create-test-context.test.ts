@@ -66,6 +66,7 @@ describe('createTestContext', () => {
         AUTH_TOKEN: '1234567890',
       },
       logger,
+      fetch,
     } as AppOptions;
 
     const apiClient = new ApiFetcher({
@@ -576,6 +577,7 @@ describe('createTestContext', () => {
         ANOTHER_VAR: 'another value',
       },
       logger,
+      fetch,
     };
 
     const apiClient = new ApiFetcher({
@@ -628,6 +630,7 @@ describe('createTestContext', () => {
       },
       envVariables: {},
       logger: logger,
+      fetch,
     };
 
     const apiClient = new ApiFetcher({

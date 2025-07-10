@@ -1,4 +1,4 @@
-import { buildResponseCookies } from '../../../../../../cli/src/commands/respect/har-logs/helpers/build-response-cookies.js';
+import { buildResponseCookies } from '../../../../../commands/respect/har-logs/helpers/build-response-cookies.js';
 
 describe('buildResponseCookies', () => {
   it('should build response cookies', () => {

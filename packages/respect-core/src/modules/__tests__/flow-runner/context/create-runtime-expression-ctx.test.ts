@@ -61,6 +61,7 @@ const options: AppOptions = {
     AUTH_TOKEN: '1234567890',
   },
   logger,
+  fetch,
 };
 
 describe('createRuntimeExpressionCtx', () => {
