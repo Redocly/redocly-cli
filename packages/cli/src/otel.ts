@@ -1,6 +1,6 @@
 import { trace } from '@opentelemetry/api';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './utils/package.js';
@@ -15,14 +15,16 @@ type Events = {
 const OTEL_TRACES_URL = process.env.OTEL_TRACES_URL || 'https://otel.cloud.redocly.com/v1/traces';
 
 export class OtelServerTelemetry {
+  provider: NodeTracerProvider | null = null;
+
   init() {
-    const nodeTracerProvider = new NodeTracerProvider({
+    this.provider = new NodeTracerProvider({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
       }),
       spanProcessors: [
-        new SimpleSpanProcessor(
+        new BatchSpanProcessor(
           new OTLPTraceExporter({
             url: OTEL_TRACES_URL,
             headers: {},
@@ -31,11 +33,10 @@ export class OtelServerTelemetry {
         ),
       ],
     });
-
-    nodeTracerProvider.register();
+    this.provider.register();
   }
 
-  send<K extends keyof Events>(event: K, data: Events[K]): void {
+  async send<K extends keyof Events>(event: K, data: Events[K]): Promise<void> {
     const time = new Date();
     const eventId = crypto.randomUUID();
     const span = trace.getTracer('CliTelemetry').startSpan(`event.${event}`, {
@@ -52,6 +53,9 @@ export class OtelServerTelemetry {
       }
     }
     span.end(time);
+    if (this.provider) {
+      await this.provider.forceFlush(); // waits for all spans to be sent or timeout
+    }
   }
 }
 
