@@ -8,7 +8,7 @@ import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
-import { NoUnresolvedRefs } from '../no-unresolved-refs.js';
+import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 
 import type { Async2Rule } from '../../visitors.js';
 import type { Async2RuleSet } from '../../oas-types.js';

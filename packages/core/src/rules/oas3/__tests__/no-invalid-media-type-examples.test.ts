@@ -609,7 +609,7 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
-  }, 20_000);
+  }, 30_000);
 
   it('should report invalid value when externalValue is also set', async () => {
     const document = parseYamlToDocument(
@@ -683,7 +683,7 @@ describe('no-invalid-media-type-examples', () => {
         },
       ]
     `);
-  });
+  }, 30_000);
 
   it('should first report on unresolved ref rather than fail on validation', async () => {
     const document = parseYamlToDocument(

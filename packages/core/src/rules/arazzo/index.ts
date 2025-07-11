@@ -16,7 +16,7 @@ import { CriteriaUnique } from './criteria-unique.js';
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
 import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
 import { NoXSecuritySchemeNameInWorkflow } from '../respect/no-x-security-scheme-name-in-workflow.js';
-import { NoUnresolvedRefs } from '../no-unresolved-refs.js';
+import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';

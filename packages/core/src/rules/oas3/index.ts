@@ -25,7 +25,7 @@ import { PathNotIncludeQuery } from '../common/path-not-include-query.js';
 import { ParameterDescription } from '../common/parameter-description.js';
 import { OperationSingularTag } from '../common/operation-singular-tag.js';
 import { SecurityDefined } from '../common/security-defined.js';
-import { NoUnresolvedRefs } from '../no-unresolved-refs.js';
+import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { PathsKebabCase } from '../common/paths-kebab-case.js';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order.js';

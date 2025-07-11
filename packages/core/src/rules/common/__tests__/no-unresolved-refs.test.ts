@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { outdent } from 'outdent';
-import { lintDocument } from '../../lint.js';
-import { BaseResolver } from '../../resolve.js';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils.js';
+import { lintDocument } from '../../../lint.js';
+import { BaseResolver } from '../../../resolve.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { fileURLToPath } from 'node:url';
-import { createConfig } from '../../config/index.js';
+import { createConfig } from '../../../config/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
