@@ -1,9 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { type TestContext } from '@redocly/respect-core';
+
+import type { MtlsCerts } from './create-mtls-client.js';
 
 export function resolveMtlsCertificates(
-  mtlsCertificates: Partial<TestContext['mtlsCerts']> = {},
+  mtlsCertificates: Partial<MtlsCerts> = {},
   workingDir: string
 ) {
   const { clientCert, clientKey, caCert } = mtlsCertificates;

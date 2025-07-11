@@ -8,7 +8,7 @@
 // - migrated to be used with undici
 
 import { URL } from 'url';
-import { Client } from 'undici';
+import { Client, type fetch } from 'undici';
 import { addHeaders } from './helpers/add-headers.js';
 import { getDuration } from './helpers/get-duration.js';
 import { buildRequestCookies } from './helpers/build-request-cookies.js';
@@ -18,11 +18,14 @@ import { buildResponseCookies } from './helpers/build-response-cookies.js';
 const HAR_HEADER_NAME = 'x-har-request-id';
 const harEntryMap = new Map<string, any>();
 export interface WithHar {
-  (baseFetch: any, defaults?: any): any;
+  <T extends typeof fetch>(baseFetch: T, defaults?: any): T;
   harEntryMap?: Map<string, any>;
 }
 
-export const withHar: WithHar = function (baseFetch: any, defaults: any = {}): any {
+export const withHar: WithHar = function <T extends typeof fetch>(
+  baseFetch: any,
+  defaults: any = {}
+): T {
   withHar.harEntryMap = harEntryMap;
   return async function fetch(input: any, options: any = {}): Promise<any> {
     const {
@@ -229,5 +232,5 @@ export const withHar: WithHar = function (baseFetch: any, defaults: any = {}): a
     }
 
     return responseCopy;
-  };
+  } as T;
 };

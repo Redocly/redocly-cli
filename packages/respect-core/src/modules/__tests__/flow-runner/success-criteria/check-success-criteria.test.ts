@@ -64,7 +64,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
         options: {
           logger,
@@ -116,7 +115,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         options: {
           logger,
         },
@@ -204,7 +202,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
         options: {
           logger,
@@ -312,7 +309,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
         options: {
           logger,
@@ -607,7 +603,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
         options: {
           logger,
@@ -674,7 +669,6 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
         options: {
           logger,

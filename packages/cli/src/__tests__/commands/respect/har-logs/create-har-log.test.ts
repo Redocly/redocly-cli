@@ -1,4 +1,4 @@
-import { createHarLog } from '../../har-logs/index.js';
+import { createHarLog } from '../../../../commands/respect/har-logs/har-logs.js';
 
 describe('createHarLog', () => {
   it('should create a har log', () => {

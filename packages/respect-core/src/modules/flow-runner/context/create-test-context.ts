@@ -87,16 +87,15 @@ export async function createTestContext(
     executedSteps: [],
 
     workflows: testDescription.workflows || [],
-    harLogs: {},
     options,
     testDescription,
     info: testDescription.info || infoSubstitute,
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
     secretFields: new Set<string>(),
-    mtlsCerts: options?.mtlsCerts || undefined,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
+    requestFileLoader: options.requestFileLoader,
   };
 
   // Collect all secret fields from the input schema and the workflow inputs
