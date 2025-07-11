@@ -19,9 +19,7 @@ afterAll(() => {
 });
 
 describe('callAPIAndAnalyzeResults', () => {
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const apiClient = new ApiFetcher({});
   const ctx = {
     apiClient,
     $env: {
@@ -324,10 +322,8 @@ describe('callAPIAndAnalyzeResults', () => {
         },
       },
     },
-    harLogs: {},
     options: {
       workflowPath: 'simple.yaml',
-      harLogsFile: 'har-output',
       metadata: {
         _: [],
         files: ['simple.yaml'],

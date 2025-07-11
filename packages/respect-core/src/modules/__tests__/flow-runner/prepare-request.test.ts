@@ -4,9 +4,7 @@ import { prepareRequest } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 describe('prepareRequest', () => {
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const apiClient = new ApiFetcher({});
   const ctx = {
     $env: {
       REDOCLY_DOMAIN: 'redocly.com',
@@ -302,10 +300,8 @@ describe('prepareRequest', () => {
         },
       },
     },
-    harLogs: {},
     options: {
       workflowPath: 'simple.yaml',
-      harLogsFile: 'har-output',
       metadata: {
         _: [],
         files: ['simple.yaml'],
@@ -547,10 +543,8 @@ describe('prepareRequest', () => {
           },
         },
       },
-      harLogs: {},
       options: {
         workflowPath: 'simple.yaml',
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -675,10 +669,8 @@ describe('prepareRequest', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'simple.yaml',
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -878,10 +870,8 @@ describe('prepareRequest', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'simple.yaml',
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -1083,10 +1073,8 @@ describe('prepareRequest', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'simple.yaml',
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['simple.yaml'],

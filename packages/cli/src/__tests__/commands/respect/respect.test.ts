@@ -79,7 +79,6 @@ describe('handleRespect', () => {
         totalTimeMs: 100,
         totalRequests: 1,
         globalTimeoutError: false,
-        harLogs: {},
       },
     ]);
 
@@ -96,8 +95,6 @@ describe('handleRespect', () => {
         version: '1.0.0',
         collectSpecData: expect.anything(),
         severity: 'STATUS_CODE_CHECK=warn',
-        harOutput: undefined,
-        jsonOutput: undefined,
         maxSteps: 2000,
         maxFetchTimeout: 40_000,
         executionTimeout: 3_600_000,

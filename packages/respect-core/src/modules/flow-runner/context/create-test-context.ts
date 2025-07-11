@@ -87,7 +87,6 @@ export async function createTestContext(
     executedSteps: [],
 
     workflows: testDescription.workflows || [],
-    harLogs: {},
     options,
     testDescription,
     info: testDescription.info || infoSubstitute,

@@ -66,9 +66,7 @@ const options: AppOptions = {
 
 describe('createRuntimeExpressionCtx', () => {
   it('should create limited runtime expression context when workflowId and step provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -95,9 +93,7 @@ describe('createRuntimeExpressionCtx', () => {
   });
 
   it('should create limited runtime expression context when workflowId is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -112,9 +108,7 @@ describe('createRuntimeExpressionCtx', () => {
     expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
   it('should create limited runtime expression context when step is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,

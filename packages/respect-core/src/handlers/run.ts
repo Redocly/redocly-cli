@@ -13,8 +13,6 @@ export type RespectOptions = {
   verbose?: boolean;
   severity?: string;
   config: Config;
-  harOutput?: string;
-  jsonOutput?: string;
   mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
@@ -60,7 +58,7 @@ async function runFile({
 }): Promise<RunFileResult> {
   const result = await runTestFile(options, collectSpecData);
 
-  const { executedWorkflows, ctx, harLogs } = result;
+  const { executedWorkflows, ctx } = result;
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
@@ -82,6 +80,5 @@ async function runFile({
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
-    harLogs,
   };
 }

@@ -19,7 +19,6 @@ import type { RequestData } from '../modules/flow-runner/index.js';
 interface IFetcher {
   verboseLogs?: VerboseLog;
   verboseResponseLogs?: VerboseLog;
-  harLogs?: any;
   fetch?: typeof fetch;
 }
 
@@ -57,11 +56,9 @@ export function trimTrailingSlash(str: string): string {
 export class ApiFetcher implements IFetcher {
   verboseLogs?: VerboseLog;
   verboseResponseLogs?: VerboseLog;
-  harLogs?: any;
   fetch?: typeof fetch;
 
   constructor(params: IFetcher) {
-    this.harLogs = params.harLogs;
     this.fetch = params.fetch || fetch;
   }
 
