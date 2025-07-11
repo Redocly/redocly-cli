@@ -93,7 +93,6 @@ export async function createTestContext(
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
     secretFields: new Set<string>(),
-    mtlsCerts: options?.mtlsCerts || undefined,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
     requestFileLoader: options.requestFileLoader,

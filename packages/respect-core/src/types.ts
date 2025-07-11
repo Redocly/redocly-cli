@@ -115,7 +115,6 @@ export type AppOptions = {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
@@ -277,11 +276,6 @@ export type TestContext = RuntimeExpressionContext & {
   components?: Record<string, any>;
   secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
-  mtlsCerts?: {
-    clientCert?: string;
-    clientKey?: string;
-    caCert?: string;
-  };
   apiClient: ApiFetcher;
   requestFileLoader: {
     getFileBody: (filePath: string) => Promise<Blob>;

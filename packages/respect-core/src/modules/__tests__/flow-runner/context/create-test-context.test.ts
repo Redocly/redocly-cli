@@ -516,7 +516,6 @@ describe('createTestContext', () => {
       $inputs: {
         env: {},
       },
-      mtlsCerts: undefined,
       options: {
         workflowPath: 'modules/description-parser/test.test.yaml',
         workflow: undefined,

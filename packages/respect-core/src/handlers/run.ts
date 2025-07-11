@@ -2,7 +2,7 @@ import { type Config, type CollectFn, type LoggerInterface } from '@redocly/open
 import { runTestFile } from '../modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
-import { type TestContext, type RunFileResult, type RunOptions } from '../types.js';
+import { type RunFileResult, type RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -13,7 +13,6 @@ export type RespectOptions = {
   verbose?: boolean;
   severity?: string;
   config: Config;
-  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;

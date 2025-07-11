@@ -74,7 +74,6 @@ export async function handleRespect({
       version,
       collectSpecData,
       severity: argv.severity,
-      mtlsCerts,
       maxSteps: argv['max-steps'],
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
