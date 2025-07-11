@@ -79,7 +79,8 @@ export async function prepareRequest(
     throw new Error('"method" is required to make a request');
   }
 
-  const requestDataFromOpenAPI = openapiOperation && getRequestDataFromOpenApi(openapiOperation);
+  const requestDataFromOpenAPI =
+    openapiOperation && getRequestDataFromOpenApi(openapiOperation, ctx.options.logger);
 
   const {
     payload: stepRequestBodyPayload,
@@ -161,6 +162,7 @@ export async function prepareRequest(
         payload: parameter.value,
         context: expressionContext,
         // contentType,
+        logger: ctx.options.logger,
       }),
     };
   });
@@ -174,10 +176,16 @@ export async function prepareRequest(
     payload: requestBody,
     context: expressionContext,
     contentType,
+    logger: ctx.options.logger,
   });
 
   if (replacements && typeof evaluatedBody === 'object') {
-    handlePayloadReplacements(evaluatedBody, replacements, expressionContext);
+    handlePayloadReplacements({
+      payload: evaluatedBody,
+      replacements,
+      expressionContext,
+      logger: ctx.options.logger,
+    });
   }
 
   if (contentType && openapiOperation?.requestBody) {

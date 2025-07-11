@@ -1,10 +1,5 @@
-import type { Totals } from '@redocly/openapi-core';
+import { logger, type Totals } from '@redocly/openapi-core';
 import type { VerboseLog } from '../../types.js';
-
-// eslint-disable-next-line import-x/order
-import { DefaultLogger } from '../../utils/logger/logger.js';
-
-const logger = DefaultLogger.getInstance();
 
 import {
   printWorkflowSeparatorLine,
@@ -44,15 +39,15 @@ describe('cliOutputs', () => {
 
   describe('printWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
-      printWorkflowSeparator('file', 'workflow');
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
+      printWorkflowSeparator({ fileName: 'file', workflowName: 'workflow', logger });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
       mockLogger.mockRestore();
     });
 
     it('should print a separator', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
-      printWorkflowSeparator('file', undefined);
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
+      printWorkflowSeparator({ fileName: 'file', workflowName: undefined, logger });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));
       mockLogger.mockRestore();
     });
@@ -60,8 +55,8 @@ describe('cliOutputs', () => {
 
   describe('printRequiredWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
-      printRequiredWorkflowSeparator('parentWorkflowId');
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
+      printRequiredWorkflowSeparator('parentWorkflowId', logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running required'));
       mockLogger.mockRestore();
     });
@@ -69,8 +64,8 @@ describe('cliOutputs', () => {
 
   describe('printChildWorkflowSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
-      printChildWorkflowSeparator('parentStepId');
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
+      printChildWorkflowSeparator('parentStepId', logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running child'));
       mockLogger.mockRestore();
     });
@@ -78,8 +73,13 @@ describe('cliOutputs', () => {
 
   describe('printActionsSeparator', () => {
     it('should print a separator', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
-      printActionsSeparator('parentStepId', 'actionName', 'success');
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
+      printActionsSeparator({
+        stepId: 'parentStepId',
+        actionName: 'actionName',
+        kind: 'success',
+        logger,
+      });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running success action'));
       mockLogger.mockRestore();
     });
@@ -88,7 +88,7 @@ describe('cliOutputs', () => {
   describe('printWorkflowSeparatorLine', () => {
     it('should print a separator line', () => {
       const mockLogger = vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
-      printWorkflowSeparatorLine();
+      printWorkflowSeparatorLine(logger);
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('\u2500'));
       mockLogger.mockRestore();
     });
@@ -97,7 +97,7 @@ describe('cliOutputs', () => {
   describe('printStepSeparatorLine', () => {
     it('should print a separator line', () => {
       const mockLogger = vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
-      printStepSeparatorLine();
+      printStepSeparatorLine(logger);
       expect(mockLogger).toHaveBeenCalled();
       mockLogger.mockRestore();
     });
@@ -106,7 +106,7 @@ describe('cliOutputs', () => {
   describe('printConfigLintTotals', () => {
     it('should print the number of errors', () => {
       const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
-      printConfigLintTotals({ errors: 1, warnings: 0, ignored: 0 } as Totals);
+      printConfigLintTotals({ errors: 1, warnings: 0, ignored: 0 } as Totals, logger);
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('❌  Your config has 1 one error.')
       );
@@ -115,7 +115,7 @@ describe('cliOutputs', () => {
 
     it('should print the number of warnings', () => {
       const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
-      printConfigLintTotals({ errors: 0, warnings: 1, ignored: 0 } as Totals);
+      printConfigLintTotals({ errors: 0, warnings: 1, ignored: 0 } as Totals, logger);
       expect(mockLogger).toHaveBeenCalledWith(
         expect.stringMatching('⚠️  Your config has 1 one warning.')
       );
@@ -125,7 +125,7 @@ describe('cliOutputs', () => {
 
   describe('printStepDetails', () => {
     it('should print step details', () => {
-      const mockLogger = vi.spyOn(logger, 'log').mockImplementation(() => {});
+      const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       const verboseLogs = {
         method: 'GET',
         path: 'path',
@@ -148,6 +148,7 @@ describe('cliOutputs', () => {
         ],
         verboseLogs,
         verboseResponseLogs,
+        logger,
       });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('testNameToDisplay'));
       mockLogger.mockRestore();

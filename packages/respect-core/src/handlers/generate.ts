@@ -1,36 +1,15 @@
-import { blue, yellow, gray } from 'colorette';
-import { writeFileSync } from 'node:fs';
-import { stringifyYaml } from '../utils/yaml.js';
 import { generateArazzoDescription } from '../modules/arazzo-description-generator/index.js';
-import { DefaultLogger } from '../utils/logger/logger.js';
-import { exitWithError } from '../utils/exit-with-error.js';
-import { type CommandArgs } from '../types.js';
+import { type BaseResolver, type CollectFn, type Config } from '@redocly/openapi-core';
 
-export type GenerateArazzoFileOptions = {
+export type GenerateArazzoOptions = {
   descriptionPath: string;
-  'output-file'?: string;
-  config?: never;
+  outputFile?: string;
+  config: Config;
+  version: string;
+  collectSpecData?: CollectFn;
+  externalRefResolver?: BaseResolver;
 };
 
-const logger = DefaultLogger.getInstance();
-
-export async function handleGenerate({ argv }: CommandArgs<GenerateArazzoFileOptions>) {
-  try {
-    logger.log(gray('\n  Generating Arazzo description... \n'));
-
-    const generatedConfig = await generateArazzoDescription(argv);
-    const content = stringifyYaml(generatedConfig);
-
-    const fileName = argv['output-file'] || 'auto-generated.arazzo.yaml';
-    writeFileSync(fileName, content);
-
-    logger.log(
-      '\n' + blue(`Arazzo description ${yellow(fileName)} successfully generated.`) + '\n'
-    );
-  } catch (_err) {
-    exitWithError(
-      '\n' +
-        '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'
-    );
-  }
+export async function generateArazzo(options: GenerateArazzoOptions): Promise<string> {
+  return await generateArazzoDescription(options);
 }

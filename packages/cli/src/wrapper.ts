@@ -13,16 +13,16 @@ import { AbortFlowError, exitWithError } from './utils/error.js';
 import type { Arguments } from 'yargs';
 import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
 import type { ExitCode } from './utils/miscellaneous.js';
-import type { CommandOptions } from './types.js';
+import type { CommandArgv } from './types.js';
 
-export type CommandArgs<T extends CommandOptions> = {
+export type CommandArgs<T extends CommandArgv> = {
   argv: T;
   config: Config;
   version: string;
   collectSpecData?: CollectFn;
 };
 
-export function commandWrapper<T extends CommandOptions>(
+export function commandWrapper<T extends CommandArgv>(
   commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
 ) {
   return async (argv: Arguments<T>) => {

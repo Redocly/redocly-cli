@@ -1,7 +1,5 @@
-import { blue, green } from 'colorette';
+import { blue } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
-import { writeFileSync } from 'node:fs';
-import { createHarLog } from '../../utils/har-logs/index.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
 import { getValueFromContext } from '../context-parser/index.js';
@@ -12,16 +10,15 @@ import { bundleArazzo } from './get-test-description-from-file.js';
 import { CHECKS } from '../checks/index.js';
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { calculateTotals, maskSecrets } from '../cli-output/index.js';
+import { calculateTotals } from '../cli-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
-import type { CollectFn } from '@redocly/openapi-core';
+import type { CollectFn, Config } from '@redocly/openapi-core';
 import type {
   TestDescription,
   AppOptions,
   TestContext,
-  RunArgv,
+  RunOptions,
   Workflow,
   SourceDescription,
   Check,
@@ -29,64 +26,25 @@ import type {
   WorkflowExecutionResult,
 } from '../../types.js';
 
-const logger = DefaultLogger.getInstance();
-
-export async function runTestFile(
-  argv: RunArgv,
-  output: { harFile?: string; jsonFile?: string },
-  collectSpecData?: CollectFn
-) {
-  const {
-    file: filePath,
-    workflow,
-    verbose,
-    input,
-    skip,
-    server,
-    'har-output': harOutput,
-    'json-output': jsonOutput,
-    severity,
-  } = argv;
-
-  const options = {
-    workflowPath: filePath, // filePath or documentPath
-    workflow,
-    skip,
-    verbose,
-    harOutput,
-    jsonOutput,
-    metadata: { ...argv },
-    input,
-    server,
-    severity,
-    mutualTls: {
-      clientCert: argv['client-cert'],
-      clientKey: argv['client-key'],
-      caCert: argv['ca-cert'],
-    },
-    maxSteps: argv['max-steps'],
-    maxFetchTimeout: argv['max-fetch-timeout'],
-    executionTimeout: argv['execution-timeout'],
+export async function runTestFile(options: RunOptions, collectSpecData?: CollectFn) {
+  const workflowOptions = {
+    ...options,
+    workflowPath: options.file, // filePath or documentPath
+    metadata: { ...options },
   };
 
-  const bundledTestDescription = await bundleArazzo(filePath, collectSpecData);
-  const result = await runWorkflows(bundledTestDescription, options);
-
-  if (output?.harFile && Object.keys(result.harLogs).length) {
-    const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
-    writeFileSync(output.harFile, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
-    logger.log(blue(`Har logs saved in ${green(output.harFile)}`));
-    logger.printNewLine();
-    logger.printNewLine();
-  }
-
-  return result;
+  const bundledTestDescription = await bundleArazzo({
+    filePath: options.file,
+    collectSpecData,
+    version: options?.version,
+    logger: options.logger,
+  });
+  return await runWorkflows(bundledTestDescription, workflowOptions);
 }
 
 async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
-  const harLogs = options?.harOutput && createHarLog();
   const apiClient = new ApiFetcher({
-    harLogs,
+    fetch: options.fetch,
   });
 
   const ctx = await createTestContext(testDescription, options, apiClient);
@@ -94,7 +52,12 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
   const workflowsToRun = resolveRunningWorkflows(options.workflow);
   const workflowsToSkip = resolveRunningWorkflows(options.skip);
 
-  const workflows = getWorkflowsToRun(ctx.workflows, workflowsToRun, workflowsToSkip);
+  const workflows = getWorkflowsToRun({
+    workflows: ctx.workflows,
+    workflowsToRun,
+    workflowsToSkip,
+    logger: ctx.options.logger,
+  });
 
   const executedWorkflows: WorkflowExecutionResult[] = [];
 
@@ -102,7 +65,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx });
+      await handleDependsOn({ workflow, ctx, config: options.config });
     }
 
     const workflowExecutionResult = await runWorkflow({
@@ -113,7 +76,7 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     executedWorkflows.push(workflowExecutionResult);
   }
 
-  return { ctx, harLogs, executedWorkflows };
+  return { ctx, executedWorkflows };
 }
 
 export async function runWorkflow({
@@ -124,6 +87,7 @@ export async function runWorkflow({
   parentStepId,
   invocationContext,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
+  const { logger } = ctx.options;
   const workflowStartTime = performance.now();
   const fileBaseName = basename(ctx.options.workflowPath);
   const workflow =
@@ -138,7 +102,12 @@ export async function runWorkflow({
   const workflowId = workflow.workflowId;
 
   if (!fromStepId) {
-    printWorkflowSeparator(fileBaseName, workflowId, skipLineSeparator);
+    printWorkflowSeparator({
+      fileName: fileBaseName,
+      workflowName: workflowId,
+      skipLineSeparator,
+      logger,
+    });
   }
 
   const fromStepIndex = fromStepId
@@ -203,6 +172,7 @@ export async function runWorkflow({
         outputs[outputKey] = evaluateRuntimeExpressionPayload({
           payload: workflow.outputs[outputKey],
           context: runtimeExpressionContext,
+          logger: ctx.options.logger,
         });
       } catch (error: any) {
         throw new Error(
@@ -233,15 +203,27 @@ export async function runWorkflow({
   };
 }
 
-async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: TestContext }) {
+async function handleDependsOn({
+  workflow,
+  ctx,
+  config,
+}: {
+  workflow: Workflow;
+  ctx: TestContext;
+  config: Config;
+}) {
   if (!workflow.dependsOn?.length) return;
 
   const dependenciesWorkflows = await Promise.all(
     workflow.dependsOn.map(async (workflowId) => {
-      const resolvedWorkflow = getValueFromContext(workflowId, ctx);
-      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+      const resolvedWorkflow = getValueFromContext({
+        value: workflowId,
+        ctx,
+        logger: ctx.options.logger,
+      });
+      const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
-      printRequiredWorkflowSeparator(workflow.workflowId);
+      printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);
       return runWorkflow({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
@@ -261,8 +243,10 @@ async function handleDependsOn({ workflow, ctx }: { workflow: Workflow; ctx: Tes
 export async function resolveWorkflowContext(
   workflowId: string | undefined,
   resolvedWorkflow: Workflow,
-  ctx: TestContext
+  ctx: TestContext,
+  config: Config
 ) {
+  const { logger } = ctx.options;
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
 
@@ -288,6 +272,11 @@ export async function resolveWorkflowContext(
           maxSteps: ctx.options.maxSteps,
           maxFetchTimeout: ctx.options.maxFetchTimeout,
           executionTimeout: ctx.options.executionTimeout,
+          config,
+          requestFileLoader: ctx.requestFileLoader,
+          envVariables: ctx.options.envVariables,
+          logger,
+          fetch: ctx.options.fetch,
         },
         ctx.apiClient
       )

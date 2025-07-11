@@ -5,14 +5,14 @@ import { getPlatformSpawnArgs, sanitizePath } from '../utils/platform.js';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
-export type EjectOptions = {
+export type EjectArgv = {
   type: 'component';
   path?: string;
   'project-dir'?: string;
   force: boolean;
 } & VerifyConfigOptions;
 
-export const handleEject = async ({ argv }: CommandArgs<EjectOptions>) => {
+export const handleEject = async ({ argv }: CommandArgs<EjectArgv>) => {
   logger.info(`\nLaunching eject using NPX.\n\n`);
   const { npxExecutableName, sanitize, shell } = getPlatformSpawnArgs();
 

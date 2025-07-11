@@ -19,7 +19,7 @@ import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
 import type { RespectOptions } from './handlers/run.js';
-import type { Config, CollectFn, RuleSeverity } from '@redocly/openapi-core';
+import type { Config, CollectFn, RuleSeverity, LoggerInterface } from '@redocly/openapi-core';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {
@@ -77,7 +77,7 @@ type AdditionalStepProps = {
 
 export type Step = ArazzoStep & AdditionalStepProps;
 export type Workflow = Omit<ArazzoWorkflow, 'steps'> & { steps: Step[]; time?: number };
-export type RunArgv = Omit<RespectOptions, 'files'> & {
+export type RunOptions = Omit<RespectOptions, 'files'> & {
   file: string;
   testDescription?: TestDescription;
   input?: string | string[];
@@ -111,16 +111,19 @@ export type AppOptions = {
   workflow?: string | string[];
   skip?: string | string[];
   verbose?: boolean;
-  harOutput?: string;
-  jsonOutput?: string;
   metadata?: Record<string, any>;
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  mutualTls?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
+  config: Config;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  fetch: typeof fetch;
+  envVariables: Record<string, string>;
+  version?: string;
+  logger: LoggerInterface;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -227,6 +230,18 @@ export interface StepExecutionResult {
   checks: (Check & { status: ExecutionStatus })[];
 }
 
+export type RunFileResult = {
+  hasProblems: boolean;
+  hasWarnings: boolean;
+  file: string;
+  executedWorkflows: WorkflowExecutionResult[];
+  options: RunOptions;
+  ctx: TestContext;
+  totalTimeMs: number;
+  totalRequests: number;
+  globalTimeoutError: boolean;
+};
+
 export interface WorkflowExecutionResult {
   type: 'workflow';
   workflowId: string;
@@ -258,16 +273,13 @@ export type TestContext = RuntimeExpressionContext & {
   workflows: Workflow[];
   options: AppOptions;
   testDescription: TestDescription;
-  harLogs: any;
   components?: Record<string, any>;
   secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
-  mtlsCerts?: {
-    clientCert?: string;
-    clientKey?: string;
-    caCert?: string;
-  };
   apiClient: ApiFetcher;
+  requestFileLoader: {
+    getFileBody: (filePath: string) => Promise<Blob>;
+  };
 };
 
 export type TestDescription = Partial<

@@ -1,11 +1,16 @@
-import type { TestContext } from '../../../types.js';
+import { logger } from '@redocly/openapi-core';
+import { type TestContext } from '../../../types.js';
 
 import { resolveReusableComponentItem } from '../../context-parser/index.js';
 
 describe('resolveReusableComponentItem', () => {
   it('should return parameter if not reference', () => {
     expect(
-      resolveReusableComponentItem({ in: 'query', name: 'test', value: 'test' }, {} as any)
+      resolveReusableComponentItem({ in: 'query', name: 'test', value: 'test' }, {
+        options: {
+          logger,
+        },
+      } as unknown as TestContext)
     ).toEqual({
       in: 'query',
       name: 'test',
@@ -22,7 +27,11 @@ describe('resolveReusableComponentItem', () => {
           workflowId: 'test',
           criteria: [{ condition: '$statusCode == 200' }],
         },
-        {} as unknown as TestContext
+        {
+          options: {
+            logger,
+          },
+        } as unknown as TestContext
       )
     ).toEqual({
       name: 'SuccessActio',
@@ -34,7 +43,11 @@ describe('resolveReusableComponentItem', () => {
 
   it('should throw an error if reference is not found', () => {
     expect(() =>
-      resolveReusableComponentItem({ reference: '$components.some.page' }, {} as any)
+      resolveReusableComponentItem({ reference: '$components.some.page' }, {
+        options: {
+          logger,
+        },
+      } as unknown as TestContext)
     ).toThrow(
       'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );
@@ -44,6 +57,9 @@ describe('resolveReusableComponentItem', () => {
     expect(
       resolveReusableComponentItem({ reference: '$components.parameters.page' }, {
         $components: { parameters: { page: { value: 'test', in: 'query', name: 'page' } } },
+        options: {
+          logger,
+        },
       } as unknown as TestContext)
     ).toEqual({
       value: 'test',
@@ -64,6 +80,9 @@ describe('resolveReusableComponentItem', () => {
               criteria: [{ condition: '$statusCode == 200' }],
             },
           },
+        },
+        options: {
+          logger,
         },
       } as unknown as TestContext)
     ).toEqual({

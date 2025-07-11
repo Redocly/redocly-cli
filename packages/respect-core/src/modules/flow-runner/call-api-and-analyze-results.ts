@@ -99,6 +99,7 @@ export async function callAPIAndAnalyzeResults({
       outputs[outputKey] = evaluateRuntimeExpressionPayload({
         payload: step.outputs[outputKey],
         context: runtimeExpressionContext,
+        logger: ctx.options.logger,
       });
     }
   }

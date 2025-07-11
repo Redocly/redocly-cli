@@ -1,11 +1,9 @@
 import { red, gray, underline, blue, yellow } from 'colorette';
 import { CHECKS } from '../checks/index.js';
 import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from '../../utils/cli-outputs.js';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { Step, WorkflowExecutionResult } from '../../types.js';
-
-const logger = DefaultLogger.getInstance();
+import type { LoggerInterface } from '@redocly/openapi-core';
 
 function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
   return steps.flatMap((step) => {
@@ -16,8 +14,8 @@ function flattenNestedSteps(steps: (Step | WorkflowExecutionResult)[]): Step[] {
   });
 }
 
-export function displayErrors(workflows: WorkflowExecutionResult[]) {
-  logger.log(`${RESET_ESCAPE_CODE}\n${indent(red('Failed tests info:'), 2)}\n`);
+export function displayErrors(workflows: WorkflowExecutionResult[], logger: LoggerInterface) {
+  logger.output(`${RESET_ESCAPE_CODE}\n${indent(red('Failed tests info:'), 2)}\n`);
 
   for (const workflow of workflows) {
     const steps = flattenNestedSteps(workflow.executedSteps);
@@ -28,7 +26,7 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
 
     if (!hasProblems) continue;
 
-    logger.log(
+    logger.output(
       `${RESET_ESCAPE_CODE}\n${indent(gray('Workflow name:'), 2)} ${underline(
         workflow.workflowId
       )}${RESET_ESCAPE_CODE}\n`
@@ -41,7 +39,7 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
       if (step.retriesLeft && step.retriesLeft !== 0) continue;
 
       logger.printNewLine();
-      logger.log(
+      logger.output(
         indent(`${blue('stepId - ')}`, 4) +
           (step?.stepId ? red(step.stepId) : red(step?.operationId || step?.operationPath || ''))
       );
@@ -60,14 +58,14 @@ export function displayErrors(workflows: WorkflowExecutionResult[]) {
         logger.printNewLine();
 
         if (severity === 'error') {
-          logger.log(indent(`${red('✗')} ${gray(name.toLowerCase())}`, 4));
+          logger.output(indent(`${red('✗')} ${gray(name.toLowerCase())}`, 4));
         } else if (severity === 'off') {
-          logger.log(indent(`${gray('○')} ${gray(name.toLowerCase())} ${gray('(skipped)')}`, 4));
+          logger.output(indent(`${gray('○')} ${gray(name.toLowerCase())} ${gray('(skipped)')}`, 4));
         } else {
-          logger.log(indent(`${yellow('⚠')} ${gray(name.toLowerCase())}`, 4));
+          logger.output(indent(`${yellow('⚠')} ${gray(name.toLowerCase())}`, 4));
         }
         logger.printNewLine();
-        logger.log(`${messageToDisplay}`);
+        logger.output(`${messageToDisplay}`);
       }
     }
   }

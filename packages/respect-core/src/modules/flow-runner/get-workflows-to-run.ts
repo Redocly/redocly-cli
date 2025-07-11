@@ -1,21 +1,25 @@
+import { type LoggerInterface } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
-import { DefaultLogger } from '../../utils/logger/logger.js';
 
 import type { Workflow } from '../../types.js';
 
-const logger = DefaultLogger.getInstance();
-
-export function getWorkflowsToRun(
-  workflows: Workflow[],
-  workflowsToRun: string[] | undefined,
-  workflowsToSkip: string[] | undefined
-): Workflow[] {
+export function getWorkflowsToRun({
+  workflows,
+  workflowsToRun,
+  workflowsToSkip,
+  logger,
+}: {
+  workflows: Workflow[];
+  workflowsToRun: string[] | undefined;
+  workflowsToSkip: string[] | undefined;
+  logger: LoggerInterface;
+}): Workflow[] {
   let filteredWorkflows: Workflow[] = [];
 
   if (workflowsToRun && workflowsToRun.length) {
-    filteredWorkflows = filterWorkflowsToRun(workflows, workflowsToRun);
+    filteredWorkflows = filterWorkflowsToRun(workflows, workflowsToRun, logger);
   } else if (workflowsToSkip && workflowsToSkip.length) {
-    filteredWorkflows = filterWorkflowsToSkip(workflows, workflowsToSkip);
+    filteredWorkflows = filterWorkflowsToSkip(workflows, workflowsToSkip, logger);
   } else {
     filteredWorkflows = workflows;
   }
@@ -23,24 +27,32 @@ export function getWorkflowsToRun(
   return filteredWorkflows;
 }
 
-function filterWorkflowsToSkip(workflows: Workflow[], workflowsToSkip: string[]) {
+function filterWorkflowsToSkip(
+  workflows: Workflow[],
+  workflowsToSkip: string[],
+  logger: LoggerInterface
+) {
   const workflowsToRun = workflows.filter(
     (workflow) => !workflowsToSkip.includes(workflow.workflowId)
   );
 
   if (!workflowsToRun.length) {
-    logger.log(`${red('All workflows are skipped')}`);
+    logger.output(`${red('All workflows are skipped')}`);
     logger.printNewLine();
     return [];
   }
 
-  logger.log(`${yellow(`Following workflows are skipped: ${workflowsToSkip.join(', ')}`)}`);
+  logger.output(`${yellow(`Following workflows are skipped: ${workflowsToSkip.join(', ')}`)}`);
   logger.printNewLine();
 
   return workflowsToRun;
 }
 
-function filterWorkflowsToRun(workflows: Workflow[], workflowsToRun: string[]) {
+function filterWorkflowsToRun(
+  workflows: Workflow[],
+  workflowsToRun: string[],
+  logger: LoggerInterface
+) {
   const filteredWorkflows = filterWorkflowsByIds(workflows, workflowsToRun);
 
   if (!filteredWorkflows.length) {
@@ -54,7 +66,7 @@ function filterWorkflowsToRun(workflows: Workflow[], workflowsToRun: string[]) {
       return !workflows.find((workflow) => workflow.workflowId === workflowId);
     });
 
-    logger.log(`Following workflows don't exist: ${notExistingWorkflows.join(', ')}`);
+    logger.output(`Following workflows don't exist: ${notExistingWorkflows.join(', ')}`);
     return filteredWorkflows;
   }
 }
