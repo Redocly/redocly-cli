@@ -52,17 +52,21 @@ const options: AppOptions = {
   maxFetchTimeout: 40_000,
   executionTimeout: 3_600_000,
   config: await createConfig({}),
+  requestFileLoader: {
+    getFileBody: async (filePath: string) => {
+      return new Blob([filePath]);
+    },
+  },
   envVariables: {
     AUTH_TOKEN: '1234567890',
   },
   logger,
+  fetch,
 };
 
 describe('createRuntimeExpressionCtx', () => {
   it('should create limited runtime expression context when workflowId and step provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -89,9 +93,7 @@ describe('createRuntimeExpressionCtx', () => {
   });
 
   it('should create limited runtime expression context when workflowId is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -106,9 +108,7 @@ describe('createRuntimeExpressionCtx', () => {
     expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
   it('should create limited runtime expression context when step is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,

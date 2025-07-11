@@ -1,4 +1,4 @@
-import { buildParams } from '../../../har-logs/helpers/build-params.js';
+import { buildParams } from '../../../../../commands/respect/har-logs/helpers/build-params.js';
 
 describe('buildParams', () => {
   it('should parse url-encoded form data into HAR params format', () => {

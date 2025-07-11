@@ -15,7 +15,6 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { createHarLog } from '../../../utils/har-logs/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { displayChecks } from '../../cli-output/index.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
@@ -50,10 +49,7 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
-const harLogs = createHarLog({ version: '1.0.0' });
-const apiClient = new ApiFetcher({
-  harLogs,
-});
+const apiClient = new ApiFetcher({});
 const basicCTX = {
   apiClient,
   $request: undefined,
@@ -612,13 +608,11 @@ const basicCTX = {
     },
   },
   $steps: {},
-  harLogs: {},
   options: {
     workflowPath: 'runStepTest.yml',
     workflow: undefined,
     skip: undefined,
     verbose: true,
-    harLogsFile: 'har-output',
     metadata: {
       _: [],
       files: ['runStepTest.yml'],
@@ -699,9 +693,6 @@ describe('runStep', () => {
   });
 
   it('should display checks when failed to make a call to the API', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs,
-    });
     const step: Step = {
       stepId: 'get-bird',
       operationId: 'no-serverUrl-api.getBreeds',
@@ -733,9 +724,7 @@ describe('runStep', () => {
   });
 
   it('should execute onSuccess step criteria with goto StepId', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs,
-    });
+    const apiClient = new ApiFetcher({});
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -2483,13 +2472,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -2896,13 +2883,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -3333,13 +3318,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -3801,13 +3784,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
         workflowPath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],

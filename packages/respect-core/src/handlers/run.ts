@@ -2,7 +2,7 @@ import { type Config, type CollectFn, type LoggerInterface } from '@redocly/open
 import { runTestFile } from '../modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
-import { type TestContext, type RunFileResult, type RunOptions } from '../types.js';
+import { type RunFileResult, type RunOptions } from '../types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -13,16 +13,15 @@ export type RespectOptions = {
   verbose?: boolean;
   severity?: string;
   config: Config;
-  harOutput?: string;
-  jsonOutput?: string;
-  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
   collectSpecData?: CollectFn;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   envVariables: Record<string, string>;
   version?: string;
   logger: LoggerInterface;
+  fetch: typeof fetch;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
@@ -58,7 +57,7 @@ async function runFile({
 }): Promise<RunFileResult> {
   const result = await runTestFile(options, collectSpecData);
 
-  const { executedWorkflows, ctx, harLogs } = result;
+  const { executedWorkflows, ctx } = result;
   const totals = calculateTotals(executedWorkflows);
   const hasProblems = totals.workflows.failed > 0;
   const hasWarnings = totals.workflows.warnings > 0;
@@ -80,6 +79,5 @@ async function runFile({
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
-    harLogs,
   };
 }

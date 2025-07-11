@@ -1,13 +1,16 @@
 import { handleRun, maskSecrets, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
-import { writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, basename } from 'node:path';
 import { blue, green } from 'colorette';
 import { composeJsonLogsFiles } from './json-logs.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
+import { withMtlsClientIfNeeded } from './mtls/create-mtls-client.js';
+import { withHar } from './har-logs/index.js';
+import { createHarLog } from './har-logs/har-logs.js';
 
 export type RespectArgv = {
   files: string[];
@@ -35,6 +38,7 @@ export async function handleRespect({
   collectSpecData,
 }: CommandArgs<RespectArgv>) {
   let mtlsCerts;
+  let harLogs;
 
   try {
     const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
@@ -53,6 +57,12 @@ export async function handleRespect({
           : undefined;
     }
 
+    let customFetch = withMtlsClientIfNeeded(mtlsCerts);
+    if (argv['har-output']) {
+      harLogs = createHarLog({ version });
+      customFetch = withHar(customFetch, { har: harLogs });
+    }
+
     const options = {
       files: argv.files,
       input: argv.input,
@@ -64,29 +74,37 @@ export async function handleRespect({
       version,
       collectSpecData,
       severity: argv.severity,
-      harOutput: argv['har-output'],
-      jsonOutput: argv['json-output'],
-      mtlsCerts,
       maxSteps: argv['max-steps'],
       maxFetchTimeout: argv['max-fetch-timeout'],
       executionTimeout: argv['execution-timeout'],
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          if (!existsSync(filePath)) {
+            throw new Error(`File ${filePath} doesn't exist or isn't readable.`);
+          }
+
+          const buffer = readFileSync(filePath);
+          return new File([buffer], basename(filePath));
+        },
+      },
       envVariables: readEnvVariables(workingDir) || {},
       logger,
+      fetch: customFetch as unknown as typeof fetch,
     };
 
     if (options.skip && options.workflow) {
       throw new Error(`Cannot use both --skip and --workflow flags at the same time.`);
     }
 
-    if (options.harOutput && !options.harOutput.endsWith('.har')) {
+    if (argv['har-output'] && !argv['har-output'].endsWith('.har')) {
       throw new Error('File for HAR logs should be in .har format');
     }
 
-    if (options.jsonOutput && !options.jsonOutput.endsWith('.json')) {
+    if (argv['json-output'] && !argv['json-output'].endsWith('.json')) {
       throw new Error('File for JSON logs should be in .json format');
     }
 
-    if (options.files.length > 1 && options.harOutput) {
+    if (options.files.length > 1 && argv['har-output']) {
       // TODO: implement multiple run files HAR output
       throw new Error(
         'Currently only a single file can be run with --har-output. Please run a single file at a time.'
@@ -104,26 +122,26 @@ export async function handleRespect({
     const hasProblems = runAllFilesResult.some((result) => result.hasProblems);
     const hasWarnings = runAllFilesResult.some((result) => result.hasWarnings);
 
-    if (options.jsonOutput) {
+    if (argv['json-output']) {
       const jsonOutputData = {
         files: composeJsonLogsFiles(runAllFilesResult),
         status: hasProblems ? 'error' : hasWarnings ? 'warn' : 'success',
         totalTime: performance.now() - startedAt,
       } as JsonLogs;
 
-      writeFileSync(options.jsonOutput, JSON.stringify(jsonOutputData, null, 2), 'utf-8');
+      writeFileSync(argv['json-output'], JSON.stringify(jsonOutputData, null, 2), 'utf-8');
 
-      logger.output(blue(logger.indent(`JSON logs saved in ${green(options.jsonOutput)}`, 2)));
+      logger.output(blue(logger.indent(`JSON logs saved in ${green(argv['json-output'])}`, 2)));
       logger.printNewLine();
       logger.printNewLine();
     }
 
-    if (options.harOutput) {
+    if (argv['har-output']) {
       // TODO: implement multiple run files HAR output
       for (const result of runAllFilesResult) {
-        const parsedHarLogs = maskSecrets(result.harLogs, result.ctx.secretFields || new Set());
-        writeFileSync(options.harOutput, JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
-        logger.output(blue(`Har logs saved in ${green(options.harOutput)}`));
+        const parsedHarLogs = maskSecrets(harLogs, result.ctx.secretFields || new Set());
+        writeFileSync(argv['har-output'], JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
+        logger.output(blue(`Har logs saved in ${green(argv['har-output'])}`));
         logger.printNewLine();
         logger.printNewLine();
       }

@@ -7,9 +7,7 @@ vi.mock('../../../flow-runner/context/create-test-context.js');
 describe('resolveWorkflowContext', async () => {
   const config = await createConfig({});
   const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const apiClient = new ApiFetcher({});
   const resolvedWorkflow = {
     workflowId: 'get-museum-tickets',
     description: 'This workflow demonstrates how to buy tickets for the museum.',
@@ -323,7 +321,6 @@ describe('resolveWorkflowContext', async () => {
       workflow: undefined,
       skip: undefined,
       verbose: undefined,
-      harLogsFile: 'har-output',
       metadata: {
         _: ['run'],
         files: ['examples/museum-api/museum-api-test.yaml'],
@@ -340,9 +337,7 @@ describe('resolveWorkflowContext', async () => {
   } as any;
 
   it('should not createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const workflowId = undefined;
     const resolvedWorkflow = {} as any;
     const ctx = {
