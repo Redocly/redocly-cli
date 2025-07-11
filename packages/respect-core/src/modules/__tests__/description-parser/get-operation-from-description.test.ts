@@ -9,9 +9,7 @@ import {
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 describe('getOperationFromDescriptionBySource', () => {
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const apiClient = new ApiFetcher({});
   const context = {
     apiClient,
     $sourceDescriptions: {

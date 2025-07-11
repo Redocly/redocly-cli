@@ -50,22 +50,25 @@ describe('createTestContext', () => {
     const options = {
       workflowPath: 'modules/description-parser/test.test.yaml',
       workflow: undefined,
-      harLogsFile: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
       envVariables: {
         AUTH_TOKEN: '1234567890',
       },
       logger,
+      fetch,
     } as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context).toMatchObject({
@@ -513,12 +516,9 @@ describe('createTestContext', () => {
       $inputs: {
         env: {},
       },
-      harLogs: expect.any(Object),
-      mtlsCerts: undefined,
       options: {
         workflowPath: 'modules/description-parser/test.test.yaml',
         workflow: undefined,
-        harLogsFile: 'har-output',
         metadata: {},
         verbose: false,
       },
@@ -554,23 +554,26 @@ describe('createTestContext', () => {
     const options: AppOptions = {
       workflowPath: 'test.test.yaml',
       workflow: undefined,
-      harOutput: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
       envVariables: {
         TEST_VAR: 'test value',
         ANOTHER_VAR: 'another value',
       },
       logger,
+      fetch,
     };
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.test.inputs).toEqual(undefined);
@@ -604,20 +607,23 @@ describe('createTestContext', () => {
       input: JSON.stringify({ testInput: 'testValue' }),
       workflow: undefined,
       skip: undefined,
-      harOutput: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
       config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
       envVariables: {},
       logger: logger,
+      fetch,
     };
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows).toMatchObject({
@@ -673,9 +679,7 @@ describe('createTestContext', () => {
       input: JSON.stringify({ input1: 'value1' }),
     } as unknown as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows).toEqual({
@@ -716,9 +720,7 @@ describe('createTestContext', () => {
       workflowPath: 'test.test.yaml',
     } as unknown as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1.inputs).toEqual(undefined);
@@ -754,9 +756,7 @@ describe('createTestContext', () => {
       },
     } as unknown as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1?.inputs?.env?.ENV_VAR).toBe('value');

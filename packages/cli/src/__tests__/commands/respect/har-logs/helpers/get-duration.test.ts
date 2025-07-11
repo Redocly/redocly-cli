@@ -1,4 +1,4 @@
-import { getDuration } from '../../../har-logs/helpers/get-duration.js';
+import { getDuration } from '../../../../../commands/respect/har-logs/helpers/get-duration.js';
 
 describe('getDuration', () => {
   it('should return the duration in milliseconds', () => {

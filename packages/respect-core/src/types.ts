@@ -111,17 +111,16 @@ export type AppOptions = {
   workflow?: string | string[];
   skip?: string | string[];
   verbose?: boolean;
-  harOutput?: string;
-  jsonOutput?: string;
   metadata?: Record<string, any>;
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  mtlsCerts?: Partial<TestContext['mtlsCerts']>;
   maxSteps: number;
   maxFetchTimeout: number;
   executionTimeout: number;
   config: Config;
+  requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
+  fetch: typeof fetch;
   envVariables: Record<string, string>;
   version?: string;
   logger: LoggerInterface;
@@ -241,7 +240,6 @@ export type RunFileResult = {
   totalTimeMs: number;
   totalRequests: number;
   globalTimeoutError: boolean;
-  harLogs: any;
 };
 
 export interface WorkflowExecutionResult {
@@ -275,16 +273,13 @@ export type TestContext = RuntimeExpressionContext & {
   workflows: Workflow[];
   options: AppOptions;
   testDescription: TestDescription;
-  harLogs: any;
   components?: Record<string, any>;
   secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
-  mtlsCerts?: {
-    clientCert?: string;
-    clientKey?: string;
-    caCert?: string;
-  };
   apiClient: ApiFetcher;
+  requestFileLoader: {
+    getFileBody: (filePath: string) => Promise<Blob>;
+  };
 };
 
 export type TestDescription = Partial<

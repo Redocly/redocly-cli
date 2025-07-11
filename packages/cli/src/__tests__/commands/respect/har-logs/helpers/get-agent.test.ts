@@ -1,7 +1,7 @@
 import { Dispatcher } from 'undici';
 import * as http from 'http';
 
-import { getAgent } from '../../../har-logs/helpers/get-agent.js';
+import { getAgent } from '../../../../../commands/respect/har-logs/helpers/get-agent.js';
 
 describe('getAgent', () => {
   it('should return an agent', () => {

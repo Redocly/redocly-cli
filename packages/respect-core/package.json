@@ -31,11 +31,7 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
-    "@types/concat-stream": "^2.0.3",
-    "@types/cookie": "0.6.0",
-    "@types/har-format": "^1.2.16",
     "@types/json-pointer": "1.0.34",
-    "@types/set-cookie-parser": "2.4.10",
     "json-schema-to-ts": "^3.0.1",
     "typescript": "5.6.2"
   },
@@ -45,18 +41,12 @@
     "@redocly/openapi-core": "2.0.0-next.5",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
-    "concat-stream": "^2.0.0",
-    "cookie": "^0.7.2",
-    "form-data": "4.0.0",
     "jest-diff": "^29.3.1",
     "jest-matcher-utils": "^29.3.1",
     "json-pointer": "^0.6.2",
     "jsonpath-plus": "^10.0.6",
-    "open": "^10.1.0",
     "openapi-sampler": "^1.6.1",
-    "outdent": "^0.8.0",
-    "set-cookie-parser": "^2.3.5",
-    "undici": "^6.21.1"
+    "outdent": "^0.8.0"
   },
   "files": [
     "lib"

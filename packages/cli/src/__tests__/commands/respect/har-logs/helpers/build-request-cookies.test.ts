@@ -1,4 +1,4 @@
-import { buildRequestCookies } from '../../../har-logs/helpers/build-request-cookies.js';
+import { buildRequestCookies } from '../../../../../commands/respect/har-logs/helpers/build-request-cookies.js';
 
 describe('buildRequestCookies', () => {
   it('should build cookies from an array', () => {
