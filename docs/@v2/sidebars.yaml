@@ -75,13 +75,16 @@
         - page: rules.md
           group: Rules and rulesets
           items:
+            - page: rules/spec-ruleset.md
             - page: rules/recommended.md
             - page: rules/minimal.md
-            - page: rules/spec-ruleset.md
             - page: rules/ruleset-templates.md
         - group: Built-in rules
           page: rules/built-in-rules.md
           items:
+            - separator: Common
+            - page: rules/common/struct.md
+            - page: rules/common/no-unresolved-refs.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -105,8 +108,8 @@
             - page: rules/oas/no-server-trailing-slash.md
             - page: rules/oas/no-server-variables-empty-enum.md
             - page: rules/oas/no-undefined-server-variable.md
-            - page: rules/oas/no-unresolved-refs.md
             - page: rules/oas/no-unused-components.md
+            - page: rules/oas/nullable-type-sibling.md
             - page: rules/oas/operation-2xx-response.md
             - page: rules/oas/operation-4xx-problem-details-rfc7807.md
             - page: rules/oas/operation-4xx-response.md
@@ -133,7 +136,6 @@
             - page: rules/oas/scalar-property-missing-example.md
             - page: rules/oas/security-defined.md
             - page: rules/oas/spec-components-invalid-map-name.md
-            - page: rules/oas/struct.md
             - page: rules/oas/spec-strict-refs.md
             - page: rules/oas/tag-description.md
             - page: rules/oas/tags-alphabetical.md

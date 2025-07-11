@@ -25,7 +25,7 @@ import { PathNotIncludeQuery } from '../common/path-not-include-query.js';
 import { ParameterDescription } from '../common/parameter-description.js';
 import { OperationSingularTag } from '../common/operation-singular-tag.js';
 import { SecurityDefined } from '../common/security-defined.js';
-import { NoUnresolvedRefs } from '../no-unresolved-refs.js';
+import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { PathsKebabCase } from '../common/paths-kebab-case.js';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order.js';
@@ -94,7 +94,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'parameter-description': ParameterDescription as Oas3Rule,
   'operation-singular-tag': OperationSingularTag as Oas3Rule,
   'security-defined': SecurityDefined as Oas3Rule,
-  'no-unresolved-refs': NoUnresolvedRefs,
+  'no-unresolved-refs': NoUnresolvedRefs as Oas3Rule,
   'paths-kebab-case': PathsKebabCase as Oas3Rule,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas3Rule,

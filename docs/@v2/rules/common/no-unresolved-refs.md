@@ -12,6 +12,21 @@ Ensures that all `$ref` instances in your API descriptions are resolved.
 | 3.0 | ✅            |
 | 3.1 | ✅            |
 
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.x    | ✅            |
+
+| Overlay | Compatibility |
+| ------- | ------------- |
+| 1.x     | ✅            |
+
+The default setting for this rule (in the `spec`, `recommended`, and `minimal` configuration) is `error`.
+
 ## API design principles
 
 The `$ref` (reference object) is useful for keeping your OpenAPI descriptions DRY (don't repeat yourself).
@@ -86,7 +101,7 @@ components:
 
 - [struct](./struct.md)
 - [configurable rules](../configurable-rules.md)
-- [no-unused-components](./no-unused-components.md)
+- [no-unused-components](../oas/no-unused-components.md)
 
 ## Resources
 

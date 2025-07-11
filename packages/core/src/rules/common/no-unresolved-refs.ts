@@ -1,10 +1,23 @@
-import { YamlParseError } from '../resolve.js';
+import { YamlParseError } from '../../resolve.js';
 
-import type { Oas3Rule } from '../visitors.js';
-import type { ResolveResult, Problem } from '../walk.js';
-import type { Location } from '../ref-utils.js';
+import type {
+  Oas2Rule,
+  Oas3Rule,
+  Async2Rule,
+  Async3Rule,
+  Arazzo1Rule,
+  Overlay1Rule,
+} from '../../visitors.js';
+import type { ResolveResult, Problem, UserContext } from '../../walk.js';
+import type { Location } from '../../ref-utils.js';
 
-export const NoUnresolvedRefs: Oas3Rule = () => {
+export const NoUnresolvedRefs:
+  | Oas3Rule
+  | Oas2Rule
+  | Async2Rule
+  | Async3Rule
+  | Arazzo1Rule
+  | Overlay1Rule = () => {
   return {
     ref: {
       leave(_, { report, location }, resolved) {
@@ -12,7 +25,10 @@ export const NoUnresolvedRefs: Oas3Rule = () => {
         reportUnresolvedRef(resolved, report, location);
       },
     },
-    DiscriminatorMapping(mapping, { report, resolve, location }) {
+    DiscriminatorMapping(
+      mapping: Record<string, string>,
+      { report, resolve, location }: UserContext
+    ) {
       for (const mappingName of Object.keys(mapping)) {
         const resolved = resolve({ $ref: mapping[mappingName] });
         if (resolved.node !== undefined) return;

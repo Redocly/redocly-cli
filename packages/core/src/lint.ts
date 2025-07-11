@@ -8,7 +8,7 @@ import { releaseAjvInstance } from './rules/ajv.js';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
-import { NoUnresolvedRefs } from './rules/no-unresolved-refs.js';
+import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { type Config } from './config/index.js';
 
 import type { Document } from './resolve.js';

@@ -10,8 +10,8 @@ Errors:
 
 - [no-server-trailing-slash](./oas/no-server-trailing-slash.md)
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md)
-- [no-unresolved-refs](./oas/no-unresolved-refs.md)
-- [struct](./oas/struct.md)
+- [no-unresolved-refs](./common/no-unresolved-refs.md)
+- [struct](./common/struct.md)
 - [stepId-unique](./arazzo/stepId-unique.md)
 - [workflowId-unique](./arazzo/workflowId-unique.md)
 

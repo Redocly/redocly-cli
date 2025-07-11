@@ -73,7 +73,7 @@ info:
 
 - [info-license](./info-license.md)
 - [info-license-url](./info-license-url.md)
-- [struct](./struct.md)
+- [struct](../common/struct.md)
 - [configurable rules](../configurable-rules.md)
 
 ## Resources

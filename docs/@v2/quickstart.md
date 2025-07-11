@@ -63,17 +63,17 @@ You have 1 warning.
 
 The output shows any aspects where the OpenAPI doesn't meet the standard. If you get too much output, try adding the `--format summary` parameter to the command.
 
-Feeling brave and highly API compliant? Try the `recommended` standard instead and see how yours measures up.
+Feeling brave and highly API compliant? Try the `recommended` or `spec` ruleset instead and see how yours measures up.
 
 ## Craft a custom ruleset
 
 Redocly CLI has some [great built-in rules](./rules/built-in-rules.md), and you can use these to build up a ruleset that works for you.
 
-For example, let's build a lightweight ruleset using the [minimal ruleset](./rules/minimal.md) and adding some built-in rules to create a custom ruleset. You can see an example in the following snippet:
+For example, let's build a lightweight ruleset using the [spec ruleset](./rules/spec-ruleset.md) and adding some built-in rules to create a custom ruleset. You can see an example in the following snippet:
 
 ```yaml
 extends:
- - minimal
+ - spec
 
 rules:
   path-parameters-defined: error

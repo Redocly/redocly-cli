@@ -16,7 +16,8 @@ Redocly uses rules to describe all the different aspects of API behavior that we
 
 Rulesets are groups of rules that are applied together, and APIs can be checked against as many rulesets as needed during linting. To get you started, there are some built-in rulesets:
 
-- Our [recommended](./rules/recommended.md) ruleset is our unabashedly opinionated recommendation of what we think a good API looks like. It's a great place to start, before adapting to your own context.
+- Our [spec](./rules/spec-ruleset.md) ruleset follows the OpenAPI specification as closely as possible and is a good starting point to build your own standards on top of it.
+- A [recommended](./rules/recommended.md) ruleset is our unabashedly opinionated recommendation of what we think a good API looks like. It's a great place to start, before adapting to your own context.
 - A [recommended-strict](./rules/recommended.md#recommended-strict-ruleset) ruleset is identical to the `recommended`, except it elevates all warnings to errors. It's the ideal option for those who don't want to miss anything.
 - A [minimal](./rules/minimal.md) ruleset is a good starting point for an existing API that doesn't currently conform to any standard. It has fewer rules that cause an error, with others either downgraded to a warning or turned off completely.
 

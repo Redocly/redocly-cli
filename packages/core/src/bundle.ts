@@ -11,7 +11,7 @@ import {
 } from './oas-types.js';
 import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
 import { initRules } from './config/rules.js';
-import { reportUnresolvedRef } from './rules/no-unresolved-refs.js';
+import { reportUnresolvedRef } from './rules/common/no-unresolved-refs.js';
 import { dequal, isTruthy } from './utils.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';

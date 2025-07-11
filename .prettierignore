@@ -1,7 +1,7 @@
 coverage/
 lib/
 output/
-packages/core/src/rules/__tests__/fixtures/invalid-yaml.yaml
+packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml
 packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs
 benchmark/api-definitions/
 LICENSE.md

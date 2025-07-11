@@ -16,12 +16,14 @@ import { CriteriaUnique } from './criteria-unique.js';
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
 import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
 import { NoXSecuritySchemeNameInWorkflow } from '../respect/no-x-security-scheme-name-in-workflow.js';
+import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';
 
 export const rules: Arazzo1RuleSet<'built-in'> = {
   struct: Struct as Arazzo1Rule,
+  'no-unresolved-refs': NoUnresolvedRefs as Arazzo1Rule,
   assertions: Assertions as Arazzo1Rule,
   'sourceDescription-type': SourceDescriptionType,
   'respect-supported-versions': RespectSupportedVersions,

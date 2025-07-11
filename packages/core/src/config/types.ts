@@ -27,6 +27,15 @@ import type {
 import type { NodeType } from '../types/index.js';
 import type { SkipFunctionContext } from '../visitors.js';
 import type { JSONSchema } from 'json-schema-to-ts';
+import type {
+  BuiltInOAS2RuleId,
+  BuiltInOAS3RuleId,
+  BuiltInAsync2RuleId,
+  BuiltInAsync3RuleId,
+  BuiltInArazzo1RuleId,
+  BuiltInOverlay1RuleId,
+  BuiltInCommonRuleId,
+} from '../types/redocly-yaml.js';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -44,16 +53,17 @@ export type PreprocessorConfig =
 
 export type DecoratorConfig = PreprocessorConfig;
 
-export type RawGovernanceConfig<T = undefined> = {
+export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = {
   extends?: string[];
-  rules?: RuleMap<string, RuleConfig, T>;
-  oas2Rules?: RuleMap<string, RuleConfig, T>;
-  oas3_0Rules?: RuleMap<string, RuleConfig, T>;
-  oas3_1Rules?: RuleMap<string, RuleConfig, T>;
-  async2Rules?: RuleMap<string, RuleConfig, T>;
-  async3Rules?: RuleMap<string, RuleConfig, T>;
-  arazzo1Rules?: RuleMap<string, RuleConfig, T>;
-  overlay1Rules?: RuleMap<string, RuleConfig, T>;
+
+  rules?: RuleMap<BuiltInCommonRuleId, RuleConfig, T>;
+  oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
+  oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
+  oas3_1Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;
+  async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
+  async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
+  arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
+  overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
