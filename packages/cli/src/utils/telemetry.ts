@@ -43,7 +43,7 @@ export async function sendTelemetry({
   respect_x_security_auth_types,
 }: {
   config: Config | undefined;
-  argv: Arguments<CommandOptions> | undefined;
+  argv: Arguments<CommandArgv> | undefined;
   exit_code: ExitCode;
   spec_version: string | undefined;
   spec_keyword: string | undefined;
@@ -58,7 +58,7 @@ export async function sendTelemetry({
       _: [command],
       $0: _,
       ...args
-    } = argv as Exact<Arguments<CommandOptions>>;
+    } = argv as Exact<Arguments<CommandArgv>>;
     const event_time = new Date().toISOString();
     const residency = args.residency || config?.resolvedConfig?.residency;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
