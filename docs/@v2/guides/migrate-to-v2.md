@@ -109,9 +109,9 @@ rules:
 
 ### Platform changes
 
-- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/)
-- **Commands**: The `preview-docs` command has been removed - use `preview` instead
-- **Labels**: The `labels` field in the `apis` section has been removed
+- **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
+- **Commands**: The `preview-docs` command has been removed - use `preview` instead.
+- **Labels**: The `labels` field in the `apis` section has been removed.
 
 ## New features
 
@@ -130,18 +130,18 @@ The `no-duplicated-tag-names` rule checks for duplicate tag names in your API de
 
 ## Migration checklist
 
-1. **Update Node.js** to a supported version (20.19.0+, 22.12.0+, or 23+)
-2. **Replace `spec` rule** with `struct`
-3. **Update configurable rules** to use `rule/` prefix instead of `assert/`
-4. **Replace `undefined` assertions** with `defined: true`
+1. **Update Node.js** to a supported version (20.19.0+, 22.12.0+, or 23+).
+2. **Replace `spec` rule** with `struct`.
+3. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
+4. **Replace `undefined` assertions** with `defined: true`.
 5. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
    - Remove `labels` from `apis` section
-6. **Update plugins** to ES Modules syntax or use `.cjs` extension
-7. **Test your configuration** with `redocly check-config`
+6. **Update plugins** to ES Modules syntax or use `.cjs` extension.
+7. **Test your configuration** with `redocly check-config`.
 
 ## Next steps
 
-- Explore the [changelog](https://redocly.com/docs/cli/v2/changelog) for detailed information about all changes
-- Check out the v2 [documentation](https://redocly.com/docs/cli/v2/)
+- Explore the [changelog](https://redocly.com/docs/cli/v2/changelog) for detailed information about all changes.
+- Check out the v2 [documentation](https://redocly.com/docs/cli/v2/).
