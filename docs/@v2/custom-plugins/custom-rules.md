@@ -15,9 +15,7 @@ Each rule is a function that returns an object with methods that Redocly CLI cal
 To keep the plugin code manageable, each rule can go in its own file. This example is in `plugins/rules/opid-not-test.js`:
 
 ```js
-module.exports = OperationIdNotTest;
-
-function OperationIdNotTest() {
+export default function OperationIdNotTest() {
   return {
     Operation: {
       enter(operation, ctx) {
@@ -39,9 +37,9 @@ Adding this as part of a plugin requires you to add it to the `rules` part of th
 The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
 
 ```js
-const OperationIdNotTest = require('./rules/opid-not-test.js');
+import OperationIdNotTest from './rules/opid-not-test.js';
 
-module.exports = function myRulesPlugin() {
+export default function myRulesPlugin() {
   return {
     id: 'my-rules',
     rules: {
@@ -50,7 +48,7 @@ module.exports = function myRulesPlugin() {
       },
     },
   };
-};
+}
 ```
 
 To use the example rule, add the following to your `redocly.yaml` configuration file:

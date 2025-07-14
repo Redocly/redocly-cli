@@ -73,9 +73,8 @@ In this step, create a custom plugin and define the decorator dependency.
 
 2. In the `plugins` folder, create a `plugin.js` file with this code:
 
-```JavaScript
-const ReplaceServersURL = require('./decorators/replace-servers-url');
-const id = 'plugin';
+```js
+import ReplaceServersURL from './decorators/replace-servers-url.js';
 
 /** @type {import('@redocly/cli').DecoratorsConfig} */
 const decorators = {
@@ -84,12 +83,12 @@ const decorators = {
   },
 };
 
-module.exports = function replaceServersUrlPlugin() {
+export default function replaceServersUrlPlugin() {
   return {
-    id,
+    id: 'plugin',
     decorators,
   };
-};
+}
 ```
 
 3. Save the file.
@@ -106,12 +105,9 @@ In this step, add a decorator and define the environment variable associated wit
 
 2. In the `decorators` folder, create a `replace-servers-url.js` file with this code:
 
-```JavaScript
-module.exports = ReplaceServersURL;
-
+```js
 /** @type {import('@redocly/cli').OasDecorator} */
-
-function ReplaceServersURL({serverUrl}) {
+export default function ReplaceServersURL({serverUrl}) {
   return {
     Server: {
       leave(Server) {
@@ -122,8 +118,8 @@ function ReplaceServersURL({serverUrl}) {
 
       }
     }
-  }
-};
+  };
+}
 ```
 
 3. Save the file.

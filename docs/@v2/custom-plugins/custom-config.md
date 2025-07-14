@@ -9,7 +9,7 @@ configuration file.
 The following is an example plugin, defining two configuration bundles:
 
 ```js
-module.exports = function myLocalPlugin() {
+export default function myLocalPlugin() {
   return {
     id: 'my-local-plugin',
     configs: {
@@ -27,7 +27,7 @@ module.exports = function myLocalPlugin() {
       },
     },
   };
-};
+}
 ```
 
 In the example, the plugin id is `my-local-plugin` and the `all` and `minimal`

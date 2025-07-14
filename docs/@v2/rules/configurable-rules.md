@@ -242,7 +242,7 @@ rule/operation-summary-check:
 `plugin.js`
 
 ```js
-module.exports = function localPlugin() {
+export default function localPlugin() {
   return {
     id: 'local',
     assertions: {
@@ -272,7 +272,7 @@ module.exports = function localPlugin() {
       },
     },
   };
-};
+}
 ```
 
 ## Assertion examples
