@@ -5,3 +5,9 @@ level: error
 scope: heading
 tokens:
   - '^\w*ing.*'
+exceptions:
+  - Single
+  - Settings
+  - Billing
+  - Hosting
+  - Breaking
