@@ -90,8 +90,7 @@ export async function sendTelemetry({
     };
 
     const { otelTelemetry } = await import('../otel.js');
-    otelTelemetry.init();
-    await otelTelemetry.send(data.command, data);
+    otelTelemetry.send(data.command, data);
   } catch (err) {
     // Do nothing.
   }

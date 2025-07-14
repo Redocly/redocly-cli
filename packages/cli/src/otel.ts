@@ -1,6 +1,5 @@
-import { trace } from '@opentelemetry/api';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './utils/package.js';
@@ -15,16 +14,14 @@ type Events = {
 const OTEL_TRACES_URL = process.env.OTEL_TRACES_URL || 'https://otel.cloud.redocly.com/v1/traces';
 
 export class OtelServerTelemetry {
-  provider: NodeTracerProvider | null = null;
-
-  init() {
-    this.provider = new NodeTracerProvider({
+  send<K extends keyof Events>(event: K, data: Events[K]): void {
+    const nodeTracerProvider = new NodeTracerProvider({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
       }),
       spanProcessors: [
-        new BatchSpanProcessor(
+        new SimpleSpanProcessor(
           new OTLPTraceExporter({
             url: OTEL_TRACES_URL,
             headers: {},
@@ -33,13 +30,11 @@ export class OtelServerTelemetry {
         ),
       ],
     });
-    this.provider.register();
-  }
 
-  async send<K extends keyof Events>(event: K, data: Events[K]): Promise<void> {
     const time = new Date();
     const eventId = crypto.randomUUID();
-    const span = trace.getTracer('CliTelemetry').startSpan(`event.${event}`, {
+    const tracer = nodeTracerProvider.getTracer('CliTelemetry');
+    const span = tracer.startSpan(`event.${event}`, {
       attributes: {
         'cloudevents.event_client.id': eventId,
         'cloudevents.event_client.type': event,
@@ -53,9 +48,6 @@ export class OtelServerTelemetry {
       }
     }
     span.end(time);
-    if (this.provider) {
-      await this.provider.forceFlush(); // waits for all spans to be sent or timeout
-    }
   }
 }
 
