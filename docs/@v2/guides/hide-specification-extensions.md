@@ -35,8 +35,7 @@ In this step, create a custom plugin and define the decorator dependency.
 1. In the `plugins` directory, create a `plugin.js` file with the following code:
 
    ```js
-   const hideOpenapiExtensions = require('./decorators/hide-openapi-extensions');
-   const id = 'plugin';
+   import hideOpenapiExtensions from './decorators/hide-openapi-extensions.js';
 
    const decorators = {
      oas3: {
@@ -44,12 +43,12 @@ In this step, create a custom plugin and define the decorator dependency.
      },
    };
 
-   module.exports = function hideExtensionsPlugin() {
+   export default function hideExtensionsPlugin() {
      return {
-       id,
+       id: 'plugin',
        decorators,
      };
-   };
+   }
    ```
 
 1. Save the file.
@@ -64,11 +63,8 @@ You can name the plugins directory and the file anything you want. Make sure you
 1. In the `decorators` directory, create a `hide-openapi-extensions.js` file with the following code:
 
    ```js
-   module.exports = hideOpenapiExtensions;
-
    /** @type {import('@redocly/cli').OasDecorator} */
-
-   function hideOpenapiExtensions({ pattern }) {
+   export default function hideOpenapiExtensions({ pattern }) {
      return {
        any: {
          enter: node => {
@@ -82,7 +78,7 @@ You can name the plugins directory and the file anything you want. Make sure you
            });
          }
        }
-     }
+     };
    }
    ```
 

@@ -24,8 +24,7 @@ Estimated time: 15 minutes
    {% tab label="acme-plugin.js" %}
 
    ```js
-   const ChangeTokenUrl = require('./decorators/change-token-url');
-   const id = 'plugin';
+   import ChangeTokenUrl from './decorators/change-token-url.js';
 
    /** @type {import('@redocly/cli').CustomRulesConfig} */
    const decorators = {
@@ -34,22 +33,20 @@ Estimated time: 15 minutes
      },
    };
 
-   module.exports = function changeTokenPlugin() {
+   export default function changeTokenPlugin() {
      return {
-       id,
+       id: 'plugin',
        decorators,
      };
-   };
+   }
    ```
 
    {% /tab  %}
    {% tab label="decorators/change-token-url.js" %}
 
    ```js
-   module.exports = ChangeTokenUrl;
-
    /** @type {import('@redocly/cli').OasDecorator} */
-   function ChangeTokenUrl({ tokenUrl }) {
+   export default function ChangeTokenUrl({ tokenUrl }) {
      return {
        OAuth2Flows: {
          leave(flows, ctx) {

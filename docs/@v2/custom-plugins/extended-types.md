@@ -38,7 +38,7 @@ Note the quotes around the `owner-team` key since it contains a hyphen `-`. Thes
 To include the new type in the type tree, the plugin must add the type and modify the parent type, which in this example is `info`. This is done by returning a `typeExtension` structure, as shown in the example below (this example is in `plugins/example-type-extension.js`, this filename is used again in the configuration example later):
 
 ```js
-module.exports = function typeExtensionsPlugin() {
+export default function typeExtensionsPlugin() {
   return {
     id: 'example-type-extension',
     typeExtension: {
@@ -57,7 +57,7 @@ module.exports = function typeExtensionsPlugin() {
       },
     },
   };
-};
+}
 ```
 
 You can use the new type immediately to check the validity of your API document. First, include the plugin in `redocly.yaml` and enable the `struct` rule:
