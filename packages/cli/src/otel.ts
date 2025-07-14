@@ -1,4 +1,3 @@
-import { trace } from '@opentelemetry/api';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -15,7 +14,7 @@ type Events = {
 const OTEL_TRACES_URL = process.env.OTEL_TRACES_URL || 'https://otel.cloud.redocly.com/v1/traces';
 
 export class OtelServerTelemetry {
-  init() {
+  send<K extends keyof Events>(event: K, data: Events[K]): void {
     const nodeTracerProvider = new NodeTracerProvider({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
@@ -32,13 +31,10 @@ export class OtelServerTelemetry {
       ],
     });
 
-    nodeTracerProvider.register();
-  }
-
-  send<K extends keyof Events>(event: K, data: Events[K]): void {
     const time = new Date();
     const eventId = crypto.randomUUID();
-    const span = trace.getTracer('CliTelemetry').startSpan(`event.${event}`, {
+    const tracer = nodeTracerProvider.getTracer('CliTelemetry');
+    const span = tracer.startSpan(`event.${event}`, {
       attributes: {
         'cloudevents.event_client.id': eventId,
         'cloudevents.event_client.type': event,
