@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@noble/hashes": "^1.8.0",
     "@redocly/ajv": "8.11.2",
     "@redocly/openapi-core": "2.0.0-next.5",
     "better-ajv-errors": "^1.2.0",
