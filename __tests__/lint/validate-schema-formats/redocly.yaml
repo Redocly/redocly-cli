@@ -1,0 +1,9 @@
+apis:
+  main:
+    root: openapi.yaml
+
+rules:
+  no-invalid-parameter-examples: error
+  no-invalid-media-type-examples: error
+  no-invalid-schema-examples: error
+  no-unresolved-refs: error
