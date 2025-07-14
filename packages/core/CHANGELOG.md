@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.3
+
+### Minor Changes
+
+- Configured the `spec` ruleset for OpenAPI, AsyncAPI, Arazzo, and Overlay specifications.
+  This ruleset is designed to strictly follow the specifications.
+
 ## 2.0.0-next.2
 
 ### Patch Changes
