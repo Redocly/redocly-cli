@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.4
+
+### Minor Changes
+
+- Added validation for JSON Schema format.
+
 ## 2.0.0-next.3
 
 ### Minor Changes
