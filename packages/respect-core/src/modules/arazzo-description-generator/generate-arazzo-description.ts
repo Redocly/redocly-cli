@@ -1,4 +1,4 @@
-import path from '../../utils/path.js';
+import { getPath } from '../../utils/path.js';
 import { bundleOpenApi } from '../description-parser/index.js';
 import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';
@@ -9,6 +9,8 @@ export const infoSubstitute = {
   title: '[REPLACE WITH API title]',
   version: '[REPLACE WITH API version]',
 };
+
+const path = await getPath();
 
 function resolveDescriptionNameFromPath(descriptionPath: string): string {
   return path

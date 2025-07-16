@@ -67,7 +67,7 @@ async function runFile({
     displayErrors(executedWorkflows, options.logger);
   }
 
-  displaySummary({ startedAt, workflows: executedWorkflows, options });
+  await displaySummary({ startedAt, workflows: executedWorkflows, options });
 
   return {
     hasProblems,

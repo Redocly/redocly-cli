@@ -1,4 +1,4 @@
-import path from '../../utils/path.js';
+import { getPath } from '../../utils/path.js';
 import { type TestContext, type RequestBody } from '../../types.js';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
@@ -17,6 +17,7 @@ const appendFileToFormData = async (
   workflowFilePath: string,
   ctx: TestContext
 ): Promise<void> => {
+  const path = await getPath();
   const currentArazzoFileFolder = path.dirname(workflowFilePath);
   const filePath = path.resolve(currentArazzoFileFolder, stripFileDecorator(item));
 
@@ -66,6 +67,7 @@ const getRequestBodyMultipartFormData = async (
 };
 
 const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: TestContext) => {
+  const path = await getPath();
   if (typeof payload === 'string' && payload.startsWith('$file(') && payload.endsWith(')')) {
     // fixme, remove this
     const filePath = path.resolve(
@@ -105,6 +107,7 @@ export async function parseRequestBody(
   }
 
   const { payload, contentType } = stepRequestBody;
+  const path = await getPath();
 
   if (contentType === 'multipart/form-data') {
     const formData = new FormData();
