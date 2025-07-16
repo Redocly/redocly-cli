@@ -1,5 +1,5 @@
 import { blue } from 'colorette';
-import { basename, dirname, resolve } from 'node:path';
+import path from '../../utils/path.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
 import { getValueFromContext } from '../context-parser/index.js';
@@ -89,7 +89,7 @@ export async function runWorkflow({
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
-  const fileBaseName = basename(ctx.options.workflowPath);
+  const fileBaseName = path.basename(ctx.options.workflowPath);
   const workflow =
     typeof workflowInput === 'string'
       ? ctx.workflows.find((w) => w.workflowId === workflowInput)
@@ -299,7 +299,7 @@ function findSourceDescriptionUrl(
   } else if (sourceDescription.type === 'openapi') {
     return sourceDescription.url;
   } else if (sourceDescription.type === 'arazzo') {
-    return resolve(dirname(options.workflowPath), sourceDescription.url);
+    return path.resolve(path.dirname(options.workflowPath), sourceDescription.url);
   } else {
     throw new Error(
       `Unknown source description type ${(sourceDescription as SourceDescription).type}`

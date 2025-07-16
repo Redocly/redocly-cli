@@ -125,3 +125,4 @@ export { type Assertions, type Assertion } from './rules/common/assertions/index
 
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
+export { isBrowser } from './env.js';

@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import path from '../../utils/path.js';
 import { bundleOpenApi } from '../description-parser/index.js';
 import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';

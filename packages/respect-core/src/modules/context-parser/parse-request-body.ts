@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import path from '../../utils/path.js';
 import { type TestContext, type RequestBody } from '../../types.js';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
