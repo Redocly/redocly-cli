@@ -1,13 +1,12 @@
 import { isBrowser } from '@redocly/openapi-core';
 
-let pathLib: any;
+let pathPromise: Promise<any> | null = null;
 
-if (isBrowser) {
-  // Browser environment
-  pathLib = await import('path-browserify');
-} else {
-  // Node.js environment
-  pathLib = await import('node:path');
+export function getPath() {
+  if (!pathPromise) {
+    pathPromise = isBrowser
+      ? import('path-browserify').then((m) => m.default || m)
+      : import('node:path').then((m) => m.default || m);
+  }
+  return pathPromise;
 }
-
-export default pathLib;
