@@ -1,4 +1,4 @@
-import { dirname, resolve } from 'node:path';
+import path from '../../../utils/path.js';
 import {
   type TestDescription,
   type AppOptions,
@@ -50,7 +50,7 @@ export async function createTestContext(
           };
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
-          const filePath = resolve(dirname(options.workflowPath), sourceDescriptionPath);
+          const filePath = path.resolve(path.dirname(options.workflowPath), sourceDescriptionPath);
           const bundledTestDescription = await bundleArazzo({
             filePath,
             version: options?.version,
