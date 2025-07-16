@@ -68,7 +68,7 @@ info:
 ## Related rules
 
 - [info-contact](./info-contact.md)
-- [info-license-url](./info-license-url.md)
+- [info-license-strict](./info-license-strict.md)
 
 ## Resources
 

@@ -22,11 +22,11 @@ Some rules support additional configuration options. The following example shows
 
 ```yaml
 rules:
-  path-excludes-patterns:
+  path-segment-plural:
     severity: error
-    patterns:
-      - ^\/fetch
-      - ^\/v[0-9]
+    ignoreLastPathSegment: true
+    exceptions:
+      - people
 ```
 
 Check the documentation for each rule to see if it supports additional configuration.

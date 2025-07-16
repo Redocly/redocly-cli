@@ -20,7 +20,6 @@ The minimal rulesets are a decent baseline that you can use to selective enable 
 rules:
   info-contact: off
   info-license: off
-  info-license-url: off
   info-license-strict: off
   tag-description: warn
   tags-alphabetical: off
@@ -50,7 +49,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   required-string-property-missing-min-length: off
@@ -83,7 +81,6 @@ rules:
 rules:
   info-contact: off
   info-license: off
-  info-license-url: off
   info-license-strict: off
   tag-description: warn
   tags-alphabetical: off
@@ -114,7 +111,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   required-string-property-missing-min-length: off
@@ -147,7 +143,6 @@ rules:
 rules:
   info-contact: off
   info-license: off
-  info-license-url: off
   info-license-strict: off
   tag-description: warn
   tags-alphabetical: off
@@ -177,7 +172,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   required-string-property-missing-min-length: off
@@ -257,7 +251,6 @@ There is also a "recommended-strict" ruleset which is identical but with all `wa
 rules:
   info-contact: off
   info-license: warn
-  info-license-url: off
   info-license-strict: warn
   tag-description: warn
   tags-alphabetical: off
@@ -287,7 +280,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   path-segment-plural: off
@@ -298,7 +290,6 @@ rules:
 oas3_1Rules:
   info-contact: off
   info-license: warn
-  info-license-url: off
   info-license-strict: warn
   tag-description: warn
   tags-alphabetical: off
@@ -328,7 +319,6 @@ oas3_1Rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   path-segment-plural: off
@@ -361,7 +351,6 @@ oas3_1Rules:
 rules:
   info-contact: off
   info-license: warn
-  info-license-url: off
   info-license-strict: warn
   tag-description: warn
   tags-alphabetical: off
@@ -392,7 +381,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   path-segment-plural: off
@@ -425,7 +413,6 @@ rules:
 rules:
   info-contact: off
   info-license: warn
-  info-license-url: off
   info-license-strict: warn
   tag-description: warn
   tags-alphabetical: off
@@ -455,7 +442,6 @@ rules:
   no-http-verbs-in-paths: off
   no-invalid-parameter-examples: off
   no-invalid-schema-examples: off
-  path-excludes-patterns: off
   path-http-verbs-order: off
   path-params-defined: off
   path-segment-plural: off

@@ -69,7 +69,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 | `info-contact`                         | `info-contact`                                |
 | `info-description`                     |                                               |
 | `info-license`                         | `info-license`                                |
-| `license-url`                          | `info-license-url`                            |
+| `license-url`                          | `info-license-strict`                         |
 | `no-$ref-siblings`                     |                                               |
 | `no-eval-in-markdown`                  |                                               |
 | `no-script-tags-in-markdown`           |                                               |
@@ -85,7 +85,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 | `oas3-valid-schema-example`            | `no-invalid-schema-examples`                  |
 | `openapi-tags`                         |                                               |
 | `openapi-tags-alphabetical`            | `tags-alphabetical`                           |
-| `openapi-tags-uniqueness`              |                                               |
+| `openapi-tags-uniqueness`              | `no-duplicated-tag-names`                     |
 | `operation-description`                | `operation-description`                       |
 | `operation-operationId`                | `operation-operationId`                       |
 | `operation-operationId-unique`         | `operation-operationId-unique`                |
@@ -100,10 +100,9 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 | `path-not-include-query`               | `path-not-include-query`                      |
 | `path-params`                          | `path-parameters-defined`                     |
 | `tag-description`                      | `tag-description`                             |
-| `typed-enum`                           |                                               |
+| `typed-enum`                           | `no-enum-type-mismatch`                       |
 |                                        | `boolean-parameter-prefixes`                  |
 |                                        | `no-ambiguous-paths`                          |
-|                                        | `no-enum-type-mismatch`                       |
 |                                        | `no-http-verbs-in-paths`                      |
 |                                        | `no-identical-paths`                          |
 |                                        | `no-invalid-parameter-examples`               |
@@ -113,7 +112,6 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 |                                        | `operation-4xx-problem-details-rfc7807`       |
 |                                        | `operation-4xx-response`                      |
 |                                        | `operation-summary`                           |
-|                                        | `path-excludes-patterns`                      |
 |                                        | `path-segment-plural`                         |
 |                                        | `paths-kebab-case`                            |
 |                                        | `request-mime-type`                           |
