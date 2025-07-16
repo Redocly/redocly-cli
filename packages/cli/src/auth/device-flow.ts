@@ -2,6 +2,7 @@ import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
 import { logger } from '@redocly/openapi-core';
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
+import { DEFAULT_FETCH_TIMEOUT } from '../utils/fetch-with-timeout.js';
 
 export type AuthToken = {
   access_token: string;
@@ -167,6 +168,7 @@ export class RedoclyOAuthDeviceFlow {
       body: body ? JSON.stringify(body) : body,
       method,
       headers: { 'Content-Type': 'application/json', ...headers },
+      timeout: DEFAULT_FETCH_TIMEOUT,
     });
     if (response.status === 204) {
       return { success: true };
