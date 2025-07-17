@@ -269,9 +269,9 @@ For manual testing in Kubernetes environments, we provide a preconfigured testin
 The testing environment includes:
 
 - Kubernetes manifests for isolated testing
-- Network policies to simulate offline/online conditions
-- Automated test scripts for performance benchmarking
-- Detailed documentation and troubleshooting guides
+- network policies to simulate offline/online conditions
+- automated test scripts for performance benchmarking
+- detailed documentation and troubleshooting guides
 
 See the [k8s-testing README](./k8s-testing/README.md) for complete setup and usage instructions.
 
