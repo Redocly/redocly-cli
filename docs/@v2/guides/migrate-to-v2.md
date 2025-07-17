@@ -90,7 +90,7 @@ You may refer to [this Cookbook recipe](https://github.com/Redocly/redocly-cli-c
 Removed rule `info-license-url`.
 Use `info-license-strict` which better complies with the new [OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#license-object).
 
-### Assertion changes
+### Configurable rules changes
 
 The `undefined` assertion has been removed:
 
@@ -134,6 +134,34 @@ extends:
 ### Duplicate tag detection
 
 The `no-duplicated-tag-names` rule checks for duplicate tag names in your API description.
+
+### JSON schema format validation
+
+Now Redocly CLI supports JSON schema formats:
+
+```yaml
+openapi: 3.1.0
+paths:
+  /users/{id}:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+              examples:
+                Correct:
+                  value:
+                    email: correct@email.com
+                Incorrect:
+                  value:
+                    email: wrong-email # Will fail validation
+```
 
 ## Migration checklist
 
