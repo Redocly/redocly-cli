@@ -42,7 +42,6 @@ rules:
   operation-operationId-url-safe: warn
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: warn
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -73,6 +72,9 @@ rules:
   response-mime-type: off
   array-parameter-serialization: off
   no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-enum-type-mismatch: warn
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -103,7 +105,6 @@ rules:
   operation-operationId-url-safe: warn
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: warn
   nullable-type-sibling: warn
   paths-kebab-case: off
   struct: error
@@ -117,7 +118,6 @@ rules:
   response-contains-header: off
   path-segment-plural: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
   no-invalid-media-type-examples: warn
   no-server-example.com: warn
   no-server-trailing-slash: error
@@ -135,6 +135,9 @@ rules:
   response-mime-type: off
   array-parameter-serialization: off
   no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-enum-type-mismatch: warn
 ```
 
 ### Minimal ruleset: OpenAPI 2.0
@@ -165,7 +168,6 @@ rules:
   operation-operationId-url-safe: warn
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: warn
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -178,12 +180,14 @@ rules:
   response-contains-header: off
   path-segment-plural: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
   boolean-parameter-prefixes: off
   request-mime-type: off
   response-contains-property: off
   response-mime-type: off
   no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-enum-type-mismatch: warn
 ```
 
 ### Minimal ruleset: AsyncAPI 3.0
@@ -199,6 +203,9 @@ rules:
   channels-kebab-case: off
   no-channel-trailing-slash: off
   no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-enum-type-mismatch: warn
+  no-schema-type-mismatch: warn
 ```
 
 ### Minimal ruleset: AsyncAPI 2.6
@@ -214,6 +221,9 @@ rules:
   channels-kebab-case: off
   no-channel-trailing-slash: off
   no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-enum-type-mismatch: warn
+  no-schema-type-mismatch: warn
 ```
 
 ### Minimal ruleset: Arazzo 1.0
@@ -237,6 +247,9 @@ rules:
   no-x-security-scheme-name-without-openapi: off
   x-security-scheme-required-values: off
   no-x-security-scheme-name-in-workflow: off
+  no-required-schema-properties-undefined: warn
+  no-enum-type-mismatch: warn
+  no-schema-type-mismatch: warn
 ```
 
 ## Recommended rulesets
@@ -273,7 +286,6 @@ rules:
   security-defined: error
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: error
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -286,7 +298,9 @@ rules:
   required-string-property-missing-min-length: off
   response-contains-header: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 oas3_1Rules:
   info-contact: off
   info-license: warn
@@ -312,7 +326,6 @@ oas3_1Rules:
   security-defined: error
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: error
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -325,7 +338,6 @@ oas3_1Rules:
   required-string-property-missing-min-length: off
   response-contains-header: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
   no-invalid-media-type-examples: warn
   no-server-example.com: warn
   no-server-trailing-slash: error
@@ -343,6 +355,9 @@ oas3_1Rules:
   response-mime-type: off
   array-parameter-serialization: off
   no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
@@ -373,7 +388,6 @@ rules:
   security-defined: error
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: error
   nullable-type-sibling: error
   paths-kebab-case: off
   struct: error
@@ -387,7 +401,6 @@ rules:
   required-string-property-missing-min-length: off
   response-contains-header: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
   no-invalid-media-type-examples: warn
   no-server-example.com: warn
   no-server-trailing-slash: error
@@ -405,6 +418,9 @@ rules:
   response-mime-type: off
   array-parameter-serialization: off
   no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ### Recommended ruleset: OpenAPI 2.0
@@ -435,7 +451,6 @@ rules:
   security-defined: error
   operation-singular-tag: off
   no-unresolved-refs: error
-  no-enum-type-mismatch: error
   paths-kebab-case: off
   struct: error
   spec-strict-refs: off
@@ -448,12 +463,14 @@ rules:
   required-string-property-missing-min-length: off
   response-contains-header: off
   scalar-property-missing-example: off
-  no-required-schema-properties-undefined: off
   boolean-parameter-prefixes: off
   request-mime-type: off
   response-contains-property: off
   response-mime-type: off
   no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ### Recommended ruleset: AsyncAPI 3.0
@@ -469,6 +486,9 @@ rules:
   channels-kebab-case: off
   no-channel-trailing-slash: off
   no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ### Recommended ruleset: AsyncAPI 2.6
@@ -484,6 +504,9 @@ rules:
   channels-kebab-case: off
   no-channel-trailing-slash: off
   no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ### Recommended ruleset: Arazzo 1.0
@@ -507,6 +530,9 @@ rules:
   no-x-security-scheme-name-without-openapi: off
   x-security-scheme-required-values: off
   no-x-security-scheme-name-in-workflow: 'off',
+  no-required-schema-properties-undefined: error
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
 ```
 
 ## Resources

@@ -78,12 +78,12 @@ The rules list is split into sections.
 ### Requests, Responses, and Schemas
 
 - [component-name-unique](./oas/component-name-unique.md): Check for schema-wide unqiue naming of parameters, schemas, request bodies and responses
-- [no-enum-type-mismatch](./oas/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
+- [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types
-- [no-required-schema-properties-undefined](./oas/no-required-schema-properties-undefined.md): All properties marked as required must be defined
-- [no-schema-type-mismatch](./oas/no-schema-type-mismatch.md): Detects schemas with type mismatches between object and items fields, and array and properties fields.
+- [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md): All properties marked as required must be defined
+- [no-schema-type-mismatch](./common/no-schema-type-mismatch.md): Detects schemas with type mismatches between object and items fields, and array and properties fields.
 - [request-mime-type](./oas/request-mime-type.md): Configure allowed mime types for requests
 - [response-mime-type](./oas/response-mime-type.md): Configure allowed mime types for responses
 - [response-contains-header](./oas/response-contains-header.md): List headers that must be included with specific response types

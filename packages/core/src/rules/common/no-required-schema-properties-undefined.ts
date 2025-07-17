@@ -1,12 +1,17 @@
 import { isRef } from '../../ref-utils.js';
 import { getOwn } from '../../utils.js';
 
-import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { UserContext } from '../../walk.js';
 
-export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
+export const NoRequiredSchemaPropertiesUndefined:
+  | Oas3Rule
+  | Oas2Rule
+  | Async3Rule
+  | Async2Rule
+  | Arazzo1Rule = () => {
   return {
     Schema: {
       enter(

@@ -208,4 +208,128 @@ describe('Oas3 typed enum', () => {
       ]
     `);
   });
+
+  it('should work for AsyncAPI 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Test
+          version: 1.0.0
+        channels:
+          userSignedup:
+            messages:
+              Test:
+                $ref: '#/components/messages/Test'
+        components:
+          messages:
+            Test:
+              payload:
+                type: number
+                enum:
+                  - 1 # correct
+                  - incorrect
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/messages/Test/payload/enum/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "number" but received "string".",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for AsyncAPI 2.6', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Test API
+          version: '1.0.0'
+        components:
+          schemas:
+            Test:
+              type: string
+              enum:
+                - correct
+                - 42 # incorrect
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Test/enum/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for Arazzo 1.0.1', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Test inputs
+          version: 1.0.0
+        workflows:
+          - workflowId: test
+            inputs:
+              type: object
+              properties:
+                foo:
+                  type: string
+                  enum:
+                    - correct
+                    - 42 # incorrect
+            steps:
+              - stepId: test
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+  });
 });
