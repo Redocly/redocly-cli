@@ -1,6 +1,6 @@
 # Redocly CLI Offline Performance Testing Environment
 
-This Kubernetes environment is designed to reproduce and test the performance issue where Redocly CLI becomes extremely slow (>1 minute) in offline environments after version 1.30.0.
+This Kubernetes environment is designed to reproduce and test the performance issues where Redocly CLI becomes extremely slow (>1 minute) in offline environments.
 
 ## Test Environment Setup
 
@@ -137,7 +137,7 @@ kubectl delete namespace redocly-cli-test
 ## Files Description
 
 - `namespace.yaml` - Kubernetes namespace for isolation
-- `test-pod.yaml` - pod with Redocly CLI v2.0.0-next.4
+- `test-pod.yaml` - pod with the local Redocly CLI build
 - `network-policy.yaml` - blocks outbound traffic (offline simulation)
 - `network-policy-allow.yaml` - allows all traffic (online simulation)
 - `deploy.sh` - deployment script
@@ -146,22 +146,4 @@ kubectl delete namespace redocly-cli-test
 
 ## Expected Results
 
-### Before Fix (v2.0.0-next.4)
-
-- Offline environment: 60-120 seconds per operation
-- Online environment: 1-5 seconds per operation
-
-### After Fix (with offline detection)
-
-- Offline environment: 1-5 seconds per operation
-- Online environment: 1-5 seconds per operation
-- Explicit offline mode: 1-5 seconds per operation
-
-## Contributing
-
-To add new test scenarios:
-
-1. Add new test cases to `test-script.sh`.
-2. Update the pod configuration in `test-pod.yaml` if needed.
-3. Document the new scenario in this README.
-4. Update performance benchmarks table.
+A command (e. g., `lint`) should not take longer than 5-10 seconds either in online or offline environments.
