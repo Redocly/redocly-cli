@@ -20,6 +20,7 @@ Redocly CLI can lint multiple API description formats:
 - [OpenAPI](#openapi-rules)
 - [AsyncAPI](#asyncapi-rules)
 - [Arazzo](#arazzo-rules)
+- Overlay
 
 Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
 
@@ -31,16 +32,17 @@ The rules list is split into sections.
 
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
+- [nullable-type-sibling](./oas/nullable-type-sibling.md): `nullable` must be used with a `type`
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
-- [spec-strict-refs](./oas/spec-strict-refs.md) Restricts the usage of the `$ref` keyword.
+- [spec-strict-refs](./oas/spec-strict-refs.md): Restricts the usage of the `$ref` keyword
 
 ### Info
 
 - [info-contact](./oas/info-contact.md): Contact section is defined under `info`
 - [info-license](./oas/info-license.md): License section is defined under `info`
-- [info-license-url](./oas/info-license-url.md): License section contains a `url` to the license
+- [info-license-strict](./oas/info-license-strict.md): License section contains a `url` to the license or an `identifier`
 
 ### Operations
 
@@ -70,7 +72,6 @@ The rules list is split into sections.
 - [no-http-verbs-in-paths](./oas/no-http-verbs-in-paths.md): Verbs like "get" cannot be used in paths
 - [no-identical-paths](./oas/no-identical-paths.md): Paths cannot be identical, including template variables
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md): No trailing slashes on paths
-- [path-excludes-patterns](./oas/path-excludes-patterns.md): Set a regular expression that cannot be used in paths
 - [path-segment-plural](./oas/path-segment-plural.md): All URL segments in a path must be plural (exceptions can be configured)
 - [paths-kebab-case](./oas/paths-kebab-case.md): Paths must be in `kebab-case` format
 
@@ -100,6 +101,7 @@ The rules list is split into sections.
 
 ### Tags
 
+- [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md): No duplicated tag names
 - [operation-singular-tag](./oas/operation-singular-tag.md): Each operation may only have one tag
 - [operation-tag-defined](./oas/operation-tag-defined.md): Tags can only be used if they are defined at the top level
 - [tag-description](./oas/tag-description.md): Tags must have descriptions

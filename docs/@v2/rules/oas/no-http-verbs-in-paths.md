@@ -120,7 +120,6 @@ This last example wouldn't trigger an error because the casing doesn't split "ge
 ## Related rules
 
 - [configurable rules](../configurable-rules.md)
-- [path-excludes-patterns](./path-excludes-patterns.md)
 
 ## Resources
 

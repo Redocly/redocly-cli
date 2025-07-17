@@ -89,7 +89,6 @@ paths:
 
 ## Related rules
 
-- [path-excludes-patterns](./path-excludes-patterns.md)
 - [paths-kebab-case](./paths-kebab-case.md)
 - [configurable rules](../configurable-rules.md)
 

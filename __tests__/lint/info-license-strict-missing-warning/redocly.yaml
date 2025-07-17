@@ -3,4 +3,4 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  info-license-url: warn
+  info-license-strict: warn

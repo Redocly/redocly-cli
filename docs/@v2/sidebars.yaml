@@ -91,7 +91,7 @@
             - page: rules/oas/component-name-unique.md
             - page: rules/oas/info-contact.md
             - page: rules/oas/info-license.md
-            - page: rules/oas/info-license-url.md
+            - page: rules/oas/info-license-strict.md
             - page: rules/oas/no-ambiguous-paths.md
             - page: rules/oas/no-empty-servers.md
             - page: rules/oas/no-enum-type-mismatch.md
@@ -123,7 +123,6 @@
             - page: rules/oas/operation-tag-defined.md
             - page: rules/oas/parameter-description.md
             - page: rules/oas/path-declaration-must-exist.md
-            - page: rules/oas/path-excludes-patterns.md
             - page: rules/oas/path-not-include-query.md
             - page: rules/oas/path-parameters-defined.md
             - page: rules/oas/path-segment-plural.md

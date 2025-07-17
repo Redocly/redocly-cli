@@ -64,7 +64,6 @@ paths:
 ## Related rules
 
 - [path-parameters-defined](./path-parameters-defined.md)
-- [path-excludes-patterns](./path-excludes-patterns.md)
 - [configurable rules](../configurable-rules.md)
 
 ## Resources

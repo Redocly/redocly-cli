@@ -38,8 +38,8 @@ Errors:
 Warnings:
 
 - [configurable rules](./configurable-rules.md)
-- [info-license-url](./oas/info-license-url.md)
 - [info-license](./oas/info-license.md)
+- [info-license-strict](./oas/info-license-strict.md)
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md)
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md)
 - [no-server-example.com](./oas/no-server-example-com.md)

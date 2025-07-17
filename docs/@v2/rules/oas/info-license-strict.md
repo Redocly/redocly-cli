@@ -1,8 +1,10 @@
 ---
-slug: /docs/cli/v2/rules/oas/info-license-url
+slug:
+  - /docs/cli/v2/rules/oas/info-license-url
+  - /docs/cli/v2/rules/oas/info-license-strict
 ---
 
-# info-license-url
+# info-license-strict
 
 Requires the license URL in your API descriptions.
 
@@ -16,8 +18,10 @@ Requires the license URL in your API descriptions.
 flowchart TD
 
 root ==> Info --> License --> url
+                  License --> identifier
 
 style url fill:#codaf9,stroke:#0044d4,stroke-width:5px
+style identifier fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 ## API design principles
@@ -38,7 +42,7 @@ An example configuration:
 
 ```yaml
 rules:
-  info-license-url: error
+  info-license-strict: error
 ```
 
 ## Examples
@@ -47,7 +51,7 @@ Given the following configuration:
 
 ```yaml
 rules:
-  info-license-url: error
+  info-license-strict: error
 ```
 
 Example of an **incorrect** license URL:
@@ -74,5 +78,5 @@ info:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/info-license-url.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/info-license-strict.ts)
 - [License object docs](https://redocly.com/docs/openapi-visual-reference/license/)

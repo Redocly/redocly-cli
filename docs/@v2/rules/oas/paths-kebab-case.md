@@ -73,7 +73,6 @@ paths:
 
 ## Related rules
 
-- [path-excludes-patterns](./path-excludes-patterns.md)
 - [paths-segment-plural](./path-segment-plural.md)
 - [configurable rules](../configurable-rules.md)
 

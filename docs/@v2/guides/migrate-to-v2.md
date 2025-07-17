@@ -83,6 +83,13 @@ extends:
   - spec
 ```
 
+Removed rule `path-excludes-patterns`.
+Use a configurable rule instead.
+You may refer to [this Cookbook recipe](https://github.com/Redocly/redocly-cli-cookbook/tree/main/configurable-rules/path-excludes-pattern).
+
+Removed rule `info-license-url`.
+Use `info-license-strict` which better complies with the new [OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#license-object).
+
 ### Assertion changes
 
 The `undefined` assertion has been removed:

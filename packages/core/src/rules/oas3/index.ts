@@ -17,7 +17,6 @@ import { NoServerTrailingSlash } from './no-server-trailing-slash.js';
 import { TagDescription } from '../common/tag-description.js';
 import { InfoContact } from '../common/info-contact.js';
 import { InfoLicense } from '../common/info-license.js';
-import { InfoLicenseUrl } from '../common/info-license-url.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
 import { OperationDescription } from '../common/operation-description.js';
 import { NoUnusedComponents } from './no-unused-components.js';
@@ -41,7 +40,6 @@ import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths.js';
 import { RequestMimeType } from './request-mime-type.js';
 import { ResponseMimeType } from './response-mime-type.js';
 import { PathSegmentPlural } from '../common/path-segment-plural.js';
-import { PathExcludesPatterns } from '../common/path-excludes-patterns.js';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples.js';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples.js';
 import { ResponseContainsHeader } from '../common/response-contains-header.js';
@@ -65,7 +63,6 @@ export const rules: Oas3RuleSet<'built-in'> = {
   struct: Struct as Oas3Rule,
   'info-contact': InfoContact as Oas3Rule,
   'info-license': InfoLicense as Oas3Rule,
-  'info-license-url': InfoLicenseUrl as Oas3Rule,
   'info-license-strict': InfoLicenseStrict as Oas3Rule,
   'operation-2xx-response': Operation2xxResponse as Oas3Rule,
   'operation-4xx-response': Operation4xxResponse as Oas3Rule,
@@ -104,7 +101,6 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-server-variables-empty-enum': NoServerVariablesEmptyEnum,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas3Rule,
-  'path-excludes-patterns': PathExcludesPatterns as Oas3Rule,
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural as Oas3Rule,

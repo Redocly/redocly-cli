@@ -3,7 +3,6 @@ import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples.js
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples.js';
 import { InfoContact } from '../common/info-contact.js';
 import { InfoLicense } from '../common/info-license.js';
-import { InfoLicenseUrl } from '../common/info-license-url.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { TagDescription } from '../common/tag-description.js';
@@ -32,7 +31,6 @@ import { OperationOperationId } from '../common/operation-operationId.js';
 import { OperationSummary } from '../common/operation-summary.js';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths.js';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths.js';
-import { PathExcludesPatterns } from '../common/path-excludes-patterns.js';
 import { RequestMimeType } from './request-mime-type.js';
 import { ResponseMimeType } from './response-mime-type.js';
 import { PathSegmentPlural } from '../common/path-segment-plural.js';
@@ -54,7 +52,6 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
-  'info-license-url': InfoLicenseUrl as Oas2Rule,
   'info-license-strict': InfoLicenseStrict as Oas2Rule,
   'tag-description': TagDescription as Oas2Rule,
   'tags-alphabetical': TagsAlphabetical as Oas2Rule,
@@ -84,7 +81,6 @@ export const rules: Oas2RuleSet<'built-in'> = {
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas2Rule,
-  'path-excludes-patterns': PathExcludesPatterns as Oas2Rule,
   'request-mime-type': RequestMimeType as Oas2Rule,
   'response-mime-type': ResponseMimeType as Oas2Rule,
   'path-segment-plural': PathSegmentPlural as Oas2Rule,
