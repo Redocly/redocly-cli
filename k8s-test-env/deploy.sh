@@ -8,10 +8,6 @@ echo "🚀 Setting up Redocly CLI offline testing environment..."
 echo "📦 Creating namespace..."
 kubectl apply -f namespace.yaml
 
-# Create ConfigMap with test files
-echo "📋 Creating ConfigMap..."
-kubectl apply -f configmap.yaml
-
 # Deploy test pod
 echo "🐳 Deploying test pod..."
 kubectl apply -f test-pod.yaml

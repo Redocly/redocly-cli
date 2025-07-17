@@ -92,17 +92,8 @@ kubectl exec -it redocly-cli-test-pod -n redocly-cli-test -- /bin/sh
 # Copy and run the test script
 cp /config/test-script.sh /workspace/
 chmod +x test-script.sh
-./test-script.sh
+sh test-script.sh
 ```
-
-## Performance Benchmarks
-
-| Environment              | Without Fix | With Fix | Target |
-| ------------------------ | ----------- | -------- | ------ |
-| Online                   | <5s         | <5s      | ✅     |
-| Offline (no detection)   | >60s        | >60s     | ❌     |
-| Offline (with detection) | >60s        | <5s      | ✅     |
-| Explicit offline mode    | >60s        | <5s      | ✅     |
 
 ## Troubleshooting
 
@@ -146,7 +137,6 @@ kubectl delete namespace redocly-cli-test
 ## Files Description
 
 - `namespace.yaml` - Kubernetes namespace for isolation
-- `configmap.yaml` - test OpenAPI specification and Redocly config
 - `test-pod.yaml` - pod with Redocly CLI v2.0.0-next.4
 - `network-policy.yaml` - blocks outbound traffic (offline simulation)
 - `network-policy-allow.yaml` - allows all traffic (online simulation)

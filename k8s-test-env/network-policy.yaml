@@ -13,4 +13,3 @@ spec:
       ports:
         - protocol: UDP
           port: 53
-  # Block all other outbound traffic by not allowing any other egress rules
