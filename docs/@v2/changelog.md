@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.0-next.5 (2025-07-17)
+
+### Major Changes
+
+- Removed the deprecated `path-excludes-patterns` and `info-license-url` rules.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.0.0-next.5.
+
 ## 2.0.0-next.4 (2025-07-16)
 
 ### Minor Changes
