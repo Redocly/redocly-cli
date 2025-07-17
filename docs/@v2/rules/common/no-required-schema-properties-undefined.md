@@ -1,5 +1,7 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-required-schema-properties-undefined
+slug: 
+- /docs/cli/v2/rules/common/no-required-schema-properties-undefined
+- /docs/cli/v2/rules/oas/no-required-schema-properties-undefined
 ---
 
 # no-required-schema-properties-undefined
@@ -12,6 +14,11 @@ Ensures there are no required schema properties that are undefined.
 | 3.0 | ✅            |
 | 3.1 | ✅            |
 
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
 ```mermaid
 flowchart TD
 
@@ -20,15 +27,19 @@ Root ==> Components ==> Schemas
 style Schemas fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.0    | ✅            |
+
 ## API design principles
 
 If a required schema property is declared but not defined, this rule informs you which of the required schema properties are missing.
 
 ## Configuration
 
-| Option   | Type   | Description                                                                              |
-| -------- | ------ | ---------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 

@@ -1,5 +1,7 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-schema-type-mismatch
+slug: 
+- /docs/cli/v2/rules/common/no-schema-type-mismatch
+- /docs/cli/v2/rules/oas/no-schema-type-mismatch
 ---
 
 # no-schema-type-mismatch
@@ -14,6 +16,15 @@ Ensures that a schema's structural properties match its declared `type`. In part
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.0    | ✅            |
 
 ```mermaid
 flowchart TD

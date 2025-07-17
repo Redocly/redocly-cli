@@ -548,4 +548,144 @@ describe('no-required-schema-properties-undefined', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should work for AsyncAPI 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Account Service
+          version: 1.0.0
+          description: This service is in charge of processing user signups
+        channels:
+          userSignedup:
+            address: user/signedup/
+            messages:
+              UserSignedUp:
+                $ref: '#/components/messages/UserSignedUp'
+        operations:
+          sendUserSignedup:
+            action: send
+            channel:
+              $ref: '#/channels/userSignedup'
+            messages:
+              - $ref: '#/channels/userSignedup/messages/UserSignedUp'
+        components:
+          messages:
+            UserSignedUp:
+              payload:
+                type: object
+                required:
+                  - required-prop
+                  - missing-required-prop
+                properties:
+                  required-prop:
+                    type: string
+                  not-required-prop:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/messages/UserSignedUp/payload/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missing-required-prop' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for AsyncAPI 2.6', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Streetlights API
+          version: '1.0.0'
+        components:
+          schemas:
+            lightMeasuredPayload:
+              type: object
+              properties:
+                lumens:
+                  type: integer
+              required:
+                - missingRequired
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/lightMeasuredPayload/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missingRequired' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for Arazzo 1.0.1', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Test inputs
+          version: 1.0.0
+        workflows:
+          - workflowId: test
+            inputs:
+              type: object
+              required:
+                - foo
+                - missing-required
+              properties:
+                foo:
+                  type: string
+            steps:
+              - stepId: test
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+  });
 });

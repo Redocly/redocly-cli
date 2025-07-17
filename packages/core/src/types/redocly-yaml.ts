@@ -127,6 +127,9 @@ const builtInAsync2Rules = [
   'channels-kebab-case',
   'no-channel-trailing-slash',
   'no-duplicated-tag-names',
+  'no-required-schema-properties-undefined',
+  'no-enum-type-mismatch',
+  'no-schema-type-mismatch',
 ] as const;
 
 const builtInAsync3Rules = [
@@ -138,6 +141,9 @@ const builtInAsync3Rules = [
   'channels-kebab-case',
   'no-channel-trailing-slash',
   'no-duplicated-tag-names',
+  'no-required-schema-properties-undefined',
+  'no-enum-type-mismatch',
+  'no-schema-type-mismatch',
 ] as const;
 
 export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
@@ -161,6 +167,9 @@ const builtInArazzo1Rules = [
   'no-x-security-scheme-name-without-openapi',
   'x-security-scheme-required-values',
   'no-x-security-scheme-name-in-workflow',
+  'no-required-schema-properties-undefined',
+  'no-enum-type-mismatch',
+  'no-schema-type-mismatch',
 ] as const;
 
 export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
