@@ -9,7 +9,7 @@ This Kubernetes environment is designed to reproduce and test the performance is
 - Kubernetes cluster (local or remote)
 - `kubectl` configured to access the cluster
 - NetworkPolicy support enabled (for network blocking)
-- test-api.yaml
+- `test-api.yaml`
 
 ### Quick Start
 
@@ -41,24 +41,24 @@ This Kubernetes environment is designed to reproduce and test the performance is
 
 ### Scenario 1: Offline Environment (Network Blocked)
 
-- **Expected behavior without fix:** Operations take >60 seconds
-- **Expected behavior with fix:** Operations take <5 seconds
+- **Expected behavior without fix:** operations take >60 seconds
+- **Expected behavior with fix:** operations take <5 seconds
 - **NetworkPolicy:** `network-policy.yaml` (blocks outbound traffic)
 
 ### Scenario 2: Online Environment (Network Allowed)
 
-- **Expected behavior:** Operations take <5 seconds
+- **Expected behavior:** operations take <5 seconds
 - **NetworkPolicy:** `network-policy-allow.yaml` (allows all traffic)
 
 ### Scenario 3: Explicit Offline Mode
 
 - **Environment variables:** `REDOCLY_OFFLINE=true`
-- **Expected behavior:** Operations take <5 seconds regardless of network status
+- **Expected behavior:** operations take <5 seconds regardless of network status
 
 ### Scenario 4: CI Environment
 
 - **Environment variables:** `CI=true REDOCLY_NO_NETWORK=true`
-- **Expected behavior:** Operations take <5 seconds regardless of network status
+- **Expected behavior:** operations take <5 seconds regardless of network status
 
 ## Test Commands
 
@@ -146,13 +146,13 @@ kubectl delete namespace redocly-cli-test
 ## Files Description
 
 - `namespace.yaml` - Kubernetes namespace for isolation
-- `configmap.yaml` - Test OpenAPI specification and Redocly config
-- `test-pod.yaml` - Pod with Redocly CLI v2.0.0-next.4
-- `network-policy.yaml` - Blocks outbound traffic (offline simulation)
-- `network-policy-allow.yaml` - Allows all traffic (online simulation)
-- `deploy.sh` - Deployment script
-- `test-script.sh` - Manual test script
-- `README.md` - This documentation
+- `configmap.yaml` - test OpenAPI specification and Redocly config
+- `test-pod.yaml` - pod with Redocly CLI v2.0.0-next.4
+- `network-policy.yaml` - blocks outbound traffic (offline simulation)
+- `network-policy-allow.yaml` - allows all traffic (online simulation)
+- `deploy.sh` - deployment script
+- `test-script.sh` - manual test script
+- `README.md` - this documentation
 
 ## Expected Results
 
@@ -171,7 +171,7 @@ kubectl delete namespace redocly-cli-test
 
 To add new test scenarios:
 
-1. Add new test cases to `test-script.sh`
-2. Update the pod configuration in `test-pod.yaml` if needed
-3. Document the new scenario in this README
-4. Update performance benchmarks table
+1. Add new test cases to `test-script.sh`.
+2. Update the pod configuration in `test-pod.yaml` if needed.
+3. Document the new scenario in this README.
+4. Update performance benchmarks table.

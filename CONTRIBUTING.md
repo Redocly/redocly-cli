@@ -264,7 +264,7 @@ For other commands you'd have to do something similar.
 
 ### Manual testing
 
-For manual testing in Kubernetes environments, we provide a preconfigured testing setup in the [`./k8s-testing`](./k8s-testing/) directory. This environment is specifically designed to test Redocly CLI performance in offline scenarios
+For manual testing in Kubernetes environments, we provide a preconfigured testing setup in the [`./k8s-testing`](./k8s-testing/) directory. This environment is specifically designed to test Redocly CLI performance in offline scenarios.
 
 The testing environment includes:
 
