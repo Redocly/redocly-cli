@@ -198,6 +198,7 @@ The application maintains the following exit codes.
 | 0         | Success                   |
 | 1         | Command execution error   |
 | 2         | Config resolution failure |
+| 3         | Telemetry failure         |
 
 ## Tests
 
@@ -260,6 +261,19 @@ npm i -g redocly-cli.tgz
 ```
 
 For other commands you'd have to do something similar.
+
+### Manual testing
+
+For manual testing in Kubernetes environments, we provide a preconfigured testing setup in the [`./k8s-testing`](./k8s-testing/) directory. This environment is specifically designed to test Redocly CLI performance in offline scenarios.
+
+The testing environment includes:
+
+- Kubernetes manifests for isolated testing
+- network policies to simulate offline/online conditions
+- automated test scripts for performance benchmarking
+- detailed documentation and troubleshooting guides
+
+See the [k8s-testing README](./k8s-testing/README.md) for complete setup and usage instructions.
 
 ### Performance benchmark
 

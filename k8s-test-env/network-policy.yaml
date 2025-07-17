@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-outbound-traffic
+  namespace: redocly-cli-test
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS resolution (needed for basic pod functionality)
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53

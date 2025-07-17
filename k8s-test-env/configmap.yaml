@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redocly-test-config
+  namespace: redocly-cli-test
+data:
+  # Sample OpenAPI specification for testing
