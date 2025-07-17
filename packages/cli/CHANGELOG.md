@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.0.0-next.5
+
+### Major Changes
+
+- Removed the deprecated `path-excludes-patterns` and `info-license-url` rules.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.0.0-next.5.
+
 ## 2.0.0-next.4
 
 ### Minor Changes

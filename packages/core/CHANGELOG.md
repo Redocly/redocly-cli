@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.5
+
+### Major Changes
+
+- Removed the deprecated `path-excludes-patterns` and `info-license-url` rules.
+
 ## 2.0.0-next.4
 
 ### Minor Changes
