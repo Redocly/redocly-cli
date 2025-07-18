@@ -12,6 +12,21 @@ describe('parseRequestBody', () => {
     options: {
       workflowPath: 'test.yaml',
     },
+    requestFileLoader: {
+      getFileBody: async (filePath: string) => {
+        await new Promise((resolve, reject) => {
+          fs.access(filePath, fs.constants.F_OK | fs.constants.R_OK, (err) => {
+            if (err) {
+              reject(new Error(`File ${filePath} doesn't exist or isn't readable.`));
+            } else {
+              resolve(filePath);
+            }
+          });
+        });
+        const buffer = fs.readFileSync(filePath);
+        return new Blob([buffer]);
+      },
+    },
   } as unknown as TestContext;
 
   it('should return empty object if no body', async () => {
@@ -100,10 +115,8 @@ describe('parseRequestBody', () => {
         ctx
       )
     ).toEqual({
-      payload: expect.any(Object),
-      contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------'
-      ),
+      payload: expect.toSatisfy((p) => p instanceof FormData),
+      contentType: 'multipart/form-data',
       encoding: 'utf-8',
       replacements: undefined,
     });
@@ -129,9 +142,7 @@ describe('parseRequestBody', () => {
       )
     ).toEqual({
       payload: expect.any(Object),
-      contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------'
-      ),
+      contentType: 'multipart/form-data',
       encoding: 'utf-8',
       replacements: undefined,
     });
@@ -153,13 +164,13 @@ describe('parseRequestBody', () => {
       },
       ctx
     );
-    expect(contentType).toMatch('multipart/form-data; boundary=--------------------------');
+    expect(contentType).toMatch('multipart/form-data');
     expect(encoding).toBe('utf-8');
     expect(typeof payload).toBe('object');
 
     const expectedProperties = ['commit[message]', 'commit[author]'];
     expectedProperties.forEach((prop) => {
-      expect(JSON.stringify(payload)).toContain(prop);
+      expect((payload as FormData).get(prop)).toBeDefined();
     });
   });
 
@@ -178,16 +189,14 @@ describe('parseRequestBody', () => {
       )
     ).toEqual({
       payload: expect.any(Object),
-      contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------'
-      ),
+      contentType: 'multipart/form-data',
       encoding: 'utf-8',
       replacements: undefined,
     });
   });
 
   it('should handle multipart/form-data with array with file', async () => {
-    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
+    vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
@@ -206,9 +215,7 @@ describe('parseRequestBody', () => {
       )
     ).toEqual({
       payload: expect.any(Object),
-      contentType: expect.stringMatching(
-        'multipart/form-data; boundary=--------------------------'
-      ),
+      contentType: 'multipart/form-data',
       encoding: 'utf-8',
       replacements: undefined,
     });
@@ -239,7 +246,7 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream', async () => {
-    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
+    vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
@@ -254,7 +261,7 @@ describe('parseRequestBody', () => {
         ctx
       )
     ).toEqual({
-      payload: 'readStream',
+      payload: expect.toSatisfy((p) => p instanceof Blob),
       contentType: 'application/octet-stream',
       encoding: 'utf-8',
       replacements: undefined,
@@ -281,7 +288,7 @@ describe('parseRequestBody', () => {
   });
 
   it('should handle application/octet-stream and return error reading file', async () => {
-    vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
+    vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
     // @ts-ignore
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));

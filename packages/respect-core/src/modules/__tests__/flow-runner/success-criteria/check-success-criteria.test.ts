@@ -1,4 +1,5 @@
 import { Headers } from 'undici';
+import { logger } from '@redocly/openapi-core';
 
 import type { TestContext, Step, RegexpSuccessCriteria } from '../../../../types.js';
 
@@ -63,8 +64,10 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([]);
@@ -112,7 +115,9 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([]);
@@ -197,8 +202,10 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -302,8 +309,10 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -375,6 +384,9 @@ describe('checkSuccessCriteria', () => {
           },
         },
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -457,6 +469,9 @@ describe('checkSuccessCriteria', () => {
           body: { pets: ['dog', 'cat', 'bunny'], access_token: null },
         },
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -524,6 +539,9 @@ describe('checkSuccessCriteria', () => {
           body: { access_token: null },
         },
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -585,8 +603,10 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([
@@ -649,8 +669,10 @@ describe('checkSuccessCriteria', () => {
         env: {},
         requests: {},
         responses: {},
-        harLogs: [],
         severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
       } as unknown as TestContext,
     });
     expect(result).toEqual([

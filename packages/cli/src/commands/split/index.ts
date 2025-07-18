@@ -38,13 +38,13 @@ import type { ComponentsFiles, Definition, RefObject } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { VerifyConfigOptions } from '../../types.js';
 
-export type SplitOptions = {
+export type SplitArgv = {
   api: string;
   outDir: string;
   separator: string;
 } & VerifyConfigOptions;
 
-export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitOptions>) {
+export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitArgv>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api);

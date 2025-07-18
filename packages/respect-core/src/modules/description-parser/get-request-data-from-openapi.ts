@@ -1,4 +1,4 @@
-import { isPlainObject } from '@redocly/openapi-core';
+import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
@@ -18,7 +18,8 @@ export interface OpenApiRequestData {
 }
 
 export function getRequestDataFromOpenApi(
-  operation: OperationDetails & Record<string, any>
+  operation: OperationDetails & Record<string, any>,
+  logger: LoggerInterface
 ): OpenApiRequestData {
   const content: Record<string, any> = operation?.requestBody?.content || {};
   const [contentType, contentItem]: [string, any] = Object.entries(content)[0] || [];
@@ -26,12 +27,12 @@ export function getRequestDataFromOpenApi(
   const requestBody =
     contentItem?.example ||
     extractFirstExample(contentItem?.examples) ||
-    generateTestDataFromJsonSchema(contentItem?.schema);
+    generateTestDataFromJsonSchema(contentItem?.schema, logger);
 
   const accept = getAcceptHeader(operation);
   const parameters = getUniqueParameters([
-    ...transformParameters(operation.pathParameters),
-    ...transformParameters(operation.parameters),
+    ...transformParameters(operation.pathParameters, logger),
+    ...transformParameters(operation.parameters, logger),
   ]).filter(({ value }) => value);
 
   return {
@@ -60,7 +61,7 @@ function getAcceptHeader(descriptionOperation: OperationDetails & Record<string,
     : undefined;
 }
 
-function transformParameters(params: Parameter[]): ParameterWithIn[] {
+function transformParameters(params: Parameter[], logger: LoggerInterface): ParameterWithIn[] {
   return (params || [])
     .filter(
       (parameter): parameter is ParameterWithIn & { required: true } => parameter?.required === true
@@ -70,7 +71,7 @@ function transformParameters(params: Parameter[]): ParameterWithIn[] {
         return {
           name: parameter.name,
           in: parameter.in,
-          value: generateExampleValue(parameter),
+          value: generateExampleValue(parameter, logger),
         } as ParameterWithIn;
       }
       // Return undefined for non-matching parameters

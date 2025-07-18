@@ -46,6 +46,7 @@ export function resolveXSecurityParameters({
         const evaluatedValue = evaluateRuntimeExpressionPayload({
           payload: value,
           context: runtimeContext,
+          logger: ctx.options.logger,
         });
         if (security.values) {
           security.values[key] = evaluatedValue;

@@ -1,11 +1,15 @@
-import type { TestContext } from '../../../types';
-
+import { logger } from '@redocly/openapi-core';
+import { type TestContext } from '../../../types';
 import { resolveReusableObjectReference } from '../../context-parser/resolve-reusable-object-reference.js';
 
 describe('resolveReusableObjectReference', () => {
   it('should throw an error if the reference is invalid', () => {
     expect(() =>
-      resolveReusableObjectReference({ reference: '$components.inputs.test' }, {} as TestContext)
+      resolveReusableObjectReference({ reference: '$components.inputs.test' }, {
+        options: {
+          logger,
+        },
+      } as unknown as TestContext)
     ).toThrow(
       'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );
@@ -15,6 +19,9 @@ describe('resolveReusableObjectReference', () => {
     expect(
       resolveReusableObjectReference({ reference: '$components.parameters.test' }, {
         $components: { parameters: { test: { value: 'test', in: 'query', name: 'test' } } },
+        options: {
+          logger,
+        },
       } as unknown as TestContext)
     ).toEqual({
       value: 'test',
@@ -35,6 +42,9 @@ describe('resolveReusableObjectReference', () => {
               criteria: [{ condition: '$statusCode == 200' }],
             },
           },
+        },
+        options: {
+          logger,
         },
       } as unknown as TestContext)
     ).toEqual({
@@ -60,6 +70,9 @@ describe('resolveReusableObjectReference', () => {
               },
             },
           },
+          options: {
+            logger,
+          },
         } as unknown as TestContext
       )
     ).toEqual({
@@ -74,6 +87,9 @@ describe('resolveReusableObjectReference', () => {
     expect(
       resolveReusableObjectReference({ reference: '$components.parameters.test', value: '12' }, {
         $components: { parameters: { test: { value: 'test', in: 'query', name: 'test' } } },
+        options: {
+          logger,
+        },
       } as unknown as TestContext)
     ).toEqual({
       value: '12',

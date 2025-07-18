@@ -1,13 +1,13 @@
 import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/index.js';
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
+import { createConfig } from '@redocly/openapi-core';
 
 vi.mock('../../../flow-runner/context/create-test-context.js');
 
-describe('resolveWorkflowContext', () => {
+describe('resolveWorkflowContext', async () => {
+  const config = await createConfig({});
   const workflowId = '$sourceDescriptions.tickets-from-museum-api.workflows.get-museum-tickets';
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const apiClient = new ApiFetcher({});
   const resolvedWorkflow = {
     workflowId: 'get-museum-tickets',
     description: 'This workflow demonstrates how to buy tickets for the museum.',
@@ -321,7 +321,6 @@ describe('resolveWorkflowContext', () => {
       workflow: undefined,
       skip: undefined,
       verbose: undefined,
-      harLogsFile: 'har-output',
       metadata: {
         _: ['run'],
         files: ['examples/museum-api/museum-api-test.yaml'],
@@ -329,14 +328,16 @@ describe('resolveWorkflowContext', () => {
         file: 'examples/museum-api/museum-api-test.yaml',
       },
       input: undefined,
+      executionTimeout: 3_600_000,
+      maxSteps: 2000,
+      maxFetchTimeout: 40_000,
+      config,
     },
     apiClient,
   } as any;
 
   it('should not createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const workflowId = undefined;
     const resolvedWorkflow = {} as any;
     const ctx = {
@@ -347,13 +348,13 @@ describe('resolveWorkflowContext', () => {
       executedSteps: [],
     } as any;
 
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
     expect(createTestContext).not.toHaveBeenCalled();
   });
 
   it('should call createTestContext with the correct parameters when sourceDescriptionId is defined for arazzo type', async () => {
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, config);
 
     expect(createTestContext).toHaveBeenCalledWith(
       commonCtx.$sourceDescriptions['tickets-from-museum-api'],
@@ -362,6 +363,13 @@ describe('resolveWorkflowContext', () => {
         skip: undefined,
         workflow: ['get-museum-tickets'],
         workflowPath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        verbose: undefined,
       },
       apiClient
     );
@@ -373,7 +381,7 @@ describe('resolveWorkflowContext', () => {
       ...{ sourceDescriptions: [] },
     } as any;
 
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
     expect(createTestContext).toHaveBeenCalledWith(
       ctx.$sourceDescriptions['tickets-from-museum-api'],
@@ -382,6 +390,13 @@ describe('resolveWorkflowContext', () => {
         skip: undefined,
         workflow: ['get-museum-tickets'],
         workflowPath: '',
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        verbose: undefined,
       },
       apiClient
     );
@@ -389,7 +404,7 @@ describe('resolveWorkflowContext', () => {
 
   it('should call createTestContext with the correct parameters when sourceDescriptionId is defined for openapi type', async () => {
     const workflowId = '$sourceDescriptions.museum-api';
-    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx);
+    await resolveWorkflowContext(workflowId, resolvedWorkflow, commonCtx, config);
 
     expect(createTestContext).toHaveBeenCalledWith(
       commonCtx.$sourceDescriptions['museum-api'],
@@ -398,6 +413,13 @@ describe('resolveWorkflowContext', () => {
         skip: undefined,
         workflow: ['get-museum-tickets'],
         workflowPath: 'museum-api.yaml',
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        verbose: undefined,
       },
       apiClient
     );
@@ -528,8 +550,8 @@ describe('resolveWorkflowContext', () => {
     } as any;
     const workflowId = '$sourceDescriptions.wrong-api.workflows.get-museum-tickets';
 
-    await expect(resolveWorkflowContext(workflowId, resolvedWorkflow, ctx)).rejects.toThrowError(
-      'Unknown source description type invalid'
-    );
+    await expect(
+      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
+    ).rejects.toThrowError('Unknown source description type invalid');
   });
 });
