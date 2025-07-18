@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process';
 import { isAbsoluteUrl } from '@redocly/openapi-core';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
+import { respondWithinMs } from './network-check.js';
 
 import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
@@ -54,6 +55,12 @@ export async function sendTelemetry({
     if (!argv) {
       return;
     }
+
+    const hasInternet = await respondWithinMs(1000);
+    if (!hasInternet) {
+      return;
+    }
+
     const {
       _: [command],
       $0: _,
@@ -89,8 +96,8 @@ export async function sendTelemetry({
           : undefined,
     };
 
-    const { otelTelemetry } = await import('../otel.js');
-    await otelTelemetry.send(data.command, data);
+    const { otelTelemetry } = await import('./otel.js');
+    otelTelemetry.send(data.command, data);
   } catch (err) {
     // Do nothing.
   }

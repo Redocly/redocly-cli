@@ -1,5 +1,6 @@
 import AbortController from 'abort-controller';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { Agent } from 'undici';
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import * as proxyAgent from '../utils/proxy-agent.js';
 
@@ -50,18 +51,16 @@ describe('fetchWithTimeout', () => {
     global.fetch = originalFetch;
   });
 
-  it('should call fetch with signal', async () => {
+  it('should call fetch with signal and agent when timeout is provided', async () => {
     await fetchWithTimeout('url', { timeout: 1000 });
 
-    expect(global.setTimeout).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       'url',
       expect.objectContaining({
         signal: expect.any(AbortSignal),
-        dispatcher: undefined,
+        dispatcher: expect.any(Agent),
       })
     );
-    expect(global.clearTimeout).toHaveBeenCalledTimes(1);
   });
 
   it('should call fetch with proxy agent', async () => {
@@ -73,11 +72,9 @@ describe('fetchWithTimeout', () => {
     expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher });
   });
 
-  it('should call fetch without signal when timeout is not passed', async () => {
+  it('should call fetch without signal and without dispatcher when timeout is not passed', async () => {
     await fetchWithTimeout('url');
 
-    expect(global.setTimeout).not.toHaveBeenCalled();
-    expect(global.fetch).toHaveBeenCalledWith('url', { agent: undefined });
-    expect(global.clearTimeout).not.toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalledWith('url', {});
   });
 });

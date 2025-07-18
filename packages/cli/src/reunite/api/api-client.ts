@@ -1,8 +1,6 @@
 import { logger } from '@redocly/openapi-core';
-import fetchWithTimeout, {
-  type FetchWithTimeoutOptions,
-  DEFAULT_FETCH_TIMEOUT,
-} from '../../utils/fetch-with-timeout.js';
+import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
+import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
 
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
