@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process';
 import { isAbsoluteUrl } from '@redocly/openapi-core';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
+import { hasInternetConnectivity } from './network-check.js';
 
 import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
@@ -54,6 +55,14 @@ export async function sendTelemetry({
     if (!argv) {
       return;
     }
+
+    // Check for internet connectivity before sending telemetry
+    const hasInternet = await hasInternetConnectivity(1000);
+    if (!hasInternet) {
+      // Skip telemetry if no internet connectivity
+      return;
+    }
+
     const {
       _: [command],
       $0: _,
