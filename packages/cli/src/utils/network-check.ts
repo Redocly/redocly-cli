@@ -1,4 +1,5 @@
-import { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
+import fetchWithTimeout, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
+import { OTEL_URL } from './constants.js';
 
 /**
  * Checks if the system has internet connectivity by attempting to reach a reliable endpoint
@@ -8,23 +9,13 @@ import { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
 export async function hasInternetConnectivity(
   timeout: number = DEFAULT_FETCH_TIMEOUT
 ): Promise<boolean> {
-  // Skip network check if explicitly disabled
-  if (process.env.REDOCLY_OFFLINE === 'true' || process.env.CI === 'true') {
-    return false;
-  }
-
   try {
-    // Use a reliable endpoint for connectivity check
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const response = await fetch('https://otel.cloud.redocly.com', {
+    await fetchWithTimeout(OTEL_URL, {
       method: 'GET',
-      signal: controller.signal,
+      timeout,
     });
 
-    clearTimeout(timeoutId);
-    return response.ok;
+    return true;
   } catch (error) {
     // Any error (network, timeout, etc.) indicates no connectivity
     return false;

@@ -2,16 +2,15 @@ import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { version } from './utils/package.js';
-import { DEFAULT_FETCH_TIMEOUT } from './utils/fetch-with-timeout.js';
+import { version } from './package.js';
+import { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
+import { OTEL_TRACES_URL } from './constants.js';
 
-import type { Analytics } from './utils/telemetry.js';
+import type { Analytics } from './telemetry.js';
 
 type Events = {
   [key: string]: Analytics;
 };
-
-const OTEL_TRACES_URL = process.env.OTEL_TRACES_URL || 'https://otel.cloud.redocly.com/v1/traces';
 
 export class OtelServerTelemetry {
   send<K extends keyof Events>(event: K, data: Events[K]): void {

@@ -1,4 +1,5 @@
 import { getProxyAgent } from './proxy-agent.js';
+import { Agent } from 'undici';
 
 export const DEFAULT_FETCH_TIMEOUT = 3000;
 
@@ -7,24 +8,13 @@ export type FetchWithTimeoutOptions = RequestInit & {
 };
 
 export default async (url: string, { timeout, ...options }: FetchWithTimeoutOptions = {}) => {
-  if (!timeout) {
-    return fetch(url, {
-      ...options,
-      dispatcher: getProxyAgent(),
-    } as RequestInit);
-  }
-
-  const controller = new globalThis.AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, timeout);
+  const dispatcher = getProxyAgent() || new Agent({ connect: { timeout } });
 
   const res = await fetch(url, {
-    signal: controller.signal,
+    signal: timeout ? AbortSignal.timeout(timeout) : undefined,
     ...options,
-    dispatcher: getProxyAgent(),
+    dispatcher,
   } as RequestInit);
 
-  clearTimeout(timeoutId);
   return res;
 };
