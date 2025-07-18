@@ -189,6 +189,9 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'no-required-schema-properties-undefined': 'error',
+    'no-enum-type-mismatch': 'error',
+    'no-schema-type-mismatch': 'error',
   },
   async3Rules: {
     'channels-kebab-case': 'error',
@@ -199,6 +202,9 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'no-required-schema-properties-undefined': 'error',
+    'no-enum-type-mismatch': 'error',
+    'no-schema-type-mismatch': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
@@ -217,6 +223,9 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-x-security-scheme-name-without-openapi': 'off',
     'x-security-scheme-required-values': 'off',
     'no-x-security-scheme-name-in-workflow': 'off',
+    'no-required-schema-properties-undefined': 'error',
+    'no-enum-type-mismatch': 'error',
+    'no-schema-type-mismatch': 'error',
   },
   overlay1Rules: {
     'info-contact': 'error',

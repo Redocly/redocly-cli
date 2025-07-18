@@ -85,6 +85,9 @@
             - separator: Common
             - page: rules/common/struct.md
             - page: rules/common/no-unresolved-refs.md
+            - page: rules/common/no-enum-type-mismatch.md
+            - page: rules/common/no-schema-type-mismatch.md
+            - page: rules/common/no-required-schema-properties-undefined.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
@@ -94,7 +97,6 @@
             - page: rules/oas/info-license-strict.md
             - page: rules/oas/no-ambiguous-paths.md
             - page: rules/oas/no-empty-servers.md
-            - page: rules/oas/no-enum-type-mismatch.md
             - page: rules/oas/no-example-value-and-externalValue.md
             - page: rules/oas/no-http-verbs-in-paths.md
             - page: rules/oas/no-identical-paths.md
@@ -102,8 +104,6 @@
             - page: rules/oas/no-invalid-parameter-examples.md
             - page: rules/oas/no-invalid-schema-examples.md
             - page: rules/oas/no-path-trailing-slash.md
-            - page: rules/oas/no-required-schema-properties-undefined.md
-            - page: rules/oas/no-schema-type-mismatch.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
             - page: rules/oas/no-server-variables-empty-enum.md

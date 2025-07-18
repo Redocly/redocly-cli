@@ -1,11 +1,11 @@
 import { matchesJsonSchemaType, oasTypeOf } from '../utils.js';
 
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
+import type { Oas3Rule, Oas2Rule, Async3Rule, Async2Rule } from '../../visitors.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { Oas3Schema } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
+export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule | Async3Rule | Async2Rule = () => {
   return {
     Schema(schema: Oas2Schema | Oas3Schema, { report, location }: UserContext) {
       if (schema.enum && !Array.isArray(schema.enum)) return;
