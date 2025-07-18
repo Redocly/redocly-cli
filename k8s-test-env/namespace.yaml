@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: redocly-cli-test
-  labels:
-    name: redocly-cli-test
