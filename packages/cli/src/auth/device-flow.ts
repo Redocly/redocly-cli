@@ -2,7 +2,7 @@ import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
 import { logger } from '@redocly/openapi-core';
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
-import { DEFAULT_FETCH_TIMEOUT } from '../utils/fetch-with-timeout.js';
+import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
 export type AuthToken = {
   access_token: string;

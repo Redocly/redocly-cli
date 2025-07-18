@@ -1,8 +1,6 @@
 import { getProxyAgent } from './proxy-agent.js';
 import { Agent } from 'undici';
 
-export const DEFAULT_FETCH_TIMEOUT = 3000;
-
 export type FetchWithTimeoutOptions = RequestInit & {
   timeout?: number;
 };

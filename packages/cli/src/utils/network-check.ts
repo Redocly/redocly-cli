@@ -1,5 +1,5 @@
-import fetchWithTimeout, { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
-import { OTEL_URL } from './constants.js';
+import fetchWithTimeout from './fetch-with-timeout.js';
+import { DEFAULT_FETCH_TIMEOUT, OTEL_URL } from './constants.js';
 
 export async function hasInternetConnectivity(
   timeout: number = DEFAULT_FETCH_TIMEOUT

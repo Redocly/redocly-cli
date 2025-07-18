@@ -3,8 +3,7 @@ import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trac
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './package.js';
-import { DEFAULT_FETCH_TIMEOUT } from './fetch-with-timeout.js';
-import { OTEL_TRACES_URL } from './constants.js';
+import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
 
 import type { Analytics } from './telemetry.js';
 
