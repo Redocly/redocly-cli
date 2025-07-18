@@ -56,10 +56,8 @@ export async function sendTelemetry({
       return;
     }
 
-    // Check for internet connectivity before sending telemetry
     const hasInternet = await hasInternetConnectivity(1000);
     if (!hasInternet) {
-      // Skip telemetry if no internet connectivity
       return;
     }
 
