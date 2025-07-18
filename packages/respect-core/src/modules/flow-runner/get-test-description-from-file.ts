@@ -45,6 +45,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
   const lintProblems = await lint({
     ref: filePath,
     config,
+    externalRefResolver,
   });
 
   if (lintProblems.length) {
