@@ -10,6 +10,7 @@ Errors:
 
 - [no-empty-servers](./oas/no-empty-servers.md)
 - [no-enum-type-mismatch](./oas/no-enum-type-mismatch.md)
+- [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md)
@@ -42,6 +43,7 @@ Warnings:
 - [info-license-strict](./oas/info-license-strict.md)
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md)
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md)
+- [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md)
 - [no-server-example.com](./oas/no-server-example-com.md)
 - [no-unused-components](./oas/no-unused-components.md)
 - [operation-2xx-response](./oas/operation-2xx-response.md)
