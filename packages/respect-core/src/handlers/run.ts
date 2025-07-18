@@ -1,4 +1,9 @@
-import { type Config, type CollectFn, type LoggerInterface } from '@redocly/openapi-core';
+import {
+  type Config,
+  type CollectFn,
+  type LoggerInterface,
+  type BaseResolver,
+} from '@redocly/openapi-core';
 import { runTestFile } from '../modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
 import { Timer } from '../modules/timeout-timer/timer.js';
@@ -22,6 +27,7 @@ export type RespectOptions = {
   version?: string;
   logger: LoggerInterface;
   fetch: typeof fetch;
+  externalRefResolver?: BaseResolver;
 };
 
 export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {

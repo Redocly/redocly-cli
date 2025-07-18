@@ -39,7 +39,7 @@ export async function createTestContext(
             descriptionPath: sourceDescription.url,
             config: options.config,
             base: options.workflowPath,
-            // externalRefResolver: options.externalRefResolver,
+            externalRefResolver: options?.externalRefResolver,
           });
           const { paths, servers, info, security, components } = parsedDocument;
           bundledDescriptions[sourceDescription.name] = {
@@ -56,6 +56,7 @@ export async function createTestContext(
             filePath,
             version: options?.version,
             logger: options.logger,
+            externalRefResolver: options?.externalRefResolver,
           });
 
           bundledDescriptions[name] = bundledTestDescription;
