@@ -9,7 +9,7 @@ These are the rules in the `recommended` set, grouped by their severity.
 Errors:
 
 - [no-empty-servers](./oas/no-empty-servers.md)
-- [no-enum-type-mismatch](./oas/no-enum-type-mismatch.md)
+- [no-enum-type-mismatch](./common/no-enum-type-mismatch.md)
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)

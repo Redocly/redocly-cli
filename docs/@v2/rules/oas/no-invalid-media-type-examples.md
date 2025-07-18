@@ -150,7 +150,7 @@ post:
 
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
-- [no-enum-type-mismatch](./no-enum-type-mismatch.md)
+- [no-enum-type-mismatch](../common/no-enum-type-mismatch.md)
 
 ## Resources
 
