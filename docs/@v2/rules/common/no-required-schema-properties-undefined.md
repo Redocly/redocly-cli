@@ -111,6 +111,8 @@ schemas:
 
 ## Related rules
 
+- [no-schema-type-mismatch](./no-schema-type-mismatch.md)
+- [no-enum-type-mismatch](./no-enum-type-mismatch.md)
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
 
 ## Resources

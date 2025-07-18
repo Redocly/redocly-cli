@@ -330,6 +330,22 @@ describe('Oas3 typed enum', () => {
       config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/inputs/properties/foo/enum/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
