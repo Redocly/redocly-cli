@@ -162,7 +162,23 @@ describe('no-schema-type-mismatch rule', () => {
       config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/messages/Test/payload/properties/incorrect/items",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'object' type should not contain 'items' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should work for AsyncAPI 2.6', async () => {
@@ -196,7 +212,23 @@ describe('no-schema-type-mismatch rule', () => {
       config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Test/properties/incorrect/properties",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should work for Arazzo 1.0.1', async () => {
@@ -232,6 +264,22 @@ describe('no-schema-type-mismatch rule', () => {
       config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/inputs/properties/incorrect/properties",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });

@@ -686,6 +686,22 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot();
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/inputs/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'missing-required' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
