@@ -8,7 +8,7 @@ export type FetchWithTimeoutOptions = RequestInit & {
 };
 
 export default async (url: string, { timeout, ...options }: FetchWithTimeoutOptions = {}) => {
-  const dispatcher = getProxyAgent() || new Agent({ connect: { timeout } });
+  const dispatcher = getProxyAgent() || (timeout ? new Agent({ connect: { timeout } }) : undefined);
 
   const res = await fetch(url, {
     signal: timeout ? AbortSignal.timeout(timeout) : undefined,

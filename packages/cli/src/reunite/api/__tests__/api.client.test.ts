@@ -52,7 +52,8 @@ describe('ApiClient', () => {
             Authorization: `Bearer ${testToken}`,
             'user-agent': expectedUserAgent,
           },
-          signal: expect.any(Object),
+          signal: expect.any(AbortSignal),
+          dispatcher: expect.any(Object),
         }
       );
 
@@ -137,7 +138,7 @@ describe('ApiClient', () => {
             autoMerge: true,
           }),
           signal: expect.any(Object),
-          agent: undefined,
+          dispatcher: expect.any(Object),
         }
       );
 
