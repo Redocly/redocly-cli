@@ -61,7 +61,8 @@
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
     "styled-components": "^6.0.7",
-    "yargs": "17.0.1"
+    "yargs": "17.0.1",
+    "undici": "^6.21.1"
   },
   "devDependencies": {
     "@types/configstore": "^5.0.1",
