@@ -116,9 +116,9 @@ properties:
 - [no-enum-type-mismatch](./no-enum-type-mismatch.md)
 - [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md)
 - [configurable rules](../configurable-rules.md)
-- [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
-- [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
-- [no-invalid-schema-examples](./no-invalid-schema-examples.md)
+- [no-invalid-media-type-examples](../oas/no-invalid-media-type-examples.md)
+- [no-invalid-parameter-examples](../oas/no-invalid-parameter-examples.md)
+- [no-invalid-schema-examples](../oas/no-invalid-schema-examples.md)
 
 ## Resources
 
