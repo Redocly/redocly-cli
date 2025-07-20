@@ -17,8 +17,14 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorato
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
 import { type Config } from './config/index.js';
-import { makeConfigBundlerVisitor, makePluginsCollectorVisitor } from './config/visitors.js';
+import {
+  CONFIG_BUNDLER_VISITOR_ID,
+  configBundlerVisitor,
+  pluginsCollectorVisitor,
+  PLUGINS_COLLECTOR_VISITOR_ID,
+} from './config/visitors.js';
 
+import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
 import type { Plugin, ResolvedConfig } from './config/types.js';
 import type { Location } from './ref-utils.js';
 import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
@@ -47,24 +53,25 @@ export function collectConfigPlugins(
   resolvedRefMap: ResolvedRefMap,
   rootConfigDir: string
 ) {
+  const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0, // TODO: change it after we rename oasVersion to specVersion
     refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {},
+    visitorsData: {
+      [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
+    },
   };
-
-  const plugins: (string | Plugin)[] = [];
 
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: makePluginsCollectorVisitor(plugins, rootConfigDir),
+    normalizedVisitors: pluginsCollectorVisitor,
     resolvedRefMap,
     ctx,
   });
 
-  return plugins;
+  return visitorsData.plugins;
 }
 
 export function bundleConfig(
@@ -72,17 +79,20 @@ export function bundleConfig(
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
 ): ResolvedConfig {
+  const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
     oasVersion: SpecVersion.OAS3_0,
     refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {},
+    visitorsData: {
+      [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,
+    },
   };
 
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: makeConfigBundlerVisitor(plugins),
+    normalizedVisitors: configBundlerVisitor,
     resolvedRefMap,
     ctx,
   });

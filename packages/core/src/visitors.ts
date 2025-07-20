@@ -1,7 +1,8 @@
 import { SpecExtension } from './types/index.js';
+import { isPlainObject } from './utils.js';
 
-import type { NormalizedNodeType } from './types/index.js';
 import type { Stack } from './utils.js';
+import type { NormalizedNodeType } from './types/index.js';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 import type { Location } from './ref-utils.js';
 import type {
@@ -541,7 +542,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
       let visitorLeave: VisitFunction<unknown> | undefined;
       let visitorSkip: SkipFunction<unknown> | undefined;
 
-      const isObjectVisitor = typeof typeVisitor === 'object';
+      const isObjectVisitor = isPlainObject(typeVisitor);
 
       if (typeName === 'ref' && isObjectVisitor && typeVisitor.skip) {
         throw new Error('ref() visitor does not support skip');
@@ -555,6 +556,11 @@ export function normalizeVisitors<T extends BaseVisitor>(
         visitorSkip = typeVisitor.skip;
       }
 
+      const standardKeysCount =
+        (visitorEnter ? 1 : 0) + (visitorLeave ? 1 : 0) + (visitorSkip ? 1 : 0);
+      const hasNestedVisitors =
+        isObjectVisitor && Object.keys(typeVisitor).length > standardKeysCount;
+
       const context: VisitorLevelContext = {
         activatedOn: null,
         type: types[typeName],
@@ -562,14 +568,14 @@ export function normalizeVisitors<T extends BaseVisitor>(
         isSkippedLevel: false,
       };
 
-      if (typeof typeVisitor === 'object') {
+      if (hasNestedVisitors) {
         normalizeVisitorLevel(ruleConf, typeVisitor, context, depth + 1);
       }
 
       if (parentContext) {
         addWeakNodes(ruleConf, parentContext.type, types[typeName], parentContext);
       }
-
+      3;
       if (visitorEnter || isObjectVisitor) {
         if (visitorEnter && typeof visitorEnter !== 'function') {
           throw new Error('DEV: should be function');

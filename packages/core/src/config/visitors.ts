@@ -8,98 +8,110 @@ import type { OasRef } from '../typings/openapi.js';
 import type { Plugin } from './types.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 
-export function makePluginsCollectorVisitor(plugins: (string | Plugin)[], rootConfigDir: string) {
-  function handleNode(node: any, ctx: UserContext) {
-    if (Array.isArray(node.plugins)) {
-      plugins.push(
-        ...node.plugins.map((p: string | Plugin) => {
-          return preResolvePluginPath(
-            p,
-            ctx.location.source.absoluteRef.replace(/^file:\/\//, ''), // remove file URL prefix for OpenAPI language server
-            rootConfigDir
-          );
-        })
-      );
-    }
-  }
+export type PluginsCollectorVisitorData = {
+  plugins: (string | Plugin)[];
+  rootConfigDir: string;
+};
 
-  return normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {},
-          ConfigGovernance: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+export const PLUGINS_COLLECTOR_VISITOR_ID = 'pluginsCollector';
+
+function collectorHandleNode(node: any, ctx: UserContext) {
+  if (Array.isArray(node.plugins)) {
+    const { plugins, rootConfigDir } = ctx.getVisitorData() as PluginsCollectorVisitorData;
+    plugins.push(
+      ...node.plugins.map((p: string | Plugin) => {
+        return preResolvePluginPath(
+          p,
+          ctx.location.source.absoluteRef.replace(/^file:\/\//, ''), // remove file URL prefix for OpenAPI language server
+          rootConfigDir
+        );
+      })
+    );
+  }
+}
+
+export const pluginsCollectorVisitor = normalizeVisitors(
+  [
+    {
+      severity: 'error',
+      ruleId: PLUGINS_COLLECTOR_VISITOR_ID,
+      visitor: {
+        ref: {},
+        ConfigGovernance: {
+          leave(node: any, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
           },
-          ConfigApisProperties: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        ConfigApisProperties: {
+          leave(node: any, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
           },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        'rootRedoclyConfigSchema.scorecard.levels_items': {
+          leave(node: any, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
           },
-          ConfigRoot: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        ConfigRoot: {
+          leave(node: any, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
           },
         },
       },
-    ],
-    NormalizedConfigTypes
-  );
+    },
+  ],
+  NormalizedConfigTypes
+);
+
+export type ConfigBundlerVisitorData = {
+  plugins: Plugin[];
+};
+
+export const CONFIG_BUNDLER_VISITOR_ID = 'configBundler';
+
+function bundlerHandleNode(node: any, ctx: UserContext) {
+  if (node.extends && node.extends.length > 0) {
+    const { plugins } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+    const bundled = bundleExtends({ node, ctx, plugins });
+    Object.assign(node, bundled);
+    delete node.extends;
+  }
 }
 
-export function makeConfigBundlerVisitor(plugins: Plugin[]) {
-  function handleNode(node: any, ctx: UserContext) {
-    if (node.extends) {
-      const bundled = bundleExtends({ node, ctx, plugins });
-      Object.assign(node, bundled);
-      delete node.extends;
-    }
-  }
-  return normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'configBundler',
-        visitor: {
-          ref: {
-            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx);
-            },
+export const configBundlerVisitor = normalizeVisitors(
+  [
+    {
+      severity: 'error',
+      ruleId: CONFIG_BUNDLER_VISITOR_ID,
+      visitor: {
+        ref: {
+          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            replaceRef(node, resolved, ctx);
           },
-          ConfigGovernance: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        ConfigGovernance: {
+          leave(node: any, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
           },
-          ConfigApisProperties: {
-            leave(node: any, ctx: UserContext) {
-              // ignore extends from root config if defined in the current node
-              handleNode(node, ctx);
-            },
+        },
+        ConfigApisProperties: {
+          leave(node: any, ctx: UserContext) {
+            // ignore extends from root config if defined in the current node
+            bundlerHandleNode(node, ctx);
           },
-          'rootRedoclyConfigSchema.scorecard.levels_items': {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        'rootRedoclyConfigSchema.scorecard.levels_items': {
+          leave(node: any, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
           },
-          ConfigRoot: {
-            leave(node: any, ctx: UserContext) {
-              handleNode(node, ctx);
-            },
+        },
+        ConfigRoot: {
+          leave(node: any, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
           },
         },
       },
-    ],
-    NormalizedConfigTypes
-  );
-}
+    },
+  ],
+  NormalizedConfigTypes
+);
