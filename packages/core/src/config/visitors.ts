@@ -70,7 +70,7 @@ export type ConfigBundlerVisitorData = {
 export const CONFIG_BUNDLER_VISITOR_ID = 'configBundler';
 
 function bundlerHandleNode(node: any, ctx: UserContext) {
-  if (node.extends && node.extends.length > 0) {
+  if (node.extends) {
     const { plugins } = ctx.getVisitorData() as ConfigBundlerVisitorData;
     const bundled = bundleExtends({ node, ctx, plugins });
     Object.assign(node, bundled);
