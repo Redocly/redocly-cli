@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Install External
-        run: npm i -g hyperfine @redocly/cli@latest
+        run: npm i -g hyperfine @redocly/cli@next
       - name: Prepare
         run: |
           jq '.bin = {"redocly-next":"bin/cli.js"} | .name = "@redocly/cli-next"' packages/cli/package.json > __tmp__.json
