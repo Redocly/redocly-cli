@@ -1,5 +1,7 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-schema-type-mismatch
+slug: 
+- /docs/cli/v2/rules/common/no-schema-type-mismatch
+- /docs/cli/v2/rules/oas/no-schema-type-mismatch
 ---
 
 # no-schema-type-mismatch
@@ -14,6 +16,15 @@ Ensures that a schema's structural properties match its declared `type`. In part
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.0    | ✅            |
 
 ```mermaid
 flowchart TD
@@ -102,10 +113,12 @@ properties:
 
 ## Related rules
 
+- [no-enum-type-mismatch](./no-enum-type-mismatch.md)
+- [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md)
 - [configurable rules](../configurable-rules.md)
-- [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
-- [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
-- [no-invalid-schema-examples](./no-invalid-schema-examples.md)
+- [no-invalid-media-type-examples](../oas/no-invalid-media-type-examples.md)
+- [no-invalid-parameter-examples](../oas/no-invalid-parameter-examples.md)
+- [no-invalid-schema-examples](../oas/no-invalid-schema-examples.md)
 
 ## Resources
 
