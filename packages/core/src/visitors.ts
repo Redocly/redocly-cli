@@ -575,7 +575,6 @@ export function normalizeVisitors<T extends BaseVisitor>(
       if (parentContext) {
         addWeakNodes(ruleConf, parentContext.type, types[typeName], parentContext);
       }
-      3;
       if (visitorEnter || isObjectVisitor) {
         if (visitorEnter && typeof visitorEnter !== 'function') {
           throw new Error('DEV: should be function');
