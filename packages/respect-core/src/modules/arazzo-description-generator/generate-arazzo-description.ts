@@ -10,8 +10,9 @@ export const infoSubstitute = {
   version: '[REPLACE WITH API version]',
 };
 
-async function resolveDescriptionNameFromPath(descriptionPath: string): Promise<string> {
-  const path = await getPath();
+const path = await getPath();
+
+function resolveDescriptionNameFromPath(descriptionPath: string): string {
   return path
     .parse(descriptionPath)
     .name.replace(/\./g, '-')
@@ -19,13 +20,12 @@ async function resolveDescriptionNameFromPath(descriptionPath: string): Promise<
 }
 
 export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
-  const path = await getPath();
   const { descriptionPath, outputFile, collectSpecData } = opts;
   const document = (await bundleOpenApi(opts)) || {};
   collectSpecData?.(document);
 
   const { paths: pathsObject, info, security: rootSecurity, components } = document;
-  const sourceDescriptionName = await resolveDescriptionNameFromPath(descriptionPath);
+  const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
   const resolvedDescriptionPath = outputFile
     ? path.relative(path.dirname(outputFile), path.resolve(descriptionPath))
     : descriptionPath;
