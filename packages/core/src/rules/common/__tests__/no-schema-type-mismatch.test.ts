@@ -124,4 +124,162 @@ describe('no-schema-type-mismatch rule', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('should work for AsyncAPI 3', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: 3.0.0
+        info:
+          title: Test
+          version: 1.0.0
+        channels:
+          userSignedup:
+            messages:
+              Test:
+                $ref: '#/components/messages/Test'
+        components:
+          messages:
+            Test:
+              payload:
+                type: object
+                properties:
+                  correct:
+                    type: object
+                    properties:
+                      foo:
+                        type: string
+                  incorrect:
+                    type: object
+                    items: # incorrect
+                      type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/messages/Test/payload/properties/incorrect/items",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'object' type should not contain 'items' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for AsyncAPI 2.6', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        asyncapi: '2.6.0'
+        info:
+          title: Test API
+          version: '1.0.0'
+        components:
+          schemas:
+            Test:
+              type: object
+              properties:
+                correct:
+                  type: array
+                  items:
+                    type: string
+                incorrect:
+                  type: array
+                  properties: # incorrect
+                    foo:
+                      type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Test/properties/incorrect/properties",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should work for Arazzo 1.0.1', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Test inputs
+          version: 1.0.0
+        workflows:
+          - workflowId: test
+            inputs:
+              type: object
+              properties:
+                correct:
+                  type: array
+                  items:
+                    type: string
+                incorrect:
+                  type: array
+                  properties: # incorrect
+                    foo:
+                      type: string
+            steps:
+              - stepId: test
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/inputs/properties/incorrect/properties",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'array' type should not contain 'properties' field.",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

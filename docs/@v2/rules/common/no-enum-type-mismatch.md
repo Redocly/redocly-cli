@@ -1,5 +1,7 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-enum-type-mismatch
+slug: 
+- /docs/cli/v2/rules/common/no-enum-type-mismatch
+- /docs/cli/v2/rules/oas/no-enum-type-mismatch
 ---
 
 # no-enum-type-mismatch
@@ -30,6 +32,15 @@ end
 
 style Schema fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
+
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.0    | ✅            |
 
 ## API design principles
 
@@ -86,10 +97,12 @@ properties:
 
 ## Related rules
 
+- [no-schema-type-mismatch](./no-schema-type-mismatch.md)
+- [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md)
 - [configurable rules](../configurable-rules.md)
-- [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
-- [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
-- [no-invalid-schema-examples](./no-invalid-schema-examples.md)
+- [no-invalid-media-type-examples](../oas/no-invalid-media-type-examples.md)
+- [no-invalid-parameter-examples](../oas/no-invalid-parameter-examples.md)
+- [no-invalid-schema-examples](../oas/no-invalid-schema-examples.md)
 
 ## Resources
 
