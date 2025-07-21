@@ -8,6 +8,7 @@ import {
   type BaseResolver,
   type CollectFn,
   type LoggerInterface,
+  type NormalizedProblem,
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
@@ -20,10 +21,19 @@ type BundleArazzoOptions = {
   collectSpecData?: CollectFn;
   version?: string;
   logger: LoggerInterface;
+  skipLint?: boolean;
 };
 
 export async function bundleArazzo(options: BundleArazzoOptions) {
-  const { filePath, base, externalRefResolver, collectSpecData, version } = options;
+  const {
+    filePath,
+    base,
+    externalRefResolver,
+    collectSpecData,
+    version,
+    skipLint = false,
+  } = options;
+  let lintProblems: NormalizedProblem[] = [];
 
   const fileName = path.basename(filePath);
 
@@ -42,21 +52,23 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
     },
   });
 
-  const lintProblems = await lint({
-    ref: filePath,
-    config,
-    externalRefResolver,
-  });
-
-  if (lintProblems.length) {
-    const fileTotals = getTotals(lintProblems);
-
-    formatProblems(lintProblems, {
-      totals: fileTotals,
-      version,
+  if (!skipLint) {
+    lintProblems = await lint({
+      ref: filePath,
+      config,
+      externalRefResolver,
     });
 
-    printConfigLintTotals(fileTotals, options.logger);
+    if (lintProblems.length) {
+      const fileTotals = getTotals(lintProblems);
+
+      formatProblems(lintProblems, {
+        totals: fileTotals,
+        version,
+      });
+
+      printConfigLintTotals(fileTotals, options.logger);
+    }
   }
 
   const bundledDocument = await bundle({

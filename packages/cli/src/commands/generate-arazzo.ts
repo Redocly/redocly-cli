@@ -1,5 +1,5 @@
 import { blue, gray, yellow } from 'colorette';
-import { generateArazzo } from '@redocly/respect-core';
+import { generate } from '@redocly/respect-core';
 import { type CommandArgs } from '../wrapper.js';
 import { writeFileSync } from 'node:fs';
 import { HandledError, logger, stringifyYaml } from '@redocly/openapi-core';
@@ -28,7 +28,7 @@ export async function handleGenerateArazzo({
   try {
     logger.info(gray('\n  Generating Arazzo description... \n'));
 
-    const generatedArazzo = await generateArazzo(options);
+    const generatedArazzo = await generate(options);
     writeFileSync(outputFile, stringifyYaml(generatedArazzo));
 
     logger.info(

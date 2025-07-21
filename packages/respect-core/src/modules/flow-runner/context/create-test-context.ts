@@ -56,6 +56,7 @@ export async function createTestContext(
             version: options?.version,
             logger: options.logger,
             externalRefResolver: options?.externalRefResolver,
+            skipLint: options?.skipLint,
           });
 
           bundledDescriptions[name] = bundledTestDescription;

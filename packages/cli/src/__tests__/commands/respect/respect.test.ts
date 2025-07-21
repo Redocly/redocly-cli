@@ -1,5 +1,5 @@
 import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
-import { handleRun } from '@redocly/respect-core';
+import { run } from '@redocly/respect-core';
 import { Config } from '@redocly/openapi-core';
 
 // Mock node:fs
@@ -16,12 +16,12 @@ vi.mock('node:fs', async () => {
   };
 });
 
-// Mock the handleRun function
+// Mock the run function
 vi.mock('@redocly/respect-core', async () => {
   const actual = await vi.importActual('@redocly/respect-core');
   return {
     ...actual,
-    handleRun: vi.fn(),
+    run: vi.fn(),
   };
 });
 
@@ -49,7 +49,7 @@ describe('handleRespect', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  it('should call handleRun with the correct arguments', async () => {
+  it('should call run with the correct arguments', async () => {
     const mockConfig = new Config({});
     const commandArgs = {
       argv: {
@@ -68,7 +68,7 @@ describe('handleRespect', () => {
       collectSpecData: vi.fn(),
     };
 
-    vi.mocked(handleRun).mockResolvedValue([
+    vi.mocked(run).mockResolvedValue([
       {
         hasProblems: false,
         hasWarnings: false,
@@ -84,7 +84,7 @@ describe('handleRespect', () => {
 
     await handleRespect(commandArgs);
 
-    expect(handleRun).toHaveBeenCalledWith(
+    expect(run).toHaveBeenCalledWith(
       expect.objectContaining({
         files: ['test.arazzo.yaml'],
         input: 'name=John',

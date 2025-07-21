@@ -131,6 +131,7 @@ export type AppOptions = {
   version?: string;
   logger: LoggerInterface;
   externalRefResolver?: BaseResolver;
+  skipLint?: boolean;
 };
 export type RegexpSuccessCriteria = {
   condition: string;

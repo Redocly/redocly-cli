@@ -39,6 +39,7 @@ export async function runTestFile(options: RunOptions, collectSpecData?: Collect
     version: options?.version,
     logger: options.logger,
     externalRefResolver: options?.externalRefResolver,
+    skipLint: options?.skipLint,
   });
   return await runWorkflows(bundledTestDescription, workflowOptions);
 }

@@ -1,4 +1,4 @@
-import { handleRun, maskSecrets, type JsonLogs } from '@redocly/respect-core';
+import { run, maskSecrets, type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -113,7 +113,7 @@ export async function handleRespect({
 
     const startedAt = performance.now();
     // TODO: continue refactoring
-    const runAllFilesResult = await handleRun(options);
+    const runAllFilesResult = await run(options);
 
     logger.printNewLine();
     displayFilesSummaryTable(runAllFilesResult, logger);

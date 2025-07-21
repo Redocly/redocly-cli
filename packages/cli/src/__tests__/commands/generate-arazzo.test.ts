@@ -1,14 +1,14 @@
 import { GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/generate-arazzo.js';
-import { generateArazzo } from '@redocly/respect-core';
+import { generate } from '@redocly/respect-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Config } from '@redocly/openapi-core';
 
-// Mock the generateArazzo function
+// Mock the generate function
 vi.mock('@redocly/respect-core', async () => {
   const actual = await vi.importActual('@redocly/respect-core');
   return {
     ...actual,
-    generateArazzo: vi.fn(),
+    generate: vi.fn(),
   };
 });
 
@@ -36,10 +36,10 @@ vi.mock('@redocly/openapi-core', async () => {
 describe('handleGenerateArazzo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(generateArazzo).mockResolvedValue('{"mocked": "arazzo"}');
+    vi.mocked(generate).mockResolvedValue('{"mocked": "arazzo"}');
   });
 
-  it('should call generateArazzo with the correct arguments', async () => {
+  it('should call generate with the correct arguments', async () => {
     const mockConfig = new Config({});
     const commandArgs = {
       argv: {
@@ -52,7 +52,7 @@ describe('handleGenerateArazzo', () => {
 
     await handleGenerateArazzo(commandArgs);
 
-    expect(generateArazzo).toHaveBeenCalledWith({
+    expect(generate).toHaveBeenCalledWith({
       outputFile: 'auto-generated.arazzo.yaml',
       descriptionPath: 'openapi.yaml',
       collectSpecData: commandArgs.collectSpecData,
@@ -75,7 +75,7 @@ describe('handleGenerateArazzo', () => {
 
     await handleGenerateArazzo(commandArgs);
 
-    expect(generateArazzo).toHaveBeenCalledWith({
+    expect(generate).toHaveBeenCalledWith({
       outputFile: 'custom.arazzo.yaml',
       descriptionPath: 'openapi.yaml',
       collectSpecData: commandArgs.collectSpecData,
@@ -95,7 +95,7 @@ describe('handleGenerateArazzo', () => {
       collectSpecData: vi.fn(),
     };
 
-    vi.mocked(generateArazzo).mockRejectedValueOnce(new Error('Invalid OpenAPI file'));
+    vi.mocked(generate).mockRejectedValueOnce(new Error('Invalid OpenAPI file'));
 
     await expect(handleGenerateArazzo(commandArgs)).rejects.toThrow(
       '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'

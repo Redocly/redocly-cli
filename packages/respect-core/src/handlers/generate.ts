@@ -8,8 +8,9 @@ export type GenerateArazzoOptions = {
   version: string;
   collectSpecData?: CollectFn;
   externalRefResolver?: BaseResolver;
+  base?: string;
 };
 
-export async function generateArazzo(options: GenerateArazzoOptions): Promise<string> {
+export async function generate(options: GenerateArazzoOptions): Promise<string> {
   return await generateArazzoDescription(options);
 }

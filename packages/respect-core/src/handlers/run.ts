@@ -28,9 +28,10 @@ export type RespectOptions = {
   logger: LoggerInterface;
   fetch: typeof fetch;
   externalRefResolver?: BaseResolver;
+  skipLint?: boolean;
 };
 
-export async function handleRun(options: RespectOptions): Promise<RunFileResult[]> {
+export async function run(options: RespectOptions): Promise<RunFileResult[]> {
   const { files, executionTimeout, collectSpecData } = options;
 
   Timer.getInstance(executionTimeout);
