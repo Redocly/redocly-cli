@@ -1,6 +1,6 @@
 import { outdent } from 'outdent';
 import { yellow, inverse, bold, green, red, blue, gray } from 'colorette';
-import { getPath } from '../../utils/path.js';
+import path from '../../utils/path.js';
 import { getExecutionTime } from '../../utils/time.js';
 import { calculateTotals } from './calculate-tests-passed.js';
 import { indent } from '../../utils/cli-outputs.js';
@@ -8,7 +8,7 @@ import { resolveRunningWorkflows } from '../flow-runner/index.js';
 
 import type { ResultsOfTests, RunOptions, WorkflowExecutionResult } from '../../types.js';
 
-export async function displaySummary({
+export function displaySummary({
   startedAt,
   workflows,
   options,
@@ -18,7 +18,6 @@ export async function displaySummary({
   options: RunOptions;
 }) {
   const { logger } = options;
-  const path = await getPath();
   const fileName = path.basename(options?.file || '');
   const workflowArgv = resolveRunningWorkflows(options?.workflow) || [];
   const skippedWorkflowArgv = resolveRunningWorkflows(options?.skip) || [];

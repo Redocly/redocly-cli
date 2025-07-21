@@ -1,4 +1,4 @@
-import { getPath } from '../../../utils/path.js';
+import path from '../../../utils/path.js';
 import {
   type TestDescription,
   type AppOptions,
@@ -26,7 +26,6 @@ export async function createTestContext(
   options: AppOptions,
   apiClient: ApiFetcher
 ): Promise<TestContext> {
-  const path = await getPath();
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
   const bundledDescriptions = {} as Descriptions;

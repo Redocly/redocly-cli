@@ -1,5 +1,5 @@
 import { blue } from 'colorette';
-import { getPath } from '../../utils/path.js';
+import path from '../../utils/path.js';
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { createTestContext } from './context/create-test-context.js';
 import { getValueFromContext } from '../context-parser/index.js';
@@ -88,7 +88,6 @@ export async function runWorkflow({
   parentStepId,
   invocationContext,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
-  const path = await getPath();
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
   const fileBaseName = path.basename(ctx.options.workflowPath);
@@ -260,7 +259,7 @@ export async function resolveWorkflowContext(
     ? await createTestContext(
         testDescription,
         {
-          workflowPath: await findSourceDescriptionUrl(
+          workflowPath: findSourceDescriptionUrl(
             sourceDescriptionId,
             ctx.sourceDescriptions,
             ctx.options
@@ -288,12 +287,11 @@ export async function resolveWorkflowContext(
       };
 }
 
-async function findSourceDescriptionUrl(
+function findSourceDescriptionUrl(
   sourceDescriptionId: string,
   sourceDescriptions: SourceDescription[] | undefined,
   options: AppOptions
 ) {
-  const path = await getPath();
   const sourceDescription =
     sourceDescriptions && sourceDescriptions.find(({ name }) => name === sourceDescriptionId);
 

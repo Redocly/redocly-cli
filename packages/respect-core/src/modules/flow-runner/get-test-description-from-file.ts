@@ -9,7 +9,7 @@ import {
   type CollectFn,
   type LoggerInterface,
 } from '@redocly/openapi-core';
-import { getPath } from '../../utils/path.js';
+import path from '../../utils/path.js';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
 
@@ -24,7 +24,7 @@ type BundleArazzoOptions = {
 
 export async function bundleArazzo(options: BundleArazzoOptions) {
   const { filePath, base, externalRefResolver, collectSpecData, version } = options;
-  const path = await getPath();
+
   const fileName = path.basename(filePath);
 
   if (!fileName) {
