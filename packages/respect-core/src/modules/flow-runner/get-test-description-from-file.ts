@@ -9,7 +9,7 @@ import {
   type CollectFn,
   type LoggerInterface,
 } from '@redocly/openapi-core';
-import path from '../../utils/path.js';
+import * as path from 'node:path';
 import { printConfigLintTotals } from '../../utils/cli-outputs.js';
 import { isTestFile } from '../../utils/file.js';
 

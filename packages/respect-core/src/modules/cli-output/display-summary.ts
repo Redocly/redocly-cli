@@ -1,6 +1,6 @@
 import { outdent } from 'outdent';
 import { yellow, inverse, bold, green, red, blue, gray } from 'colorette';
-import path from '../../utils/path.js';
+import * as path from 'node:path';
 import { getExecutionTime } from '../../utils/time.js';
 import { calculateTotals } from './calculate-tests-passed.js';
 import { indent } from '../../utils/cli-outputs.js';
