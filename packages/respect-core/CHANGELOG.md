@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 1.34.5
+
+### Patch Changes
+
+- Updated `form-data` to 4.0.4 for Redocly CLI v1.
+- Updated @redocly/openapi-core to v1.34.5.
+
 ## 1.34.4
 
 ### Patch Changes
