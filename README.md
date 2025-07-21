@@ -101,6 +101,8 @@ The `stylish` output is as good as it sounds, but if you need JSON, Markdown, Ch
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
+Looking for more examples? Check out our [Cookbook](https://github.com/Redocly/redocly-cli-cookbook).
+
 ### API contract testing with Respect
 
 Ensure your APIs match their OpenAPI descriptions with **Respect**, Redocly's API contract testing system. Respect sends real HTTP requests to your API server and validates that responses match the expectations defined in your OpenAPI description and Arazzo workflows.
