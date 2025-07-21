@@ -618,7 +618,6 @@ describe('createTestContext', () => {
           return new Blob([filePath]);
         },
       },
-      envVariables: {},
       logger: logger,
       fetch,
     };

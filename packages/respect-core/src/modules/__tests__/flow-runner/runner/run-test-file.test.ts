@@ -636,7 +636,6 @@ describe('runTestFile', () => {
         maxSteps: 2000,
         maxFetchTimeout: 40_000,
         config: await createConfig({}),
-        envVariables: {},
         logger: logger,
         requestFileLoader: {
           getFileBody: async (filePath: string) => {

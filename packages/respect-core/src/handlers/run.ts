@@ -23,7 +23,7 @@ export type RespectOptions = {
   executionTimeout: number;
   collectSpecData?: CollectFn;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
-  envVariables: Record<string, string>;
+  envVariables?: Record<string, string>;
   version?: string;
   logger: LoggerInterface;
   fetch: typeof fetch;

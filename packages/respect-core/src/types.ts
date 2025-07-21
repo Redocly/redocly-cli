@@ -127,7 +127,7 @@ export type AppOptions = {
   config: Config;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   fetch: typeof fetch;
-  envVariables: Record<string, string>;
+  envVariables?: Record<string, string>;
   version?: string;
   logger: LoggerInterface;
   externalRefResolver?: BaseResolver;
