@@ -1,6 +1,4 @@
-import { md5 } from '@noble/hashes/legacy.js';
-import { sha256 } from '@noble/hashes/sha2.js';
-import { bytesToHex } from '@noble/hashes/utils';
+import { createHash } from 'node:crypto';
 
 const DEFAULT_ALGORITHM = 'MD5';
 const DEFAULT_NC = '00000001';
@@ -113,16 +111,23 @@ export function generateResponse(
   } = data;
 
   const hashA1 = algorithm.endsWith('-sess')
-    ? getHashFunction(algorithm)(
-        getHashFunction(algorithm)(`${username}:${realm}:${password}`) + `:${nonce}:${cnonce}`
-      )
-    : getHashFunction(algorithm)(`${username}:${realm}:${password}`);
+    ? getHashFunction(algorithm)
+        .update(
+          getHashFunction(algorithm).update(`${username}:${realm}:${password}`).digest('hex') +
+            `:${nonce}:${cnonce}`
+        )
+        .digest('hex')
+    : getHashFunction(algorithm).update(`${username}:${realm}:${password}`).digest('hex');
 
   const hashA2 = qop.includes('auth-int')
-    ? getHashFunction(algorithm)(`${method}:${uri}:${getHashFunction(algorithm)(bodyContent)}`)
-    : getHashFunction(algorithm)(`${method}:${uri}`);
+    ? getHashFunction(algorithm)
+        .update(`${method}:${uri}:${getHashFunction(algorithm).update(bodyContent).digest('hex')}`)
+        .digest('hex')
+    : getHashFunction(algorithm).update(`${method}:${uri}`).digest('hex');
 
-  return getHashFunction(algorithm)(`${hashA1}:${nonce}:${nc}:${cnonce}:${qop}:${hashA2}`);
+  return getHashFunction(algorithm)
+    .update(`${hashA1}:${nonce}:${nc}:${cnonce}:${qop}:${hashA2}`)
+    .digest('hex');
 }
 
 function getHashFunction(algorithm: string) {
@@ -130,8 +135,8 @@ function getHashFunction(algorithm: string) {
 
   switch (normalizedAlgorithm) {
     case 'SHA-256':
-      return (input: string) => bytesToHex(sha256(input));
+      return createHash('sha256');
     default:
-      return (input: string) => bytesToHex(md5(input));
+      return createHash('md5');
   }
 }
