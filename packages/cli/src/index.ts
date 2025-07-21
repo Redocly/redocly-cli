@@ -60,7 +60,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'stats';
       commandWrapper(handleStats)(argv);
     }
   )
@@ -99,7 +98,6 @@ yargs(hideBin(process.argv))
         })
         .demandOption('api'),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'split';
       commandWrapper(handleSplit)(argv);
     }
   )
@@ -202,7 +200,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'push-status';
       commandWrapper(handlePushStatus)(argv);
     }
   )
@@ -312,7 +309,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'push';
       commandWrapper(handlePush)(argv);
     }
   )
@@ -376,7 +372,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'lint';
       commandWrapper(handleLint)(argv);
     }
   )
@@ -475,7 +470,6 @@ yargs(hideBin(process.argv))
         },
       }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'check-config';
       commandWrapper()(argv);
     }
   )
@@ -496,7 +490,6 @@ yargs(hideBin(process.argv))
         },
       }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'login';
       commandWrapper(handleLogin)(argv);
     }
   )
@@ -505,7 +498,6 @@ yargs(hideBin(process.argv))
     'Clear your stored credentials.',
     (yargs) => yargs,
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'logout';
       commandWrapper(handleLogout)(argv);
     }
   )
@@ -606,7 +598,6 @@ yargs(hideBin(process.argv))
           return true;
         }),
     async (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'build-docs';
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
@@ -637,7 +628,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'translate';
       commandWrapper(handleTranslations)(argv);
     }
   )
@@ -678,7 +668,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'eject';
       commandWrapper(handleEject)(argv as Arguments<EjectOptions>);
     }
   )
@@ -771,7 +760,6 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'respect';
       const { handleRun } = await import('@redocly/respect-core');
       commandWrapper(handleRun)(argv as Arguments<RespectOptions>);
     }
@@ -796,7 +784,6 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'generate-arazzo';
       const { handleGenerate } = await import('@redocly/respect-core');
       commandWrapper(handleGenerate)(argv as Arguments<GenerateArazzoFileOptions>);
     }
