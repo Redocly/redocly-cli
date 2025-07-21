@@ -4,4 +4,10 @@
 ---
 
 Enabled `no-required-schema-properties-undefined`, `no-schema-type-mismatch`, and `no-enum-type-mismatch` rules for **AsyncAPI** and **Arazzo** specifications.
-Adjusted the rules' severities in the `recommended` and `minimal` rulesets.
+Adjusted the rules' severities in the `recommended` and `minimal` rulesets, see the table below:
+
+| Rule \ Ruleset                            | `recommended`     | `minimal`       |
+| ----------------------------------------- | ----------------- | --------------- |
+| `no-required-schema-properties-undefined` | `off` -> `warn`   | `off` -> `warn` |
+| `no-enum-type-mismatch`                   | `error`           | `warn`          |
+| `no-schema-type-mismatch`                 | `warn` -> `error` | `off` -> `warn` |
