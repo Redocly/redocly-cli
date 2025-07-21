@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.5 (2025-07-21)
+
+### Patch Changes
+
+- Updated `form-data` to 4.0.4 for Redocly CLI v1.
+- Updated @redocly/respect-core to v1.34.5.
+
 ## 1.34.4 (2025-06-27)
 
 ### Patch Changes
