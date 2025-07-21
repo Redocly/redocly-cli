@@ -20,15 +20,6 @@ vi.mock('node:path', async () => {
 });
 
 describe('loadConfig', () => {
-  it('should call callback if such passed', async () => {
-    const mockFn = vi.fn();
-    await loadConfig({
-      configPath: path.join(__dirname, './fixtures/load-redocly.yaml'),
-      processRawConfig: mockFn,
-    });
-    expect(mockFn).toHaveBeenCalled();
-  });
-
   it('should load config and lint it', async () => {
     const config = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
@@ -123,15 +114,11 @@ describe('loadConfig', () => {
 
   it('should bundle config with scorecards', async () => {
     const configPath = path.join(__dirname, './fixtures/load-redocly-with-scorecards.yaml');
-    let parsedConfig: any;
-    await loadConfig({
+    const config = await loadConfig({
       configPath,
-      processRawConfig: (args) => {
-        parsedConfig = args.parsed;
-      },
     });
 
-    expect(parsedConfig.scorecard).toMatchInlineSnapshot(`
+    expect(config.resolvedConfig.scorecard).toMatchInlineSnapshot(`
       {
         "ignoreNonCompliant": true,
         "levels": [
