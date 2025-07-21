@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.6
+
+### Patch Changes
+
+- Improved performance of configuration parsing.
+
 ## 2.0.0-next.5
 
 ### Major Changes
