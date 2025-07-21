@@ -16,6 +16,7 @@
     "cli-next-4": "npm:@redocly/cli@2.0.0-next.4",
     "cli-next-5": "npm:@redocly/cli@2.0.0-next.5",
     "cli-next-6": "npm:@redocly/cli@2.0.0-next.6",
+    "cli-next-7": "npm:@redocly/cli@2.0.0-next.7",
     "cli-next": "file:../redocly-cli.tgz"
   }
 }
