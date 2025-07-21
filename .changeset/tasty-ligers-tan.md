@@ -3,4 +3,4 @@
 "@redocly/respect-core": patch
 ---
 
-chore: bump form-data to 4.0.4 for v1
+Updated `form-data` to 4.0.4 for Redocly CLI v1.
