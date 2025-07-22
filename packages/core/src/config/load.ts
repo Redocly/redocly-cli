@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ConfigValidationError } from './utils.js';
 import { resolveConfig } from './config-resolvers.js';
 import {
   BaseResolver,
@@ -11,28 +10,14 @@ import {
 import { Config } from './config.js';
 import { type RawUniversalConfig } from './types.js';
 
-export type RawConfigProcessor = (params: {
-  document: Document;
-  resolvedRefMap: ResolvedRefMap;
-  config: Config;
-  parsed: Document['parsed'];
-}) => void | Promise<void>;
-
 export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    /** Deprecated */
-    processRawConfig?: RawConfigProcessor;
     externalRefResolver?: BaseResolver;
   } = {}
 ): Promise<Config> {
-  const {
-    configPath = findConfig(),
-    customExtends,
-    processRawConfig,
-    externalRefResolver,
-  } = options;
+  const { configPath = findConfig(), customExtends, externalRefResolver } = options;
 
   const resolver = externalRefResolver ?? new BaseResolver();
 
@@ -57,23 +42,6 @@ export async function loadConfig(
     resolvedRefMap: resolvedRefMap,
     plugins,
   });
-
-  // FIXME: remove processRawConfig
-  if (rawConfigDocument && resolvedRefMap && typeof processRawConfig === 'function') {
-    try {
-      await processRawConfig({
-        document: rawConfigDocument,
-        resolvedRefMap,
-        config,
-        parsed: resolvedConfig,
-      });
-    } catch (e) {
-      if (e instanceof ConfigValidationError) {
-        throw e;
-      }
-      throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
-    }
-  }
 
   return config;
 }

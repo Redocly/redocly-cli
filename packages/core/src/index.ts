@@ -62,7 +62,6 @@ export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/
 export { Stats } from './rules/other/stats.js';
 
 export {
-  type RawConfigProcessor, // FIXME: remove this
   type RawUniversalConfig,
   type RawUniversalApiConfig,
   type ResolvedConfig,
