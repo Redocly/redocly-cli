@@ -1,4 +1,4 @@
-[1] .redocly.yaml:6:3 at #/rules/context
+[1] redocly.yaml:6:3 at #/rules/context
 
 Property `context` is not expected here.
 
@@ -18,5 +18,5 @@ validating ../__fixtures__/valid-openapi.yaml...
 
 Woohoo! Your API description is valid. 🎉
 
-[WARNING] Unused rules found in .redocly.yaml: context.
+[WARNING] Unused rules found in redocly.yaml: context.
 Check the spelling and verify the added plugin prefix.

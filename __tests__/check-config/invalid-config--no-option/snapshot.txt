@@ -1,4 +1,4 @@
-[1] .redocly.yaml:6:3 at #/rules/context
+[1] redocly.yaml:6:3 at #/rules/context
 
 Property `context` is not expected here.
 

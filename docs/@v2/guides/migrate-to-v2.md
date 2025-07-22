@@ -120,6 +120,11 @@ rules:
 - **Commands**: The `preview-docs` command has been removed - use `preview` instead.
 - **Labels**: The `labels` field in the `apis` section has been removed.
 
+### Config file name
+
+The only default configuration file name is now `redocly.yaml`.
+You can still use a different file name, but you must explicitly specify it with the `--config` flag.
+
 ## New features
 
 ### Spec ruleset

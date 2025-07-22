@@ -67,6 +67,7 @@
         - page: guides/migrate-from-openapi-cli.md
         - page: guides/migrate-from-spectral.md
         - page: guides/migrate-from-swagger-cli.md
+        - page: guides/migrate-to-v2.md
     - page: api-docs.md
       label: API docs
     - group: API governance

@@ -72,7 +72,7 @@ export {
   IGNORE_FILE,
   loadConfig,
   findConfig,
-  CONFIG_FILE_NAMES,
+  CONFIG_FILE_NAME,
   type RuleSeverity,
   createConfig,
   ConfigValidationError,
