@@ -112,7 +112,6 @@ export async function handleRespect({
     }
 
     const startedAt = performance.now();
-    // TODO: continue refactoring
     const runAllFilesResult = await run(options);
 
     logger.printNewLine();

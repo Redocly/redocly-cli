@@ -1,8 +1,8 @@
 import * as colorette from 'colorette';
-import { isBrowser } from './env.js';
+import { isBrowser, env } from './env.js';
 import { identity } from './utils.js';
 
-export const RESET_ESCAPE_CODE_IN_TERMINAL = process.env.NO_COLOR ? '' : '\x1B[0m';
+export const RESET_ESCAPE_CODE_IN_TERMINAL = env.NO_COLOR ? '' : '\x1B[0m';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore this works but some types are not working

@@ -3,7 +3,7 @@ import { bundleOpenApi } from '../description-parser/index.js';
 import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';
 import { type TestDescription } from '../../types.js';
-import { type GenerateArazzoOptions } from '../../handlers/generate.js';
+import { type GenerateArazzoOptions } from '../../generate.js';
 
 export const infoSubstitute = {
   title: '[REPLACE WITH API title]',

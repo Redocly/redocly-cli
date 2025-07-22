@@ -18,7 +18,7 @@ import type {
 import type { Faker } from './modules/faker.js';
 import type { OperationDetails } from './modules/description-parser/index.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
-import type { RespectOptions } from './handlers/run.js';
+import type { RespectOptions } from './run.js';
 import type {
   Config,
   CollectFn,

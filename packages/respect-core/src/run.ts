@@ -4,10 +4,10 @@ import {
   type LoggerInterface,
   type BaseResolver,
 } from '@redocly/openapi-core';
-import { runTestFile } from '../modules/flow-runner/index.js';
-import { displayErrors, displaySummary, calculateTotals } from '../modules/cli-output/index.js';
-import { Timer } from '../modules/timeout-timer/timer.js';
-import { type RunFileResult, type RunOptions } from '../types.js';
+import { runTestFile } from './modules/flow-runner/index.js';
+import { displayErrors, displaySummary, calculateTotals } from './modules/cli-output/index.js';
+import { Timer } from './modules/timeout-timer/timer.js';
+import { type RunFileResult, type RunOptions } from './types.js';
 
 export type RespectOptions = {
   files: string[];
