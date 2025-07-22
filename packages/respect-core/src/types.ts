@@ -77,6 +77,7 @@ export type VerboseLog = {
 type AdditionalStepProps = {
   verboseLog?: VerboseLog;
   response: ResponseContext;
+  request?: RequestContext;
   checks: Check[];
   retriesLeft?: number;
 };

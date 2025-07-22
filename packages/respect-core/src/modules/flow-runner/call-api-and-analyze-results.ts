@@ -43,6 +43,7 @@ export async function callAPIAndAnalyzeResults({
 
   const request = ctx.$workflows[workflowId].steps[step.stepId].request;
 
+  step.request = request;
   step.verboseLog = ctx.apiClient.getVerboseResponseLogs();
 
   if (step.successCriteria) {
