@@ -2,7 +2,6 @@ import * as path from 'node:path';
 import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'node:perf_hooks';
 import {
-  SpecVersion,
   BaseResolver,
   formatProblems,
   getTotals,
@@ -37,6 +36,7 @@ import type {
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
+  SpecVersion,
 } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
@@ -153,7 +153,7 @@ export async function handleJoin({
     try {
       const version = detectSpec(document.parsed);
       collectSpecData?.(document.parsed);
-      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
+      if (version !== 'oas3_0' && version !== 'oas3_1') {
         return exitWithError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
         );
@@ -587,7 +587,7 @@ export async function handleJoin({
       componentsPrefix,
     }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
+    const webhooks = oasVersion === 'oas3_1' ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {
