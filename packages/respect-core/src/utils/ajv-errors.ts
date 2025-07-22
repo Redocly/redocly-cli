@@ -1,5 +1,5 @@
 import betterAjvErrors from 'better-ajv-errors';
-import { RESET_ESCAPE_CODE } from '../modules/output/helpers.js';
+import { RESET_ESCAPE_CODE } from '../modules/logger-output/helpers.js';
 
 import type { JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 

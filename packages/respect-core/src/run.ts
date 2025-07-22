@@ -5,7 +5,7 @@ import {
   type BaseResolver,
 } from '@redocly/openapi-core';
 import { runTestFile } from './modules/flow-runner/index.js';
-import { displayErrors, displaySummary, calculateTotals } from './modules/output/index.js';
+import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
 import { Timer } from './modules/timeout-timer/timer.js';
 import { type RunFileResult, type RunOptions } from './types.js';
 

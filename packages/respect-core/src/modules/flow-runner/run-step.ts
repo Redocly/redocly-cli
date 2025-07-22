@@ -10,7 +10,7 @@ import {
   printStepDetails,
   printActionsSeparator,
   printUnknownStep,
-} from '../output/helpers.js';
+} from '../logger-output/helpers.js';
 import {
   getValueFromContext,
   isParameterWithoutIn,
