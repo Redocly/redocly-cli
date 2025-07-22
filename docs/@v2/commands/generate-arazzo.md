@@ -52,7 +52,7 @@ info:
   title: Warp API
   version: 1.0.0
 sourceDescriptions:
-  - name: index
+  - name: warp
     type: openapi
     url: https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml
 workflows:
