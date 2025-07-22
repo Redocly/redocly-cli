@@ -556,3 +556,10 @@ export function formatPath(path: string) {
   }
   return relative(process.cwd(), path);
 }
+
+export function capitalize(s: string) {
+  if (s?.length > 0) {
+    return s[0].toUpperCase() + s.slice(1);
+  }
+  return s;
+}

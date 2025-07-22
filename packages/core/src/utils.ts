@@ -168,7 +168,6 @@ export function slash(path: string): string {
   return path.replace(/\\/g, '/');
 }
 
-// TODO: use it everywhere
 export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }

@@ -1,6 +1,15 @@
 import { red, blue, green } from 'colorette';
 import * as fs from 'node:fs';
-import { parseYaml, slash, isRef, isTruthy, dequal, logger } from '@redocly/openapi-core';
+import {
+  parseYaml,
+  slash,
+  isRef,
+  isTruthy,
+  dequal,
+  logger,
+  isEmptyObject,
+  isPlainObject,
+} from '@redocly/openapi-core';
 import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 import {
@@ -12,7 +21,6 @@ import {
   writeToFileByExtension,
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
-import { isObject, isEmptyObject } from '../../utils/js-utils.js';
 import { exitWithError } from '../../utils/error.js';
 import {
   OPENAPI3_COMPONENT,
@@ -148,19 +156,23 @@ function traverseDirectoryDeepCallback(
 }
 
 export function crawl(object: unknown, visitor: (node: Record<string, unknown>) => void) {
-  if (!isObject(object)) return;
-
-  visitor(object);
-  for (const key of Object.keys(object)) {
-    crawl(object[key], visitor);
+  if (isPlainObject(object)) {
+    visitor(object);
+    for (const key of Object.keys(object)) {
+      crawl(object[key], visitor);
+    }
+  } else if (Array.isArray(object)) {
+    for (const item of object) {
+      crawl(item, visitor);
+    }
   }
 }
 
 function replace$Refs(obj: unknown, relativeFrom: string, componentFiles = {} as ComponentsFiles) {
   crawl(obj, (node: Record<string, unknown>) => {
-    if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
+    if (isRef(node) && startsWithComponents(node.$ref)) {
       replace(node as RefObject, '$ref');
-    } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
+    } else if (isPlainObject(node.discriminator) && isPlainObject(node.discriminator.mapping)) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
         const mappingPointer = mapping[name];

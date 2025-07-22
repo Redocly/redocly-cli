@@ -4,7 +4,6 @@ import {
   detectSpec,
   getTotals,
   loadConfig,
-  BaseResolver,
   type SpecVersion,
   type Document,
 } from '@redocly/openapi-core';
@@ -35,20 +34,35 @@ describe('handleJoin', () => {
     vi.mock('colorette');
     vi.mocked(yellow).mockImplementation((text) => text as string);
 
-    vi.mock('@redocly/openapi-core');
+    vi.mock('@redocly/openapi-core', async () => {
+      const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
+        '@redocly/openapi-core'
+      );
+      class MockedBaseResolver extends actual.BaseResolver {
+        resolveDocument = vi
+          .fn()
+          .mockImplementationOnce(() =>
+            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
+          )
+          .mockImplementationOnce(() =>
+            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
+          )
+          .mockImplementationOnce(() =>
+            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
+          );
+      }
+      return {
+        ...actual,
+        bundleDocument: vi.fn(),
+        detectSpec: vi.fn(),
+        getTotals: vi.fn(),
+        loadConfig: vi.fn(),
+        BaseResolver: MockedBaseResolver,
+      };
+    });
     vi.mocked(bundleDocument).mockResolvedValue({ problems: [] } as any);
     vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });
     vi.mocked(loadConfig).mockResolvedValue(configFixture);
-    vi.mocked(BaseResolver.prototype.resolveDocument)
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
-      );
   });
 
   it('should call exitWithError because only one entrypoint', async () => {
