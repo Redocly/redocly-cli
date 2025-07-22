@@ -12,27 +12,18 @@ export const COMPONENTS = 'components';
 export const PATHS = 'paths';
 export const WEBHOOKS = 'webhooks';
 export const xWEBHOOKS = 'x-webhooks';
-export enum OPENAPI3_METHOD {
-  get = 'get',
-  put = 'put',
-  post = 'post',
-  delete = 'delete',
-  options = 'options',
-  head = 'head',
-  patch = 'patch',
-  trace = 'trace',
-}
 
-export const OPENAPI3_METHOD_NAMES: OPENAPI3_METHOD[] = [
-  OPENAPI3_METHOD.get,
-  OPENAPI3_METHOD.put,
-  OPENAPI3_METHOD.post,
-  OPENAPI3_METHOD.delete,
-  OPENAPI3_METHOD.options,
-  OPENAPI3_METHOD.head,
-  OPENAPI3_METHOD.patch,
-  OPENAPI3_METHOD.trace,
-];
+export type Oas3Method = typeof OPENAPI3_METHOD_NAMES[number];
+export const OPENAPI3_METHOD_NAMES = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+] as const;
 
 export enum OPENAPI3_COMPONENT {
   Schemas = 'schemas',

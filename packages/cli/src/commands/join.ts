@@ -22,7 +22,7 @@ import {
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
 import { exitWithError } from '../utils/error.js';
-import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
+import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
 
 import type {
@@ -360,7 +360,7 @@ export async function handleJoin({
     }: JoinDocumentContext
   ) {
     const { paths } = openapi;
-    const operationsSet = new Set(keysOf<typeof OPENAPI3_METHOD>(OPENAPI3_METHOD));
+    const operationsSet = new Set(OPENAPI3_METHOD_NAMES);
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
         joinedDef['paths'] = {};
@@ -377,8 +377,8 @@ export async function handleJoin({
         const pathItem = paths[path] as Oas3PathItem;
 
         for (const field of keysOf(pathItem)) {
-          if (operationsSet.has(field as OPENAPI3_METHOD)) {
-            collectPathOperation(pathItem, path, field as OPENAPI3_METHOD);
+          if (operationsSet.has(field as Oas3Method)) {
+            collectPathOperation(pathItem, path, field as Oas3Method);
           }
           if (field === 'servers') {
             collectPathServers(pathItem, path);
@@ -474,7 +474,7 @@ export async function handleJoin({
     function collectPathOperation(
       pathItem: Oas3PathItem,
       path: string | number,
-      operation: OPENAPI3_METHOD
+      operation: Oas3Method
     ) {
       const pathOperation = pathItem[operation];
 
