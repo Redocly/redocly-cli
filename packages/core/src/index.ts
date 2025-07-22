@@ -1,5 +1,4 @@
 export {
-  type BundleOutputFormat,
   type CollectFn,
   type Exact,
   keysOf,

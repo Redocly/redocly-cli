@@ -28,13 +28,7 @@ import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
 import { handleLintConfig } from '../commands/lint.js';
 
-import type {
-  Config,
-  BundleOutputFormat,
-  Oas3Definition,
-  Oas2Definition,
-  Exact,
-} from '@redocly/openapi-core';
+import type { Config, Oas3Definition, Oas2Definition, Exact } from '@redocly/openapi-core';
 import type { Totals, Entrypoint, OutputExtensions, CommandArgv } from '../types.js';
 
 const globPromise = promisify(glob.glob);
@@ -185,7 +179,7 @@ export class CircularJSONNotSupportedError extends Error {
   }
 }
 
-export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: boolean): string {
+export function dumpBundle(obj: any, format: OutputExtensions, dereference?: boolean): string {
   if (format === 'json') {
     try {
       return JSON.stringify(obj, null, 2);
@@ -279,10 +273,8 @@ export function writeJson(data: unknown, filename: string) {
 
 export function getAndValidateFileExtension(fileName: string): NonNullable<OutputExtensions> {
   const ext = fileName.split('.').pop();
-
-  if (['yaml', 'yml', 'json'].includes(ext!)) {
-    // FIXME: ^ use one source of truth (2.0)
-    return ext as NonNullable<OutputExtensions>;
+  if (outputExtensions.includes(ext as OutputExtensions)) {
+    return ext as OutputExtensions;
   }
   logger.warn(`Unsupported file extension: ${ext}. Using yaml.\n`);
   return 'yaml';
@@ -377,7 +369,7 @@ export function getOutputFileName({
   entrypoint: string;
   output?: string;
   argvOutput?: string;
-  ext?: BundleOutputFormat;
+  ext?: OutputExtensions;
   entries: number;
 }) {
   let outputFile = output || argvOutput;
@@ -386,7 +378,7 @@ export function getOutputFileName({
   }
 
   if (entries > 1 && argvOutput) {
-    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    ext = ext || (extname(entrypoint).substring(1) as OutputExtensions);
     if (!outputExtensions.includes(ext)) {
       throw new Error(`Invalid file extension: ${ext}.`);
     }
@@ -394,8 +386,8 @@ export function getOutputFileName({
   } else {
     ext =
       ext ||
-      (extname(outputFile).substring(1) as BundleOutputFormat) ||
-      (extname(entrypoint).substring(1) as BundleOutputFormat);
+      (extname(outputFile).substring(1) as OutputExtensions) ||
+      (extname(entrypoint).substring(1) as OutputExtensions);
     if (!outputExtensions.includes(ext)) {
       throw new Error(`Invalid file extension: ${ext}.`);
     }

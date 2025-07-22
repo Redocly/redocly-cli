@@ -32,8 +32,6 @@ export function popStack<T, P extends Stack<T>>(head: P) {
   return head?.prev ?? null;
 }
 
-export type BundleOutputFormat = 'json' | 'yml' | 'yaml'; // FIXME: use one source of truth (2.0)
-
 export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
   return parseYaml(contents) as T;
