@@ -25,26 +25,15 @@ export const OPENAPI3_METHOD_NAMES = [
   'trace',
 ] as const;
 
-export enum OPENAPI3_COMPONENT {
-  Schemas = 'schemas',
-  Responses = 'responses',
-  Parameters = 'parameters',
-  Examples = 'examples',
-  Headers = 'headers',
-  RequestBodies = 'requestBodies',
-  Links = 'links',
-  Callbacks = 'callbacks',
-  SecuritySchemes = 'securitySchemes',
-}
-
-export const OPENAPI3_COMPONENT_NAMES: OPENAPI3_COMPONENT[] = [
-  OPENAPI3_COMPONENT.RequestBodies,
-  OPENAPI3_COMPONENT.Schemas,
-  OPENAPI3_COMPONENT.Responses,
-  OPENAPI3_COMPONENT.Parameters,
-  OPENAPI3_COMPONENT.Examples,
-  OPENAPI3_COMPONENT.Headers,
-  OPENAPI3_COMPONENT.Links,
-  OPENAPI3_COMPONENT.Callbacks,
-  OPENAPI3_COMPONENT.SecuritySchemes,
-];
+export type Oas3Component = typeof OPENAPI3_COMPONENT_NAMES[number];
+export const OPENAPI3_COMPONENT_NAMES = [
+  'schemas',
+  'responses',
+  'parameters',
+  'examples',
+  'headers',
+  'requestBodies',
+  'links',
+  'callbacks',
+  'securitySchemes',
+] as const;
