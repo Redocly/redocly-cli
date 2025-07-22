@@ -28,11 +28,6 @@ import type { OasRef } from './typings/openapi.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { CollectFn } from './utils.js';
 
-export enum OasVersion {
-  Version2 = 'oas2',
-  Version3_0 = 'oas3_0',
-  Version3_1 = 'oas3_1',
-}
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
