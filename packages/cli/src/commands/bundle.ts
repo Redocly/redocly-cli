@@ -15,14 +15,14 @@ import {
 } from '../utils/miscellaneous.js';
 import { AbortFlowError } from '../utils/error.js';
 
-import type { OutputExtensions, Totals, VerifyConfigOptions } from '../types.js';
+import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
   apis?: string[];
   extends?: string[];
   output?: string;
-  ext?: OutputExtensions;
+  ext?: OutputExtension;
   dereferenced?: boolean;
   force?: boolean;
   metafile?: string;
