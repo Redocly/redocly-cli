@@ -10,7 +10,7 @@ import {
   printStepDetails,
   printActionsSeparator,
   printUnknownStep,
-} from '../../utils/cli-outputs.js';
+} from '../output/helpers.js';
 import {
   getValueFromContext,
   isParameterWithoutIn,

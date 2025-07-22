@@ -16,7 +16,7 @@ import {
   CHECKS,
 } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
-import { displayChecks } from '../../cli-output/index.js';
+import { displayChecks } from '../../output/index.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
@@ -24,14 +24,10 @@ vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-vi.mock('../../cli-output/index.js', async () => {
-  const actual = await vi.importActual('../../cli-output/index.js');
-
-  return {
-    ...actual,
-    displayChecks: vi.fn(),
-  };
-});
+// Add this mock for the direct import path used by helpers.ts
+vi.mock('../../output/display-checks.js', () => ({
+  displayChecks: vi.fn(),
+}));
 
 vi.mock('../../flow-runner/success-criteria/index.js', () => ({
   checkCriteria: vi.fn(),

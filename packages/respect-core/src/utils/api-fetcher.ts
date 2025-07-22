@@ -12,7 +12,7 @@ import {
   getVerboseLogs,
   maskSecrets,
   findPotentiallySecretObjectFields,
-} from '../modules/cli-output/index.js';
+} from '../modules/output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';

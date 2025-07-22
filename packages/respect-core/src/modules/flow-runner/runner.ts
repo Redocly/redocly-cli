@@ -5,12 +5,12 @@ import { createTestContext } from './context/create-test-context.js';
 import { getValueFromContext } from '../context-parser/index.js';
 import { getWorkflowsToRun } from './get-workflows-to-run.js';
 import { runStep } from './run-step.js';
-import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../../utils/cli-outputs.js';
+import { printWorkflowSeparator, printRequiredWorkflowSeparator } from '../output/helpers.js';
 import { bundleArazzo } from './get-test-description-from-file.js';
 import { CHECKS } from '../checks/index.js';
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { calculateTotals } from '../cli-output/index.js';
+import { calculateTotals } from '../output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 
 import type { CollectFn, Config } from '@redocly/openapi-core';

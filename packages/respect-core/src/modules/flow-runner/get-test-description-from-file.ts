@@ -11,7 +11,7 @@ import {
   type NormalizedProblem,
 } from '@redocly/openapi-core';
 import * as path from 'node:path';
-import { printConfigLintTotals } from '../../utils/cli-outputs.js';
+import { printConfigLintTotals } from '../output/helpers.js';
 import { isTestFile } from '../../utils/file.js';
 
 type BundleArazzoOptions = {
