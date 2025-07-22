@@ -10,13 +10,6 @@ import {
 import { Config } from './config.js';
 import { type RawUniversalConfig } from './types.js';
 
-export type RawConfigProcessor = (params: {
-  document: Document;
-  resolvedRefMap: ResolvedRefMap;
-  config: Config;
-  parsed: Document['parsed'];
-}) => void | Promise<void>;
-
 export async function loadConfig(
   options: {
     configPath?: string;
