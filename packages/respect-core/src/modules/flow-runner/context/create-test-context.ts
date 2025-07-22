@@ -97,7 +97,6 @@ export async function createTestContext(
     secretFields: new Set<string>(),
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
-    requestFileLoader: options.requestFileLoader,
   };
 
   // Collect all secret fields from the input schema and the workflow inputs

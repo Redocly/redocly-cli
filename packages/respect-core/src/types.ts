@@ -286,9 +286,6 @@ export type TestContext = RuntimeExpressionContext & {
   secretFields: Set<string>;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;
-  requestFileLoader: {
-    getFileBody: (filePath: string) => Promise<Blob>;
-  };
 };
 
 export type TestDescription = Partial<

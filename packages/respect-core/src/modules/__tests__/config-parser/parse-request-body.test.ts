@@ -11,20 +11,20 @@ describe('parseRequestBody', () => {
   const ctx = {
     options: {
       workflowPath: 'test.yaml',
-    },
-    requestFileLoader: {
-      getFileBody: async (filePath: string) => {
-        await new Promise((resolve, reject) => {
-          fs.access(filePath, fs.constants.F_OK | fs.constants.R_OK, (err) => {
-            if (err) {
-              reject(new Error(`File ${filePath} doesn't exist or isn't readable.`));
-            } else {
-              resolve(filePath);
-            }
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          await new Promise((resolve, reject) => {
+            fs.access(filePath, fs.constants.F_OK | fs.constants.R_OK, (err) => {
+              if (err) {
+                reject(new Error(`File ${filePath} doesn't exist or isn't readable.`));
+              } else {
+                resolve(filePath);
+              }
+            });
           });
-        });
-        const buffer = fs.readFileSync(filePath);
-        return new Blob([buffer]);
+          const buffer = fs.readFileSync(filePath);
+          return new Blob([buffer]);
+        },
       },
     },
   } as unknown as TestContext;

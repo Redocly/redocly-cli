@@ -20,7 +20,7 @@ const appendFileToFormData = async (
   const currentArazzoFileFolder = path.dirname(workflowFilePath);
   const filePath = path.resolve(currentArazzoFileFolder, stripFileDecorator(item));
 
-  formData.append(key, await ctx.requestFileLoader.getFileBody(filePath));
+  formData.append(key, await ctx.options.requestFileLoader.getFileBody(filePath));
 };
 
 const appendObjectToFormData = (
@@ -73,7 +73,7 @@ const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: T
       stripFileDecorator(payload)
     );
 
-    return ctx.requestFileLoader.getFileBody(filePath);
+    return ctx.options.requestFileLoader.getFileBody(filePath);
   } else {
     return payload;
   }

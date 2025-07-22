@@ -275,7 +275,7 @@ export async function resolveWorkflowContext(
           maxFetchTimeout: ctx.options.maxFetchTimeout,
           executionTimeout: ctx.options.executionTimeout,
           config,
-          requestFileLoader: ctx.requestFileLoader,
+          requestFileLoader: ctx.options.requestFileLoader,
           envVariables: ctx.options.envVariables,
           logger,
           fetch: ctx.options.fetch,
