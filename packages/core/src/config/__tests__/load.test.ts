@@ -959,21 +959,6 @@ describe('findConfig', () => {
     const configName = findConfig();
     expect(configName).toStrictEqual('redocly.yaml');
   });
-  it('should find .redocly.yaml', async () => {
-    vi.spyOn(fs, 'existsSync').mockImplementation((name) => name === '.redocly.yaml');
-    const configName = findConfig();
-    expect(configName).toStrictEqual('.redocly.yaml');
-  });
-  it('should throw an error when found multiple config files', async () => {
-    vi.spyOn(fs, 'existsSync').mockImplementation(
-      (name) => name === 'redocly.yaml' || name === '.redocly.yaml'
-    );
-    expect(findConfig).toThrow(`
-      Multiple configuration files are not allowed.
-      Found the following files: redocly.yaml, .redocly.yaml.
-      Please use 'redocly.yaml' instead.
-    `);
-  });
   it('should find a nested config ', async () => {
     vi.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'dir/redocly.yaml');
     vi.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);

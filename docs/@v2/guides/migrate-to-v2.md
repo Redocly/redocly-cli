@@ -120,6 +120,11 @@ rules:
 - **Commands**: The `preview-docs` command has been removed - use `preview` instead.
 - **Labels**: The `labels` field in the `apis` section has been removed.
 
+### Config file name
+
+The only default configuration file name is now `redocly.yaml`.
+You can still use a different file name, but you must explicitly specify it with the `--config` flag.
+
 ## New features
 
 ### Spec ruleset
@@ -166,15 +171,16 @@ paths:
 ## Migration checklist
 
 1. **Update Node.js** to a supported version (20.19.0+, 22.12.0+, or 23+).
-2. **Replace `spec` rule** with `struct`.
-3. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
-4. **Replace `undefined` assertions** with `defined: true`.
-5. **Update configuration structure**:
+1. **Rename configuration file name** to `redocly.yaml` (if it differs).
+1. **Replace `spec` rule** with `struct`.
+1. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
+1. **Replace `undefined` assertions** with `defined: true`.
+1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
    - Remove `labels` from `apis` section
-6. **Update plugins** to ES Modules syntax or use `.cjs` extension.
-7. **Test your configuration** with `redocly check-config`.
+1. **Update plugins** to ES Modules syntax or use `.cjs` extension.
+1. **Test your configuration** with `redocly check-config`.
 
 ## Next steps
 
