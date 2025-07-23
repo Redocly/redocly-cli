@@ -1,5 +1,27 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.8
+
+### Major Changes
+
+- Removed support for default config file names other than `redocly.yaml`.
+
+### Minor Changes
+
+- Enabled `no-required-schema-properties-undefined`, `no-schema-type-mismatch`, and `no-enum-type-mismatch` rules for **AsyncAPI** and **Arazzo** specifications.
+  Adjusted the rules' severities in the `recommended` and `minimal` rulesets. Refer to the following table:
+
+  | Rule \ Ruleset                          | recommended       | minimal         |
+  | --------------------------------------- | ----------------- | --------------- |
+  | no-required-schema-properties-undefined | `off` -> `warn`   | `off` -> `warn` |
+  | no-enum-type-mismatch                   | `error`           | `warn`          |
+  | no-schema-type-mismatch                 | `warn` -> `error` | `off` -> `warn` |
+
+### Patch Changes
+
+- Fixed plugins validation in config files referenced in the `extends` section.
+- Fixed an issue where the config resolver grouped assertions instead of returning unchanged rules.
+
 ## 2.0.0-next.7
 
 ### Patch Changes
