@@ -6,19 +6,8 @@ import {
 } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
-const originalFetch = global.fetch;
-
-beforeAll(() => {
-  // Reset fetch mock before each test
-  global.fetch = vi.fn();
-});
-
-afterAll(() => {
-  // Restore original fetch after each test
-  global.fetch = originalFetch;
-});
-
 describe('callAPIAndAnalyzeResults', () => {
+  const mockFetch = vi.fn();
   const apiClient = new ApiFetcher({});
   const ctx = {
     apiClient,
@@ -333,7 +322,7 @@ describe('callAPIAndAnalyzeResults', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
-      fetch,
+      fetch: mockFetch,
     },
     'x-serverUrl': 'https://catfact.ninja/',
     info: {
@@ -364,7 +353,7 @@ describe('callAPIAndAnalyzeResults', () => {
       headers: new Headers(),
     };
 
-    vi.mocked(global.fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(mockFetch).mockResolvedValue(mockResponse as any);
 
     const result = await callAPIAndAnalyzeResults({
       ctx,

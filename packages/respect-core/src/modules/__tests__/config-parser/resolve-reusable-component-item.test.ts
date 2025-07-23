@@ -10,7 +10,7 @@ describe('resolveReusableComponentItem', () => {
         options: {
           logger,
         },
-      } as unknown as TestContext)
+      } as Partial<TestContext> as TestContext)
     ).toEqual({
       in: 'query',
       name: 'test',
@@ -31,7 +31,7 @@ describe('resolveReusableComponentItem', () => {
           options: {
             logger,
           },
-        } as unknown as TestContext
+        } as Partial<TestContext> as TestContext
       )
     ).toEqual({
       name: 'SuccessActio',
@@ -47,7 +47,7 @@ describe('resolveReusableComponentItem', () => {
         options: {
           logger,
         },
-      } as unknown as TestContext)
+      } as Partial<TestContext> as TestContext)
     ).toThrow(
       'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
     );

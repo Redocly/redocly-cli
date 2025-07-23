@@ -11,7 +11,9 @@ import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
 
 vi.mock('@redocly/openapi-core', async () => {
-  const originalModule = await vi.importActual('@redocly/openapi-core');
+  const originalModule = await vi.importActual<typeof import('@redocly/openapi-core')>(
+    '@redocly/openapi-core'
+  );
 
   return {
     ...originalModule, // Preserve other exports
@@ -79,7 +81,6 @@ describe('runTestFile', () => {
     });
     vi.mocked(lint).mockResolvedValue([]);
 
-    // Set up default mock for bundle to return proper structure
     vi.mocked(bundle).mockResolvedValue({
       bundle: {
         parsed: {

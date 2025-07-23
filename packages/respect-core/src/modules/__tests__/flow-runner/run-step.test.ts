@@ -24,7 +24,6 @@ vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-// Add this mock for the direct import path used by helpers.ts
 vi.mock('../../logger-output/display-checks.js', () => ({
   displayChecks: vi.fn(),
 }));
@@ -3812,7 +3811,6 @@ describe('runStep', () => {
   });
 
   it('should report global timeout error and end execution', async () => {
-    // Mock Timer only for this test
     const mockTimer = {
       isTimedOut: vi.fn().mockReturnValue(true),
     };

@@ -67,7 +67,6 @@ const getRequestBodyMultipartFormData = async (
 
 const getRequestBodyOctetStream = async (payload: RequestBody['payload'], ctx: TestContext) => {
   if (typeof payload === 'string' && payload.startsWith('$file(') && payload.endsWith(')')) {
-    // fixme, remove this
     const filePath = path.resolve(
       path.dirname(ctx.options.workflowPath),
       stripFileDecorator(payload)
@@ -115,7 +114,6 @@ export async function parseRequestBody(
     return {
       ...stepRequestBody,
       payload: formData,
-      // contentType: `multipart/form-data; boundary=${formData.getBoundary()}`,
     };
   } else if (
     contentType === 'application/octet-stream' ||

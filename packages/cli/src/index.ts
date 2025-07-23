@@ -672,7 +672,6 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'eject';
       commandWrapper(handleEject)(argv as Arguments<EjectArgv>);
     }
   )

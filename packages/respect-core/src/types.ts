@@ -255,7 +255,7 @@ export interface WorkflowExecutionResult {
   type: 'workflow';
   workflowId: string;
   stepId?: string; // for child workflows
-  sourceDescriptionName?: string; // maybe drop for now
+  sourceDescriptionName?: string;
 
   startTime: number;
   endTime: number;

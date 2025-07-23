@@ -3,16 +3,16 @@ import { generate } from '@redocly/respect-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Config } from '@redocly/openapi-core';
 
-// Mock the generate function
 vi.mock('@redocly/respect-core', async () => {
-  const actual = await vi.importActual('@redocly/respect-core');
+  const actual = await vi.importActual<typeof import('@redocly/respect-core')>(
+    '@redocly/respect-core'
+  );
   return {
     ...actual,
     generate: vi.fn(),
   };
 });
 
-// Mock node:fs
 vi.mock('node:fs', async () => {
   return {
     writeFileSync: vi.fn(),
@@ -21,7 +21,6 @@ vi.mock('node:fs', async () => {
   };
 });
 
-// Mock @redocly/openapi-core
 vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
   return {
