@@ -536,38 +536,34 @@ exports[`resolveConfig > should resolve extends with local file config which con
   },
   "preprocessors": {},
   "rules": {
-    "assertions": [
-      {
-        "assertionId": "rule/path-item-get-defined",
-        "assertions": {
-          "defined": true,
-        },
-        "message": "Every path item must have a GET operation.",
-        "subject": {
-          "property": "get",
-          "type": "PathItem",
-        },
-      },
-      {
-        "assertionId": "rule/tag-description",
-        "assertions": {
-          "minLength": 13,
-          "pattern": "/\\.$/",
-        },
-        "message": "Tag description must be at least 13 characters and end with a full stop.",
-        "severity": "error",
-        "subject": {
-          "property": "description",
-          "type": "Tag",
-        },
-      },
-    ],
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",
     "no-invalid-media-type-examples": "warn",
     "no-unresolved-refs": "error",
     "operation-2xx-response": "error",
     "operation-4xx-response": "off",
+    "rule/path-item-get-defined": {
+      "assertions": {
+        "defined": true,
+      },
+      "message": "Every path item must have a GET operation.",
+      "subject": {
+        "property": "get",
+        "type": "PathItem",
+      },
+    },
+    "rule/tag-description": {
+      "assertions": {
+        "minLength": 13,
+        "pattern": "/\\.$/",
+      },
+      "message": "Tag description must be at least 13 characters and end with a full stop.",
+      "severity": "error",
+      "subject": {
+        "property": "description",
+        "type": "Tag",
+      },
+    },
     "struct": "error",
   },
 }

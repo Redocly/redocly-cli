@@ -101,23 +101,13 @@ export async function resolveConfig({
     bundledConfig.apis = Object.fromEntries(
       Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
         const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
-        return [
-          key,
-          {
-            ...apiConfig,
-            ...mergedConfig,
-            rules: groupAssertionRules(mergedConfig, resolvedPlugins),
-          },
-        ];
+        return [key, { ...apiConfig, ...mergedConfig }];
       })
     );
   }
 
   return {
-    resolvedConfig: {
-      ...bundledConfig,
-      rules: groupAssertionRules(bundledConfig, resolvedPlugins),
-    },
+    resolvedConfig: bundledConfig,
     resolvedRefMap,
     plugins: resolvedPlugins,
   };
@@ -448,7 +438,7 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): RawGoverna
   return preset;
 }
 
-function groupAssertionRules(
+export function groupAssertionRules(
   config: RawGovernanceConfig,
   plugins: Plugin[]
 ): Record<string, RuleConfig> {

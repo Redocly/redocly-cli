@@ -8,6 +8,8 @@ import path from 'node:path';
 
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 import { Source } from '../../resolve.js';
+import { Config } from '../config.js';
+import { SpecVersion } from '../../oas-types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -259,10 +261,13 @@ describe('resolveConfig', () => {
     const rootOrApiRawConfig = {
       extends: ['local-config-with-custom-function.yaml'],
     };
-    const { plugins } = await resolveConfig({
+    const { plugins, resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
+
+    // instantiate the config to register custom assertions
+    new Config(resolvedConfig, { plugins });
 
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
@@ -274,10 +279,11 @@ describe('resolveConfig', () => {
       extends: ['local-config-with-wrong-custom-function.yaml'],
     };
     try {
-      await resolveConfig({
+      const config = await resolveConfig({
         rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
         configPath,
       });
+      new Config(config.resolvedConfig, { plugins: config.plugins });
     } catch (e) {
       expect(e.message.toString()).toContain(
         `Plugin ${colorize.red(
@@ -285,8 +291,6 @@ describe('resolveConfig', () => {
         )} doesn't export assertions function with name ${colorize.red('checkWordsCount2')}.`
       );
     }
-
-    expect(asserts['test-plugin/checkWordsCount' as keyof Asserts]).toBeDefined();
   });
 
   it('should correctly merge assertions from nested config', async () => {
@@ -294,13 +298,15 @@ describe('resolveConfig', () => {
       extends: ['local-config-with-file.yaml'],
     };
 
-    const { resolvedConfig, plugins } = await resolveConfig({
+    const { resolvedConfig } = await resolveConfig({
       rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
       configPath,
     });
 
-    expect(Array.isArray(resolvedConfig.rules?.assertions)).toEqual(true);
-    expect(resolvedConfig.rules?.assertions).toMatchObject([
+    const config = new Config(resolvedConfig, { plugins: [] });
+
+    expect(Array.isArray(config.rules[SpecVersion.OAS3_1].assertions)).toEqual(true);
+    expect(config.rules[SpecVersion.OAS3_1].assertions).toMatchObject([
       {
         subject: { type: 'PathItem', property: 'get' },
         message: 'Every path item must have a GET operation.',
