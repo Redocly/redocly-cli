@@ -1,4 +1,4 @@
-import { run, maskSecrets, type JsonLogs } from '@redocly/respect-core';
+import { type JsonLogs } from '@redocly/respect-core';
 import { HandledError, logger } from '@redocly/openapi-core';
 import { type CommandArgs } from '../../wrapper';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -41,6 +41,7 @@ export async function handleRespect({
   let harLogs;
 
   try {
+    const { run, maskSecrets } = await import('@redocly/respect-core');
     const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
     if (argv['client-cert'] || argv['client-key'] || argv['ca-cert']) {
