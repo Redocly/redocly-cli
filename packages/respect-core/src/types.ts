@@ -114,7 +114,7 @@ export type ParsedParameters = {
   headerParams: Record<string, string>;
 };
 export type AppOptions = {
-  workflowPath: string;
+  filePath: string;
   workflow?: string | string[];
   skip?: string | string[];
   verbose?: boolean;

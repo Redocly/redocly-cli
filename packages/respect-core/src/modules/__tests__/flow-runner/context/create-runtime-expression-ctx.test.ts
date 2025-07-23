@@ -44,7 +44,7 @@ const testDescription = {
 } as unknown as TestDescription;
 
 const options: AppOptions = {
-  workflowPath: 'modules/description-parser/test.test.yaml',
+  filePath: 'modules/description-parser/test.test.yaml',
   workflow: undefined,
   metadata: {},
   verbose: false,

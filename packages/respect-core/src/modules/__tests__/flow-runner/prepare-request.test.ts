@@ -301,7 +301,7 @@ describe('prepareRequest', () => {
       },
     },
     options: {
-      workflowPath: 'simple.yaml',
+      filePath: 'simple.yaml',
       metadata: {
         _: [],
         files: ['simple.yaml'],
@@ -544,7 +544,7 @@ describe('prepareRequest', () => {
         },
       },
       options: {
-        workflowPath: 'simple.yaml',
+        filePath: 'simple.yaml',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -670,7 +670,7 @@ describe('prepareRequest', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'simple.yaml',
+        filePath: 'simple.yaml',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -871,7 +871,7 @@ describe('prepareRequest', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'simple.yaml',
+        filePath: 'simple.yaml',
         metadata: {
           _: [],
           files: ['simple.yaml'],
@@ -1074,7 +1074,7 @@ describe('prepareRequest', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'simple.yaml',
+        filePath: 'simple.yaml',
         metadata: {
           _: [],
           files: ['simple.yaml'],

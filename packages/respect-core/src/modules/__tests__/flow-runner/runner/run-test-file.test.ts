@@ -579,7 +579,7 @@ describe('runTestFile', () => {
     } as any);
     vi.mocked(bundle).mockResolvedValueOnce(undefined as any);
     await expect(
-      runTestFile({ file: 'test.yaml', ...{ ...defaultRespectOptions, workflowPath: 'test.yaml' } })
+      runTestFile({ file: 'test.yaml', ...{ ...defaultRespectOptions, filePath: 'test.yaml' } })
     ).rejects.toThrowError(
       `Could not find source description file 'api-samples/not-existing.yaml'.`
     );

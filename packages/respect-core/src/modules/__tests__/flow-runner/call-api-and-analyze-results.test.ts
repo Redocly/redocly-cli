@@ -312,7 +312,7 @@ describe('callAPIAndAnalyzeResults', () => {
       },
     },
     options: {
-      workflowPath: 'simple.yaml',
+      filePath: 'simple.yaml',
       metadata: {
         _: [],
         files: ['simple.yaml'],

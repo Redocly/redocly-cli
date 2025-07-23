@@ -91,7 +91,7 @@ describe('runWorkflow', () => {
       ],
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
     } as unknown as TestContext;
@@ -116,7 +116,7 @@ describe('runWorkflow', () => {
       workflows: [workflow],
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
     } as unknown as TestContext;
@@ -136,7 +136,7 @@ describe('runWorkflow', () => {
       workflows: [],
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
     } as unknown as TestContext;
@@ -220,7 +220,7 @@ describe('runWorkflow', () => {
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
       $outputs: {},
@@ -292,7 +292,7 @@ describe('runWorkflow', () => {
       ],
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
       $outputs: {},
@@ -346,7 +346,7 @@ describe('runWorkflow', () => {
       ],
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
       $outputs: {},
@@ -446,7 +446,7 @@ describe('runWorkflow', () => {
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       options: {
         verbose: false,
-        workflowPath: fileName,
+        filePath: fileName,
         logger,
       },
       $outputs: {},

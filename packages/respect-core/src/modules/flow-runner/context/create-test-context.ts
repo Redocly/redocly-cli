@@ -37,7 +37,7 @@ export async function createTestContext(
           const parsedDocument = await bundleOpenApi({
             descriptionPath: sourceDescription.url,
             config: options.config,
-            base: options.workflowPath,
+            base: options.filePath,
             externalRefResolver: options?.externalRefResolver,
           });
           const { paths, servers, info, security, components } = parsedDocument;
@@ -50,7 +50,7 @@ export async function createTestContext(
           };
         } else if (sourceDescription.type === 'arazzo') {
           const { url: sourceDescriptionPath, name } = sourceDescription;
-          const filePath = resolve(dirname(options.workflowPath), sourceDescriptionPath);
+          const filePath = resolve(dirname(options.filePath), sourceDescriptionPath);
           const bundledTestDescription = await bundleArazzo({
             filePath,
             version: options?.version,

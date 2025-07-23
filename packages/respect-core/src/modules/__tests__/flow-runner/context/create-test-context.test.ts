@@ -48,7 +48,7 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'modules/description-parser/test.test.yaml',
+      filePath: 'modules/description-parser/test.test.yaml',
       workflow: undefined,
       metadata: {},
       verbose: false,
@@ -517,7 +517,7 @@ describe('createTestContext', () => {
         env: {},
       },
       options: {
-        workflowPath: 'modules/description-parser/test.test.yaml',
+        filePath: 'modules/description-parser/test.test.yaml',
         workflow: undefined,
         metadata: {},
         verbose: false,
@@ -552,7 +552,7 @@ describe('createTestContext', () => {
     };
 
     const options: AppOptions = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       workflow: undefined,
       metadata: {},
       verbose: false,
@@ -603,7 +603,7 @@ describe('createTestContext', () => {
     };
 
     const options: AppOptions = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       input: JSON.stringify({ testInput: 'testValue' }),
       workflow: undefined,
       skip: undefined,
@@ -674,7 +674,7 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       input: JSON.stringify({ input1: 'value1' }),
     } as unknown as AppOptions;
 
@@ -716,7 +716,7 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
     } as unknown as AppOptions;
 
     const apiClient = new ApiFetcher({});
@@ -749,7 +749,7 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       envVariables: {
         ENV_VAR: 'value',
       },

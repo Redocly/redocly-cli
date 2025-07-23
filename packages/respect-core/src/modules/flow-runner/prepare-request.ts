@@ -161,7 +161,6 @@ export async function prepareRequest(
       value: evaluateRuntimeExpressionPayload({
         payload: parameter.value,
         context: expressionContext,
-        // contentType,
         logger: ctx.options.logger,
       }),
     };

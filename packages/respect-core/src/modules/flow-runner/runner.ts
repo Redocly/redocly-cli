@@ -32,7 +32,7 @@ import type {
 export async function runTestFile(options: RunOptions, collectSpecData?: CollectFn) {
   const workflowOptions = {
     ...options,
-    workflowPath: options.file, // filePath or documentPath
+    filePath: options.file,
     metadata: { ...options },
   };
 
@@ -94,7 +94,7 @@ export async function runWorkflow({
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
-  const fileBaseName = basename(ctx.options.workflowPath);
+  const fileBaseName = basename(ctx.options.filePath);
   const workflow =
     typeof workflowInput === 'string'
       ? ctx.workflows.find((w) => w.workflowId === workflowInput)
@@ -263,7 +263,7 @@ export async function resolveWorkflowContext(
     ? await createTestContext(
         testDescription,
         {
-          workflowPath: findSourceDescriptionUrl(
+          filePath: findSourceDescriptionUrl(
             sourceDescriptionId,
             ctx.sourceDescriptions,
             ctx.options
@@ -304,7 +304,7 @@ function findSourceDescriptionUrl(
   } else if (sourceDescription.type === 'openapi') {
     return sourceDescription.url;
   } else if (sourceDescription.type === 'arazzo') {
-    return resolve(dirname(options.workflowPath), sourceDescription.url);
+    return resolve(dirname(options.filePath), sourceDescription.url);
   } else {
     throw new Error(
       `Unknown source description type ${(sourceDescription as SourceDescription).type}`

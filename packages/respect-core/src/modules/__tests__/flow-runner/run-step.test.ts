@@ -604,7 +604,7 @@ const basicCTX = {
   },
   $steps: {},
   options: {
-    workflowPath: 'runStepTest.yml',
+    filePath: 'runStepTest.yml',
     workflow: undefined,
     skip: undefined,
     verbose: true,
@@ -2468,7 +2468,7 @@ describe('runStep', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
@@ -2879,7 +2879,7 @@ describe('runStep', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
@@ -3314,7 +3314,7 @@ describe('runStep', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
@@ -3780,7 +3780,7 @@ describe('runStep', () => {
       },
       $steps: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,

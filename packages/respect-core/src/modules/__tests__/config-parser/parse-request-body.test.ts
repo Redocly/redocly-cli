@@ -10,7 +10,7 @@ vi.mock('node:fs');
 describe('parseRequestBody', () => {
   const ctx = {
     options: {
-      workflowPath: 'test.yaml',
+      filePath: 'test.yaml',
       requestFileLoader: {
         getFileBody: async (filePath: string) => {
           await new Promise((resolve, reject) => {

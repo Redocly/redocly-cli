@@ -317,7 +317,7 @@ describe('resolveWorkflowContext', async () => {
       },
     },
     options: {
-      workflowPath: 'examples/museum-api/museum-api-test.yaml',
+      filePath: 'examples/museum-api/museum-api-test.yaml',
       workflow: undefined,
       skip: undefined,
       verbose: undefined,
@@ -362,7 +362,7 @@ describe('resolveWorkflowContext', async () => {
         input: undefined,
         skip: undefined,
         workflow: ['get-museum-tickets'],
-        workflowPath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
+        filePath: expect.stringContaining('examples/museum-api/museum-tickets.yaml'),
         config,
         executionTimeout: 3_600_000,
         maxSteps: 2000,
@@ -375,7 +375,7 @@ describe('resolveWorkflowContext', async () => {
     );
   });
 
-  it('should call createTestContext with empty workflowPath when there are no ctx.sourceDescriptions', async () => {
+  it('should call createTestContext with empty filePath when there are no ctx.sourceDescriptions', async () => {
     const ctx = {
       ...commonCtx,
       ...{ sourceDescriptions: [] },
@@ -389,7 +389,7 @@ describe('resolveWorkflowContext', async () => {
         input: undefined,
         skip: undefined,
         workflow: ['get-museum-tickets'],
-        workflowPath: '',
+        filePath: '',
         config,
         executionTimeout: 3_600_000,
         maxSteps: 2000,
@@ -412,7 +412,7 @@ describe('resolveWorkflowContext', async () => {
         input: undefined,
         skip: undefined,
         workflow: ['get-museum-tickets'],
-        workflowPath: 'museum-api.yaml',
+        filePath: 'museum-api.yaml',
         config,
         executionTimeout: 3_600_000,
         maxSteps: 2000,
