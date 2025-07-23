@@ -2,7 +2,7 @@ import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
 import { SpecVersion, getTypes } from '../oas-types.js';
-import { isCustomRuleId } from '../utils.js';
+import { isCustomRuleId, omit } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -212,6 +212,7 @@ const configGovernanceProperties: Record<
       } as PropType;
     },
   } as PropType,
+  plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',
   oas2Rules: 'Rules',
@@ -268,7 +269,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
-    ...ConfigGovernance.properties,
+    ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
   },
 });
 

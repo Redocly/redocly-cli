@@ -55,6 +55,7 @@ export type DecoratorConfig = PreprocessorConfig;
 
 export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = {
   extends?: string[];
+  plugins?: (string | Plugin)[];
 
   rules?: RuleMap<BuiltInCommonRuleId, RuleConfig, T>;
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
@@ -84,7 +85,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends'>;
+export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
 
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;

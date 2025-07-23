@@ -291,3 +291,13 @@ export function getOwn(obj: Record<string, any>, key: string) {
 export type CollectFn = (value: unknown) => void;
 
 export type Exact<T extends object> = T & { [key: string]: undefined };
+
+export function omit<O extends object, K extends keyof O>(obj: O, keys: K[]): Omit<O, K> {
+  const result = { ...obj };
+
+  keys.forEach((key) => {
+    delete result[key];
+  });
+
+  return result;
+}
