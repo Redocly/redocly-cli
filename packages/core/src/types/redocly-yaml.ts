@@ -212,6 +212,7 @@ const configGovernanceProperties: Record<
       } as PropType;
     },
   } as PropType,
+  plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',
   oas2Rules: 'Rules',
@@ -269,6 +270,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...ConfigGovernance.properties,
+    plugins: undefined, // plugins are not allowed in apis
   },
 });
 

@@ -291,3 +291,9 @@ export function getOwn(obj: Record<string, any>, key: string) {
 export type CollectFn = (value: unknown) => void;
 
 export type Exact<T extends object> = T & { [key: string]: undefined };
+
+export function omitEmptyProperties<O extends Record<string, unknown>>(obj: O): Partial<O> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== undefined)
+  ) as Partial<O>;
+}

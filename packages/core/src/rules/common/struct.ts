@@ -1,7 +1,7 @@
 import { isNamedType, SpecExtension } from '../../types/index.js';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 import { isRef } from '../../ref-utils.js';
-import { getOwn, isPlainObject } from '../../utils.js';
+import { getOwn, isPlainObject, omitEmptyProperties } from '../../utils.js';
 
 import type { UserContext } from '../../walk.js';
 import type {
@@ -117,7 +117,7 @@ export const Struct:
           if (propName.startsWith('x-')) continue;
           report({
             message: `Property \`${propName}\` is not expected here.`,
-            suggest: getSuggest(propName, Object.keys(type.properties)),
+            suggest: getSuggest(propName, Object.keys(omitEmptyProperties(type.properties))),
             from: refLocation,
             location: propLocation.key(),
           });
