@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Fixed config resolver grouping assertions instead of returning unchanged rules.
+Fixed and issue where the config resolver grouped assertions instead of returning unchanged rules.
