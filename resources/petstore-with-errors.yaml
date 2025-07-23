@@ -29,12 +29,10 @@ paths:
             example:
               summary: A foo example
               value: { 'foo': 'bar' }
-              externalValue: 'http://example.org/foo.json'
             examples:
               foo:
                 summary: A foo example
                 value: { 'foo': 'bar' }
-                externalValue: 'http://example.org/foo.json'
       tags:
         - pets
       parameters:

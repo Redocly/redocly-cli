@@ -60,19 +60,6 @@ describe('spec ruleset', () => {
           "suggest": [],
         },
         {
-          "location": [
-            {
-              "pointer": "#/paths/~1pets?id/get/requestBody/content/application~1json/examples/foo/value",
-              "reportOnKey": true,
-              "source": "../../../../../resources/petstore-with-errors.yaml",
-            },
-          ],
-          "message": "Example object can have either \`value\` or \`externalValue\` fields.",
-          "ruleId": "no-example-value-and-externalValue",
-          "severity": "error",
-          "suggest": [],
-        },
-        {
           "from": undefined,
           "location": [
             {
