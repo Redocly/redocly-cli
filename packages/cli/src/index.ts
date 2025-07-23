@@ -764,7 +764,6 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'respect';
       commandWrapper(handleRespect)(argv as Arguments<RespectArgv>);
     }
   )
@@ -788,7 +787,6 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'generate-arazzo';
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
     }
   )
