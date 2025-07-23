@@ -87,12 +87,12 @@ function printStats(
   printExecutionTime('stats', startedAt, api);
 }
 
-export type StatsOptions = {
+export type StatsArgv = {
   api?: string;
   format: OutputFormat;
 } & VerifyConfigOptions;
 
-export async function handleStats({ argv, config, collectSpecData }: CommandArgs<StatsOptions>) {
+export async function handleStats({ argv, config, collectSpecData }: CommandArgs<StatsArgv>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });

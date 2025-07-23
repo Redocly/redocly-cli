@@ -21,14 +21,18 @@ import { previewProject } from './commands/preview-project/index.js';
 import { handleTranslations } from './commands/translations.js';
 import { handleEject } from './commands/eject.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import {
+  handleGenerateArazzo,
+  type GenerateArazzoCommandArgv,
+} from './commands/generate-arazzo.js';
+import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { GenerateArazzoFileOptions, RespectOptions } from '@redocly/respect-core';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import type { EjectOptions } from './commands/eject.js';
+import type { EjectArgv } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 
@@ -668,7 +672,7 @@ yargs(hideBin(process.argv))
           },
         }),
     (argv) => {
-      commandWrapper(handleEject)(argv as Arguments<EjectOptions>);
+      commandWrapper(handleEject)(argv as Arguments<EjectArgv>);
     }
   )
   .command(
@@ -760,8 +764,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      const { handleRun } = await import('@redocly/respect-core');
-      commandWrapper(handleRun)(argv as Arguments<RespectOptions>);
+      commandWrapper(handleRespect)(argv as Arguments<RespectArgv>);
     }
   )
   .command(
@@ -784,8 +787,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      const { handleGenerate } = await import('@redocly/respect-core');
-      commandWrapper(handleGenerate)(argv as Arguments<GenerateArazzoFileOptions>);
+      commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

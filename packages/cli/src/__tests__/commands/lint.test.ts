@@ -1,4 +1,4 @@
-import { handleLint, LintOptions } from '../../commands/lint.js';
+import { handleLint, LintArgv } from '../../commands/lint.js';
 import {
   createConfig,
   lint,
@@ -29,7 +29,7 @@ const argvMock = {
   apis: ['openapi.yaml'],
   'lint-config': 'off',
   format: 'codeframe',
-} as Arguments<LintOptions>;
+} as Arguments<LintArgv>;
 
 describe('handleLint', () => {
   let processExitMock: MockInstance;

@@ -3,6 +3,10 @@ export function isEmpty(value: any) {
     return true;
   }
 
+  if (value.constructor.name === 'FormData' || (value instanceof Blob && value.size > 0)) {
+    return false;
+  }
+
   if (typeof value === 'object') {
     return Object.keys(value).length === 0;
   }

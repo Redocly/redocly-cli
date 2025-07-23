@@ -1,4 +1,6 @@
-export { handleGenerate, handleRun } from './handlers/index.js';
-export type { GenerateArazzoFileOptions } from './handlers/generate.js';
-export type { RespectOptions } from './handlers/run.js';
-export type { JsonLogs } from './types.js';
+export { generate, type GenerateArazzoOptions } from './generate.js';
+export { run, type RespectOptions } from './run.js';
+export * from './types.js';
+export { maskSecrets } from './modules/logger-output/mask-secrets.js';
+export { calculateTotals } from './modules/logger-output/calculate-tests-passed.js';
+export { RESET_ESCAPE_CODE } from './modules/logger-output/helpers.js';

@@ -2,9 +2,8 @@ import * as path from 'node:path';
 import { bundleOpenApi } from '../description-parser/index.js';
 import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';
-
-import type { TestDescription } from '../../types.js';
-import type { GenerateArazzoFileOptions } from '../../handlers/generate.js';
+import { type TestDescription } from '../../types.js';
+import { type GenerateArazzoOptions } from '../../generate.js';
 
 export const infoSubstitute = {
   title: '[REPLACE WITH API title]',
@@ -18,17 +17,12 @@ function resolveDescriptionNameFromPath(descriptionPath: string): string {
     .replace(/[^A-Za-z0-9_-]/g, '');
 }
 
-export async function generateArazzoDescription({
-  descriptionPath,
-  'output-file': outputFile,
-}: GenerateArazzoFileOptions) {
-  const {
-    paths: pathsObject,
-    info,
-    security: rootSecurity,
-    components,
-  } = (await bundleOpenApi(descriptionPath, '')) || {};
+export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
+  const { descriptionPath, outputFile, collectSpecData } = opts;
+  const document = (await bundleOpenApi(opts)) || {};
+  collectSpecData?.(document);
 
+  const { paths: pathsObject, info, security: rootSecurity, components } = document;
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
   const resolvedDescriptionPath = outputFile
     ? path.relative(path.dirname(outputFile), path.resolve(descriptionPath))

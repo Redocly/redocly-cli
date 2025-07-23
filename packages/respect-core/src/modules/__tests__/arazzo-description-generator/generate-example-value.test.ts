@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { Parameter } from '../../../types.js';
 
 import { generateExampleValue } from '../../arazzo-description-generator/index.js';
@@ -11,7 +13,7 @@ describe('generateExampleValue', () => {
       example: 'some-example',
     } as Parameter;
 
-    expect(generateExampleValue(parameter)).toEqual('some-example');
+    expect(generateExampleValue(parameter, logger)).toEqual('some-example');
   });
 
   it('should generate example value from parameter examples', () => {
@@ -26,7 +28,7 @@ describe('generateExampleValue', () => {
       },
     } as Parameter;
 
-    expect(generateExampleValue(parameter)).toEqual('some-example-value');
+    expect(generateExampleValue(parameter, logger)).toEqual('some-example-value');
   });
 
   it('should generate example value from parameter schema', () => {
@@ -39,6 +41,6 @@ describe('generateExampleValue', () => {
       },
     } as Parameter;
 
-    expect(generateExampleValue(parameter)).toEqual('string');
+    expect(generateExampleValue(parameter, logger)).toEqual('string');
   });
 });

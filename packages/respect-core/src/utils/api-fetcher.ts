@@ -1,8 +1,4 @@
-import { fetch } from 'undici';
 import { bgRed, inverse } from 'colorette';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore this works but some types are not working
-import concat from 'concat-stream';
 import {
   type OperationMethod,
   type VerboseLog,
@@ -10,29 +6,23 @@ import {
   type ResponseContext,
   type Step,
 } from '../types.js';
-import { withHar } from '../utils/har-logs/index.js';
 import { isEmpty } from './is-empty.js';
 import { resolvePath } from '../modules/context-parser/index.js';
 import {
   getVerboseLogs,
   maskSecrets,
   findPotentiallySecretObjectFields,
-} from '../modules/cli-output/index.js';
+} from '../modules/logger-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
-import { createMtlsClient } from './mtls/create-mtls-client.js';
-import { DefaultLogger } from './logger/logger.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
-const logger = DefaultLogger.getInstance();
-
 interface IFetcher {
   verboseLogs?: VerboseLog;
   verboseResponseLogs?: VerboseLog;
-  harLogs?: any;
   fetch?: typeof fetch;
 }
 
@@ -70,11 +60,9 @@ export function trimTrailingSlash(str: string): string {
 export class ApiFetcher implements IFetcher {
   verboseLogs?: VerboseLog;
   verboseResponseLogs?: VerboseLog;
-  harLogs?: any;
   fetch?: typeof fetch;
 
   constructor(params: IFetcher) {
-    this.harLogs = params.harLogs;
     this.fetch = params.fetch || fetch;
   }
 
@@ -139,7 +127,7 @@ export class ApiFetcher implements IFetcher {
   }): Promise<ResponseContext | never> => {
     const { serverUrl, path, method, parameters, requestBody, openapiOperation } = requestData;
     if (!serverUrl?.url) {
-      logger.error(bgRed(` No server url provided `));
+      ctx.options.logger.error(bgRed(` No server url provided `));
       throw new Error('No server url provided');
     }
 
@@ -183,7 +171,7 @@ export class ApiFetcher implements IFetcher {
     const urlToFetch = `${trimTrailingSlash(resolvedServerUrl)}${pathWithSearchParams}`;
 
     if (urlToFetch.startsWith('/')) {
-      logger.error(
+      ctx.options.logger.error(
         bgRed(` Wrong url: ${inverse(urlToFetch)} `) +
           ` Did you forget to provide a correct "serverUrl"?\n`
       );
@@ -191,7 +179,7 @@ export class ApiFetcher implements IFetcher {
 
     const contentType = headers['content-type'] || '';
     if (requestBody && !contentType) {
-      logger.error(
+      ctx.options.logger.error(
         bgRed(` Incorrect request `) +
           ` Please provide a correct "content-type" header or specify the "content-type" field in the test case itself. \n`
       );
@@ -205,32 +193,23 @@ export class ApiFetcher implements IFetcher {
     } else if (isXmlContentType(contentType)) {
       encodedBody = requestBody;
     } else if (contentType.includes('multipart/form-data')) {
-      // Get the form data buffer
-      encodedBody = await new Promise((resolve, reject) => {
-        requestBody.pipe(
-          concat((data: Buffer) => {
-            resolve(data);
-          })
-        );
-
-        requestBody.on('error', reject);
-      });
-
-      // Ensure the content-type header includes the boundary
-      headers['content-type'] = `multipart/form-data; boundary=${requestBody._boundary}`;
+      encodedBody = requestBody;
+      // Ensure the content-type header is not set so the client can set it
+      /**
+       * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects#sending_files_using_a_formdata_object
+       *
+       * Warning: When using FormData to submit POST requests using XMLHttpRequest or the Fetch API with the multipart/form-data content type
+       * (e.g., when uploading files and blobs to the server), do not explicitly set the Content-Type header on the request.
+       * Doing so will prevent the browser from being able to set the Content-Type header with the boundary expression
+       * it will use to delimit form fields in the request body.
+       */
+      delete headers['content-type'];
     } else if (contentType === 'application/octet-stream') {
-      // Convert ReadStream to Blob for undici fetch
-      encodedBody = await new Promise((resolve, reject) => {
-        const chunks: Uint8Array[] = [];
-        requestBody.on('data', (chunk: Buffer) => {
-          chunks.push(new Uint8Array(chunk.buffer));
-        });
-        requestBody.on('end', () => resolve(Buffer.concat(chunks)));
-        requestBody.on('error', reject);
-      });
-
-      const fileName = requestBody.path.split('/').pop();
-      headers['content-disposition'] = `attachment; filename=${fileName}`;
+      encodedBody = requestBody;
+      if (requestBody instanceof File) {
+        const fileName = requestBody.name;
+        headers['content-disposition'] = `attachment; filename=${fileName}`;
+      }
     } else {
       encodedBody = requestBody;
     }
@@ -252,7 +231,7 @@ export class ApiFetcher implements IFetcher {
       body: maskedBody,
     });
 
-    const wrappedFetch = this.harLogs ? withHar(this.fetch, { har: this.harLogs }) : fetch;
+    const customFetch = ctx.options.fetch;
     const startTime = performance.now();
 
     let fetchResult;
@@ -265,13 +244,12 @@ export class ApiFetcher implements IFetcher {
       ...(!isEmpty(requestBody) && {
         body: encodedBody,
       }),
-      redirect: 'follow',
+      redirect: 'follow' as const,
       signal: AbortSignal.timeout(ctx.options.maxFetchTimeout),
       // Required for application/octet-stream content type requests
       ...(headers['content-type'] === 'application/octet-stream' && {
         duplex: 'half',
       }),
-      dispatcher: ctx.mtlsCerts ? createMtlsClient(urlToFetch, ctx.mtlsCerts) : undefined,
     };
 
     const workflowLevelXSecurityParameters =
@@ -293,7 +271,7 @@ export class ApiFetcher implements IFetcher {
       // FETCH WITH DIGEST AUTH
       // Digest auth perform two requests to establish the connection
       // We need to wait for the second request to complete before returning the response
-      const first401Result = await wrappedFetch(urlToFetch, fetchParams);
+      const first401Result = await customFetch(urlToFetch, fetchParams);
       const body401 = await first401Result.text();
       const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
 
@@ -344,7 +322,7 @@ export class ApiFetcher implements IFetcher {
         headerParams: maskSecrets(updatedHeaders, ctx.secretFields || new Set()),
       });
 
-      fetchResult = await wrappedFetch(urlToFetch, {
+      fetchResult = await customFetch(urlToFetch, {
         ...fetchParams,
         headers: updatedHeaders,
       });
@@ -353,7 +331,7 @@ export class ApiFetcher implements IFetcher {
       responseBody = await fetchResult.text();
     } else {
       // REGULAR FETCH
-      fetchResult = await wrappedFetch(urlToFetch, fetchParams);
+      fetchResult = await customFetch(urlToFetch, fetchParams);
       responseTime = Math.ceil(performance.now() - startTime);
       responseBody = await fetchResult.text();
     }

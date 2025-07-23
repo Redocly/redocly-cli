@@ -10,7 +10,7 @@ import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
-import type { CommandOptions } from '../types.js';
+import type { CommandArgv } from '../types.js';
 
 export type Analytics = {
   event: string;
@@ -44,7 +44,7 @@ export async function sendTelemetry({
   respect_x_security_auth_types,
 }: {
   config: Config | undefined;
-  argv: Arguments<CommandOptions> | undefined;
+  argv: Arguments<CommandArgv> | undefined;
   exit_code: ExitCode;
   spec_version: string | undefined;
   spec_keyword: string | undefined;
@@ -65,7 +65,7 @@ export async function sendTelemetry({
       _: [command],
       $0: _,
       ...args
-    } = argv as Exact<Arguments<CommandOptions>>;
+    } = argv as Exact<Arguments<CommandArgv>>;
     const event_time = new Date().toISOString();
     const residency = args.residency || config?.resolvedConfig?.residency;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
@@ -178,7 +178,7 @@ function replaceArgs(
   return commandInput;
 }
 
-export function cleanArgs(parsedArgs: CommandOptions, rawArgv: string[]) {
+export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[]> = {};

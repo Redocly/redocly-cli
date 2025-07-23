@@ -5,6 +5,7 @@ import type {
   Check,
   WorkflowExecutionResult,
 } from '../../../types.js';
+import { createConfig, logger } from '@redocly/openapi-core';
 import {
   runStep,
   callAPIAndAnalyzeResults,
@@ -14,9 +15,8 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { createHarLog } from '../../../utils/har-logs/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
-import { displayChecks } from '../../cli-output/index.js';
+import { displayChecks } from '../../logger-output/index.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
@@ -24,14 +24,9 @@ vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
   callAPIAndAnalyzeResults: vi.fn(),
 }));
 
-vi.mock('../../cli-output/index.js', async () => {
-  const actual = await vi.importActual('../../cli-output/index.js');
-
-  return {
-    ...actual,
-    displayChecks: vi.fn(),
-  };
-});
+vi.mock('../../logger-output/display-checks.js', () => ({
+  displayChecks: vi.fn(),
+}));
 
 vi.mock('../../flow-runner/success-criteria/index.js', () => ({
   checkCriteria: vi.fn(),
@@ -49,10 +44,7 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
-const harLogs = createHarLog();
-const apiClient = new ApiFetcher({
-  harLogs,
-});
+const apiClient = new ApiFetcher({});
 const basicCTX = {
   apiClient,
   $request: undefined,
@@ -611,13 +603,11 @@ const basicCTX = {
     },
   },
   $steps: {},
-  harLogs: {},
   options: {
-    workflowPath: 'runStepTest.yml',
+    filePath: 'runStepTest.yml',
     workflow: undefined,
     skip: undefined,
     verbose: true,
-    harLogsFile: 'har-output',
     metadata: {
       _: [],
       files: ['runStepTest.yml'],
@@ -625,6 +615,7 @@ const basicCTX = {
       file: 'runStepTest.yml',
     },
     input: undefined,
+    logger: logger,
   },
   info: { title: 'Test API', version: '1.0' },
   arazzo: '1.0.1',
@@ -697,9 +688,6 @@ describe('runStep', () => {
   });
 
   it('should display checks when failed to make a call to the API', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs,
-    });
     const step: Step = {
       stepId: 'get-bird',
       operationId: 'no-serverUrl-api.getBreeds',
@@ -731,9 +719,7 @@ describe('runStep', () => {
   });
 
   it('should execute onSuccess step criteria with goto StepId', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs,
-    });
+    const apiClient = new ApiFetcher({});
     const stepOne: Step = {
       stepId: 'get-bird',
       'x-operation': {
@@ -2481,13 +2467,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -2495,6 +2479,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -2893,13 +2878,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -2907,6 +2890,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -2935,6 +2919,7 @@ describe('runStep', () => {
       checks: [],
       response: {} as any,
     };
+    const config = await createConfig({});
     const localCTX = {
       $request: undefined,
       $response: undefined,
@@ -3328,13 +3313,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -3342,6 +3325,13 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        config,
+        executionTimeout: 3_600_000,
+        maxSteps: 2000,
+        maxFetchTimeout: 40_000,
+        server: undefined,
+        severity: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -3398,7 +3388,8 @@ describe('runStep', () => {
           },
         ],
       },
-      localCTX
+      localCTX,
+      config
     );
     expect(runWorkflow).toHaveBeenCalledTimes(1);
   });
@@ -3788,13 +3779,11 @@ describe('runStep', () => {
         },
       },
       $steps: {},
-      harLogs: {},
       options: {
-        workflowPath: 'runStepTest.yml',
+        filePath: 'runStepTest.yml',
         workflow: undefined,
         skip: undefined,
         verbose: undefined,
-        harLogsFile: 'har-output',
         metadata: {
           _: [],
           files: ['runStepTest.yml'],
@@ -3802,6 +3791,7 @@ describe('runStep', () => {
           file: 'runStepTest.yml',
         },
         input: undefined,
+        logger: logger,
       },
       info: { title: 'Test API', version: '1.0' },
       arazzo: '1.0.1',
@@ -3821,7 +3811,6 @@ describe('runStep', () => {
   });
 
   it('should report global timeout error and end execution', async () => {
-    // Mock Timer only for this test
     const mockTimer = {
       isTimedOut: vi.fn().mockReturnValue(true),
     };

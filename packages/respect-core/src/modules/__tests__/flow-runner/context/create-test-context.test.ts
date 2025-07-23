@@ -1,3 +1,4 @@
+import { createConfig, logger } from '@redocly/openapi-core';
 import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
@@ -13,12 +14,12 @@ describe('createTestContext', () => {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       workflows: [
@@ -47,20 +48,27 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'modules/description-parser/test.test.yaml',
       workflow: undefined,
-      harLogsFile: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
+      envVariables: {
+        AUTH_TOKEN: '1234567890',
+      },
+      logger,
+      fetch,
     } as AppOptions;
 
-    process.env.AUTH_TOKEN = '1234567890';
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context).toMatchObject({
@@ -508,12 +516,9 @@ describe('createTestContext', () => {
       $inputs: {
         env: {},
       },
-      harLogs: expect.any(Object),
-      mtlsCerts: undefined,
       options: {
-        workflowPath: 'test.test.yaml',
+        filePath: 'modules/description-parser/test.test.yaml',
         workflow: undefined,
-        harLogsFile: 'har-output',
         metadata: {},
         verbose: false,
       },
@@ -522,24 +527,19 @@ describe('createTestContext', () => {
       secretFields: {},
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       sourceDescriptions: [
-        { name: 'cats', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
-        { name: 'catsTwo', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+        { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
         {
           name: 'externalWorkflow',
           type: 'arazzo',
-          url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+          url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
         },
       ],
       apiClient: expect.any(ApiFetcher),
     });
-
-    delete process.env.AUTH_TOKEN;
   });
 
   it('should clean environment variables', async () => {
-    process.env.TEST_VAR = 'test value';
-    process.env.ANOTHER_VAR = 'another value';
-
     const testDescription: TestDescription = {
       arazzo: '1.0.1',
       info: { title: 'API', version: '1.0' },
@@ -552,25 +552,31 @@ describe('createTestContext', () => {
     };
 
     const options: AppOptions = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       workflow: undefined,
-      harOutput: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
+      envVariables: {
+        TEST_VAR: 'test value',
+        ANOTHER_VAR: 'another value',
+      },
+      logger,
+      fetch,
     };
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.test.inputs).toEqual(undefined);
-
-    delete process.env.TEST_VAR;
-    delete process.env.ANOTHER_VAR;
   }, 8000);
 
   it('should handle workflows with inputs and env variables', async () => {
@@ -597,21 +603,26 @@ describe('createTestContext', () => {
     };
 
     const options: AppOptions = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       input: JSON.stringify({ testInput: 'testValue' }),
       workflow: undefined,
       skip: undefined,
-      harOutput: 'har-output',
       metadata: {},
       verbose: false,
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      config: await createConfig({}),
+      requestFileLoader: {
+        getFileBody: async (filePath: string) => {
+          return new Blob([filePath]);
+        },
+      },
+      logger: logger,
+      fetch,
     };
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows).toMatchObject({
@@ -663,13 +674,11 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
       input: JSON.stringify({ input1: 'value1' }),
     } as unknown as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows).toEqual({
@@ -707,12 +716,10 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
     } as unknown as AppOptions;
 
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1.inputs).toEqual(undefined);
@@ -742,19 +749,16 @@ describe('createTestContext', () => {
     } as unknown as TestDescription;
 
     const options = {
-      workflowPath: 'test.test.yaml',
+      filePath: 'test.test.yaml',
+      envVariables: {
+        ENV_VAR: 'value',
+      },
     } as unknown as AppOptions;
 
-    process.env = { ENV_VAR: 'value' };
-
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1?.inputs?.env?.ENV_VAR).toBe('value');
-
-    delete process.env.ENV_VAR;
   });
 });
 

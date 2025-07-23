@@ -6,7 +6,7 @@ import {
   type ResolvedApiConfig,
   type ResolvedConfig,
 } from '@redocly/openapi-core';
-import { type BundleOptions, handleBundle } from '../../commands/bundle.js';
+import { type BundleArgv, handleBundle } from '../../commands/bundle.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
@@ -66,7 +66,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     expect(bundle).toBeCalledTimes(apis.length);
   });
@@ -77,7 +77,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
@@ -89,7 +89,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
@@ -107,7 +107,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
@@ -123,7 +123,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'json',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     expect(handleError).toHaveBeenCalledTimes(1);
     expect(handleError).toHaveBeenCalledWith(new Error('Invalid definition'), 'invalid.json');
@@ -141,7 +141,7 @@ describe('bundle', () => {
     await commandWrapper(handleBundle)({
       apis,
       ext: 'yaml',
-    } as Arguments<BundleOptions>);
+    } as Arguments<BundleArgv>);
 
     expect(handleError).toHaveBeenCalledTimes(0);
   });

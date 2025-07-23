@@ -272,6 +272,13 @@ Prepare the local build, go to the `benchmark` folder, clean it up, do the prepa
 
 You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
 
+### Manual tests
+
+What should be verified when changes applied to the `respect-core` package:
+
+- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --ca-cert="ca-cert.pem" --client-key="client-key.pem" --client-cert="client-cert.pem"`.
+- File upload is working for both `multipart/form-data` and `application/octet-stream`.
+
 ## Project structure
 
 - **`__tests__`**: contains e2e and smoke tests.

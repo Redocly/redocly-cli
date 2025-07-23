@@ -1,3 +1,4 @@
+import { createConfig, logger } from '@redocly/openapi-core';
 import { type Step, type AppOptions, type TestDescription } from '../../../../types.js';
 import {
   createRuntimeExpressionCtx,
@@ -9,12 +10,12 @@ const testDescription = {
   arazzo: '1.0.1',
   info: { title: 'API', version: '1.0' },
   sourceDescriptions: [
-    { name: 'cats', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
-    { name: 'catsTwo', type: 'openapi', url: '__tests__/respect/cat-fact-api/cats.yaml' },
+    { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+    { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
     {
       name: 'externalWorkflow',
       type: 'arazzo',
-      url: '__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+      url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
     },
   ],
   workflows: [
@@ -43,28 +44,29 @@ const testDescription = {
 } as unknown as TestDescription;
 
 const options: AppOptions = {
-  workflowPath: 'test.test.yaml',
+  filePath: 'modules/description-parser/test.test.yaml',
   workflow: undefined,
   metadata: {},
   verbose: false,
   maxSteps: 2000,
   maxFetchTimeout: 40_000,
   executionTimeout: 3_600_000,
+  config: await createConfig({}),
+  requestFileLoader: {
+    getFileBody: async (filePath: string) => {
+      return new Blob([filePath]);
+    },
+  },
+  envVariables: {
+    AUTH_TOKEN: '1234567890',
+  },
+  logger,
+  fetch,
 };
 
 describe('createRuntimeExpressionCtx', () => {
-  beforeEach(() => {
-    process.env.AUTH_TOKEN = '1234567890';
-  });
-
-  afterEach(() => {
-    delete process.env.AUTH_TOKEN;
-  });
-
   it('should create limited runtime expression context when workflowId and step provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -91,9 +93,7 @@ describe('createRuntimeExpressionCtx', () => {
   });
 
   it('should create limited runtime expression context when workflowId is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,
@@ -108,9 +108,7 @@ describe('createRuntimeExpressionCtx', () => {
     expect((runtimeExpressionContext as any).workflows).toBeUndefined();
   });
   it('should create limited runtime expression context when step is not provided', async () => {
-    const apiClient = new ApiFetcher({
-      harLogs: undefined,
-    });
+    const apiClient = new ApiFetcher({});
     const context = await createTestContext(testDescription, options, apiClient);
     const runtimeExpressionContext = createRuntimeExpressionCtx({
       ctx: context,

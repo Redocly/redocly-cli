@@ -16,7 +16,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "lib": ["ES2021", "ES2021.String", "DOM"],
+    "lib": ["ES2021", "ES2021.String", "DOM", "dom.iterable"],
     "baseUrl": "./packages",
     "skipLibCheck": true,
     "moduleResolution": "Node",

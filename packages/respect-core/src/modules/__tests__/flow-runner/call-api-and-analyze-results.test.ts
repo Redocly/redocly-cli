@@ -1,4 +1,3 @@
-import { fetch } from 'undici';
 import type { TestContext } from '../../../types.js';
 
 import {
@@ -7,12 +6,9 @@ import {
 } from '../../flow-runner/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
-vi.mock('undici');
-
 describe('callAPIAndAnalyzeResults', () => {
-  const apiClient = new ApiFetcher({
-    harLogs: undefined,
-  });
+  const mockFetch = vi.fn();
+  const apiClient = new ApiFetcher({});
   const ctx = {
     apiClient,
     $env: {
@@ -315,10 +311,8 @@ describe('callAPIAndAnalyzeResults', () => {
         },
       },
     },
-    harLogs: {},
     options: {
-      workflowPath: 'simple.yaml',
-      harLogsFile: 'har-output',
+      filePath: 'simple.yaml',
       metadata: {
         _: [],
         files: ['simple.yaml'],
@@ -328,6 +322,7 @@ describe('callAPIAndAnalyzeResults', () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       executionTimeout: 3_600_000,
+      fetch: mockFetch,
     },
     'x-serverUrl': 'https://catfact.ninja/',
     info: {
@@ -358,7 +353,7 @@ describe('callAPIAndAnalyzeResults', () => {
       headers: new Headers(),
     };
 
-    vi.mocked(fetch).mockResolvedValue(mockResponse as any);
+    vi.mocked(mockFetch).mockResolvedValue(mockResponse as any);
 
     const result = await callAPIAndAnalyzeResults({
       ctx,

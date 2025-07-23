@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { StepCallContext, TestContext } from '../../../../types.js';
 
 import { CHECKS, checkSchema } from '../../../flow-runner/index.js';
@@ -136,6 +138,9 @@ describe('checkSchema', () => {
 
   const ctx = {
     severity: DEFAULT_SEVERITY_CONFIGURATION,
+    options: {
+      logger,
+    },
   } as unknown as TestContext;
 
   it('should check expectation from test case description', () => {
