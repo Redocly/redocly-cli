@@ -62,21 +62,18 @@ Config {
         "preprocessors": {},
         "root": "resources/pets.yaml",
         "rules": {
-          "assertions": [
-            {
-              "assertionId": "rule/test",
-              "assertions": {
-                "defined": true,
-              },
-              "severity": "warn",
-              "subject": {
-                "property": "x-test",
-                "type": "Operation",
-              },
-            },
-          ],
           "no-empty-servers": "error",
           "operation-summary": "warn",
+          "rule/test": {
+            "assertions": {
+              "defined": true,
+            },
+            "severity": "warn",
+            "subject": {
+              "property": "x-test",
+              "type": "Operation",
+            },
+          },
         },
       },
     },
@@ -87,20 +84,17 @@ Config {
       },
     },
     "rules": {
-      "assertions": [
-        {
-          "assertionId": "rule/test",
-          "assertions": {
-            "defined": true,
-          },
-          "subject": {
-            "property": "x-test",
-            "type": "Operation",
-          },
-        },
-      ],
       "no-empty-servers": "error",
       "operation-summary": "error",
+      "rule/test": {
+        "assertions": {
+          "defined": true,
+        },
+        "subject": {
+          "property": "x-test",
+          "type": "Operation",
+        },
+      },
     },
     "telemetry": "on",
   },

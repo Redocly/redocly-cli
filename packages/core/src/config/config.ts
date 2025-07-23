@@ -7,6 +7,7 @@ import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { type Document, type ResolvedRefMap } from '../resolve.js';
+import { groupAssertionRules } from './config-resolvers.js';
 
 import type { NormalizedProblem } from '../walk.js';
 import type {
@@ -81,14 +82,18 @@ export class Config {
     this.plugins = opts.plugins || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
+    const group = (rules: Record<string, RuleConfig>) => {
+      return groupAssertionRules({ rules }, this.plugins);
+    };
+
     this.rules = {
-      [SpecVersion.OAS2]: { ...resolvedConfig.rules, ...resolvedConfig.oas2Rules },
-      [SpecVersion.OAS3_0]: { ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules },
-      [SpecVersion.OAS3_1]: { ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules },
-      [SpecVersion.Async2]: { ...resolvedConfig.rules, ...resolvedConfig.async2Rules },
-      [SpecVersion.Async3]: { ...resolvedConfig.rules, ...resolvedConfig.async3Rules },
-      [SpecVersion.Arazzo1]: { ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules },
-      [SpecVersion.Overlay1]: { ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules },
+      [SpecVersion.OAS2]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas2Rules }),
+      [SpecVersion.OAS3_0]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules }),
+      [SpecVersion.OAS3_1]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules }),
+      [SpecVersion.Async2]: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
+      [SpecVersion.Async3]: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
+      [SpecVersion.Arazzo1]: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
+      [SpecVersion.Overlay1]: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
     };
 
     this.preprocessors = {
