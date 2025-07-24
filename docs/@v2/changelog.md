@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.0-next.9 (2025-07-24)
+
+### Patch Changes
+
+- Refactored `@redocly/respect-core` to eliminate Node.js-specific dependencies, improving cross-platform compatibility.
+- Updated @redocly/openapi-core to v2.0.0-next.9.
+
 ## 2.0.0-next.8 (2025-07-23)
 
 ### Major Changes
