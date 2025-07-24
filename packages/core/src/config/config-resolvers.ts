@@ -117,18 +117,20 @@ export async function resolveConfig({
     );
   }
 
+  const pluginPaths = pluginsOrPaths.length
+    ? pluginsOrPaths
+        .map((p) =>
+          'isModule' in p && p.isModule
+            ? p.rawPath
+            : p.absolutePath && path.relative(rootConfigDir, p.absolutePath)
+        )
+        .filter(isDefined)
+    : undefined;
+
   return {
     resolvedConfig: {
       ...bundledConfig,
-      plugins: pluginsOrPaths.length
-        ? pluginsOrPaths
-            .map((p) =>
-              'isModule' in p && p.isModule
-                ? p.rawPath
-                : p.absolutePath && path.relative(rootConfigDir, p.absolutePath)
-            )
-            .filter(isDefined)
-        : undefined,
+      plugins: pluginPaths,
     },
     resolvedRefMap,
     plugins: resolvedPlugins,
