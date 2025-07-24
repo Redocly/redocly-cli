@@ -96,7 +96,7 @@ export async function resolveConfig({
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
     const plugins = await resolvePlugins(
-      pluginsOrPaths.map((p) => ('rawPath' in p ? p.absolutePath : p)),
+      pluginsOrPaths.map((p) => (isPluginResolveInfo(p) ? p.absolutePath : p)),
       rootConfigDir
     );
     resolvedPlugins = [...plugins, defaultPlugin];
@@ -120,7 +120,7 @@ export async function resolveConfig({
   const pluginPaths = pluginsOrPaths.length
     ? pluginsOrPaths
         .map((p) =>
-          'isModule' in p && p.isModule
+          isPluginResolveInfo(p) && p.isModule
             ? p.rawPath
             : p.absolutePath && path.relative(rootConfigDir, p.absolutePath)
         )
@@ -145,6 +145,10 @@ function getDefaultPluginPath(configDir: string): string | undefined {
     }
   }
   return;
+}
+
+function isPluginResolveInfo(plugin: Plugin | PluginResolveInfo): plugin is PluginResolveInfo {
+  return 'isModule' in plugin;
 }
 
 export const preResolvePluginPath = (
