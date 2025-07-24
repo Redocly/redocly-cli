@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.10
+
+### Major Changes
+
+- Removed support for the deprecated `theme` property of Redocly config.
+  All the properties of `theme` are now available in the config root.
+
 ## 2.0.0-next.9
 
 ### Major Changes
