@@ -1,5 +1,5 @@
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
-import type { BundleOutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import type { RuleSeverity } from '@redocly/openapi-core';
 import type { RespectArgv } from './commands/respect/index.js';
 import type { LintArgv } from './commands/lint.js';
 import type { BundleArgv } from './commands/bundle.js';
@@ -24,8 +24,8 @@ export type Entrypoint = {
   alias?: string;
   output?: string;
 };
-export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>; // FIXME: use one source of truth (2.0)
-export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined; // FIXME: use one source of truth (2.0)
+export const outputExtensions = ['json', 'yaml', 'yml'] as const;
+export type OutputExtension = typeof outputExtensions[number];
 export type CommandArgv =
   | StatsArgv
   | SplitArgv

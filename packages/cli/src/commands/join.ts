@@ -11,6 +11,9 @@ import {
   isRef,
   dequal,
   logger,
+  isString,
+  isPlainObject,
+  keysOf,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -20,7 +23,6 @@ import {
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
 import { exitWithError } from '../utils/error.js';
-import { isObject, isString, keysOf } from '../utils/js-utils.js';
 import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
 
@@ -769,10 +771,10 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
 
 function replace$Refs(obj: unknown, componentsPrefix: string) {
   crawl(obj, (node: Record<string, unknown>) => {
-    if (node.$ref && typeof node.$ref === 'string' && startsWithComponents(node.$ref)) {
+    if (isRef(node) && startsWithComponents(node.$ref)) {
       const name = path.basename(node.$ref);
       node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);
-    } else if (isObject(node.discriminator) && isObject(node.discriminator.mapping)) {
+    } else if (isPlainObject(node.discriminator) && isPlainObject(node.discriminator.mapping)) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
         const mappingPointer = mapping[name];
