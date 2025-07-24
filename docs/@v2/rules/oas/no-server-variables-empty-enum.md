@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-server-variables-empty-enum
+slug: /docs/cli/rules/oas/no-server-variables-empty-enum
 ---
 
 # no-server-variables-empty-enum

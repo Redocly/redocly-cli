@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/built-in-rules
+slug: /docs/cli/v1/rules/built-in-rules
 ---
 
 # Built-in rules

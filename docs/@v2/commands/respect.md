@@ -1,6 +1,6 @@
 ---
 slug:
-  - /docs/cli/v2/commands/respect
+  - /docs/cli/commands/respect
 ---
 
 # `respect`

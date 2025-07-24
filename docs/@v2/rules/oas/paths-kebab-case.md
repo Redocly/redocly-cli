@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/paths-kebab-case
+slug: /docs/cli/rules/oas/paths-kebab-case
 ---
 
 # paths-kebab-case

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/operation-tag-defined
+slug: /docs/cli/rules/oas/operation-tag-defined
 ---
 
 # operation-tag-defined

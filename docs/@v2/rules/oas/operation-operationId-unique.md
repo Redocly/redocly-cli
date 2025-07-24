@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/operation-operationId-unique
+slug: /docs/cli/rules/oas/operation-operationId-unique
 ---
 
 # operation-operationId-unique

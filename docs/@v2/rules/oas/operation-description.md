@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/operation-description
+slug: /docs/cli/rules/oas/operation-description
 ---
 
 # operation-description

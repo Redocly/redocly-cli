@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-http-verbs-in-paths
+slug: /docs/cli/rules/oas/no-http-verbs-in-paths
 ---
 
 # no-http-verbs-in-paths

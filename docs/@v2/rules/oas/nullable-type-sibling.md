@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/nullable-type-sibling
+slug: /docs/cli/rules/oas/nullable-type-sibling
 ---
 
 # nullable-type-sibling

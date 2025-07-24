@@ -1,6 +1,6 @@
-default: 'v1'
+default: 'v2'
 versions:
   - version: v1
-    name: 1.x (current)
+    name: 1.x (archive)
   - version: v2
-    name: 2.x (next)
+    name: 2.x (current)

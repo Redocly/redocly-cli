@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/tag-description
+slug: /docs/cli/v1/rules/oas/tag-description
 ---
 
 # tag-description

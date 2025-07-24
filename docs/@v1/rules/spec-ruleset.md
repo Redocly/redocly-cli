@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/spec
+slug: /docs/cli/v1/rules/spec
 ---
 
 # Spec ruleset

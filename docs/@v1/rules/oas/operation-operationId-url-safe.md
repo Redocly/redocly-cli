@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/operation-operationId-url-safe
+slug: /docs/cli/v1/rules/oas/operation-operationId-url-safe
 ---
 
 # operation-operationId-url-safe

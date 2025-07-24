@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/scalar-property-missing-example
+slug: /docs/cli/rules/oas/scalar-property-missing-example
 ---
 
 # scalar-property-missing-example

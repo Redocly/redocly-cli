@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-empty-servers
+slug: /docs/cli/v1/rules/oas/no-empty-servers
 ---
 
 # no-empty-servers
