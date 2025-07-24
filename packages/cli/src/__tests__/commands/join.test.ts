@@ -4,7 +4,6 @@ import {
   detectSpec,
   getTotals,
   loadConfig,
-  type SpecVersion,
   type Document,
 } from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join.js';
@@ -83,7 +82,7 @@ describe('handleJoin', () => {
   });
 
   it('should proceed if glob expands to 2 or more APIs', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_1' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_1');
     vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([
       { path: 'first.yaml' },
       { path: 'second.yaml' },
@@ -132,7 +131,7 @@ describe('handleJoin', () => {
   });
 
   it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
-    vi.mocked(detectSpec).mockReturnValueOnce('oas2_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValueOnce('oas2');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -147,8 +146,8 @@ describe('handleJoin', () => {
 
   it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
     vi.mocked(detectSpec)
-      .mockImplementationOnce(() => 'oas3_0' as SpecVersion)
-      .mockImplementationOnce(() => 'oas3_1' as SpecVersion);
+      .mockImplementationOnce(() => 'oas3_0')
+      .mockImplementationOnce(() => 'oas3_1');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -163,7 +162,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -180,7 +179,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_1' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_1');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -197,7 +196,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with custom output file', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -215,7 +214,7 @@ describe('handleJoin', () => {
   });
 
   it('should call writeToFileByExtension function with json file extension', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.json', 'second.yaml'],
@@ -232,7 +231,7 @@ describe('handleJoin', () => {
   });
 
   it('should call skipDecorators and skipPreprocessors', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_0');
     await handleJoin({
       argv: {
         apis: ['first.yaml', 'second.yaml'],
@@ -247,7 +246,7 @@ describe('handleJoin', () => {
   });
 
   it('should handle join with prefix-components-with-info-prop and null values', async () => {
-    vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+    vi.mocked(detectSpec).mockReturnValue('oas3_0');
 
     await handleJoin({
       argv: {

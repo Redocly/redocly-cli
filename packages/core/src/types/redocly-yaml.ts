@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf } from './index.js';
-import { SpecVersion, getTypes } from '../oas-types.js';
+import { specVersions, getTypes } from '../oas-types.js';
 import { isCustomRuleId, omit } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
@@ -422,7 +422,7 @@ const Assert: NodeType = {
 };
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
-  const nodeNames = Object.values(SpecVersion).flatMap((version) => {
+  const nodeNames = specVersions.flatMap((version) => {
     const types = config ? config.extendTypes(getTypes(version), version) : getTypes(version);
     return Object.keys(types);
   });

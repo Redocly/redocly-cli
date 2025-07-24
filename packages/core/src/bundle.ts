@@ -2,13 +2,7 @@ import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from
 import { normalizeVisitors } from './visitors.js';
 import { normalizeTypes } from './types/index.js';
 import { walkDocument } from './walk.js';
-import {
-  detectSpec,
-  getTypes,
-  getMajorSpecVersion,
-  SpecMajorVersion,
-  SpecVersion,
-} from './oas-types.js';
+import { detectSpec, getTypes, getMajorSpecVersion, type SpecMajorVersion } from './oas-types.js';
 import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/common/no-unresolved-refs.js';
@@ -34,11 +28,6 @@ import type { OasRef } from './typings/openapi.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
 import type { CollectFn } from './utils.js';
 
-export enum OasVersion {
-  Version2 = 'oas2',
-  Version3_0 = 'oas3_0',
-  Version3_1 = 'oas3_1',
-}
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
@@ -56,7 +45,7 @@ export function collectConfigPlugins(
   const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: SpecVersion.OAS3_0, // TODO: change it after we rename oasVersion to specVersion
+    oasVersion: 'oas3_0', // TODO: change it after we rename oasVersion to specVersion
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
@@ -82,7 +71,7 @@ export function bundleConfig(
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: SpecVersion.OAS3_0,
+    oasVersion: 'oas3_0', // TODO: change it after we rename oasVersion to specVersion
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,
@@ -200,7 +189,7 @@ export async function bundleDocument(opts: {
       severity: 'error',
       ruleId: 'remove-unused-components',
       visitor:
-        specMajorVersion === SpecMajorVersion.OAS2
+        specMajorVersion === 'oas2'
           ? RemoveUnusedComponentsOas2({})
           : RemoveUnusedComponentsOas3({}),
     });
@@ -266,7 +255,7 @@ export async function bundleDocument(opts: {
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
-    case SpecMajorVersion.OAS3:
+    case 'oas3':
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -289,7 +278,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.OAS2:
+    case 'oas2':
       switch (typeName) {
         case 'Schema':
           return 'definitions';
@@ -300,7 +289,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.Async2:
+    case 'async2':
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -309,7 +298,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.Async3:
+    case 'async3':
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -318,7 +307,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.Arazzo1:
+    case 'arazzo1':
       switch (typeName) {
         case 'Root.workflows_items.parameters_items':
         case 'Root.workflows_items.steps_items.parameters_items':
@@ -326,15 +315,13 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case SpecMajorVersion.Overlay1:
+    case 'overlay1':
       switch (typeName) {
         default:
           return null;
       }
   }
 }
-
-// function oas3Move
 
 function makeBundleVisitor(
   version: SpecMajorVersion,
@@ -402,22 +389,22 @@ function makeBundleVisitor(
     Root: {
       enter(root: any, ctx: UserContext) {
         rootLocation = ctx.location;
-        if (version === SpecMajorVersion.OAS3) {
+        if (version === 'oas3') {
           components = root.components = root.components || {};
-        } else if (version === SpecMajorVersion.OAS2) {
+        } else if (version === 'oas2') {
           components = root;
-        } else if (version === SpecMajorVersion.Async2) {
+        } else if (version === 'async2') {
           components = root.components = root.components || {};
-        } else if (version === SpecMajorVersion.Async3) {
+        } else if (version === 'async3') {
           components = root.components = root.components || {};
-        } else if (version === SpecMajorVersion.Arazzo1) {
+        } else if (version === 'arazzo1') {
           components = root.components = root.components || {};
         }
       },
     },
   };
 
-  if (version === SpecMajorVersion.OAS3) {
+  if (version === 'oas3') {
     visitor.DiscriminatorMapping = {
       leave(mapping: Record<string, string>, ctx: UserContext) {
         for (const name of Object.keys(mapping)) {
@@ -454,11 +441,7 @@ function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (
-      version === SpecMajorVersion.OAS3 ||
-      version === SpecMajorVersion.Async2 ||
-      version === SpecMajorVersion.Async3
-    ) {
+    if (version === 'oas3' || version === 'async2' || version === 'async3') {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;

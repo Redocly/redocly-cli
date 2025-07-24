@@ -305,8 +305,8 @@ describe('resolveConfig', () => {
 
     const config = new Config(resolvedConfig, { plugins: [] });
 
-    expect(Array.isArray(config.rules[SpecVersion.OAS3_1].assertions)).toEqual(true);
-    expect(config.rules[SpecVersion.OAS3_1].assertions).toMatchObject([
+    expect(Array.isArray(config.rules.oas3_1.assertions)).toEqual(true);
+    expect(config.rules.oas3_1.assertions).toMatchObject([
       {
         subject: { type: 'PathItem', property: 'get' },
         message: 'Every path item must have a GET operation.',
