@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.0-next.9
+
+### Patch Changes
+
+- Refactored `@redocly/respect-core` to eliminate Node.js-specific dependencies, improving cross-platform compatibility.
+- Updated @redocly/openapi-core to v2.0.0-next.9.
+
 ## 2.0.0-next.8
 
 ### Patch Changes

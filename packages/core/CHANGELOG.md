@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.0.0-next.9
+
+### Major Changes
+
+- Replaced the `SpecVersion`, `SpecMajorVersion`, `OPENAPI3_METHOD`, and `OPENAPI3_COMPONENT` enums with types for improved flexibility and type safety.
+  Removed the unused `OasVersion` enum.
+
+### Patch Changes
+
+- Refactored `@redocly/respect-core` to eliminate Node.js-specific dependencies, improving cross-platform compatibility.
+
 ## 2.0.0-next.8
 
 ### Major Changes
