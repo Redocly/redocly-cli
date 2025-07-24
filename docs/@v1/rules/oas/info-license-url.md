@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/info-license-url
+slug: /docs/cli/v1/rules/oas/info-license-url
 ---
 
 # info-license-url

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-required-schema-properties-undefined
+slug: /docs/cli/v1/rules/oas/no-required-schema-properties-undefined
 ---
 
 # no-required-schema-properties-undefined

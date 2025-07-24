@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/operation-singular-tag
+slug: /docs/cli/v1/rules/oas/operation-singular-tag
 ---
 
 # operation-singular-tag

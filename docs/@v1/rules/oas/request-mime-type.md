@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/request-mine-type
+slug: /docs/cli/v1/rules/oas/request-mine-type
 ---
 
 # request-mime-type

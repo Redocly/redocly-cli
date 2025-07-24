@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/operation-parameters-unique
+slug: /docs/cli/v1/rules/oas/operation-parameters-unique
 ---
 
 # operation-parameters-unique

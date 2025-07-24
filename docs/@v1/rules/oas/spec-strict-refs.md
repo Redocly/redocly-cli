@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/spec-strict-refs
+slug: /docs/cli/v1/rules/oas/spec-strict-refs
 ---
 
 # spec-strict-refs

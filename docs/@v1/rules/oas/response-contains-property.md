@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/response-contains-property
+slug: /docs/cli/v1/rules/oas/response-contains-property
 ---
 
 # response-contains-property

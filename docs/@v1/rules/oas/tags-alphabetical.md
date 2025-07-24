@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/tags-alphabetical
+slug: /docs/cli/v1/rules/oas/tags-alphabetical
 ---
 
 # tags-alphabetical

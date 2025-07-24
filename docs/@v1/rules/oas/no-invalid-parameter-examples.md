@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-invalid-parameter-examples
+slug: /docs/cli/v1/rules/oas/no-invalid-parameter-examples
 ---
 
 # no-invalid-parameter-examples
