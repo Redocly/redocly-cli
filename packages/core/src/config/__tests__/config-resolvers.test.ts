@@ -500,7 +500,9 @@ describe('resolveApis', () => {
         configPath
       ),
     });
-    const { resolvedConfig: mergedGovernancePresetResolved } = mergedGovernancePreset;
+    const {
+      resolvedConfig: { plugins, ...mergedGovernancePresetResolved },
+    } = mergedGovernancePreset;
     const rawConfig: RawUniversalConfig = {
       apis: {
         petstore: {

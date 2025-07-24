@@ -77,7 +77,7 @@ Config {
         },
       },
     },
-    "plugins": undefined,
+    "plugins": [],
     "resolve": {
       "http": {
         "headers": [],

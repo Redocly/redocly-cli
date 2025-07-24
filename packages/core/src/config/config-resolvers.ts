@@ -81,11 +81,12 @@ export async function resolveConfig({
   });
 
   let resolvedPlugins: Plugin[];
+  let rootConfigDir: string = '';
   if (isBrowser) {
     // In browser, we don't support plugins from config file yet
     resolvedPlugins = [defaultPlugin];
   } else {
-    const rootConfigDir = path.dirname(configPath ?? '');
+    rootConfigDir = path.dirname(configPath ?? '');
     const pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
     const plugins = await resolvePlugins(pluginsOrPaths, rootConfigDir);
     resolvedPlugins = [...plugins, defaultPlugin];
@@ -107,7 +108,12 @@ export async function resolveConfig({
   }
 
   return {
-    resolvedConfig: bundledConfig,
+    resolvedConfig: {
+      ...bundledConfig,
+      plugins: resolvedPlugins
+        .map((p) => (p.absolutePath ? path.relative(rootConfigDir, p.absolutePath) : undefined))
+        .filter(isDefined),
+    },
     resolvedRefMap,
     plugins: resolvedPlugins,
   };

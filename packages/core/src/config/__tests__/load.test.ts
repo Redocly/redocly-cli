@@ -83,7 +83,7 @@ describe('loadConfig', () => {
     `);
     expect(config.resolvedConfig).toMatchInlineSnapshot(`
       {
-        "plugins": undefined,
+        "plugins": [],
         "rules": {
           "info-license": "error",
           "non-existing-rule": "warn",
@@ -941,6 +941,7 @@ describe('loadConfig', () => {
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
     });
     expect(resolvedConfig).toEqual({
+      plugins: [],
       seo: {
         title: 1,
       },
