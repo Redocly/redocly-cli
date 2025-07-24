@@ -26,6 +26,10 @@ import type {
 } from './visitors.js';
 import type { CollectFn } from './utils.js';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore FIXME: remove this once we remove `theme` from the schema
+delete rootRedoclyConfigSchema.properties.theme;
+
 export async function lint(opts: {
   ref: string;
   config: Config;

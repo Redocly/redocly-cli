@@ -100,12 +100,7 @@ For more information and examples, visit the [configuring rules documentation](.
 
 <a id="theme-object"></a>
 
-### Configure OpenAPI features and documentation styles in `theme`
-
-The `theme` section includes configuration options for the following aspects of your API documentation:
-
-- `mockServer` settings if you use Redocly API registry.
-- styles and features of your API documentation (applies to Redocly API reference and Redoc) in `openapi`.
+### Configure OpenAPI features and documentation styles
 
 #### mockServer object
 
@@ -115,7 +110,7 @@ In case of conflict, API takes priority.
 The API registry supports [the mock server feature](https://redocly.com/docs/api-registry/guides/mock-server-quickstart/) and allows project owners to enable it for all branches per API version.
 When the mock server is enabled for an API, you can send test requests to it from any API client.
 
-The `mockServer` object is a property of the `theme` object and allows additional configuration of the mock server behavior.
+The `mockServer` object allows additional configuration of the mock server behavior.
 This object is optional.
 
 #### Fixed properties
@@ -128,9 +123,9 @@ This object is optional.
 
 #### openapi object
 
-The `openapi` object is a property of the `theme` object and configures features and theming for API documentation generated from OpenAPI descriptions.
+The `openapi` object configures features and theming for API documentation generated from OpenAPI descriptions.
 
-If you need to apply different theming and functionality to individual APIs, add the theme `openapi` property to the appropriate API in the `apis` and `theme` object, and use the same options as the global `openapi` object.
+If you need to apply different theming and functionality to individual APIs, add the `openapi` property to the appropriate API in the `apis` object, and use the same options as the global `openapi` object.
 
 Find the full list of supported options on the [Reference docs configuration page](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
 
