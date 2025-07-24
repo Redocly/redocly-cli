@@ -4,12 +4,13 @@ import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath } from './config-resolvers.js';
 
+import type { PluginResolveInfo } from './config-resolvers.js';
 import type { OasRef } from '../typings/openapi.js';
 import type { Plugin } from './types.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 
 export type PluginsCollectorVisitorData = {
-  plugins: (string | Plugin)[];
+  plugins: (PluginResolveInfo | Plugin)[];
   rootConfigDir: string;
 };
 
