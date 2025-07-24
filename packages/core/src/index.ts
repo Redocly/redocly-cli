@@ -93,9 +93,9 @@ export {
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export { unescapePointer, isRef, isAbsoluteUrl, escapePointer } from './ref-utils.js';
 export {
-  SpecMajorVersion,
+  type SpecMajorVersion,
   getMajorSpecVersion,
-  SpecVersion,
+  type SpecVersion,
   detectSpec,
   getTypes,
 } from './oas-types.js';
