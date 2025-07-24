@@ -5,11 +5,21 @@ import { resolveConfig } from '../config-resolvers.js';
 import recommended from '../recommended.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 import { Source } from '../../resolve.js';
 import { Config } from '../config.js';
 import { SpecVersion } from '../../oas-types.js';
+import { after } from 'node:test';
+
+vi.mock('node:module', () => ({
+  default: {
+    createRequire: () => ({
+      resolve: (path: string) => `/mock/path/${path}`,
+    }),
+  },
+}));
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -598,5 +608,30 @@ describe('resolveApis', () => {
     expect(apis?.['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
     expect(plugins?.length).toEqual(2);
     expect(rules?.['operation-2xx-response']).toEqual('warn');
+  });
+
+  it('should work with npm dependencies', async () => {
+    after(() => {
+      (globalThis as any).__webpack_require__ = undefined;
+      (globalThis as any).__non_webpack_require__ = undefined;
+    });
+
+    (globalThis as any).__webpack_require__ = () => {};
+    (globalThis as any).__non_webpack_require__ = (p: string) =>
+      p === '/mock/path/test-plugin'
+        ? {
+            id: 'npm-test-plugin',
+          }
+        : {
+            id: 'local-test-plugin',
+          };
+
+    const { resolvedConfig } = await resolveConfig({
+      rawConfigDocument: makeDocument(
+        { plugins: ['test-plugin', 'fixtures/plugin.cjs'] },
+        configPath
+      ),
+    });
+    expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
   });
 });

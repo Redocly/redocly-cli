@@ -537,6 +537,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
   "plugins": [
     "api/plugin.js",
     "plugin.js",
+    "api/plugin.js",
   ],
   "preprocessors": {},
   "rules": {
