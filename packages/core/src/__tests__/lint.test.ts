@@ -20,11 +20,10 @@ const testPortalConfigContent = outdent`
         output: file.json
       with-wrong-root:
         root: 456 # Must be a string
-      with-theme:
+      with-wrong-props:
         root: ./openapi.yaml
-        theme:
-          openapi: wrong, must be an object
-          not-expected: Must fail
+        openapi: wrong, must be an object
+        not-expected: Must fail
 
     seo:
       keywords: 789 # Must be an array
@@ -153,113 +152,109 @@ const testPortalConfigContent = outdent`
           wrong-root:
             root: 789 # Must be a string
 
-    theme:
-      breadcrumbs:
-        hide: false
-        prefixItems:
-          - label: Home
-            page: '/'
-      imports:
-        - '@redocly/theme-experimental'
 
-      logo:
-        srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
-        altText: Test
-        link: /
-      asyncapi:
-        hideInfo: false
-        expandSchemas:
-          root: true
-          elements: true
-      navbar:
-        items:
-          - label: Markdown
-            page: /markdown/
+    breadcrumbs:
+      hide: false
+      prefixItems:
+        - label: Home
+          page: '/'
+    imports:
+      - '@redocly/theme-experimental'
 
-      search:
-        shortcuts:
-          - ctrl+f
-          - cmd+k
-          - /
-        suggestedPages:
-          - label: TSX page
-            page: tsx.page.tsx
-          - page: /my-catalog/
+    logo:
+      srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
+      altText: Test
+      link: /
 
-      footer:
-        copyrightText: Copyright © Test 2019-2020.
-        items:
-          - group: Legal
-            items:
-              - label: Terms of Use
-                href: 'https://test.com/' # Not expected
+    navbar:
+      items:
+        - label: Markdown
+          page: /markdown/
 
-      markdown:
-        lastUpdatedBlock:
-          format: 'long'
-        editPage:
-          baseUrl: https://test.com
-      graphql:
-        menu:
-          requireExactGroups: false
-          groups:
-            - name: 'GraphQL custom group'
-              directives:
-                includeByName:
-                  - cacheControl
-                  - typeDirective
-          otherItemsGroupName: 'Other'
-      sidebar:
-        separatorLine: true
-        linePosition: top
-      catalog:
-        main:
-          title: API Catalog
-          description: 'This is a description of the API Catalog'
-          slug: /my-catalog/
-          filters:
-            - title: Domain
-              property: domain
-              missingCategoryName: Other
-            - title: API Category
-              property: category
-              missingCategoryName: Other
-          groupByFirstFilter: false
+    search:
+      shortcuts:
+        - ctrl+f
+        - cmd+k
+        - /
+      suggestedPages:
+        - label: TSX page
+          page: tsx.page.tsx
+        - page: /my-catalog/
+
+    footer:
+      copyrightText: Copyright © Test 2019-2020.
+      items:
+        - group: Legal
           items:
-            - directory: ./
-              flatten: true
-              includeByMetadata:
-                type: [openapi]
-      scorecard:
-        ignoreNonCompliant: true
-        levels:
-          - name: Baseline
-            extends:
-              - minimal
-          - name: Silver
-            extends:
-              - recommended
-            rules:
-              info-description: off
+            - label: Terms of Use
+              href: 'https://test.com/' # Not expected
 
-          - name: Gold
-            rules:
-              rule/path-item-get-required:
-                severity: warn
-                subject:
-                  type: PathItem
-                message: Every path item must have a GET operation.
-                assertions:
-                  required:
-                    - get
+    markdown:
+      lastUpdatedBlock:
+        format: 'long'
+      editPage:
+        baseUrl: https://test.com
+    graphql:
+      menu:
+        requireExactGroups: false
+        groups:
+          - name: 'GraphQL custom group'
+            directives:
+              includeByName:
+                - cacheControl
+                - typeDirective
+        otherItemsGroupName: 'Other'
+    sidebar:
+      separatorLine: true
+      linePosition: top
+    catalogClassic:
+      main:
+        title: API Catalog
+        description: 'This is a description of the API Catalog'
+        slug: /my-catalog/
+        filters:
+          - title: Domain
+            property: domain
+            missingCategoryName: Other
+          - title: API Category
+            property: category
+            missingCategoryName: Other
+        groupByFirstFilter: false
+        items:
+          - directory: ./
+            flatten: true
+            includeByMetadata:
+              type: [openapi]
+    scorecard:
+      ignoreNonCompliant: true
+      levels:
+        - name: Baseline
+          extends:
+            - minimal
+        - name: Silver
+          extends:
+            - recommended
+          rules:
+            info-contact: off
 
-              operation-4xx-response: warn
-        targets:
-          - where:
-              metadata:
-                l0: Distribution
-                publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
-            minimumLevel: Silver
+        - name: Gold
+          rules:
+            rule/path-item-get-required:
+              severity: warn
+              subject:
+                type: PathItem
+              message: Every path item must have a GET operation.
+              assertions:
+                required:
+                  - get
+
+            operation-4xx-response: warn
+      targets:
+        - where:
+            metadata:
+              l0: Distribution
+              publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
+          minimumLevel: Silver
 
   `;
 
@@ -443,10 +438,9 @@ describe('lint', () => {
             assertions:
               local/checkWordsCount:
                 min: 3
-        theme:
-          openapi:
-            showConsole: true # Not expected anymore
-            layout: wrong-option
+        openapi:
+          showConsole: true # Not expected anymore
+          layout: wrong-option
       `;
     const cwd = path.join(__dirname, 'fixtures');
     const config = await createConfig(testConfigContent, {
@@ -474,7 +468,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/theme/openapi/layout",
+              "pointer": "#/openapi/layout",
               "reportOnKey": false,
               "source": "redocly.yaml",
             },
@@ -813,7 +807,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/theme/not-expected",
+              "pointer": "#/apis/with-wrong-props/not-expected",
               "reportOnKey": true,
               "source": "",
             },
@@ -827,12 +821,12 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/theme/openapi",
+              "pointer": "#/apis/with-wrong-props/openapi",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "Expected type \`rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi\` (object) but got \`string\`",
+          "message": "Expected type \`rootRedoclyConfigSchema.apis_additionalProperties.openapi\` (object) but got \`string\`",
           "ruleId": "configuration struct",
           "severity": "error",
           "suggest": [],
@@ -1169,7 +1163,10 @@ describe('lint', () => {
       externalConfigTypes: createConfigTypes(
         {
           type: 'object',
-          properties: { theme: rootRedoclyConfigSchema.properties.theme },
+          properties: {
+            catalogClassic: rootRedoclyConfigSchema.properties.catalogClassic,
+            scorecard: rootRedoclyConfigSchema.properties.scorecard,
+          },
           additionalProperties: false,
         },
         config
@@ -1351,6 +1348,132 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
+              "pointer": "#/breadcrumbs",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`breadcrumbs\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/imports",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`imports\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/logo",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`logo\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/navbar",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`navbar\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/search",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`search\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/footer",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`footer\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/markdown",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`markdown\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/graphql",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`graphql\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sidebar",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`sidebar\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
               "pointer": "#/apis/without-root/foo",
               "reportOnKey": true,
               "source": "",
@@ -1393,7 +1516,7 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/root",
+              "pointer": "#/apis/with-wrong-props/root",
               "reportOnKey": true,
               "source": "",
             },
@@ -1407,12 +1530,26 @@ describe('lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/apis/with-theme/theme",
+              "pointer": "#/apis/with-wrong-props/openapi",
               "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Property \`theme\` is not expected here.",
+          "message": "Property \`openapi\` is not expected here.",
+          "ruleId": "configuration struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-wrong-props/not-expected",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-expected\` is not expected here.",
           "ruleId": "configuration struct",
           "severity": "error",
           "suggest": [],
