@@ -1,5 +1,75 @@
 # @redocly/openapi-core
 
+## 2.0.0
+
+### Major Changes
+
+- Removed backward compatibility for the `spec` rule. Use `struct` instead.
+- Removed support for the deprecated `apiDefinitions` option in the Redocly config. Use `apis` instead.
+  Removed the `labels` field within the `apis` section, which was associated with the legacy Redocly API Registry product.
+- Replaced the `SpecVersion`, `SpecMajorVersion`, `OPENAPI3_METHOD`, and `OPENAPI3_COMPONENT` enums with types for improved flexibility and type safety.
+  Removed the unused `OasVersion` enum.
+- Removed support for default config file names other than `redocly.yaml`.
+- Removed support for the deprecated `features.openapi` and `features.mockServer` configuration options. Use `openapi` and `mockServer` directly instead.
+- Removed backward compatibility for the deprecated `lint` and `styleguide` options in the Redocly config.
+  Use `rules`, `decorators` and other related options on the root level instead.
+- Removed the deprecated `disallowAdditionalProperties` option support in rules. Use `allowAdditionalProperties` instead.
+- Removed support for the deprecated `theme` property of Redocly config.
+  All the properties of `theme` are now available in the config root.
+- Removed the deprecated `path-excludes-patterns` and `info-license-url` rules.
+- Removed the deprecated `undefined` assertion. Use `defined` instead.
+- Removed support for the legacy Redocly API Registry in favor of the new Reunite platform.
+  Reunite provides improved API management capabilities and better integration with Redocly's tooling ecosystem.
+  Migrated the `login` and `push` commands to work exclusively with Reunite.
+  Removed the `preview-docs` command as part of platform modernization.
+  Use the `preview` command instead.
+- Removed support for the deprecated `referenceDocs` option, which was related to the legacy Reference docs product.
+- Added support for `extends` bundling and array-based plugin configuration.
+  Fixed the extends order in the configuration.
+- Removed support for the deprecated `assert/` prefix in configurable rules. Use `rule/` prefix instead.
+- Migrated the codebase to ES Modules from CommonJS, bringing improved code organization and better support for modern JavaScript features.
+  Update to Node.js version 20.19.0+, 22.12.0+, or 23+.
+- Streamlined Redocly configuration interfaces for improved developer experience.
+  Removed `StyleguideConfig` class in favor of the unified `Config` class.
+  Removed `getMergedConfig` function - use `Config.forAlias()` method instead to retrieve API-specific configurations.
+
+### Minor Changes
+
+- Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
+  Use this extension to:
+
+  - Define security schemes at the step level using either predefined schemes or inline definitions
+  - Pass values of secrets (passwords, tokens, API keys)
+  - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect
+  - Automatically transform security parameters into appropriate HTTP headers or query parameters
+
+- Added validation for JSON Schema format.
+- Extracted `nullable` validation from the `struct` rule into a new `nullable-type-sibling` rule for OpenAPI 3.0. This allows users to disable `nullable` validation separately from other structural checks.
+- Configured the `spec` ruleset for OpenAPI, AsyncAPI, Arazzo, and Overlay specifications.
+  This ruleset is designed to strictly follow the specifications.
+- Added the `no-duplicated-tag-names` rule to check for duplications in the `tags` field in API descriptions.
+- Enabled `no-required-schema-properties-undefined`, `no-schema-type-mismatch`, and `no-enum-type-mismatch` rules for **AsyncAPI** and **Arazzo** specifications.
+  Adjusted the rules' severities in the `recommended` and `minimal` rulesets. Refer to the following table:
+
+  | Rule \ Ruleset                          | recommended       | minimal         |
+  | --------------------------------------- | ----------------- | --------------- |
+  | no-required-schema-properties-undefined | `off` -> `warn`   | `off` -> `warn` |
+  | no-enum-type-mismatch                   | `error`           | `warn`          |
+  | no-schema-type-mismatch                 | `warn` -> `error` | `off` -> `warn` |
+
+### Patch Changes
+
+- Improved performance of configuration parsing.
+- Updated @redocly/config to v0.26.4.
+- Updated @redocly/config to v0.24.3.
+- Fixed an issue where the `ignoreLastPathSegment` option of the `path-segment-plural` rule had no effect if the path contained only one segment, resulting in an error.
+- Fixed plugins validation in config files referenced in the `extends` section.
+- Refactored `@redocly/respect-core` to eliminate Node.js-specific dependencies, improving cross-platform compatibility.
+- Updated @redocly/config to v0.24.1.
+- Fixed an issue where the config resolver grouped assertions instead of returning unchanged rules.
+- Fixed Redocly CLI to correctly read `residency` from the Redocly configuration file.
+- Fixed incorrect validation logic for the `constructor` property.
+
 ## 2.0.0-next.10
 
 ### Major Changes
