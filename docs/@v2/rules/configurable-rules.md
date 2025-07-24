@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/configurable-rules
+slug: /docs/cli/rules/configurable-rules
 ---
 
 # Configurable rules

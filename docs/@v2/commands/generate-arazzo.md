@@ -1,6 +1,6 @@
 ---
 slug:
-  - /docs/cli/v2/commands/generate-arazzo
+  - /docs/cli/commands/generate-arazzo
 ---
 
 # `generate-arazzo`

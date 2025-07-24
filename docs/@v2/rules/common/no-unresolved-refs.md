@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-unresolved-refs
+slug: /docs/cli/rules/oas/no-unresolved-refs
 ---
 
 # no-unresolved-refs

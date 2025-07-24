@@ -1,7 +1,5 @@
 ---
-slug: 
-- /docs/cli/v2/rules/common/no-enum-type-mismatch
-- /docs/cli/v2/rules/oas/no-enum-type-mismatch
+slug: /docs/cli/rules/common/no-enum-type-mismatch
 ---
 
 # no-enum-type-mismatch

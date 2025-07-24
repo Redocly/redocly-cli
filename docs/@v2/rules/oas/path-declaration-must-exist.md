@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/path-declaration-must-exist
+slug: /docs/cli/rules/oas/path-declaration-must-exist
 ---
 
 # path-declaration-must-exist

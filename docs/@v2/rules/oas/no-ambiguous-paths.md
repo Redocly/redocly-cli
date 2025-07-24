@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-ambiguous-paths
+slug: /docs/cli/rules/oas/no-ambiguous-paths
 ---
 
 # no-ambiguous-paths
