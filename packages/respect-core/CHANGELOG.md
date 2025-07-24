@@ -1,5 +1,37 @@
 # @redocly/respect-core
 
+## 2.0.0
+
+### Major Changes
+
+- Removed support for the legacy Redocly API Registry in favor of the new Reunite platform.
+  Reunite provides improved API management capabilities and better integration with Redocly's tooling ecosystem.
+  Migrated the `login` and `push` commands to work exclusively with Reunite.
+  Removed the `preview-docs` command as part of platform modernization.
+  Use the `preview` command instead.
+- Migrated the codebase to ES Modules from CommonJS, bringing improved code organization and better support for modern JavaScript features.
+  Update to Node.js version 20.19.0+, 22.12.0+, or 23+.
+
+### Minor Changes
+
+- Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
+  Use this extension to:
+
+  - Define security schemes at the step level using either predefined schemes or inline definitions
+  - Pass values of secrets (passwords, tokens, API keys)
+  - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect
+  - Automatically transform security parameters into appropriate HTTP headers or query parameters
+
+- Implemented automatic masking of sensitive fields (such as tokens and passwords) in response bodies to enhance security and prevent accidental exposure of secrets in logs and outputs.
+- Added new CLI options for the `respect` command to improve test execution control.
+
+### Patch Changes
+
+- Refactored `@redocly/respect-core` to eliminate Node.js-specific dependencies, improving cross-platform compatibility.
+- Resolved an issue where `dotenv@16.6.0` injected an unintended message into the output.
+- Improved Respect's error handling when server URLs are missing from both OpenAPI descriptions and CLI options.
+- Updated @redocly/openapi-core to v2.0.0.
+
 ## 2.0.0-next.10
 
 ### Patch Changes
