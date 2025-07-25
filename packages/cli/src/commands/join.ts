@@ -13,6 +13,7 @@ import {
   isString,
   isPlainObject,
   keysOf,
+  isEmptyObject,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -170,18 +171,16 @@ export async function handleJoin({
     }
   }
 
-  const firstDocServers = documents[0]?.parsed.servers;
-  const serversAreTheSame =
-    firstDocServers &&
-    documents.slice(1).every((doc) => {
-      // include only documents with paths
-      if (Object.keys(doc.parsed.paths || {}).length === 0) {
-        return true;
-      }
-      return doc.parsed.servers?.every((server: Oas3Server) =>
-        firstDocServers?.find((firstDocServer: Oas3Server) => firstDocServer.url === server.url)
-      );
-    });
+  const [first, ...others] = documents ?? [];
+  const serversAreTheSame = others.every(({ parsed: { paths, servers } }) => {
+    // include only documents with paths
+    if (!paths || isEmptyObject(paths || {})) {
+      return true;
+    }
+    return servers?.every((server: Oas3Server) =>
+      first.parsed.servers?.find(({ url }: Oas3Server) => url === server.url)
+    );
+  });
 
   const joinedDef: any = {};
   const potentialConflicts = {
@@ -193,8 +192,8 @@ export async function handleJoin({
 
   addInfoSectionAndSpecVersion(documents, prefixComponentsWithInfoProp);
 
-  if (serversAreTheSame && firstDocServers) {
-    joinedDef.servers = firstDocServers;
+  if (serversAreTheSame && first.parsed.servers) {
+    joinedDef.servers = first.parsed.servers;
   }
 
   for (const document of documents) {

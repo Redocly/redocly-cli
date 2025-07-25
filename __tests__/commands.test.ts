@@ -383,7 +383,6 @@ describe('E2E', () => {
         'fails-if-tags-duplication',
         'reference-in-description',
         'two-files-with-no-errors',
-        'three-files-one-without-servers',
         'fails-if-component-conflicts',
         'multiple-tags-in-same-files',
         'references-in-parameters',
@@ -393,13 +392,17 @@ describe('E2E', () => {
 
       test.each(testDirNames)('test: %s', async (dir) => {
         const testPath = join(__dirname, `join/${dir}`);
-        let args = getParams(indexEntryPoint, ['join', ...entrypoints]);
-        if (dir === 'three-files-one-without-servers') {
-          args.push('baz.yaml');
-        }
+        const args = getParams(indexEntryPoint, ['join', ...entrypoints]);
         const result = getCommandOutput(args, {}, { testPath });
         await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
+    });
+
+    test('three files one without servers', async () => {
+      const testPath = join(__dirname, `join/three-files-one-without-servers`);
+      const args = getParams(indexEntryPoint, ['join', ...entrypoints, 'baz.yaml']);
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
 
     describe('with options', () => {

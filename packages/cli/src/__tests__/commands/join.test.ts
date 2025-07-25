@@ -5,6 +5,7 @@ import {
   getTotals,
   loadConfig,
   type Document,
+  BaseResolver,
 } from '@redocly/openapi-core';
 import { handleJoin } from '../../commands/join.js';
 import {
@@ -47,31 +48,28 @@ describe('handleJoin', () => {
       const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
         '@redocly/openapi-core'
       );
-      class MockedBaseResolver extends actual.BaseResolver {
-        resolveDocument = vi
-          .fn()
-          .mockImplementationOnce(() =>
-            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
-          )
-          .mockImplementationOnce(() =>
-            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
-          )
-          .mockImplementationOnce(() =>
-            Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
-          );
-      }
       return {
         ...actual,
         bundleDocument: vi.fn(),
         detectSpec: vi.fn(),
         getTotals: vi.fn(),
         loadConfig: vi.fn(),
-        BaseResolver: MockedBaseResolver,
       };
     });
+
     vi.mocked(bundleDocument).mockResolvedValue({ problems: [] } as any);
     vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });
     vi.mocked(loadConfig).mockResolvedValue(configFixture);
+    vi.spyOn(BaseResolver.prototype, 'resolveDocument')
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
+      );
   });
 
   afterEach(() => {
@@ -404,7 +402,7 @@ describe('handleJoin', () => {
         info: { title: 'B' },
       };
 
-      vi.mocked(BaseResolver.prototype.resolveDocument)
+      vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>
           Promise.resolve({
@@ -435,7 +433,7 @@ describe('handleJoin', () => {
 
     it('should move servers to path level if they are different', async () => {
       vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
-      vi.mocked(BaseResolver.prototype.resolveDocument)
+      vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>
           Promise.resolve({
