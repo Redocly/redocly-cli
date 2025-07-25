@@ -17,12 +17,33 @@ export function evaluateRuntimeExpressionPayload({
   contentType?: string;
   logger: LoggerInterface;
 }): any {
-  if (
-    contentType?.includes('application/octet-stream') ||
-    contentType?.includes('multipart/form-data')
-  ) {
-    return parseJson(payload, context, logger); // Return parsed file content as JSON
+  if (contentType?.includes('application/octet-stream')) {
+    return parseJson(payload, context, logger);
   }
+
+  if (contentType?.includes('multipart/form-data')) {
+    if (payload instanceof FormData) {
+      const processedFormData = new FormData();
+
+      for (const [key, value] of payload.entries()) {
+        if (value instanceof File) {
+          processedFormData.append(key, value);
+        } else {
+          const evaluatedValue = evaluateRuntimeExpressionPayload({
+            payload: value,
+            context,
+            logger,
+          });
+          processedFormData.append(key, evaluatedValue);
+        }
+      }
+
+      return processedFormData;
+    }
+
+    return parseJson(payload, context, logger);
+  }
+
   if (typeof payload === 'string') {
     // Resolve string expressions
     return isPureRuntimeExpression(payload)

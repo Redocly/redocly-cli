@@ -18,8 +18,10 @@ export function getVerboseLogs({
   if (headerParams && Object.keys(headerParams).length > 0) {
     verboseLogs.headerParams = headerParams;
   }
-
-  if (body && Object.keys(body).length > 0) {
+  if (
+    body &&
+    ((!(body instanceof FormData) && Object.keys(body).length > 0) || body instanceof FormData)
+  ) {
     verboseLogs.body = body;
   }
 
