@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fix: ensure multipart form-data parameters are properly resolved and evaluated before sending requests.
+Fixed an issue where multipart form-data parameters were not properly resolved and evaluated before sending requests.
