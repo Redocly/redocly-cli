@@ -46,7 +46,7 @@ jobs:
       - name: Redocly version
         run: redocly --version
       - name: Definition test
-        run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
+        run: redocly lint resources/rebilly.yaml --format=stylish
 
   coverage-report:
     runs-on: ubuntu-latest
