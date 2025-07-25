@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Ensured that the `no-required-schema-properties-undefined` rule correctly resolves nested $refs relative to the file in which they are defined.
+Fixed an issue where the `no-required-schema-properties-undefined` rule incorrectly resolved nested `$ref`s relative to the file in which they were defined.
