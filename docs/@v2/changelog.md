@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.1 (2025-07-25)
+
+### Patch Changes
+
+- Fixed an issue where the `no-required-schema-properties-undefined` rule incorrectly resolved nested `$ref`s relative to the file in which they were defined.
+- Fixed an issue where multipart form-data parameters were not properly resolved and evaluated before sending requests.
+- Updated @redocly/openapi-core to v2.0.1.
+
 ## 2.0.0 (2025-07-24)
 
 ### Major Changes
