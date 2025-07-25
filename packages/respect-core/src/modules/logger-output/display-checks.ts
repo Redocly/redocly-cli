@@ -80,11 +80,27 @@ function displayVerboseLogs({
   const requestBodyString = indent(`Request Body:`, 4);
   const responseBodyString = indent(`Response Body:`, 4);
   const headersString = generateHeaderString(headerParams || {});
-  const formattedBody = body
-    ? isJSON(body)
-      ? JSON.stringify(JSON.parse(body), null, 2)
-      : body
-    : undefined;
+
+  let formattedBody;
+
+  if (body instanceof FormData) {
+    // Convert FormData to a simple object for display
+    const formDataObject: Record<string, any> = {};
+    for (const [key, value] of body.entries()) {
+      if (value instanceof File) {
+        formDataObject[key] = `[File: ${value.name}]`;
+      } else {
+        formDataObject[key] = value;
+      }
+    }
+    formattedBody = JSON.stringify(formDataObject, null, 2);
+  } else if (body && isJSON(body)) {
+    formattedBody = JSON.stringify(JSON.parse(body), null, 2);
+  } else if (body instanceof File) {
+    formattedBody = `[File: ${body.name}]`;
+  } else {
+    formattedBody = body;
+  }
 
   const indentedBody = formattedBody
     ? formattedBody

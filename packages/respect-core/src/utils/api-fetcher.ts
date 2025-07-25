@@ -72,7 +72,7 @@ export class ApiFetcher implements IFetcher {
       host,
       path,
       method,
-      body: JSON.stringify(body),
+      body: body instanceof FormData || body instanceof File ? body : JSON.stringify(body),
     });
   };
 
@@ -216,10 +216,25 @@ export class ApiFetcher implements IFetcher {
 
     // Mask the secrets in the header params and the body
     const maskedHeaderParams = maskSecrets(headers, ctx.secretFields || new Set());
-    const maskedBody =
-      isJsonContentType(contentType) && encodedBody
-        ? maskSecrets(JSON.parse(encodedBody), ctx.secretFields || new Set())
-        : encodedBody;
+    let maskedBody;
+
+    if (encodedBody instanceof FormData) {
+      // Create a new FormData and copy entries, masking non-file fields
+      const maskedFormData = new FormData();
+      for (const [key, value] of encodedBody.entries()) {
+        if (value instanceof File) {
+          maskedFormData.append(key, value);
+        } else {
+          const maskedValue = maskSecrets(value, ctx.secretFields || new Set());
+          maskedFormData.append(key, maskedValue);
+        }
+      }
+      maskedBody = maskedFormData;
+    } else if (isJsonContentType(contentType) && encodedBody) {
+      maskedBody = maskSecrets(JSON.parse(encodedBody), ctx.secretFields || new Set());
+    } else {
+      maskedBody = encodedBody;
+    }
     const maskedPathParams = maskSecrets(pathWithSearchParams, ctx.secretFields || new Set());
 
     // Start of the verbose logs
