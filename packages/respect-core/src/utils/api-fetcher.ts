@@ -72,7 +72,7 @@ export class ApiFetcher implements IFetcher {
       host,
       path,
       method,
-      body: body instanceof FormData ? body : JSON.stringify(body),
+      body: body instanceof FormData || body instanceof File ? body : JSON.stringify(body),
     });
   };
 

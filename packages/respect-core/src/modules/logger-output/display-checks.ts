@@ -96,6 +96,8 @@ function displayVerboseLogs({
     formattedBody = JSON.stringify(formDataObject, null, 2);
   } else if (body && isJSON(body)) {
     formattedBody = JSON.stringify(JSON.parse(body), null, 2);
+  } else if (body instanceof File) {
+    formattedBody = `[File: ${body.name}]`;
   } else {
     formattedBody = body;
   }
