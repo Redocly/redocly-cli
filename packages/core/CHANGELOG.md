@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.0.1
+
+### Patch Changes
+
+- Fixed an issue where the `no-required-schema-properties-undefined` rule incorrectly resolved nested `$ref`s relative to the file in which they were defined.
+
 ## 2.0.0
 
 ### Major Changes

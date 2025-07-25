@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.1
+
+### Patch Changes
+
+- Fixed an issue where multipart form-data parameters were not properly resolved and evaluated before sending requests.
+- Updated @redocly/openapi-core to v2.0.1.
+
 ## 2.0.0
 
 ### Major Changes
