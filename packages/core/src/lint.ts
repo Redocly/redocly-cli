@@ -5,7 +5,7 @@ import { walkDocument } from './walk.js';
 import { initRules } from './config/rules.js';
 import { normalizeTypes } from './types/index.js';
 import { releaseAjvInstance } from './rules/ajv.js';
-import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types.js';
+import { getMajorSpecVersion, detectSpec, getTypes } from './oas-types.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
@@ -25,6 +25,10 @@ import type {
   RuleInstanceConfig,
 } from './visitors.js';
 import type { CollectFn } from './utils.js';
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore FIXME: remove this once we remove `theme` from the schema
+delete rootRedoclyConfigSchema.properties.theme;
 
 export async function lint(opts: {
   ref: string;
@@ -132,7 +136,7 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: SpecVersion.OAS3_0, // TODO: use config-specific version; rename `oasVersion`
+    oasVersion: 'oas3_0', // TODO: use config-specific version; rename `oasVersion`
     visitorsData: {},
   };
 

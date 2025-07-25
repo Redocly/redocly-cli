@@ -43,6 +43,12 @@ const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
 
+export type PluginResolveInfo = {
+  absolutePath: string;
+  rawPath: string;
+  isModule: boolean;
+};
+
 export type ConfigOptions = {
   rawConfigDocument?: Document<RawUniversalConfig>;
   configPath?: string;
@@ -80,14 +86,19 @@ export async function resolveConfig({
     externalRefResolver: externalRefResolver ?? new BaseResolver(getResolveConfig(config?.resolve)),
   });
 
+  let pluginsOrPaths: (Plugin | PluginResolveInfo)[] = [];
   let resolvedPlugins: Plugin[];
+  let rootConfigDir: string = '';
   if (isBrowser) {
     // In browser, we don't support plugins from config file yet
     resolvedPlugins = [defaultPlugin];
   } else {
-    const rootConfigDir = path.dirname(configPath ?? '');
-    const pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
-    const plugins = await resolvePlugins(pluginsOrPaths, rootConfigDir);
+    rootConfigDir = path.dirname(configPath ?? '');
+    pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
+    const plugins = await resolvePlugins(
+      pluginsOrPaths.map((p) => (isPluginResolveInfo(p) ? p.absolutePath : p)),
+      rootConfigDir
+    );
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
@@ -106,8 +117,21 @@ export async function resolveConfig({
     );
   }
 
+  const pluginPaths = pluginsOrPaths.length
+    ? pluginsOrPaths
+        .map((p) =>
+          isPluginResolveInfo(p) && p.isModule
+            ? p.rawPath
+            : p.absolutePath && path.relative(rootConfigDir, p.absolutePath)
+        )
+        .filter(isDefined)
+    : undefined;
+
   return {
-    resolvedConfig: bundledConfig,
+    resolvedConfig: {
+      ...bundledConfig,
+      plugins: pluginPaths,
+    },
     resolvedRefMap,
     plugins: resolvedPlugins,
   };
@@ -123,11 +147,15 @@ function getDefaultPluginPath(configDir: string): string | undefined {
   return;
 }
 
+function isPluginResolveInfo(plugin: Plugin | PluginResolveInfo): plugin is PluginResolveInfo {
+  return 'isModule' in plugin;
+}
+
 export const preResolvePluginPath = (
   plugin: string | Plugin,
   base: string,
   rootConfigDir: string
-) => {
+): Plugin | PluginResolveInfo => {
   if (!isString(plugin)) {
     return plugin;
   }
@@ -135,16 +163,19 @@ export const preResolvePluginPath = (
   const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
   return fs.existsSync(maybeAbsolutePluginPath)
-    ? maybeAbsolutePluginPath
-    : // For plugins imported from packages specifically
-      module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
-        paths: [
-          // Plugins imported from the node_modules in the project directory
-          rootConfigDir,
-          // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
-        ],
-      });
+    ? { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false }
+    : {
+        absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+          paths: [
+            // Plugins imported from the node_modules in the project directory
+            rootConfigDir,
+            // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
+            import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+          ],
+        }),
+        isModule: true,
+        rawPath: plugin,
+      };
 };
 
 export async function resolvePlugins(
@@ -162,11 +193,13 @@ export async function resolvePlugins(
     try {
       const absolutePluginPath = path.isAbsolute(plugin)
         ? plugin
-        : (preResolvePluginPath(
-            plugin,
-            path.join(configDir, CONFIG_FILE_NAME),
-            configDir
-          ) as string);
+        : (
+            preResolvePluginPath(
+              plugin,
+              path.join(configDir, CONFIG_FILE_NAME),
+              configDir
+            ) as PluginResolveInfo
+          ).absolutePath;
 
       if (!pluginsCache.has(absolutePluginPath)) {
         let requiredPlugin: ImportedPlugin | undefined;

@@ -15,7 +15,6 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  notifyAboutIncompatibleConfigOptions,
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
@@ -134,10 +133,6 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   }
 
   const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
-
-  if (command === 'check-config') {
-    notifyAboutIncompatibleConfigOptions(config.resolvedConfig?.theme?.openapi);
-  }
 
   const problems = await lintConfig({
     config,

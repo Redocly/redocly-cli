@@ -1,17 +1,14 @@
 import type { Oas3Server } from '../../typings/openapi.js';
 import type { Oas3Rule } from '../../visitors.js';
 
-enum enumError {
-  empty = 'empty',
-  invalidDefaultValue = 'invalidDefaultValue',
-}
+type EnumError = 'empty' | 'invalidDefaultValue';
 
 export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
   return {
     Root(root, { report, location }) {
       if (!root.servers || root.servers.length === 0) return;
 
-      const invalidVariables: enumError[] = [];
+      const invalidVariables: EnumError[] = [];
 
       if (Array.isArray(root.servers)) {
         for (const server of root.servers) {
@@ -26,13 +23,13 @@ export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
       }
 
       for (const invalidVariable of invalidVariables) {
-        if (invalidVariable === enumError.empty) {
+        if (invalidVariable === 'empty') {
           report({
             message: 'Server variable with `enum` must be a non-empty array.',
             location: location.child(['servers']).key(),
           });
         }
-        if (invalidVariable === enumError.invalidDefaultValue) {
+        if (invalidVariable === 'invalidDefaultValue') {
           report({
             message:
               'Server variable define `enum` and `default`. `enum` must include default value',
@@ -44,22 +41,22 @@ export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
   };
 };
 
-function checkEnumVariables(server: Oas3Server): enumError[] | undefined {
+function checkEnumVariables(server: Oas3Server): EnumError[] | undefined {
   if (server.variables && Object.keys(server.variables).length === 0) return;
 
-  const errors: enumError[] = [];
+  const errors: EnumError[] = [];
   for (const variable in server.variables) {
     const serverVariable = server.variables[variable];
     if (!serverVariable.enum) continue;
 
     if (Array.isArray(serverVariable.enum) && serverVariable.enum?.length === 0)
-      errors.push(enumError.empty);
+      errors.push('empty');
 
     if (!serverVariable.default) continue;
 
     const defaultValue = server.variables[variable].default;
     if (serverVariable.enum && !serverVariable.enum.includes(defaultValue))
-      errors.push(enumError.invalidDefaultValue);
+      errors.push('invalidDefaultValue');
   }
   if (errors.length) return errors;
   return;

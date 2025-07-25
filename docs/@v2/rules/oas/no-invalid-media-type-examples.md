@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-invalid-media-type-examples
+slug: /docs/cli/rules/oas/no-invalid-media-type-examples
 ---
 
 # no-invalid-media-type-examples

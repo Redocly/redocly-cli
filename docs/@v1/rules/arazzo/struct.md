@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/arazzo/struct
+slug: /docs/cli/v1/rules/arazzo/struct
 ---
 
 # struct

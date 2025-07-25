@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/component-name-unique
+slug: /docs/cli/v1/rules/oas/component-name-unique
 ---
 
 # component-name-unique

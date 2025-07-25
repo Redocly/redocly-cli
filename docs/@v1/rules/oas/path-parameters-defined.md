@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/path-parameters-defined
+slug: /docs/cli/v1/rules/oas/path-parameters-defined
 ---
 
 # path-parameters-defined

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/info-contact
+slug: /docs/cli/v1/rules/oas/info-contact
 ---
 
 # info-contact

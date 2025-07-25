@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-duplicated-tag-names
+slug: /docs/cli/rules/oas/no-duplicated-tag-names
 ---
 
 # no-duplicated-tag-names

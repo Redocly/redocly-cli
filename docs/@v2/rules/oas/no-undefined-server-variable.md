@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-undefined-server-variable
+slug: /docs/cli/rules/oas/no-undefined-server-variable
 ---
 
 # no-undefined-server-variable

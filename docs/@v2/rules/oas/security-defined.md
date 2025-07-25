@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/security-defined
+slug: /docs/cli/rules/oas/security-defined
 ---
 
 # security-defined

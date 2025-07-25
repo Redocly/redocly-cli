@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/operation-operationId
+slug: /docs/cli/v1/rules/oas/operation-operationId
 ---
 
 # operation-operationId

@@ -1,12 +1,10 @@
 ---
-slug:
-  - /docs/cli/v2/rules/oas/info-license-url
-  - /docs/cli/v2/rules/oas/info-license-strict
+slug: /docs/cli/v2/rules/oas/info-license-strict
 ---
 
 # info-license-strict
 
-Requires the license URL in your API descriptions.
+Requires either the license URL or identifier in your API descriptions.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -54,7 +52,7 @@ rules:
   info-license-strict: error
 ```
 
-Example of an **incorrect** license URL:
+Example of an **incorrect** license:
 
 ```yaml Object example
 info:
@@ -62,13 +60,22 @@ info:
     name: MIT
 ```
 
-Example of a **correct** license URL:
+Example of a **correct** license with URL:
 
 ```yaml Object example
 info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
+```
+
+Example of a **correct** license with identifier:
+
+```yaml Object example
+info:
+  license:
+    name: Apache 2.0
+    identifier: Apache-2.0
 ```
 
 ## Related rules

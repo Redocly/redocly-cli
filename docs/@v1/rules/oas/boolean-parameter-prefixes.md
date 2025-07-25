@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/boolean-parameter-prefixes
+slug: /docs/cli/v1/rules/oas/boolean-parameter-prefixes
 ---
 
 # boolean-parameter-prefixes

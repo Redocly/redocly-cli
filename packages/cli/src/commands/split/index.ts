@@ -22,12 +22,7 @@ import {
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
 import { exitWithError } from '../../utils/error.js';
-import {
-  OPENAPI3_COMPONENT,
-  COMPONENTS,
-  OPENAPI3_METHOD_NAMES,
-  OPENAPI3_COMPONENT_NAMES,
-} from './types.js';
+import { COMPONENTS, OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './types.js';
 
 import type {
   Oas3Definition,
@@ -42,7 +37,7 @@ import type {
   OasRef,
   Referenced,
 } from '@redocly/openapi-core';
-import type { ComponentsFiles, Definition, RefObject } from './types.js';
+import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { VerifyConfigOptions } from '../../types.js';
 
@@ -204,7 +199,7 @@ function implicitlyReferenceDiscriminator(
   schemaFiles: any
 ) {
   if (!obj.discriminator) return;
-  const defPtr = `#/${COMPONENTS}/${OPENAPI3_COMPONENT.Schemas}/${defName}`;
+  const defPtr = `#/${COMPONENTS}/${'schemas' as Oas3Component}/${defName}`;
   const implicitMapping: Record<string, string> = {};
   for (const [name, { inherits, filename: parentFilename }] of Object.entries(schemaFiles) as any) {
     if (inherits.indexOf(defPtr) > -1) {
@@ -233,7 +228,7 @@ function implicitlyReferenceDiscriminator(
 }
 
 function isNotSecurityComponentType(componentType: string) {
-  return componentType !== OPENAPI3_COMPONENT.SecuritySchemes;
+  return componentType !== 'securitySchemes';
 }
 
 function findComponentTypes(components: any) {
@@ -280,7 +275,7 @@ function gatherComponentsFiles(
   filename: string
 ) {
   let inherits: string[] = [];
-  if (componentType === OPENAPI3_COMPONENT.Schemas) {
+  if (componentType === 'schemas') {
     inherits = (
       (components?.[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
     )

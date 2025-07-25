@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/parameter-description
+slug: /docs/cli/rules/oas/parameter-description
 ---
 
 # parameter-description

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-server-example-com
+slug: /docs/cli/v1/rules/oas/no-server-example-com
 ---
 
 # no-server-example.com

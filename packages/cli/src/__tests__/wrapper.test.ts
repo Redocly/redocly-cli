@@ -3,7 +3,7 @@ import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
 import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 import { handleLint } from '../commands/lint.js';
-import { type Config, detectSpec, type SpecVersion } from '@redocly/openapi-core';
+import { type Config, detectSpec } from '@redocly/openapi-core';
 
 const originalFetch = global.fetch;
 
@@ -31,7 +31,7 @@ describe('commandWrapper', () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
-      return 'oas3_1' as SpecVersion;
+      return 'oas3_1';
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
       collectSpecData?.({ openapi: '3.1.0' });

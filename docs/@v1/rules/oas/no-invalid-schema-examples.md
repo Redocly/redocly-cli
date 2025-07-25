@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-invalid-schema-examples
+slug: /docs/cli/v1/rules/oas/no-invalid-schema-examples
 ---
 
 # no-invalid-schema-examples

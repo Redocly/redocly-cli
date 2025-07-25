@@ -1,4 +1,3 @@
-import { SpecVersion } from '../../oas-types.js';
 import { getOwn } from '../../utils.js';
 
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
@@ -27,7 +26,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
         ) {
           report({
             message: `Scalar property should have "example"${
-              oasVersion === SpecVersion.OAS3_1 ? ' or "examples"' : ''
+              oasVersion === 'oas3_1' ? ' or "examples"' : ''
             } defined.`,
             location: location.child(propName).key(),
           });

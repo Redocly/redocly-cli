@@ -32,34 +32,27 @@ import type {
   Overlay1Rule,
 } from './visitors.js';
 
-// FIXME: replace enums with string literals (v2)
-export enum SpecVersion {
-  OAS2 = 'oas2',
-  OAS3_0 = 'oas3_0',
-  OAS3_1 = 'oas3_1',
-  Async2 = 'async2',
-  Async3 = 'async3',
-  Arazzo1 = 'arazzo1',
-  Overlay1 = 'overlay1',
-}
+export const specVersions = [
+  'oas2',
+  'oas3_0',
+  'oas3_1',
+  'async2',
+  'async3',
+  'arazzo1',
+  'overlay1',
+] as const;
+export type SpecVersion = typeof specVersions[number];
 
-export enum SpecMajorVersion {
-  OAS2 = 'oas2',
-  OAS3 = 'oas3',
-  Async2 = 'async2',
-  Async3 = 'async3',
-  Arazzo1 = 'arazzo1',
-  Overlay1 = 'overlay1',
-}
+export type SpecMajorVersion = 'oas2' | 'oas3' | 'async2' | 'async3' | 'arazzo1' | 'overlay1';
 
 const typesMap = {
-  [SpecVersion.OAS2]: Oas2Types,
-  [SpecVersion.OAS3_0]: Oas3Types,
-  [SpecVersion.OAS3_1]: Oas3_1Types,
-  [SpecVersion.Async2]: AsyncApi2Types,
-  [SpecVersion.Async3]: AsyncApi3Types,
-  [SpecVersion.Arazzo1]: Arazzo1Types,
-  [SpecVersion.Overlay1]: Overlay1Types,
+  oas2: Oas2Types,
+  oas3_0: Oas3Types,
+  oas3_1: Oas3_1Types,
+  async2: AsyncApi2Types,
+  async3: AsyncApi3Types,
+  arazzo1: Arazzo1Types,
+  overlay1: Overlay1Types,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -121,15 +114,15 @@ export function detectSpec(root: unknown): SpecVersion {
   }
 
   if (typeof root.openapi === 'string' && root.openapi.startsWith('3.0')) {
-    return SpecVersion.OAS3_0;
+    return 'oas3_0';
   }
 
   if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
-    return SpecVersion.OAS3_1;
+    return 'oas3_1';
   }
 
   if (root.swagger && root.swagger === '2.0') {
-    return SpecVersion.OAS2;
+    return 'oas2';
   }
 
   if (root.openapi || root.swagger) {
@@ -137,11 +130,11 @@ export function detectSpec(root: unknown): SpecVersion {
   }
 
   if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('2.')) {
-    return SpecVersion.Async2;
+    return 'async2';
   }
 
   if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('3.')) {
-    return SpecVersion.Async3;
+    return 'async3';
   }
 
   if (root.asyncapi) {
@@ -149,29 +142,29 @@ export function detectSpec(root: unknown): SpecVersion {
   }
 
   if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
-    return SpecVersion.Arazzo1;
+    return 'arazzo1';
   }
 
   if (typeof root.overlay === 'string' && VERSION_PATTERN.test(root.overlay)) {
-    return SpecVersion.Overlay1;
+    return 'overlay1';
   }
 
   throw new Error(`Unsupported specification`);
 }
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
-  if (version === SpecVersion.OAS2) {
-    return SpecMajorVersion.OAS2;
-  } else if (version === SpecVersion.Async2) {
-    return SpecMajorVersion.Async2;
-  } else if (version === SpecVersion.Async3) {
-    return SpecMajorVersion.Async3;
-  } else if (version === SpecVersion.Arazzo1) {
-    return SpecMajorVersion.Arazzo1;
-  } else if (version === SpecVersion.Overlay1) {
-    return SpecMajorVersion.Overlay1;
+  if (version === 'oas2') {
+    return 'oas2';
+  } else if (version === 'async2') {
+    return 'async2';
+  } else if (version === 'async3') {
+    return 'async3';
+  } else if (version === 'arazzo1') {
+    return 'arazzo1';
+  } else if (version === 'overlay1') {
+    return 'overlay1';
   } else {
-    return SpecMajorVersion.OAS3;
+    return 'oas3';
   }
 }
 

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/path-not-include-query
+slug: /docs/cli/v1/rules/oas/path-not-include-query
 ---
 
 # path-not-include-query

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/recommended
+slug: /docs/cli/rules/recommended
 ---
 
 # Recommended ruleset

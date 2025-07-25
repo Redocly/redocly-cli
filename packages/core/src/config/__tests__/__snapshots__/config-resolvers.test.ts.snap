@@ -534,6 +534,11 @@ exports[`resolveConfig > should resolve extends with local file config which con
   "overlay1Rules": {
     "info-contact": "off",
   },
+  "plugins": [
+    "api/plugin.js",
+    "plugin.js",
+    "api/plugin.js",
+  ],
   "preprocessors": {},
   "rules": {
     "boolean-parameter-prefixes": "error",

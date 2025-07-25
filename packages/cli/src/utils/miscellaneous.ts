@@ -17,13 +17,11 @@ import {
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
-  isPlainObject,
   pluralize,
   ConfigValidationError,
   logger,
   HandledError,
 } from '@redocly/openapi-core';
-import { deprecatedRefDocsSchema } from '@redocly/config/lib/reference-docs-config-schema.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
 import { handleLintConfig } from '../commands/lint.js';
@@ -520,26 +518,6 @@ export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
 export function cleanColors(input: string): string {
   // eslint-disable-next-line no-control-regex
   return input.replace(/\x1b\[\d+m/g, '');
-}
-
-export function notifyAboutIncompatibleConfigOptions(
-  themeOpenapiOptions: Record<string, unknown> | undefined
-) {
-  if (isPlainObject(themeOpenapiOptions)) {
-    const propertiesSet = Object.keys(themeOpenapiOptions);
-    const deprecatedSet = Object.keys(deprecatedRefDocsSchema.properties); // TODO: remove this; remove @redocly/config from dependencies (v2)
-    const intersection = propertiesSet.filter((prop) => deprecatedSet.includes(prop));
-    if (intersection.length > 0) {
-      logger.warn(
-        `\n${pluralize('Property', intersection.length)} ${gray(
-          intersection.map((prop) => `'${prop}'`).join(', ')
-        )} ${pluralize(
-          'is',
-          intersection.length
-        )} only used in API Reference Docs and Redoc version 2.x or earlier.\n\n`
-      );
-    }
-  }
 }
 
 export function formatPath(path: string) {

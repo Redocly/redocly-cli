@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/response-contains-header
+slug: /docs/cli/v1/rules/oas/response-contains-header
 ---
 
 # response-contains-header

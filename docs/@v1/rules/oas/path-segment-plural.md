@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/path-segment-plural
+slug: /docs/cli/v1/rules/oas/path-segment-plural
 ---
 
 # path-segment-plural

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/minimal
+slug: /docs/cli/v1/rules/minimal
 ---
 
 # Minimal ruleset

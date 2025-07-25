@@ -2,7 +2,6 @@ import * as path from 'node:path';
 import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'node:perf_hooks';
 import {
-  SpecVersion,
   BaseResolver,
   formatProblems,
   getTotals,
@@ -24,7 +23,7 @@ import {
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
 import { exitWithError } from '../utils/error.js';
-import { COMPONENTS, OPENAPI3_METHOD } from './split/types.js';
+import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
 
 import type {
@@ -38,6 +37,7 @@ import type {
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
+  SpecVersion,
 } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
@@ -154,7 +154,7 @@ export async function handleJoin({
     try {
       const version = detectSpec(document.parsed);
       collectSpecData?.(document.parsed);
-      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
+      if (version !== 'oas3_0' && version !== 'oas3_1') {
         return exitWithError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
         );
@@ -385,8 +385,8 @@ export async function handleJoin({
         }
 
         for (const field of keysOf(pathItem)) {
-          if (operationsSet.has(field as OPENAPI3_METHOD)) {
-            collectPathOperation(pathItem, path, field as OPENAPI3_METHOD);
+          if (operationsSet.has(field as Oas3Method)) {
+            collectPathOperation(pathItem, path, field as Oas3Method);
           }
           if (field === 'parameters') {
             collectPathParameters(pathItem, path);
@@ -479,7 +479,7 @@ export async function handleJoin({
     function collectPathOperation(
       pathItem: Oas3PathItem,
       path: string | number,
-      operation: OPENAPI3_METHOD
+      operation: Oas3Method
     ) {
       const pathOperation = pathItem[operation];
 
@@ -592,7 +592,7 @@ export async function handleJoin({
       componentsPrefix,
     }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
+    const webhooks = oasVersion === 'oas3_1' ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {

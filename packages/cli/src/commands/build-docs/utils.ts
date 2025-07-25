@@ -42,7 +42,7 @@ export function getObjectOrJSON(
       if (config?.configPath) {
         logger.info(`Found ${config.configPath} and using theme.openapi options\n`);
         const apiConfig = alias ? config.resolvedConfig.apis?.[alias] : config.resolvedConfig;
-        return apiConfig?.theme.openapi ? apiConfig.theme.openapi : {}; // FIXME: theme is deprecated (2.0)
+        return apiConfig?.openapi ?? {};
       }
       return {};
     }

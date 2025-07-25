@@ -1,7 +1,5 @@
 ---
-slug: 
-- /docs/cli/v2/rules/common/no-schema-type-mismatch
-- /docs/cli/v2/rules/oas/no-schema-type-mismatch
+slug: /docs/cli/rules/common/no-schema-type-mismatch
 ---
 
 # no-schema-type-mismatch

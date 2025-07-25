@@ -69,7 +69,7 @@ describe('loadConfig', () => {
         {
           "location": [
             {
-              "pointer": "#/theme",
+              "pointer": "#/openapi",
               "reportOnKey": false,
               "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
             },
@@ -83,6 +83,7 @@ describe('loadConfig', () => {
     `);
     expect(config.resolvedConfig).toMatchInlineSnapshot(`
       {
+        "openapi": undefined,
         "plugins": undefined,
         "rules": {
           "info-license": "error",
@@ -91,7 +92,6 @@ describe('loadConfig', () => {
         "seo": {
           "title": 1,
         },
-        "theme": undefined,
       }
     `);
   });
@@ -948,7 +948,6 @@ describe('loadConfig', () => {
         'info-license': 'error',
         'non-existing-rule': 'warn',
       },
-      theme: undefined,
     });
   });
 });

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/respect/no-criteria-xpath
+slug: /docs/cli/v1/rules/respect/no-criteria-xpath
 ---
 
 # no-criteria-xpath

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/operation-4xx-problem-details-rfc7807
+slug: /docs/cli/v1/rules/oas/operation-4xx-problem-details-rfc7807
 ---
 
 # operation-4xx-problem-details-rfc7807

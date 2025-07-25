@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
 import { slash, doesYamlFileExist, isPlainObject } from '../utils.js';
-import { SpecVersion, SpecMajorVersion } from '../oas-types.js';
+import { specVersions } from '../oas-types.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -17,6 +17,8 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
+  SpecVersion,
+  SpecMajorVersion,
 } from '../oas-types.js';
 import type { NodeType } from '../types/index.js';
 import type {
@@ -87,48 +89,48 @@ export class Config {
     };
 
     this.rules = {
-      [SpecVersion.OAS2]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas2Rules }),
-      [SpecVersion.OAS3_0]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules }),
-      [SpecVersion.OAS3_1]: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules }),
-      [SpecVersion.Async2]: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
-      [SpecVersion.Async3]: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
-      [SpecVersion.Arazzo1]: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
-      [SpecVersion.Overlay1]: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
+      oas2: group({ ...resolvedConfig.rules, ...resolvedConfig.oas2Rules }),
+      oas3_0: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules }),
+      oas3_1: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules }),
+      async2: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
+      async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
+      arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
+      overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
     };
 
     this.preprocessors = {
-      [SpecVersion.OAS2]: { ...resolvedConfig.preprocessors, ...resolvedConfig.oas2Preprocessors },
-      [SpecVersion.OAS3_0]: {
+      oas2: { ...resolvedConfig.preprocessors, ...resolvedConfig.oas2Preprocessors },
+      oas3_0: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.oas3_0Preprocessors,
       },
-      [SpecVersion.OAS3_1]: {
+      oas3_1: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.oas3_1Preprocessors,
       },
-      [SpecVersion.Async2]: {
+      async2: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.async2Preprocessors,
       },
-      [SpecVersion.Async3]: {
+      async3: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.async3Preprocessors,
       },
-      [SpecVersion.Arazzo1]: { ...resolvedConfig.arazzo1Preprocessors },
-      [SpecVersion.Overlay1]: {
+      arazzo1: { ...resolvedConfig.arazzo1Preprocessors },
+      overlay1: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
       },
     };
 
     this.decorators = {
-      [SpecVersion.OAS2]: { ...resolvedConfig.decorators, ...resolvedConfig.oas2Decorators },
-      [SpecVersion.OAS3_0]: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_0Decorators },
-      [SpecVersion.OAS3_1]: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_1Decorators },
-      [SpecVersion.Async2]: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
-      [SpecVersion.Async3]: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
-      [SpecVersion.Arazzo1]: { ...resolvedConfig.arazzo1Decorators },
-      [SpecVersion.Overlay1]: {
+      oas2: { ...resolvedConfig.decorators, ...resolvedConfig.oas2Decorators },
+      oas3_0: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_0Decorators },
+      oas3_1: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_1Decorators },
+      async2: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
+      async3: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
+      arazzo1: { ...resolvedConfig.arazzo1Decorators },
+      overlay1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
       },
@@ -224,28 +226,28 @@ export class Config {
     for (const plugin of this.plugins) {
       if (plugin.typeExtension !== undefined) {
         switch (version) {
-          case SpecVersion.OAS3_0:
-          case SpecVersion.OAS3_1:
+          case 'oas3_0':
+          case 'oas3_1':
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
             break;
-          case SpecVersion.OAS2:
+          case 'oas2':
             if (!plugin.typeExtension.oas2) continue;
             extendedTypes = plugin.typeExtension.oas2(extendedTypes, version);
             break;
-          case SpecVersion.Async2:
+          case 'async2':
             if (!plugin.typeExtension.async2) continue;
             extendedTypes = plugin.typeExtension.async2(extendedTypes, version);
             break;
-          case SpecVersion.Async3:
+          case 'async3':
             if (!plugin.typeExtension.async3) continue;
             extendedTypes = plugin.typeExtension.async3(extendedTypes, version);
             break;
-          case SpecVersion.Arazzo1:
+          case 'arazzo1':
             if (!plugin.typeExtension.arazzo1) continue;
             extendedTypes = plugin.typeExtension.arazzo1(extendedTypes, version);
             break;
-          case SpecVersion.Overlay1:
+          case 'overlay1':
             if (!plugin.typeExtension.overlay1) continue;
             extendedTypes = plugin.typeExtension.overlay1(extendedTypes, version);
             break;
@@ -324,21 +326,21 @@ export class Config {
   // TODO: add default case for redocly.yaml
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
-      case SpecMajorVersion.OAS3:
+      case 'oas3':
         // eslint-disable-next-line no-case-declarations
         const oas3Rules: Oas3RuleSet[] = [];
         this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         this.plugins.forEach((p) => p.decorators?.oas3 && oas3Rules.push(p.decorators.oas3));
         return oas3Rules;
-      case SpecMajorVersion.OAS2:
+      case 'oas2':
         // eslint-disable-next-line no-case-declarations
         const oas2Rules: Oas2RuleSet[] = [];
         this.plugins.forEach((p) => p.preprocessors?.oas2 && oas2Rules.push(p.preprocessors.oas2));
         this.plugins.forEach((p) => p.rules?.oas2 && oas2Rules.push(p.rules.oas2));
         this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
         return oas2Rules;
-      case SpecMajorVersion.Async2:
+      case 'async2':
         // eslint-disable-next-line no-case-declarations
         const asyncApi2Rules: Async2RuleSet[] = [];
         this.plugins.forEach(
@@ -349,7 +351,7 @@ export class Config {
           (p) => p.decorators?.async2 && asyncApi2Rules.push(p.decorators.async2)
         );
         return asyncApi2Rules;
-      case SpecMajorVersion.Async3:
+      case 'async3':
         // eslint-disable-next-line no-case-declarations
         const asyncApi3Rules: Async3RuleSet[] = [];
         this.plugins.forEach(
@@ -360,7 +362,7 @@ export class Config {
           (p) => p.decorators?.async3 && asyncApi3Rules.push(p.decorators.async3)
         );
         return asyncApi3Rules;
-      case SpecMajorVersion.Arazzo1:
+      case 'arazzo1':
         // eslint-disable-next-line no-case-declarations
         const arazzo1Rules: Arazzo1RuleSet[] = [];
         this.plugins.forEach(
@@ -371,7 +373,7 @@ export class Config {
           (p) => p.decorators?.arazzo1 && arazzo1Rules.push(p.decorators.arazzo1)
         );
         return arazzo1Rules;
-      case SpecMajorVersion.Overlay1:
+      case 'overlay1':
         // eslint-disable-next-line no-case-declarations
         const overlay1Rules: Overlay1RuleSet[] = [];
         this.plugins.forEach(
@@ -387,7 +389,7 @@ export class Config {
 
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
-      for (const version of Object.values(SpecVersion)) {
+      for (const version of specVersions) {
         if (this.rules[version][ruleId]) {
           this.rules[version][ruleId] = 'off';
         } else if (Array.isArray(this.rules[version].assertions)) {
@@ -404,7 +406,7 @@ export class Config {
 
   skipPreprocessors(preprocessors?: string[]) {
     for (const preprocessorId of preprocessors || []) {
-      for (const version of Object.values(SpecVersion)) {
+      for (const version of specVersions) {
         if (this.preprocessors[version][preprocessorId]) {
           this.preprocessors[version][preprocessorId] = 'off';
         }
@@ -414,7 +416,7 @@ export class Config {
 
   skipDecorators(decorators?: string[]) {
     for (const decoratorId of decorators || []) {
-      for (const version of Object.values(SpecVersion)) {
+      for (const version of specVersions) {
         if (this.decorators[version][decoratorId]) {
           this.decorators[version][decoratorId] = 'off';
         }

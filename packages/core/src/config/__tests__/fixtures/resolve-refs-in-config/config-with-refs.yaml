@@ -4,5 +4,5 @@ rules:
 seo:
   $ref: seo.yaml
 
-theme:
+openapi:
   $ref: wrong-ref.yaml

@@ -184,5 +184,5 @@ paths:
 
 ## Next steps
 
-- Explore the [changelog](https://redocly.com/docs/cli/v2/changelog) for detailed information about all changes.
-- Check out the v2 [documentation](https://redocly.com/docs/cli/v2/).
+- Explore the [changelog](https://redocly.com/docs/cli/changelog) for detailed information about all changes.
+- Check out the v2 [documentation](https://redocly.com/docs/cli/).

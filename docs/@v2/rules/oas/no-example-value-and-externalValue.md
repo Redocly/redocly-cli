@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-example-value-and-externalValue
+slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 ---
 
 # no-example-value-and-externalValue

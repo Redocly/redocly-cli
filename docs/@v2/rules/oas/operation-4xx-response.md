@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/operation-4xx-response
+slug: /docs/cli/rules/oas/operation-4xx-response
 ---
 
 # operation-4xx-response

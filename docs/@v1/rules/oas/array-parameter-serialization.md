@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/array-parameter-serialization
+slug: /docs/cli/v1/rules/oas/array-parameter-serialization
 ---
 
 # array-parameter-serialization

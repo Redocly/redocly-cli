@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/response-mime-type
+slug: /docs/cli/v1/rules/oas/response-mime-type
 ---
 
 # response-mime-type

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/common/struct
+slug: /docs/cli/rules/common/struct
 ---
 
 # struct

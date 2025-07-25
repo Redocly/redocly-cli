@@ -225,13 +225,5 @@ export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'
 export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   ResolvedGovernanceConfig & {
     apis?: Record<string, ResolvedApiConfig>;
+    plugins?: string[];
   };
-
-export type ThemeConfig = {
-  theme?: ThemeRawConfig; // TODO: deprecated
-};
-
-export type ThemeRawConfig = {
-  openapi?: Record<string, any>;
-  mockServer?: Record<string, any>;
-};

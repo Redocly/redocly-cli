@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-identical-paths
+slug: /docs/cli/v1/rules/oas/no-identical-paths
 ---
 
 # no-identical-paths

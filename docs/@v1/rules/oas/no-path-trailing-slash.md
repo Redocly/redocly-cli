@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-path-trailing-slash
+slug: /docs/cli/v1/rules/oas/no-path-trailing-slash
 ---
 
 # no-path-trailing-slash

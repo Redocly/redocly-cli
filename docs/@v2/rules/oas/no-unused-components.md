@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/no-unused-components
+slug: /docs/cli/rules/oas/no-unused-components
 ---
 
 # no-unused-components

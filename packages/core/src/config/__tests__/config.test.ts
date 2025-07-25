@@ -1,11 +1,11 @@
-import { SpecVersion } from '../../oas-types.js';
+import { type SpecVersion } from '../../oas-types.js';
 import { Config } from '../config.js';
 import * as utils from '../../utils.js';
 import * as jsYaml from '../../js-yaml/index.js';
 import * as fs from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'node:path';
-import { createConfig, type ResolvedConfig } from '../index.js';
+import { createConfig } from '../index.js';
 
 vi.mock('../../js-yaml/index.js', async () => {
   const actual = await vi.importActual('../../js-yaml/index.js');
@@ -193,13 +193,13 @@ describe('Config.extendTypes', () => {
 
   it('should call only oas3 types extension', () => {
     const config = new Config({}, { plugins });
-    config.extendTypes({}, SpecVersion.OAS3_0);
+    config.extendTypes({}, 'oas3_0');
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
     const config = new Config({}, { plugins });
-    config.extendTypes({}, SpecVersion.OAS2);
+    config.extendTypes({}, 'oas2');
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });

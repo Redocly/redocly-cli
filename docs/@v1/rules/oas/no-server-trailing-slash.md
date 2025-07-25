@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/oas/no-server-trailing-slash
+slug: /docs/cli/v1/rules/oas/no-server-trailing-slash
 ---
 
 # no-server-trailing-slash
