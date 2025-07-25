@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/oas/info-license-strict
+slug: /docs/cli/rules/oas/info-license-strict
 ---
 
 # info-license-strict
