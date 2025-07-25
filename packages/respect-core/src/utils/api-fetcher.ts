@@ -223,10 +223,8 @@ export class ApiFetcher implements IFetcher {
       const maskedFormData = new FormData();
       for (const [key, value] of encodedBody.entries()) {
         if (value instanceof File) {
-          // Keep files as-is
           maskedFormData.append(key, value);
         } else {
-          // Mask non-file fields
           const maskedValue = maskSecrets(value, ctx.secretFields || new Set());
           maskedFormData.append(key, maskedValue);
         }
