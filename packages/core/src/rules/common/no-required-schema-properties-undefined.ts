@@ -32,9 +32,9 @@ export const NoRequiredSchemaPropertiesUndefined:
           visitedSchemas.add(schema);
 
           if (isRef(schema)) {
-            const resolved = resolve(schema);
+            const resolved = resolve(schema, from);
             return elevateProperties(
-              resolve(schema, from).node as Oas3Schema | Oas3_1Schema | Oas2Schema,
+              resolved.node as Oas3Schema | Oas3_1Schema | Oas2Schema,
               resolved.location?.source.absoluteRef
             );
           }
