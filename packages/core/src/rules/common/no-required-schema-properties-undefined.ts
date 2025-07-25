@@ -22,7 +22,8 @@ export const NoRequiredSchemaPropertiesUndefined:
         const visitedSchemas: Set<Oas3Schema | Oas3_1Schema | Oas2Schema> = new Set();
 
         const elevateProperties = (
-          schema: Oas3Schema | Oas3_1Schema | Oas2Schema
+          schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
+          from?: string
         ): Record<string, Oas3Schema | Oas3_1Schema | Oas2Schema> => {
           // Check if the schema has been visited before processing it
           if (visitedSchemas.has(schema)) {
@@ -31,16 +32,18 @@ export const NoRequiredSchemaPropertiesUndefined:
           visitedSchemas.add(schema);
 
           if (isRef(schema)) {
+            const resolved = resolve(schema);
             return elevateProperties(
-              resolve(schema).node as Oas3Schema | Oas3_1Schema | Oas2Schema
+              resolve(schema, from).node as Oas3Schema | Oas3_1Schema | Oas2Schema,
+              resolved.location?.source.absoluteRef
             );
           }
 
           return Object.assign(
             {},
             schema.properties,
-            ...(schema.allOf?.map(elevateProperties) ?? []),
-            ...((schema as Oas3Schema).anyOf?.map(elevateProperties) ?? [])
+            ...(schema.allOf?.map((s) => elevateProperties(s, from)) ?? []),
+            ...((schema as Oas3Schema).anyOf?.map((s) => elevateProperties(s, from)) ?? [])
           );
         };
 
