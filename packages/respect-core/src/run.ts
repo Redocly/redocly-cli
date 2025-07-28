@@ -20,7 +20,7 @@ export type RespectOptions = {
   config: Config;
   maxSteps: number;
   maxFetchTimeout: number;
-  executionTimeout: number;
+  executionTimeout?: number;
   collectSpecData?: CollectFn;
   requestFileLoader: { getFileBody: (filePath: string) => Promise<Blob> };
   envVariables?: Record<string, string>;
@@ -34,7 +34,8 @@ export type RespectOptions = {
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {
   const { files, executionTimeout, collectSpecData } = options;
 
-  Timer.getInstance(executionTimeout);
+  // Don't create a timer if executionTimeout is not set
+  executionTimeout && Timer.getInstance(executionTimeout);
 
   const testsRunProblemsStatus: boolean[] = [];
   const runAllFilesResult = [];

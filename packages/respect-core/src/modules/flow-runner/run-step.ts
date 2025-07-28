@@ -164,7 +164,10 @@ export async function runStep({
     return { shouldEnd: true };
   }
 
-  if (Timer.getInstance(ctx.options.executionTimeout).isTimedOut()) {
+  if (
+    ctx.options.executionTimeout &&
+    Timer.getInstance(ctx.options.executionTimeout).isTimedOut()
+  ) {
     step.checks.push({
       name: CHECKS.GLOBAL_TIMEOUT_ERROR,
       message: `Global Respect timer reached`,
