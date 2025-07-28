@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Made `executionTimeout` optional in the exported `run` function from `respect-core`.
+Made `executionTimeout` parameter optional in the exported `run` function from `respect-core`.
