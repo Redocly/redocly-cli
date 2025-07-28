@@ -608,6 +608,7 @@ const basicCTX = {
     workflow: undefined,
     skip: undefined,
     verbose: true,
+    executionTimeout: 3_600_000,
     metadata: {
       _: [],
       files: ['runStepTest.yml'],
