@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.2 (2025-07-29)
+
+### Patch Changes
+
+- Made `executionTimeout` parameter optional in the `run` function exported from `respect-core`.
+- Updated @redocly/respect-core to v2.0.2.
+
 ## 2.0.1 (2025-07-25)
 
 ### Patch Changes

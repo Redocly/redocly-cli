@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.2
+
+### Patch Changes
+
+- Made `executionTimeout` parameter optional in the `run` function exported from `respect-core`.
+- Updated @redocly/openapi-core to v2.0.2.
+
 ## 2.0.1
 
 ### Patch Changes
