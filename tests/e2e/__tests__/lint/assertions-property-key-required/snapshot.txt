@@ -1,0 +1,6 @@
+
+validating openapi.yaml...
+Something went wrong when processing ./tests/e2e/__tests__/lint/assertions-property-key-required/openapi.yaml:
+
+  - The 'nonEmpty' assertion can't be used on all keys. Please provide a single property.
+

@@ -256,7 +256,7 @@ npm run pack:prepare
 npm i -g redocly-cli.tgz
 
 # Re-build the docs
-(cd __tests__/smoke/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
+(cd tests/smoke/smoke-general/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
 For other commands you'd have to do something similar.
@@ -264,13 +264,13 @@ For other commands you'd have to do something similar.
 ### Performance benchmark
 
 To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
-Prepare the local build, go to the `benchmark` folder, clean it up, do the preparations, and run the actual benchmark:
+Prepare the local build, go to the `tests/performance/` folder, clean it up, do the preparations, and run the actual benchmark:
 
 ```sh
-(npm run compile && npm run pack:prepare && cd benchmark/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
+(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
 ```
 
-You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
+You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.
 
 ### Manual tests
 
@@ -281,9 +281,7 @@ What should be verified when changes applied to the `respect-core` package:
 
 ## Project structure
 
-- **`__tests__`**: contains e2e and smoke tests.
-
-- **`benchmark`**: contains the performance benchmark. <!-- TODO: move it under the __tests__ folder -->
+- **`tests`**: contains e2e, performance, and smoke tests.
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
