@@ -11,6 +11,11 @@ Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6
 
 ![OpenAPI CLI toolset](./media/redocly-cli.gif)
 
+## Migration
+
+Migrating from Redocly CLI v1 to v2?
+Here's the [guide](https://redocly.com/docs/cli/guides/migrate-to-v2) to make the transition smoother.
+
 ## Usage
 
 ### Node

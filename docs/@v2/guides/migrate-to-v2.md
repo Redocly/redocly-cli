@@ -16,6 +16,10 @@ This affects [plugins](../configuration/reference/plugins.md): update your plugi
 
 ### Configuration changes
 
+The only default configuration file name is now `redocly.yaml`.
+If you still use the legacy `.redocly.yaml`, please rename it.
+You can still use a different file name, but you must explicitly specify it with the `--config` flag.
+
 Several deprecated configuration options have been removed:
 
 ```yaml
@@ -119,11 +123,6 @@ rules:
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
 - **Commands**: The `preview-docs` command has been removed - use `preview` instead.
 - **Labels**: The `labels` field in the `apis` section has been removed.
-
-### Config file name
-
-The only default configuration file name is now `redocly.yaml`.
-You can still use a different file name, but you must explicitly specify it with the `--config` flag.
 
 ## New features
 
