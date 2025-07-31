@@ -178,6 +178,15 @@ const builtInOverlay1Rules = ['info-contact'] as const;
 
 export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
 
+const builtInProto3Rules = [
+  'proto-package-required',
+  'proto-duplicate-field-number',
+  'proto-duplicate-enum-value',
+  'proto-service-no-methods',
+] as const;
+
+export type BuiltInProto3RuleId = typeof builtInProto3Rules[number];
+
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 
 export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
@@ -189,6 +198,7 @@ const builtInRules = [
   ...builtInAsync3Rules,
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
+  ...builtInProto3Rules,
   ...builtInCommonRules,
 ] as const;
 
@@ -222,6 +232,7 @@ const configGovernanceProperties: Record<
   async3Rules: 'Rules',
   arazzo1Rules: 'Rules',
   overlay1Rules: 'Rules',
+  proto3Rules: 'Rules',
   preprocessors: { type: 'object' },
   oas2Preprocessors: { type: 'object' },
   oas3_0Preprocessors: { type: 'object' },
@@ -230,6 +241,7 @@ const configGovernanceProperties: Record<
   async3Preprocessors: { type: 'object' },
   arazzo1Preprocessors: { type: 'object' },
   overlay1Preprocessors: { type: 'object' },
+  proto3Preprocessors: { type: 'object' },
   decorators: { type: 'object' },
   oas2Decorators: { type: 'object' },
   oas3_0Decorators: { type: 'object' },
@@ -238,6 +250,7 @@ const configGovernanceProperties: Record<
   async3Decorators: { type: 'object' },
   arazzo1Decorators: { type: 'object' },
   overlay1Decorators: { type: 'object' },
+  proto3Decorators: { type: 'object' },
 };
 
 const ConfigGovernance: NodeType = {

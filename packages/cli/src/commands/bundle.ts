@@ -1,7 +1,9 @@
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
+import { extname } from 'node:path';
 import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
+import { parseProtoFile, protoToOpenAPI } from '../utils/proto-parser.js';
 import {
   dumpBundle,
   getExecutionTime,
@@ -53,18 +55,32 @@ export async function handleBundle({
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
-      const {
-        bundle: result,
-        problems,
-        ...meta
-      } = await bundle({
-        ref: path,
-        config: aliasConfig,
-        dereference: argv.dereferenced,
-        removeUnusedComponents,
-        keepUrlRefs: argv['keep-url-references'],
-        collectSpecData,
-      });
+      let result: any;
+      let problems: any[] = [];
+      let meta: any = {};
+
+      // Handle .proto files
+      if (extname(path).toLowerCase() === '.proto') {
+        logger.info('Parsing Protocol Buffers file...\n');
+        const proto = parseProtoFile(path);
+        const openapi = protoToOpenAPI(proto);
+        result = { parsed: openapi };
+        logger.info('Converted Protocol Buffers to OpenAPI format.\n');
+        collectSpecData?.(openapi);
+      } else {
+        // Handle regular OpenAPI files
+        const bundleResult = await bundle({
+          ref: path,
+          config: aliasConfig,
+          dereference: argv.dereferenced,
+          removeUnusedComponents,
+          keepUrlRefs: argv['keep-url-references'],
+          collectSpecData,
+        });
+        result = bundleResult.bundle;
+        problems = bundleResult.problems;
+        meta = bundleResult;
+      }
 
       const fileTotals = getTotals(problems);
       const { outputFile, ext } = getOutputFileName({

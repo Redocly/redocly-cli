@@ -37,6 +37,12 @@ export async function lint(opts: {
   collectSpecData?: CollectFn;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
+  // Check if this is a .proto file - if so, throw a more helpful error
+  if (ref.toLowerCase().endsWith('.proto')) {
+    throw new Error(
+      `Protocol Buffers (.proto) files should be handled by the CLI's custom parser, not the core linting system. This error suggests the CLI's custom handling was bypassed.`
+    );
+  }
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
   opts.collectSpecData?.(document.parsed);
 

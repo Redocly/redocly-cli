@@ -55,6 +55,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Rules: {},
     arazzo1Rules: {},
     overlay1Rules: {},
+    proto3Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -64,6 +65,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Preprocessors: {},
     arazzo1Preprocessors: {},
     overlay1Preprocessors: {},
+    proto3Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
@@ -73,6 +75,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     async3Decorators: {},
     arazzo1Decorators: {},
     overlay1Decorators: {},
+    proto3Decorators: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -97,6 +100,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Rules, rulesConf.rules);
     assignConfig(result.overlay1Rules, rulesConf.overlay1Rules);
     assignOnlyExistingConfig(result.overlay1Rules, rulesConf.rules);
+    assignConfig(result.proto3Rules, rulesConf.proto3Rules);
+    assignOnlyExistingConfig(result.proto3Rules, rulesConf.rules);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -113,6 +118,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Preprocessors, rulesConf.preprocessors);
     assignConfig(result.overlay1Preprocessors, rulesConf.overlay1Preprocessors);
     assignOnlyExistingConfig(result.overlay1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.proto3Preprocessors, rulesConf.proto3Preprocessors);
+    assignOnlyExistingConfig(result.proto3Preprocessors, rulesConf.preprocessors);
 
     assignConfig(result.decorators, rulesConf.decorators);
     assignConfig(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -129,6 +136,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.arazzo1Decorators, rulesConf.decorators);
     assignConfig(result.overlay1Decorators, rulesConf.overlay1Decorators);
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
+    assignConfig(result.proto3Decorators, rulesConf.proto3Decorators);
+    assignOnlyExistingConfig(result.proto3Decorators, rulesConf.decorators);
   }
 
   return result;

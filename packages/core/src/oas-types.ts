@@ -5,6 +5,7 @@ import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Arazzo1Types } from './types/arazzo.js';
 import { Overlay1Types } from './types/overlay.js';
+import { Proto3Types } from './types/proto3.js';
 import { isPlainObject } from './utils.js';
 import { VERSION_PATTERN } from './typings/arazzo.js';
 
@@ -15,6 +16,7 @@ import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
   BuiltInOverlay1RuleId,
+  BuiltInProto3RuleId,
   BuiltInCommonRuleId,
 } from './types/redocly-yaml.js';
 import type {
@@ -30,6 +32,8 @@ import type {
   Arazzo1Rule,
   Overlay1Preprocessor,
   Overlay1Rule,
+  Proto3Rule,
+  Proto3Preprocessor,
 } from './visitors.js';
 
 export const specVersions = [
@@ -40,10 +44,18 @@ export const specVersions = [
   'async3',
   'arazzo1',
   'overlay1',
+  'proto3',
 ] as const;
 export type SpecVersion = typeof specVersions[number];
 
-export type SpecMajorVersion = 'oas2' | 'oas3' | 'async2' | 'async3' | 'arazzo1' | 'overlay1';
+export type SpecMajorVersion =
+  | 'oas2'
+  | 'oas3'
+  | 'async2'
+  | 'async3'
+  | 'arazzo1'
+  | 'overlay1'
+  | 'proto3';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -53,6 +65,7 @@ const typesMap = {
   async3: AsyncApi3Types,
   arazzo1: Arazzo1Types,
   overlay1: Overlay1Types,
+  proto3: Proto3Types,
 };
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
@@ -90,6 +103,12 @@ export type Overlay1RuleSet<T = undefined> = RuleMap<
   Overlay1Rule,
   T
 >;
+
+export type Proto3RuleSet<T = undefined> = RuleMap<
+  BuiltInProto3RuleId | BuiltInCommonRuleId | 'assertions',
+  Proto3Rule,
+  T
+>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
@@ -104,6 +123,9 @@ export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
 export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
 
+export type Proto3PreprocessorsSet = Record<string, Proto3Preprocessor>;
+export type Proto3DecoratorsSet = Record<string, Proto3Preprocessor>;
+
 export function detectSpec(root: unknown): SpecVersion {
   if (!isPlainObject(root)) {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
@@ -113,11 +135,11 @@ export function detectSpec(root: unknown): SpecVersion {
     throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
   }
 
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.0')) {
+  if (root.openapi && typeof root.openapi === 'string' && root.openapi.startsWith('3.0')) {
     return 'oas3_0';
   }
 
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
+  if (root.openapi && typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
     return 'oas3_1';
   }
 
@@ -127,6 +149,10 @@ export function detectSpec(root: unknown): SpecVersion {
 
   if (root.openapi || root.swagger) {
     throw new Error(`Unsupported OpenAPI version: ${root.openapi || root.swagger}`);
+  }
+
+  if (root.syntax === 'proto3') {
+    return 'proto3';
   }
 
   if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('2.')) {
@@ -163,6 +189,8 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'arazzo1';
   } else if (version === 'overlay1') {
     return 'overlay1';
+  } else if (version === 'proto3') {
+    return 'proto3';
   } else {
     return 'oas3';
   }

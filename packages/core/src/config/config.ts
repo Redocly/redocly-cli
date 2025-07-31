@@ -17,6 +17,7 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
+  Proto3RuleSet,
   SpecVersion,
   SpecMajorVersion,
 } from '../oas-types.js';
@@ -96,6 +97,7 @@ export class Config {
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
+      proto3: group({ ...resolvedConfig.rules, ...resolvedConfig.proto3Rules }),
     };
 
     this.preprocessors = {
@@ -121,6 +123,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
       },
+      proto3: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.proto3Preprocessors,
+      },
     };
 
     this.decorators = {
@@ -133,6 +139,10 @@ export class Config {
       overlay1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
+      },
+      proto3: {
+        ...resolvedConfig.decorators,
+        ...resolvedConfig.proto3Decorators,
       },
     };
 
@@ -384,6 +394,15 @@ export class Config {
           (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
         );
         return overlay1Rules;
+      case 'proto3':
+        // eslint-disable-next-line no-case-declarations
+        const proto3Rules: Proto3RuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.proto3 && proto3Rules.push(p.preprocessors.proto3)
+        );
+        this.plugins.forEach((p) => p.rules?.proto3 && proto3Rules.push(p.rules.proto3));
+        this.plugins.forEach((p) => p.decorators?.proto3 && proto3Rules.push(p.decorators.proto3));
+        return proto3Rules;
     }
   }
 
