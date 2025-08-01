@@ -11,8 +11,8 @@ import { type RunFileResult, type RunOptions } from './types.js';
 
 export type RespectOptions = {
   files: string[];
-  input?: string;
-  server?: string;
+  input?: string | string[];
+  server?: string | string[];
   workflow?: string[];
   skip?: string[];
   verbose?: boolean;
