@@ -25,6 +25,6 @@ describe('arrayBufferToBase64', () => {
     const result = arrayBufferToBase64(bytes.buffer);
 
     // This should produce a valid base64 string
-    expect(result).toBe('AAECAw8=');
+    expect(result).toBe('AAECA/8=');
   });
 });
