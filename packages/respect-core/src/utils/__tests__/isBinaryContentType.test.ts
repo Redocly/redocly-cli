@@ -26,4 +26,14 @@ describe('isBinaryContentType', () => {
     expect(isBinaryContentType('application/x-font-ttf')).toBe(true);
     expect(isBinaryContentType('font/woff2')).toBe(true);
   });
+
+  it('should return false for non-binary content types', () => {
+    expect(isBinaryContentType('application/json')).toBe(false);
+    expect(isBinaryContentType('text/plain')).toBe(false);
+    expect(isBinaryContentType('text/html')).toBe(false);
+    expect(isBinaryContentType('application/xml')).toBe(false);
+    expect(isBinaryContentType('text/xml')).toBe(false);
+    expect(isBinaryContentType('application/javascript')).toBe(false);
+    expect(isBinaryContentType('text/css')).toBe(false);
+  });
 });
