@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.3 (2025-08-05)
+
+### Patch Changes
+
+- Fixed type definitions for Respect `input` and `server` options to support both string and string[] values.
+- Updated @redocly/respect-core to v2.0.3.
+
 ## 2.0.2 (2025-07-29)
 
 ### Patch Changes

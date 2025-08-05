@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.0.3
+
+### Patch Changes
+
+- Fixed type definitions for Respect `input` and `server` options to support both string and string[] values.
+- Updated @redocly/respect-core to v2.0.3.
+
 ## 2.0.2
 
 ### Patch Changes
