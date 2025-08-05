@@ -17,6 +17,7 @@ import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
+import { isBinaryContentType } from './isBinaryContentType.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
@@ -343,12 +344,10 @@ export class ApiFetcher implements IFetcher {
       });
 
       responseTime = Math.ceil(performance.now() - startTime);
-      responseBody = await fetchResult.text();
     } else {
       // REGULAR FETCH
       fetchResult = await customFetch(urlToFetch, fetchParams);
       responseTime = Math.ceil(performance.now() - startTime);
-      responseBody = await fetchResult.text();
     }
 
     if (!fetchResult) {
@@ -358,6 +357,14 @@ export class ApiFetcher implements IFetcher {
     const [responseContentType] = fetchResult.headers.get('content-type')?.split(';') || [
       'application/json',
     ];
+
+    // Handle response body based on content type
+    if (isBinaryContentType(responseContentType)) {
+      const arrayBuffer = await fetchResult.arrayBuffer();
+      responseBody = Buffer.from(arrayBuffer).toString('base64');
+    } else {
+      responseBody = await fetchResult.text();
+    }
     const transformedBody = responseBody
       ? isJsonContentType(responseContentType)
         ? JSON.parse(responseBody)
