@@ -18,7 +18,6 @@ import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './isBinaryContentType.js';
-import { arrayBufferToBase64 } from './base64.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
@@ -362,12 +361,14 @@ export class ApiFetcher implements IFetcher {
     // Handle response body based on content type
     if (isBinaryContentType(responseContentType)) {
       const arrayBuffer = await fetchResult.arrayBuffer();
-      responseBody = arrayBufferToBase64(arrayBuffer);
+      responseBody = arrayBuffer;
     } else {
       responseBody = await fetchResult.text();
     }
     const transformedBody = responseBody
-      ? isJsonContentType(responseContentType)
+      ? responseBody instanceof ArrayBuffer
+        ? responseBody
+        : isJsonContentType(responseContentType)
         ? JSON.parse(responseBody)
         : responseBody
       : {};

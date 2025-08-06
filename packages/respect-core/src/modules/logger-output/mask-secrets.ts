@@ -1,3 +1,5 @@
+import { deepCopy } from '../../utils/deepCopy.js';
+
 export const POTENTIALLY_SECRET_FIELDS = [
   'token',
   'access_token',
@@ -22,7 +24,7 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
     return maskedString as T;
   }
 
-  const masked = JSON.parse(JSON.stringify(target));
+  const masked = deepCopy(target);
   const maskIfContainsSecret = (value: string): string => {
     let maskedValue = value;
 
@@ -40,7 +42,21 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
       if (typeof current[key] === 'string') {
         current[key] = maskIfContainsSecret(current[key]);
       } else if (typeof current[key] === 'object' && current[key] !== null) {
-        maskRecursive(current[key]);
+        // Skip special objects that should not be modified
+        if (
+          !(current[key] instanceof File) &&
+          !(current[key] instanceof ArrayBuffer) &&
+          !(current[key] instanceof Blob) &&
+          !(current[key] instanceof FormData) &&
+          !(current[key] instanceof Date) &&
+          !(current[key] instanceof RegExp) &&
+          !(current[key] instanceof Map) &&
+          !(current[key] instanceof Set) &&
+          !(current[key] instanceof URL) &&
+          !(current[key] instanceof Error)
+        ) {
+          maskRecursive(current[key]);
+        }
       }
     }
   };

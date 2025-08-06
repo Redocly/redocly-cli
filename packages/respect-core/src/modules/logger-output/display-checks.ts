@@ -98,6 +98,8 @@ function displayVerboseLogs({
     formattedBody = JSON.stringify(JSON.parse(body), null, 2);
   } else if (body instanceof File) {
     formattedBody = `[File: ${body.name}]`;
+  } else if (body instanceof ArrayBuffer) {
+    formattedBody = `[Binary: ${body.byteLength} bytes]`;
   } else {
     formattedBody = body;
   }
