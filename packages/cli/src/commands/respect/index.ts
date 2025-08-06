@@ -11,6 +11,7 @@ import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
 import { withMtlsClientIfNeeded } from './mtls/create-mtls-client.js';
 import { withHar } from './har-logs/index.js';
 import { createHarLog } from './har-logs/har-logs.js';
+import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
 
 export type RespectArgv = {
   files: string[];
@@ -129,7 +130,7 @@ export async function handleRespect({
         totalTime: performance.now() - startedAt,
       } as JsonLogs;
 
-      writeFileSync(argv['json-output'], JSON.stringify(jsonOutputData, null, 2), 'utf-8');
+      writeFileSync(argv['json-output'], jsonStringifyWithArrayBuffer(jsonOutputData, 2), 'utf-8');
 
       logger.output(blue(logger.indent(`JSON logs saved in ${green(argv['json-output'])}`, 2)));
       logger.printNewLine();
@@ -140,7 +141,7 @@ export async function handleRespect({
       // TODO: implement multiple run files HAR output
       for (const result of runAllFilesResult) {
         const parsedHarLogs = maskSecrets(harLogs, result.ctx.secretFields || new Set());
-        writeFileSync(argv['har-output'], JSON.stringify(parsedHarLogs, null, 2), 'utf-8');
+        writeFileSync(argv['har-output'], jsonStringifyWithArrayBuffer(parsedHarLogs, 2), 'utf-8');
         logger.output(blue(`Har logs saved in ${green(argv['har-output'])}`));
         logger.printNewLine();
         logger.printNewLine();
