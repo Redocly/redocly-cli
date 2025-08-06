@@ -10,9 +10,6 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-servers:
-  - url: http://redocly-example.com:8081
-  - url: http://redocly-example.com:8080
 tags:
   - name: user
     x-displayName: user
@@ -20,6 +17,12 @@ tags:
     x-displayName: pet
 paths:
   /GETUser/{userId}:
+    servers:
+      - url: /test
+      - url: /pets
+        description: another description
+      - url: /pet
+        description: some description
     summary: getUser
     description: getUser
     parameters:
@@ -29,12 +32,6 @@ paths:
         in: header
         schema:
           description: string
-    servers:
-      - url: /test
-      - url: /pets
-        description: another description
-      - url: /pet
-        description: some description
     post:
       tags:
         - user

@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Bar Example OpenAPI 3 definition.
+  description: Information about API
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+servers:
+  - url: 'https://redocly.com/v1'
+paths:
+  '/pets/{petId}':
+    post:
+      summary: summary example
+      operationId: exampleBar
+      responses:
+        '201':
+          description: example description
