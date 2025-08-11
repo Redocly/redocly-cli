@@ -1,7 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 export function deepCopy(value: any, visited = new WeakMap()): any {
-  if (Array.isArray(value) || isPlainObject(value)) {
+  if (!Array.isArray(value) && !isPlainObject(value)) {
     return value;
   }
 
