@@ -1,44 +1,44 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-export function deepCopy(obj: any, visited = new WeakMap()): any {
-  if (Array.isArray(obj) || isPlainObject(obj)) {
-    return obj;
+export function deepCopy(value: any, visited = new WeakMap()): any {
+  if (Array.isArray(value) || isPlainObject(value)) {
+    return value;
   }
 
   // Handle circular references
-  if (visited.has(obj)) {
-    return visited.get(obj);
+  if (visited.has(value)) {
+    return visited.get(value);
   }
 
   if (
-    obj instanceof ArrayBuffer ||
-    obj instanceof File ||
-    obj instanceof Blob ||
-    obj instanceof FormData ||
-    obj instanceof Date ||
-    obj instanceof RegExp ||
-    obj instanceof Map ||
-    obj instanceof Set ||
-    obj instanceof URL ||
-    obj instanceof Error
+    value instanceof ArrayBuffer ||
+    value instanceof File ||
+    value instanceof Blob ||
+    value instanceof FormData ||
+    value instanceof Date ||
+    value instanceof RegExp ||
+    value instanceof Map ||
+    value instanceof Set ||
+    value instanceof URL ||
+    value instanceof Error
   ) {
-    return obj;
+    return value;
   }
 
-  if (Array.isArray(obj)) {
+  if (Array.isArray(value)) {
     const copiedArray = [] as any[];
-    visited.set(obj, copiedArray);
-    for (let i = 0; i < obj.length; i++) {
-      copiedArray[i] = deepCopy(obj[i], visited);
+    visited.set(value, copiedArray);
+    for (let i = 0; i < value.length; i++) {
+      copiedArray[i] = deepCopy(value[i], visited);
     }
     return copiedArray;
   }
 
   const copied = {} as any;
-  visited.set(obj, copied);
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      copied[key] = deepCopy(obj[key], visited);
+  visited.set(value, copied);
+  for (const key in value) {
+    if (Object.prototype.hasOwnProperty.call(value, key)) {
+      copied[key] = deepCopy(value[key], visited);
     }
   }
   return copied;
