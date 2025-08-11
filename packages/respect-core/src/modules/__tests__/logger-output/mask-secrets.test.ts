@@ -99,7 +99,7 @@ describe('maskSecrets', () => {
   it('should preserve ArrayBuffer objects without breaking them', () => {
     const originalArrayBuffer = new ArrayBuffer(8);
     const originalData = new Uint8Array(originalArrayBuffer);
-    originalData.set([1, 2, 3, 4, 5, 6, 7, 8]); // Set some test data
+    originalData.set([1, 2, 3, 4, 5, 6, 7, 8]);
 
     const objWithArrayBuffer = {
       binaryData: originalArrayBuffer,
@@ -112,15 +112,12 @@ describe('maskSecrets', () => {
 
     const result = maskSecrets(objWithArrayBuffer, new Set(['secret123', 'password456']));
 
-    // Verify ArrayBuffer is preserved
     expect(result.binaryData).toBe(originalArrayBuffer);
     expect(result.nested.anotherBinary).toBe(originalArrayBuffer);
 
-    // Verify the data inside ArrayBuffer is intact
     const resultData = new Uint8Array(result.binaryData);
     expect(resultData).toEqual(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]));
 
-    // Verify secrets are masked
     expect(result.token).toBe('********');
     expect(result.nested.password).toBe('********');
   });
