@@ -1,4 +1,4 @@
-import { deepCopy } from '../deepCopy.js';
+import { deepCopy } from '../deep-copy.js';
 
 describe('deepCopy', () => {
   it('should deep copy an object', () => {

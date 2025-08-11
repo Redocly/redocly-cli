@@ -1,4 +1,4 @@
-import { deepCopy } from '../../utils/deepCopy.js';
+import { deepCopy } from '../../utils/deep-copy.js';
 
 export const POTENTIALLY_SECRET_FIELDS = [
   'token',
