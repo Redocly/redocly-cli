@@ -23,7 +23,6 @@ export function jsonStringifyWithArrayBuffer(obj: any, space?: string | number):
       }
 
       if (value instanceof File) {
-        // Convert File to a serializable object - avoid accessing properties to prevent errors
         return {
           __type: 'File',
           name: value.name || '[File Object]',
