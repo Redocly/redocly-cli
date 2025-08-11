@@ -1,4 +1,5 @@
 import { blue, yellow, green, gray, red } from 'colorette';
+import { isBrowser } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
 import { combineUrl } from '../../utils/url.js';
 import { isJSON } from '../../utils/is-json.js';
@@ -72,7 +73,7 @@ function displayVerboseLogs({
   logger: LoggerInterface;
 }): string {
   const { path, host, headerParams, body, statusCode } = logs;
-  const responseTime = process.env.NODE_ENV === 'test' ? '<test>' : logs.responseTime;
+  const responseTime = !isBrowser && process.env.NODE_ENV === 'test' ? '<test>' : logs.responseTime;
 
   const urlString = indent(`Request URL: ${blue(combineUrl(host, path))}`, 4);
   const requestHeadersString = indent(`Request Headers:`, 4);
@@ -98,6 +99,8 @@ function displayVerboseLogs({
     formattedBody = JSON.stringify(JSON.parse(body), null, 2);
   } else if (body instanceof File) {
     formattedBody = `[File: ${body.name}]`;
+  } else if (body instanceof ArrayBuffer) {
+    formattedBody = `[Binary: ${body.byteLength} bytes]`;
   } else {
     formattedBody = body;
   }

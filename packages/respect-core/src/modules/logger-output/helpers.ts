@@ -1,10 +1,11 @@
+import { isBrowser } from '@redocly/openapi-core';
 import { pluralize } from 'jest-matcher-utils'; // TODO: decide what to use: jest-matcher-utils or pluralize
 import { red, yellow, bold, blue } from 'colorette';
 import { type LoggerInterface, type Totals } from '@redocly/openapi-core';
 import { type Check, type VerboseLog, type Step } from '../../types.js';
 import { displayChecks } from './display-checks.js';
 
-export const RESET_ESCAPE_CODE = process.env.NO_COLOR ? '' : '\x1B[0m';
+export const RESET_ESCAPE_CODE = !isBrowser && process.env.NO_COLOR ? '' : '\x1B[0m';
 
 export function removeExtraIndentation(message: string | undefined): string {
   if (!message) {

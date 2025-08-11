@@ -95,4 +95,30 @@ describe('maskSecrets', () => {
     const result = maskSecrets('Bearer token123456', new Set(['token123456']));
     expect(result).toEqual('Bearer ********');
   });
+
+  it('should preserve ArrayBuffer objects without breaking them', () => {
+    const originalArrayBuffer = new ArrayBuffer(8);
+    const originalData = new Uint8Array(originalArrayBuffer);
+    originalData.set([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    const objWithArrayBuffer = {
+      binaryData: originalArrayBuffer,
+      token: 'secret123',
+      nested: {
+        anotherBinary: originalArrayBuffer,
+        password: 'password456',
+      },
+    };
+
+    const result = maskSecrets(objWithArrayBuffer, new Set(['secret123', 'password456']));
+
+    expect(result.binaryData).toBe(originalArrayBuffer);
+    expect(result.nested.anotherBinary).toBe(originalArrayBuffer);
+
+    const resultData = new Uint8Array(result.binaryData);
+    expect(resultData).toEqual(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]));
+
+    expect(result.token).toBe('********');
+    expect(result.nested.password).toBe('********');
+  });
 });
