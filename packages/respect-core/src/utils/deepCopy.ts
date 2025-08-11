@@ -1,5 +1,7 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 export function deepCopy(obj: any, visited = new WeakMap()): any {
-  if (obj === null || typeof obj !== 'object') {
+  if (Array.isArray(obj) || isPlainObject(obj)) {
     return obj;
   }
 
@@ -8,7 +10,6 @@ export function deepCopy(obj: any, visited = new WeakMap()): any {
     return visited.get(obj);
   }
 
-  // Handle special object types that should be returned as-is
   if (
     obj instanceof ArrayBuffer ||
     obj instanceof File ||
@@ -24,7 +25,6 @@ export function deepCopy(obj: any, visited = new WeakMap()): any {
     return obj;
   }
 
-  // Handle arrays
   if (Array.isArray(obj)) {
     const copiedArray = [] as any[];
     visited.set(obj, copiedArray);
@@ -34,7 +34,6 @@ export function deepCopy(obj: any, visited = new WeakMap()): any {
     return copiedArray;
   }
 
-  // Handle regular objects
   const copied = {} as any;
   visited.set(obj, copied);
   for (const key in obj) {

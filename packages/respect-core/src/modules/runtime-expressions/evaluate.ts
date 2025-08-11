@@ -55,7 +55,6 @@ export function evaluateRuntimeExpressionPayload({
       return acc;
     }, {} as Record<string, any>);
   } else if (Array.isArray(payload)) {
-    // Handle each element in an array
     return payload.map((item) =>
       evaluateRuntimeExpressionPayload({ payload: item, context, logger })
     );
