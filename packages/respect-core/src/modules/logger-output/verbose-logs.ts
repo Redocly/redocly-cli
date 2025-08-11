@@ -19,11 +19,8 @@ export function getVerboseLogs({
     verboseLogs.headerParams = headerParams;
   }
   if (
-    body &&
-    (body instanceof FormData ||
-      body instanceof File ||
-      Object.keys(body).length > 0 ||
-      body instanceof ArrayBuffer)
+    (body && (body instanceof FormData || body instanceof File || body instanceof ArrayBuffer)) ||
+    Object.keys(body).length > 0
   ) {
     verboseLogs.body = body;
   }
