@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf } from './index.js';
+import { listOf, mapOf } from './index.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isCustomRuleId, omit } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
@@ -317,7 +317,9 @@ const ObjectRule: NodeType = {
 
 // TODO: add better type tree for this
 const Schema: NodeType = {
-  properties: {},
+  properties: {
+    properties: mapOf('Schema'),
+  },
   additionalProperties: {},
 };
 
