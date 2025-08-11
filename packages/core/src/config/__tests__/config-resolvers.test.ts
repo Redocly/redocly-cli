@@ -634,4 +634,33 @@ describe('resolveApis', () => {
     });
     expect(resolvedConfig.plugins).toEqual(['test-plugin', 'fixtures/plugin.cjs']);
   });
+
+  it('should work with nested schema', async () => {
+    const { resolvedConfig } = await resolveConfig({
+      rawConfigDocument: makeDocument(
+        {
+          rules: {
+            'metadata-schema': {
+              type: 'object',
+              properties: {
+                'service-domain': {
+                  $ref: 'sd.yaml',
+                },
+              },
+            },
+          },
+        },
+        configPath
+      ),
+    });
+    expect(resolvedConfig?.rules?.['metadata-schema']).toEqual({
+      type: 'object',
+      properties: {
+        'service-domain': {
+          type: 'string',
+          enum: ['api', 'data'],
+        },
+      },
+    });
+  });
 });
