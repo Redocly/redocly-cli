@@ -358,7 +358,6 @@ export class ApiFetcher implements IFetcher {
       'application/json',
     ];
 
-    // Handle response body based on content type
     if (isBinaryContentType(responseContentType)) {
       const arrayBuffer = await fetchResult.arrayBuffer();
       responseBody = arrayBuffer;

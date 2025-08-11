@@ -13,7 +13,6 @@ export function jsonStringifyWithArrayBuffer(obj: any, space?: string | number):
           };
         }
 
-        // Convert ArrayBuffer to base64 string for JSON serialization
         const uint8Array = new Uint8Array(value);
         const base64 = Buffer.from(uint8Array).toString('base64');
         return {
