@@ -17,7 +17,7 @@ import { getResponseSchema } from '../modules/description-parser/index.js';
 import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
-import { isBinaryContentType } from './isBinaryContentType.js';
+import { isBinaryContentType } from './binary-content-type-checker.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
@@ -359,8 +359,7 @@ export class ApiFetcher implements IFetcher {
     ];
 
     if (isBinaryContentType(responseContentType)) {
-      const arrayBuffer = await fetchResult.arrayBuffer();
-      responseBody = arrayBuffer;
+      responseBody = await fetchResult.arrayBuffer();
     } else {
       responseBody = await fetchResult.text();
     }

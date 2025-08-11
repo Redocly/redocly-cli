@@ -1,4 +1,4 @@
-import { isBinaryContentType } from '../isBinaryContentType.js';
+import { isBinaryContentType } from '../binary-content-type-checker.js';
 
 describe('isBinaryContentType', () => {
   it('should return true for binary content types', () => {
