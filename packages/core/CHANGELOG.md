@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.0.3
+
+### Patch Changes
+
+- Fixed `$ref`s resolution for metadata-schema in `redocly.yaml`.
+- Fixed binary response data in `Respect` results by properly encoding it as base64.
+
 ## 2.0.2
 
 ## 2.0.1
