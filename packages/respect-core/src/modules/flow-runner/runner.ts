@@ -251,7 +251,6 @@ export async function resolveWorkflowContext(
   ctx: TestContext,
   config: Config
 ) {
-  const { logger } = ctx.options;
   const sourceDescriptionId =
     workflowId && workflowId.startsWith('$sourceDescriptions.') && workflowId.split('.')[1];
 
@@ -263,6 +262,7 @@ export async function resolveWorkflowContext(
     ? await createTestContext(
         testDescription,
         {
+          ...ctx.options,
           filePath: findSourceDescriptionUrl(
             sourceDescriptionId,
             ctx.sourceDescriptions,
@@ -270,18 +270,7 @@ export async function resolveWorkflowContext(
           ),
           workflow: [resolvedWorkflow.workflowId],
           skip: undefined,
-          input: ctx.options.input || undefined,
-          server: ctx.options.server || undefined,
-          severity: ctx.options.severity || undefined,
-          verbose: ctx.options.verbose || undefined,
-          maxSteps: ctx.options.maxSteps,
-          maxFetchTimeout: ctx.options.maxFetchTimeout,
-          executionTimeout: ctx.options.executionTimeout,
           config,
-          requestFileLoader: ctx.options.requestFileLoader,
-          envVariables: ctx.options.envVariables,
-          logger,
-          fetch: ctx.options.fetch,
         },
         ctx.apiClient
       )
