@@ -657,6 +657,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toMatchSnapshot();
@@ -676,6 +677,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(step.checks).toEqual([
@@ -707,6 +709,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(step.checks).toEqual([
@@ -828,6 +831,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -948,6 +952,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1069,6 +1074,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1185,6 +1191,7 @@ describe('runStep', () => {
         step: stepOne,
         ctx: context,
         workflowId,
+        executedStepsCount: { value: 0 },
       })
     ).rejects.toThrowError(
       'Cannot use both workflowId: success-action-workflow and stepId: success-action-step in goto action'
@@ -1301,6 +1308,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1421,6 +1429,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1536,6 +1545,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1650,6 +1660,7 @@ describe('runStep', () => {
           step: stepOne,
           ctx: context,
           workflowId,
+          executedStepsCount: { value: 0 },
         })
     ).rejects.toThrow(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
@@ -1765,6 +1776,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -1914,6 +1926,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2019,6 +2032,7 @@ describe('runStep', () => {
       step: stepOne,
       ctx: context,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(displayChecks).toHaveBeenCalled();
@@ -2081,6 +2095,7 @@ describe('runStep', () => {
         step: stepOne,
         ctx: context,
         workflowId,
+        executedStepsCount: { value: 0 },
       })
     ).rejects.toThrow(`Parameter "in" is required for ${stepOne.stepId} step`);
   });
@@ -2501,6 +2516,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(runWorkflow).toHaveBeenCalled();
@@ -2902,6 +2918,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId: 'test-workflow',
+      executedStepsCount: { value: 0 },
     });
 
     expect(runWorkflow).toHaveBeenCalledTimes(1);
@@ -3348,6 +3365,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId: 'test-workflow',
+      executedStepsCount: { value: 0 },
     });
 
     expect(resolveWorkflowContext).toHaveBeenCalledWith(
@@ -3803,6 +3821,7 @@ describe('runStep', () => {
       step,
       ctx: localCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(runWorkflow).not.toHaveBeenCalled();
@@ -3830,6 +3849,7 @@ describe('runStep', () => {
       step,
       ctx: basicCTX,
       workflowId,
+      executedStepsCount: { value: 0 },
     });
 
     expect(result).toEqual({ shouldEnd: true });

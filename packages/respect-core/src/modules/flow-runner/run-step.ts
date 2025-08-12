@@ -28,21 +28,22 @@ import type {
   OnFailureObject,
   RuntimeExpressionContext,
   ResolvedParameter,
+  ExecutedStepsCount,
 } from '../../types.js';
 import type { ParameterWithoutIn } from '../context-parser/index.js';
-
-let stepsRun = 0;
 
 export async function runStep({
   step,
   ctx,
   workflowId,
   retriesLeft,
+  executedStepsCount,
 }: {
   step: Step;
   ctx: TestContext;
   workflowId: string | undefined;
   retriesLeft?: number;
+  executedStepsCount: ExecutedStepsCount;
 }): Promise<{ shouldEnd: boolean } | void> {
   step = { ...step }; // shallow copy step to avoid mutating the original step
   step.retriesLeft = retriesLeft;
@@ -107,6 +108,7 @@ export async function runStep({
       skipLineSeparator: true,
       parentStepId: stepId,
       invocationContext: `Child workflow of step ${stepId}`,
+      executedStepsCount,
     });
 
     ctx.executedSteps.push(stepWorkflowResult);
@@ -153,8 +155,8 @@ export async function runStep({
   }
   ctx.executedSteps.push(step);
 
-  stepsRun++;
-  if (stepsRun > ctx.options.maxSteps) {
+  executedStepsCount.value++;
+  if (executedStepsCount.value > ctx.options.maxSteps) {
     step.checks.push({
       name: CHECKS.MAX_STEPS_REACHED_ERROR,
       message: `Max steps (${ctx.options.maxSteps}) reached`,
@@ -241,7 +243,7 @@ export async function runStep({
   }
 
   if (!allChecksPassed) {
-    const result = await runActions(failureActionsToRun, 'failure');
+    const result = await runActions(failureActionsToRun, 'failure', executedStepsCount);
     if (result?.retriesLeft && result.retriesLeft > 0) {
       // if retriesLeft > 0, it means that the step was retried successfully and we need to
       // return step result to the outer flow
@@ -253,7 +255,7 @@ export async function runStep({
   }
 
   if (successActionsToRun.length && allChecksPassed) {
-    const result = await runActions(successActionsToRun, 'success');
+    const result = await runActions(successActionsToRun, 'success', executedStepsCount);
     if (result?.shouldEnd) {
       return { shouldEnd: true };
     }
@@ -262,7 +264,8 @@ export async function runStep({
   // Internal function to run actions
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[] = [],
-    kind: 'failure' | 'success'
+    kind: 'failure' | 'success',
+    executedStepsCount: ExecutedStepsCount
   ): Promise<{
     retriesLeft?: number;
     shouldEnd?: boolean;
@@ -318,6 +321,7 @@ export async function runStep({
               ctx: targetCtx,
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
+              executedStepsCount,
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
@@ -329,6 +333,7 @@ export async function runStep({
               step: stepToRun,
               ctx: targetCtx,
               workflowId,
+              executedStepsCount,
             });
           }
 
@@ -342,6 +347,7 @@ export async function runStep({
               ctx,
               workflowId,
               retriesLeft: retriesLeft - 1,
+              executedStepsCount,
             }),
             retriesLeft,
           };
@@ -367,6 +373,7 @@ export async function runStep({
             fromStepId: targetStep,
             skipLineSeparator: true,
             invocationContext: `Goto from step ${stepId}`,
+            executedStepsCount,
           });
           ctx.executedSteps.push(stepWorkflowResult);
           return { shouldEnd: true };

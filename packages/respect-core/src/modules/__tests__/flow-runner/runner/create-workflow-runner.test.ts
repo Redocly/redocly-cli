@@ -96,7 +96,7 @@ describe('runWorkflow', () => {
       },
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
     expect(apiClient.fetchResult).toBeCalled();
   });
@@ -121,7 +121,7 @@ describe('runWorkflow', () => {
       },
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
     expect(apiClient.fetchResult).not.toBeCalled();
   });
@@ -140,7 +140,9 @@ describe('runWorkflow', () => {
         logger,
       },
     } as unknown as TestContext;
-    await expect(runWorkflow({ workflowInput: 'test', ctx })).rejects.toThrowError();
+    await expect(
+      runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
+    ).rejects.toThrowError();
     expect(apiClient.fetchResult).not.toBeCalled();
   });
 
@@ -226,7 +228,7 @@ describe('runWorkflow', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
     expect(ctx.$outputs?.test).toEqual({ test: 'test' });
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
@@ -298,7 +300,7 @@ describe('runWorkflow', () => {
       $outputs: {},
     } as unknown as TestContext;
 
-    await runWorkflow({ workflowInput: 'test', ctx });
+    await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
     expect(apiClient.fetchResult).not.toBeCalled();
   });
@@ -355,6 +357,7 @@ describe('runWorkflow', () => {
     await runWorkflow({
       workflowInput: 'test',
       ctx,
+      executedStepsCount: { value: 0 },
     });
 
     expect(loggerSpy).toMatchSnapshot();
@@ -455,6 +458,7 @@ describe('runWorkflow', () => {
     await runWorkflow({
       workflowInput: workflow,
       ctx,
+      executedStepsCount: { value: 0 },
     });
 
     expect(ctx.$outputs?.test).toEqual({ test: 'test' });

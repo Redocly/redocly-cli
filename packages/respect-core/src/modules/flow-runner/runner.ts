@@ -27,9 +27,18 @@ import type {
   Check,
   RunWorkflowInput,
   WorkflowExecutionResult,
+  ExecutedStepsCount,
 } from '../../types.js';
 
-export async function runTestFile(options: RunOptions, collectSpecData?: CollectFn) {
+export async function runTestFile({
+  options,
+  collectSpecData,
+  executedStepsCount,
+}: {
+  options: RunOptions;
+  collectSpecData?: CollectFn;
+  executedStepsCount: ExecutedStepsCount;
+}) {
   const workflowOptions = {
     ...options,
     filePath: options.file,
@@ -44,10 +53,22 @@ export async function runTestFile(options: RunOptions, collectSpecData?: Collect
     externalRefResolver: options?.externalRefResolver,
     skipLint: options?.skipLint,
   });
-  return await runWorkflows(bundledTestDescription, workflowOptions);
+  return await runWorkflows({
+    testDescription: bundledTestDescription,
+    options: workflowOptions,
+    executedStepsCount,
+  });
 }
 
-async function runWorkflows(testDescription: TestDescription, options: AppOptions) {
+async function runWorkflows({
+  testDescription,
+  options,
+  executedStepsCount,
+}: {
+  testDescription: TestDescription;
+  options: AppOptions;
+  executedStepsCount: ExecutedStepsCount;
+}) {
   const apiClient = new ApiFetcher({
     fetch: options.fetch,
   });
@@ -70,12 +91,13 @@ async function runWorkflows(testDescription: TestDescription, options: AppOption
     ctx.executedSteps = [];
     // run dependencies workflows first
     if (workflow.dependsOn?.length) {
-      await handleDependsOn({ workflow, ctx, config: options.config });
+      await handleDependsOn({ workflow, ctx, config: options.config, executedStepsCount });
     }
 
     const workflowExecutionResult = await runWorkflow({
       workflowInput: workflow.workflowId,
       ctx,
+      executedStepsCount,
     });
 
     executedWorkflows.push(workflowExecutionResult);
@@ -91,6 +113,7 @@ export async function runWorkflow({
   skipLineSeparator,
   parentStepId,
   invocationContext,
+  executedStepsCount,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
@@ -130,6 +153,7 @@ export async function runWorkflow({
         step,
         ctx,
         workflowId,
+        executedStepsCount,
       });
 
       // When `end` action is used, we should not continue with the next steps
@@ -212,10 +236,12 @@ async function handleDependsOn({
   workflow,
   ctx,
   config,
+  executedStepsCount,
 }: {
   workflow: Workflow;
   ctx: TestContext;
   config: Config;
+  executedStepsCount: ExecutedStepsCount;
 }) {
   if (!workflow.dependsOn?.length) return;
 
@@ -233,6 +259,7 @@ async function handleDependsOn({
         workflowInput: resolvedWorkflow,
         ctx: workflowCtx,
         skipLineSeparator: true,
+        executedStepsCount,
       });
     })
   );

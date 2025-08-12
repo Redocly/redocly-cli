@@ -113,9 +113,12 @@ describe('runTestFile', () => {
   });
 
   it(`should trow error if filename is not correct`, async () => {
-    await expect(runTestFile({ file: '', ...defaultRespectOptions })).rejects.toThrowError(
-      'Invalid file name'
-    );
+    await expect(
+      runTestFile({
+        options: { file: '', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
+      })
+    ).rejects.toThrowError('Invalid file name');
   });
 
   it(`should throw error if file is not valid Arazzo test file`, async () => {
@@ -127,7 +130,12 @@ describe('runTestFile', () => {
       'test.yml'
     );
 
-    await expect(runTestFile({ file: 'test.yaml', ...defaultRespectOptions })).rejects.toThrowError(
+    await expect(
+      runTestFile({
+        options: { file: 'test.yaml', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
+      })
+    ).rejects.toThrowError(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
     );
   });
@@ -178,9 +186,8 @@ describe('runTestFile', () => {
 
     await expect(
       runTestFile({
-        file: 'test.yaml',
-        testDescription,
-        ...defaultRespectOptions,
+        options: { file: 'test.yaml', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
       })
     ).rejects.toMatchSnapshot();
   });
@@ -246,8 +253,8 @@ describe('runTestFile', () => {
     } as any);
 
     await runTestFile({
-      file: 'test.yaml',
-      ...defaultRespectOptions,
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
     });
 
     expect(runStep).toHaveBeenCalledTimes(1);
@@ -336,8 +343,8 @@ describe('runTestFile', () => {
     } as any);
 
     await runTestFile({
-      file: 'test.yaml',
-      ...defaultRespectOptions,
+      options: { file: 'test.yaml', ...defaultRespectOptions },
+      executedStepsCount: { value: 0 },
     });
 
     // called 3 times, one for each step from each workflow and one from dependsOn
@@ -426,7 +433,12 @@ describe('runTestFile', () => {
       },
     } as any);
 
-    await expect(runTestFile({ file: 'test.yaml', ...defaultRespectOptions })).rejects.toThrow(
+    await expect(
+      runTestFile({
+        options: { file: 'test.yaml', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
+      })
+    ).rejects.toThrow(
       expect.objectContaining({
         // @ts-ignore
         message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
@@ -527,8 +539,8 @@ describe('runTestFile', () => {
 
     await expect(
       runTestFile({
-        file: 'test.yaml',
-        ...defaultRespectOptions,
+        options: { file: 'test.yaml', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
       })
     ).rejects.toThrowError('Dependent workflows has failed steps');
   }, 8000);
@@ -579,7 +591,10 @@ describe('runTestFile', () => {
     } as any);
     vi.mocked(bundle).mockResolvedValueOnce(undefined as any);
     await expect(
-      runTestFile({ file: 'test.yaml', ...{ ...defaultRespectOptions, filePath: 'test.yaml' } })
+      runTestFile({
+        options: { file: 'test.yaml', ...defaultRespectOptions },
+        executedStepsCount: { value: 0 },
+      })
     ).rejects.toThrowError(
       `Could not find source description file 'api-samples/not-existing.yaml'.`
     );
@@ -632,18 +647,21 @@ describe('runTestFile', () => {
     vi.mocked(bundle).mockResolvedValueOnce(undefined as any);
     await expect(
       runTestFile({
-        file: 'test.yaml',
-        executionTimeout: 3_600_000,
-        maxSteps: 2000,
-        maxFetchTimeout: 40_000,
-        config: await createConfig({}),
-        logger: logger,
-        requestFileLoader: {
-          getFileBody: async (filePath: string) => {
-            return new Blob([filePath]);
+        options: {
+          file: 'test.yaml',
+          executionTimeout: 3_600_000,
+          maxSteps: 2000,
+          maxFetchTimeout: 40_000,
+          config: await createConfig({}),
+          logger: logger,
+          requestFileLoader: {
+            getFileBody: async (filePath: string) => {
+              return new Blob([filePath]);
+            },
           },
+          fetch,
         },
-        fetch,
+        executedStepsCount: { value: 0 },
       })
     ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });
