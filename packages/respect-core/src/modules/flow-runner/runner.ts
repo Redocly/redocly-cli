@@ -282,6 +282,8 @@ export async function resolveWorkflowContext(
           envVariables: ctx.options.envVariables,
           logger,
           fetch: ctx.options.fetch,
+          externalRefResolver: ctx.options?.externalRefResolver,
+          skipLint: ctx.options?.skipLint,
         },
         ctx.apiClient
       )
