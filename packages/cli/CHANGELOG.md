@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 2.0.4
+
+### Patch Changes
+
+- Fixed an issue where the `openapi` config options were ignored when running the `build-docs` command.
+- Ensure `externalRefResolver` option is correctly passed to nested workflow contexts.
+- Updated @redocly/respect-core to v2.0.4.
+
 ## 2.0.3
 
 ### Patch Changes
