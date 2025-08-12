@@ -332,6 +332,8 @@ describe('resolveWorkflowContext', async () => {
       maxSteps: 2000,
       maxFetchTimeout: 40_000,
       config,
+      server: undefined,
+      severity: undefined,
     },
     apiClient,
   } as any;
@@ -370,6 +372,7 @@ describe('resolveWorkflowContext', async () => {
         server: undefined,
         severity: undefined,
         verbose: undefined,
+        metadata: commonCtx.options.metadata,
       },
       apiClient
     );
@@ -397,6 +400,7 @@ describe('resolveWorkflowContext', async () => {
         server: undefined,
         severity: undefined,
         verbose: undefined,
+        metadata: commonCtx.options.metadata,
       },
       apiClient
     );
@@ -420,6 +424,7 @@ describe('resolveWorkflowContext', async () => {
         server: undefined,
         severity: undefined,
         verbose: undefined,
+        metadata: commonCtx.options.metadata,
       },
       apiClient
     );
