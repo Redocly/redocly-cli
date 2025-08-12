@@ -32,7 +32,7 @@ jobs:
       - run: redocly-next --version
       - run: redocly --version
       - name: Run Benchmark
-        run: hyperfine -i --warmup 3 'redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
+        run: hyperfine -i --warmup 3 'redocly lint resources/rebilly.yaml' 'redocly-next lint resources/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
@@ -59,12 +59,12 @@ jobs:
         run: |
           npm run compile
           npm run pack:prepare
-          cd benchmark/
+          cd tests/performance/
           npm i
           npm run make-test
       - name: Run Benchmark
         run: |
-          cd benchmark/
+          cd tests/performance/
           npm test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
           npm run chart # Creates benchmark_chart.md with the performance bar chart.
@@ -73,5 +73,5 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: benchmark/benchmark_chart.md
+          filePath: tests/performance/benchmark_chart.md
           comment_tag: historical-versions-comparison
