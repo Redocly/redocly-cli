@@ -58,7 +58,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.11.2",
-    "@redocly/config": "^0.26.4",
+    "@redocly/config": "^0.28.0",
     "ajv-formats": "^2.1.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
