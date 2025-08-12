@@ -18,8 +18,7 @@ const __internalDirname = import.meta.url
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
-  config: Config,
-  alias?: string
+  config: Config
 ): JSON | Record<string, unknown> | Config {
   switch (typeof openapiOptions) {
     case 'object':
@@ -41,8 +40,7 @@ export function getObjectOrJSON(
     default: {
       if (config?.configPath) {
         logger.info(`Found ${config.configPath} and using 'openapi' options\n`);
-        const apiConfig = alias ? config.resolvedConfig.apis?.[alias] : config.resolvedConfig;
-        return apiConfig?.openapi ?? {};
+        return config.resolvedConfig?.openapi ?? {};
       }
       return {};
     }

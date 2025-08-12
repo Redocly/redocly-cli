@@ -1,0 +1,6 @@
+apis:
+  alias:
+    root: openapi.yaml
+
+openapi:
+  disableSearch: true

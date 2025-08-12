@@ -144,13 +144,18 @@ export class Config {
       return this;
     }
 
-    return new Config(this.resolvedConfig.apis[alias], {
-      configPath: this.configPath,
-      document: this.document,
-      resolvedRefMap: this.resolvedRefMap,
-      alias,
-      plugins: this.plugins,
-    });
+    const { apis, ...rest } = this.resolvedConfig;
+    const { root: _root, output: _output, ...aliasConfig } = apis[alias];
+    return new Config(
+      { ...rest, ...aliasConfig },
+      {
+        configPath: this.configPath,
+        document: this.document,
+        resolvedRefMap: this.resolvedRefMap,
+        alias,
+        plugins: this.plugins,
+      }
+    );
   }
 
   resolveIgnore(ignoreFile?: string) {
