@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Sample API
+  description: Test.
+  version: 1.0.0
+
+paths:
+  /test:
+    get:
+      summary: Test
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object

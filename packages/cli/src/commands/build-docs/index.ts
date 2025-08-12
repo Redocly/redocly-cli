@@ -21,7 +21,7 @@ export const handlerBuildCommand = async ({
   const startedAt = performance.now();
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const { path: pathToApi } = apis[0];
+  const { path: pathToApi, alias } = apis[0];
 
   const options = {
     output: argv.o,
@@ -29,7 +29,7 @@ export const handlerBuildCommand = async ({
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.theme?.openapi, config, argv.api),
+    redocOptions: getObjectOrJSON(argv.theme?.openapi, config, alias),
   };
 
   const redocCurrentVersion = packageJson.dependencies.redoc;

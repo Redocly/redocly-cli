@@ -40,7 +40,7 @@ export function getObjectOrJSON(
       break;
     default: {
       if (config?.configPath) {
-        logger.info(`Found ${config.configPath} and using theme.openapi options\n`);
+        logger.info(`Found ${config.configPath} and using 'openapi' options\n`);
         const apiConfig = alias ? config.resolvedConfig.apis?.[alias] : config.resolvedConfig;
         return apiConfig?.openapi ?? {};
       }
