@@ -208,6 +208,7 @@ export type RunWorkflowInput = {
   parentStepId?: string;
   skipLineSeparator?: boolean;
   invocationContext?: string;
+  executedStepsCount: ExecutedStepsCount;
 };
 
 export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;
@@ -341,3 +342,5 @@ export type DescriptionChecks = {
   descriptionOperation: OperationDetails;
   $response: ResponseContext;
 };
+
+export type ExecutedStepsCount = { value: number };

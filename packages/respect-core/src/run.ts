@@ -7,7 +7,7 @@ import {
 import { runTestFile } from './modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
 import { Timer } from './modules/timeout-timer/timer.js';
-import { type RunFileResult, type RunOptions } from './types.js';
+import { type ExecutedStepsCount, type RunFileResult, type RunOptions } from './types.js';
 
 export type RespectOptions = {
   files: string[];
@@ -32,6 +32,7 @@ export type RespectOptions = {
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {
+  const executedStepsCount = { value: 0 };
   const { files, executionTimeout, collectSpecData } = options;
 
   // Don't create a timer if executionTimeout is not set
@@ -45,6 +46,7 @@ export async function run(options: RespectOptions): Promise<RunFileResult[]> {
       options: { ...options, file: path },
       startedAt: performance.now(),
       collectSpecData,
+      executedStepsCount,
     });
 
     testsRunProblemsStatus.push(result.hasProblems);
@@ -57,13 +59,15 @@ export async function run(options: RespectOptions): Promise<RunFileResult[]> {
 async function runFile({
   options,
   startedAt,
+  executedStepsCount,
   collectSpecData,
 }: {
   options: RunOptions;
   startedAt: number;
+  executedStepsCount: ExecutedStepsCount;
   collectSpecData?: CollectFn;
 }): Promise<RunFileResult> {
-  const result = await runTestFile(options, collectSpecData);
+  const result = await runTestFile({ options, collectSpecData, executedStepsCount });
 
   const { executedWorkflows, ctx } = result;
   const totals = calculateTotals(executedWorkflows);
