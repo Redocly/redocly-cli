@@ -708,7 +708,7 @@ describe('E2E', () => {
     });
 
     describe('build docs with disableSearch', () => {
-      test('build docs via an argv option', async () => {
+      test('build docs using an argv option', async () => {
         const testPath = join(folderPath, 'build-docs-with-disabled-search');
         const args = getParams(indexEntryPoint, [
           'build-docs',
@@ -728,7 +728,7 @@ describe('E2E', () => {
         await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
 
-      test('build docs via a config', async () => {
+      test('build docs using a config', async () => {
         const testPath = join(folderPath, 'build-docs-with-disabled-search');
         const args = getParams(indexEntryPoint, [
           'build-docs',
@@ -749,11 +749,31 @@ describe('E2E', () => {
         await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
 
-      test('build docs via an alias', async () => {
+      test('build docs using an alias', async () => {
         const testPath = join(folderPath, 'build-docs-with-disabled-search');
         const args = getParams(indexEntryPoint, [
           'build-docs',
           'alias',
+          '--config=config-with-alias.yaml',
+        ]);
+        const result = getCommandOutput(args, {}, { testPath });
+        expect(cleanupOutput(result)).toMatchInlineSnapshot(`
+          "
+          Found config-with-alias.yaml and using 'openapi' options
+          Prerendering docs
+
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+          "
+        `);
+        const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+        await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      });
+
+      test('build docs using the file name (should use the alias config options)', async () => {
+        const testPath = join(folderPath, 'build-docs-with-disabled-search');
+        const args = getParams(indexEntryPoint, [
+          'build-docs',
+          'openapi.yaml',
           '--config=config-with-alias.yaml',
         ]);
         const result = getCommandOutput(args, {}, { testPath });
