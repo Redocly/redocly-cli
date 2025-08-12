@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.4
+
+### Patch Changes
+
+- Ensure `externalRefResolver` option is correctly passed to nested workflow contexts.
+- Updated @redocly/openapi-core to v2.0.4.
+
 ## 2.0.3
 
 ### Patch Changes
