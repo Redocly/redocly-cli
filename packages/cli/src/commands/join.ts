@@ -13,6 +13,7 @@ import {
   isString,
   isPlainObject,
   keysOf,
+  isEmptyObject,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -170,6 +171,17 @@ export async function handleJoin({
     }
   }
 
+  const [first, ...others] = documents ?? [];
+  const serversAreTheSame = others.every(({ parsed: { paths, servers } }) => {
+    // include only documents with paths
+    if (!paths || isEmptyObject(paths || {})) {
+      return true;
+    }
+    return servers?.every((server: Oas3Server) =>
+      first.parsed.servers?.find(({ url }: Oas3Server) => url === server.url)
+    );
+  });
+
   const joinedDef: any = {};
   const potentialConflicts = {
     tags: {},
@@ -179,6 +191,10 @@ export async function handleJoin({
   };
 
   addInfoSectionAndSpecVersion(documents, prefixComponentsWithInfoProp);
+
+  if (serversAreTheSame && first.parsed.servers) {
+    joinedDef.servers = first.parsed.servers;
+  }
 
   for (const document of documents) {
     const openapi = document.parsed;
@@ -206,9 +222,8 @@ export async function handleJoin({
     if (tags) {
       populateTags(context);
     }
-    collectServers(openapi);
     collectExternalDocs(openapi, context);
-    collectPaths(openapi, context);
+    collectPaths(openapi, context, serversAreTheSame);
     collectComponents(openapi, context);
     collectWebhooks(oasVersion!, openapi, context);
     if (componentsPrefix) {
@@ -320,20 +335,6 @@ export async function handleJoin({
     }
   }
 
-  function collectServers(openapi: Oas3Definition | Oas3_1Definition) {
-    const { servers } = openapi;
-    if (servers) {
-      if (!joinedDef.hasOwnProperty('servers')) {
-        joinedDef['servers'] = [];
-      }
-      for (const server of servers) {
-        if (!joinedDef.servers.some((s: any) => s.url === server.url)) {
-          joinedDef.servers.push(server);
-        }
-      }
-    }
-  }
-
   function collectExternalDocs(
     openapi: Oas3Definition | Oas3_1Definition,
     { api }: JoinDocumentContext
@@ -357,9 +358,10 @@ export async function handleJoin({
       potentialConflicts,
       tagsPrefix,
       componentsPrefix,
-    }: JoinDocumentContext
+    }: JoinDocumentContext,
+    serversAreTheSame: boolean
   ) {
-    const { paths } = openapi;
+    const { paths, servers: rootServers } = openapi;
     const operationsSet = new Set(OPENAPI3_METHOD_NAMES);
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
@@ -375,13 +377,16 @@ export async function handleJoin({
         }
 
         const pathItem = paths[path] as Oas3PathItem;
+        const servers = serversAreTheSame
+          ? pathItem.servers
+          : pathItem.servers || rootServers || [];
+        if (servers) {
+          collectPathServers(servers, path);
+        }
 
         for (const field of keysOf(pathItem)) {
           if (operationsSet.has(field as Oas3Method)) {
             collectPathOperation(pathItem, path, field as Oas3Method);
-          }
-          if (field === 'servers') {
-            collectPathServers(pathItem, path);
           }
           if (field === 'parameters') {
             collectPathParameters(pathItem, path);
@@ -409,8 +414,8 @@ export async function handleJoin({
       joinedDef.paths[path][field] = fieldValue;
     }
 
-    function collectPathServers(pathItem: Oas3PathItem, path: string | number) {
-      if (!pathItem.servers) {
+    function collectPathServers(servers: Oas3Server[], path: string | number) {
+      if (!servers) {
         return;
       }
 
@@ -418,7 +423,7 @@ export async function handleJoin({
         joinedDef.paths[path].servers = [];
       }
 
-      for (const server of pathItem.servers) {
+      for (const server of servers) {
         let isFoundServer = false;
         for (const pathServer of joinedDef.paths[path].servers) {
           if (pathServer.url === server.url) {

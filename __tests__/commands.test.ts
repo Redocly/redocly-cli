@@ -398,6 +398,13 @@ describe('E2E', () => {
       });
     });
 
+    test('three files one without servers', async () => {
+      const testPath = join(__dirname, `join/three-files-one-without-servers`);
+      const args = getParams(indexEntryPoint, ['join', ...entrypoints, 'baz.yaml']);
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
     describe('with options', () => {
       const options: { name: string; value: string | boolean }[] = [
         { name: 'prefix-tags-with-info-prop', value: 'title' },
