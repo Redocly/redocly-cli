@@ -7,6 +7,15 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.5 (2025-08-13)
+
+### Patch Changes
+
+- Fixed an issue where the root config was not properly merged with the `apis` config.
+- Resolved an issue that caused configuration parsing to fail when the config value was set to `null`.
+- Improved join command server handling for specifications with differing servers.
+- Updated @redocly/respect-core to v2.0.5.
+
 ## 2.0.4 (2025-08-12)
 
 ### Patch Changes

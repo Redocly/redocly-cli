@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated the exported `run` function in `Respect` to utilize the `maxSteps` count logic.
+- Updated @redocly/openapi-core to v2.0.5.
+
 ## 2.0.4
 
 ### Patch Changes
