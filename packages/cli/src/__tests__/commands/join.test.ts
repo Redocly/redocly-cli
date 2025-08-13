@@ -390,7 +390,7 @@ describe('handleJoin', () => {
 
   describe('servers', () => {
     it('should keep servers at root level if they are the same', async () => {
-      vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+      vi.mocked(detectSpec).mockReturnValue('oas3_0');
       const docWithServers = {
         ...serverAndPaths,
         servers: [{ url: 'https://common.server.com' }],
@@ -432,7 +432,7 @@ describe('handleJoin', () => {
     });
 
     it('should move servers to path level if they are different', async () => {
-      vi.mocked(detectSpec).mockReturnValue('oas3_0' as SpecVersion);
+      vi.mocked(detectSpec).mockReturnValue('oas3_0');
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>
