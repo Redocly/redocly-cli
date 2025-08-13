@@ -125,12 +125,18 @@ describe('Config.forAlias', () => {
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
+          "plugins": undefined,
           "preprocessors": {},
-          "root": "resources/pets.yaml",
+          "resolve": {
+            "http": {
+              "headers": [],
+            },
+          },
           "rules": {
             "no-empty-servers": "error",
             "operation-summary": "warn",
           },
+          "telemetry": "on",
         },
         "resolvedRefMap": Map {},
         "rules": {

@@ -788,6 +788,26 @@ describe('E2E', () => {
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
         await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
       });
+
+      test('build docs using a config with apis and a root option', async () => {
+        const testPath = join(folderPath, 'build-docs-with-disabled-search');
+        const args = getParams(indexEntryPoint, [
+          'build-docs',
+          'openapi.yaml',
+          '--config=config-with-apis-and-root-option.yaml',
+        ]);
+        const result = getCommandOutput(args, {}, { testPath });
+        expect(cleanupOutput(result)).toMatchInlineSnapshot(`
+          "
+          Found config-with-apis-and-root-option.yaml and using 'openapi' options
+          Prerendering docs
+
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+          "
+        `);
+        const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+        await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      });
     });
   });
 

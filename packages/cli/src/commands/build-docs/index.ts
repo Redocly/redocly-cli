@@ -22,14 +22,13 @@ export const handlerBuildCommand = async ({
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const { path: pathToApi, alias } = apis[0];
-
   const options = {
     output: argv.o,
     title: argv.title,
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.theme?.openapi, config, alias),
+    redocOptions: getObjectOrJSON(argv.theme?.openapi, config.forAlias(alias)),
   };
 
   const redocCurrentVersion = packageJson.dependencies.redoc;
