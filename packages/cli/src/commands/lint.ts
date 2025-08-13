@@ -73,7 +73,14 @@ export async function handleLint({
           )} configuration by default.\n\n`
         );
       }
-      logger.info(gray(`validating ${formatPath(path)}...\n`));
+      if (alias === undefined) {
+        logger.info(gray(`validating ${formatPath(path)}...\n`));
+      } else {
+        logger.info(
+          gray(`validating ${formatPath(path)} using lint rules for api '${alias}'...\n`)
+        );
+      }
+
       const results = await lint({
         ref: path,
         config: aliasConfig,
