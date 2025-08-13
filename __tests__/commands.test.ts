@@ -210,6 +210,16 @@ describe('E2E', () => {
       const result = getCommandOutput(passedArgs, {}, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
+
+    test('empty config (null)', async () => {
+      const dirName = 'empty-config-null';
+      const testPath = join(__dirname, `check-config/${dirName}`);
+
+      const passedArgs = getParams(indexEntryPoint, ['check-config', '--config=redocly.yaml']);
+
+      const result = getCommandOutput(passedArgs, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
   });
 
   describe('lint-config', () => {

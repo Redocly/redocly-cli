@@ -3,7 +3,7 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString, isString, isDefined, keysOf } from '../utils.js';
+import { isNotString, isString, isDefined, keysOf, isPlainObject } from '../utils.js';
 import { resolveDocument, BaseResolver, Source } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
@@ -50,7 +50,7 @@ export type PluginResolveInfo = {
 };
 
 export type ConfigOptions = {
-  rawConfigDocument?: Document<RawUniversalConfig>;
+  rawConfigDocument?: Document;
   configPath?: string;
   externalRefResolver?: BaseResolver;
   customExtends?: string[];
@@ -69,10 +69,10 @@ export async function resolveConfig({
   const config =
     rawConfigDocument === undefined ? { extends: ['recommended'] } : rawConfigDocument.parsed;
 
-  if (customExtends !== undefined) {
+  if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;
   }
-  if (config?.extends?.some(isNotString)) {
+  if (isPlainObject<RawUniversalConfig>(config) && config?.extends?.some(isNotString)) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
@@ -83,7 +83,9 @@ export async function resolveConfig({
   const resolvedRefMap = await resolveDocument({
     rootDocument,
     rootType: NormalizedConfigTypes.ConfigRoot,
-    externalRefResolver: externalRefResolver ?? new BaseResolver(getResolveConfig(config?.resolve)),
+    externalRefResolver:
+      externalRefResolver ??
+      new BaseResolver(getResolveConfig((config as RawUniversalConfig)?.resolve)),
   });
 
   let pluginsOrPaths: (Plugin | PluginResolveInfo)[] = [];
