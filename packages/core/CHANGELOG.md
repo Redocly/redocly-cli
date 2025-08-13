@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.0.5
+
+### Patch Changes
+
+- Fixed an issue where the root config was not properly merged with the `apis` config.
+- Resolved an issue that caused configuration parsing to fail when the config value was set to `null`.
+
 ## 2.0.4
 
 ### Patch Changes
