@@ -41,7 +41,7 @@ export function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
-export function isPlainObject(value: unknown): value is Record<string, unknown> {
+export function isPlainObject<T = Record<string, unknown>>(value: unknown): value is T {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 

@@ -77,7 +77,7 @@ export class YamlParseError extends Error {
   }
 }
 
-export type Document<T = any> = {
+export type Document<T = unknown> = {
   source: Source;
   parsed: T;
 };
@@ -86,7 +86,7 @@ export function makeRefId(absoluteRef: string, pointer: string) {
   return absoluteRef + '::' + pointer;
 }
 
-export function makeDocumentFromString<T = any>(
+export function makeDocumentFromString<T = unknown>(
   sourceString: string,
   absoluteRef: string
 ): Document<T> {
@@ -161,20 +161,20 @@ export class BaseResolver {
     }
   }
 
-  async resolveDocument<T = any>(
+  async resolveDocument<T = unknown>(
     base: string | null,
     ref: string,
     isRoot: boolean = false
   ): Promise<Document<T> | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
 
-    const cachedDocument = this.cache.get(absoluteRef);
+    const cachedDocument = this.cache.get(absoluteRef) as Document<T> | ResolveError | undefined;
     if (cachedDocument) {
       return cachedDocument;
     }
 
     const doc = this.loadExternalRef(absoluteRef).then((source) => {
-      return this.parseDocument(source, isRoot);
+      return this.parseDocument(source, isRoot) as Document<T>;
     });
 
     this.cache.set(absoluteRef, doc);

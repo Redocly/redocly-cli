@@ -3,6 +3,7 @@ import { normalizeVisitors } from '../visitors.js';
 import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath } from './config-resolvers.js';
+import { isPlainObject } from '../utils.js';
 
 import type { PluginResolveInfo } from './config-resolvers.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -16,8 +17,8 @@ export type PluginsCollectorVisitorData = {
 
 export const PLUGINS_COLLECTOR_VISITOR_ID = 'pluginsCollector';
 
-function collectorHandleNode(node: any, ctx: UserContext) {
-  if (Array.isArray(node.plugins)) {
+function collectorHandleNode(node: unknown, ctx: UserContext) {
+  if (isPlainObject(node) && Array.isArray(node.plugins)) {
     const { plugins, rootConfigDir } = ctx.getVisitorData() as PluginsCollectorVisitorData;
     plugins.push(
       ...node.plugins.map((p: string | Plugin) => {
@@ -39,22 +40,22 @@ export const pluginsCollectorVisitor = normalizeVisitors(
       visitor: {
         ref: {},
         ConfigGovernance: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
         },
         ConfigApisProperties: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
         },
         'rootRedoclyConfigSchema.scorecard.levels_items': {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
         },
         ConfigRoot: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
         },
@@ -70,8 +71,8 @@ export type ConfigBundlerVisitorData = {
 
 export const CONFIG_BUNDLER_VISITOR_ID = 'configBundler';
 
-function bundlerHandleNode(node: any, ctx: UserContext) {
-  if (node.extends) {
+function bundlerHandleNode(node: unknown, ctx: UserContext) {
+  if (isPlainObject(node) && node.extends) {
     const { plugins } = ctx.getVisitorData() as ConfigBundlerVisitorData;
     const bundled = bundleExtends({ node, ctx, plugins });
     Object.assign(node, bundled);
@@ -91,23 +92,23 @@ export const configBundlerVisitor = normalizeVisitors(
           },
         },
         ConfigGovernance: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
         },
         ConfigApisProperties: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             // ignore extends from root config if defined in the current node
             bundlerHandleNode(node, ctx);
           },
         },
         'rootRedoclyConfigSchema.scorecard.levels_items': {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
         },
         ConfigRoot: {
-          leave(node: any, ctx: UserContext) {
+          leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
         },

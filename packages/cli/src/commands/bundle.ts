@@ -1,7 +1,14 @@
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
+import {
+  formatProblems,
+  getTotals,
+  bundle,
+  logger,
+  type Oas2Definition,
+  type Oas3Definition,
+} from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -78,13 +85,17 @@ export async function handleBundle({
       if (fileTotals.errors === 0 || argv.force) {
         if (!outputFile) {
           const bundled = dumpBundle(
-            sortTopLevelKeysForOas(result.parsed),
+            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
             argv.ext || 'yaml',
             argv.dereferenced
           );
           logger.output(bundled);
         } else {
-          const bundled = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
+          const bundled = dumpBundle(
+            sortTopLevelKeysForOas(result.parsed as Oas3Definition | Oas2Definition),
+            ext,
+            argv.dereferenced
+          );
           saveBundle(outputFile, bundled);
         }
       }

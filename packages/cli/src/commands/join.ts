@@ -50,7 +50,7 @@ type JoinDocumentContext = {
   api: string;
   apiFilename: string;
   apiTitle?: string;
-  tags: Oas3Tag[];
+  tags?: Oas3Tag[];
   potentialConflicts: any;
   tagsPrefix: string;
   componentsPrefix: string | undefined;
@@ -197,7 +197,9 @@ export async function handleJoin({
   }
 
   for (const document of documents) {
-    const openapi = document.parsed;
+    const openapi = isPlainObject<Oas3Definition | Oas3_1Definition>(document.parsed)
+      ? document.parsed
+      : ({} as Oas3Definition | Oas3_1Definition);
     const { tags, info } = openapi;
     const api = path.relative(process.cwd(), document.source.absoluteRef);
     const apiFilename = getApiFilename(api);
@@ -260,7 +262,7 @@ export async function handleJoin({
     if (withoutXTagGroups && !potentialConflicts.tags.hasOwnProperty('description')) {
       potentialConflicts.tags['description'] = {};
     }
-    for (const tag of tags) {
+    for (const tag of tags || []) {
       const entrypointTagName = addPrefix(tag.name, tagsPrefix);
       if (tag.description) {
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
@@ -555,7 +557,7 @@ export async function handleJoin({
   }
 
   function collectComponents(
-    openapi: Oas3Definition,
+    openapi: Oas3Definition | Oas3_1Definition,
     { api, potentialConflicts, componentsPrefix }: JoinDocumentContext
   ) {
     const { components } = openapi;
@@ -582,7 +584,7 @@ export async function handleJoin({
 
   function collectWebhooks(
     oasVersion: SpecVersion,
-    openapi: Exact<Oas3Definition | Oas3_1Definition>,
+    openapi: Oas3Definition | Oas3_1Definition,
     {
       apiFilename,
       apiTitle,
@@ -593,7 +595,7 @@ export async function handleJoin({
     }: JoinDocumentContext
   ) {
     const webhooks = oasVersion === 'oas3_1' ? 'webhooks' : 'x-webhooks';
-    const openapiWebhooks = openapi[webhooks];
+    const openapiWebhooks = (openapi as Exact<Oas3Definition | Oas3_1Definition>)[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {
         joinedDef[webhooks] = {};
