@@ -171,7 +171,7 @@ export async function handleJoin({
     }
   }
 
-  const [first, ...others] = documents ?? [];
+  const [first, ...others] = (documents ?? []) as Document<Oas3Definition | Oas3_1Definition>[];
   const serversAreTheSame = others.every(({ parsed: { paths, servers } }) => {
     // include only documents with paths
     if (!paths || isEmptyObject(paths || {})) {
