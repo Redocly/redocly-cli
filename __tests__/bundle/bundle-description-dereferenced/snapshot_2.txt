@@ -34,5 +34,5 @@ components:
       description: names description
       properties: *ref_0
 
-bundling test.yaml...
+bundling test.yaml using configuration for api 'main'...
 📦 Created a bundle for test.yaml at stdout <test>ms.

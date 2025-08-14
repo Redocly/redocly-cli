@@ -58,7 +58,13 @@ export async function handleBundle({
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
 
-      logger.info(gray(`bundling ${formatPath(path)}...\n`));
+      if (alias === undefined) {
+        logger.info(gray(`bundling ${formatPath(path)}...\n`));
+      } else {
+        logger.info(
+          gray(`bundling ${formatPath(path)} using configuration for api '${alias}'...\n`)
+        );
+      }
 
       const {
         bundle: result,

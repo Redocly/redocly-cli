@@ -51,5 +51,5 @@ operations:
                 format: email
                 description: Email of the user
 
-bundling simple.yml...
+bundling simple.yml using configuration for api 'main'...
 📦 Created a bundle for simple.yml at stdout <test>ms.
