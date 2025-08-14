@@ -190,8 +190,8 @@ export async function bundleDocument(opts: {
       ruleId: 'remove-unused-components',
       visitor:
         specMajorVersion === 'oas2'
-          ? RemoveUnusedComponentsOas2({})
-          : RemoveUnusedComponentsOas3({}),
+          ? RemoveUnusedComponentsOas2({}, config)
+          : RemoveUnusedComponentsOas3({}, config),
     });
   }
 
