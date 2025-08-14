@@ -1,5 +1,5 @@
 
-validating openapi.yaml...
+validating openapi.yaml using lint rules for api 'main'...
 openapi.yaml: validated in <test>ms
 
 Woohoo! Your API description is valid. 🎉

@@ -15,5 +15,5 @@ info:
 security: []
 components: {}
 
-bundling test.yaml...
+bundling test.yaml using configuration for api 'main'...
 📦 Created a bundle for test.yaml at stdout <test>ms.

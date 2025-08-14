@@ -8,5 +8,5 @@ components:
     Unused:
       type: string
 
-bundling nested/openapi/main.yaml...
+bundling nested/openapi/main.yaml using configuration for api 'test@fs'...
 📦 Created a bundle for nested/openapi/main.yaml at stdout <test>ms.
