@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.0.6
+
+### Patch Changes
+
+- Improved messaging to clarify when API alias configuration is implicitly applied during linting or bundling by filename.
+- Updated @redocly/openapi-core to v2.0.6.
+
 ## 2.0.5
 
 ### Patch Changes
