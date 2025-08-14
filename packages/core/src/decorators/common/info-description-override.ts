@@ -20,7 +20,6 @@ export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePat
             const configDir = path.dirname(config.configPath);
             resolvedFilePath = path.resolve(configDir, filePath);
           }
-          console.log({ filePath, resolvedFilePath });
           info.description = readFileAsStringSync(resolvedFilePath);
         } catch (e) {
           report({
