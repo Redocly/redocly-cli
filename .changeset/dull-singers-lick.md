@@ -4,4 +4,4 @@
 ---
 
 Fixed an issue where files specified in the `info-description-override` decorator were not always resolved correctly.
-The resolution logic now properly locates and loads the specified files relatively to the config file.
+The resolution logic now properly locates the specified files relative to the config file.
