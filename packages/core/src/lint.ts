@@ -164,12 +164,12 @@ export async function lintConfig(opts: {
     {
       severity: severity || 'error',
       ruleId: 'configuration struct',
-      visitor: Struct({ severity: 'error' }),
+      visitor: Struct({ severity: 'error' }, config),
     },
     {
       severity: severity || 'error',
       ruleId: 'configuration no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' }),
+      visitor: NoUnresolvedRefs({ severity: 'error' }, config),
     },
   ];
   const normalizedVisitors = normalizeVisitors(rules, types);
