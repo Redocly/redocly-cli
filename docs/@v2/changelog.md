@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.6 (2025-08-14)
+
+### Patch Changes
+
+- Improved messaging to clarify when API alias configuration is implicitly applied during linting or bundling by filename.
+- Updated @redocly/openapi-core to v2.0.6.
+
 ## 2.0.5 (2025-08-13)
 
 ### Patch Changes
