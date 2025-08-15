@@ -4,4 +4,4 @@ apis:
 
 decorators:
   info-description-override:
-    filePath: ./test.md
+    filePath: ./non-existing.md

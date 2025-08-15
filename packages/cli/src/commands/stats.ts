@@ -103,7 +103,8 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: specVersion,
+    specVersion,
+    config,
     visitorsData: {},
   };
 

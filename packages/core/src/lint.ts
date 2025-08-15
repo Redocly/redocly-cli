@@ -82,7 +82,8 @@ export async function lintDocument(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: specVersion,
+    specVersion,
+    config,
     visitorsData: {},
   };
 
@@ -136,7 +137,8 @@ export async function lintConfig(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: 'oas3_0', // TODO: use config-specific version; rename `oasVersion`
+    specVersion: 'oas3_0', // TODO: use config-specific version
+    config,
     visitorsData: {},
   };
 
