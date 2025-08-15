@@ -45,7 +45,7 @@ export function collectConfigPlugins(
   const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: 'oas3_0', // TODO: change it after we rename oasVersion to specVersion
+    specVersion: 'oas3_0', // TODO: change it to a config-specific type
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
@@ -71,7 +71,7 @@ export function bundleConfig(
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: 'oas3_0', // TODO: change it after we rename oasVersion to specVersion
+    specVersion: 'oas3_0', // TODO: change it to a config-specific type
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {
       [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,
@@ -179,7 +179,8 @@ export async function bundleDocument(opts: {
 
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: specVersion,
+    specVersion,
+    config,
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {},
   };
@@ -190,8 +191,8 @@ export async function bundleDocument(opts: {
       ruleId: 'remove-unused-components',
       visitor:
         specMajorVersion === 'oas2'
-          ? RemoveUnusedComponentsOas2({}, config)
-          : RemoveUnusedComponentsOas3({}, config),
+          ? RemoveUnusedComponentsOas2({})
+          : RemoveUnusedComponentsOas3({}),
     });
   }
 

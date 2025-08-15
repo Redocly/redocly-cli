@@ -8,11 +8,8 @@ import {
 import { Oas3RuleSet } from '../oas-types.js';
 import { Oas3Types } from '../types/oas3.js';
 import { normalizeTypes } from '../types/index.js';
-import { createConfig } from '../config/index.js';
 
-describe('Normalize visitors', async () => {
-  const emptyConfig = await createConfig({});
-
+describe('Normalize visitors', () => {
   it('should work correctly for single rule', () => {
     const schemaEnter = () => undefined;
 
@@ -30,7 +27,7 @@ describe('Normalize visitors', async () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId]({}, emptyConfig),
+        visitor: ruleset[ruleId]({}),
       }))
     );
 
@@ -77,7 +74,7 @@ describe('Normalize visitors', async () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId]({}, emptyConfig),
+        visitor: ruleset[ruleId]({}),
       }))
     );
 
@@ -118,7 +115,7 @@ describe('Normalize visitors', async () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId]({}, emptyConfig),
+        visitor: ruleset[ruleId]({}),
       }))
     );
 
@@ -156,7 +153,7 @@ describe('Normalize visitors', async () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId]({}, emptyConfig),
+        visitor: ruleset[ruleId]({}),
       }))
     );
 

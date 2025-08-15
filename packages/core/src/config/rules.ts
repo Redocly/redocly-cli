@@ -48,7 +48,7 @@ export function initRules(
         }
         const severity: ProblemSeverity = ruleSettings.severity;
         const message = ruleSettings.message;
-        const visitors = rule(ruleSettings, config);
+        const visitors = rule(ruleSettings);
 
         if (Array.isArray(visitors)) {
           return visitors.map((visitor: any) => ({

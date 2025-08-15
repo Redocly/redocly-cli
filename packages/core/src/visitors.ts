@@ -73,7 +73,6 @@ import type {
   Workflow,
 } from './typings/arazzo.js';
 import type { Overlay1Definition } from './typings/overlay.js';
-import type { Config } from './config/index.js';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -367,45 +366,24 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
   };
 };
 
-export type Oas3Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Oas3Visitor | Oas3Visitor[];
-export type Oas2Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Oas2Visitor | Oas2Visitor[];
-export type Async2Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Async2Visitor | Async2Visitor[];
-export type Async3Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Async3Visitor | Async3Visitor[];
-export type Arazzo1Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Arazzo1Visitor | Arazzo1Visitor[];
-export type Overlay1Rule = (
-  options: Record<string, any>,
-  config: Config
-) => Overlay1Visitor | Overlay1Visitor[];
-export type Oas3Preprocessor = (options: Record<string, any>, config: Config) => Oas3Visitor;
-export type Oas2Preprocessor = (options: Record<string, any>, config: Config) => Oas2Visitor;
-export type Async2Preprocessor = (options: Record<string, any>, config: Config) => Async2Visitor;
-export type Async3Preprocessor = (options: Record<string, any>, config: Config) => Async3Visitor;
-export type Arazzo1Preprocessor = (options: Record<string, any>, config: Config) => Arazzo1Visitor;
-export type Overlay1Preprocessor = (
-  options: Record<string, any>,
-  config: Config
-) => Overlay1Visitor;
-export type Oas3Decorator = (options: Record<string, any>, config: Config) => Oas3Visitor;
-export type Oas2Decorator = (options: Record<string, any>, config: Config) => Oas2Visitor;
-export type Async2Decorator = (options: Record<string, any>, config: Config) => Async2Visitor;
-export type Async3Decorator = (options: Record<string, any>, config: Config) => Async3Visitor;
-export type Arazzo1Decorator = (options: Record<string, any>, config: Config) => Arazzo1Visitor;
-export type Overlay1Decorator = (options: Record<string, any>, config: Config) => Overlay1Visitor;
+export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor | Oas3Visitor[];
+export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor | Oas2Visitor[];
+export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async2Visitor[];
+export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async3Visitor[];
+export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
+export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
+export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
+export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
+export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;
+export type Async3Preprocessor = (options: Record<string, any>) => Async3Visitor;
+export type Arazzo1Preprocessor = (options: Record<string, any>) => Arazzo1Visitor;
+export type Overlay1Preprocessor = (options: Record<string, any>) => Overlay1Visitor;
+export type Oas3Decorator = (options: Record<string, any>) => Oas3Visitor;
+export type Oas2Decorator = (options: Record<string, any>) => Oas2Visitor;
+export type Async2Decorator = (options: Record<string, any>) => Async2Visitor;
+export type Async3Decorator = (options: Record<string, any>) => Async3Visitor;
+export type Arazzo1Decorator = (options: Record<string, any>) => Arazzo1Visitor;
+export type Overlay1Decorator = (options: Record<string, any>) => Overlay1Visitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver
