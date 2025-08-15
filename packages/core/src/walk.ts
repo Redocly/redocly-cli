@@ -16,7 +16,7 @@ import type {
   VisitorNode,
 } from './visitors.js';
 import type { NormalizedNodeType } from './types/index.js';
-import type { RuleSeverity } from './config/index.js';
+import type { Config, RuleSeverity } from './config/index.js';
 
 export type NonUndefined =
   | string
@@ -46,7 +46,8 @@ export type UserContext = {
   type: NormalizedNodeType;
   key: string | number;
   parent: any;
-  oasVersion: SpecVersion;
+  specVersion: SpecVersion;
+  config?: Config;
   getVisitorData: () => Record<string, unknown>;
 };
 
@@ -92,7 +93,8 @@ export type NormalizedProblem = {
 
 export type WalkContext = {
   problems: NormalizedProblem[];
-  oasVersion: SpecVersion; // TODO: rename to specVersion
+  specVersion: SpecVersion;
+  config?: Config;
   visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;
 };
@@ -180,7 +182,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             parent,
             key,
             parentLocations: {},
-            oasVersion: ctx.oasVersion,
+            specVersion: ctx.specVersion,
+            config: ctx.config,
             getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
           },
           { node: resolvedNode, location: resolvedLocation, error }
@@ -393,7 +396,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               parent,
               key,
               parentLocations: {},
-              oasVersion: ctx.oasVersion,
+              specVersion: ctx.specVersion,
+              config: ctx.config,
               getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
             },
             { node: resolvedNode, location: resolvedLocation, error }
@@ -425,7 +429,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           parent,
           key,
           parentLocations: collectParentsLocations(context),
-          oasVersion: ctx.oasVersion,
+          specVersion: ctx.specVersion,
+          config: ctx.config,
           ignoreNextVisitorsOnNode: () => {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
