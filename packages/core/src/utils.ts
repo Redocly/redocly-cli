@@ -54,12 +54,12 @@ export function isNotEmptyObject(obj: unknown): boolean {
   return isPlainObject(obj) && !isEmptyObject(obj);
 }
 
-export function isEmptyArray(value: unknown) {
+export function isEmptyArray(value: unknown): value is [] {
   return Array.isArray(value) && value.length === 0;
 }
 
-export function isNotEmptyArray<T>(args?: T[]): boolean {
-  return !!args && Array.isArray(args) && !!args.length;
+export function isNotEmptyArray<T>(args?: T[]): args is [T, ...T[]] {
+  return Array.isArray(args) && !!args.length;
 }
 
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
