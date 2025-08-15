@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Resolve wildcard pattern params from CLI
+Fixed an issue where wildcard file patterns were not recognized in the Docker image.
