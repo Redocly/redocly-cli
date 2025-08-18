@@ -5,4 +5,4 @@ apis:
 decorators:
   operation-description-override:
     operationIds:
-      updatePet: ./update-pet-operation-description.md
+      updatePet: ./non-existing.md

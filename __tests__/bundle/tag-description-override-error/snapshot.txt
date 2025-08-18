@@ -1,7 +1,7 @@
 [1] main.yaml:17:5 at #/tags/0
 
 Failed to read markdown override file for tag "pet".
-ENOENT: no such file or directory, open './pet-tag-description.md'
+ENOENT: no such file or directory, open './__tests__/bundle/tag-description-override-error/non-existing.md'
 
 15 |     email: email@redocly.com
 16 | tags:

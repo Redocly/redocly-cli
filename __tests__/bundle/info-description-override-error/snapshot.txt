@@ -1,7 +1,7 @@
 [1] main.yaml:8:16 at #/info/description
 
 Failed to read markdown override file for "info.description".
-ENOENT: no such file or directory, open './test.md'
+ENOENT: no such file or directory, open './__tests__/bundle/info-description-override-error/non-existing.md'
 
  6 | title: Example OpenAPI 3 definition.
  7 | version: 1.0.0

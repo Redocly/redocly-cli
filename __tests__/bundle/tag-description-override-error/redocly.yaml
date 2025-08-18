@@ -5,4 +5,4 @@ apis:
 decorators:
   tag-description-override:
     tagNames:
-      pet: ./pet-tag-description.md
+      pet: ./non-existing.md
