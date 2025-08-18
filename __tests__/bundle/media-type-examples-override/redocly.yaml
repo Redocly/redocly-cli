@@ -1,0 +1,13 @@
+apis:
+  main:
+    root: openapi.yaml
+
+decorators:
+  media-type-examples-override:
+    operationIds:
+      test:
+        request:
+          application/json: ./examples/request.yaml
+        responses:
+          200:
+            application/json: ./examples/response.yaml

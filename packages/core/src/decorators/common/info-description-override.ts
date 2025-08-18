@@ -1,6 +1,4 @@
-import * as path from 'node:path';
-import { readFileAsStringSync } from '../../utils.js';
-import { isAbsoluteUrl } from '../../ref-utils.js';
+import { readFileAsStringSync, resolveRelativePath } from '../../utils.js';
 
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
@@ -15,12 +13,9 @@ export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePat
           );
 
         try {
-          let resolvedFilePath = filePath;
-          if (!isAbsoluteUrl(filePath) && !path.isAbsolute(filePath) && config?.configPath) {
-            const configDir = path.dirname(config.configPath);
-            resolvedFilePath = path.resolve(configDir, filePath);
-          }
-          info.description = readFileAsStringSync(resolvedFilePath);
+          info.description = readFileAsStringSync(
+            resolveRelativePath(filePath, config?.configPath)
+          );
         } catch (e) {
           report({
             message: `Failed to read markdown override file for "info.description".\n${e.message}`,

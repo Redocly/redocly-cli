@@ -1,4 +1,4 @@
-import { yamlAndJsonSyncReader } from '../../utils.js';
+import { resolveRelativePath, yamlAndJsonSyncReader } from '../../utils.js';
 import { isRef } from '../../ref-utils.js';
 
 import type { Oas3Decorator } from '../../visitors.js';
@@ -35,9 +35,12 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
             resolvedResponse.content = resolvedResponse.content ? resolvedResponse.content : {};
 
             Object.keys(properties.responses[responseCode]).forEach((mimeType) => {
+              const filePath = properties.responses[responseCode][mimeType];
               resolvedResponse.content![mimeType] = {
                 ...resolvedResponse.content![mimeType],
-                examples: yamlAndJsonSyncReader(properties.responses[responseCode][mimeType]),
+                examples: yamlAndJsonSyncReader(
+                  resolveRelativePath(filePath, ctx.config?.configPath)
+                ),
               };
             });
 
@@ -58,9 +61,12 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
           resolvedRequest.content = resolvedRequest.content ? resolvedRequest.content : {};
 
           Object.keys(properties.request).forEach((mimeType) => {
+            const filePath = properties.request[mimeType];
             resolvedRequest.content[mimeType] = {
               ...resolvedRequest.content[mimeType],
-              examples: yamlAndJsonSyncReader(properties.request[mimeType]),
+              examples: yamlAndJsonSyncReader(
+                resolveRelativePath(filePath, ctx.config?.configPath)
+              ),
             };
           });
           operation.requestBody = resolvedRequest;

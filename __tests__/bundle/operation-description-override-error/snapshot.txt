@@ -1,7 +1,7 @@
 [1] openapi.yaml:23:7 at #/paths/~1pet/put/operationId
 
 Failed to read markdown override file for operation "updatePet".
-ENOENT: no such file or directory, open './update-pet-operation-description.md'
+ENOENT: no such file or directory, open './__tests__/bundle/operation-description-override-error/non-existing.md'
 
 21 | summary: Update an existing pet
 22 | description: ''

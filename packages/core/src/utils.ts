@@ -4,6 +4,7 @@ import { minimatch } from 'minimatch';
 import pluralizeOne from 'pluralize';
 import { parseYaml } from './js-yaml/index.js';
 import { env } from './env.js';
+import { isAbsoluteUrl } from './ref-utils.js';
 
 import type { HttpResolveConfig } from './config/index.js';
 import type { UserContext } from './walk.js';
@@ -297,4 +298,11 @@ export function omit<O extends object, K extends keyof O>(obj: O, keys: K[]): Om
   });
 
   return result;
+}
+
+export function resolveRelativePath(filePath: string, base?: string) {
+  if (isAbsoluteUrl(filePath) || base === undefined) {
+    return filePath;
+  }
+  return path.resolve(path.dirname(base), filePath);
 }

@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Test
+paths:
+  /test:
+    post:
+      operationId: test
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRequest'
+            examples:
+              name: Test
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                - Foo
+                - Bar
+components:
+  schemas:
+    TestRequest:
+      type: object
+      properties:
+        name:
+          type: string
+
+bundling openapi.yaml...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
