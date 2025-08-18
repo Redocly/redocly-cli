@@ -554,6 +554,107 @@ describe('checkSuccessCriteria', () => {
     ]);
   });
 
+  it('should pass jsonpath success criteria with hyphens', () => {
+    const stepMock: Step = {
+      stepId: 'stepId',
+      'x-operation': {
+        method: 'get',
+        url: 'http://localhost:3000/some/path',
+      },
+      checks: [],
+      response: {
+        body: {
+          received_headers: {
+            'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+            'content-length': 23,
+            filledList: ['one', 'two', 'three'],
+            emptyList: [],
+          },
+        },
+        statusCode: 200,
+        header: {},
+        contentType: 'application/json',
+      },
+    };
+    const result = checkCriteria({
+      workflowId: 'workflowId',
+      step: stepMock,
+      criteria: [
+        {
+          type: {
+            type: 'jsonpath',
+            version: 'draft-goessner-dispatch-jsonpath-00',
+          },
+          context: '$response.body',
+          condition:
+            '$.received_headers.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && $.received_headers.content_length == 23 && $.received_headers.filledList.length == 3 && $.received_headers.emptyList.length == 0',
+        },
+      ],
+      ctx: {
+        workflows: [],
+        $workflows: {
+          workflowId: {
+            steps: {
+              stepId: {
+                response: {
+                  body: {
+                    received_headers: {
+                      'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+                      'content-length': 23,
+                      filledList: ['one', 'two', 'three'],
+                      emptyList: [],
+                    },
+                  },
+                  code: 200,
+                  headers: new Headers(),
+                  contentType: 'application/json',
+                },
+                request: {
+                  queryParams: {},
+                  pathParams: {},
+                  headerParams: {},
+                  url: '',
+                  path: '',
+                  method: '',
+                  headers: {
+                    'content-type': 'application/json',
+                  },
+                  body: {},
+                },
+              },
+            },
+          },
+        },
+        descriptions: '',
+        $response: {
+          body: {
+            received_headers: {
+              'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+              'content-length': 23,
+              filledList: ['one', 'two', 'three'],
+              emptyList: [],
+            },
+          },
+        },
+        severity: DEFAULT_SEVERITY_CONFIGURATION,
+        options: {
+          logger,
+        },
+      } as unknown as TestContext,
+    });
+    expect(result).toEqual([
+      {
+        message:
+          'Checking jsonpath criteria: $.received_headers.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && $.received_headers.content_length == 23 && $.received_headers.filledList.length == 3 && $.received_headers.emptyList.length == 0',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition:
+          '$.received_headers.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && $.received_headers.content_length == 23 && $.received_headers.filledList.length == 3 && $.received_headers.emptyList.length == 0',
+      },
+    ]);
+  });
+
   it('should return failed check', () => {
     const result = checkCriteria({
       workflowId: 'workflowId',
