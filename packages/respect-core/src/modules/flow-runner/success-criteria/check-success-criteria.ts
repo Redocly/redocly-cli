@@ -113,15 +113,23 @@ export function checkCriteria({
 }
 
 function evaluateJSONPAthCondition(condition: string, context: Record<string, any>) {
-  // Extract JSONPath expressions from the string
-  const jsonpathMatches = condition.match(/\$\.[a-zA-Z0-9_]+/g) || [];
+  // Replace JSONPath expressions with actual values
+  const replacedCondition = condition.replace(/\$\.[a-zA-Z0-9_.-]+(?:\.length)?/g, (match) => {
+    const isLengthAccess = match.endsWith('.length');
+    const basePath = isLengthAccess ? match.slice(0, -'.length'.length) : match;
+    const normalizedPath = basePath.replace(/\.([a-zA-Z0-9_-]+)/g, (_, prop) => {
+      return '.' + prop.replace(/-/g, '_');
+    });
 
-  // Replace JSONPath expressions with their values
-  const replacedCondition = jsonpathMatches.reduce((acc, match) => {
-    const jsonpathResult = JSONPath({ path: match, json: context });
-    const jsonpathResultValue = jsonpathResult[0] || null;
-    return acc.replace(match, JSON.stringify(jsonpathResultValue));
-  }, condition);
+    const jsonpathResult = JSONPath({ path: normalizedPath, json: context });
+    const jsonpathResultValue = jsonpathResult[0] ?? null;
+
+    if (isLengthAccess) {
+      return Array.isArray(jsonpathResultValue) ? String(jsonpathResultValue.length) : '0';
+    }
+
+    return JSON.stringify(jsonpathResultValue);
+  });
 
   try {
     const evaluateFn = new Function(`return ${replacedCondition};`);
