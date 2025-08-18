@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fix: Respect's success conditions with JSONPath now properly handle property names containing hyphens.
+Fixed an issue where JSONPath-based success criteria did not support property names with hyphens in `Respect`.
