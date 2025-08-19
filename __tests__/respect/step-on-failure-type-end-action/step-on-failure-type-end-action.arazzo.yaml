@@ -36,7 +36,7 @@ workflows:
           - type: retry
             name: step-onFailure-action-retry
             retryLimit: 1
-            retryAfter: 3000
+            retryAfter: 3
       - stepId: create-event
         operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
         requestBody:

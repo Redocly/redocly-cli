@@ -1453,7 +1453,7 @@ describe('runStep', () => {
           name: 'success-action',
           stepId: 'failure-action-step',
           type: 'retry',
-          retryAfter: 1000,
+          retryAfter: 1,
           retryLimit: 2,
           criteria: [
             {
@@ -1570,7 +1570,7 @@ describe('runStep', () => {
           stepId: 'failure-action-step',
           workflowId: 'failure-action-workflow',
           type: 'retry',
-          retryAfter: 1000,
+          retryAfter: 1,
           retryLimit: 2,
           criteria: [
             {
@@ -1684,7 +1684,7 @@ describe('runStep', () => {
           name: 'success-action',
           stepId: 'failure-action-step',
           type: 'retry',
-          retryAfter: 1000,
+          retryAfter: 1,
           retryLimit: 2,
           criteria: [
             {
@@ -1800,7 +1800,7 @@ describe('runStep', () => {
           name: 'success-action',
           stepId: 'failure-action-step',
           type: 'retry',
-          retryAfter: 1000,
+          retryAfter: 1,
           retryLimit: 2,
           criteria: [
             {
@@ -1950,7 +1950,7 @@ describe('runStep', () => {
           name: 'success-action',
           stepId: 'failure-action-step',
           type: 'retry',
-          retryAfter: 1000,
+          retryAfter: 1,
           retryLimit: 2,
           criteria: [
             {

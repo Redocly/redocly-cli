@@ -137,7 +137,7 @@ components:
     retryFailureAction:
       name: get-museum-hours-failure-action
       type: retry
-      retryAfter: 3000
+      retryAfter: 3
       retryLimit: 1
       workflowId: final-workflow
       criteria:

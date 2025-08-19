@@ -304,7 +304,8 @@ export async function runStep({
           if (retriesLeft === 0) {
             return { retriesLeft: 0, shouldEnd: false };
           }
-          await delay(retryAfter);
+
+          retryAfter && (await delay(retryAfter));
 
           if (targetWorkflow || targetStep) {
             printActionsSeparator({
