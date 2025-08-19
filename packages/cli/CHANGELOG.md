@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.0.6
+
+### Patch Changes
+
+- Fixed an issue where files specified in decorators parameters were not always resolved correctly.
+  The resolution logic now properly locates the specified files relative to the config file for `info-description-override`, `media-type-examples-override`, `operation-description-override`, and `tag-description-override` decorators.
+- Improved messaging to clarify when API alias configuration is implicitly applied during linting or bundling by filename.
+- Updated the `retryAfter` property in Respect to use seconds (instead of milliseconds) for consistency with the Arazzo specification.
+- Updated @redocly/openapi-core to v2.0.6.
+
 ## 2.0.5
 
 ### Patch Changes
