@@ -15,6 +15,7 @@ exports[`should make request with Authorization header \`Bearer ...\` using Open
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {

@@ -387,6 +387,13 @@ export class ApiFetcher implements IFetcher {
       ? maskSecrets(transformedBody, ctx.secretFields || new Set())
       : transformedBody;
 
+    const responseHeaders = Object.fromEntries(fetchResult.headers?.entries() || []);
+    const foundResponseHeadersSecrets = findPotentiallySecretObjectFields(responseHeaders);
+
+    for (const secretItem of foundResponseHeadersSecrets) {
+      ctx.secretFields.add(secretItem);
+    }
+
     this.initVerboseResponseLogs({
       body: isJsonContentType(responseContentType)
         ? JSON.stringify(maskedResponseBody)
@@ -396,6 +403,7 @@ export class ApiFetcher implements IFetcher {
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,
+      headerParams: maskSecrets(responseHeaders, ctx.secretFields || new Set()),
     });
 
     return {

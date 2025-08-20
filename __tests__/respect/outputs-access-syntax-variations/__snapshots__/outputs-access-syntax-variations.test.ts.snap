@@ -15,6 +15,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -94,6 +95,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     Response status code: 201
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "message": "Museum general entry ticket purchased",
@@ -123,6 +125,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -268,6 +271,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     Response status code: 201
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
@@ -301,6 +305,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",

@@ -16,6 +16,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -86,6 +87,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -159,6 +161,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -235,6 +238,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -388,6 +392,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 201
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
@@ -421,6 +426,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {

@@ -15,6 +15,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       [
         {
@@ -95,6 +96,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
 
     Response status code: 201
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",

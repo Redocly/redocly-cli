@@ -101,6 +101,16 @@ export function findPotentiallySecretObjectFields(
         }
       }
 
+      if (typeof value === 'string' && value.trim()) {
+        for (const tokenKey of tokenKeys) {
+          const pattern = new RegExp(`${tokenKey}=([^;\\s]+)`, 'i');
+          const match = value.match(pattern);
+          if (match && match[1]) {
+            foundTokens.push(match[1]);
+          }
+        }
+      }
+
       if (value && typeof value === 'object') {
         searchInObject(value);
       }
