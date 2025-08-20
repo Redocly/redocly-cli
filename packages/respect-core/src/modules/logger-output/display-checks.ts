@@ -128,7 +128,6 @@ function displayVerboseLogs({
   const responseOutput = [
     gray(indent('Response status code: ' + blue(statusCode as number), 4)),
     gray(indent('Response time: ' + blue(responseTime as number), 4) + ' ms'),
-    // Replace response headers section with static placeholder only for snapshots
     process.env.REDOCLY_SNAPSHOT_TEST === 'true'
       ? gray(indent('Response Headers: <response headers test>', 4))
       : headersString && gray(responseHeadersString) + '\n' + gray(headersString),
