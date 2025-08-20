@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Improve Respect verbose logs to display response headers.
+Improved Respect verbose logs to display response headers.
