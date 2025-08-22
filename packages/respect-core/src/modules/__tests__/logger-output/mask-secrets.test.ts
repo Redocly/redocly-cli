@@ -32,7 +32,8 @@ describe('findPotentiallySecretObjectFields', () => {
         },
       },
       'set-cookie':
-        'accessToken=34567890; Max-Age=3600; Path=/; Expires=Wed, 20 Aug 2025 16:16:44 GMT; HttpOnly; SameSite=Strict',
+        'accessToken=34567890; Max-Age=3600; password=somesecret111 Path=/; Expires=Wed, 20 Aug 2025 16:16:44 GMT; HttpOnly; SameSite=Strict',
+      'set-cookie2': 'accessToken=34567890w',
     };
 
     const result = findPotentiallySecretObjectFields(obj);
@@ -44,6 +45,8 @@ describe('findPotentiallySecretObjectFields', () => {
       'some_client_secret',
       'password123',
       '34567890',
+      'somesecret111',
+      '34567890w',
     ]);
   });
 });

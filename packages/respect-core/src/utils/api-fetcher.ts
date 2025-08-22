@@ -216,7 +216,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     // Mask the secrets in the header params and the body
-    const maskedHeaderParams = maskSecrets(headers, ctx.secretFields || new Set());
+    const maskedHeaderParams = maskSecrets(headers, ctx.secretFields);
     let maskedBody;
 
     if (encodedBody instanceof FormData) {
@@ -226,17 +226,17 @@ export class ApiFetcher implements IFetcher {
         if (value instanceof File) {
           maskedFormData.append(key, value);
         } else {
-          const maskedValue = maskSecrets(value, ctx.secretFields || new Set());
+          const maskedValue = maskSecrets(value, ctx.secretFields);
           maskedFormData.append(key, maskedValue);
         }
       }
       maskedBody = maskedFormData;
     } else if (isJsonContentType(contentType) && encodedBody) {
-      maskedBody = maskSecrets(JSON.parse(encodedBody), ctx.secretFields || new Set());
+      maskedBody = maskSecrets(JSON.parse(encodedBody), ctx.secretFields);
     } else {
       maskedBody = encodedBody;
     }
-    const maskedPathParams = maskSecrets(pathWithSearchParams, ctx.secretFields || new Set());
+    const maskedPathParams = maskSecrets(pathWithSearchParams, ctx.secretFields);
 
     // Start of the verbose logs
     this.initVerboseLogs({
@@ -335,7 +335,7 @@ export class ApiFetcher implements IFetcher {
       }
 
       this.updateVerboseLogs({
-        headerParams: maskSecrets(updatedHeaders, ctx.secretFields || new Set()),
+        headerParams: maskSecrets(updatedHeaders, ctx.secretFields),
       });
 
       fetchResult = await customFetch(urlToFetch, {
@@ -384,7 +384,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     const maskedResponseBody = isJsonContentType(responseContentType)
-      ? maskSecrets(transformedBody, ctx.secretFields || new Set())
+      ? maskSecrets(transformedBody, ctx.secretFields)
       : transformedBody;
 
     const responseHeaders = Object.fromEntries(fetchResult.headers?.entries() || []);
@@ -403,7 +403,7 @@ export class ApiFetcher implements IFetcher {
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,
-      headerParams: maskSecrets(responseHeaders, ctx.secretFields || new Set()),
+      headerParams: maskSecrets(responseHeaders, ctx.secretFields),
     });
 
     return {
