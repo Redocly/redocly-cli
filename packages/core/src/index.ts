@@ -9,20 +9,14 @@ export {
   pause,
   isPlainObject,
   isString,
-  dequal,
   pluralize,
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
 } from './utils.js';
+export { dequal } from './dequal.js';
 export { Oas3_1Types } from './types/oas3_1.js';
 export { Arazzo1Types } from './types/arazzo.js';
-export type {
-  ArazzoDefinition,
-  ExtendedOperation,
-  ExtendedSecurity,
-  ResolvedSecurity,
-} from './typings/arazzo.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas2Types } from './types/oas2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
@@ -60,6 +54,12 @@ export type {
 export type { Oas2Definition } from './typings/swagger.js';
 export type { Async3Definition } from './typings/asyncapi3.js';
 export type { Async2Definition } from './typings/asyncapi.js';
+export type {
+  ArazzoDefinition,
+  ExtendedOperation,
+  ExtendedSecurity,
+  ResolvedSecurity,
+} from './typings/arazzo.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
 export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
