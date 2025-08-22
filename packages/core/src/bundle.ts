@@ -6,7 +6,8 @@ import { detectSpec, getTypes, getMajorSpecVersion, type SpecMajorVersion } from
 import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/common/no-unresolved-refs.js';
-import { dequal, isTruthy } from './utils.js';
+import { isTruthy } from './utils.js';
+import { dequal } from './dequal.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
