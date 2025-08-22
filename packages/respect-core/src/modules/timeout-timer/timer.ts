@@ -12,10 +12,14 @@ export class Timer {
     if (!Timer.instance) {
       Timer.instance = new Timer(timeout);
     }
+    console.log('getting instance', Timer.instance.startTime);
     return Timer.instance;
   }
 
   public static reset(): void {
+    if (Timer.instance) {
+      console.log('resetting timer', Timer.instance.startTime);
+    }
     Timer.instance = undefined as any;
   }
 
