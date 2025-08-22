@@ -58,6 +58,8 @@ export type {
   Oas3SecurityRequirement,
 } from './typings/openapi.js';
 export type { Oas2Definition } from './typings/swagger.js';
+export type { Async3Definition } from './typings/asyncapi3.js';
+export type { Async2Definition } from './typings/asyncapi.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
 export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
