@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.0.7
+
+### Patch Changes
+
+- Improved Respect verbose logs to display response headers.
+- Updated @redocly/openapi-core to v2.0.7.
+
 ## 2.0.6
 
 ### Patch Changes

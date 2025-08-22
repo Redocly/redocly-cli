@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.7 (2025-08-22)
+
+### Patch Changes
+
+- Improved Respect verbose logs to display response headers.
+- Updated @redocly/respect-core to v2.0.7.
+
 ## 2.0.6 (2025-08-19)
 
 ### Patch Changes
