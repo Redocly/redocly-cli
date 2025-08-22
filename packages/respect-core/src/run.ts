@@ -36,7 +36,10 @@ export async function run(options: RespectOptions): Promise<RunFileResult[]> {
   const { files, executionTimeout, collectSpecData } = options;
 
   // Don't create a timer if executionTimeout is not set
-  executionTimeout && Timer.getInstance(executionTimeout);
+  if (executionTimeout) {
+    Timer.reset();
+    Timer.getInstance(executionTimeout);
+  }
 
   const testsRunProblemsStatus: boolean[] = [];
   const runAllFilesResult = [];
