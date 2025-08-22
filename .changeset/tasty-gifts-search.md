@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Ensured Respect executionTimeout timer is reset for each run to prevent incorrect timeouts.
+Ensured Respect's `executionTimeout` timer is reset for each run to prevent incorrect timeouts.
