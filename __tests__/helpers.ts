@@ -18,7 +18,6 @@ export function getCommandOutput(
     env: {
       ...process.env,
       NODE_ENV: 'test',
-      REDOCLY_SNAPSHOT_TEST: 'true',
       NO_COLOR: 'TRUE',
       FORCE_COLOR: '0',
       ...env,

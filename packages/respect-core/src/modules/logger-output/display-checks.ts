@@ -128,7 +128,7 @@ function displayVerboseLogs({
   const responseOutput = [
     gray(indent('Response status code: ' + blue(statusCode as number), 4)),
     gray(indent('Response time: ' + blue(responseTime as number), 4) + ' ms'),
-    process.env.REDOCLY_SNAPSHOT_TEST === 'true'
+    !isBrowser && process.env.NODE_ENV === 'test'
       ? gray(indent('Response Headers: <response headers test>', 4))
       : headersString && gray(responseHeadersString) + '\n' + gray(headersString),
     body && gray(responseBodyString),
