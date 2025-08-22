@@ -31,6 +31,7 @@ exports[`should implicitly add content type header based on requestBody.content 
 
     Response status code: 204
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {}
 
@@ -65,6 +66,7 @@ exports[`should implicitly add content type header based on requestBody.content 
 
     Response status code: 400
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "type": "http://example.com",

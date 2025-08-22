@@ -15,6 +15,7 @@ exports[`should replace values in the request body 1`] = `
 
     Response status code: 200
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "eventId": "6744a0da-4121-49cd-8479-f8cc20526495",
@@ -55,6 +56,7 @@ exports[`should replace values in the request body 1`] = `
 
     Response status code: 400
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "type": "object",
@@ -78,6 +80,7 @@ exports[`should replace values in the request body 1`] = `
 
     Response status code: 400
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "type": "object",
@@ -101,6 +104,7 @@ exports[`should replace values in the request body 1`] = `
 
     Response status code: 400
     Response time: <test> ms
+    Response Headers: <response headers test>
     Response Body:
       {
         "type": "object",

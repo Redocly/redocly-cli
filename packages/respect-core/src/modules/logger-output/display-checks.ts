@@ -128,8 +128,9 @@ function displayVerboseLogs({
   const responseOutput = [
     gray(indent('Response status code: ' + blue(statusCode as number), 4)),
     gray(indent('Response time: ' + blue(responseTime as number), 4) + ' ms'),
-    headersString && gray(responseHeadersString),
-    headersString && gray(headersString),
+    !isBrowser && process.env.NODE_ENV === 'test'
+      ? gray(indent('Response Headers: <response headers test>', 4))
+      : headersString && gray(responseHeadersString) + '\n' + gray(headersString),
     body && gray(responseBodyString),
     body && bodyString,
   ]
