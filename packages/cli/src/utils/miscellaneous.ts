@@ -5,7 +5,6 @@ import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
 import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
-import { promisify } from 'node:util';
 import * as process from 'node:process';
 import {
   ResolveError,
@@ -28,8 +27,6 @@ import { handleLintConfig } from '../commands/lint.js';
 
 import type { Config, Oas3Definition, Oas2Definition, Exact } from '@redocly/openapi-core';
 import type { Totals, Entrypoint, OutputExtension, CommandArgv } from '../types.js';
-
-const globPromise = promisify(glob.glob);
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -99,9 +96,9 @@ async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
         const shouldResolveGlob = hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath);
 
         if (shouldResolveGlob) {
-          const data = (await globPromise(aliasOrPath, {
+          const data = await glob(aliasOrPath, {
             cwd: getConfigDirectory(config),
-          })) as string[];
+          });
 
           return data.map((g: string) => getAliasOrPath(config, g));
         }
