@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.0.8 (2025-08-27)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.0.8.
+
 ## 2.0.7 (2025-08-22)
 
 ### Patch Changes
