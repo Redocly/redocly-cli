@@ -213,6 +213,4 @@ decorators:
 
 ## Preprocessors
 
-Preprocessors follow the same structure and operation as decorators, but they are run before the validation/linting step. Running before the validation/linting step makes them brittle because the document may not be valid, and the extra processing step can cause performance impacts. We recommend looking for alternative approaches to preprocessing.
-
-Some advanced use cases do require preprocessing, which is why the functionality is provided for those users.
+For detailed information about preprocessors, see the [preprocessors configuration reference](../configuration/reference/preprocessors.md).
