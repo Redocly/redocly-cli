@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
+import { version } from '../../utils/package.js';
 
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
@@ -27,12 +28,12 @@ export class ReuniteApiError extends Error {
 export class ReuniteApiClient implements BaseApiClient {
   public sunsetWarnings: SunsetWarningsBuffer = [];
 
-  constructor(protected version: string, protected command: string) {}
+  constructor(protected command: string) {}
 
   public async request(url: string, options: FetchWithTimeoutOptions) {
     const headers = {
       ...options.headers,
-      'user-agent': `redocly-cli/${this.version.trim()} ${this.command}`,
+      'user-agent': `redocly-cli/${version} ${this.command}`,
     };
 
     const response = await fetchWithTimeout(url, {
@@ -291,7 +292,6 @@ class RemotesApi {
 
 export class ReuniteApi {
   private apiClient: ReuniteApiClient;
-  private version: string;
   private command: CommandOption;
 
   public remotes: RemotesApi;
@@ -299,17 +299,14 @@ export class ReuniteApi {
   constructor({
     domain,
     apiKey,
-    version,
     command,
   }: {
     domain: string;
     apiKey: string;
-    version: string;
     command: CommandOption;
   }) {
     this.command = command;
-    this.version = version;
-    this.apiClient = new ReuniteApiClient(this.version, this.command);
+    this.apiClient = new ReuniteApiClient(this.command);
 
     this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
   }

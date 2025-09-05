@@ -67,10 +67,9 @@ export async function sendTelemetry({
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
     const event_time = new Date().toISOString();
-    const residency = args.residency || config?.resolvedConfig?.residency;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
-    const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
-    const reuniteUrl = getReuniteUrl(residency);
+    const oauthClient = new RedoclyOAuthClient();
+    const reuniteUrl = getReuniteUrl(config, args.residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
     const data: Analytics = {
       event: 'cli_command',

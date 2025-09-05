@@ -13,9 +13,10 @@ export type AuthToken = {
 
 export class RedoclyOAuthDeviceFlow {
   private apiClient: ReuniteApiClient;
+  private clientName = 'redocly-cli';
 
-  constructor(private baseUrl: string, private clientName: string, private version: string) {
-    this.apiClient = new ReuniteApiClient(this.version, 'login');
+  constructor(private baseUrl: string) {
+    this.apiClient = new ReuniteApiClient('login');
   }
 
   async run() {
@@ -82,7 +83,7 @@ export class RedoclyOAuthDeviceFlow {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken?: string) {
     const response = await this.sendRequest(`/device-rotate-token`, 'POST', {
       grant_type: 'refresh_token',
       client_name: this.clientName,
@@ -163,7 +164,7 @@ export class RedoclyOAuthDeviceFlow {
     body: Record<string, unknown> | undefined = undefined,
     headers: Record<string, string> = {}
   ) {
-    url = `${this.baseUrl}${url}`;
+    url = `${this.baseUrl}/api${url}`;
     const response = await this.apiClient.request(url, {
       body: body ? JSON.stringify(body) : body,
       method,

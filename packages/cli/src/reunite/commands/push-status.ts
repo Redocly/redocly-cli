@@ -30,6 +30,7 @@ export type PushStatusArgv = {
   'start-time'?: number; // in milliseconds
   'continue-on-deploy-failures'?: boolean;
   onRetry?: (lasSummary: PushStatusSummary) => void;
+  version?: string;
 } & VerifyConfigOptions;
 
 export interface PushStatusSummary {
@@ -40,7 +41,6 @@ export interface PushStatusSummary {
 
 export async function handlePushStatus({
   argv,
-  version,
 }: CommandArgs<PushStatusArgv>): Promise<PushStatusSummary | void> {
   const startedAt = performance.now();
   const spinner = new Spinner();
@@ -58,7 +58,7 @@ export async function handlePushStatus({
 
   try {
     const apiKey = getApiKeys();
-    const client = new ReuniteApi({ domain, apiKey, version, command: 'push-status' });
+    const client = new ReuniteApi({ domain, apiKey, command: 'push-status' });
 
     let pushResponse: PushResponse;
 
