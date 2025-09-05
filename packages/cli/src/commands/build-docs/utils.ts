@@ -1,11 +1,10 @@
 import { createElement } from 'react';
-import { default as redoc } from 'redoc';
+import { Redoc, ServerStyleSheet } from 'redoc';
 import { renderToString } from 'react-dom/server';
-import { ServerStyleSheet } from 'styled-components';
 import { default as handlebars } from 'handlebars';
 import * as path from 'node:path';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import { logger } from '@redocly/openapi-core';
 import * as url from 'node:url';
 import { exitWithError } from '../../utils/error.js';
 
@@ -49,27 +48,32 @@ export function getObjectOrJSON(
 }
 
 export async function getPageHTML(
-  api: any,
-  pathToApi: string,
+  definition: any,
   {
     title,
     disableGoogleFont,
     templateFileName,
     templateOptions,
     redocOptions = {},
-    redocCurrentVersion,
+    redocVersion,
   }: BuildDocsOptions,
   configPath?: string
 ) {
   logger.info('Prerendering docs\n');
 
-  const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
-  const store = await redoc.createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
-
-  const html = renderToString(sheet.collectStyles(createElement(redoc.Redoc, { store })));
-  const state = await store.toJS();
-  const css = sheet.getStyleTags();
+  const html = renderToString(
+    sheet.collectStyles(
+      createElement(Redoc, {
+        store: {
+          options: redocOptions,
+          definition,
+        },
+        router: 'memory',
+        withCommonStyles: true,
+      })
+    )
+  );
 
   templateFileName = templateFileName
     ? templateFileName
@@ -77,20 +81,22 @@ export async function getPageHTML(
     ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
     : path.join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
+
   return template({
     redocHTML: `
-      <div id="redoc">${html || ''}</div>
-      <script>
-      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};` || ''}
-
-      var container = document.getElementById('redoc');
-      Redoc.${'hydrate(__redoc_state, container)'};
-
-      </script>`,
-    redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>` +
-      css,
-    title: title || api.info.title || 'ReDoc documentation',
+      <div id="redoc">${html}</div>
+      <script type="module">
+        import * as Redoc from "https://cdn.redocly.com/redoc/${redocVersion}/redoc.standalone.js";
+        const __redoc_store = ${JSON.stringify({
+          options: redocOptions,
+          definition,
+        })};
+        var container = document.getElementById('redoc');
+        Redoc.hydrate(__redoc_store, container);
+      </script>
+    `,
+    redocHead: sheet.getStyleTags(),
+    title: title || definition.info.title || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
   });
@@ -108,4 +114,13 @@ export function escapeClosingScriptTag(str: string): string {
 // see http://www.thespanner.co.uk/2011/07/25/the-json-specification-is-now-wrong/
 export function escapeUnicode(str: string): string {
   return str.replace(/\u2028|\u2029/g, (m) => '\\u202' + (m === '\u2028' ? '8' : '9'));
+}
+
+export function hasSwaggerProperty(obj: unknown): obj is { swagger: string } & Record<string, any> {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+
+  const candidate = obj as Record<string, any>;
+  return 'swagger' in candidate && typeof candidate.swagger === 'string';
 }

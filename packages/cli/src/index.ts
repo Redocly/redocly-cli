@@ -578,13 +578,17 @@ yargs(hideBin(process.argv))
               'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
             type: 'string',
           },
+          redocVersion: {
+            describe: 'Version of Redoc to use.',
+            type: 'string',
+          },
           templateOptions: {
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
-          theme: {
+          openapi: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+              'Redoc openapi configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
           },
           config: {
             describe: 'Path to the config file.',
@@ -596,9 +600,9 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         })
-        .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
-            throw Error('Invalid option: theme.openapi not set.');
+        .check((argv) => {
+          if (argv?.redocVersion && !argv.redocVersion.startsWith('3.'))
+            throw Error('Invalid option: redocVersion should be higher or equal to 3.0');
           return true;
         }),
     async (argv) => {
