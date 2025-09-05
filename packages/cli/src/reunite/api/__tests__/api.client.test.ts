@@ -1,5 +1,6 @@
 import { red, yellow } from 'colorette';
 import { ReuniteApi, PushPayload, ReuniteApiError } from '../api-client.js';
+import { version } from '../../../utils/package.js';
 
 const originalFetch = global.fetch;
 
@@ -22,7 +23,6 @@ describe('ApiClient', () => {
   const testDomain = 'test-domain.com';
   const testOrg = 'test-org';
   const testProject = 'test-project';
-  const version = '1.0.0';
   const command = 'push';
   const expectedUserAgent = `redocly-cli/${version} ${command}`;
 
@@ -30,7 +30,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
     });
 
     it('should get default project branch', async () => {
@@ -111,7 +111,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
     });
 
     it('should upsert remote', async () => {
@@ -216,7 +216,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
     });
 
     it('should push to remote', async () => {
@@ -352,7 +352,7 @@ describe('ApiClient', () => {
     let apiClient: ReuniteApi;
 
     beforeEach(() => {
-      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, version, command });
+      apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
     });
 
     it.each(endpointMocks)(

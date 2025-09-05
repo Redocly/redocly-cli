@@ -2,12 +2,10 @@ import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 
 describe('RedoclyOAuthDeviceFlow', () => {
   const mockBaseUrl = 'https://test.redocly.com';
-  const mockClientName = 'test-client';
-  const mockVersion = '1.0.0';
   let flow: RedoclyOAuthDeviceFlow;
 
   beforeEach(() => {
-    flow = new RedoclyOAuthDeviceFlow(mockBaseUrl, mockClientName, mockVersion);
+    flow = new RedoclyOAuthDeviceFlow(mockBaseUrl);
   });
 
   describe('verifyToken', () => {
