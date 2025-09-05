@@ -190,7 +190,6 @@ yargs(hideBin(process.argv))
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
-            coerce: validatePositiveNumber('max-execution-time'),
           },
           'continue-on-deploy-failures': {
             description: 'Command does not fail even if the deployment fails.',
@@ -295,7 +294,6 @@ yargs(hideBin(process.argv))
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
-            coerce: validatePositiveNumber('max-execution-time'),
           },
           'wait-for-deployment': {
             description: 'Wait for build to finish.',
