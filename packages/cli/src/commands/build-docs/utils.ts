@@ -57,10 +57,9 @@ export async function getPageHTML(
     redocOptions = {},
     redocVersion,
   }: BuildDocsOptions,
-  configPath?: string
+  configPath?: string,
+  inlineBundle?: boolean
 ) {
-  logger.info('Prerendering docs\n');
-
   const sheet = new ServerStyleSheet();
   const html = renderToString(
     sheet.collectStyles(
@@ -81,20 +80,45 @@ export async function getPageHTML(
     ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
     : path.join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
+  const redocLib = await getRedocLibrary(redocVersion, inlineBundle);
 
-  return template({
-    redocHTML: `
+  const hydrationScript = inlineBundle
+    ? `
+    <div id="redoc">${html}</div>
+    <script type="module">
+      const dataUrl = "${redocLib}";
+      import(dataUrl).then((Redoc) => {
+        const __redoc_state = ${sanitizeJSONString(
+          JSON.stringify({
+            options: redocOptions,
+            definition,
+          })
+        )};
+
+        const container = document.getElementById('redoc');
+        Redoc.hydrate(__redoc_state, container);
+      }).catch(error => {
+        console.error('Failed to load Redoc:', error);
+      });
+    </script>
+  `
+    : `
       <div id="redoc">${html}</div>
       <script type="module">
-        import * as Redoc from "https://cdn.redocly.com/redoc/${redocVersion}/redoc.standalone.js";
-        const __redoc_store = ${JSON.stringify({
-          options: redocOptions,
-          definition,
-        })};
+        ${redocLib}
+        const __redoc_state = ${sanitizeJSONString(
+          JSON.stringify({
+            options: redocOptions,
+            definition,
+          })
+        )};
         var container = document.getElementById('redoc');
-        Redoc.hydrate(__redoc_store, container);
+        Redoc.hydrate(__redoc_state, container);
       </script>
-    `,
+    `;
+
+  return template({
+    redocHTML: hydrationScript,
     redocHead: sheet.getStyleTags(),
     title: title || definition.info.title || 'ReDoc documentation',
     disableGoogleFont,
@@ -116,11 +140,33 @@ export function escapeUnicode(str: string): string {
   return str.replace(/\u2028|\u2029/g, (m) => '\\u202' + (m === '\u2028' ? '8' : '9'));
 }
 
-export function hasSwaggerProperty(obj: unknown): obj is { swagger: string } & Record<string, any> {
-  if (typeof obj !== 'object' || obj === null) {
-    return false;
+export async function getRedocLibrary(
+  redocVersion: string,
+  inlineBundle?: boolean
+): Promise<string> {
+  if (inlineBundle) {
+    try {
+      const response = await fetch(
+        `https://cdn.redocly.com/redoc/${redocVersion}/redoc.standalone.js`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch from CDN: ${response.statusText}`);
+      }
+
+      const redocLib = await response.text();
+      const sanitizedRedocLib = redocLib
+        .replace(/<\/script>/gi, '<\\/script>')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+
+      const encodedLib = Buffer.from(sanitizedRedocLib, 'utf8').toString('base64');
+      return `data:text/javascript;base64,${encodedLib}`;
+    } catch (error) {
+      logger.error(`Failed to fetch Redoc from CDN: ${error.message}`);
+      throw error;
+    }
   }
 
-  const candidate = obj as Record<string, any>;
-  return 'swagger' in candidate && typeof candidate.swagger === 'string';
+  return `import * as Redoc from "https://cdn.redocly.com/redoc/${redocVersion}/redoc.standalone.js";`;
 }

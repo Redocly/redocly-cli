@@ -19,6 +19,9 @@ export type BuildDocsArgv = {
   disableGoogleFont?: boolean;
   template?: string;
   templateOptions: Record<string, unknown>;
+  theme: {
+    openapi: string | Record<string, unknown>;
+  };
   openapi: string | Record<string, unknown>;
-  redocVersion?: string;
+  inlineBundle: boolean;
 } & VerifyConfigOptions;

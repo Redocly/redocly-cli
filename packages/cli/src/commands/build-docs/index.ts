@@ -2,8 +2,8 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
-import { isAbsoluteUrl, loadConfig, logger, bundle } from '@redocly/openapi-core';
-import { getObjectOrJSON, getPageHTML, hasSwaggerProperty } from './utils.js';
+import { isAbsoluteUrl, loadConfig, logger, bundle, detectSpec } from '@redocly/openapi-core';
+import { getObjectOrJSON, getPageHTML } from './utils.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { exitWithError } from '../../utils/error.js';
 import { convertSwagger2OpenAPI } from 'redoc';
@@ -28,15 +28,10 @@ export const handlerBuildCommand = async ({
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.openapi, config.forAlias(alias)),
+    redocOptions: getObjectOrJSON(argv.openapi || argv.theme?.openapi, config.forAlias(alias)),
   };
 
-  if (argv.redocVersion !== packageJson.dependencies.redoc) {
-    logger.warn(
-      `\n ⚠️  You are using a custom Redoc version (${argv.redocVersion}) for generating static HTML.`
-    );
-  }
-  const redocVersion = argv.redocVersion || packageJson.dependencies.redoc;
+  const redocVersion = packageJson.dependencies.redoc || 'latest';
 
   try {
     const elapsed = getExecutionTime(startedAt);
@@ -47,7 +42,9 @@ export const handlerBuildCommand = async ({
       config,
       ref: isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi),
     });
-    const openapiDescription = hasSwaggerProperty(parsed) ? convertSwagger2OpenAPI(parsed) : parsed;
+    const specVersion = detectSpec(parsed);
+    const openapiDescription =
+      specVersion === 'oas2' ? convertSwagger2OpenAPI(parsed as Record<string, unknown>) : parsed;
 
     logger.info(`✅  OpenAPI definition loaded and bundled in [⏱ ${elapsed}].\n`);
 
@@ -55,7 +52,8 @@ export const handlerBuildCommand = async ({
     const pageHTML = await getPageHTML(
       openapiDescription,
       { ...options, redocVersion },
-      argv.config
+      argv.config,
+      argv.inlineBundle
     );
 
     mkdirSync(dirname(options.output), { recursive: true });
