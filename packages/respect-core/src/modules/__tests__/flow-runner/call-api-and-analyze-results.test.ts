@@ -373,7 +373,7 @@ describe('callAPIAndAnalyzeResults', () => {
       schemaCheck: true,
       networkCheck: true,
       successCriteriaCheck: true,
-      responseHeaderCheck: true,
+      unexpectedErrorCheck: true,
       statusCodeCheck: true,
     });
   });

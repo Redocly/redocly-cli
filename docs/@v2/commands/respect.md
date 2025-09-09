@@ -126,7 +126,6 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
   - `SCHEMA_CHECK`: Verifies if the response body schema matches what is defined in the provided OpenAPI description.
   - `SUCCESS_CRITERIA_CHECK`: Verifies if the success criteria defined in the provided Arazzo description has been met.
   - `CONTENT_TYPE_CHECK`: Verifies if the `Content-Type` matches what is defined in the provided OpenAPI description.
-  - `RESPONSE_HEADER_CHECK`: Checks whether the expected response header is present.
 
   The following severity values are available:
 

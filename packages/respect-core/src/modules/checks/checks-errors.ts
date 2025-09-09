@@ -21,9 +21,9 @@ export class StatusCodeError extends ChecksErrors {
   }
 }
 
-export class ResponseHeaderError extends ChecksErrors {
+export class UnexpectedError extends ChecksErrors {
   constructor(message: string, originalError?: Error) {
-    super('RESPONSE_HEADER_CHECK', message, originalError);
-    this.name = 'ResponseHeaderError';
+    super('UNEXPECTED_ERROR', message, originalError);
+    this.name = 'UnexpectedError';
   }
 }

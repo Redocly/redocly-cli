@@ -654,7 +654,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -713,7 +713,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -784,7 +784,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -898,7 +898,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1032,7 +1032,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1162,7 +1162,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1286,7 +1286,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1399,7 +1399,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1535,7 +1535,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1658,7 +1658,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1778,7 +1778,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1906,7 +1906,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1925,7 +1925,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1944,7 +1944,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1963,7 +1963,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -1991,7 +1991,7 @@ describe('runStep', () => {
         successCriteriaCheck: true,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });
@@ -2074,7 +2074,7 @@ describe('runStep', () => {
         successCriteriaCheck: false,
         schemaCheck: true,
         networkCheck: true,
-        responseHeaderCheck: true,
+        unexpectedErrorCheck: true,
         statusCodeCheck: true,
       };
     });

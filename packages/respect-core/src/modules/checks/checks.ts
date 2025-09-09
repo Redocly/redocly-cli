@@ -3,7 +3,6 @@ export const CHECKS = {
   STATUS_CODE_CHECK: 'status code check',
   SCHEMA_CHECK: 'schema check',
   CONTENT_TYPE_CHECK: 'content-type check',
-  RESPONSE_HEADER_CHECK: 'response header check',
   GLOBAL_TIMEOUT_ERROR: 'global timeout error',
   MAX_STEPS_REACHED_ERROR: 'maximum steps reached',
   NETWORK_ERROR: 'failed network request',
