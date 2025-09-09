@@ -6,6 +6,8 @@ import {
   ApiFetcher,
 } from '../api-fetcher.js';
 
+import type { OperationMethod } from '../../types.js';
+
 describe('normalizeHeaders', () => {
   it('should return empty object if no headers', () => {
     const result = normalizeHeaders(undefined);
@@ -158,7 +160,7 @@ describe('ApiFetcher', () => {
       const requestData = {
         serverUrl: undefined,
         path: '/pets',
-        method: 'get',
+        method: 'get' as OperationMethod,
         parameters: [],
         requestBody: {},
       };
