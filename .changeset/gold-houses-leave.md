@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Improve error reporting and handling for Digest authentication failures in Respect, providing clearer feedback when required headers or status codes are missing.
+Improved error reporting and handling for Digest authentication failures in Respect. Now users receive clearer feedback when required headers or status codes are missing.
