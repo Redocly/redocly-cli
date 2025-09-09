@@ -4,6 +4,7 @@ import { handlePush } from '../push.js';
 import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
 import { MockInstance } from 'vitest';
 import { slash } from '@redocly/openapi-core';
+import { version } from '../../../utils/package.js';
 
 const remotes = {
   push: vi.fn(),
@@ -95,7 +96,7 @@ describe('handlePush()', () => {
         'max-execution-time': 10,
       },
       config: mockConfig,
-      version: 'cli-version',
+      version,
     });
 
     expect(remotes.getDefaultBranch).toHaveBeenCalledWith('test-org', 'test-project');
@@ -165,7 +166,7 @@ describe('handlePush()', () => {
         'max-execution-time': 10,
       },
       config: mockConfig,
-      version: 'cli-version',
+      version,
     });
 
     expect(result).toEqual({ pushId: 'test-id' });
@@ -217,7 +218,7 @@ describe('handlePush()', () => {
         'max-execution-time': 10,
       },
       config: mockConfig,
-      version: 'cli-version',
+      version,
     });
 
     expect(remotes.push).toHaveBeenCalledWith(
@@ -260,7 +261,7 @@ describe('handlePush()', () => {
         'max-execution-time': 10,
       },
       config: mockConfig,
-      version: 'cli-version',
+      version,
     });
 
     expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
@@ -277,7 +278,7 @@ describe('handlePush()', () => {
       isDirectory() {
         return false;
       },
-    } as any);
+    });
 
     pathResolveSpy.mockImplementationOnce((p) => p);
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
@@ -296,13 +297,12 @@ describe('handlePush()', () => {
         organization: 'redocly-test',
       },
       config: mockConfig,
-      version: 'cli-version',
+      version,
     });
 
     expect(ReuniteApi).toBeCalledWith({
       domain: 'test-domain-from-env',
       apiKey: 'test-api-key',
-      version: 'cli-version',
       command: 'push',
     });
   });
@@ -344,7 +344,7 @@ describe('handlePush()', () => {
           'max-execution-time': 10,
         },
         config: mockConfig,
-        version: 'cli-version',
+        version,
       })
     ).rejects.toThrow('✗ File upload failed. Reason: Deprecated.');
   });

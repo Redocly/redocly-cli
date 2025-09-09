@@ -5,8 +5,6 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 
 describe('RedoclyOAuthClient', () => {
-  const mockClientName = 'test-client';
-  const mockVersion = '1.0.0';
   const mockBaseUrl = 'https://test.redocly.com';
   const mockHomeDir = '/mock/home/dir';
   const mockRedoclyDir = path.join(mockHomeDir, '.redocly');
@@ -18,7 +16,7 @@ describe('RedoclyOAuthClient', () => {
     vi.mock('node:os');
     vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
     process.env.HOME = mockHomeDir;
-    client = new RedoclyOAuthClient(mockClientName, mockVersion);
+    client = new RedoclyOAuthClient();
   });
 
   describe('login', () => {
@@ -51,7 +49,7 @@ describe('RedoclyOAuthClient', () => {
 
       await client.logout();
 
-      expect(fs.rmSync).toHaveBeenCalledWith(path.join(mockRedoclyDir, 'auth.json'));
+      expect(fs.rmSync).toHaveBeenCalledWith(path.join(mockRedoclyDir, 'credentials'));
     });
 
     it('silently fails if token file does not exist', async () => {
@@ -76,40 +74,33 @@ describe('RedoclyOAuthClient', () => {
     });
 
     it('verifies access token if no API key provided', async () => {
-      const mockToken = { access_token: 'test-token' };
-      const mockDeviceFlow = {
-        verifyToken: vi.fn().mockResolvedValue(true),
-      };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
-      vi.mocked(fs.readFileSync).mockReturnValue(
-        client['cipher'].update(JSON.stringify(mockToken), 'utf8', 'hex') +
-          client['cipher'].final('hex')
-      );
+      // Mock getAccessToken to return a valid token
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue('test-token');
 
       const result = await client.isAuthorized(mockBaseUrl);
 
       expect(result).toBe(true);
-      expect(mockDeviceFlow.verifyToken).toHaveBeenCalledWith('test-token');
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
     });
 
     it('returns false if token refresh fails', async () => {
-      const mockToken = {
-        access_token: 'old-token',
-        refresh_token: 'refresh-token',
-      };
-      const mockDeviceFlow = {
-        verifyToken: vi.fn().mockResolvedValue(false),
-        refreshToken: vi.fn().mockRejectedValue(new Error('Refresh failed')),
-      };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
-      vi.mocked(fs.readFileSync).mockReturnValue(
-        client['cipher'].update(JSON.stringify(mockToken), 'utf8', 'hex') +
-          client['cipher'].final('hex')
-      );
+      // Mock getAccessToken to return null (indicating refresh failed)
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue(null);
 
       const result = await client.isAuthorized(mockBaseUrl);
 
       expect(result).toBe(false);
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
+    });
+
+    it('returns false if no token exists', async () => {
+      // Mock getAccessToken to return null (no token)
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue(null);
+
+      const result = await client.isAuthorized(mockBaseUrl);
+
+      expect(result).toBe(false);
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
     });
   });
 });

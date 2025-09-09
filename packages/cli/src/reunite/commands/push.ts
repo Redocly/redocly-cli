@@ -7,6 +7,7 @@ import { exitWithError } from '../../utils/error.js';
 import { handlePushStatus } from './push-status.js';
 import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
 import { handleReuniteError } from './utils.js';
+import { version } from '../../utils/package.js';
 
 import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper.js';
@@ -39,7 +40,6 @@ type FileToUpload = { name: string; path: string };
 export async function handlePush({
   argv,
   config,
-  version,
 }: CommandArgs<PushArgv>): Promise<{ pushId: string } | void> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
@@ -71,7 +71,7 @@ export async function handlePush({
       return printExecutionTime(commandName, startedAt, `No files to upload`);
     }
 
-    const client = new ReuniteApi({ domain, apiKey, version, command: commandName });
+    const client = new ReuniteApi({ domain, apiKey, command: commandName });
     const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, projectId);
     const remote = await client.remotes.upsert(organization, projectId, {
       mountBranchName: projectDefaultBranch,

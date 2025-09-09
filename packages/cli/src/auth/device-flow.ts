@@ -4,18 +4,19 @@ import { logger } from '@redocly/openapi-core';
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
-export type AuthToken = {
+export type Credentials = {
   access_token: string;
-  refresh_token?: string;
-  token_type?: string;
-  expires_in?: number;
+  refresh_token: string;
+  expires_in: number;
+  token_type?: string; // from login response
 };
 
 export class RedoclyOAuthDeviceFlow {
   private apiClient: ReuniteApiClient;
+  private clientName = 'redocly-cli';
 
-  constructor(private baseUrl: string, private clientName: string, private version: string) {
-    this.apiClient = new ReuniteApiClient(this.version, 'login');
+  constructor(private baseUrl: string) {
+    this.apiClient = new ReuniteApiClient('login');
   }
 
   async run() {
@@ -59,7 +60,7 @@ export class RedoclyOAuthDeviceFlow {
     }
   }
 
-  async verifyToken(accessToken: string) {
+  async verifyToken(accessToken: string): Promise<boolean> {
     try {
       const response = await this.sendRequest('/session', 'GET', undefined, {
         Cookie: `accessToken=${accessToken};`,
@@ -82,7 +83,7 @@ export class RedoclyOAuthDeviceFlow {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken?: string) {
     const response = await this.sendRequest(`/device-rotate-token`, 'POST', {
       grant_type: 'refresh_token',
       client_name: this.clientName,
@@ -103,7 +104,7 @@ export class RedoclyOAuthDeviceFlow {
     deviceCode: string,
     interval: number,
     expiresIn: number
-  ): Promise<AuthToken> {
+  ): Promise<Credentials> {
     return new Promise((resolve, reject) => {
       const intervalId = setInterval(async () => {
         const response = await this.getAccessToken(deviceCode);
@@ -158,12 +159,12 @@ export class RedoclyOAuthDeviceFlow {
   }
 
   private async sendRequest(
-    url: string,
+    path: string,
     method: string = 'GET',
     body: Record<string, unknown> | undefined = undefined,
     headers: Record<string, string> = {}
   ) {
-    url = `${this.baseUrl}${url}`;
+    const url = `${this.baseUrl}/api${path}`;
     const response = await this.apiClient.request(url, {
       body: body ? JSON.stringify(body) : body,
       method,

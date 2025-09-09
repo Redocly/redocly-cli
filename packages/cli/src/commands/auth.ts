@@ -10,11 +10,10 @@ export type LoginArgv = {
   config?: string;
 };
 
-export async function handleLogin({ argv, version, config }: CommandArgs<LoginArgv>) {
-  const residency = argv.residency || config?.resolvedConfig?.residency;
-  const reuniteUrl = getReuniteUrl(residency);
+export async function handleLogin({ argv, config }: CommandArgs<LoginArgv>) {
+  const reuniteUrl = getReuniteUrl(config, argv.residency);
   try {
-    const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
+    const oauthClient = new RedoclyOAuthClient();
     await oauthClient.login(reuniteUrl);
   } catch {
     if (argv.residency) {
@@ -29,8 +28,8 @@ export type LogoutArgv = {
   config?: string;
 };
 
-export async function handleLogout({ version }: CommandArgs<LogoutArgv>) {
-  const oauthClient = new RedoclyOAuthClient('redocly-cli', version);
+export async function handleLogout() {
+  const oauthClient = new RedoclyOAuthClient();
   oauthClient.logout();
 
   logger.output('Logged out from the Redocly account. ✋ \n');
