@@ -8,3 +8,9 @@ export const CHECKS = {
   NETWORK_ERROR: 'failed network request',
   UNEXPECTED_ERROR: 'unexpected error',
 };
+
+export class ChecksErrors extends Error {}
+
+export class StatusCodeError extends ChecksErrors {}
+
+export class UnexpectedError extends ChecksErrors {}

@@ -18,7 +18,7 @@ import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
-import { UnexpectedError, StatusCodeError } from '../modules/checks/checks-errors.js';
+import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
