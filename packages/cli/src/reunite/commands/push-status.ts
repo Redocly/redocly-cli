@@ -30,7 +30,6 @@ export type PushStatusArgv = {
   'start-time'?: number; // in milliseconds
   'continue-on-deploy-failures'?: boolean;
   onRetry?: (lasSummary: PushStatusSummary) => void;
-  version?: string;
 } & VerifyConfigOptions;
 
 export interface PushStatusSummary {
