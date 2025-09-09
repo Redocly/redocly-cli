@@ -3,6 +3,7 @@ import { checkSchema } from './schema/index.js';
 import { CHECKS } from '../checks/index.js';
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { ResponseHeaderError, StatusCodeError } from '../checks/checks-errors.js';
 
 import type { RequestData } from './prepare-request.js';
 import type { TestContext, Step } from '../../types.js';
@@ -26,11 +27,35 @@ export async function callAPIAndAnalyzeResults({
     successCriteriaCheck: true,
     schemaCheck: true,
     networkCheck: true,
+    responseHeaderCheck: true,
+    statusCodeCheck: true,
   };
 
   try {
     step.response = await ctx.apiClient.fetchResult({ ctx, step, requestData, workflowId });
   } catch (error: any) {
+    if (error instanceof ResponseHeaderError) {
+      step.checks.push({
+        name: CHECKS.RESPONSE_HEADER_CHECK,
+        passed: false,
+        message: error.message,
+        severity: ctx.severity['RESPONSE_HEADER_CHECK'],
+      });
+      checksResult.responseHeaderCheck = false;
+      return checksResult;
+    }
+
+    if (error instanceof StatusCodeError) {
+      step.checks.push({
+        name: CHECKS.STATUS_CODE_CHECK,
+        passed: false,
+        message: error.message,
+        severity: ctx.severity['STATUS_CODE_CHECK'],
+      });
+      checksResult.statusCodeCheck = false;
+      return checksResult;
+    }
+
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
       passed: false,

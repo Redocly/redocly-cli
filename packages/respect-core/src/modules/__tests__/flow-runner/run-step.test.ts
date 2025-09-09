@@ -650,7 +650,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     await runStep({
@@ -703,7 +709,13 @@ describe('runStep', () => {
     vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
       step.checks = [];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
     await runStep({
       step,
@@ -768,7 +780,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -876,7 +894,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1004,7 +1028,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1128,7 +1158,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1246,7 +1282,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1353,7 +1395,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1483,7 +1531,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1600,7 +1654,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1714,7 +1774,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1836,7 +1902,13 @@ describe('runStep', () => {
         } as unknown as ResponseContext;
       }
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -1849,7 +1921,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -1862,7 +1940,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async ({ step }: { step: Step }) => {
@@ -1875,7 +1959,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
@@ -1897,7 +1987,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: true, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: true,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     const context = {
@@ -1974,7 +2070,13 @@ describe('runStep', () => {
         },
       ];
 
-      return { successCriteriaCheck: false, schemaCheck: true, networkCheck: true };
+      return {
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        responseHeaderCheck: true,
+        statusCodeCheck: true,
+      };
     });
 
     vi.mocked(checkCriteria).mockImplementation(() => [
