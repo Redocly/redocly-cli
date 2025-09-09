@@ -243,7 +243,7 @@ export class ApiFetcher implements IFetcher {
     this.initVerboseLogs({
       headerParams: maskedHeaderParams,
       host: resolvedServerUrl,
-      method: (method || 'get').toUpperCase() as OperationMethod,
+      method: method.toUpperCase() as OperationMethod,
       path: maskedPathParams || '',
       body: maskedBody,
     });
@@ -256,7 +256,7 @@ export class ApiFetcher implements IFetcher {
     let responseTime;
 
     const fetchParams = {
-      method: (method || 'get').toUpperCase() as OperationMethod,
+      method: method.toUpperCase() as OperationMethod,
       headers,
       ...(!isEmpty(requestBody) && {
         body: encodedBody,
@@ -295,7 +295,7 @@ export class ApiFetcher implements IFetcher {
       if (first401Result.status !== 401) {
         this.initVerboseResponseLogs({
           body: body401,
-          method: method as OperationMethod,
+          method,
           host: serverUrl.url,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
@@ -309,7 +309,7 @@ export class ApiFetcher implements IFetcher {
       if (!wwwAuthenticateHeader) {
         this.initVerboseResponseLogs({
           body: body401,
-          method: method as OperationMethod,
+          method,
           host: serverUrl.url,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
@@ -336,7 +336,7 @@ export class ApiFetcher implements IFetcher {
         cnonce,
         nc,
         uri,
-        method: (method || 'get').toUpperCase(),
+        method: method.toUpperCase(),
         bodyContent: JSON.stringify(encodedBody) || '',
       });
 
@@ -415,7 +415,7 @@ export class ApiFetcher implements IFetcher {
       body: isJsonContentType(responseContentType)
         ? JSON.stringify(maskedResponseBody)
         : maskedResponseBody,
-      method: (method || 'get') as OperationMethod,
+      method,
       host: serverUrl.url,
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
