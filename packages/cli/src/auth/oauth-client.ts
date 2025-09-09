@@ -4,14 +4,13 @@ import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { logger } from '@redocly/openapi-core';
-import { type AuthToken, RedoclyOAuthDeviceFlow } from './device-flow.js';
+import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';
 
 export class RedoclyOAuthClient {
-  private static readonly TOKEN_FILE = 'credentials';
-  private static readonly LEGACY_TOKEN_FILE = 'auth.json';
+  public static readonly CREDENTIALS_FILE = 'credentials';
 
   private readonly dir: string;
   private readonly key: Buffer;
@@ -25,28 +24,21 @@ export class RedoclyOAuthClient {
 
     this.key = crypto.createHash('sha256').update(`${homeDirPath}${SALT}`).digest(); // 32-byte key
     this.iv = crypto.createHash('md5').update(homeDirPath).digest(); // 16-byte IV
-
-    // TODO: Remove this after few months
-    const legacyTokenPath = path.join(this.dir, RedoclyOAuthClient.LEGACY_TOKEN_FILE);
-
-    if (existsSync(legacyTokenPath)) {
-      rmSync(legacyTokenPath);
-    }
   }
 
   public async login(baseUrl: string) {
     const deviceFlow = new RedoclyOAuthDeviceFlow(baseUrl);
 
-    const token = await deviceFlow.run();
-    if (!token) {
+    const credentials = await deviceFlow.run();
+    if (!credentials) {
       throw new Error('Failed to login');
     }
-    this.saveToken(token);
+    this.saveCredentials(credentials);
   }
 
   public async logout() {
     try {
-      this.removeToken();
+      this.removeCredentials();
     } catch (err) {
       // do nothing
     }
@@ -58,78 +50,81 @@ export class RedoclyOAuthClient {
       return deviceFlow.verifyApiKey(apiKey);
     }
 
-    const token = await this.getToken(reuniteUrl);
+    const accessToken = await this.getAccessToken(reuniteUrl);
 
-    return Boolean(token);
+    return Boolean(accessToken);
   }
 
-  public getToken = async (reuniteUrl: string): Promise<AuthToken | null> => {
+  public getAccessToken = async (reuniteUrl: string): Promise<string | null> => {
     const deviceFlow = new RedoclyOAuthDeviceFlow(reuniteUrl);
-    const token = await this.readToken();
+    const credentials = await this.readCredentials();
 
-    if (!token) {
+    if (!credentials) {
       return null;
     }
 
-    const isValid = await deviceFlow.verifyToken(token.access_token);
+    const isValid = await deviceFlow.verifyToken(credentials.access_token);
 
     if (isValid) {
-      return token;
+      return credentials.access_token;
     }
 
     try {
-      const newToken = await deviceFlow.refreshToken(token.refresh_token);
-      await this.saveToken(newToken);
-      return newToken;
+      const newCredentials = await deviceFlow.refreshToken(credentials.refresh_token);
+      await this.saveCredentials(newCredentials);
+
+      return newCredentials.access_token;
     } catch {
-      await this.removeToken();
       return null;
     }
   };
 
-  private get tokenPath() {
-    return path.join(this.dir, RedoclyOAuthClient.TOKEN_FILE);
+  private get credentialsPath() {
+    return path.join(this.dir, RedoclyOAuthClient.CREDENTIALS_FILE);
   }
 
-  private async saveToken(token: AuthToken): Promise<void> {
+  private async saveCredentials(credentials: Credentials): Promise<void> {
     try {
-      const encrypted = this.encryptToken(token);
-      writeFileSync(this.tokenPath, encrypted, 'utf8');
+      const encryptedCredentials = this.encryptCredentials(credentials);
+      writeFileSync(this.credentialsPath, encryptedCredentials, 'utf8');
     } catch (error) {
-      logger.error(`Error saving tokens: ${error}`);
+      logger.error(`Failed to save credentials: ${error.message}`);
     }
   }
 
-  private async readToken(): Promise<AuthToken | null> {
-    if (!existsSync(this.tokenPath)) {
+  private async readCredentials(): Promise<Credentials | null> {
+    if (!existsSync(this.credentialsPath)) {
       return null;
     }
 
     try {
-      const encrypted = readFileSync(this.tokenPath, 'utf8');
-      return this.decryptToken(encrypted);
+      const encryptedCredentials = readFileSync(this.credentialsPath, 'utf8');
+      return this.decryptCredentials(encryptedCredentials);
     } catch {
       return null;
     }
   }
 
-  private async removeToken(): Promise<void> {
-    if (existsSync(this.tokenPath)) {
-      rmSync(this.tokenPath);
+  private async removeCredentials(): Promise<void> {
+    if (existsSync(this.credentialsPath)) {
+      rmSync(this.credentialsPath);
     }
   }
 
-  private encryptToken(token: AuthToken): string {
+  private encryptCredentials(credentials: Credentials): string {
     const cipher = crypto.createCipheriv(CRYPTO_ALGORITHM, this.key, this.iv);
-    const encrypted = Buffer.concat([cipher.update(JSON.stringify(token), 'utf8'), cipher.final()]);
+    const encrypted = Buffer.concat([
+      cipher.update(JSON.stringify(credentials), 'utf8'),
+      cipher.final(),
+    ]);
 
     return encrypted.toString('hex');
   }
 
-  private decryptToken(encryptedToken: string): AuthToken {
+  private decryptCredentials(encryptedCredentials: string): Credentials {
     const decipher = crypto.createDecipheriv(CRYPTO_ALGORITHM, this.key, this.iv);
     const decrypted = Buffer.concat([
-      decipher.update(Buffer.from(encryptedToken, 'hex')),
+      decipher.update(Buffer.from(encryptedCredentials, 'hex')),
       decipher.final(),
     ]);
 

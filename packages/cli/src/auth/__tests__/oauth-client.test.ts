@@ -74,60 +74,33 @@ describe('RedoclyOAuthClient', () => {
     });
 
     it('verifies access token if no API key provided', async () => {
-      const mockToken = { access_token: 'test-token' };
-      const mockDeviceFlow = {
-        verifyToken: vi.fn().mockResolvedValue(true),
-      };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
-
-      // Mock the readToken method to return a valid token
-      const readTokenSpy = vi.spyOn(client as any, 'readToken').mockResolvedValue(mockToken);
+      // Mock getAccessToken to return a valid token
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue('test-token');
 
       const result = await client.isAuthorized(mockBaseUrl);
 
       expect(result).toBe(true);
-      expect(mockDeviceFlow.verifyToken).toHaveBeenCalledWith('test-token');
-      expect(readTokenSpy).toHaveBeenCalled();
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
     });
 
     it('returns false if token refresh fails', async () => {
-      const mockToken = {
-        access_token: 'old-token',
-        refresh_token: 'refresh-token',
-      };
-      const mockDeviceFlow = {
-        verifyToken: vi.fn().mockResolvedValue(false),
-        refreshToken: vi.fn().mockRejectedValue(new Error('Refresh failed')),
-      };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
-
-      // Mock the readToken method to return a token that needs refresh
-      vi.spyOn(client as any, 'readToken').mockResolvedValue(mockToken);
-      // Mock removeToken to be called when refresh fails
-      const removeTokenSpy = vi.spyOn(client as any, 'removeToken').mockResolvedValue(undefined);
+      // Mock getAccessToken to return null (indicating refresh failed)
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue(null);
 
       const result = await client.isAuthorized(mockBaseUrl);
 
       expect(result).toBe(false);
-      expect(mockDeviceFlow.verifyToken).toHaveBeenCalledWith('old-token');
-      expect(mockDeviceFlow.refreshToken).toHaveBeenCalledWith('refresh-token');
-      expect(removeTokenSpy).toHaveBeenCalled();
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
     });
 
     it('returns false if no token exists', async () => {
-      const mockDeviceFlow = {
-        verifyToken: vi.fn(),
-      };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
-
-      // Mock the readToken method to return null (no token)
-      const readTokenSpy = vi.spyOn(client as any, 'readToken').mockResolvedValue(null);
+      // Mock getAccessToken to return null (no token)
+      const getAccessTokenSpy = vi.spyOn(client, 'getAccessToken').mockResolvedValue(null);
 
       const result = await client.isAuthorized(mockBaseUrl);
 
       expect(result).toBe(false);
-      expect(readTokenSpy).toHaveBeenCalled();
-      expect(mockDeviceFlow.verifyToken).not.toHaveBeenCalled();
+      expect(getAccessTokenSpy).toHaveBeenCalledWith(mockBaseUrl);
     });
   });
 });
