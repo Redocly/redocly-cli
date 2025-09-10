@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.1.0
+
+### Patch Changes
+
+- Fixed an issue where wildcard file patterns were not recognized in the Docker image.
+- Exposed additional type definitions, making it easier for custom plugin authors to write and maintain custom rules and visitors.
+
 ## 2.0.8
 
 ### Patch Changes
