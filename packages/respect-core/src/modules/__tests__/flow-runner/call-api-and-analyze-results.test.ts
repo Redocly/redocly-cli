@@ -373,6 +373,8 @@ describe('callAPIAndAnalyzeResults', () => {
       schemaCheck: true,
       networkCheck: true,
       successCriteriaCheck: true,
+      unexpectedErrorCheck: true,
+      statusCodeCheck: true,
     });
   });
 });

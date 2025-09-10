@@ -10,10 +10,10 @@ export const DEFAULT_SEVERITY_CONFIGURATION: {
   STATUS_CODE_CHECK: 'error',
   SCHEMA_CHECK: 'error',
   CONTENT_TYPE_CHECK: 'error',
-  UNEXPECTED_ERROR: 'error',
-  NETWORK_ERROR: 'error',
   GLOBAL_TIMEOUT_ERROR: 'error',
   MAX_STEPS_REACHED_ERROR: 'error',
+  NETWORK_ERROR: 'error',
+  UNEXPECTED_ERROR: 'error',
 };
 
 export function resolveSeverityConfiguration(severityArgument: string | string[] | undefined): {

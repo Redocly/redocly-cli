@@ -17,7 +17,7 @@ import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 import type { ExtendedSecurity } from '@redocly/openapi-core';
 import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
-import type { TestContext, Step, Parameter, PublicStep } from '../../types.js';
+import type { TestContext, Step, Parameter, PublicStep, OperationMethod } from '../../types.js';
 import type { OperationDetails } from '../description-parser/index.js';
 
 export type RequestData = {
@@ -26,7 +26,7 @@ export type RequestData = {
     // todo: support variables
   };
   path: string;
-  method: string;
+  method: OperationMethod;
   parameters: ParameterWithIn[];
   requestBody: any;
   openapiOperation?: OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };

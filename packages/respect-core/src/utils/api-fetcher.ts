@@ -18,6 +18,7 @@ import { collectSecretFields } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
+import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
 
@@ -242,7 +243,7 @@ export class ApiFetcher implements IFetcher {
     this.initVerboseLogs({
       headerParams: maskedHeaderParams,
       host: resolvedServerUrl,
-      method: (method || 'get').toUpperCase() as OperationMethod,
+      method: method.toUpperCase() as OperationMethod,
       path: maskedPathParams || '',
       body: maskedBody,
     });
@@ -255,7 +256,7 @@ export class ApiFetcher implements IFetcher {
     let responseTime;
 
     const fetchParams = {
-      method: (method || 'get').toUpperCase() as OperationMethod,
+      method: method.toUpperCase() as OperationMethod,
       headers,
       ...(!isEmpty(requestBody) && {
         body: encodedBody,
@@ -291,16 +292,32 @@ export class ApiFetcher implements IFetcher {
       const body401 = await first401Result.text();
       const wwwAuthenticateHeader = first401Result.headers.get('www-authenticate');
 
-      if (!wwwAuthenticateHeader) {
+      if (first401Result.status !== 401) {
         this.initVerboseResponseLogs({
           body: body401,
-          method: (method || 'get') as OperationMethod,
+          method,
           host: serverUrl.url,
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
         });
-        throw new Error('No www-authenticate header');
+        throw new StatusCodeError(
+          `Digest auth failed, expected 401 status code, but received ${first401Result.status} in the first response`
+        );
+      }
+
+      if (!wwwAuthenticateHeader) {
+        this.initVerboseResponseLogs({
+          body: body401,
+          method,
+          host: serverUrl.url,
+          path: pathWithSearchParams || '',
+          statusCode: first401Result.status,
+          responseTime: 0,
+        });
+        throw new UnexpectedError(
+          'Digest auth failed, no www-authenticate header received in the first response'
+        );
       }
 
       const { realm, nonce, opaque, qop, algorithm, cnonce, nc } =
@@ -319,7 +336,7 @@ export class ApiFetcher implements IFetcher {
         cnonce,
         nc,
         uri,
-        method: (method || 'get').toUpperCase(),
+        method: method.toUpperCase(),
         bodyContent: JSON.stringify(encodedBody) || '',
       });
 
@@ -398,7 +415,7 @@ export class ApiFetcher implements IFetcher {
       body: isJsonContentType(responseContentType)
         ? JSON.stringify(maskedResponseBody)
         : maskedResponseBody,
-      method: (method || 'get') as OperationMethod,
+      method,
       host: serverUrl.url,
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,

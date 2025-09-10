@@ -3,8 +3,14 @@ export const CHECKS = {
   STATUS_CODE_CHECK: 'status code check',
   SCHEMA_CHECK: 'schema check',
   CONTENT_TYPE_CHECK: 'content-type check',
-  UNEXPECTED_ERROR: 'unexpected error',
   GLOBAL_TIMEOUT_ERROR: 'global timeout error',
-  NETWORK_ERROR: 'failed network request',
   MAX_STEPS_REACHED_ERROR: 'maximum steps reached',
+  NETWORK_ERROR: 'failed network request',
+  UNEXPECTED_ERROR: 'unexpected error',
 };
+
+export class ChecksErrors extends Error {}
+
+export class StatusCodeError extends ChecksErrors {}
+
+export class UnexpectedError extends ChecksErrors {}
