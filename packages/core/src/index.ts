@@ -93,7 +93,13 @@ export {
   makeDocumentFromString,
 } from './resolve.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
-export { unescapePointer, isRef, isAbsoluteUrl, escapePointer } from './ref-utils.js';
+export {
+  unescapePointer,
+  isRef,
+  isAbsoluteUrl,
+  escapePointer,
+  type Location,
+} from './ref-utils.js';
 export {
   type SpecMajorVersion,
   getMajorSpecVersion,
@@ -101,7 +107,33 @@ export {
   detectSpec,
   getTypes,
 } from './oas-types.js';
-export { normalizeVisitors } from './visitors.js';
+export {
+  normalizeVisitors,
+  type Oas3Visitor,
+  type Oas2Visitor,
+  type Async2Visitor,
+  type Async3Visitor,
+  type Arazzo1Visitor,
+  type Overlay1Visitor,
+  type Oas3Rule,
+  type Oas2Rule,
+  type Async2Rule,
+  type Async3Rule,
+  type Arazzo1Rule,
+  type Overlay1Rule,
+  type Oas3Decorator,
+  type Oas2Decorator,
+  type Async2Decorator,
+  type Async3Decorator,
+  type Arazzo1Decorator,
+  type Overlay1Decorator,
+  type Oas3Preprocessor,
+  type Oas2Preprocessor,
+  type Async2Preprocessor,
+  type Async3Preprocessor,
+  type Arazzo1Preprocessor,
+  type Overlay1Preprocessor,
+} from './visitors.js';
 
 export {
   WalkContext,
@@ -111,6 +143,7 @@ export {
   LineColLocationObject,
   LocationObject,
   Loc,
+  type UserContext,
 } from './walk.js';
 
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
