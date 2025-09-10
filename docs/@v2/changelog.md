@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.1.0 (2025-09-10)
+
+### Minor Changes
+
+- Updated authentication logic to ensure consistency with the VS Code extension's behavior.
+
+### Patch Changes
+
+- Improved error reporting and handling for Digest authentication failures in Respect. Now users receive clearer feedback when required headers or status codes are missing.
+- Fixed `push` and `push-status` commands mistakenly requiring the `--max-execution-time` option.
+- Fixed an issue where wildcard file patterns were not recognized in the Docker image.
+- Updated @redocly/respect-core to v2.1.0.
+
 ## 2.0.8 (2025-08-27)
 
 ### Patch Changes

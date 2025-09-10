@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.1.0
+
+### Patch Changes
+
+- Improved error reporting and handling for Digest authentication failures in Respect. Now users receive clearer feedback when required headers or status codes are missing.
+- Updated @redocly/openapi-core to v2.1.0.
+
 ## 2.0.8
 
 ### Patch Changes
