@@ -93,7 +93,13 @@ export {
   makeDocumentFromString,
 } from './resolve.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
-export { unescapePointer, isRef, isAbsoluteUrl, escapePointer } from './ref-utils.js';
+export {
+  unescapePointer,
+  isRef,
+  isAbsoluteUrl,
+  escapePointer,
+  type Location,
+} from './ref-utils.js';
 export {
   type SpecMajorVersion,
   getMajorSpecVersion,
@@ -137,6 +143,7 @@ export {
   LineColLocationObject,
   LocationObject,
   Loc,
+  type UserContext,
 } from './walk.js';
 
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
