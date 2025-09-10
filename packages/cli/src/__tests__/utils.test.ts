@@ -24,6 +24,7 @@ import {
   type ResolvedApiConfig,
 } from '@redocly/openapi-core';
 import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import * as glob from 'glob';
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import * as fs from 'node:fs';
@@ -42,6 +43,10 @@ vi.mock('node:process', async () => {
 });
 vi.mock('node:path', async () => {
   const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
+vi.mock('glob', async () => {
+  const actual = await vi.importActual('glob');
   return { ...actual };
 });
 vi.mock('@redocly/openapi-core', async () => {
@@ -253,6 +258,30 @@ describe('getFallbackApisOrExit', async () => {
         alias: 'main',
         path: 'https://someLinkt/petstore.yaml?main',
         output: undefined,
+      },
+    ]);
+  });
+
+  it('should work ok if wildcard param is passed', async () => {
+    const specFiles = ['spec1.yaml', 'spec2.yaml'];
+
+    vi.mocked(fs.existsSync).mockImplementation((path) => specFiles.includes(path.toString()));
+    vi.spyOn(glob, 'glob').mockImplementation(async () => specFiles);
+
+    const apisConfig = await openapiCore.createConfig();
+
+    const result = await getFallbackApisOrExit(['./*.yaml'], apisConfig);
+
+    expect(process.stderr.write).toHaveBeenCalledTimes(0);
+    expect(process.exit).toHaveBeenCalledTimes(0);
+    expect(result).toStrictEqual([
+      {
+        alias: undefined,
+        path: 'spec1.yaml',
+      },
+      {
+        alias: undefined,
+        path: 'spec2.yaml',
       },
     ]);
   });
