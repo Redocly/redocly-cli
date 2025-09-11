@@ -1,0 +1,24 @@
+swagger: '2.0'
+info:
+  title: Component Removal Test API
+  version: 1.0.0
+host: test-api.com
+paths:
+  /public-endpoint:
+    get:
+      description: Public endpoint that uses a component
+      responses:
+        '200':
+          description: Success response
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/UsedComponent'
+definitions:
+  UsedComponent:
+    type: string
+
+bundling openapi.yaml...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
+🧹 Removed 2 unused components.

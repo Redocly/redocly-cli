@@ -1,0 +1,37 @@
+swagger: '2.0'
+info:
+  title: Component Removal Test API
+  version: 1.0.0
+host: test-api.com
+paths:
+  '/public-endpoint':
+    get:
+      description: Public endpoint that uses a component
+      responses:
+        '200':
+          description: Success response
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/UsedComponent'
+  '/internal-endpoint':
+    get:
+      description: Internal endpoint (will be removed by remove-x-internal)
+      x-internal: true
+      responses:
+        '200':
+          description: Internal response
+          schema:
+            type: object
+            properties:
+              internal:
+                $ref: '#/definitions/InternalComponent'
+
+definitions:
+  UsedComponent:
+    type: string
+  InternalComponent:
+    type: string
+  UnusedComponent:
+    type: string

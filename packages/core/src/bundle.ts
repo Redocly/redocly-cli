@@ -182,7 +182,7 @@ export async function bundleDocument(opts: {
     visitorsData: {},
   };
 
-  if (removeUnusedComponents) {
+  if (removeUnusedComponents && !decorators.some((d) => d.ruleId === 'remove-unused-components')) {
     decorators.push({
       severity: 'error',
       ruleId: 'remove-unused-components',
