@@ -1,8 +1,8 @@
-import { abnfRuntimeExpressionParser } from './index.js';
+import { parseRuntimeExpression } from './index.js';
 
 export function lintExpression(expression: string) {
   try {
-    return abnfRuntimeExpressionParser.parse(expression);
+    return parseRuntimeExpression(expression);
   } catch (_error) {
     throw new Error(`Runtime expression is not valid: ${expression}`);
   }
