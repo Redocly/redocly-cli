@@ -38,9 +38,10 @@ export async function handleBundle({
   version,
   collectSpecData,
 }: CommandArgs<BundleArgv>) {
-  const removeUnusedComponents =
+  const removeUnusedComponentsRoot =
     argv['remove-unused-components'] ||
-    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
+    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components');
+
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
@@ -50,6 +51,14 @@ export async function handleBundle({
       const aliasConfig = config.forAlias(alias);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
+      let removeUnusedComponentsForApi = false;
+
+      if (config.resolvedConfig.apis) {
+        const api = config.resolvedConfig.apis[alias || 'default'];
+        if (api?.decorators?.hasOwnProperty('remove-unused-components')) {
+          removeUnusedComponentsForApi = true;
+        }
+      }
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
@@ -61,7 +70,7 @@ export async function handleBundle({
         ref: path,
         config: aliasConfig,
         dereference: argv.dereferenced,
-        removeUnusedComponents,
+        removeUnusedComponents: removeUnusedComponentsRoot || removeUnusedComponentsForApi,
         keepUrlRefs: argv['keep-url-references'],
         collectSpecData,
       });
