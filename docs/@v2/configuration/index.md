@@ -34,14 +34,11 @@ apis:
   external@v1:
     root: ./openapi/external.yaml
     openapi:
-      hideLogo: true
+      hideLoading: true
 
 openapi:
-  schemaExpansionLevel: 2
-  generateCodeSamples:
-    languages:
-      - lang: curl
-      - lang: Python
+  schemasExpansionLevel: 2
+  showExtensions: true
 ```
 
 Read on to learn more about the various configuration sections and what you can do with each one.
