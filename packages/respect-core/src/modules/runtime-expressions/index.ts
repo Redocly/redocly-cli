@@ -1,6 +1,5 @@
 export * from './evaluate.js';
 
-// Import CommonJS module in ESM
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
