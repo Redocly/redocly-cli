@@ -25,7 +25,7 @@
     "precli": "npm run compile",
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
-    "respect:parser:generate": "pegjs --format commonjs --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.cjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.cjs packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs",
+    "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
     "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
     "json-server": "json-server --watch __tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
@@ -65,7 +65,7 @@
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
     "outdent": "^0.7.1",
-    "pegjs": "0.10.0",
+    "pegjs": "0.11.0-master.b7b87ea",
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "ts-loader": "^8.0.2",
