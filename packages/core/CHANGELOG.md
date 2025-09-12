@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.1.1
+
+### Patch Changes
+
+- Added support for lint plugins in the browser environment.
+
 ## 2.1.0
 
 ### Patch Changes
