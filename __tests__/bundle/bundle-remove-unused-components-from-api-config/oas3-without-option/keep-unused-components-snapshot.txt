@@ -1,21 +1,21 @@
 openapi: 3.1.0
 info:
-  title: Sea Life API
+  title: Component Removal Test API
   version: 1.0.0
 paths:
-  /marine-life:
+  /public-endpoint:
     get:
-      description: Get marine life information
+      description: Public endpoint that uses a component
       responses:
         '200':
-          description: Marine life response
+          description: Success response
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  creature:
-                    $ref: '#/components/schemas/Crabs'
+                  data:
+                    $ref: '#/components/schemas/UsedComponent'
         '400':
           content:
             application/json:
@@ -23,54 +23,54 @@ paths:
                 $ref: '#/components/schemas/ref'
 components:
   schemas:
-    Crabs:
+    UsedComponent:
       type: object
-      description: A crab object
+      description: A component that is used in the public API endpoint
       properties:
         type:
           type: string
           enum:
-            - crabs
+            - active
         name:
           type: string
-          description: The name of the crab
-          example: Red Crab
-        claws:
+          description: The name of the component
+          example: ActiveComponent
+        references:
           type: integer
-          description: Number of claws
-          example: 2
-    Shark:
+          description: Number of references to this component
+          example: 1
+    InternalComponent:
       type: object
-      description: A shark object
+      description: A component that is used only in internal endpoints
       properties:
         type:
           type: string
           enum:
-            - shark
+            - internal
         name:
           type: string
-          description: The name of the shark
-          example: Great White
-        teeth:
-          type: integer
-          description: Number of teeth
-          example: 300
-    Cancer:
+          description: The name of the internal component
+          example: InternalDataComponent
+        sensitive:
+          type: boolean
+          description: Whether this component contains sensitive data
+          example: true
+    UnusedComponent:
       type: object
-      description: A cancer object - THIS SHOULD BE REMOVED AS UNUSED WHEN THE OPTION IS ENABLED
+      description: A component that should be removed as unused when remove-unused-components is enabled
       properties:
         type:
           type: string
           enum:
-            - cancer
+            - unused
         name:
           type: string
-          description: The name of the cancer
-          example: Lung Cancer
-        severity:
+          description: The name of the unused component
+          example: ObsoleteComponent
+        status:
           type: string
-          description: Severity level
-          example: High
+          description: Status of the component
+          example: Deprecated
     ref:
       type: string
 

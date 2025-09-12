@@ -1,40 +1,40 @@
 openapi: 3.1.0
 info:
-  title: Sea Life API
+  title: Component Removal Test API
   version: 1.0.0
 paths:
-  /marine-life:
+  /public-endpoint:
     get:
-      description: Get marine life information
+      description: Public endpoint that uses a component
       responses:
         '200':
-          description: Marine life response
+          description: Success response
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  creature:
-                    $ref: '#/components/schemas/Crabs'
+                  data:
+                    $ref: '#/components/schemas/UsedComponent'
         '400':
           content:
             application/json:
               schema:
                 $ref: 'ref.yaml'
-  /cancer:
+  /internal-endpoint:
     get:
-      description: Get cancer information
+      description: Internal endpoint (will be removed by remove-x-internal)
       x-internal: true
       responses:
         '200':
-          description: Cancer response
+          description: Internal response
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  disease:
-                    $ref: '#/components/schemas/Cancer'
+                  internal:
+                    $ref: '#/components/schemas/InternalComponent'
         '400':
           content:
             application/json:
@@ -42,9 +42,9 @@ paths:
                 $ref: 'ref.yaml'
 components:
   schemas:
-    Crabs:
-      $ref: '../schemas/crabs.yaml#/Crabs'
-    Shark:
-      $ref: '../schemas/shark.yaml#/Shark'
-    Cancer:
-      $ref: '../schemas/cancer.yaml#/Cancer'
+    UsedComponent:
+      $ref: '../schemas/used-component.yaml#/UsedComponent'
+    InternalComponent:
+      $ref: '../schemas/internal-component.yaml#/InternalComponent'
+    UnusedComponent:
+      $ref: '../schemas/unused-component.yaml#/UnusedComponent'

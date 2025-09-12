@@ -1,42 +1,42 @@
 swagger: '2.0'
 info:
-  title: Sea Life API
+  title: Component Removal Test API
   version: 1.0.0
-host: sea-life-api.com
+host: test-api.com
 paths:
-  '/marine-life':
+  '/public-endpoint':
     get:
-      description: Get marine life information
+      description: Public endpoint that uses a component
       responses:
         '200':
-          description: Marine life response
+          description: Success response
           schema:
             type: object
             properties:
-              creature:
-                $ref: '#/definitions/Crabs'
+              data:
+                $ref: '#/definitions/UsedComponent'
         '400':
           schema:
             $ref: 'ref.yaml'
-  '/cancer':
+  '/internal-endpoint':
     get:
-      description: Get cancer information
+      description: Internal endpoint (will be removed by remove-x-internal)
       x-internal: true
       responses:
         '200':
-          description: Cancer response
+          description: Internal response
           schema:
             type: object
             properties:
-              disease:
-                $ref: '#/definitions/Cancer'
+              internal:
+                $ref: '#/definitions/InternalComponent'
         '400':
           schema:
             $ref: 'ref.yaml'
 definitions:
-  Crabs:
-    $ref: '../schemas/crabs.yaml#/Crabs'
-  Shark:
-    $ref: '../schemas/shark.yaml#/Shark'
-  Cancer:
-    $ref: '../schemas/cancer.yaml#/Cancer'
+  UsedComponent:
+    $ref: '../schemas/used-component.yaml#/UsedComponent'
+  InternalComponent:
+    $ref: '../schemas/internal-component.yaml#/InternalComponent'
+  UnusedComponent:
+    $ref: '../schemas/unused-component.yaml#/UnusedComponent'

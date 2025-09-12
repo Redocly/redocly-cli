@@ -1,21 +1,21 @@
 openapi: 3.1.0
 info:
-  title: Sea Life API
+  title: Component Removal Test API
   version: 1.0.0
 paths:
-  /marine-life:
+  /public-endpoint:
     get:
-      description: Get marine life information
+      description: Public endpoint that uses a component
       responses:
         '200':
-          description: Marine life response
+          description: Success response
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  creature:
-                    $ref: '#/components/schemas/Crabs'
+                  data:
+                    $ref: '#/components/schemas/UsedComponent'
         '400':
           content:
             application/json:
@@ -23,22 +23,22 @@ paths:
                 $ref: '#/components/schemas/ref'
 components:
   schemas:
-    Crabs:
+    UsedComponent:
       type: object
-      description: A crab object
+      description: A component that is used in the public API endpoint
       properties:
         type:
           type: string
           enum:
-            - crabs
+            - active
         name:
           type: string
-          description: The name of the crab
-          example: Red Crab
-        claws:
+          description: The name of the component
+          example: ActiveComponent
+        references:
           type: integer
-          description: Number of claws
-          example: 2
+          description: Number of references to this component
+          example: 1
     ref:
       type: string
 
