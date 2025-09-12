@@ -1,9 +1,11 @@
-import { performance } from 'perf_hooks';
+import { bundle, formatProblems, getTotals, logger } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
+import { performance } from 'perf_hooks';
+import { AbortFlowError } from '../utils/error.js';
 import {
   dumpBundle,
+  formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
   getOutputFileName,
@@ -11,9 +13,7 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeysForOas,
-  formatPath,
 } from '../utils/miscellaneous.js';
-import { AbortFlowError } from '../utils/error.js';
 
 import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
@@ -45,20 +45,13 @@ export async function handleBundle({
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
-  for (const { path, alias, output } of apis) {
+  for (const { path, alias, output, decorators } of apis) {
     try {
       const startedAt = performance.now();
       const aliasConfig = config.forAlias(alias);
+      const removeUnusedComponentsForApi = decorators?.hasOwnProperty('remove-unused-components');
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
-      let removeUnusedComponentsForApi = false;
-
-      if (config.resolvedConfig.apis) {
-        const api = config.resolvedConfig.apis[alias || 'default'];
-        if (api?.decorators?.hasOwnProperty('remove-unused-components')) {
-          removeUnusedComponentsForApi = true;
-        }
-      }
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 

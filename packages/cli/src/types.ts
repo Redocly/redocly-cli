@@ -1,3 +1,4 @@
+import type { DecoratorConfig } from 'core/src/config/types.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
 import type { RuleSeverity } from '@redocly/openapi-core';
 import type { RespectArgv } from './commands/respect/index.js';
@@ -23,6 +24,7 @@ export type Entrypoint = {
   path: string;
   alias?: string;
   output?: string;
+  decorators?: Record<string, DecoratorConfig>;
 };
 export const outputExtensions = ['json', 'yaml', 'yml'] as const;
 export type OutputExtension = typeof outputExtensions[number];
