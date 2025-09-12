@@ -13,4 +13,4 @@ output/
 redoc-static.html
 packages/cli/README.md
 .env
-packages/respect-core/src/modules/runtime-expressions/abnf-parser.cjs
+packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
