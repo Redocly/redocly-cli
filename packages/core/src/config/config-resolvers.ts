@@ -93,7 +93,10 @@ export async function resolveConfig({
   let rootConfigDir: string = '';
   if (isBrowser) {
     // In browser, we don't support plugins from config file yet
-    resolvedPlugins = [defaultPlugin];
+    const instantiatedPlugins = ((config as RawUniversalConfig)?.plugins || []).filter(
+      (p) => !isString(p)
+    ) as Plugin[];
+    resolvedPlugins = [...instantiatedPlugins, defaultPlugin];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
