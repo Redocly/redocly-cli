@@ -163,6 +163,7 @@ describe('getFallbackApisOrExit', async () => {
         alias: 'main',
         path: 'someFile.yaml',
         output: undefined,
+        decorators: {},
       },
     ]);
   });
@@ -253,6 +254,7 @@ describe('getFallbackApisOrExit', async () => {
         alias: 'main',
         path: 'https://someLinkt/petstore.yaml?main',
         output: undefined,
+        decorators: {},
       },
     ]);
   });
