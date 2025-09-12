@@ -1,11 +1,9 @@
-import { bundle, formatProblems, getTotals, logger } from '@redocly/openapi-core';
+import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { performance } from 'perf_hooks';
-import { AbortFlowError } from '../utils/error.js';
+import { formatProblems, getTotals, bundle, logger } from '@redocly/openapi-core';
 import {
   dumpBundle,
-  formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
   getOutputFileName,
@@ -13,7 +11,9 @@ import {
   printUnusedWarnings,
   saveBundle,
   sortTopLevelKeysForOas,
+  formatPath,
 } from '../utils/miscellaneous.js';
+import { AbortFlowError } from '../utils/error.js';
 
 import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
