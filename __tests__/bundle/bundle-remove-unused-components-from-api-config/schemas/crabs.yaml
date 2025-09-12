@@ -1,0 +1,15 @@
+Crabs:
+  type: object
+  description: A crab object
+  properties:
+    type:
+      type: string
+      enum: [crabs]
+    name:
+      type: string
+      description: The name of the crab
+      example: 'Red Crab'
+    claws:
+      type: integer
+      description: Number of claws
+      example: 2

@@ -1,0 +1,43 @@
+swagger: '2.0'
+info:
+  title: Sea Life API
+  version: 1.0.0
+host: sea-life-api.com
+paths:
+  /marine-life:
+    get:
+      description: Get marine life information
+      responses:
+        '200':
+          description: Marine life response
+          schema:
+            type: object
+            properties:
+              creature:
+                $ref: '#/definitions/Crabs'
+        '400':
+          schema:
+            $ref: '#/definitions/ref'
+definitions:
+  Crabs:
+    type: object
+    description: A crab object
+    properties:
+      type:
+        type: string
+        enum:
+          - crabs
+      name:
+        type: string
+        description: The name of the crab
+        example: Red Crab
+      claws:
+        type: integer
+        description: Number of claws
+        example: 2
+  ref:
+    type: string
+
+bundling openapi.yaml...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
+🧹 Removed 2 unused components.
