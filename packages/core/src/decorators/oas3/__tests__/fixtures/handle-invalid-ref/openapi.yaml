@@ -1,0 +1,11 @@
+openapi: '3.1.0'
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas.yaml#/Something.fail'
