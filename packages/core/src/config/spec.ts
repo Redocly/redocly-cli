@@ -108,6 +108,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'off',
     'tags-alphabetical': 'off',
     'nullable-type-sibling': 'error',
+    'exclusive-minimum-maximum': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -164,6 +165,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'exclusive-minimum-maximum': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'off',

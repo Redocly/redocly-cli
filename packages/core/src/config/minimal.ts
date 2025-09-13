@@ -108,6 +108,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
+    'exclusive-minimum-maximum': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -164,6 +165,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
+    'exclusive-minimum-maximum': 'off',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
