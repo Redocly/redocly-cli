@@ -8,6 +8,7 @@ The rules contained in the minimal ruleset:
 
 Errors:
 
+- [exclusive-minimum-maximum](./oas/exclusive-minimum-maximum.md)
 - [no-server-trailing-slash](./oas/no-server-trailing-slash.md)
 - [no-server-variables-empty-enum](./oas/no-server-variables-empty-enum.md)
 - [no-unresolved-refs](./common/no-unresolved-refs.md)
