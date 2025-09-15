@@ -7,17 +7,13 @@ import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from '
 import { initRules } from './config/rules.js';
 import { reportUnresolvedRef } from './rules/common/no-unresolved-refs.js';
 import { isTruthy } from './utils.js';
-import { dequal } from './dequal.js';
+import { dequal } from './utils/dequal.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
 import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import { type Config } from './config/index.js';
-import {
-  CONFIG_BUNDLER_VISITOR_ID,
-  configBundlerVisitor,
-  pluginsCollectorVisitor,
-  PLUGINS_COLLECTOR_VISITOR_ID,
-} from './config/visitors.js';
+import { type Config } from './config/config.js';
+import { configBundlerVisitor, pluginsCollectorVisitor } from './config/visitors.js';
+import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './config/constants.js';
 
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
 import type { Plugin, ResolvedConfig } from './config/types.js';
