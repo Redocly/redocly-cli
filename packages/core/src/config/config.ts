@@ -8,6 +8,7 @@ import { getResolveConfig } from './utils.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { type Document, type ResolvedRefMap } from '../resolve.js';
 import { groupAssertionRules } from './config-resolvers.js';
+import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
 import type { NormalizedProblem } from '../walk.js';
 import type {
@@ -30,11 +31,6 @@ import type {
   RuleConfig,
   RuleSettings,
 } from './types.js';
-
-export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
-const IGNORE_BANNER =
-  `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
-  `# See https://redocly.com/docs/cli/ for more information.\n`;
 
 function getIgnoreFilePath(configPath?: string): string | undefined {
   if (configPath) {

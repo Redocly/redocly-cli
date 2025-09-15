@@ -9,6 +9,7 @@ import {
 } from '../resolve.js';
 import { Config } from './config.js';
 import { type RawUniversalConfig } from './types.js';
+import { CONFIG_FILE_NAME } from './constants.js';
 
 export async function loadConfig(
   options: {
@@ -45,8 +46,6 @@ export async function loadConfig(
 
   return config;
 }
-
-export const CONFIG_FILE_NAME = 'redocly.yaml';
 
 export function findConfig(dir?: string): string | undefined {
   if (!fs?.existsSync) return;

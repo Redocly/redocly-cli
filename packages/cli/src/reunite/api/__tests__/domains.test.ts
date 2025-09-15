@@ -48,25 +48,25 @@ describe('getReuniteUrl()', () => {
     expect(getReuniteUrl(config)).toBe('https://app.cloud.eu.redocly.com');
   });
 
-  it('should use projectUrl from config when no residency provided', async () => {
+  it('should use fromProjectUrl from config when no residency provided', async () => {
     const config = await createConfig({
-      reunite: { projectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
+      scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
     });
     expect(getReuniteUrl(config)).toBe('https://app.cloud.eu.redocly.com');
   });
 
-  it('should prioritize second parameter over config residency and projectUrl', async () => {
+  it('should prioritize second parameter over config residency and fromProjectUrl', async () => {
     const config = await createConfig({
       residency: 'us',
-      reunite: { projectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
+      scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
     });
     expect(getReuniteUrl(config, 'eu')).toBe('https://app.cloud.eu.redocly.com');
   });
 
-  it('should prioritize residency over projectUrl when both are provided', async () => {
+  it('should prioritize residency over fromProjectUrl when both are provided', async () => {
     const config = await createConfig({
       residency: 'us',
-      reunite: { projectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
+      scorecard: { fromProjectUrl: 'https://app.cloud.eu.redocly.com/org/test/project/test' },
     });
     expect(getReuniteUrl(config)).toBe('https://app.cloud.redocly.com');
   });
@@ -76,9 +76,9 @@ describe('getReuniteUrl()', () => {
     expect(getReuniteUrl(config, 'https://custom.redocly.com')).toBe('https://custom.redocly.com');
   });
 
-  it('should handle projectUrl with custom domain and port', async () => {
+  it('should handle fromProjectUrl with custom domain and port', async () => {
     const config = await createConfig({
-      reunite: { projectUrl: 'https://custom.redocly.com:8080/org/test/project/test' },
+      scorecard: { fromProjectUrl: 'https://custom.redocly.com:8080/org/test/project/test' },
     });
     expect(getReuniteUrl(config)).toBe('https://custom.redocly.com:8080');
   });
@@ -89,9 +89,9 @@ describe('getReuniteUrl()', () => {
     expect(() => getReuniteUrl(testConfig, 'not-a-valid-url')).toThrow('Invalid Reunite URL');
   });
 
-  it('should throw error for invalid projectUrl', async () => {
+  it('should throw error for invalid fromProjectUrl', async () => {
     const config = await createConfig({
-      reunite: { projectUrl: 'not-a-valid-url' },
+      scorecard: { fromProjectUrl: 'not-a-valid-url' },
     });
     expect(() => getReuniteUrl(config)).toThrow('Invalid Reunite URL');
   });

@@ -14,7 +14,7 @@ export {
   isNotEmptyArray,
   isNotEmptyObject,
 } from './utils.js';
-export { dequal } from './dequal.js';
+export { dequal } from './utils/dequal.js';
 export { Oas3_1Types } from './types/oas3_1.js';
 export { Arazzo1Types } from './types/arazzo.js';
 export { Oas3Types } from './types/oas3.js';

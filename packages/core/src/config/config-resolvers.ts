@@ -20,7 +20,7 @@ import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { bundleConfig, collectConfigPlugins } from '../bundle.js';
-import { CONFIG_FILE_NAME } from './load.js';
+import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 
 import type {
   Plugin,
@@ -37,8 +37,6 @@ import type {
 } from '../rules/common/assertions/index.js';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
-
-const DEFAULT_PROJECT_PLUGIN_PATHS = ['@theme/plugin.js', '@theme/plugin.cjs', '@theme/plugin.mjs'];
 
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
@@ -66,8 +64,7 @@ export async function resolveConfig({
   resolvedRefMap: ResolvedRefMap;
   plugins: Plugin[];
 }> {
-  const config =
-    rawConfigDocument === undefined ? { extends: ['recommended'] } : rawConfigDocument.parsed;
+  const config = rawConfigDocument === undefined ? DEFAULT_CONFIG : rawConfigDocument.parsed;
 
   if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;

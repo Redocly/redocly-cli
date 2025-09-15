@@ -4,6 +4,7 @@ import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath } from './config-resolvers.js';
 import { isPlainObject } from '../utils.js';
+import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
 
 import type { PluginResolveInfo } from './config-resolvers.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -14,8 +15,6 @@ export type PluginsCollectorVisitorData = {
   plugins: (PluginResolveInfo | Plugin)[];
   rootConfigDir: string;
 };
-
-export const PLUGINS_COLLECTOR_VISITOR_ID = 'pluginsCollector';
 
 function collectorHandleNode(node: unknown, ctx: UserContext) {
   if (isPlainObject(node) && Array.isArray(node.plugins)) {
@@ -68,8 +67,6 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
 };
-
-export const CONFIG_BUNDLER_VISITOR_ID = 'configBundler';
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
   if (isPlainObject(node) && node.extends) {

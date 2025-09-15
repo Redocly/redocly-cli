@@ -21,8 +21,8 @@ export function getReuniteUrl(config: Config | undefined, residencyOption?: stri
       return new URL(residency).origin;
     }
 
-    if (config?.resolvedConfig.reunite?.projectUrl) {
-      return new URL(config.resolvedConfig.reunite.projectUrl).origin;
+    if (config?.resolvedConfig.scorecard?.fromProjectUrl) {
+      return new URL(config.resolvedConfig.scorecard.fromProjectUrl).origin;
     }
 
     return REUNITE_URLS.us;
