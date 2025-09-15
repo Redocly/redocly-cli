@@ -6,27 +6,31 @@ import { Buffer } from 'node:buffer';
 import { logger } from '@redocly/openapi-core';
 import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
-const SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
+const CREDENTIAL_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';
 
 export class RedoclyOAuthClient {
-  public static readonly CREDENTIALS_FILE = 'credentials';
+  public readonly credentialsFolderPath: string;
+  public readonly credentialsFilePath: string;
+  public readonly credentialsFileName: string;
 
-  private readonly dir: string;
   private readonly key: Buffer;
   private readonly iv: Buffer;
 
   constructor() {
     const homeDirPath = homedir();
 
-    this.dir = path.join(homeDirPath, '.redocly');
-    mkdirSync(this.dir, { recursive: true });
+    this.credentialsFolderPath = path.join(homeDirPath, '.redocly');
+    this.credentialsFileName = 'credentials';
+    this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
 
-    this.key = crypto.createHash('sha256').update(`${homeDirPath}${SALT}`).digest(); // 32-byte key
-    this.iv = crypto.createHash('md5').update(homeDirPath).digest(); // 16-byte IV
+    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIAL_SALT}`).digest();
+    this.iv = crypto.createHash('md5').update(homeDirPath).digest();
+
+    mkdirSync(this.credentialsFolderPath, { recursive: true });
   }
 
-  public async login(baseUrl: string) {
+  public async login(baseUrl: string): Promise<void> {
     const deviceFlow = new RedoclyOAuthDeviceFlow(baseUrl);
 
     const credentials = await deviceFlow.run();
@@ -79,26 +83,22 @@ export class RedoclyOAuthClient {
     }
   };
 
-  private get credentialsPath() {
-    return path.join(this.dir, RedoclyOAuthClient.CREDENTIALS_FILE);
-  }
-
   private async saveCredentials(credentials: Credentials): Promise<void> {
     try {
       const encryptedCredentials = this.encryptCredentials(credentials);
-      writeFileSync(this.credentialsPath, encryptedCredentials, 'utf8');
+      writeFileSync(this.credentialsFilePath, encryptedCredentials, 'utf8');
     } catch (error) {
       logger.error(`Failed to save credentials: ${error.message}`);
     }
   }
 
   private async readCredentials(): Promise<Credentials | null> {
-    if (!existsSync(this.credentialsPath)) {
+    if (!existsSync(this.credentialsFilePath)) {
       return null;
     }
 
     try {
-      const encryptedCredentials = readFileSync(this.credentialsPath, 'utf8');
+      const encryptedCredentials = readFileSync(this.credentialsFilePath, 'utf8');
       return this.decryptCredentials(encryptedCredentials);
     } catch {
       return null;
@@ -106,8 +106,8 @@ export class RedoclyOAuthClient {
   }
 
   private async removeCredentials(): Promise<void> {
-    if (existsSync(this.credentialsPath)) {
-      rmSync(this.credentialsPath);
+    if (existsSync(this.credentialsFilePath)) {
+      rmSync(this.credentialsFilePath);
     }
   }
 
