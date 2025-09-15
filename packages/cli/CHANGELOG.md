@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.1.3
+
+### Patch Changes
+
+- Updated authentication logic to get the residency from `scorecard.fromProjectUrl`.
+- Updated @redocly/openapi-core to v2.1.3.
+
 ## 2.1.2
 
 ### Patch Changes
