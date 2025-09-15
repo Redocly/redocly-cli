@@ -62,7 +62,7 @@
     "set-cookie-parser": "^2.3.5",
     "simple-websocket": "^9.0.0",
     "styled-components": "^6.0.7",
-    "undici": "^6.21.1",
+    "undici": "^6.21.3",
     "yargs": "17.0.1"
   },
   "devDependencies": {

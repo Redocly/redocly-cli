@@ -1,4 +1,3 @@
-import { Headers } from 'undici';
 import { logger } from '@redocly/openapi-core';
 
 import type { TestContext, Step, RegexpSuccessCriteria } from '../../../../types.js';
