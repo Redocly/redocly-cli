@@ -9,25 +9,45 @@ export function getDomain(): string {
   return process.env.REDOCLY_DOMAIN || REUNITE_URLS.us;
 }
 
-export function getReuniteUrl(config: Config | undefined, residencyOption?: string): string {
-  try {
-    const residency = residencyOption || config?.resolvedConfig.residency;
+export const getReuniteUrl = withHttpsValidation(
+  (config: Config | undefined, residencyOption?: string): string => {
+    try {
+      const residency = residencyOption || config?.resolvedConfig.residency;
 
-    if (isLegacyResidency(residency)) {
-      return REUNITE_URLS[residency];
+      if (isLegacyResidency(residency)) {
+        return REUNITE_URLS[residency];
+      }
+
+      if (residency) {
+        return new URL(residency).origin;
+      }
+
+      if (config?.resolvedConfig.scorecard?.fromProjectUrl) {
+        return new URL(config.resolvedConfig.scorecard.fromProjectUrl).origin;
+      }
+
+      return REUNITE_URLS.us;
+    } catch {
+      throw new InvalidReuniteUrlError();
+    }
+  }
+);
+
+function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
+  return (...args: Parameters<Fn>) => {
+    const url = fn(...args);
+
+    if (!url.startsWith('https://')) {
+      throw new InvalidReuniteUrlError();
     }
 
-    if (residency) {
-      return new URL(residency).origin;
-    }
+    return url;
+  };
+}
 
-    if (config?.resolvedConfig.scorecard?.fromProjectUrl) {
-      return new URL(config.resolvedConfig.scorecard.fromProjectUrl).origin;
-    }
-
-    return REUNITE_URLS.us;
-  } catch {
-    throw new Error('Invalid Reunite URL');
+export class InvalidReuniteUrlError extends Error {
+  constructor() {
+    super('Invalid Reunite URL');
   }
 }
 
