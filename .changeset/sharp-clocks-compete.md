@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-feat: adds a new validation rule for exclusive min/max type
+feat: Added a new validation rule for exclusiveMinimum and exclusiveMaximum types.
