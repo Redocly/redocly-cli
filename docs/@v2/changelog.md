@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.1.3 (2025-09-15)
+
+### Patch Changes
+
+- Updated authentication logic to get the residency from `scorecard.fromProjectUrl`.
+- Updated @redocly/openapi-core to v2.1.3.
+
 ## 2.1.2 (2025-09-13)
 
 ### Patch Changes
