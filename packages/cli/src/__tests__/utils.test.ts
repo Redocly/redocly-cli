@@ -526,7 +526,7 @@ describe('handleErrors', () => {
 
 describe('checkIfRulesetExist', () => {
   beforeEach(() => {
-    vi.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
+    vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null) => code as never);
   });
 
   afterEach(() => {
