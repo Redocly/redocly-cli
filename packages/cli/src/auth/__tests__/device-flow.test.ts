@@ -54,7 +54,10 @@ describe('RedoclyOAuthDeviceFlow', () => {
       } as Response);
 
       const result = await flow.refreshToken('old-refresh-token');
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({
+        ...mockResponse,
+        residency: mockBaseUrl,
+      });
     });
 
     it('throws error when refresh fails', async () => {
