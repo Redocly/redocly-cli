@@ -8,6 +8,7 @@ export type Credentials = {
   access_token: string;
   refresh_token: string;
   expires_in: number;
+  residency?: string;
   token_type?: string; // from login response
 };
 
@@ -42,7 +43,7 @@ export class RedoclyOAuthDeviceFlow {
     );
     logger.output(green('✅ Logged in\n\n'));
 
-    return accessToken;
+    return this.withResidency(accessToken);
   }
 
   private openBrowser(url: string) {
@@ -93,11 +94,12 @@ export class RedoclyOAuthDeviceFlow {
     if (!response.access_token) {
       throw new Error('Failed to refresh token');
     }
-    return {
+
+    return this.withResidency({
       access_token: response.access_token,
       refresh_token: response.refresh_token,
       expires_in: response.expires_in,
-    };
+    });
   }
 
   private async pollingAccessToken(
@@ -175,5 +177,12 @@ export class RedoclyOAuthDeviceFlow {
       return { success: true };
     }
     return await response.json();
+  }
+
+  private withResidency(credentials: Credentials): Credentials {
+    return {
+      ...credentials,
+      residency: this.baseUrl,
+    };
   }
 }
