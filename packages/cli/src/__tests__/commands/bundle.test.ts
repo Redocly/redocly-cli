@@ -2,7 +2,7 @@ import {
   bundle,
   getTotals,
   logger,
-  Config,
+  createConfig,
   type ResolvedApiConfig,
   type ResolvedConfig,
 } from '@redocly/openapi-core';
@@ -160,7 +160,7 @@ describe('bundle', () => {
           } as ResolvedApiConfig,
         },
       };
-      const config = new Config(resolvedConfigMock);
+      const config = await createConfig(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({
@@ -198,7 +198,7 @@ describe('bundle', () => {
           } as ResolvedApiConfig,
         },
       };
-      const config = new Config(resolvedConfigMock);
+      const config = await createConfig(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({
@@ -233,7 +233,7 @@ describe('bundle', () => {
           } as ResolvedApiConfig,
         },
       };
-      const config = new Config(resolvedConfigMock);
+      const config = await createConfig(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([{ path: 'openapi.yaml' }]);
       vi.mocked(getTotals).mockReturnValue({
@@ -266,7 +266,7 @@ describe('bundle', () => {
         },
       };
 
-      const config = new Config(resolvedConfigMock);
+      const config = await createConfig(resolvedConfigMock);
 
       vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce(
         Object.entries(resolvedConfigMock.apis!).map(([alias, { root, ...api }]) => ({

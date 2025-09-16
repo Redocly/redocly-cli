@@ -1,6 +1,6 @@
 import { handleRespect, type RespectArgv } from '../../../commands/respect/index.js';
 import { run } from '@redocly/respect-core';
-import { Config } from '@redocly/openapi-core';
+import * as openapiCore from '@redocly/openapi-core';
 
 // Mock node:fs
 vi.mock('node:fs', async () => {
@@ -52,7 +52,7 @@ describe('handleRespect', () => {
     vi.clearAllMocks();
   });
   it('should call run with the correct arguments', async () => {
-    const mockConfig = new Config({});
+    const mockConfig = await openapiCore.createConfig({});
     const commandArgs = {
       argv: {
         files: ['test.arazzo.yaml'],
