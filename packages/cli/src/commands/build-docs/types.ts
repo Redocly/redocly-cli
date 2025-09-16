@@ -7,9 +7,9 @@ export type BuildDocsOptions = {
   disableGoogleFont?: boolean;
   port?: number;
   templateFileName?: string;
-  templateOptions?: any;
+  templateOptions?: Record<string, unknown>;
   redocOptions?: any;
-  redocCurrentVersion: string;
+  redocVersion: string;
 };
 
 export type BuildDocsArgv = {
@@ -18,8 +18,10 @@ export type BuildDocsArgv = {
   title?: string;
   disableGoogleFont?: boolean;
   template?: string;
-  templateOptions: Record<string, any>;
+  templateOptions: Record<string, unknown>;
   theme: {
     openapi: string | Record<string, unknown>;
   };
+  openapi: string | Record<string, unknown>;
+  inlineBundle: boolean;
 } & VerifyConfigOptions;

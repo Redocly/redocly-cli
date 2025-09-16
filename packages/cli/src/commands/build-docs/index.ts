@@ -1,12 +1,12 @@
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import { isAbsoluteUrl, loadConfig, logger, bundle, detectSpec } from '@redocly/openapi-core';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { exitWithError } from '../../utils/error.js';
+import { convertSwagger2OpenAPI } from 'redoc';
 
 import type { BuildDocsArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -28,23 +28,32 @@ export const handlerBuildCommand = async ({
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.theme?.openapi, config.forAlias(alias)),
+    redocOptions: getObjectOrJSON(argv.openapi || argv.theme?.openapi, config.forAlias(alias)),
   };
 
-  const redocCurrentVersion = packageJson.dependencies.redoc;
+  const redocVersion = packageJson.dependencies.redoc || 'latest';
 
   try {
     const elapsed = getExecutionTime(startedAt);
+    const config = await loadConfig({ configPath: argv.config });
+    const {
+      bundle: { parsed },
+    } = await bundle({
+      config,
+      ref: isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi),
+    });
+    const specVersion = detectSpec(parsed);
+    const openapiDescription =
+      specVersion === 'oas2' ? convertSwagger2OpenAPI(parsed as Record<string, unknown>) : parsed;
 
-    const api = await redoc.loadAndBundleSpec(
-      isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi)
-    );
-    collectSpecData?.(api);
+    logger.info(`✅  OpenAPI definition loaded and bundled in [⏱ ${elapsed}].\n`);
+
+    collectSpecData?.(openapiDescription);
     const pageHTML = await getPageHTML(
-      api,
-      pathToApi,
-      { ...options, redocCurrentVersion },
-      argv.config
+      openapiDescription,
+      { ...options, redocVersion },
+      argv.config,
+      argv.inlineBundle
     );
 
     mkdirSync(dirname(options.output), { recursive: true });
