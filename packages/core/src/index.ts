@@ -1,6 +1,4 @@
 export {
-  type CollectFn,
-  type Exact,
   keysOf,
   readFileFromUrl,
   slash,
@@ -13,6 +11,8 @@ export {
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
+  type CollectFn,
+  type Exact,
 } from './utils.js';
 export { dequal } from './utils/dequal.js';
 export { Oas3_1Types } from './types/oas3_1.js';
@@ -22,6 +22,100 @@ export { Oas2Types } from './types/oas2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
+export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
+export { Stats } from './rules/other/stats.js';
+export {
+  loadConfig,
+  createConfig,
+  findConfig,
+  resolvePlugins,
+  ConfigValidationError,
+  Config, // FIXME: export it as a type
+  type RawUniversalConfig,
+  type RawUniversalApiConfig,
+  type ResolvedConfig,
+  type ResolvedApiConfig,
+  type Plugin,
+  type RuleConfig,
+  type RuleSeverity,
+} from './config/index.js';
+export * from './config/constants.js';
+export {
+  Source,
+  BaseResolver,
+  Document,
+  ResolveError,
+  YamlParseError,
+  resolveDocument,
+  makeDocumentFromString,
+  type ResolvedRefMap,
+} from './resolve.js';
+export { parseYaml, stringifyYaml } from './js-yaml/index.js';
+export {
+  unescapePointer,
+  isRef,
+  isAbsoluteUrl,
+  escapePointer,
+  type Location,
+} from './ref-utils.js';
+export {
+  detectSpec,
+  getMajorSpecVersion,
+  getTypes,
+  type SpecVersion,
+  type SpecMajorVersion,
+} from './oas-types.js';
+export {
+  normalizeVisitors,
+  type Oas3Visitor,
+  type Oas2Visitor,
+  type Async2Visitor,
+  type Async3Visitor,
+  type Arazzo1Visitor,
+  type Overlay1Visitor,
+  type Oas3Rule,
+  type Oas2Rule,
+  type Async2Rule,
+  type Async3Rule,
+  type Arazzo1Rule,
+  type Overlay1Rule,
+  type Oas3Decorator,
+  type Oas2Decorator,
+  type Async2Decorator,
+  type Async3Decorator,
+  type Arazzo1Decorator,
+  type Overlay1Decorator,
+  type Oas3Preprocessor,
+  type Oas2Preprocessor,
+  type Async2Preprocessor,
+  type Async3Preprocessor,
+  type Arazzo1Preprocessor,
+  type Overlay1Preprocessor,
+} from './visitors.js';
+export {
+  WalkContext,
+  NormalizedProblem,
+  ProblemSeverity,
+  LineColLocationObject,
+  LocationObject,
+  Loc,
+  walkDocument,
+  type UserContext,
+} from './walk.js';
+export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
+export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
+export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export {
+  bundle,
+  bundleDocument,
+  mapTypeToComponent,
+  bundleFromString,
+  type BundleResult,
+} from './bundle.js';
+export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
+export { logger, type LoggerInterface } from './logger.js';
+export { HandledError } from './utils/error.js';
+export { isBrowser } from './env.js';
 
 export type {
   Oas3Definition,
@@ -61,104 +155,3 @@ export type {
   ResolvedSecurity,
 } from './typings/arazzo.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
-export { type NormalizedNodeType, type NodeType, normalizeTypes } from './types/index.js';
-export { Stats } from './rules/other/stats.js';
-
-export {
-  type RawUniversalConfig,
-  type RawUniversalApiConfig,
-  type ResolvedConfig,
-  type ResolvedApiConfig,
-  type Plugin,
-  type RuleConfig,
-  Config, // FIXME: export it as a type
-  IGNORE_FILE,
-  loadConfig,
-  findConfig,
-  CONFIG_FILE_NAME,
-  type RuleSeverity,
-  createConfig,
-  ConfigValidationError,
-  resolvePlugins,
-} from './config/index.js';
-
-export {
-  type ResolvedRefMap,
-  Source,
-  BaseResolver,
-  Document,
-  resolveDocument,
-  ResolveError,
-  YamlParseError,
-  makeDocumentFromString,
-} from './resolve.js';
-export { parseYaml, stringifyYaml } from './js-yaml/index.js';
-export {
-  unescapePointer,
-  isRef,
-  isAbsoluteUrl,
-  escapePointer,
-  type Location,
-} from './ref-utils.js';
-export {
-  type SpecMajorVersion,
-  getMajorSpecVersion,
-  type SpecVersion,
-  detectSpec,
-  getTypes,
-} from './oas-types.js';
-export {
-  normalizeVisitors,
-  type Oas3Visitor,
-  type Oas2Visitor,
-  type Async2Visitor,
-  type Async3Visitor,
-  type Arazzo1Visitor,
-  type Overlay1Visitor,
-  type Oas3Rule,
-  type Oas2Rule,
-  type Async2Rule,
-  type Async3Rule,
-  type Arazzo1Rule,
-  type Overlay1Rule,
-  type Oas3Decorator,
-  type Oas2Decorator,
-  type Async2Decorator,
-  type Async3Decorator,
-  type Arazzo1Decorator,
-  type Overlay1Decorator,
-  type Oas3Preprocessor,
-  type Oas2Preprocessor,
-  type Async2Preprocessor,
-  type Async3Preprocessor,
-  type Arazzo1Preprocessor,
-  type Overlay1Preprocessor,
-} from './visitors.js';
-
-export {
-  WalkContext,
-  walkDocument,
-  NormalizedProblem,
-  ProblemSeverity,
-  LineColLocationObject,
-  LocationObject,
-  Loc,
-  type UserContext,
-} from './walk.js';
-
-export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
-export { formatProblems, OutputFormat, getTotals, Totals } from './format/format.js';
-export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export {
-  type BundleResult,
-  bundle,
-  bundleDocument,
-  mapTypeToComponent,
-  bundleFromString,
-} from './bundle.js';
-
-export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
-
-export { logger, type LoggerInterface } from './logger.js';
-export { HandledError } from './utils/error.js';
-export { isBrowser } from './env.js';
