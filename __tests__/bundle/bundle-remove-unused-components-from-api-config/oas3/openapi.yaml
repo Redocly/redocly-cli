@@ -16,11 +16,6 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/UsedComponent'
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: 'ref.yaml'
   /internal-endpoint:
     get:
       description: Internal endpoint (will be removed by remove-x-internal)
@@ -35,16 +30,12 @@ paths:
                 properties:
                   internal:
                     $ref: '#/components/schemas/InternalComponent'
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: 'ref.yaml'
+
 components:
   schemas:
     UsedComponent:
-      $ref: '../schemas/used-component.yaml#/UsedComponent'
+      type: string
     InternalComponent:
-      $ref: '../schemas/internal-component.yaml#/InternalComponent'
+      type: string
     UnusedComponent:
-      $ref: '../schemas/unused-component.yaml#/UnusedComponent'
+      type: string

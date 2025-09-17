@@ -16,30 +16,9 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/UsedComponent'
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ref'
 components:
   schemas:
     UsedComponent:
-      type: object
-      description: A component that is used in the public API endpoint
-      properties:
-        type:
-          type: string
-          enum:
-            - active
-        name:
-          type: string
-          description: The name of the component
-          example: ActiveComponent
-        references:
-          type: integer
-          description: Number of references to this component
-          example: 1
-    ref:
       type: string
 
 bundling openapi.yaml...
