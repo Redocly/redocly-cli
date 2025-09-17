@@ -1,0 +1,7 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    decorators:
+      remove-unused-components: off
+decorators:
+  remove-unused-components: on
