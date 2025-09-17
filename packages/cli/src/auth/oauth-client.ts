@@ -5,8 +5,9 @@ import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { logger } from '@redocly/openapi-core';
 import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
+import { isValidReuniteUrl } from '../reunite/api/domains.js';
 
-const CREDENTIAL_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
+const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';
 
 export class RedoclyOAuthClient {
@@ -24,7 +25,7 @@ export class RedoclyOAuthClient {
     this.credentialsFileName = 'credentials';
     this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
 
-    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIAL_SALT}`).digest();
+    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIALS_SALT}`).digest();
     this.iv = crypto.createHash('md5').update(homeDirPath).digest();
 
     mkdirSync(this.credentialsFolderPath, { recursive: true });
@@ -63,7 +64,11 @@ export class RedoclyOAuthClient {
     const deviceFlow = new RedoclyOAuthDeviceFlow(reuniteUrl);
     const credentials = await this.readCredentials();
 
-    if (!credentials) {
+    if (
+      !credentials ||
+      !isValidReuniteUrl(reuniteUrl) ||
+      (credentials.residency && credentials.residency !== reuniteUrl)
+    ) {
       return null;
     }
 
