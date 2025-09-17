@@ -536,8 +536,41 @@ describe('E2E', () => {
       );
     });
 
-    describe('bundle with option in api config: remove-unused-components', () => {
-      test.each(['oas2', 'oas3'])('%s: should remove unused components', async (type) => {
+    test.each(['oas2-without-option', 'oas3-without-option'])(
+      "%s: shouldn't remove unused components",
+      async (type) => {
+        const testPath = join(
+          __dirname,
+          `bundle/bundle-remove-unused-components-from-config/${type}`
+        );
+        const entryPoints = getEntrypoints(testPath);
+        const args = [indexEntryPoint, 'bundle', ...entryPoints];
+        const result = getCommandOutput(args, {}, { testPath });
+        await expect(cleanupOutput(result)).toMatchFileSnapshot(
+          join(testPath, 'without-remove-unused-components-snapshot.txt')
+        );
+      }
+    );
+  });
+
+  describe('bundle with option in api config: remove-unused-components', () => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', async (type) => {
+      const testPath = join(
+        __dirname,
+        `bundle/bundle-remove-unused-components-from-api-config/${type}`
+      );
+      const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
+      const result = getCommandOutput(args, {}, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(
+        join(testPath, 'remove-unused-components-snapshot.txt')
+      );
+    });
+  });
+
+  describe('bundle without option in api config: do not remove unused components', () => {
+    test.each(['oas2-without-option', 'oas3-without-option'])(
+      '%s: should not remove unused components',
+      async (type) => {
         const testPath = join(
           __dirname,
           `bundle/bundle-remove-unused-components-from-api-config/${type}`
@@ -545,27 +578,10 @@ describe('E2E', () => {
         const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
         const result = getCommandOutput(args, {}, { testPath });
         await expect(cleanupOutput(result)).toMatchFileSnapshot(
-          join(testPath, 'remove-unused-components-snapshot.txt')
+          join(testPath, 'keep-unused-components-snapshot.txt')
         );
-      });
-    });
-
-    describe('bundle without option in api config: do not remove unused components', () => {
-      test.each(['oas2-without-option', 'oas3-without-option'])(
-        '%s: should not remove unused components',
-        async (type) => {
-          const testPath = join(
-            __dirname,
-            `bundle/bundle-remove-unused-components-from-api-config/${type}`
-          );
-          const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
-          const result = getCommandOutput(args, {}, { testPath });
-          await expect(cleanupOutput(result)).toMatchFileSnapshot(
-            join(testPath, 'keep-unused-components-snapshot.txt')
-          );
-        }
-      );
-    });
+      }
+    );
   });
 
   describe('bundle with option: dereferenced', () => {
