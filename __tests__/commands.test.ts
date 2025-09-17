@@ -604,7 +604,7 @@ describe('E2E', () => {
       );
     });
 
-    test('oas3-with-decorator-off: should not remove unused components in api level', async () => {
+    test('oas3-with-decorator-off: should not remove unused components in the first api, but remove in the second', async () => {
       const testPath = join(
         __dirname,
         'bundle/bundle-remove-unused-components-from-api-config/oas3-with-decorator-off'
