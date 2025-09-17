@@ -14,6 +14,7 @@ import {
   formatPath,
 } from '../utils/miscellaneous.js';
 import { AbortFlowError } from '../utils/error.js';
+import { shouldRemoveUnusedComponents } from '../utils/should-remove-unused-components.js';
 
 import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
@@ -45,13 +46,16 @@ export async function handleBundle({
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
-  for (const { path, alias, output, decorators } of apis) {
+  for (const { path, alias, output } of apis) {
     try {
       const startedAt = performance.now();
       const aliasConfig = config.forAlias(alias);
-      const removeUnusedComponentsForApi = decorators?.hasOwnProperty('remove-unused-components');
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
+      const removeUnusedComponentsForThisApi = shouldRemoveUnusedComponents(
+        aliasConfig,
+        removeUnusedComponentsRoot
+      );
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
@@ -63,7 +67,7 @@ export async function handleBundle({
         ref: path,
         config: aliasConfig,
         dereference: argv.dereferenced,
-        removeUnusedComponents: removeUnusedComponentsRoot || removeUnusedComponentsForApi,
+        removeUnusedComponents: removeUnusedComponentsForThisApi,
         keepUrlRefs: argv['keep-url-references'],
         collectSpecData,
       });

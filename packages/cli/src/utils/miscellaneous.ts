@@ -66,14 +66,11 @@ function isApiPathValid(apiPath: string): string | void {
 }
 
 function fallbackToAllDefinitions(config: Config): Entrypoint[] {
-  return Object.entries(config.resolvedConfig.apis || {}).map(
-    ([alias, { root, output, decorators }]) => ({
-      path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
-      alias,
-      output: output && resolve(getConfigDirectory(config), output),
-      decorators,
-    })
-  );
+  return Object.entries(config.resolvedConfig.apis || {}).map(([alias, { root, output }]) => ({
+    path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
+    alias,
+    output: output && resolve(getConfigDirectory(config), output),
+  }));
 }
 
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
