@@ -33,6 +33,16 @@ export const getReuniteUrl = withHttpsValidation(
   }
 );
 
+export function isValidReuniteUrl(reuniteUrl: string): boolean {
+  try {
+    getReuniteUrl(undefined, reuniteUrl);
+  } catch {
+    return false;
+  }
+
+  return true;
+}
+
 function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
   return (...args: Parameters<Fn>) => {
     const url = fn(...args);

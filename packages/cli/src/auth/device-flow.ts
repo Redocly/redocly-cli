@@ -8,7 +8,7 @@ export type Credentials = {
   access_token: string;
   refresh_token: string;
   expires_in: number;
-  residency?: string;
+  residency?: string; // injected by RedoclyOAuthDeviceFlow to preserve credentials with custom residency
   token_type?: string; // from login response
 };
 
