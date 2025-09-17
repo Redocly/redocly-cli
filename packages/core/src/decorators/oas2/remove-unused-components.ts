@@ -61,6 +61,8 @@ export const RemoveUnusedComponents: Oas2Decorator = () => {
           if (!resolvedRef.location) return;
 
           const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
+          if (!localPointer) return;
+
           const componentLevelLocalPointer = localPointer.split('/').slice(0, 3).join('/');
           const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
