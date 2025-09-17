@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.1.4
+
+### Patch Changes
+
+- Fixed undefined variable used in the `remove-unused-components` decorator, which prevented an invalid reference error from being reported.
+
 ## 2.1.3
 
 ### Patch Changes
