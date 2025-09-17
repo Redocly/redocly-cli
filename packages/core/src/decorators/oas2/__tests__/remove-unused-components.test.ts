@@ -1,6 +1,7 @@
+import * as path from 'node:path';
 import { outdent } from 'outdent';
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
-import { bundleDocument } from '../../../bundle.js';
+import { bundleDocument, bundle } from '../../../bundle.js';
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 
@@ -225,5 +226,17 @@ describe('oas2 remove-unused-components', () => {
         },
       },
     });
+  });
+
+  it('should report invalid ref errors', async () => {
+    const { problems } = await bundle({
+      ref: path.join(__dirname, 'fixtures/handle-invalid-ref/swagger.yaml'),
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0].ruleId).toEqual('bundler');
+    expect(problems[0].message).toEqual("Can't resolve $ref");
   });
 });
