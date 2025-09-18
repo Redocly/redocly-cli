@@ -128,13 +128,15 @@ export async function runWorkflow({
   }
 
   const workflowInputSchema = workflow.inputs;
-  const inputs = ctx.$workflows[workflow.workflowId].inputs;
+  if (workflowInputSchema) {
+    const inputs = ctx.$workflows[workflow.workflowId].inputs;
 
-  ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
-    inputs,
-    workflowInputSchema,
-    env: ctx.options.envVariables,
-  });
+    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
+      inputs,
+      workflowInputSchema,
+      env: ctx.options.envVariables,
+    });
+  }
 
   const workflowId = workflow.workflowId;
 
