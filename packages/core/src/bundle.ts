@@ -17,6 +17,7 @@ import {
   pluginsCollectorVisitor,
   PLUGINS_COLLECTOR_VISITOR_ID,
 } from './config/visitors.js';
+import { isRemoveUnusedComponentsEnabled } from './decorators/common/removed-unused-components.js';
 
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
 import type { Plugin, ResolvedConfig } from './config/types.js';
@@ -33,7 +34,7 @@ export type CoreBundleOptions = {
   config: Config;
   dereference?: boolean;
   base?: string | null;
-  removeUnusedComponents?: boolean;
+  removeUnusedComponentsRoot?: boolean;
   keepUrlRefs?: boolean;
 };
 
@@ -154,7 +155,7 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
-  removeUnusedComponents?: boolean;
+  removeUnusedComponentsRoot?: boolean;
   keepUrlRefs?: boolean;
 }): Promise<BundleResult> {
   const {
@@ -163,7 +164,7 @@ export async function bundleDocument(opts: {
     customTypes,
     externalRefResolver,
     dereference = false,
-    removeUnusedComponents = false,
+    removeUnusedComponentsRoot = false,
     keepUrlRefs = false,
   } = opts;
   const specVersion = detectSpec(document.parsed);
@@ -176,6 +177,11 @@ export async function bundleDocument(opts: {
 
   const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
   const decorators = initRules(rules, config, 'decorators', specVersion);
+  const removeUnusedComponentsInApi = config.decorators[specVersion]['remove-unused-components'];
+  const removeUnusedComponents = isRemoveUnusedComponentsEnabled({
+    removeInApi: removeUnusedComponentsInApi,
+    removeInRoot: removeUnusedComponentsRoot,
+  });
 
   const ctx: BundleContext = {
     problems: [],

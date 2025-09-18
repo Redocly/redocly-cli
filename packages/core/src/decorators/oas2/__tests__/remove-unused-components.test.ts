@@ -40,7 +40,7 @@ describe('oas2 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
@@ -113,7 +113,7 @@ describe('oas2 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
@@ -194,7 +194,7 @@ describe('oas2 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({

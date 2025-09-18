@@ -44,7 +44,7 @@ describe('oas3 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
@@ -123,7 +123,7 @@ describe('oas3 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
@@ -206,7 +206,7 @@ describe('oas3 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
@@ -241,11 +241,11 @@ describe('oas3 remove-unused-components', () => {
         paths:
           /pets:
             get:
-              responses: 
+              responses:
                 200:
-                  content: 
-                    application/json: 
-                      schema: 
+                  content:
+                    application/json:
+                      schema:
                         $ref: "#/components/schemas/Transitive2"
         components:
           schemas:
@@ -272,7 +272,7 @@ describe('oas3 remove-unused-components', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({}),
-      removeUnusedComponents: true,
+      removeUnusedComponentsRoot: true,
     });
 
     expect(results.bundle.parsed).toEqual({
