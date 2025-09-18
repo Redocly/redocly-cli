@@ -2,8 +2,9 @@ import { logger } from '@redocly/openapi-core';
 
 import type { StepCallContext, TestContext } from '../../../../types.js';
 
-import { CHECKS, checkSchema } from '../../../flow-runner/index.js';
+import { CHECKS, checkSchema, statusCodeDiff } from '../../../flow-runner/index.js';
 import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
+import { cleanColors } from '../../../../utils/clean-colors.js';
 
 describe('checkSchema', () => {
   const stepCallCtx = {
@@ -500,5 +501,25 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
+  });
+});
+
+describe('statusCodeDiff', () => {
+  it('should return the correct diff', () => {
+    expect(cleanColors(statusCodeDiff(200, [200, 201]))).toBe(
+      'Expected value to be in the list:\n  200, 201\nReceived:\n  200'
+    );
+  });
+
+  it('should return the correct diff when the actual value is not in the expected list', () => {
+    expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
+      'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
+    );
+  });
+
+  it('should return the correct diff when the actual value is not in the expected list', () => {
+    expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
+      'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
+    );
   });
 });
