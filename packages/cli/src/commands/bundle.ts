@@ -14,6 +14,7 @@ import {
   formatPath,
 } from '../utils/miscellaneous.js';
 import { AbortFlowError } from '../utils/error.js';
+import { isRemoveUnusedComponentsEnabled } from '../utils/remove-unused-components.js';
 
 import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
@@ -38,10 +39,6 @@ export async function handleBundle({
   version,
   collectSpecData,
 }: CommandArgs<BundleArgv>) {
-  const removeUnusedComponentsRoot =
-    argv['remove-unused-components'] ||
-    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components');
-
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
@@ -51,6 +48,10 @@ export async function handleBundle({
       const aliasConfig = config.forAlias(alias);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
+      const removeUnusedComponents = isRemoveUnusedComponentsEnabled({
+        removeInApi: aliasConfig.resolvedConfig.decorators?.['remove-unused-components'],
+        removeInRoot: !!argv['remove-unused-components'],
+      });
 
       logger.info(gray(`bundling ${formatPath(path)}...\n`));
 
@@ -62,7 +63,7 @@ export async function handleBundle({
         ref: path,
         config: aliasConfig,
         dereference: argv.dereferenced,
-        removeUnusedComponentsRoot,
+        removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
         collectSpecData,
       });
