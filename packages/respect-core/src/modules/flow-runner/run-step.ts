@@ -89,10 +89,17 @@ export async function runStep({
       const workflowInputParameters = resolvedParameters
         .filter(isParameterWithoutIn)
         .reduce((acc, parameter: ParameterWithoutIn) => {
+          const ctxWithInputs = {
+            ...ctx,
+            $inputs: {
+              ...(ctx.$inputs || {}),
+              ...(workflowId ? ctx.$workflows[workflowId]?.inputs || {} : {}),
+            },
+          };
           // Ensure parameter is of type ParameterWithoutIn
           acc[parameter.name] = getValueFromContext({
             value: parameter.value,
-            ctx,
+            ctx: ctxWithInputs,
             logger: ctx.options.logger,
           });
           return acc;
