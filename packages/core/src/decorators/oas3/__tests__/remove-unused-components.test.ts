@@ -264,6 +264,7 @@ describe('oas3 remove-unused-components', () => {
                 link:
                   $ref: '#/components/schemas/Used'
         `,
+
       'foobar.yaml'
     );
 
