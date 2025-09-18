@@ -168,6 +168,7 @@ export async function runWorkflow({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
+      ctx.executedSteps.push(step);
     }
   }
 

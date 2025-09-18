@@ -40,6 +40,12 @@ exports[`should use server override from CLI and env 1`] = `
 
   Failed tests info:
 
+  Workflow name: get-museum-hours
+
+    stepId - buy-ticket
+    ✗ unexpected error
+    Reason: Failed to resolve output "ticketId" in workflow "get-museum-tickets": Error in resolving runtime expression '$steps.buy-tickets.outputs.ticketId'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
   Workflow name: events-crud
 
     stepId - list-events
@@ -48,16 +54,16 @@ exports[`should use server override from CLI and env 1`] = `
       
   Summary for server-override-with-console-parameters.arazzo.yaml
   
-  Workflows: 1 passed, 1 failed, 2 total
-  Steps: 1 failed, 1 total
-  Checks: 1 failed, 1 total
+  Workflows: 2 failed, 2 total
+  Steps: 2 failed, 2 total
+  Checks: 2 failed, 2 total
   Time: <test>ms
 
 
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├─────────────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x server-override-with-console-parameters.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
+│ x server-override-with-console-parameters.arazzo.yaml                                       │ 2          │ 0       │ 2       │ -        │
 └─────────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
 
 
