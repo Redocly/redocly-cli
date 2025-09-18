@@ -105,7 +105,11 @@ export async function runStep({
           return acc;
         }, {} as Record<string, any>);
 
-      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = workflowInputParameters;
+      // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
+      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
+        ...workflowCtx.$workflows[targetWorkflow.workflowId].inputs,
+        ...workflowInputParameters,
+      };
     }
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
