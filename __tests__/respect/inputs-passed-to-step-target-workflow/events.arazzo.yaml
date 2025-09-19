@@ -1,0 +1,62 @@
+arazzo: 1.0.1
+info:
+  title: Apply inputs from parent step to steps in target workflow
+  description: >-
+    Testing functionality of applying inputs from parent step to steps in target workflow
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../museum-api.yaml
+
+workflows:
+  - workflowId: events-crud
+    description: >-
+      This workflow demonstrates how to list, create, update, and delete special events at the museum.
+    parameters:
+      - in: header
+        name: Authorization
+        value: $inputs.env.AUTH_TOKEN
+      - in: header
+        name: multi-word-secret
+        value: composed {$inputs.env.AUTH_TOKEN}
+    inputs:
+      type: object
+      properties:
+        PROJECT_CLIENT_ID:
+          type: string
+        PROJECT_CLIENT_SECRET:
+          type: string
+        PROJECT_SUBSCRIPTION_KEY:
+          type: string
+        custom_price:
+          type: number
+        env:
+          type: object
+          properties:
+            AUTH_TOKEN:
+              type: string
+              format: password
+    steps:
+      - stepId: create-event
+        description: >-
+          Create a new special event.
+        operationPath: '{$sourceDescriptions.museum-api.url}#/paths/~1special-events/post'
+        requestBody:
+          payload:
+            PROJECT_CLIENT_ID: $inputs.PROJECT_CLIENT_ID
+            PROJECT_CLIENT_SECRET: $inputs.PROJECT_CLIENT_SECRET
+            PROJECT_SUBSCRIPTION_KEY: $inputs.PROJECT_SUBSCRIPTION_KEY
+            name: 'Mermaid Treasure Identification and Analysis'
+            location: 'Under the seaaa 🦀 🎶 🌊.'
+            eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.'
+            dates:
+              - '2023-09-05'
+              - '2023-09-08'
+            price: $inputs.custom_price
+        successCriteria:
+          - condition: $statusCode == 201
+          - context: $response.body
+            condition: $.name == 'Mermaid Treasure Identification and Analysis'
+            type: jsonpath
