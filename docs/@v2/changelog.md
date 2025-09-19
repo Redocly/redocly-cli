@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.1.5 (2025-09-19)
+
+### Patch Changes
+
+- Improved the message format for Respect's `status code check`.
+- Fixed handling of input parameters when invoking step target workflows in Respect.
+- Updated @redocly/respect-core to v2.1.5.
+
 ## 2.1.4 (2025-09-17)
 
 ### Patch Changes
