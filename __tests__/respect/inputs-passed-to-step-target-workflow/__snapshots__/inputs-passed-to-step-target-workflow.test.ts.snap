@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should pass inputs to step target workflow with additional input parameter from parent step 1`] = `
+"────────────────────────────────────────────────────────────────────────────────
+
+  Running workflow inputs-passed-to-step-target-workflow.arazzo.yaml / inputs-passed-to-step-target-workflow
+
+  Running child workflow for the step health-workflow
+  Running workflow events.arazzo.yaml / events-crud
+
+  ✓ POST /special-events - step create-event
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
+    Request Headers:
+      content-type: application/json
+      accept: application/json, application/problem+json
+      authorization: ********
+      multi-word-secret: composed ********
+    Request Body:
+      {
+        "PROJECT_CLIENT_ID": "0000001",
+        "PROJECT_CLIENT_SECRET": "PROJECT_CLIENT_SECRET",
+        "PROJECT_SUBSCRIPTION_KEY": "PROJECT_SUBSCRIPTION_KEY",
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 800
+      }
+
+
+    Response status code: 201
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Body:
+      {
+        "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",
+        "name": "Mermaid Treasure Identification and Analysis",
+        "location": "Under the seaaa 🦀 🎶 🌊.",
+        "eventDescription": "Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.",
+        "dates": [
+          "2023-09-05",
+          "2023-09-08"
+        ],
+        "price": 800
+      }
+
+    ✓ success criteria check - $statusCode == 201
+    ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
+    ✓ status code check - $statusCode in [201, 400, 404]
+    ✓ content-type check
+    ✓ schema check
+
+
+
+  Summary for inputs-passed-to-step-target-workflow.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 5 passed, 5 total
+  Time: <test>ms
+
+
+┌───────────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                                  │ Workflows  │ Passed  │ Failed  │ Warnings │
+├───────────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ inputs-passed-to-step-target-workflow.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└───────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+
+
+"
+`;

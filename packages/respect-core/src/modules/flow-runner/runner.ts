@@ -11,7 +11,7 @@ import {
 } from '../logger-output/helpers.js';
 import { bundleArazzo } from './get-test-description-from-file.js';
 import { CHECKS } from '../checks/index.js';
-import { createRuntimeExpressionCtx } from './context/index.js';
+import { createRuntimeExpressionCtx, mergeWorkflowInputs } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { calculateTotals } from '../logger-output/index.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
@@ -127,6 +127,17 @@ export async function runWorkflow({
     throw new Error(`\n ${blue('Workflow')} ${workflowInput} ${blue('not found')} \n`);
   }
 
+  const workflowInputSchema = workflow.inputs;
+  if (workflowInputSchema) {
+    const inputs = ctx.$workflows[workflow.workflowId].inputs;
+
+    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
+      inputs,
+      workflowInputSchema,
+      env: ctx.options.envVariables,
+    });
+  }
+
   const workflowId = workflow.workflowId;
 
   if (!fromStepId) {
@@ -168,6 +179,7 @@ export async function runWorkflow({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCall);
+      ctx.executedSteps.push(step);
     }
   }
 

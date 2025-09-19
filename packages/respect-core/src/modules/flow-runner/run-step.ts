@@ -89,16 +89,27 @@ export async function runStep({
       const workflowInputParameters = resolvedParameters
         .filter(isParameterWithoutIn)
         .reduce((acc, parameter: ParameterWithoutIn) => {
+          const ctxWithInputs = {
+            ...ctx,
+            $inputs: {
+              ...(ctx.$inputs || {}),
+              ...(workflowId ? ctx.$workflows[workflowId]?.inputs || {} : {}),
+            },
+          };
           // Ensure parameter is of type ParameterWithoutIn
           acc[parameter.name] = getValueFromContext({
             value: parameter.value,
-            ctx,
+            ctx: ctxWithInputs,
             logger: ctx.options.logger,
           });
           return acc;
         }, {} as Record<string, any>);
 
-      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = workflowInputParameters;
+      // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
+      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
+        ...workflowCtx.$workflows[targetWorkflow.workflowId].inputs,
+        ...workflowInputParameters,
+      };
     }
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);

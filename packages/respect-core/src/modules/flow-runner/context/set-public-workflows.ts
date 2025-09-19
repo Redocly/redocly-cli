@@ -16,25 +16,7 @@ export function getPublicWorkflows({
 
   for (const workflow of workflows) {
     const workflowInputSchema = workflow.inputs;
-
-    let resolvedInputs = {};
-    let resolvedDotEnvInputs = {};
-
-    if (workflowInputSchema) {
-      resolvedInputs = resolveInputValuesToSchema(inputs, workflowInputSchema as InputSchema);
-    }
-
-    if (workflowInputSchema?.properties?.env) {
-      resolvedDotEnvInputs = resolveInputValuesToSchema(
-        env || {},
-        workflowInputSchema.properties.env as InputSchema
-      );
-    }
-
-    const mergedInputs =
-      Object.keys(resolvedDotEnvInputs).length > 0
-        ? { ...resolvedInputs, env: resolvedDotEnvInputs }
-        : resolvedInputs;
+    const mergedInputs = mergeWorkflowInputs({ inputs, workflowInputSchema, env });
 
     publicWorkflows[workflow.workflowId] = {
       steps: getPublicSteps(workflow.steps || []),
@@ -44,4 +26,32 @@ export function getPublicWorkflows({
   }
 
   return publicWorkflows;
+}
+
+export function mergeWorkflowInputs({
+  inputs,
+  workflowInputSchema,
+  env,
+}: {
+  inputs: Record<string, string> | undefined;
+  workflowInputSchema: InputSchema | undefined;
+  env: Record<string, string> | undefined;
+}) {
+  let resolvedInputs = {};
+  let resolvedDotEnvInputs = {};
+
+  if (workflowInputSchema) {
+    resolvedInputs = resolveInputValuesToSchema(inputs, workflowInputSchema as InputSchema);
+  }
+
+  if (workflowInputSchema?.properties?.env) {
+    resolvedDotEnvInputs = resolveInputValuesToSchema(
+      env || {},
+      workflowInputSchema.properties.env as InputSchema
+    );
+  }
+
+  return Object.keys(resolvedDotEnvInputs).length > 0
+    ? { ...resolvedInputs, env: resolvedDotEnvInputs }
+    : resolvedInputs;
 }

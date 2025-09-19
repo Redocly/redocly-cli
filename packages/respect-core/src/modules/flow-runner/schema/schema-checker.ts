@@ -1,6 +1,5 @@
 import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
-import { diffLinesUnified } from 'jest-diff';
-import { blue, dim, red, yellow } from 'colorette';
+import { blue, dim, red, yellow, green } from 'colorette';
 import {
   type Check,
   type DescriptionChecks,
@@ -122,7 +121,7 @@ function checkStatusCodeFromDescription({
 
   const message = matchesCodeFromDescription
     ? dim(`List of valid response codes are inferred from description \n\n`) +
-      diffLinesUnified(responseCodesFromDescription.map(String), [`${responseStatusCode}`])
+      statusCodeDiff(`${responseStatusCode}`, responseCodesFromDescription.map(String))
     : ''; // NOTE: we don't show any diff if response code hits default response
 
   const passed = matchesCodeFromDescription || matchesDefaultResponse;
@@ -172,4 +171,14 @@ function checkContentTypeFromDescription({
       severity: ctx.severity['CONTENT_TYPE_CHECK'],
     });
   }
+}
+
+export function statusCodeDiff<E = unknown>(actual: unknown, expected: E[]) {
+  const pass = expected.includes(actual as E);
+  const expectedText = expected.join(', ');
+  const receivedText = String(actual);
+
+  return `Expected value to be in the list:\n  ${expectedText}\nReceived:\n  ${
+    pass ? green(receivedText) : red(receivedText)
+  }`;
 }
