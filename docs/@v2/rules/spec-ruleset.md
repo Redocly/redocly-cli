@@ -7,6 +7,7 @@ slug: /docs/cli/rules/spec
 This ruleset strictly follows the specifications.
 All the rules are of severity `error`:
 
+- [exclusive-minimum-maximum](./oas/exclusive-minimum-maximum.md)
 - [criteria-unique](./arazzo/criteria-unique.md)
 - [no-criteria-xpath](./respect/no-criteria-xpath.md)
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)

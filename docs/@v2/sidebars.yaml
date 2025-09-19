@@ -93,6 +93,7 @@
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
             - page: rules/oas/component-name-unique.md
+            - page: rules/oas/exclusive-minimum-maximum.md
             - page: rules/oas/info-contact.md
             - page: rules/oas/info-license.md
             - page: rules/oas/info-license-strict.md

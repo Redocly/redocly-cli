@@ -8,6 +8,7 @@ These are the rules in the `recommended` set, grouped by their severity.
 
 Errors:
 
+- [exclusive-minimum-maximum](./oas/exclusive-minimum-maximum.md)
 - [no-empty-servers](./oas/no-empty-servers.md)
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md)
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
