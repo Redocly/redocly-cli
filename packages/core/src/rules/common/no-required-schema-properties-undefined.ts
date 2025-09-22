@@ -6,6 +6,8 @@ import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { UserContext } from '../../walk.js';
 
+type anyVersionSchema = Oas3Schema | Oas3_1Schema | Oas2Schema;
+
 export const NoRequiredSchemaPropertiesUndefined:
   | Oas3Rule
   | Oas2Rule
@@ -14,17 +16,14 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Arazzo1Rule = () => {
   return {
     Schema: {
-      enter(
-        schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
-        { location, report, resolve }: UserContext
-      ) {
+      enter(schema: anyVersionSchema, { location, report, resolve }: UserContext) {
         if (!schema.required) return;
-        const visitedSchemas: Set<Oas3Schema | Oas3_1Schema | Oas2Schema> = new Set();
+        const visitedSchemas: Set<anyVersionSchema> = new Set();
 
         const elevateProperties = (
-          schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
+          schema: anyVersionSchema,
           from?: string
-        ): Record<string, Oas3Schema | Oas3_1Schema | Oas2Schema> => {
+        ): Record<string, anyVersionSchema> => {
           // Check if the schema has been visited before processing it
           if (visitedSchemas.has(schema)) {
             return {};
@@ -34,7 +33,7 @@ export const NoRequiredSchemaPropertiesUndefined:
           if (isRef(schema)) {
             const resolved = resolve(schema, from);
             return elevateProperties(
-              resolved.node as Oas3Schema | Oas3_1Schema | Oas2Schema,
+              resolved.node as anyVersionSchema,
               resolved.location?.source.absoluteRef
             );
           }
