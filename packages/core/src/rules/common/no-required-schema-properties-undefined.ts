@@ -16,7 +16,7 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Arazzo1Rule = () => {
   return {
     Schema: {
-      enter(schema: anyVersionSchema, { location, report, resolve }: UserContext) {
+      enter(schema: anyVersionSchema, { location, report, resolve, parents }: UserContext) {
         if (!schema.required) return;
         const visitedSchemas: Set<anyVersionSchema> = new Set();
 
@@ -31,7 +31,7 @@ export const NoRequiredSchemaPropertiesUndefined:
           visitedSchemas.add(schema);
 
           if (isRef(schema)) {
-            const resolved = resolve(schema, from);
+            const resolved = resolve<anyVersionSchema>(schema, from);
             return elevateProperties(
               resolved.node as anyVersionSchema,
               resolved.location?.source.absoluteRef
@@ -47,10 +47,24 @@ export const NoRequiredSchemaPropertiesUndefined:
           );
         };
 
+        const getGrandParentSchema = (): anyVersionSchema | undefined => {
+          if (!parents || parents.length < 2) return undefined;
+          const grandParent = parents[parents.length - 2];
+          return grandParent;
+        };
+
         const allProperties = elevateProperties(schema);
+        const grandParentSchema = getGrandParentSchema();
+        const grandParentProperties = grandParentSchema
+          ? elevateProperties(grandParentSchema)
+          : undefined;
 
         for (const [i, requiredProperty] of schema.required.entries()) {
-          if (!allProperties || getOwn(allProperties, requiredProperty) === undefined) {
+          if (
+            (!allProperties || getOwn(allProperties, requiredProperty) === undefined) &&
+            (!grandParentProperties ||
+              getOwn(grandParentProperties, requiredProperty) === undefined)
+          ) {
             report({
               message: `Required property '${requiredProperty}' is undefined.`,
               location: location.child(['required', i]),
