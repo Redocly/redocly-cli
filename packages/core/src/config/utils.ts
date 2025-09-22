@@ -156,3 +156,106 @@ export function isDeprecatedPluginFormat(plugin: ImportedPlugin | undefined): pl
 export function isCommonJsPlugin(plugin: ImportedPlugin | undefined): plugin is PluginCreator {
   return typeof plugin === 'function';
 }
+
+export function interpolateEnvVariables(value: string): {
+  interpolatedValue: string;
+  unsetVars: string[];
+  interpolatedVars: string[];
+} {
+  let interpolatedValue = value;
+  const missingEnvVars = new Set<string>();
+  const resolvedEnvVars = new Set<string>();
+  const matches = [...value.matchAll(/{{\s*process\.env\.([A-Z0-9_]+)\s*}}/gi)];
+
+  for (const match of matches) {
+    const envName = match[1].toUpperCase();
+    const envValue = process.env[envName];
+
+    if (envValue === undefined) {
+      missingEnvVars.add(envName);
+    } else {
+      interpolatedValue = interpolatedValue.replace(match[0], envValue);
+      resolvedEnvVars.add(envName);
+    }
+  }
+
+  return {
+    interpolatedValue,
+    unsetVars: Array.from(missingEnvVars),
+    interpolatedVars: Array.from(resolvedEnvVars),
+  };
+}
+
+export function replaceEnvVariablesDeep<T extends Record<string, unknown> | Array<unknown>>(
+  obj: T,
+  currentPath: string[] = []
+): {
+  resolvedObj: T;
+  unsetEnvVars: string[];
+  interpolatedEnvVars: string[];
+  replacedValues: Record<string, { original: string; replaced: string }>;
+} {
+  const unsetEnvVars = new Set<string>();
+  const interpolatedEnvVars = new Set<string>();
+  const replacedValues: Record<string, { original: string; replaced: string }> = {};
+
+  if (!isPlainObject(obj) && !Array.isArray(obj)) {
+    return {
+      resolvedObj: obj,
+      unsetEnvVars: Array.from(unsetEnvVars),
+      interpolatedEnvVars: Array.from(interpolatedEnvVars),
+      replacedValues,
+    };
+  }
+
+  const resolvedObj = Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+      const path = currentPath.concat(key);
+
+      if (typeof value === 'string') {
+        const { interpolatedValue, unsetVars, interpolatedVars } = interpolateEnvVariables(value);
+
+        (acc as Record<string, unknown>)[key] = interpolatedValue;
+
+        for (const unsetVar of unsetVars) {
+          unsetEnvVars.add(unsetVar);
+        }
+
+        for (const interpolatedVar of interpolatedVars) {
+          interpolatedEnvVars.add(interpolatedVar);
+        }
+
+        // If any variables were resolved, store the original and replaced values
+        if (interpolatedVars.length > 0) {
+          replacedValues[path.join(':')] = {
+            original: value,
+            replaced: interpolatedValue,
+          };
+        }
+      } else if (isPlainObject(value) || Array.isArray(value)) {
+        const result = replaceEnvVariablesDeep(value as T, path);
+        (acc as Record<string, unknown>)[key] = result.resolvedObj;
+
+        // Merge results from nested call
+        for (const unsetEnvVar of result.unsetEnvVars) {
+          unsetEnvVars.add(unsetEnvVar);
+        }
+        for (const interpolatedEnvVar of result.interpolatedEnvVars) {
+          interpolatedEnvVars.add(interpolatedEnvVar);
+        }
+        Object.assign(replacedValues, result.replacedValues);
+      } else {
+        (acc as Record<string, unknown>)[key] = value;
+      }
+      return acc;
+    },
+    Array.isArray(obj) ? ([] as unknown as T) : ({} as T)
+  );
+
+  return {
+    resolvedObj,
+    unsetEnvVars: Array.from(unsetEnvVars),
+    interpolatedEnvVars: Array.from(interpolatedEnvVars),
+    replacedValues,
+  };
+}

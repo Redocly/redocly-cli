@@ -14,6 +14,8 @@ import { NormalizedConfigTypes } from './types/redocly-yaml.js';
 import { type Config } from './config/config.js';
 import { configBundlerVisitor, pluginsCollectorVisitor } from './config/visitors.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './config/constants.js';
+import { replaceEnvVariablesDeep } from './config/utils.js';
+import { logger } from './logger.js';
 
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
 import type { Plugin, ResolvedConfig } from './config/types.js';
@@ -65,6 +67,22 @@ export function bundleConfig(
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
 ): ResolvedConfig {
+  if (document.parsed && typeof document.parsed === 'object') {
+    const { resolvedObj, unsetEnvVars, interpolatedEnvVars } = replaceEnvVariablesDeep(
+      document.parsed as Record<string, unknown>
+    );
+
+    if (unsetEnvVars.length > 0) {
+      logger.info(`⚠️ Warning: Unset environment variables found: ${unsetEnvVars.join(', ')}\n`);
+    }
+
+    if (interpolatedEnvVars.length > 0) {
+      logger.info(`⚙️ Environment variables interpolated: ${interpolatedEnvVars.join(', ')}\n`);
+    }
+
+    document.parsed = resolvedObj;
+  }
+
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
