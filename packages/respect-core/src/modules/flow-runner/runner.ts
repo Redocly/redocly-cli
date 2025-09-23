@@ -230,7 +230,6 @@ export async function runWorkflow({
   logger.printNewLine();
 
   const endTime = performance.now();
-  const workflowTotalTimeMs = calculateWorkflowTotalTimeMs(ctx.executedSteps);
 
   return {
     type: 'workflow',
@@ -239,7 +238,7 @@ export async function runWorkflow({
     stepId: parentStepId,
     startTime: workflowStartTime,
     endTime,
-    totalTimeMs: workflowTotalTimeMs,
+    totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
     executedSteps: ctx.executedSteps,
     ctx,
     globalTimeoutError: hasFailedTimeoutSteps,
