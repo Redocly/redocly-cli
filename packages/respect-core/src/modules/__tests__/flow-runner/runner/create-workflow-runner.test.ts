@@ -119,6 +119,7 @@ describe('runWorkflow', () => {
         filePath: fileName,
         logger,
       },
+      executedSteps: [],
     } as unknown as TestContext;
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
@@ -298,6 +299,7 @@ describe('runWorkflow', () => {
         logger,
       },
       $outputs: {},
+      executedSteps: [],
     } as unknown as TestContext;
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
@@ -352,6 +354,7 @@ describe('runWorkflow', () => {
         logger,
       },
       $outputs: {},
+      executedSteps: [],
     } as unknown as TestContext;
 
     await runWorkflow({
