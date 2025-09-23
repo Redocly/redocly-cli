@@ -28,6 +28,7 @@ import type {
   RunWorkflowInput,
   WorkflowExecutionResult,
   ExecutedStepsCount,
+  Step,
 } from '../../types.js';
 
 export async function runTestFile({
@@ -229,6 +230,7 @@ export async function runWorkflow({
   logger.printNewLine();
 
   const endTime = performance.now();
+  const workflowTotalTimeMs = calculateWorkflowTotalTimeMs(ctx.executedSteps);
 
   return {
     type: 'workflow',
@@ -237,7 +239,7 @@ export async function runWorkflow({
     stepId: parentStepId,
     startTime: workflowStartTime,
     endTime,
-    totalTimeMs: Math.ceil(endTime - workflowStartTime),
+    totalTimeMs: workflowTotalTimeMs,
     executedSteps: ctx.executedSteps,
     ctx,
     globalTimeoutError: hasFailedTimeoutSteps,
@@ -338,4 +340,24 @@ function findSourceDescriptionUrl(
       `Unknown source description type ${(sourceDescription as SourceDescription).type}`
     );
   }
+}
+
+function isWorkflowExecutionResult(
+  step: Step | WorkflowExecutionResult
+): step is WorkflowExecutionResult {
+  return 'type' in step && step.type === 'workflow';
+}
+
+function calculateWorkflowTotalTimeMs(executedSteps: (Step | WorkflowExecutionResult)[]) {
+  let totalTime = 0;
+
+  for (const step of executedSteps) {
+    if (isWorkflowExecutionResult(step)) {
+      totalTime += step.totalTimeMs;
+    } else {
+      totalTime += step.response?.time || 0;
+    }
+  }
+
+  return totalTime;
 }
