@@ -1,5 +1,7 @@
 # @redocly/openapi-core
 
+## 2.2.0
+
 ## 2.1.5
 
 ## 2.1.4

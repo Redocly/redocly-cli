@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 2.2.0
+
+### Minor Changes
+
+- Adjusted the calculation of Respect's workflow-level `totalTimeMs` to sum the network request times of all steps.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.2.0.
+
 ## 2.1.5
 
 ### Patch Changes
