@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.2.0 (2025-09-23)
+
+### Minor Changes
+
+- Adjusted the calculation of Respect's workflow-level `totalTimeMs` to sum the network request times of all steps.
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.2.0.
+
 ## 2.1.5 (2025-09-19)
 
 ### Patch Changes
