@@ -6,7 +6,7 @@ import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { UserContext } from '../../walk.js';
 
-type anyVersionSchema = Oas3Schema | Oas3_1Schema | Oas2Schema;
+type AnySchema = Oas3Schema | Oas3_1Schema | Oas2Schema;
 
 export const NoRequiredSchemaPropertiesUndefined:
   | Oas3Rule
