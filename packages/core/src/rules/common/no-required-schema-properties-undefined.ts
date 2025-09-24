@@ -53,9 +53,14 @@ export const NoRequiredSchemaPropertiesUndefined:
           const grandParent = parents[parents.length - 2];
           return grandParent;
         };
+        const splitLocation = location.pointer.toString().split('/');
+        const isMemberOfComposedType =
+          splitLocation.length > 2 &&
+          !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
+          splitLocation[splitLocation.length - 2].match(/(allOf|oneOf|anyOf)/);
 
         const allProperties = elevateProperties(schema);
-        const grandParentSchema = getGrandParentSchema();
+        const grandParentSchema = isMemberOfComposedType ? getGrandParentSchema() : undefined;
         const grandParentProperties = grandParentSchema
           ? elevateProperties(grandParentSchema)
           : undefined;

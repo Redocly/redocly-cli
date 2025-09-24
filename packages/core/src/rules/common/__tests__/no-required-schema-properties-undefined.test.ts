@@ -141,6 +141,53 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should report if one sub property is marked as required but undefined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                type: object
+                properties:
+                  foo:
+                    type: string
+                  extra:
+                    type: object
+                    properties:
+                      bar:
+                        type: string
+                    required:
+                      - foo # should be highlighted
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/properties/extra/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'foo' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
