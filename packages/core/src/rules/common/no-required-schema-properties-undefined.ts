@@ -39,8 +39,12 @@ export const NoRequiredSchemaPropertiesUndefined:
             {},
             schema.properties,
             ...(schema.allOf?.map((s) => elevateProperties(s, from)) ?? []),
-            ...((schema as Oas3Schema).anyOf?.map((s) => elevateProperties(s, from)) ?? []),
-            ...((schema as Oas3Schema).oneOf?.map((s) => elevateProperties(s, from)) ?? [])
+            ...(('anyOf' in schema
+              ? schema.anyOf?.map((s) => elevateProperties(s, from))
+              : undefined) ?? []),
+            ...(('oneOf' in schema
+              ? schema.oneOf?.map((s) => elevateProperties(s, from))
+              : undefined) ?? [])
           );
         };
 
