@@ -102,7 +102,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
+  it('should not report if one or more of the required properties are defined when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -139,6 +139,61 @@ describe('no-required-schema-properties-undefined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                type: object
+                properties:
+                  huntingSkill:
+                    type: string
+                required:
+                  - huntingSkill
+                  - surname
+              Pet:
+                type: object
+                required:
+                  - photoUrls
+                properties:
+                  name:
+                    type: string
+                  photoUrls:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'surname' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should not report required properties are present after resolving $refs when used in schema with allOf keyword', async () => {
