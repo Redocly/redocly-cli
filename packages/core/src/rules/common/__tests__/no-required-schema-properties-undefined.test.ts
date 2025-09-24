@@ -438,6 +438,45 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should NOT report if one or more of the required properties are undefined when used in schema with oneOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                oneOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                    required:
+                      - huntingSkill
+                      - name
+              Pet:
+                type: object
+                required:
+                  - photoUrls
+                properties:
+                  name:
+                    type: string
+                  photoUrls:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should NOT report if one or more of the required properties are undefined when used in schema with anyOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
