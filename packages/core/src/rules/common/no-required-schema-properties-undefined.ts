@@ -16,14 +16,11 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Arazzo1Rule = () => {
   return {
     Schema: {
-      enter(schema: anyVersionSchema, { location, report, resolve, parents }: UserContext) {
+      enter(schema: AnySchema, { location, report, resolve, parents }: UserContext) {
         if (!schema.required) return;
-        const visitedSchemas: Set<anyVersionSchema> = new Set();
+        const visitedSchemas: Set<AnySchema> = new Set();
 
-        const elevateProperties = (
-          schema: anyVersionSchema,
-          from?: string
-        ): Record<string, anyVersionSchema> => {
+        const elevateProperties = (schema: AnySchema, from?: string): Record<string, AnySchema> => {
           // Check if the schema has been visited before processing it
           if (visitedSchemas.has(schema)) {
             return {};
@@ -31,9 +28,9 @@ export const NoRequiredSchemaPropertiesUndefined:
           visitedSchemas.add(schema);
 
           if (isRef(schema)) {
-            const resolved = resolve<anyVersionSchema>(schema, from);
+            const resolved = resolve<AnySchema>(schema, from);
             return elevateProperties(
-              resolved.node as anyVersionSchema,
+              resolved.node as AnySchema,
               resolved.location?.source.absoluteRef
             );
           }
@@ -47,7 +44,7 @@ export const NoRequiredSchemaPropertiesUndefined:
           );
         };
 
-        const getGrandParentSchema = (): anyVersionSchema | undefined => {
+        const getGrandParentSchema = (): AnySchema | undefined => {
           if (!parents || parents.length < 2) return undefined;
           const grandParent = parents[parents.length - 2];
           return grandParent;
