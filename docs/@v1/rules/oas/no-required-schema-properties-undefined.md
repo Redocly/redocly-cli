@@ -98,26 +98,6 @@ schemas:
       - Name
 ```
 
-The rule also accepts composed types as **correct**.
-
-```yaml
-schemas:
-  Pet:
-    type: object
-    anyOf:
-      - required:
-        - id
-      - required:
-        - name
-    properties:
-      id:
-        type: integer
-        format: int64
-      name:
-        type: string
-        example: doggie
-```
-
 ## Related rules
 
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
