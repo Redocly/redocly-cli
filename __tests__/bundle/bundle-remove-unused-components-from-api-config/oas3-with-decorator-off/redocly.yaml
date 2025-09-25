@@ -1,0 +1,10 @@
+apis:
+  no-remove-unused:
+    root: ./openapi.yaml
+    decorators:
+      remove-unused-components: off
+  remove-unused:
+    root: ./openapi.yaml
+
+decorators:
+  remove-unused-components: on

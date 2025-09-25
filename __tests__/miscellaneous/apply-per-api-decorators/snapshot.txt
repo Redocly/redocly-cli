@@ -3,10 +3,6 @@ info:
   title: Test
   version: 1.0.0
 paths: {}
-components:
-  schemas:
-    Unused:
-      type: string
 openapi: 3.1.0
 info:
   title: Test
@@ -18,5 +14,6 @@ components:
 
 bundling nested/openapi/main.yaml using configuration for api 'test@fs'...
 📦 Created a bundle for nested/openapi/main.yaml at stdout <test>ms.
+🧹 Removed 1 unused components.
 bundling https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml using configuration for api 'test@external-url'...
 📦 Created a bundle for https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml at stdout <test>ms.

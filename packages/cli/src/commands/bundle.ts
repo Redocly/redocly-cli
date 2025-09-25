@@ -45,9 +45,6 @@ export async function handleBundle({
   version,
   collectSpecData,
 }: CommandArgs<BundleArgv>) {
-  const removeUnusedComponents =
-    argv['remove-unused-components'] ||
-    config.resolvedConfig.decorators?.hasOwnProperty('remove-unused-components'); // FIXME: also on `apis` level
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
 
@@ -74,7 +71,7 @@ export async function handleBundle({
         ref: path,
         config: aliasConfig,
         dereference: argv.dereferenced,
-        removeUnusedComponents,
+        removeUnusedComponents: argv['remove-unused-components'],
         keepUrlRefs: argv['keep-url-references'],
         collectSpecData,
       });
