@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.2.1 (2025-09-25)
+
+### Patch Changes
+
+- Fixed an issue where the `remove-unused-components` decorator was not functioning when configured at the API level.
+- Updated @redocly/openapi-core to v2.2.1.
+
 ## 2.2.0 (2025-09-23)
 
 ### Minor Changes
