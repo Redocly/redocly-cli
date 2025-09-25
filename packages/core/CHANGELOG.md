@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.2.1
+
+### Patch Changes
+
+- Fixed an issue where the `remove-unused-components` decorator was not functioning when configured at the API level.
+
 ## 2.2.0
 
 ## 2.1.5
