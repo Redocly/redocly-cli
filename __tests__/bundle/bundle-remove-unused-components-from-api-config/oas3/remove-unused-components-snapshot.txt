@@ -21,6 +21,6 @@ components:
     UsedComponent:
       type: string
 
-bundling openapi.yaml...
+bundling openapi.yaml using configuration for api 'main'...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
 🧹 Removed 2 unused components.
