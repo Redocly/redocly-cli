@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.2.2
+
+### Patch Changes
+
+- Resolved an issue with CLI dependencies to ensure proper package resolution.
+- Updated @redocly/openapi-core to v2.2.2.
+
 ## 2.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.2.2
+
+### Patch Changes
+
+- Resolved an issue with CLI dependencies to ensure proper package resolution.
+
 ## 2.2.1
 
 ### Patch Changes
