@@ -80,5 +80,9 @@
     "packages/**/*.ts": [
       "eslint --fix"
     ]
+  },
+  "overrides": {
+    "mobx-react-lite": "4.0.7",
+    "mobx": "6.12.0"
   }
 }
