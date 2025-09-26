@@ -6,6 +6,8 @@ import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { UserContext } from '../../walk.js';
 
+type AnySchema = Oas3Schema | Oas3_1Schema | Oas2Schema;
+
 export const NoRequiredSchemaPropertiesUndefined:
   | Oas3Rule
   | Oas2Rule
@@ -14,17 +16,11 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Arazzo1Rule = () => {
   return {
     Schema: {
-      enter(
-        schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
-        { location, report, resolve }: UserContext
-      ) {
+      enter(schema: AnySchema, { location, report, resolve, parents }: UserContext) {
         if (!schema.required) return;
-        const visitedSchemas: Set<Oas3Schema | Oas3_1Schema | Oas2Schema> = new Set();
+        const visitedSchemas: Set<AnySchema> = new Set();
 
-        const elevateProperties = (
-          schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
-          from?: string
-        ): Record<string, Oas3Schema | Oas3_1Schema | Oas2Schema> => {
+        const elevateProperties = (schema: AnySchema, from?: string): Record<string, AnySchema> => {
           // Check if the schema has been visited before processing it
           if (visitedSchemas.has(schema)) {
             return {};
@@ -32,9 +28,9 @@ export const NoRequiredSchemaPropertiesUndefined:
           visitedSchemas.add(schema);
 
           if (isRef(schema)) {
-            const resolved = resolve(schema, from);
+            const resolved = resolve<AnySchema>(schema, from);
             return elevateProperties(
-              resolved.node as Oas3Schema | Oas3_1Schema | Oas2Schema,
+              resolved.node as AnySchema,
               resolved.location?.source.absoluteRef
             );
           }
@@ -43,14 +39,38 @@ export const NoRequiredSchemaPropertiesUndefined:
             {},
             schema.properties,
             ...(schema.allOf?.map((s) => elevateProperties(s, from)) ?? []),
-            ...((schema as Oas3Schema).anyOf?.map((s) => elevateProperties(s, from)) ?? [])
+            ...(('anyOf' in schema
+              ? schema.anyOf?.map((s) => elevateProperties(s, from))
+              : undefined) ?? []),
+            ...(('oneOf' in schema
+              ? schema.oneOf?.map((s) => elevateProperties(s, from))
+              : undefined) ?? [])
           );
         };
 
+        const getGrandParentSchema = (): AnySchema | undefined => {
+          if (!parents || parents.length < 2) return undefined;
+          const grandParent = parents[parents.length - 2];
+          return grandParent;
+        };
+        const splitLocation = location.pointer.split('/');
+        const isMemberOfComposedType =
+          splitLocation.length > 2 &&
+          !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
+          /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - 2]);
+
         const allProperties = elevateProperties(schema);
+        const grandParentSchema = isMemberOfComposedType ? getGrandParentSchema() : undefined;
+        const grandParentProperties = grandParentSchema
+          ? elevateProperties(grandParentSchema)
+          : undefined;
 
         for (const [i, requiredProperty] of schema.required.entries()) {
-          if (!allProperties || getOwn(allProperties, requiredProperty) === undefined) {
+          if (
+            (!allProperties || getOwn(allProperties, requiredProperty) === undefined) &&
+            (!grandParentProperties ||
+              getOwn(grandParentProperties, requiredProperty) === undefined)
+          ) {
             report({
               message: `Required property '${requiredProperty}' is undefined.`,
               location: location.child(['required', i]),

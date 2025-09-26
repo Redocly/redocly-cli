@@ -102,7 +102,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
+  it('should not report if one or more of the required properties are defined when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -138,17 +138,103 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report if one sub property is marked as required but undefined', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                type: object
+                properties:
+                  foo:
+                    type: string
+                  extra:
+                    type: object
+                    properties:
+                      bar:
+                        type: string
+                    required:
+                      - foo # should be highlighted
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Cat/allOf/1/required/1",
+              "pointer": "#/components/schemas/Cat/properties/extra/required/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'name' is undefined.",
+          "message": "Required property 'foo' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                type: object
+                properties:
+                  huntingSkill:
+                    type: string
+                required:
+                  - huntingSkill
+                  - surname
+              Pet:
+                type: object
+                required:
+                  - photoUrls
+                properties:
+                  name:
+                    type: string
+                  photoUrls:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'surname' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -454,7 +540,46 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report if one or more of the required properties are undefined when used in schema with anyOf keyword', async () => {
+  it('should NOT report if one or more of the required properties are undefined when used in schema with oneOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                oneOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                    required:
+                      - huntingSkill
+                      - name
+              Pet:
+                type: object
+                required:
+                  - photoUrls
+                properties:
+                  name:
+                    type: string
+                  photoUrls:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should NOT report if one or more of the required properties are undefined when used in schema with anyOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -490,26 +615,10 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/components/schemas/Cat/anyOf/1/required/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Required property 'name' is undefined.",
-          "ruleId": "no-required-schema-properties-undefined",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
+  it('should NOT report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -517,7 +626,7 @@ describe('no-required-schema-properties-undefined', () => {
             schemas:
               Cat:
                 description: A representation of a cat
-                anyOf:
+                allOf:
                   - $ref: '#/components/schemas/Pet'
                   - type: object
                     properties:
@@ -535,6 +644,68 @@ describe('no-required-schema-properties-undefined', () => {
                   name:
                     type: string
                   photoUrls:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should NOT report if one or more of the required properties are defined when used in schema with anyOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                anyOf:
+                  - required:
+                      - name
+                  - required:
+                      - huntingSkill
+                properties:
+                  name:
+                    type: string
+                  huntingSkill:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should NOT report if one or more of the required properties are defined when used in schema with oneOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                oneOf:
+                  - required:
+                      - name
+                  - required:
+                      - huntingSkill
+                properties:
+                  name:
+                    type: string
+                  huntingSkill:
                     type: string
         `,
       'foobar.yaml'
