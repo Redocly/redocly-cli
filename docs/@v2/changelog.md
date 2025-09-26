@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.2.2 (2025-09-26)
+
+### Patch Changes
+
+- Resolved an issue with CLI dependencies to ensure proper package resolution.
+- Updated @redocly/openapi-core to v2.2.2.
+
 ## 2.2.1 (2025-09-25)
 
 ### Patch Changes
