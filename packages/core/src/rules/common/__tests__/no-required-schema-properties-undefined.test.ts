@@ -540,7 +540,7 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should NOT report if one or more of the required properties are undefined when used in schema with oneOf keyword', async () => {
+  it('should report if one or more of the required properties are undefined when used in schema with oneOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -576,10 +576,26 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/oneOf/1/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'name' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]  
+    `);
   });
 
-  it('should NOT report if one or more of the required properties are undefined when used in schema with anyOf keyword', async () => {
+  it('should report if one or more of the required properties are undefined when used in schema with anyOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -615,7 +631,23 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/anyOf/1/required/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'name' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]  
+    `);
   });
 
   it('should NOT report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
