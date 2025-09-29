@@ -20,7 +20,11 @@ export const NoRequiredSchemaPropertiesUndefined:
         if (!schema.required) return;
         const visitedSchemas: Set<AnySchema> = new Set();
 
-        const elevateProperties = (schema: AnySchema, from?: string): Record<string, AnySchema> => {
+        const elevateProperties = (
+          schema: AnySchema,
+          from?: string,
+          includeFirstLevelExclusiveSchemas: boolean = true
+        ): Record<string, AnySchema> => {
           // Check if the schema has been visited before processing it
           if (visitedSchemas.has(schema)) {
             return {};
@@ -39,10 +43,10 @@ export const NoRequiredSchemaPropertiesUndefined:
             {},
             schema.properties,
             ...(schema.allOf?.map((s) => elevateProperties(s, from)) ?? []),
-            ...(('anyOf' in schema
+            ...(('anyOf' in schema && includeFirstLevelExclusiveSchemas
               ? schema.anyOf?.map((s) => elevateProperties(s, from))
               : undefined) ?? []),
-            ...(('oneOf' in schema
+            ...(('oneOf' in schema && includeFirstLevelExclusiveSchemas
               ? schema.oneOf?.map((s) => elevateProperties(s, from))
               : undefined) ?? [])
           );
@@ -62,7 +66,7 @@ export const NoRequiredSchemaPropertiesUndefined:
         const allProperties = elevateProperties(schema);
         const grandParentSchema = isMemberOfComposedType ? getGrandParentSchema() : undefined;
         const grandParentProperties = grandParentSchema
-          ? elevateProperties(grandParentSchema)
+          ? elevateProperties(grandParentSchema, undefined, false)
           : undefined;
 
         for (const [i, requiredProperty] of schema.required.entries()) {
