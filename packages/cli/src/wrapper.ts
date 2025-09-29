@@ -28,7 +28,7 @@ export function commandWrapper<T extends CommandArgv>(
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let telemetry;
-    let specVersion: string | undefined;
+    let specVersion: string | undefined = 'unknown';
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
     let config: Config | undefined;
@@ -71,6 +71,7 @@ export function commandWrapper<T extends CommandArgv>(
       if (err instanceof AbortFlowError) {
         // do nothing
       } else if (err instanceof HandledError) {
+        if (err.message.includes('Unsupported specification')) specVersion = 'undefined';
         logger.error(err.message + '\n\n');
       } else {
         logger.error(
