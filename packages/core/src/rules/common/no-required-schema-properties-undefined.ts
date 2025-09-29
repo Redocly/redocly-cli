@@ -52,22 +52,39 @@ export const NoRequiredSchemaPropertiesUndefined:
           );
         };
 
-        const getGrandParentSchema = (): AnySchema | undefined => {
-          if (!parents || parents.length < 2) return undefined;
-          const grandParent = parents[parents.length - 2];
+        const getGrandParentSchema = (offset: number = 0): AnySchema | undefined => {
+          const grandParentIndex = 2 + offset;
+          if (!parents || parents.length < grandParentIndex) return undefined;
+          const grandParent = parents[parents.length - grandParentIndex];
           return grandParent;
         };
-        const splitLocation = location.pointer.split('/');
-        const isMemberOfComposedType =
-          splitLocation.length > 2 &&
-          !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
-          /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - 2]);
+        const recursivelyGetGrandParentProperties = (
+          splitLocation: string[],
+          offset: number = 0
+        ): Record<string, AnySchema> | undefined => {
+          const isMemberOfComposedType =
+            splitLocation.length > 2 &&
+            !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
+            /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - 2]);
+          const grandParentSchema = isMemberOfComposedType
+            ? getGrandParentSchema(offset)
+            : undefined;
+          const greatGrandParentProperties =
+            splitLocation.length >= 4
+              ? recursivelyGetGrandParentProperties(splitLocation.slice(0, -2), offset + 2)
+              : {};
+          return grandParentSchema
+            ? {
+                ...elevateProperties(grandParentSchema, undefined, false),
+                ...greatGrandParentProperties,
+              }
+            : undefined;
+        };
 
         const allProperties = elevateProperties(schema);
-        const grandParentSchema = isMemberOfComposedType ? getGrandParentSchema() : undefined;
-        const grandParentProperties = grandParentSchema
-          ? elevateProperties(grandParentSchema, undefined, false)
-          : undefined;
+        const grandParentProperties = recursivelyGetGrandParentProperties(
+          location.pointer.split('/')
+        );
 
         for (const [i, requiredProperty] of schema.required.entries()) {
           if (
