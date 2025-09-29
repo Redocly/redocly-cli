@@ -141,6 +141,43 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
+  it('should not report if one of more properties are defined in great-grandparent schema', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - type: object
+                    properties:
+                      startDateTime:
+                        type: string
+                        nullable: true
+                        format: date-time
+                      endDateTime:
+                        type: string
+                        nullable: true
+                        format: date-time
+                  - anyOf:
+                      - required:
+                          - endDateTime
+                      - required:
+                          - startDateTime
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report if one sub property is marked as required but undefined', async () => {
     const document = parseYamlToDocument(
       outdent`
