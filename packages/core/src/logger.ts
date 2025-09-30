@@ -47,7 +47,7 @@ class Logger implements LoggerInterface {
     if (isBrowser) {
       console.log('\n');
     } else {
-      process.stdout.write('\n');
+      process.stdout.write(' \n');
     }
   }
 
