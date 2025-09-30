@@ -47,7 +47,14 @@ class Logger implements LoggerInterface {
     if (isBrowser) {
       console.log('\n');
     } else {
-      process.stdout.write(' \n');
+      const isGitHubCI = process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
+
+      if (isGitHubCI) {
+        // Add a space to ensure the line is not empty in GitHub CI environments, otherwise it will be hidden
+        process.stdout.write(' \n');
+      } else {
+        process.stdout.write('\n');
+      }
     }
   }
 

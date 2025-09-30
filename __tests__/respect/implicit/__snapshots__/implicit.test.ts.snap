@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should implicitly add content type header based on requestBody.content field (the first one) if such does not specified 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
+"--------------------------------------------------------------------------------
 
   Running workflow implicit.arazzo.yaml / implicit-content-type
 

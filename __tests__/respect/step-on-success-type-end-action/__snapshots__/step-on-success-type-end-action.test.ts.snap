@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should end workflow execution, context returns to the caller with applicable outputs, when step passes and onSuccess action is of type \`end\` 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
+"--------------------------------------------------------------------------------
 
   Running workflow step-on-success-type-end-action.arazzo.yaml / events-crud
 
@@ -11,7 +11,7 @@ exports[`should end workflow execution, context returns to the caller with appli
     ✓ content-type check
     ✓ schema check
 
-────────────────────────────────────────────────────────────────────────────────
+--------------------------------------------------------------------------------
 
   Running workflow step-on-success-type-end-action.arazzo.yaml / get-museum-hours
 

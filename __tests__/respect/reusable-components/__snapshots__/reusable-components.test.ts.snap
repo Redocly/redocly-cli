@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
+"--------------------------------------------------------------------------------
 
   Running workflow reusable-components.arazzo.yaml / get-museum-hours
 
@@ -222,7 +222,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
     ✓ schema check
 
 
-────────────────────────────────────────────────────────────────────────────────
+--------------------------------------------------------------------------------
 
   Running workflow reusable-components.arazzo.yaml / events-crud
 
@@ -411,7 +411,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
     ✓ content-type check
     ✓ schema check
 
-────────────────────────────────────────────────────────────────────────────────
+--------------------------------------------------------------------------------
 
   Running workflow reusable-components.arazzo.yaml / final-workflow
 

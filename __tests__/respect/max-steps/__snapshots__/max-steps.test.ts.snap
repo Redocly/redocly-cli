@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
+"--------------------------------------------------------------------------------
 
   Running workflow arazzo.yaml / infinite
 
