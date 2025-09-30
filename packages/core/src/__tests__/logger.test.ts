@@ -45,7 +45,11 @@ describe('Logger in nodejs', () => {
 
     expect(spyingStdout).toBeCalledTimes(1);
     expect(spyingStdout).toBeCalledWith(expect.stringContaining('separator'));
-    expect(spyingStdout).toBeCalledWith(expect.stringMatching(/separator.*separator.*separator/));
+    expect(spyingStdout).toBeCalledWith(
+      colorize.gray(
+        'separatorseparatorseparatorseparatorseparatorseparatorseparatorseparatorseparato'
+      )
+    );
   });
 
   it('should call output with indent', () => {
