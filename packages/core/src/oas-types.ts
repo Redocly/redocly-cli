@@ -1,6 +1,7 @@
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
+import { Oas3_2Types } from './types/oas3_2.js';
 import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Arazzo1Types } from './types/arazzo.js';
@@ -36,6 +37,7 @@ export const specVersions = [
   'oas2',
   'oas3_0',
   'oas3_1',
+  'oas3_2',
   'async2',
   'async3',
   'arazzo1',
@@ -49,6 +51,7 @@ const typesMap = {
   oas2: Oas2Types,
   oas3_0: Oas3Types,
   oas3_1: Oas3_1Types,
+  oas3_2: Oas3_2Types,
   async2: AsyncApi2Types,
   async3: AsyncApi3Types,
   arazzo1: Arazzo1Types,
@@ -113,12 +116,16 @@ export function detectSpec(root: unknown): SpecVersion {
     throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
   }
 
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.0')) {
+  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.0.')) {
     return 'oas3_0';
   }
 
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1')) {
+  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1.')) {
     return 'oas3_1';
+  }
+
+  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.2.')) {
+    return 'oas3_2';
   }
 
   if (root.swagger && root.swagger === '2.0') {

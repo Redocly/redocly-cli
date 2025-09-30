@@ -2,11 +2,13 @@ import { readFileAsStringSync, resolveRelativePath } from '../../utils.js';
 
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import type { Oas3Tag, Oas3_2Tag } from 'core/src/typings/openapi.js';
+import type { Oas2Tag } from 'core/src/typings/swagger.js';
 
 export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames }) => {
   return {
     Tag: {
-      leave(tag, { report, config }: UserContext) {
+      leave(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, { report, config }: UserContext) {
         if (!tagNames)
           throw new Error(
             `Parameter "tagNames" is not provided for "tag-description-override" rule`

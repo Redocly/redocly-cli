@@ -6,7 +6,7 @@ interface Oas3DefinitionBase<T extends Oas3Schema | Oas3_1Schema> {
   paths?: Oas3Paths<T>;
   components?: T extends Oas3_1Schema ? Oas3_1Components : Oas3Components;
   security?: Oas3SecurityRequirement[];
-  tags?: Oas3Tag[];
+  tags?: Oas3Tag[] | Oas3_2Tag[];
   externalDocs?: Oas3ExternalDocs;
 }
 
@@ -16,6 +16,12 @@ export interface Oas3Definition extends Oas3DefinitionBase<Oas3Schema> {
 
 export interface Oas3_1Definition extends Oas3DefinitionBase<Oas3_1Schema> {
   webhooks?: Oas3Webhooks<Oas3_1Schema>;
+  tags?: Oas3Tag[];
+}
+
+export interface Oas3_2Definition extends Oas3DefinitionBase<Oas3_1Schema> {
+  webhooks?: Oas3Webhooks<Oas3_1Schema>;
+  tags?: Oas3_2Tag[];
 }
 
 export interface Oas3Info {
@@ -375,6 +381,12 @@ export interface Oas3Tag {
   externalDocs?: Oas3ExternalDocs;
   'x-displayName'?: string;
 }
+
+export type Oas3_2Tag = Omit<Oas3Tag, 'x-displayName'> & {
+  kind?: string;
+  parent?: string;
+  summary?: string;
+};
 
 export interface Oas3ExternalDocs {
   description?: string;

@@ -1,4 +1,4 @@
-import type { Oas3Parameter, OasRef, Oas3Tag } from '../../typings/openapi.js';
+import type { Oas3Parameter, OasRef, Oas3Tag, Oas3_2Tag } from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
 import type { StatsAccumulator } from '../../typings/common.js';
 
@@ -15,7 +15,7 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
       },
     },
     Tag: {
-      leave(tag: Oas3Tag) {
+      leave(tag: Oas3Tag | Oas3_2Tag) {
         statsAccumulator.tags.items!.add(tag.name);
       },
     },

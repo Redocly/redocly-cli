@@ -383,19 +383,20 @@ describe('langToExt', () => {
 
 describe('sorTopLevelKeysForOas', () => {
   it('should sort oas3 top level keys', () => {
-    const openApi = {
+    const openApi: openapiCore.Oas3Definition = {
       openapi: '3.0.0',
       components: {},
       security: [],
       tags: [],
       servers: [],
       paths: {},
-      info: {},
-      externalDocs: {},
-      webhooks: [],
-      'x-webhooks': [],
+      info: { title: 'Test', version: '1.0.0' },
+      externalDocs: { url: 'https://example.com' },
+      // @ts-expect-error - webhooks is not part of Oas3Definition
+      webhooks: {},
+      'x-webhooks': {},
       jsonSchemaDialect: '',
-    } as any;
+    };
     const orderedKeys = [
       'openapi',
       'info',
@@ -540,6 +541,7 @@ describe('checkIfRulesetExist', () => {
       oas2: {},
       oas3_0: {},
       oas3_1: {},
+      oas3_2: {},
       async2: {},
       async3: {},
       arazzo1: {},
@@ -552,10 +554,15 @@ describe('checkIfRulesetExist', () => {
 
   it('should not throw an error if rules are provided', () => {
     const rules = {
-      oas2: { 'operation-4xx-response': 'error' },
+      oas2: { 'operation-4xx-response': 'error' as openapiCore.RuleConfig },
       oas3_0: {},
       oas3_1: {},
-    } as any;
+      oas3_2: {},
+      async2: {},
+      async3: {},
+      arazzo1: {},
+      overlay1: {},
+    };
     checkIfRulesetExist(rules);
   });
 });

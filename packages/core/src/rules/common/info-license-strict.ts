@@ -12,7 +12,7 @@ export const InfoLicenseStrict: Oas2Rule | Oas3Rule | Async2Rule | Async3Rule = 
       },
       License: {
         leave(license, ctx) {
-          if (specVersion === 'oas3_1') {
+          if (specVersion === 'oas3_1' || specVersion === 'oas3_2') {
             validateOneOfDefinedAndNonEmpty(['url', 'identifier'], license, ctx);
           } else {
             validateDefinedAndNonEmpty('url', license, ctx);

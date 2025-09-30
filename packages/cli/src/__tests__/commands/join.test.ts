@@ -152,7 +152,7 @@ describe('handleJoin', () => {
       version: 'cli-version',
     });
     expect(exitWithError).toHaveBeenCalledWith(
-      'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined.'
+      'Only OpenAPI 3.0, 3.1, and 3.2 are supported: undefined.'
     );
   });
 

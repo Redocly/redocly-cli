@@ -257,7 +257,7 @@ The default behavior is to use a recommended ruleset.
 The recommended rulesets for each format are listed below.
 There is also a "recommended-strict" ruleset which is identical but with all `warn` settings changed to `error`.
 
-### Recommended ruleset: OpenAPI 3.1
+### Recommended ruleset: OpenAPI 3.1/3.2
 
 ```yaml
 rules:
@@ -297,6 +297,7 @@ rules:
   required-string-property-missing-min-length: off
   response-contains-header: off
   scalar-property-missing-example: off
+  no-duplicated-tag-names: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error

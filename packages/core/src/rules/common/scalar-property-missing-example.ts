@@ -26,7 +26,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
         ) {
           report({
             message: `Scalar property should have "example"${
-              specVersion === 'oas3_1' ? ' or "examples"' : ''
+              specVersion === 'oas3_1' || specVersion === 'oas3_2' ? ' or "examples"' : ''
             } defined.`,
             location: location.child(propName).key(),
           });

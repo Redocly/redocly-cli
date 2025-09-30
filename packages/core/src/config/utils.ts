@@ -51,6 +51,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     oas2Rules: {},
     oas3_0Rules: {},
     oas3_1Rules: {},
+    oas3_2Rules: {},
     async2Rules: {},
     async3Rules: {},
     arazzo1Rules: {},
@@ -60,6 +61,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     oas2Preprocessors: {},
     oas3_0Preprocessors: {},
     oas3_1Preprocessors: {},
+    oas3_2Preprocessors: {},
     async2Preprocessors: {},
     async3Preprocessors: {},
     arazzo1Preprocessors: {},
@@ -69,6 +71,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     oas2Decorators: {},
     oas3_0Decorators: {},
     oas3_1Decorators: {},
+    oas3_2Decorators: {},
     async2Decorators: {},
     async3Decorators: {},
     arazzo1Decorators: {},
@@ -89,6 +92,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.oas3_0Rules, rulesConf.rules);
     assignConfig(result.oas3_1Rules, rulesConf.oas3_1Rules);
     assignOnlyExistingConfig(result.oas3_1Rules, rulesConf.rules);
+    assignConfig(result.oas3_2Rules, rulesConf.oas3_2Rules);
+    assignOnlyExistingConfig(result.oas3_2Rules, rulesConf.rules);
     assignConfig(result.async2Rules, rulesConf.async2Rules);
     assignOnlyExistingConfig(result.async2Rules, rulesConf.rules);
     assignConfig(result.async3Rules, rulesConf.async3Rules);
@@ -105,6 +110,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.oas3_0Preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
     assignOnlyExistingConfig(result.oas3_1Preprocessors, rulesConf.preprocessors);
+    assignConfig(result.oas3_2Preprocessors, rulesConf.oas3_2Preprocessors);
+    assignOnlyExistingConfig(result.oas3_2Preprocessors, rulesConf.preprocessors);
     assignConfig(result.async2Preprocessors, rulesConf.async2Preprocessors);
     assignOnlyExistingConfig(result.async2Preprocessors, rulesConf.preprocessors);
     assignConfig(result.async3Preprocessors, rulesConf.async3Preprocessors);
@@ -121,6 +128,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.oas3_0Decorators, rulesConf.decorators);
     assignConfig(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
     assignOnlyExistingConfig(result.oas3_1Decorators, rulesConf.decorators);
+    assignConfig(result.oas3_2Decorators, rulesConf.oas3_2Decorators);
+    assignOnlyExistingConfig(result.oas3_2Decorators, rulesConf.decorators);
     assignConfig(result.async2Decorators, rulesConf.async2Decorators);
     assignOnlyExistingConfig(result.async2Decorators, rulesConf.decorators);
     assignConfig(result.async3Decorators, rulesConf.async3Decorators);
