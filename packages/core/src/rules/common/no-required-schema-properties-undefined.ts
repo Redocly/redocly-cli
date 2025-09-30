@@ -52,26 +52,35 @@ export const NoRequiredSchemaPropertiesUndefined:
           );
         };
 
-        const getGrandParentSchema = (offset: number = 0): AnySchema | undefined => {
-          const grandParentIndex = 2 + offset;
-          if (!parents || parents.length < grandParentIndex) return undefined;
-          const grandParent = parents[parents.length - grandParentIndex];
+        /**
+         * The index to use to lookup grand parent schemas when dealing with composed schemas.
+         * @summary The current schema should always end up with under ../anyOf/1, if we get multiple ancestors, they should always be a multiple.
+         */
+        const grandParentBaseIndex = 2;
+        const getGrandParentSchema = (grandParentLookupIndex: number): AnySchema | undefined => {
+          if (grandParentLookupIndex % grandParentBaseIndex !== 0)
+            throw new Error('grandParentIndex must be an even number');
+          if (!parents || parents.length < grandParentLookupIndex) return undefined;
+          const grandParent = parents[parents.length - grandParentLookupIndex];
           return grandParent;
         };
         const recursivelyGetGrandParentProperties = (
           splitLocation: string[],
-          offset: number = 0
+          grandParentLookupIndex: number = grandParentBaseIndex
         ): Record<string, AnySchema> | undefined => {
           const isMemberOfComposedType =
-            splitLocation.length > 2 &&
+            splitLocation.length > grandParentBaseIndex &&
             !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
-            /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - 2]);
+            /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - grandParentBaseIndex]);
           const grandParentSchema = isMemberOfComposedType
-            ? getGrandParentSchema(offset)
+            ? getGrandParentSchema(grandParentLookupIndex)
             : undefined;
           const greatGrandParentProperties =
-            splitLocation.length >= 4
-              ? recursivelyGetGrandParentProperties(splitLocation.slice(0, -2), offset + 2)
+            splitLocation.length >= grandParentBaseIndex + grandParentBaseIndex
+              ? recursivelyGetGrandParentProperties(
+                  splitLocation.slice(0, -grandParentBaseIndex),
+                  grandParentLookupIndex + grandParentBaseIndex
+                )
               : {};
           return grandParentSchema
             ? {
