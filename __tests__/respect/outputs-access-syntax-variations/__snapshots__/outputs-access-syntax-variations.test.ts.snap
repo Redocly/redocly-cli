@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should resolve outputs access syntax variations 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow outputs-access-syntax-variations.arazzo.yaml / get-museum-hours 
  
@@ -111,7 +111,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✓ schema check
  
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow outputs-access-syntax-variations.arazzo.yaml / events-crud 
  
@@ -291,7 +291,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow outputs-access-syntax-variations.arazzo.yaml / get-event-by-id 
  

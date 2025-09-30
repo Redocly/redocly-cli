@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use error severity level 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow severity-level.arazzo.yaml / get-museum-hours 
  
@@ -74,7 +74,7 @@ exports[`should use error severity level 1`] = `
     ✓ success criteria check - $statusCode == 200
     ✗ status code check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow severity-level.arazzo.yaml / events-crud 
  

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should pass inputs to step target workflow with additional input parameter from parent step and remapped, custom_price is expected to be undefined 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow inputs-passed-to-step-target-workflow-and-remapped.arazzo.yaml / inputs-passed-to-step-target-workflow 
  

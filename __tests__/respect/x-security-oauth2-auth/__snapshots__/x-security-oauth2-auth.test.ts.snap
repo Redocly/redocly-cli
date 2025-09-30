@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should make request with Authorization header \`Bearer ...\` using OAuth2 accessToken 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow x-security-oauth2-auth.arazzo.yaml / oauth2-auth-workflow 
  

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`rebilly test case 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow rebilly.arazzo.yaml / crud 
  
@@ -25,7 +25,7 @@ exports[`rebilly test case 1`] = `
   ✓ GET https://api-sandbox.rebilly.com/organizations/redocly/customers/{id} - step read-non-existing-member 
     ✓ success criteria check - $statusCode == 404
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow rebilly.arazzo.yaml / inherited 
  

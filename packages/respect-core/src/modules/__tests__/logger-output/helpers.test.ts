@@ -89,7 +89,7 @@ describe('cliOutputs', () => {
     it('should print a separator line', () => {
       const mockLogger = vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
       printWorkflowSeparatorLine(logger);
-      expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('-'));
+      expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('\u2500'));
       mockLogger.mockRestore();
     });
   });

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`local-json-server > local-json-server test case 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow local-json-server.arazzo.yaml / before 
  
@@ -10,7 +10,7 @@ exports[`local-json-server > local-json-server test case 1`] = `
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow local-json-server.arazzo.yaml / crud-items 
  
@@ -26,7 +26,7 @@ exports[`local-json-server > local-json-server test case 1`] = `
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow local-json-server.arazzo.yaml / auto-inherit 
  

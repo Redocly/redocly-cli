@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow workflow-success-actions.arazzo.yaml / get-museum-hours 
  
@@ -21,7 +21,7 @@ exports[`should execute successActions for each workflow step if it does not hav
     ✓ schema check
  
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow workflow-success-actions.arazzo.yaml / events-crud 
  

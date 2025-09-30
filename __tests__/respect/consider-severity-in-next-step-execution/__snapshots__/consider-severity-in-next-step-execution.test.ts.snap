@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should not follow the default behavior to break and return if onFailure omitted with warn severity and continue execution of the next step 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow consider-severity-in-next-step-execution.arazzo.yaml / first-workflow 
  
@@ -75,7 +75,7 @@ exports[`should not follow the default behavior to break and return if onFailure
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow consider-severity-in-next-step-execution.arazzo.yaml / second-workflow 
  

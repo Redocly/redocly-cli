@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should make request with Authorization header \`Bearer ...\` using OpenID Connect accessToken 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow x-security-open-id-connect-auth.arazzo.yaml / open-id-connect-auth-workflow 
  

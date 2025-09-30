@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`cats api test case 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow auto-cat.arazzo.yaml / get-breeds-workflow 
  
@@ -10,7 +10,7 @@ exports[`cats api test case 1`] = `
     ✓ content-type check
     ✗ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow auto-cat.arazzo.yaml / get-fact-workflow 
  
@@ -19,7 +19,7 @@ exports[`cats api test case 1`] = `
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow auto-cat.arazzo.yaml / get-facts-workflow 
  

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use inputs from CLI and env 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow inputs-with-cli-and-env.arazzo.yaml / get-museum-hours 
  
@@ -180,7 +180,7 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ content-type check
     ✓ schema check
  
--------------------------------------------------------------------------------- 
+──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow inputs-with-cli-and-env.arazzo.yaml / events-crud 
  

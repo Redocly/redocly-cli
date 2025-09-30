@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should send in request and proceed case-insensitive headers in runtime expressions 1`] = `
-"-------------------------------------------------------------------------------- 
+"──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow case-insensitive-headers.arazzo.yaml / get-museum-hours 
  
