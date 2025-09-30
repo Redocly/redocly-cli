@@ -1,76 +1,76 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`local-json-server > local-json-server test case 1`] = `
-"--------------------------------------------------------------------------------
-
-  Running workflow local-json-server.arazzo.yaml / before
-
-  ✓ GET /items - step get-all-items-before
+"-------------------------------------------------------------------------------- 
+ 
+  Running workflow local-json-server.arazzo.yaml / before 
+ 
+  ✓ GET /items - step get-all-items-before 
     ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
-
---------------------------------------------------------------------------------
-
-  Running workflow local-json-server.arazzo.yaml / crud-items
-
-  ✓ POST /items - step add-item
+ 
+-------------------------------------------------------------------------------- 
+ 
+  Running workflow local-json-server.arazzo.yaml / crud-items 
+ 
+  ✓ POST /items - step add-item 
     ✓ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [201]
     ✓ content-type check
     ✓ schema check
-
-  ✗ GET /items - step get-all-items-again
+ 
+  ✗ GET /items - step get-all-items-again 
     ✗ success criteria check - $response.body#/0/value == 100
     ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
-
---------------------------------------------------------------------------------
-
-  Running workflow local-json-server.arazzo.yaml / auto-inherit
-
-  ✓ POST /items - step add-item-auto-inherit
+ 
+-------------------------------------------------------------------------------- 
+ 
+  Running workflow local-json-server.arazzo.yaml / auto-inherit 
+ 
+  ✓ POST /items - step add-item-auto-inherit 
     ✓ status code check - $statusCode in [201]
     ✓ content-type check
     ✓ schema check
-
-  ✓ GET /items - step get-all-items
+ 
+  ✓ GET /items - step get-all-items 
     ✓ status code check - $statusCode in [200]
     ✓ content-type check
     ✓ schema check
-
-  ✓ GET /items/{id} - step get-item-by-id-auto-inherit
+ 
+  ✓ GET /items/{id} - step get-item-by-id-auto-inherit 
     ✓ status code check - $statusCode in [200, 404]
     ✓ content-type check
-
-  ✓ DELETE /items/{id} - step drop-item-auto-inherit
+ 
+  ✓ DELETE /items/{id} - step drop-item-auto-inherit 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200]
-
+ 
 
   Failed tests info:
 
   Workflow name: crud-items
-
-    stepId - get-all-items-again
-    ✗ success criteria check
+ 
+    stepId - get-all-items-again 
+    ✗ success criteria check 
       Checking simple criteria: {"condition":"$response.body#/0/value == 100"}
-      
+       
   Summary for local-json-server.arazzo.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 6 passed, 1 failed, 7 total
   Checks: 20 passed, 1 failed, 21 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ x local-json-server.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
 └───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
  Tests exited with error 
 

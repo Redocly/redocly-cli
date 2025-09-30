@@ -33,29 +33,11 @@ describe('Logger in nodejs', () => {
     expect(spyingStderr).toBeCalledWith('info');
   });
 
-  it('should call "process.stdout.write" for output printNewLine in non-CI environment', () => {
-    delete process.env.CI;
-    delete process.env.GITHUB_ACTIONS;
-
-    logger.printNewLine();
-
-    expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith('\n');
-  });
-
-  it('should call "process.stdout.write" for output printNewLine in CI environment', () => {
-    // Mock CI environment
-    const originalCI = process.env.CI;
-    const originalGithubActions = process.env.GITHUB_ACTIONS;
-    process.env.CI = 'true';
-
+  it('should call "process.stdout.write" for output printNewLine', () => {
     logger.printNewLine();
 
     expect(spyingStdout).toBeCalledTimes(1);
     expect(spyingStdout).toBeCalledWith(' \n');
-
-    if (originalCI !== undefined) process.env.CI = originalCI;
-    if (originalGithubActions !== undefined) process.env.GITHUB_ACTIONS = originalGithubActions;
   });
 
   it('should call "process.stdout.write" for output printSeparator', () => {

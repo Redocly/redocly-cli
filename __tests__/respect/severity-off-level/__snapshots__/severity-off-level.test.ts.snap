@@ -1,18 +1,18 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use off severity level 1`] = `
-"--------------------------------------------------------------------------------
-
-  Running workflow severity-level.arazzo.yaml / get-museum-hours
-
-  ✗ GET /museum-hours - step get-museum-hours
+"-------------------------------------------------------------------------------- 
+ 
+  Running workflow severity-level.arazzo.yaml / get-museum-hours 
+ 
+  ✗ GET /museum-hours - step get-museum-hours 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: html/text, application/problem+json
       authorization: Basic Og==
-      content-type: application/json
-
+      content-type: application/json 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -69,16 +69,16 @@ exports[`should use off severity level 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✗ status code check
-
---------------------------------------------------------------------------------
-
-  Running workflow severity-level.arazzo.yaml / events-crud
-
-  ✓ POST /special-events - step create-event
+ 
+-------------------------------------------------------------------------------- 
+ 
+  Running workflow severity-level.arazzo.yaml / events-crud 
+ 
+  ✓ POST /special-events - step create-event 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
@@ -95,8 +95,8 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -112,15 +112,15 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  ✗ PATCH /special-events/{eventId} - step update-event
+ 
+  ✗ PATCH /special-events/{eventId} - step update-event 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
@@ -136,8 +136,8 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -153,43 +153,43 @@ exports[`should use off severity level 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ success criteria check - $.name == 'Orca Identification and Analysis'
     ✓ status code check - $statusCode in [200, 400, 404]
     ✗ content-type check
-
+ 
 
   Failed tests info:
 
   Workflow name: get-museum-hours
-
-    stepId - get-museum-hours
-    ○ status code check (skipped)
+ 
+    stepId - get-museum-hours 
+    ○ status code check (skipped) 
       
       
   Workflow name: events-crud
-
-    stepId - update-event
-    ○ content-type check (skipped)
+ 
+    stepId - update-event 
+    ○ content-type check (skipped) 
       Content type application/json for 200 response is not described in the schema.
       Expected content types: json.
-      
+       
   Summary for severity-level.arazzo.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 3 passed, 2 ignored, 3 total
   Checks: 11 passed, 2 ignored, 11 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                           │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ severity-level.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
 └────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;

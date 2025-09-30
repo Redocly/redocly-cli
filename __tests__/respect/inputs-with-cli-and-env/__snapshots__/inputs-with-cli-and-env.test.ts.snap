@@ -1,17 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use inputs from CLI and env 1`] = `
-"--------------------------------------------------------------------------------
-
-  Running workflow inputs-with-cli-and-env.arazzo.yaml / get-museum-hours
-
-  ✓ GET /museum-hours - step get-museum-hours
+"-------------------------------------------------------------------------------- 
+ 
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / get-museum-hours 
+ 
+  ✓ GET /museum-hours - step get-museum-hours 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -68,17 +68,17 @@ exports[`should use inputs from CLI and env 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  Running child workflow for the step buy-ticket
-  Running workflow museum-tickets.yaml / get-museum-tickets
-
-  ✓ POST /tickets - step buy-tickets
+ 
+  Running child workflow for the step buy-ticket 
+  Running workflow museum-tickets.yaml / get-museum-tickets 
+ 
+  ✓ POST /tickets - step buy-tickets 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
     Request Headers:
@@ -90,8 +90,8 @@ exports[`should use inputs from CLI and env 1`] = `
         "ticketType": "general",
         "ticketDate": "2023-09-07",
         "email": "todd@example.com"
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -103,21 +103,21 @@ exports[`should use inputs from CLI and env 1`] = `
         "ticketType": "general",
         "ticketDate": "2023-09-07",
         "confirmationCode": "ticket-general-e5e5c6-dce78"
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
-  ✓ GET /museum-hours - step test-default-input
+ 
+ 
+  ✓ GET /museum-hours - step test-default-input 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?organizationId=acme-inc
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -174,17 +174,17 @@ exports[`should use inputs from CLI and env 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
---------------------------------------------------------------------------------
-
-  Running workflow inputs-with-cli-and-env.arazzo.yaml / events-crud
-
-  ✓ POST /special-events - step create-event
+ 
+-------------------------------------------------------------------------------- 
+ 
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / events-crud 
+ 
+  ✓ POST /special-events - step create-event 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
@@ -205,8 +205,8 @@ exports[`should use inputs from CLI and env 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -222,29 +222,29 @@ exports[`should use inputs from CLI and env 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ success criteria check - $.name == 'Mermaid Treasure Identification and Ana...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
+ 
+ 
   Summary for inputs-with-cli-and-env.arazzo.yaml
   
   Workflows: 2 passed, 2 total
   Steps: 4 passed, 4 total
   Checks: 16 passed, 16 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ inputs-with-cli-and-env.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
 └─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;
