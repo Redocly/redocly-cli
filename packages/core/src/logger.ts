@@ -1,8 +1,6 @@
 import * as colorette from 'colorette';
-import { isBrowser, env } from './env.js';
+import { isBrowser } from './env.js';
 import { identity } from './utils.js';
-
-export const RESET_ESCAPE_CODE_IN_TERMINAL = env.NO_COLOR ? '' : '\x1B[0m';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore this works but some types are not working
@@ -49,18 +47,20 @@ class Logger implements LoggerInterface {
     if (isBrowser) {
       console.log('\n');
     } else {
-      process.stdout.write(`${RESET_ESCAPE_CODE_IN_TERMINAL}\n`);
+      process.stdout.write('\n');
     }
   }
 
   printSeparator(separator: string) {
     const windowWidth = process.stdout.columns || 80;
-    const coloredSeparator = isBrowser ? separator : colorize.gray(separator);
-    const separatorLine = coloredSeparator
+    const separatorLine = separator
       .repeat(Math.ceil(windowWidth / separator.length))
       .slice(0, windowWidth);
+    const coloredSeparatorLine = isBrowser ? separatorLine : colorize.gray(separatorLine);
 
-    return isBrowser ? console.log(separatorLine) : process.stdout.write(separatorLine);
+    return isBrowser
+      ? console.log(coloredSeparatorLine)
+      : process.stdout.write(coloredSeparatorLine);
   }
 
   indent(str: string, level: number) {

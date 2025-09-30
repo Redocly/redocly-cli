@@ -1,7 +1,7 @@
 import { MockInstance } from 'vitest';
 
 import * as colorette from 'colorette';
-import { logger, colorize, RESET_ESCAPE_CODE_IN_TERMINAL } from '../logger.js';
+import { logger, colorize } from '../logger.js';
 
 describe('Logger in nodejs', () => {
   let spyingStderr: MockInstance;
@@ -37,14 +37,15 @@ describe('Logger in nodejs', () => {
     logger.printNewLine();
 
     expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith(`${RESET_ESCAPE_CODE_IN_TERMINAL}\n`);
+    expect(spyingStdout).toBeCalledWith('\n');
   });
 
   it('should call "process.stdout.write" for output printSeparator', () => {
     logger.printSeparator('separator');
 
     expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith(expect.stringContaining(colorize.gray('separator')));
+    expect(spyingStdout).toBeCalledWith(expect.stringContaining('separator'));
+    expect(spyingStdout).toBeCalledWith(expect.stringMatching(/separator.*separator.*separator/));
   });
 
   it('should call output with indent', () => {
