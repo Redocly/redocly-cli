@@ -29,7 +29,7 @@ export function indent(str: string, level: number) {
 }
 
 export function printWorkflowSeparatorLine(logger: LoggerInterface) {
-  logger.printSeparator('\u2500');
+  logger.printSeparator('-');
   logger.printNewLine();
   logger.printNewLine();
 }
