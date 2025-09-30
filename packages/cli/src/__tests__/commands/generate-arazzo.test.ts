@@ -2,6 +2,7 @@ import { GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/
 import { generate } from '@redocly/respect-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import * as openapiCore from '@redocly/openapi-core';
+import { writeFileSync } from 'node:fs';
 
 vi.mock('@redocly/respect-core', async () => {
   const actual = await vi.importActual<typeof import('@redocly/respect-core')>(
@@ -23,6 +24,11 @@ vi.mock('@redocly/openapi-core', async () => {
     stringifyYaml: vi.fn(() => 'mocked yaml'),
   };
 });
+
+vi.mock('node:fs', () => ({
+  writeFileSync: vi.fn(),
+  existsSync: vi.fn(() => false),
+}));
 
 describe('handleGenerateArazzo', () => {
   beforeEach(() => {
@@ -50,6 +56,7 @@ describe('handleGenerateArazzo', () => {
       version: '1.0.0',
       config: mockConfig,
     });
+    expect(writeFileSync).toHaveBeenCalledWith('auto-generated.arazzo.yaml', 'mocked yaml');
   });
 
   it('should use custom output file when provided', async () => {
@@ -73,6 +80,8 @@ describe('handleGenerateArazzo', () => {
       version: '1.0.0',
       config: mockConfig,
     });
+
+    expect(writeFileSync).toHaveBeenCalledWith('custom.arazzo.yaml', 'mocked yaml');
   });
 
   it('should throw an error if the openapi file is not valid', async () => {
@@ -91,5 +100,6 @@ describe('handleGenerateArazzo', () => {
     await expect(handleGenerateArazzo(commandArgs)).rejects.toThrow(
       '❌  Failed to generate Arazzo description. Check the output file path you provided, or the OpenAPI file content.'
     );
+    expect(writeFileSync).not.toHaveBeenCalled();
   });
 });
