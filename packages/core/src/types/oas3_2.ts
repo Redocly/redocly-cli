@@ -11,6 +11,7 @@ const Root: NodeType = {
 };
 
 const Tag: NodeType = {
+  ...Oas3_1Types.Tag,
   properties: {
     name: { type: 'string' },
     description: { type: 'string' },
@@ -21,8 +22,14 @@ const Tag: NodeType = {
     parent: { type: 'string' },
     summary: { type: 'string' },
   },
-  required: ['name'],
-  extensionsPrefix: 'x-',
+};
+
+const Server: NodeType = {
+  ...Oas3_1Types.Server,
+  properties: {
+    ...Oas3_1Types.Server.properties,
+    name: { type: 'string' },
+  },
 };
 
 const PathItem: NodeType = {
@@ -48,6 +55,7 @@ export const Oas3_2Types = {
   ...Oas3_1Types,
   Root,
   Tag,
+  Server,
   PathItem,
   MediaType,
 } as const;

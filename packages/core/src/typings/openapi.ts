@@ -36,6 +36,7 @@ export interface Oas3Server {
   url: string;
   description?: string;
   variables?: { [name: string]: Oas3ServerVariable };
+  name?: string; // Added in OAS 3.2
 }
 
 export interface Oas3ServerVariable {
