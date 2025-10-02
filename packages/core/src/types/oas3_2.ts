@@ -2,6 +2,14 @@ import { mapOf, type NodeType } from './index.js';
 import { Oas3Types } from './oas3.js';
 import { Oas3_1Types } from './oas3_1.js';
 
+const Root: NodeType = {
+  ...Oas3_1Types.Root,
+  properties: {
+    ...Oas3_1Types.Root.properties,
+    $self: { type: 'string' },
+  },
+};
+
 const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
@@ -28,6 +36,7 @@ const PathItem: NodeType = {
 
 export const Oas3_2Types = {
   ...Oas3_1Types,
+  Root,
   Tag,
   PathItem,
 } as const;

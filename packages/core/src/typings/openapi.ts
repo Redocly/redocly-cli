@@ -20,6 +20,7 @@ export interface Oas3_1Definition extends Oas3DefinitionBase<Oas3_1Schema> {
 }
 
 export interface Oas3_2Definition extends Oas3_1Definition {
+  $self?: string;
   tags?: Oas3_2Tag[];
 }
 
@@ -57,6 +58,7 @@ export type Referenced<T> = OasRef | T;
 export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   summary?: string;
   description?: string;
+
   get?: Oas3Operation<T>;
   put?: Oas3Operation<T>;
   post?: Oas3Operation<T>;
@@ -67,6 +69,7 @@ export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   trace?: Oas3Operation<T>;
   query?: Oas3Operation<T>; // Added in OAS 3.2
   additionalOperations?: { [name: string]: Referenced<Oas3Operation<T>> }; // Added in OAS 3.2
+
   servers?: Oas3Server[];
   parameters?: Array<Referenced<Oas3Parameter<T>>>;
 }
