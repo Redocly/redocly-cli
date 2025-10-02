@@ -28,7 +28,7 @@ export function commandWrapper<T extends CommandArgv>(
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let telemetry;
-    let specVersion: string | undefined = 'unknown';
+    let specVersion: string = 'unknown';
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
     let config: Config | undefined;
