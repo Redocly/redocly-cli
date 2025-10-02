@@ -18,14 +18,14 @@ export async function handleLogin({ argv, config }: CommandArgs<LoginArgv>) {
 
     if (argv.verbose) {
       logger.info(`OAuth client initialized.\n`);
-      logger.info(`CredentialsFilePath: ${oauthClient.credentialsFilePath}\n`);
+      logger.info(`Local credentials file path: ${oauthClient.credentialsFilePath}\n`);
     }
 
     await oauthClient.login(reuniteUrl);
   } catch (e) {
     if (argv.verbose) {
+      logger.error(`Residency: ${argv.residency}.\n`);
       logger.error(`Login to ${reuniteUrl} failed.\n`);
-      logger.error(`Residency: ${argv.residency}\n`);
       logger.errorWithStack(e);
     }
 
