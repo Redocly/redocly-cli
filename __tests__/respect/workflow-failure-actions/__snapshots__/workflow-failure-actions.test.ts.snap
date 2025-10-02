@@ -1,75 +1,75 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should execute successActions for each workflow step if it does not have onSuccess action itself 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow workflow-failure-actions.arazzo.yaml / get-museum-hours
-
-  ✗ GET /museum-hours - step get-museum-hours
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow workflow-failure-actions.arazzo.yaml / get-museum-hours 
+ 
+  ✗ GET /museum-hours - step get-museum-hours 
     ✗ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  Running failure action repeated-failure-action-1 for the step get-museum-hours
-  Running workflow museum-tickets.yaml / get-museum-tickets
-
-  ✓ POST /tickets - step buy-tickets
+ 
+  Running failure action repeated-failure-action-1 for the step get-museum-hours 
+  Running workflow museum-tickets.yaml / get-museum-tickets 
+ 
+  ✓ POST /tickets - step buy-tickets 
     ✓ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
+ 
 
   Retrying step get-museum-hours (1/1)
-
-  ✗ GET /museum-hours - step get-museum-hours
+ 
+  ✗ GET /museum-hours - step get-museum-hours 
     ✗ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  ✗ GET /museum-hours - step get-museum-hours-2
+ 
+  ✗ GET /museum-hours - step get-museum-hours-2 
     ✗ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
 
   Retrying step get-museum-hours-2 (1/1)
-
-  ✗ GET /museum-hours - step get-museum-hours-2
+ 
+  ✗ GET /museum-hours - step get-museum-hours-2 
     ✗ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
+ 
 
   Failed tests info:
 
   Workflow name: get-museum-hours
-
-    stepId - get-museum-hours
-    ✗ success criteria check
+ 
+    stepId - get-museum-hours 
+    ✗ success criteria check 
       Checking simple criteria: {"condition":"$statusCode == 201"}
-      
-    stepId - get-museum-hours-2
-    ✗ success criteria check
+       
+    stepId - get-museum-hours-2 
+    ✗ success criteria check 
       Checking simple criteria: {"condition":"$statusCode == 201"}
-      
+       
   Summary for workflow-failure-actions.arazzo.yaml
   
   Workflows: 1 failed, 1 total
   Steps: 1 passed, 2 failed, 3 total
   Checks: 10 passed, 2 failed, 12 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ x workflow-failure-actions.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
 └──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
  Tests exited with error 
 

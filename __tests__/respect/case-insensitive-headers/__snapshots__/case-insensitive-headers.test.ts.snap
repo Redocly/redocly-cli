@@ -1,33 +1,33 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should send in request and proceed case-insensitive headers in runtime expressions 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow case-insensitive-headers.arazzo.yaml / get-museum-hours
-
-  ✓ GET /museum-hours - step get-museum-hours
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow case-insensitive-headers.arazzo.yaml / get-museum-hours 
+ 
+  ✓ GET /museum-hours - step get-museum-hours 
     ✓ success criteria check - $request.header.content-type == 'third'
     ✓ success criteria check - $request.header.CammelCasedHeader == 'custom-heade...
     ✓ success criteria check - $response.header.X-Content-Type-Options == 'nosnif...
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
+ 
+ 
   Summary for case-insensitive-headers.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 1 passed, 1 total
   Checks: 6 passed, 6 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ case-insensitive-headers.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
 └──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;

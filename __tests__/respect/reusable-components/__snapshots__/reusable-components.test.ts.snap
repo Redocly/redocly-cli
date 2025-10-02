@@ -1,18 +1,18 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow reusable-components.arazzo.yaml / get-museum-hours
-
-  ✓ GET /museum-hours - step get-museum-hours-step-success-action
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow reusable-components.arazzo.yaml / get-museum-hours 
+ 
+  ✓ GET /museum-hours - step get-museum-hours-step-success-action 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -69,21 +69,21 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto
+ 
+  ✗ GET /museum-hours - step get-museum-hours-step-failure-action-goto 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -140,24 +140,24 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✗ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  Running failure action get-museum-hours-failure-action for the step get-museum-hours-step-failure-action-goto
-  Running workflow reusable-components.arazzo.yaml / final-workflow
-
-  ✓ GET /museum-hours - step final-workflow-step
+ 
+  Running failure action get-museum-hours-failure-action for the step get-museum-hours-step-failure-action-goto 
+  Running workflow reusable-components.arazzo.yaml / final-workflow 
+ 
+  ✓ GET /museum-hours - step final-workflow-step 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -214,27 +214,27 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
-────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow reusable-components.arazzo.yaml / events-crud
-
-  ✓ GET /special-events - step list-events
+ 
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow reusable-components.arazzo.yaml / events-crud 
+ 
+  ✓ GET /special-events - step list-events 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
       authorization: Basic Og==
-      page: 1
-
+      page: 1 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -356,13 +356,13 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           ],
           "price": 5
         }
-      ]
-
+      ] 
+ 
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  ✓ POST /special-events - step create-event
+ 
+  ✓ POST /special-events - step create-event 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
@@ -387,8 +387,8 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -404,25 +404,25 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "2023-09-08"
         ],
         "price": 0
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow reusable-components.arazzo.yaml / final-workflow
-
-  ✓ GET /museum-hours - step final-workflow-step
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow reusable-components.arazzo.yaml / final-workflow 
+ 
+  ✓ GET /museum-hours - step final-workflow-step 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
       pagesize: 256
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -479,36 +479,36 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
+ 
 
   Failed tests info:
 
   Workflow name: get-museum-hours
-
-    stepId - get-museum-hours-step-failure-action-goto
-    ✗ success criteria check
+ 
+    stepId - get-museum-hours-step-failure-action-goto 
+    ✗ success criteria check 
       Checking simple criteria: {"condition":"$statusCode == 201"}
-      
+       
   Summary for reusable-components.arazzo.yaml
   
   Workflows: 2 passed, 1 failed, 3 total
   Steps: 5 passed, 1 failed, 6 total
   Checks: 22 passed, 1 failed, 23 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌─────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├─────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ x reusable-components.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
 └─────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
  Tests exited with error 
 

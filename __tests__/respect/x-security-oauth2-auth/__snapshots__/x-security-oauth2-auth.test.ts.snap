@@ -1,17 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should make request with Authorization header \`Bearer ...\` using OAuth2 accessToken 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow x-security-oauth2-auth.arazzo.yaml / oauth2-auth-workflow
-
-  ✓ GET /museum-hours - step step-with-oauth2-auth-scheme
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow x-security-oauth2-auth.arazzo.yaml / oauth2-auth-workflow 
+ 
+  ✓ GET /museum-hours - step step-with-oauth2-auth-scheme 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Bearer ********
-
+      authorization: Bearer ******** 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -68,27 +68,27 @@ exports[`should make request with Authorization header \`Bearer ...\` using OAut
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
+ 
+ 
   Summary for x-security-oauth2-auth.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 1 passed, 1 total
   Checks: 3 passed, 3 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                   │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ x-security-oauth2-auth.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
 └────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;

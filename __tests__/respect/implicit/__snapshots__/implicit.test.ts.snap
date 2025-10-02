@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should implicitly add content type header based on requestBody.content field (the first one) if such does not specified 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow implicit.arazzo.yaml / implicit-content-type
-
-  ✓ POST /activities - step post-activities
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow implicit.arazzo.yaml / implicit-content-type 
+ 
+  ✓ POST /activities - step post-activities 
 
     Request URL: https://api.impossiblemissionsforce.com/activities
     Request Headers:
@@ -26,18 +26,18 @@ exports[`should implicitly add content type header based on requestBody.content 
           "path": "/security/network-security/",
           "timestamp": "2023-02-19T09:31:27Z"
         }
-      }
-
+      } 
+ 
 
     Response status code: 204
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Body:
-      {}
-
+      {} 
+ 
     ✓ status code check - $statusCode in [204, 400]
-
-  ✓ POST /quizzes - step post-quizzes
+ 
+  ✓ POST /quizzes - step post-quizzes 
 
     Request URL: https://api.impossiblemissionsforce.com/quizzes
     Request Headers:
@@ -61,8 +61,8 @@ exports[`should implicitly add content type header based on requestBody.content 
             "correctAnswer": "b"
           }
         ]
-      }
-
+      } 
+ 
 
     Response status code: 400
     Response time: <test> ms
@@ -74,28 +74,28 @@ exports[`should implicitly add content type header based on requestBody.content 
         "status": 400,
         "detail": "string",
         "instance": "string"
-      }
-
+      } 
+ 
     ✓ success criteria check - $request.header.content-type == 'application/origi...
     ✓ status code check - $statusCode in [201, 400]
     ✓ content-type check
     ✓ schema check
-
-
+ 
+ 
   Summary for implicit.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 2 passed, 2 total
   Checks: 5 passed, 5 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌──────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ implicit.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
 └──────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;

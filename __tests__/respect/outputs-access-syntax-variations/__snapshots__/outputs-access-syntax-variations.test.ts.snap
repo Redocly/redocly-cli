@@ -1,17 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`should resolve outputs access syntax variations 1`] = `
-"────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-museum-hours
-
-  ✓ GET /museum-hours - step get-museum-hours
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-museum-hours 
+ 
+  ✓ GET /museum-hours - step get-museum-hours 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -68,17 +68,17 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "timeOpen": "10:00",
           "timeClose": "16:00"
         }
-      ]
-
+      ] 
+ 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  Running child workflow for the step buy-ticket
-  Running workflow museum-tickets.yaml / get-museum-tickets
-
-  ✓ POST /tickets - step buy-tickets
+ 
+  Running child workflow for the step buy-ticket 
+  Running workflow museum-tickets.yaml / get-museum-tickets 
+ 
+  ✓ POST /tickets - step buy-tickets 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/tickets
     Request Headers:
@@ -90,8 +90,8 @@ exports[`should resolve outputs access syntax variations 1`] = `
         "ticketType": "general",
         "ticketDate": "2023-09-07",
         "email": "todd@example.com"
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -103,25 +103,25 @@ exports[`should resolve outputs access syntax variations 1`] = `
         "ticketType": "general",
         "ticketDate": "2023-09-07",
         "confirmationCode": "ticket-general-e5e5c6-dce78"
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
-────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / events-crud
-
-  ✓ GET /special-events - step list-events
+ 
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / events-crud 
+ 
+  ✓ GET /special-events - step list-events 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -243,13 +243,13 @@ exports[`should resolve outputs access syntax variations 1`] = `
           ],
           "price": 5
         }
-      ]
-
+      ] 
+ 
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-  ✓ POST /special-events - step create-event
+ 
+  ✓ POST /special-events - step create-event 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events
     Request Headers:
@@ -266,8 +266,8 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }
-
+      } 
+ 
 
     Response status code: 201
     Response time: <test> ms
@@ -283,25 +283,25 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-22"
         ],
         "price": 0
-      }
-
+      } 
+ 
     ✓ success criteria check - $statusCode == 201
     ✓ success criteria check - $workflows.get-museum-hours.outputs.message == 'Mu...
     ✓ status code check - $statusCode in [201, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-────────────────────────────────────────────────────────────────────────────────
-
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-event-by-id
-
-  ✓ GET /special-events/{eventId} - step get-event-by-id
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-event-by-id 
+ 
+  ✓ GET /special-events/{eventId} - step get-event-by-id 
 
     Request URL: https://redocly.com/_mock/demo/openapi/museum-api/special-events/dad4bce8-f5cb-4078-a211-995864315e39
     Request Headers:
       accept: application/json, application/problem+json
-      authorization: Basic Og==
-
+      authorization: Basic Og== 
+ 
 
     Response status code: 200
     Response time: <test> ms
@@ -318,28 +318,28 @@ exports[`should resolve outputs access syntax variations 1`] = `
           "2023-12-02"
         ],
         "price": 60
-      }
-
+      } 
+ 
     ✓ success criteria check - $workflows.events-crud.outputs.createdEventData#/p...
     ✓ status code check - $statusCode in [200, 400, 404]
     ✓ content-type check
     ✓ schema check
-
-
+ 
+ 
   Summary for outputs-access-syntax-variations.arazzo.yaml
   
   Workflows: 3 passed, 3 total
   Steps: 5 passed, 5 total
   Checks: 20 passed, 20 total
-  Time: <test>ms
-
-
+  Time: <test>ms 
+ 
+ 
 ┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
 │ ✓ outputs-access-syntax-variations.arazzo.yaml                                       │ 3          │ 3       │ -       │ -        │
 └──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
-
+ 
 
 "
 `;
