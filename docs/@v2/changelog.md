@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.2.3 (2025-10-02)
+
+### Patch Changes
+
+- Fixed an issue where the Respect workflow separator did not render correctly in GitHub CI environments.
+- Added support for the `verbose` option in the `login` command to provide additional output during authentication.
+- Updated @redocly/respect-core to v2.2.3.
+
 ## 2.2.2 (2025-09-26)
 
 ### Patch Changes
