@@ -36,7 +36,7 @@ export interface Oas3Server {
   url: string;
   description?: string;
   variables?: { [name: string]: Oas3ServerVariable };
-  name?: string; // Added in OAS 3.2
+  name?: string; // added in OAS 3.2
 }
 
 export interface Oas3ServerVariable {
@@ -67,8 +67,8 @@ export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   head?: Oas3Operation<T>;
   patch?: Oas3Operation<T>;
   trace?: Oas3Operation<T>;
-  query?: Oas3Operation<T>; // Added in OAS 3.2
-  additionalOperations?: { [name: string]: Referenced<Oas3Operation<T>> }; // Added in OAS 3.2
+  query?: Oas3Operation<T>; // added in OAS 3.2
+  additionalOperations?: { [name: string]: Referenced<Oas3Operation<T>> }; // added in OAS 3.2
 
   servers?: Oas3Server[];
   parameters?: Array<Referenced<Oas3Parameter<T>>>;
@@ -221,9 +221,9 @@ export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
   example?: unknown;
   examples?: { [name: string]: Referenced<Oas3Example> };
   encoding?: { [field: string]: Oas3Encoding<T> };
-  itemSchema?: Referenced<T>; // Added in OAS 3.2
-  prefixEncodingList?: Oas3Encoding<T>[]; // Added in OAS 3.2
-  itemEncoding?: Referenced<Oas3Encoding<T>>; // Added in OAS 3.2
+  itemSchema?: Referenced<T>; // added in OAS 3.2
+  prefixEncodingList?: Oas3Encoding<T>[]; // added in OAS 3.2
+  itemEncoding?: Referenced<Oas3Encoding<T>>; // added in OAS 3.2
 }
 
 export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
@@ -307,6 +307,7 @@ export interface Oas3SecurityRequirement {
 
 type SecuritySchemeBase = {
   description?: string;
+  deprecated?: boolean; // added in OAS 3.2
   [key: `x-${string}`]: unknown;
 };
 
@@ -366,6 +367,7 @@ export type OAuth2Auth = {
       refreshUrl?: string;
     };
   };
+  oauth2MetadataUrl?: string; // added in OAS 3.2
 } & SecuritySchemeBase;
 
 export type OpenIDAuth = {

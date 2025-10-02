@@ -418,7 +418,7 @@ const Components: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ImplicitFlow: NodeType = {
+const ImplicitFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -428,7 +428,7 @@ export const ImplicitFlow: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const PasswordFlow: NodeType = {
+const PasswordFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -438,7 +438,7 @@ export const PasswordFlow: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ClientCredentials: NodeType = {
+const ClientCredentials: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -448,7 +448,7 @@ export const ClientCredentials: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const AuthorizationCode: NodeType = {
+const AuthorizationCode: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
@@ -466,7 +466,7 @@ export const AuthorizationCode: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const OAuth2Flows: NodeType = {
+const OAuth2Flows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',

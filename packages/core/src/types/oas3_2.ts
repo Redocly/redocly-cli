@@ -32,6 +32,104 @@ const Server: NodeType = {
   },
 };
 
+const SecurityScheme: NodeType = {
+  ...Oas3_1Types.SecurityScheme,
+  properties: {
+    ...Oas3_1Types.SecurityScheme.properties,
+    deprecated: { type: 'boolean' }, // added in OAS 3.2
+    oauth2MetadataUrl: { type: 'string' }, // added in OAS 3.2
+  },
+  allowed(value) {
+    switch (value?.type) {
+      case 'apiKey':
+        return [
+          'type',
+          'name',
+          'in',
+          'description',
+          'deprecated', // added in OAS 3.2
+        ];
+      case 'http':
+        return [
+          'type',
+          'scheme',
+          'bearerFormat',
+          'description',
+          'deprecated', // added in OAS 3.2
+        ];
+      case 'oauth2':
+        switch (value?.flows) {
+          case 'implicit':
+            return [
+              'type',
+              'flows',
+              'authorizationUrl',
+              'refreshUrl',
+              'description',
+              'scopes',
+              'oauth2MetadataUrl', // added in OAS 3.2
+              'deprecated', // added in OAS 3.2
+            ];
+          case 'password':
+          case 'clientCredentials':
+            return [
+              'type',
+              'flows',
+              'tokenUrl',
+              'refreshUrl',
+              'description',
+              'scopes',
+              'oauth2MetadataUrl', // added in OAS 3.2
+              'deprecated', // added in OAS 3.2
+            ];
+          case 'authorizationCode':
+            return [
+              'type',
+              'flows',
+              'authorizationUrl',
+              'refreshUrl',
+              'tokenUrl',
+              'description',
+              'scopes',
+              'oauth2MetadataUrl', // added in OAS 3.2
+              'deprecated', // added in OAS 3.2
+            ];
+          default:
+            return [
+              'type',
+              'flows',
+              'authorizationUrl',
+              'refreshUrl',
+              'tokenUrl',
+              'description',
+              'scopes',
+              'oauth2MetadataUrl', // added in OAS 3.2
+              'deprecated', // added in OAS 3.2
+            ];
+        }
+      case 'openIdConnect':
+        return [
+          'type',
+          'openIdConnectUrl',
+          'description',
+          'deprecated', // added in OAS 3.2
+        ];
+      case 'mutualTLS':
+        return [
+          'type',
+          'description',
+          'deprecated', // added in OAS 3.2
+        ];
+      default:
+        return [
+          'type',
+          'description',
+          'deprecated', // added in OAS 3.2
+        ];
+    }
+  },
+};
+
 const PathItem: NodeType = {
   ...Oas3Types.PathItem,
   properties: {
@@ -56,6 +154,7 @@ export const Oas3_2Types = {
   Root,
   Tag,
   Server,
+  SecurityScheme,
   PathItem,
   MediaType,
 } as const;

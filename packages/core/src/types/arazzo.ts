@@ -1,16 +1,5 @@
-import { mapOf, type NodeType, listOf } from './index.js';
-import { DependentRequired, Schema, SchemaProperties, SecurityScheme } from './oas3_1.js';
-import {
-  Discriminator,
-  DiscriminatorMapping,
-  ExternalDocs,
-  Xml,
-  OAuth2Flows,
-  ImplicitFlow,
-  PasswordFlow,
-  ClientCredentials,
-  AuthorizationCode,
-} from './oas3.js';
+import { listOf, mapOf, type NodeType } from './index.js';
+import { Oas3_2Types } from './oas3_2.js';
 
 const Root: NodeType = {
   properties: {
@@ -312,24 +301,24 @@ export const Arazzo1Types: Record<string, NodeType> = {
   OnSuccessActionList,
   FailureActionObject,
   OnFailureActionList,
-  Schema,
+  Schema: Oas3_2Types.Schema,
   NamedSchemas: mapOf('Schema'),
-  ExternalDocs,
-  DiscriminatorMapping,
-  Discriminator,
-  DependentRequired,
-  SchemaProperties,
-  PatternProperties: SchemaProperties,
+  ExternalDocs: Oas3_2Types.ExternalDocs,
+  DiscriminatorMapping: Oas3_2Types.DiscriminatorMapping,
+  Discriminator: Oas3_2Types.Discriminator,
+  DependentRequired: Oas3_2Types.DependentRequired,
+  SchemaProperties: Oas3_2Types.SchemaProperties,
+  PatternProperties: Oas3_2Types.SchemaProperties,
   Components,
   NamedInputs,
   NamedParameters,
   NamedSuccessActions,
   NamedFailureActions,
-  Xml,
-  SecurityScheme,
-  OAuth2Flows,
-  ImplicitFlow,
-  PasswordFlow,
-  ClientCredentials,
-  AuthorizationCode,
+  Xml: Oas3_2Types.Xml,
+  SecurityScheme: Oas3_2Types.SecurityScheme,
+  OAuth2Flows: Oas3_2Types.OAuth2Flows,
+  ImplicitFlow: Oas3_2Types.ImplicitFlow,
+  PasswordFlow: Oas3_2Types.PasswordFlow,
+  ClientCredentials: Oas3_2Types.ClientCredentials,
+  AuthorizationCode: Oas3_2Types.AuthorizationCode,
 };
