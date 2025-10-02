@@ -36,7 +36,7 @@ export class RedoclyOAuthClient {
 
     const credentials = await deviceFlow.run();
     if (!credentials) {
-      throw new Error('Failed to login');
+      throw new Error('Failed to login. No credentials received.');
     }
     this.saveCredentials(credentials);
   }
