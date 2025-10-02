@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.2.3
+
+### Patch Changes
+
+- Fixed an issue where the Respect workflow separator did not render correctly in GitHub CI environments.
+- Updated @redocly/openapi-core to v2.2.3.
+
 ## 2.2.2
 
 ### Patch Changes
