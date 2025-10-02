@@ -1,97 +1,54 @@
-import { JSONPath } from 'jsonpath-plus';
+import { query, type JsonValue } from 'jsonpath-rfc9535';
 
-function cleanPattern(pattern: string | undefined): string {
-  return pattern ? pattern.replace(/^["']|["']$/g, '') : '';
-}
-
-// Helper function to normalize property names (hyphens to underscores)
-function normalizePropertyNames(path: string): string {
-  return path.replace(/\.([a-zA-Z0-9_-]+)/g, (_: string, prop: string) => {
-    return '.' + prop.replace(/-/g, '_');
-  });
-}
-
-export function evaluateJSONPAthCondition(condition: string, context: Record<string, unknown>) {
-  // RFC 9535 https://www.rfc-editor.org/rfc/rfc9535#name-length-function-extension
-
-  const FUNCTION_EXTENSIONS = {
-    length: (path: string, context: Record<string, unknown>) => {
-      const result = JSONPath({ path, json: context });
-      if (result.length === 0) return 0;
-      return Array.isArray(result[0]) ? result[0].length : result.length;
-    },
-    count: (path: string, context: Record<string, unknown>) => {
-      const result = JSONPath({ path, json: context });
-      return result.length;
-    },
-    value: (path: string, context: Record<string, unknown>) => {
-      const result = JSONPath({ path, json: context });
-      return result[0] ?? null;
-    },
-    match: (path: string, context: Record<string, unknown>, pattern: string) => {
-      const result = JSONPath({ path, json: context });
-      if (result.length === 0) return false;
-      const value = result[0];
-      if (typeof value !== 'string') return false;
-      try {
-        const regex = new RegExp(pattern);
-        return regex.test(value);
-      } catch {
-        return false;
-      }
-    },
-    search: (path: string, context: Record<string, unknown>, pattern: string) => {
-      const result = JSONPath({ path, json: context });
-      if (result.length === 0) return -1;
-      const value = result[0];
-      if (typeof value !== 'string') return -1;
-      try {
-        const regex = new RegExp(pattern);
-        const match = value.search(regex);
-        return match;
-      } catch {
-        return -1;
-      }
-    },
-  };
-
-  // Optimized function handlers mapping
-  const functionHandlers = {
-    value: (normalizedPath: string, context: Record<string, unknown>) => {
-      const result = FUNCTION_EXTENSIONS.value(normalizedPath, context);
-      return JSON.stringify(result);
-    },
-    length: (normalizedPath: string, context: Record<string, unknown>) => {
-      const result = FUNCTION_EXTENSIONS.length(normalizedPath, context);
-      return String(result);
-    },
-    count: (normalizedPath: string, context: Record<string, unknown>) => {
-      const result = FUNCTION_EXTENSIONS.count(normalizedPath, context);
-      return String(result);
-    },
-    match: (
-      normalizedPath: string,
-      context: Record<string, unknown>,
-      pattern: string | undefined
-    ) => {
-      const cleanPatternValue = cleanPattern(pattern);
-      const result = FUNCTION_EXTENSIONS.match(normalizedPath, context, cleanPatternValue);
-      return String(result);
-    },
-    search: (
-      normalizedPath: string,
-      context: Record<string, unknown>,
-      pattern: string | undefined
-    ) => {
-      const cleanPatternValue = cleanPattern(pattern);
-      const result = FUNCTION_EXTENSIONS.search(normalizedPath, context, cleanPatternValue);
-      return String(result);
-    },
-  };
-
+export function evaluateJSONPAthCondition(condition: string, context: JsonValue) {
   try {
+    const RFC_9535_FUNCTION_EXTENSIONS = {
+      length: (path: string, context: JsonValue) => {
+        const normalizedPath = transformHyphensToUnderscores(path);
+        const result = query(context, normalizedPath);
+        if (result.length === 0) return 0;
+        return Array.isArray(result[0]) ? result[0].length : result.length;
+      },
+      count: (path: string, context: JsonValue) => {
+        const normalizedPath = transformHyphensToUnderscores(path);
+        const result = query(context, normalizedPath);
+        return result.length;
+      },
+      value: (path: string, context: JsonValue) => {
+        const normalizedPath = transformHyphensToUnderscores(path);
+        const result = query(context, normalizedPath);
+        return result[0] ?? null;
+      },
+      match: (path: string, context: JsonValue, pattern: string) => {
+        const normalizedPath = transformHyphensToUnderscores(path);
+        const result = query(context, normalizedPath);
+        if (result.length === 0) return false;
+        const value = result[0];
+        if (typeof value !== 'string') return false;
+        try {
+          const regex = new RegExp(pattern);
+          return regex.test(value);
+        } catch {
+          return false;
+        }
+      },
+      search: (path: string, context: JsonValue, pattern: string) => {
+        const normalizedPath = transformHyphensToUnderscores(path);
+        const result = query(context, normalizedPath);
+        if (result.length === 0) return -1;
+        const value = result[0];
+        if (typeof value !== 'string') return -1;
+        try {
+          const regex = new RegExp(pattern);
+          const match = value.search(regex);
+          return match;
+        } catch {
+          return -1;
+        }
+      },
+    };
+
     // Preprocess top-level function calls like length($.path), count($.path), value($.path), match($.path, pattern), search($.path, pattern)
-    // Manual parsing to handle quoted patterns correctly
     let workingCondition = condition;
     const functionNames = ['length', 'count', 'value', 'match', 'search'];
 
@@ -101,11 +58,32 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
         'g'
       );
       workingCondition = workingCondition.replace(funcPattern, (match, rawPath, pattern) => {
-        const normalizedPath = normalizePropertyNames(rawPath);
+        const normalizedPath = transformHyphensToUnderscores(rawPath);
+        const cleanPatternValue = cleanQuotes(pattern);
 
-        const handler = functionHandlers[funcName as keyof typeof functionHandlers];
-        if (handler) {
-          return handler(normalizedPath, context, pattern);
+        if (funcName === 'length') {
+          const result = RFC_9535_FUNCTION_EXTENSIONS.length(normalizedPath, context);
+          return String(result);
+        } else if (funcName === 'count') {
+          const result = RFC_9535_FUNCTION_EXTENSIONS.count(normalizedPath, context);
+          return String(result);
+        } else if (funcName === 'value') {
+          const result = RFC_9535_FUNCTION_EXTENSIONS.value(normalizedPath, context);
+          return JSON.stringify(result);
+        } else if (funcName === 'match') {
+          const result = RFC_9535_FUNCTION_EXTENSIONS.match(
+            normalizedPath,
+            context,
+            cleanPatternValue
+          );
+          return String(result);
+        } else if (funcName === 'search') {
+          const result = RFC_9535_FUNCTION_EXTENSIONS.search(
+            normalizedPath,
+            context,
+            cleanPatternValue
+          );
+          return String(result);
         }
 
         return match;
@@ -204,12 +182,11 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
       let replacement = '';
       let handled = false;
 
-      // Check for function extensions first
-      for (const [funcName] of Object.entries(FUNCTION_EXTENSIONS)) {
+      for (const [funcName] of Object.entries(RFC_9535_FUNCTION_EXTENSIONS)) {
         const funcPattern = new RegExp(`\\.${funcName}\\(\\)$`);
         if (funcPattern.test(expression)) {
           const basePath = expression.replace(funcPattern, '');
-          const normalizedPath = normalizePropertyNames(basePath);
+          const normalizedPath = transformHyphensToUnderscores(basePath);
 
           // Handle functions that require different numbers of arguments
           if (funcName === 'match' || funcName === 'search') {
@@ -220,11 +197,11 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
 
           // For functions that only need path and context
           if (funcName === 'length') {
-            replacement = String(FUNCTION_EXTENSIONS.length(normalizedPath, context));
+            replacement = String(RFC_9535_FUNCTION_EXTENSIONS.length(normalizedPath, context));
           } else if (funcName === 'count') {
-            replacement = String(FUNCTION_EXTENSIONS.count(normalizedPath, context));
+            replacement = String(RFC_9535_FUNCTION_EXTENSIONS.count(normalizedPath, context));
           } else if (funcName === 'value') {
-            replacement = String(FUNCTION_EXTENSIONS.value(normalizedPath, context));
+            replacement = String(RFC_9535_FUNCTION_EXTENSIONS.value(normalizedPath, context));
           }
           handled = true;
           break;
@@ -234,8 +211,8 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
       // Handle legacy .length suffix for backward compatibility
       if (!handled && expression.endsWith('.length')) {
         const basePath = expression.slice(0, -'.length'.length);
-        const normalizedPath = normalizePropertyNames(basePath);
-        const jsonpathResult = JSONPath({ path: normalizedPath, json: context });
+        const normalizedPath = transformHyphensToUnderscores(basePath);
+        const jsonpathResult = query(context, normalizedPath);
         const jsonpathResultValue = jsonpathResult[0] ?? null;
         replacement = Array.isArray(jsonpathResultValue) ? String(jsonpathResultValue.length) : '0';
         handled = true;
@@ -254,8 +231,8 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
             const basePath = expression.substring(0, expression.indexOf('[?('));
 
             // Get the array to filter
-            const normalizedBasePath = normalizePropertyNames(basePath);
-            const jsonpathResult = JSONPath({ path: normalizedBasePath, json: context });
+            const normalizedBasePath = transformHyphensToUnderscores(basePath);
+            const jsonpathResult = query(context, normalizedBasePath);
 
             // Flatten the result in case JSONPath returns nested arrays
             const arrayToFilter = Array.isArray(jsonpathResult)
@@ -306,8 +283,10 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
                 convertedCondition = convertedCondition.replace(
                   /length\(([^)]+)\)/g,
                   (_: string, path: string) => {
-                    const normalizedPath = normalizePropertyNames(path);
-                    const result = FUNCTION_EXTENSIONS.length(normalizedPath, { '@': item });
+                    const normalizedPath = transformHyphensToUnderscores(path);
+                    const result = RFC_9535_FUNCTION_EXTENSIONS.length(normalizedPath, {
+                      '@': item,
+                    });
                     return String(result);
                   }
                 );
@@ -355,8 +334,8 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
           }
         } else {
           // Regular JSONPath expression
-          const normalizedPath = normalizePropertyNames(expression);
-          const jsonpathResult = JSONPath({ path: normalizedPath, json: context });
+          const normalizedPath = transformHyphensToUnderscores(expression);
+          const jsonpathResult = query(context, normalizedPath);
           const jsonpathResultValue = jsonpathResult[0] ?? null;
           replacement = JSON.stringify(jsonpathResultValue);
         }
@@ -374,4 +353,14 @@ export function evaluateJSONPAthCondition(condition: string, context: Record<str
     console.warn(`JSONPath evaluation failed for condition "${condition}":`, error);
     return false;
   }
+}
+
+function transformHyphensToUnderscores(path: string): string {
+  return path.replace(/\.([a-zA-Z0-9_-]+)/g, (_: string, prop: string) => {
+    return '.' + prop.replace(/-/g, '_');
+  });
+}
+
+function cleanQuotes(pattern: string | undefined): string {
+  return pattern ? pattern.replace(/^["']|["']$/g, '') : '';
 }
