@@ -38,6 +38,15 @@ describe('Logger in Browser', () => {
 
     warn.mockRestore();
   });
+
+  it('should call "console.error" for errorWithStack', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    logger.errorWithStack('error');
+
+    expect(error).toBeCalledTimes(1);
+    expect(error).toBeCalledWith('error');
+  });
 });
 
 describe('colorize in Browser', () => {

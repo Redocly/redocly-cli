@@ -490,6 +490,11 @@ yargs(hideBin(process.argv))
           requiresArg: true,
           type: 'string',
         },
+        verbose: {
+          alias: 'v',
+          describe: 'Apply verbose mode.',
+          type: 'boolean',
+        },
       }),
     (argv) => {
       commandWrapper(handleLogin)(argv);

@@ -51,6 +51,13 @@ describe('Logger in nodejs', () => {
     const indent = logger.indent('indent', 2);
     expect(indent).toEqual('\xa0\xa0indent');
   });
+
+  it('should call "process.stderr.write" for errorWithStack', () => {
+    logger.errorWithStack('error');
+
+    expect(spyingStderr).toBeCalledTimes(1);
+    expect(spyingStderr).toBeCalledWith(colorette.red('error\n'));
+  });
 });
 
 describe('colorize in nodejs', () => {

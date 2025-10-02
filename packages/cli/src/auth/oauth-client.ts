@@ -19,16 +19,21 @@ export class RedoclyOAuthClient {
   private readonly iv: Buffer;
 
   constructor() {
-    const homeDirPath = homedir();
+    try {
+      const homeDirPath = homedir();
 
-    this.credentialsFolderPath = path.join(homeDirPath, '.redocly');
-    this.credentialsFileName = 'credentials';
-    this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
+      this.credentialsFolderPath = path.join(homeDirPath, '.redocly');
+      this.credentialsFileName = 'credentials';
+      this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
 
-    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIALS_SALT}`).digest();
-    this.iv = crypto.createHash('md5').update(homeDirPath).digest();
+      this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIALS_SALT}`).digest();
+      this.iv = crypto.createHash('md5').update(homeDirPath).digest();
 
-    mkdirSync(this.credentialsFolderPath, { recursive: true });
+      mkdirSync(this.credentialsFolderPath, { recursive: true });
+    } catch (error) {
+      logger.error('Failed to initialize OAuth client.\n');
+      throw error;
+    }
   }
 
   public async login(baseUrl: string): Promise<void> {
@@ -36,7 +41,7 @@ export class RedoclyOAuthClient {
 
     const credentials = await deviceFlow.run();
     if (!credentials) {
-      throw new Error('Failed to login');
+      throw new Error('Failed to login. No credentials received.');
     }
     this.saveCredentials(credentials);
   }
