@@ -26,7 +26,6 @@ export interface LoggerInterface {
   printNewLine(): void;
   printSeparator(separator: string): void;
   indent(str: string, level: number): string;
-  errorWithStack(str: string | Error): void;
 }
 
 class Logger implements LoggerInterface {
@@ -40,15 +39,6 @@ class Logger implements LoggerInterface {
 
   error(str: string) {
     return isBrowser ? console.error(str) : process.stderr.write(colorize.red(str));
-  }
-
-  errorWithStack(str: string | Error) {
-    if (isBrowser) {
-      console.error(str);
-    } else {
-      const errorString = str instanceof Error ? str.stack || str.message : String(str);
-      process.stderr.write(colorize.red(errorString + '\n'));
-    }
   }
 
   output(str: string) {

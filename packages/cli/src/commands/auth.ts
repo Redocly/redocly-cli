@@ -26,7 +26,7 @@ export async function handleLogin({ argv, config }: CommandArgs<LoginArgv>) {
     if (argv.verbose) {
       logger.error(`Residency: ${argv.residency}.\n`);
       logger.error(`Login URL: ${reuniteUrl}.\n`);
-      logger.errorWithStack(e);
+      logger.error(e.stack || e.message);
     }
 
     if (argv.residency) {
