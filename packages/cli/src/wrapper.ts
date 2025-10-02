@@ -28,13 +28,17 @@ export function commandWrapper<T extends CommandArgv>(
   return async (argv: Arguments<T>) => {
     let code: ExitCode = 2;
     let telemetry;
-    let specVersion: string | undefined;
+    let specVersion: string = 'unknown';
     let specKeyword: string | undefined;
     let specFullVersion: string | undefined;
     let config: Config | undefined;
     const respectXSecurityAuthTypes: string[] = [];
     const collectSpecData: CollectFn = (document) => {
-      specVersion = detectSpec(document);
+      try {
+        specVersion = detectSpec(document);
+      } catch (err) {
+        specVersion = `unsupported`;
+      }
       if (!isPlainObject(document)) return;
       specKeyword = document?.openapi
         ? 'openapi'
