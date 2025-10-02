@@ -1,4 +1,4 @@
-import { mapOf, type NodeType } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import { Oas3Types } from './oas3.js';
 import { Oas3_1Types } from './oas3_1.js';
 
@@ -34,9 +34,20 @@ const PathItem: NodeType = {
   },
 };
 
+const MediaType: NodeType = {
+  ...Oas3_1Types.MediaType,
+  properties: {
+    ...Oas3_1Types.MediaType.properties,
+    itemSchema: 'Schema',
+    prefixEncodingList: listOf('Encoding'),
+    itemEncoding: 'Encoding',
+  },
+};
+
 export const Oas3_2Types = {
   ...Oas3_1Types,
   Root,
   Tag,
   PathItem,
+  MediaType,
 } as const;

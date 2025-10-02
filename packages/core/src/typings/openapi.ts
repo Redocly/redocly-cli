@@ -6,7 +6,7 @@ interface Oas3DefinitionBase<T extends Oas3Schema | Oas3_1Schema> {
   paths?: Oas3Paths<T>;
   components?: T extends Oas3_1Schema ? Oas3_1Components : Oas3Components;
   security?: Oas3SecurityRequirement[];
-  tags?: Oas3Tag[] | Oas3_2Tag[];
+  tags?: Oas3Tag[];
   externalDocs?: Oas3ExternalDocs;
 }
 
@@ -16,7 +16,6 @@ export interface Oas3Definition extends Oas3DefinitionBase<Oas3Schema> {
 
 export interface Oas3_1Definition extends Oas3DefinitionBase<Oas3_1Schema> {
   webhooks?: Oas3Webhooks<Oas3_1Schema>;
-  tags?: Oas3Tag[];
 }
 
 export interface Oas3_2Definition extends Oas3_1Definition {
@@ -221,6 +220,9 @@ export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
   example?: unknown;
   examples?: { [name: string]: Referenced<Oas3Example> };
   encoding?: { [field: string]: Oas3Encoding<T> };
+  itemSchema?: Referenced<T>; // Added in OAS 3.2
+  prefixEncodingList?: Oas3Encoding<T>[]; // Added in OAS 3.2
+  itemEncoding?: Referenced<Oas3Encoding<T>>; // Added in OAS 3.2
 }
 
 export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
