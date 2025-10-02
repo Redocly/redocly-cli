@@ -59,6 +59,7 @@ import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
 import { SpecDiscriminatorDefaultMapping } from './spec-discriminator-defaultMapping.js';
 import { SpecExampleValues } from './spec-example-values.js';
+import { NoIllogicalCompositionKeywords } from './no-illogical-composition-keywords.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
@@ -126,6 +127,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-no-invalid-encoding-combinations': SpecNoInvalidEncodingCombinations,
   'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
+  'no-illogical-composition-keywords': NoIllogicalCompositionKeywords,
 };
 
 export const preprocessors = {};
