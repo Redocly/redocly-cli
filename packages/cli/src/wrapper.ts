@@ -7,11 +7,7 @@ import {
 } from '@redocly/openapi-core';
 import { version } from './utils/package.js';
 import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
-import {
-  sendTelemetry,
-  collectXSecurityAuthTypes,
-  transformSpecVersionError,
-} from './utils/telemetry.js';
+import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 
 import type { Arguments } from 'yargs';
@@ -41,7 +37,7 @@ export function commandWrapper<T extends CommandArgv>(
       try {
         specVersion = detectSpec(document);
       } catch (err) {
-        specVersion = transformSpecVersionError(err.message);
+        specVersion = `unsupported`;
       }
       if (!isPlainObject(document)) return;
       specKeyword = document?.openapi
