@@ -22,11 +22,11 @@ export async function handleLogin({ argv, config }: CommandArgs<LoginArgv>) {
     }
 
     await oauthClient.login(reuniteUrl);
-  } catch (e) {
+  } catch (error) {
     if (argv.verbose) {
       logger.error(`Residency: ${argv.residency}.\n`);
       logger.error(`Login URL: ${reuniteUrl}.\n`);
-      logger.error(e.stack || e.message);
+      logger.error(error.stack || error.message);
     }
 
     if (argv.residency) {
