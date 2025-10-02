@@ -49,6 +49,7 @@ export interface Oas2PathItem {
   options?: Oas2Operation;
   head?: Oas2Operation;
   patch?: Oas2Operation;
+
   parameters?: Array<Referenced<Oas2Parameter>>;
 }
 

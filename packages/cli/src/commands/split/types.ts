@@ -28,6 +28,7 @@ export const OPENAPI3_METHOD_NAMES = [
   'head',
   'patch',
   'trace',
+  'query',
 ] as const;
 
 export type Oas3Component = typeof OPENAPI3_COMPONENT_NAMES[number];

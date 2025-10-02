@@ -19,8 +19,7 @@ export interface Oas3_1Definition extends Oas3DefinitionBase<Oas3_1Schema> {
   tags?: Oas3Tag[];
 }
 
-export interface Oas3_2Definition extends Oas3DefinitionBase<Oas3_1Schema> {
-  webhooks?: Oas3Webhooks<Oas3_1Schema>;
+export interface Oas3_2Definition extends Oas3_1Definition {
   tags?: Oas3_2Tag[];
 }
 
@@ -48,6 +47,7 @@ export interface Oas3ServerVariable {
 export interface Oas3Paths<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   [path: string]: Referenced<Oas3PathItem<T>>;
 }
+
 export interface OasRef {
   $ref: string;
 }
@@ -65,6 +65,8 @@ export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   head?: Oas3Operation<T>;
   patch?: Oas3Operation<T>;
   trace?: Oas3Operation<T>;
+  query?: Oas3Operation<T>; // Added in OAS 3.2
+  additionalOperations?: { [name: string]: Referenced<Oas3Operation<T>> }; // Added in OAS 3.2
   servers?: Oas3Server[];
   parameters?: Array<Referenced<Oas3Parameter<T>>>;
 }

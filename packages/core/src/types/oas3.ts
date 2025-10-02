@@ -137,6 +137,7 @@ const PathItem: NodeType = {
     parameters: 'ParameterList',
     summary: { type: 'string' },
     description: { type: 'string' },
+
     get: 'Operation',
     put: 'Operation',
     post: 'Operation',
