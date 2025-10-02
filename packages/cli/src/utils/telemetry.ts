@@ -102,6 +102,42 @@ export async function sendTelemetry({
   }
 }
 
+export function transformSpecVersionError(errorMessage: string): string {
+  if (!errorMessage || typeof errorMessage !== 'string') {
+    return 'unknown';
+  }
+
+  const lowerMessage = errorMessage.toLowerCase();
+
+  if (lowerMessage.includes('invalid openapi version')) {
+    return 'invalid-openapi-version';
+  }
+
+  if (
+    (lowerMessage.includes('unsupported') && lowerMessage.includes('version')) ||
+    lowerMessage.includes('specification')
+  ) {
+    const extractUnsupportedVersion = (apiType: string, prefix: string) => {
+      const match = errorMessage.match(new RegExp(`Unsupported ${apiType} version:\\s*(.+)`, 'i'));
+      if (match && match[1]) {
+        const version = match[1].trim();
+        return `unsupported-${prefix}-${version}`;
+      }
+      return null;
+    };
+
+    const asyncApiResult = extractUnsupportedVersion('AsyncAPI', 'async');
+    if (asyncApiResult) return asyncApiResult;
+
+    const openApiResult = extractUnsupportedVersion('OpenAPI', 'openapi');
+    if (openApiResult) return openApiResult;
+
+    return 'unsupported';
+  }
+
+  return 'unknown';
+}
+
 export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
   respectXSecurityAuthTypesAndSchemeName: string[]
