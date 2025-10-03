@@ -117,7 +117,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.async3Preprocessors,
       },
-      arazzo1: { ...resolvedConfig.arazzo1Preprocessors },
+      arazzo1: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.arazzo1Preprocessors,
+      },
       overlay1: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
@@ -131,7 +134,7 @@ export class Config {
       oas3_2: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_2Decorators },
       async2: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
       async3: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
-      arazzo1: { ...resolvedConfig.arazzo1Decorators },
+      arazzo1: { ...resolvedConfig.decorators, ...resolvedConfig.arazzo1Decorators },
       overlay1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
