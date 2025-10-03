@@ -607,7 +607,7 @@ export async function handleJoin({
       oasVersion,
     }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === 'oas3_1' ? 'webhooks' : 'x-webhooks';
+    const webhooks = oasVersion === 'oas3_0' ? 'x-webhooks' : 'webhooks';
     const openapiWebhooks = (openapi as Exact<AnyOas3Definition>)[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {

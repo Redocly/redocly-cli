@@ -27,7 +27,6 @@ tags:
     description: Book catalog and recommendations
     parent: products
     kind: nav
-    wrong: fail!
   - name: bar_other
     summary: other
 paths:

@@ -76,7 +76,7 @@ The context object contains additional functionality that is helpful for rules t
 - `type` - Information about the current type from the type tree.
 - `parent` - Parent object or array.
 - `key` - Key in the parent object or array.
-- `oasVersion` - Specific OAS minor version of the current document (can be `oas2`, `oas3` or `oas3_1`).
+- `oasVersion` - Specific OAS minor version of the current document (can be `oas2`, `oas3`, `oas3_1`, or `oas3_2`).
 
 The context object also offers some additional functionality to resolve references and to return information about a problem to the user. The methods available are as follows:
 

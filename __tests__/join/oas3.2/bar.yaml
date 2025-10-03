@@ -9,7 +9,6 @@ tags:
     description: Book catalog and recommendations
     parent: products
     kind: nav
-    wrong: fail!
 paths:
   /products:
     additionalOperations:
