@@ -165,6 +165,14 @@ const MediaType: NodeType = {
   },
 };
 
+const Discriminator: NodeType = {
+  ...Oas3_1Types.Discriminator,
+  properties: {
+    ...Oas3_1Types.Discriminator.properties,
+    defaultMapping: { type: 'string' },
+  },
+};
+
 const Example: NodeType = {
   ...Oas3_1Types.Example,
   properties: {
@@ -184,5 +192,6 @@ export const Oas3_2Types = {
   Parameter,
   Response,
   MediaType,
+  Discriminator,
   Example,
 } as const;

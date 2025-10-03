@@ -215,6 +215,7 @@ export interface Oas3Webhooks<T extends Oas3Schema | Oas3_1Schema> {
 export interface Oas3Discriminator {
   propertyName: string;
   mapping?: { [name: string]: string };
+  defaultMapping?: string; // added in OAS 3.2
   'x-explicitMappingOnly'?: boolean;
 }
 
