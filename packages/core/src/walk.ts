@@ -46,6 +46,7 @@ export type UserContext = {
   type: NormalizedNodeType;
   key: string | number;
   parent: any;
+  parents: any[];
   specVersion: SpecVersion;
   config?: Config;
   getVisitorData: () => Record<string, unknown>;
@@ -130,13 +131,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   const seenNodesPerType: Record<string, Set<unknown>> = {};
   const ignoredNodes = new Set<string>();
 
-  walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
+  walkNode(document.parsed, rootType, new Location(document.source, '#/'), [], '');
 
   function walkNode(
     node: any,
     type: NormalizedNodeType,
     location: Location,
-    parent: any,
+    parents: any[],
     key: string | number
   ) {
     const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
@@ -179,7 +180,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             rawLocation,
             location,
             type,
-            parent,
+            parent: parents[parents.length - 1],
+            parents,
             key,
             parentLocations: {},
             specVersion: ctx.specVersion,
@@ -287,7 +289,13 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
 
               if (isNamedType(itemType)) {
-                walkNode(itemValue, itemType, resolvedLocation.child([i]), resolvedNode, i);
+                walkNode(
+                  itemValue,
+                  itemType,
+                  resolvedLocation.child([i]),
+                  [...parents, resolvedNode],
+                  i
+                );
               }
             }
           }
@@ -343,7 +351,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               continue;
             }
 
-            walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
+            walkNode(value, propType, loc.child([propName]), [...parents, resolvedNode], propName);
           }
         }
       }
@@ -393,7 +401,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               rawLocation,
               location,
               type,
-              parent,
+              parent: parents[parents.length - 1],
+              parents,
               key,
               parentLocations: {},
               specVersion: ctx.specVersion,
@@ -426,7 +435,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           location: currentLocation,
           rawLocation,
           type,
-          parent,
+          parent: parents[parents.length - 1],
+          parents,
           key,
           parentLocations: collectParentsLocations(context),
           specVersion: ctx.specVersion,
