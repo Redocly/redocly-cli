@@ -13,7 +13,7 @@ const Root: NodeType = {
 const Tag: NodeType = {
   ...Oas3_1Types.Tag,
   properties: {
-    ...Oas3_1Types.Tag.properties;
+    ...Oas3_1Types.Tag.properties,
     kind: { type: 'string' },
     parent: { type: 'string' },
     summary: { type: 'string' },
