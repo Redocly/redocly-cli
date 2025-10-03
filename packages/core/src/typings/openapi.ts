@@ -375,6 +375,12 @@ export type OAuth2Auth = {
       scopes: Record<string, string>;
       refreshUrl?: string;
     };
+    deviceAuthorization?: {
+      deviceAuthorizationUrl: string;
+      tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    }; // added in OAS 3.2
   };
   oauth2MetadataUrl?: string; // added in OAS 3.2
 } & SecuritySchemeBase;

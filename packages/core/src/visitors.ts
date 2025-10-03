@@ -206,6 +206,9 @@ type Oas3FlatVisitor = {
   PasswordFlow?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['password']>>;
   ClientCredentials?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['clientCredentials']>>;
   AuthorizationCode?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['authorizationCode']>>;
+  DeviceAuthorization?: VisitFunctionOrObject<
+    NonNullable<OAuth2Auth['flows']['deviceAuthorization']>
+  >; // added in OAS 3.2
   OAuth2Flows?: VisitFunctionOrObject<OAuth2Auth['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
   SpecExtension?: VisitFunctionOrObject<unknown>;

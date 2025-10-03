@@ -321,4 +321,5 @@ export const Arazzo1Types: Record<string, NodeType> = {
   PasswordFlow: Oas3_2Types.PasswordFlow,
   ClientCredentials: Oas3_2Types.ClientCredentials,
   AuthorizationCode: Oas3_2Types.AuthorizationCode,
+  DeviceAuthorization: Oas3_2Types.DeviceAuthorization,
 };

@@ -1,0 +1,41 @@
+openapi: 3.2.0
+info:
+  title: Test2
+  version: v2
+tags:
+  - name: successfully
+  - name: books
+    summary: Books & Literature
+    description: Book catalog and recommendations
+    parent: products
+    kind: nav
+    wrong: fail!
+paths:
+  /products:
+    additionalOperations:
+      test:
+        summary: Additional op test
+        wrong: Should catch wrong fields in additionalOperations!
+    query:
+      summary: Advanced product search
+      wrong: Should catch wrong fields in the QUERY method!
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: object
+                sort:
+                  type: array
+                  items:
+                    type: string
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      deprecated: true

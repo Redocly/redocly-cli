@@ -1,0 +1,168 @@
+openapi: 3.2.0
+info:
+  title: Test
+  version: v1
+security:
+  - device_auth: []
+servers:
+  - name: Should allow name
+    url: http://localhost
+    wrong: Should catch wrong fields in servers!
+$self: Should pass
+tags:
+  - name: books
+    summary: Books & Literature
+    description: Book catalog and recommendations
+    parent: products
+    kind: nav
+    wrong: Should catch wrong fields in tags!
+
+  - name: cds
+    summary: Music CDs
+    description: Music CD catalog and reviews
+    parent: products
+    kind: nav
+
+  - name: giftcards
+    summary: Gift Cards
+    description: Digital and physical gift cards
+    parent: products
+    kind: nav
+
+  - name: digital-delivery
+    summary: Digital Delivery
+    description: Instantly delivered digital products
+    kind: badge
+
+paths:
+  /giftcards:
+    get:
+      tags:
+        - giftcards
+        - digital-delivery
+      summary: List available gift cards
+  /products:
+    additionalOperations:
+      test:
+        summary: Additional op test
+        wrong: Should catch wrong fields in additionalOperations!
+    query:
+      summary: Advanced product search
+      wrong: Should catch wrong fields in the QUERY method!
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: object
+                sort:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Search results
+          summary: Should allow summary in responses
+  /stream:
+    get:
+      summary: Stream
+      responses:
+        200:
+          description: Stream of updates
+          content:
+            text/event-stream:
+              itemSchema: # Should allow itemSchema
+                type: object
+                properties:
+                  id: { type: string }
+                  data: { type: object }
+  /thing:
+    get:
+      summary: a sample api
+      responses:
+        '200':
+          description: OK
+          content:
+            multipart/mixed:
+              itemSchema: # Should allow itemSchema
+                $comment: A single data image from the device
+              itemEncoding: # Should allow itemEncoding
+                contentType: image/jpg
+  /querystring:
+    parameters:
+      - in: querystring
+        name: querystring_test
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                foo:
+                  type: string
+                bar:
+                  type: boolean
+            examples:
+              spacesAndPluses:
+                description: Note handling of spaces and "+" per media type.
+                dataValue:
+                  foo: a + b
+                  bar: true
+                serializedValue: foo=a+%2B+b&bar=true
+        examples:
+          spacesAndPluses:
+            description: |
+              Note that no additional percent encoding is done, as this
+              media type is URI query string-ready by definition.
+            dataValue:
+              foo: a + b
+              bar: true
+            serializedValue: foo=a+%2B+b&bar=true
+components:
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      deprecated: true # Should allow deprecation
+      oauth2MetadataUrl: http://localhost # Should be allowed
+      flows:
+        implicit:
+          authorizationUrl: https://example.org/api/oauth/dialog
+          wrong: Should catch wrong prop in oauth2 flows!
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      deprecated: true
+    device_auth:
+      type: oauth2
+      flows:
+        deviceAuthorization:
+          # scopes: Scopes are required in deviceAuthorization!
+          deviceAuthorizationUrl: http://localhost
+          tokenUrl: http://localhost
+  schemas:
+    MyResponseType:
+      oneOf:
+        - $ref: '#/components/schemas/Lizard'
+        - $ref: '#/components/schemas/OtherPet'
+      discriminator:
+        propertyName: petType
+        defaultMapping: OtherPet # Should be allowed
+        wrong: Should catch a wrong field in discriminator!
+    Lizard:
+      type: object
+      properties:
+        petType:
+          type: string
+          enum: ['Lizard']
+    OtherPet:
+      type: object
+      properties:
+        petType:
+          not:
+            enum: ['Lizard']

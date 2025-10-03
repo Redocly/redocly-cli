@@ -1,0 +1,160 @@
+
+openapi: 3.2.0
+info:
+  title: Test
+  version: v1
+tags:
+  - name: cds
+    summary: Music CDs
+    description: Music CD catalog and reviews
+    parent: products
+    kind: nav
+  - name: giftcards
+    summary: Gift Cards
+    description: Digital and physical gift cards
+    parent: products
+    kind: nav
+  - name: digital-delivery
+    summary: Digital Delivery
+    description: Instantly delivered digital products
+    kind: badge
+  - name: foo_other
+    summary: other
+  - name: successfully
+    summary: successfully
+  - name: books
+    summary: Books & Literature
+    description: Book catalog and recommendations
+    parent: products
+    kind: nav
+    wrong: fail!
+  - name: bar_other
+    summary: other
+paths:
+  /products:
+    servers:
+      - name: Should allow name
+        url: http://localhost
+        wrong: Should catch wrong fields in servers!
+    get:
+      tags:
+        - giftcards
+        - digital-delivery
+      summary: List available gift cards
+      responses:
+        '200':
+          description: Search results
+      security: []
+    query:
+      summary: Advanced product search
+      wrong: Should catch wrong fields in the QUERY method!
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: object
+                sort:
+                  type: array
+                  items:
+                    type: string
+      tags:
+        - bar_other
+  /stream:
+    servers:
+      - name: Should allow name
+        url: http://localhost
+        wrong: Should catch wrong fields in servers!
+    get:
+      summary: Stream
+      responses:
+        '200':
+          description: Stream of updates
+          content:
+            text/event-stream:
+              itemSchema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  data:
+                    type: object
+      tags:
+        - foo_other
+      security: []
+  /thing:
+    servers:
+      - name: Should allow name
+        url: http://localhost
+        wrong: Should catch wrong fields in servers!
+    get:
+      summary: a sample api
+      responses:
+        '200':
+          description: OK
+          content:
+            multipart/mixed:
+              itemSchema:
+                $comment: A single data image from the device
+              itemEncoding:
+                contentType: image/jpg
+      tags:
+        - foo_other
+      security: []
+  /querystring:
+    servers:
+      - name: Should allow name
+        url: http://localhost
+        wrong: Should catch wrong fields in servers!
+    parameters:
+      - in: querystring
+        name: querystring_test
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                foo:
+                  type: string
+                bar:
+                  type: boolean
+            examples:
+              spacesAndPluses:
+                description: Note handling of spaces and "+" per media type.
+                dataValue:
+                  foo: a + b
+                  bar: true
+                serializedValue: foo=a+%2B+b&bar=true
+        examples:
+          spacesAndPluses:
+            description: |
+              Note that no additional percent encoding is done, as this
+              media type is URI query string-ready by definition.
+            dataValue:
+              foo: a + b
+              bar: true
+            serializedValue: foo=a+%2B+b&bar=true
+components:
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      deprecated: true
+      oauth2MetadataUrl: http://localhost
+      flows:
+        implicit:
+          authorizationUrl: https://example.org/api/oauth/dialog
+          wrong: Should catch wrong prop in oauth2 flows!
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      deprecated: true
+
+openapi.yaml: join processed in <test>ms
+

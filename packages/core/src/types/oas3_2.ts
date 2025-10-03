@@ -94,6 +94,8 @@ const SecurityScheme: NodeType = {
               'oauth2MetadataUrl', // added in OAS 3.2
               'deprecated', // added in OAS 3.2
             ];
+          case 'deviceAuthorization': // added in OAS 3.2
+            return ['type', 'flows', 'deviceAuthorizationUrl', 'tokenUrl'];
           default:
             return [
               'type',
@@ -128,6 +130,25 @@ const SecurityScheme: NodeType = {
         ];
     }
   },
+};
+
+const OAuth2Flows: NodeType = {
+  ...Oas3_1Types.OAuth2Flows,
+  properties: {
+    ...Oas3_1Types.OAuth2Flows.properties,
+    deviceAuthorization: 'DeviceAuthorization',
+  },
+};
+
+const DeviceAuthorization: NodeType = {
+  properties: {
+    deviceAuthorizationUrl: { type: 'string' },
+    tokenUrl: { type: 'string' },
+    refreshUrl: { type: 'string' },
+    scopes: mapOf('string'),
+  },
+  required: ['deviceAuthorizationUrl', 'tokenUrl', 'scopes'],
+  extensionsPrefix: 'x-',
 };
 
 const PathItem: NodeType = {
@@ -188,6 +209,8 @@ export const Oas3_2Types = {
   Tag,
   Server,
   SecurityScheme,
+  OAuth2Flows,
+  DeviceAuthorization,
   PathItem,
   Parameter,
   Response,
