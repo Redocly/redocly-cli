@@ -13,11 +13,7 @@ const Root: NodeType = {
 const Tag: NodeType = {
   ...Oas3_1Types.Tag,
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
-    externalDocs: 'ExternalDocs',
-    'x-traitTag': { type: 'boolean' },
-    'x-displayName': { type: 'string' }, // deprecated
+    ...Oas3_1Types.Tag.properties;
     kind: { type: 'string' },
     parent: { type: 'string' },
     summary: { type: 'string' },
