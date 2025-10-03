@@ -45,7 +45,10 @@ function parseJSONPathExpressions(condition: string) {
   return jsonpathExpressions;
 }
 
-function parseSingleJSONPath(condition: string, startIndex: number) {
+function parseSingleJSONPath(
+  condition: string,
+  startIndex: number
+): { expression: string; end: number } {
   let jsonpath = '$';
   let bracketDepth = 0;
   let inQuotes = false;
@@ -112,7 +115,7 @@ function parseSingleJSONPath(condition: string, startIndex: number) {
 }
 
 function evaluateExpression(expression: string, context: JsonValue): string {
-  // Handle legacy .length suffix for backward compatibility
+  // Handle legacy .length suffix for backward compatibility that is not a valid RFC 9535 expression
   if (expression.endsWith('.length')) {
     const basePath = expression.slice(0, -'.length'.length);
     const normalizedPath = transformHyphensToUnderscores(basePath);
@@ -147,7 +150,6 @@ function handleFilterExpression(expression: string, context: JsonValue): string 
     return 'false';
   }
 
-  // Filter the array based on the condition
   const filteredArray = arrayToFilter.filter((item: unknown) => {
     const convertedCondition = processFilterCondition(filterCondition, item);
 
@@ -159,8 +161,8 @@ function handleFilterExpression(expression: string, context: JsonValue): string 
     }
   });
 
-  // Handle property extraction after filter
   const afterFilter = expression.substring(expression.indexOf(')]') + 2);
+
   if (afterFilter.startsWith('.')) {
     const propertyMatch = afterFilter.match(/\.([a-zA-Z0-9_-]+)/);
     if (propertyMatch) {
