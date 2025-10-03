@@ -234,7 +234,12 @@ export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   allowReserved: boolean;
 }
 
-export type Oas3ParameterLocation = 'query' | 'header' | 'path' | 'cookie';
+export type Oas3ParameterLocation =
+  | 'query'
+  | 'querystring' //  added in OAS 3.2
+  | 'header'
+  | 'path'
+  | 'cookie';
 export type Oas3ParameterStyle =
   | 'matrix'
   | 'label'

@@ -139,6 +139,14 @@ const PathItem: NodeType = {
   },
 };
 
+const Parameter: NodeType = {
+  ...Oas3_1Types.Parameter,
+  properties: {
+    ...Oas3_1Types.Parameter.properties,
+    in: { enum: ['query', 'header', 'path', 'cookie', 'querystring'] },
+  },
+};
+
 const MediaType: NodeType = {
   ...Oas3_1Types.MediaType,
   properties: {
@@ -156,5 +164,6 @@ export const Oas3_2Types = {
   Server,
   SecurityScheme,
   PathItem,
+  Parameter,
   MediaType,
 } as const;
