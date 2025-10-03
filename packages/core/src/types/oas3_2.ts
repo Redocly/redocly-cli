@@ -157,6 +157,15 @@ const MediaType: NodeType = {
   },
 };
 
+const Example: NodeType = {
+  ...Oas3_1Types.Example,
+  properties: {
+    ...Oas3_1Types.Example.properties,
+    dataValue: { isExample: true },
+    serializedValue: { type: 'string' },
+  },
+};
+
 export const Oas3_2Types = {
   ...Oas3_1Types,
   Root,
@@ -166,4 +175,5 @@ export const Oas3_2Types = {
   PathItem,
   Parameter,
   MediaType,
+  Example,
 } as const;
