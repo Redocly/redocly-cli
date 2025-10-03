@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.3.0
+
+### Minor Changes
+
+- Added basic support for **OpenAPI 3.2** specification.
+
 ## 2.2.3
 
 ### Patch Changes
