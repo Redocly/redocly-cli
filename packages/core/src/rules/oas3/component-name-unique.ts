@@ -4,6 +4,7 @@ import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Parameter,
   Oas3RequestBody,
   Oas3Response,
@@ -11,6 +12,8 @@ import type {
   Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi.js';
+
+type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 const TYPE_NAME_SCHEMA = 'Schema';
 const TYPE_NAME_PARAMETER = 'Parameter';
@@ -56,7 +59,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
       },
     },
     Root: {
-      leave(root: Oas3Definition | Oas3_1Definition, ctx: UserContext) {
+      leave(root: AnyOas3Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.absolutePointers.size > 1) {
             const component = getComponentFromKey(key);

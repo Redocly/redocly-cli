@@ -3,7 +3,7 @@ import type { Oas2PathItem } from '../../typings/swagger.js';
 import type { Oas3PathItem } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
+const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'query', 'trace'];
 
 export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts: any) => {
   const order: string[] = (opts && opts.order) || defaultOrder;

@@ -61,6 +61,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
   oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
   oas3_1Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;
+  oas3_2Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;
@@ -70,6 +71,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
+  oas3_2Preprocessors?: Record<string, PreprocessorConfig>;
   async2Preprocessors?: Record<string, PreprocessorConfig>;
   async3Preprocessors?: Record<string, PreprocessorConfig>;
   arazzo1Preprocessors?: Record<string, PreprocessorConfig>;
@@ -79,6 +81,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas2Decorators?: Record<string, DecoratorConfig>;
   oas3_0Decorators?: Record<string, DecoratorConfig>;
   oas3_1Decorators?: Record<string, DecoratorConfig>;
+  oas3_2Decorators?: Record<string, DecoratorConfig>;
   async2Decorators?: Record<string, DecoratorConfig>;
   async3Decorators?: Record<string, DecoratorConfig>;
   arazzo1Decorators?: Record<string, DecoratorConfig>;

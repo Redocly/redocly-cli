@@ -18,6 +18,11 @@ export interface Oas3_1Definition extends Oas3DefinitionBase<Oas3_1Schema> {
   webhooks?: Oas3Webhooks<Oas3_1Schema>;
 }
 
+export interface Oas3_2Definition extends Oas3_1Definition {
+  $self?: string;
+  tags?: Oas3_2Tag[];
+}
+
 export interface Oas3Info {
   title: string;
   version: string;
@@ -31,6 +36,7 @@ export interface Oas3Server {
   url: string;
   description?: string;
   variables?: { [name: string]: Oas3ServerVariable };
+  name?: string; // added in OAS 3.2
 }
 
 export interface Oas3ServerVariable {
@@ -42,6 +48,7 @@ export interface Oas3ServerVariable {
 export interface Oas3Paths<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   [path: string]: Referenced<Oas3PathItem<T>>;
 }
+
 export interface OasRef {
   $ref: string;
 }
@@ -51,6 +58,7 @@ export type Referenced<T> = OasRef | T;
 export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   summary?: string;
   description?: string;
+
   get?: Oas3Operation<T>;
   put?: Oas3Operation<T>;
   post?: Oas3Operation<T>;
@@ -59,6 +67,9 @@ export interface Oas3PathItem<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   head?: Oas3Operation<T>;
   patch?: Oas3Operation<T>;
   trace?: Oas3Operation<T>;
+  query?: Oas3Operation<T>; // added in OAS 3.2
+  additionalOperations?: { [name: string]: Referenced<Oas3Operation<T>> }; // added in OAS 3.2
+
   servers?: Oas3Server[];
   parameters?: Array<Referenced<Oas3Parameter<T>>>;
 }
@@ -105,6 +116,8 @@ export interface Oas3Parameter<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
 
 export interface Oas3Example {
   value: unknown;
+  dataValue?: unknown; // added in OAS 3.2
+  serializedValue?: string; // added in OAS 3.2
   summary?: string;
   description?: string;
   externalValue?: string;
@@ -202,6 +215,7 @@ export interface Oas3Webhooks<T extends Oas3Schema | Oas3_1Schema> {
 export interface Oas3Discriminator {
   propertyName: string;
   mapping?: { [name: string]: string };
+  defaultMapping?: string; // added in OAS 3.2
   'x-explicitMappingOnly'?: boolean;
 }
 
@@ -210,6 +224,9 @@ export interface Oas3MediaType<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
   example?: unknown;
   examples?: { [name: string]: Referenced<Oas3Example> };
   encoding?: { [field: string]: Oas3Encoding<T> };
+  itemSchema?: Referenced<T>; // added in OAS 3.2
+  prefixEncodingList?: Oas3Encoding<T>[]; // added in OAS 3.2
+  itemEncoding?: Referenced<Oas3Encoding<T>>; // added in OAS 3.2
 }
 
 export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
@@ -220,7 +237,12 @@ export interface Oas3Encoding<T extends Oas3Schema | Oas3_1Schema = Oas3Schema |
   allowReserved: boolean;
 }
 
-export type Oas3ParameterLocation = 'query' | 'header' | 'path' | 'cookie';
+export type Oas3ParameterLocation =
+  | 'query'
+  | 'querystring' //  added in OAS 3.2
+  | 'header'
+  | 'path'
+  | 'cookie';
 export type Oas3ParameterStyle =
   | 'matrix'
   | 'label'
@@ -242,6 +264,7 @@ export interface Oas3Responses<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
 
 export interface Oas3Response<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   description?: string;
+  summary?: string; // added in OAS 3.2
   headers?: { [name: string]: Referenced<Oas3Header<T>> };
   content?: { [mime: string]: Oas3MediaType<T> };
   links?: { [name: string]: Referenced<Oas3Link> };
@@ -293,6 +316,7 @@ export interface Oas3SecurityRequirement {
 
 type SecuritySchemeBase = {
   description?: string;
+  deprecated?: boolean; // added in OAS 3.2
   [key: `x-${string}`]: unknown;
 };
 
@@ -351,7 +375,14 @@ export type OAuth2Auth = {
       scopes: Record<string, string>;
       refreshUrl?: string;
     };
+    deviceAuthorization?: {
+      deviceAuthorizationUrl: string;
+      tokenUrl: string;
+      scopes: Record<string, string>;
+      refreshUrl?: string;
+    }; // added in OAS 3.2
   };
+  oauth2MetadataUrl?: string; // added in OAS 3.2
 } & SecuritySchemeBase;
 
 export type OpenIDAuth = {
@@ -375,6 +406,12 @@ export interface Oas3Tag {
   externalDocs?: Oas3ExternalDocs;
   'x-displayName'?: string;
 }
+
+export type Oas3_2Tag = Omit<Oas3Tag, 'x-displayName'> & {
+  kind?: string;
+  parent?: string;
+  summary?: string;
+};
 
 export interface Oas3ExternalDocs {
   description?: string;

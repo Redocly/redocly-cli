@@ -8,6 +8,7 @@ import type { Location } from './ref-utils.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3ExternalDocs,
   Oas3Info,
   Oas3Contact,
@@ -27,6 +28,7 @@ import type {
   Oas3Example,
   Oas3RequestBody,
   Oas3Tag,
+  Oas3_2Tag,
   OasRef,
   OAuth2Auth,
   Oas3SecurityScheme,
@@ -158,8 +160,8 @@ export type BaseVisitor = {
 };
 
 type Oas3FlatVisitor = {
-  Root?: VisitFunctionOrObject<Oas3Definition | Oas3_1Definition>;
-  Tag?: VisitFunctionOrObject<Oas3Tag>;
+  Root?: VisitFunctionOrObject<Oas3Definition | Oas3_1Definition | Oas3_2Definition>;
+  Tag?: VisitFunctionOrObject<Oas3Tag | Oas3_2Tag>;
   ExternalDocs?: VisitFunctionOrObject<Oas3ExternalDocs>;
   Server?: VisitFunctionOrObject<Oas3Server>;
   ServerVariable?: VisitFunctionOrObject<Oas3ServerVariable>;
@@ -204,6 +206,9 @@ type Oas3FlatVisitor = {
   PasswordFlow?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['password']>>;
   ClientCredentials?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['clientCredentials']>>;
   AuthorizationCode?: VisitFunctionOrObject<NonNullable<OAuth2Auth['flows']['authorizationCode']>>;
+  DeviceAuthorization?: VisitFunctionOrObject<
+    NonNullable<OAuth2Auth['flows']['deviceAuthorization']>
+  >; // added in OAS 3.2
   OAuth2Flows?: VisitFunctionOrObject<OAuth2Auth['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
   SpecExtension?: VisitFunctionOrObject<unknown>;

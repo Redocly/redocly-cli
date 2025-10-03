@@ -41,7 +41,7 @@ const TagGroup: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ExternalDocs: NodeType = {
+const ExternalDocs: NodeType = {
   properties: {
     description: { type: 'string' },
     url: { type: 'string' },
@@ -137,6 +137,7 @@ const PathItem: NodeType = {
     parameters: 'ParameterList',
     summary: { type: 'string' },
     description: { type: 'string' },
+
     get: 'Operation',
     put: 'Operation',
     post: 'Operation',
@@ -366,7 +367,7 @@ const Schema: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Xml: NodeType = {
+const Xml: NodeType = {
   properties: {
     name: { type: 'string' },
     namespace: { type: 'string' },
@@ -382,7 +383,7 @@ const SchemaProperties: NodeType = {
   additionalProperties: 'Schema',
 };
 
-export const DiscriminatorMapping: NodeType = {
+const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     if (isMappingRef(value)) {
@@ -393,7 +394,7 @@ export const DiscriminatorMapping: NodeType = {
   },
 };
 
-export const Discriminator: NodeType = {
+const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
     mapping: 'DiscriminatorMapping',
@@ -417,7 +418,7 @@ const Components: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ImplicitFlow: NodeType = {
+const ImplicitFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -427,7 +428,7 @@ export const ImplicitFlow: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const PasswordFlow: NodeType = {
+const PasswordFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -437,7 +438,7 @@ export const PasswordFlow: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ClientCredentials: NodeType = {
+const ClientCredentials: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -447,7 +448,7 @@ export const ClientCredentials: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const AuthorizationCode: NodeType = {
+const AuthorizationCode: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
@@ -465,7 +466,7 @@ export const AuthorizationCode: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const OAuth2Flows: NodeType = {
+const OAuth2Flows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',

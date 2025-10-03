@@ -55,6 +55,7 @@ describe('Config.forAlias', () => {
           "oas2": {},
           "oas3_0": {},
           "oas3_1": {},
+          "oas3_2": {},
           "overlay1": {},
         },
         "doNotResolveExamples": false,
@@ -94,6 +95,7 @@ describe('Config.forAlias', () => {
           "oas2": {},
           "oas3_0": {},
           "oas3_1": {},
+          "oas3_2": {},
           "overlay1": {},
         },
         "resolve": {
@@ -122,6 +124,9 @@ describe('Config.forAlias', () => {
           "oas3_1Decorators": {},
           "oas3_1Preprocessors": {},
           "oas3_1Rules": {},
+          "oas3_2Decorators": {},
+          "oas3_2Preprocessors": {},
+          "oas3_2Rules": {},
           "overlay1Decorators": {},
           "overlay1Preprocessors": {},
           "overlay1Rules": {},
@@ -161,6 +166,10 @@ describe('Config.forAlias', () => {
             "operation-summary": "warn",
           },
           "oas3_1": {
+            "no-empty-servers": "error",
+            "operation-summary": "warn",
+          },
+          "oas3_2": {
             "no-empty-servers": "error",
             "operation-summary": "warn",
           },

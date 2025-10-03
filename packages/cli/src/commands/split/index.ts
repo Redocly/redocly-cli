@@ -27,6 +27,7 @@ import { COMPONENTS, OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './t
 import type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas2Definition,
   Oas3Schema,
   Oas3_1Schema,
@@ -41,6 +42,8 @@ import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './ty
 import type { CommandArgs } from '../../wrapper.js';
 import type { VerifyConfigOptions } from '../../types.js';
 
+type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
+
 export type SplitArgv = {
   api: string;
   outDir: string;
@@ -52,7 +55,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api);
   const ext = getAndValidateFileExtension(api);
-  const openapi = readYaml(api) as Oas3Definition | Oas3_1Definition;
+  const openapi = readYaml(api) as AnyOas3Definition;
   collectSpecData?.(openapi);
   splitDefinition(openapi, outDir, separator, ext);
   logger.info(
@@ -63,7 +66,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
 }
 
 function splitDefinition(
-  openapi: Oas3Definition | Oas3_1Definition,
+  openapi: AnyOas3Definition,
   openapiDir: string,
   pathSeparator: string,
   ext: string
@@ -82,7 +85,8 @@ function splitDefinition(
     ext
   );
   const webhooks =
-    (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
+    (openapi as Oas3_1Definition | Oas3_2Definition).webhooks ||
+    (openapi as Oas3Definition)['x-webhooks'];
   // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
   iteratePathItems(
     webhooks,
@@ -119,7 +123,7 @@ function validateDefinitionFileName(fileName: string) {
   const file = loadFile(fileName);
   if ((file as Oas2Definition).swagger)
     exitWithError('OpenAPI 2 is not supported by this command.');
-  if (!(file as Oas3Definition | Oas3_1Definition).openapi)
+  if (!(file as AnyOas3Definition).openapi)
     exitWithError(
       'File does not conform to the OpenAPI Specification. OpenAPI version is not specified.'
     );
@@ -242,7 +246,7 @@ function doesFileDiffer(filename: string, componentData: any) {
 }
 
 function removeEmptyComponents(
-  openapi: Oas3Definition | Oas3_1Definition,
+  openapi: AnyOas3Definition,
   componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>
 ) {
   if (openapi.components && isEmptyObject(openapi.components[componentType])) {
@@ -339,7 +343,7 @@ function iteratePathItems(
 }
 
 function iterateComponents(
-  openapi: Oas3Definition | Oas3_1Definition,
+  openapi: AnyOas3Definition,
   openapiDir: string,
   componentsFiles: ComponentsFiles,
   ext: string

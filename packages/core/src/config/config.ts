@@ -88,6 +88,7 @@ export class Config {
       oas2: group({ ...resolvedConfig.rules, ...resolvedConfig.oas2Rules }),
       oas3_0: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_0Rules }),
       oas3_1: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_1Rules }),
+      oas3_2: group({ ...resolvedConfig.rules, ...resolvedConfig.oas3_2Rules }),
       async2: group({ ...resolvedConfig.rules, ...resolvedConfig.async2Rules }),
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
@@ -103,6 +104,10 @@ export class Config {
       oas3_1: {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.oas3_1Preprocessors,
+      },
+      oas3_2: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.oas3_2Preprocessors,
       },
       async2: {
         ...resolvedConfig.preprocessors,
@@ -123,6 +128,7 @@ export class Config {
       oas2: { ...resolvedConfig.decorators, ...resolvedConfig.oas2Decorators },
       oas3_0: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_0Decorators },
       oas3_1: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_1Decorators },
+      oas3_2: { ...resolvedConfig.decorators, ...resolvedConfig.oas3_2Decorators },
       async2: { ...resolvedConfig.decorators, ...resolvedConfig.async2Decorators },
       async3: { ...resolvedConfig.decorators, ...resolvedConfig.async3Decorators },
       arazzo1: { ...resolvedConfig.arazzo1Decorators },
@@ -229,6 +235,7 @@ export class Config {
         switch (version) {
           case 'oas3_0':
           case 'oas3_1':
+          case 'oas3_2':
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
             break;

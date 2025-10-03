@@ -1,6 +1,11 @@
-import type { Oas2Definition, Oas3_1Definition, Oas3Definition } from '@redocly/openapi-core';
+import type {
+  Oas2Definition,
+  Oas3Definition,
+  Oas3_1Definition,
+  Oas3_2Definition,
+} from '@redocly/openapi-core';
 
-export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
+export type Definition = Oas2Definition | Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
 }
@@ -23,6 +28,7 @@ export const OPENAPI3_METHOD_NAMES = [
   'head',
   'patch',
   'trace',
+  'query',
 ] as const;
 
 export type Oas3Component = typeof OPENAPI3_COMPONENT_NAMES[number];

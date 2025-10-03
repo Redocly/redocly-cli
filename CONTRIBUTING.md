@@ -18,9 +18,14 @@ Before submitting your contribution though, please make sure to take a moment an
 
 ## Issue reporting guidelines
 
-- Before opening a new issue, try to make sure the same problem or idea hasn't already been reported. You can do that on the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem. It helps us notice that more people have the same issue or use-case, and reduces the chance of getting your issue marked as a duplicate. Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
+- Before opening a new issue, try to make sure the same problem or idea hasn't already been reported.
+  You can do that on the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem.
+  It helps us notice that more people have the same issue or use case, and reduces the chance of getting your issue marked as a duplicate.
+  Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
 
-- The best way to get your bug fixed is to provide a (reduced) test case. This means listing and explaining the steps we should take to try and hit the same problem you're having. It helps us understand in which conditions the issue appears, and gives us a better idea of what may be causing it.
+- The best way to get your bug fixed is to provide a (reduced) test case.
+  This means listing and explaining the steps we should take to try and hit the same problem you're having.
+  It helps us understand in which conditions the issue appears, and gives us a better idea of what may be causing it.
 
 - Abide by our [Code of Conduct](https://redocly.com/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
 
@@ -33,8 +38,15 @@ Before submitting a pull request, please make sure the following is done:
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
 1. Format your code with prettier (`npm run prettier`).
-1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes. If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the 'no changeset needed' label to the PR.
-1. When merging a PR, make sure to remove all redundant commit information (like intermediate commit descriptions). Please leave only the main commit description (plus co-authors if needed). If you think it makes sense to keep several commit descriptions, please rebase your PR instead of squashing it to preserve the commits. Please use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
+1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
+   if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
+   Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
+   This produces a file in `.changeset` folder.
+   Please commit this file along with your changes. If the PR doesn't need a changeset (for example, it is a small change, or updates only documentation), add the 'no changeset needed' label to the PR.
+1. When merging a PR, make sure to remove all redundant commit information (like intermediate commit descriptions).
+   Please leave only the main commit description (plus co-authors if needed).
+   If you think it makes sense to keep several commit descriptions, please rebase your PR instead of squashing it to preserve the commits.
+   Please use the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
 
 ## Development setup
 
@@ -87,7 +99,8 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    logger.output(JSON.stringify(stats, null, 2));
    ```
 
-4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls. Always use the logger methods to ensure consistent output formatting and proper stream usage.
+4. Avoid using `console.log`, `console.error`, or direct `process.stdout.write`/`process.stderr.write` calls.
+   Always use the logger methods to ensure consistent output formatting and proper stream usage.
 
 ## Local source code usage
 
@@ -106,7 +119,8 @@ To test local changes as a package, you can use the following steps:
 1. Run `npm run pack:prepare` in the repository's root.
    This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
 
-1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
+1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI.
+   To install `openapi-core` do the same but with **openapi-core.tgz** file.
 
 ## Contribute documentation
 
@@ -239,7 +253,8 @@ const err = result.stderr ? result.stderr.toString() : '';
 return `${out}\n${err}`;
 ```
 
-This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering. When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
+This is intentional behavior to have consistent command outputs where NodeJS handles the output buffering.
+When writing tests, keep in mind that the order of stdout and stderr messages in the actual output might differ from what you see in the terminal, but the combined output will be consistent for snapshot testing.
 
 ### Smoke tests
 

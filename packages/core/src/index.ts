@@ -15,12 +15,14 @@ export {
   type Exact,
 } from './utils.js';
 export { dequal } from './utils/dequal.js';
-export { Oas3_1Types } from './types/oas3_1.js';
-export { Arazzo1Types } from './types/arazzo.js';
-export { Oas3Types } from './types/oas3.js';
 export { Oas2Types } from './types/oas2.js';
+export { Oas3Types } from './types/oas3.js';
+export { Oas3_1Types } from './types/oas3_1.js';
+export { Oas3_2Types } from './types/oas3_2.js';
 export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
+export { Arazzo1Types } from './types/arazzo.js';
+export { Overlay1Types } from './types/overlay.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
@@ -120,6 +122,7 @@ export { isBrowser } from './env.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Components,
   Oas3_1Components,
   Oas3PathItem,
@@ -128,6 +131,7 @@ export type {
   Oas3Schema,
   Oas3_1Schema,
   Oas3Tag,
+  Oas3_2Tag,
   Referenced,
   OasRef,
   Oas3Parameter,

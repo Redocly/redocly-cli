@@ -33,10 +33,12 @@ import type {
   BundleResult,
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
+  Oas3_2Tag,
   SpecVersion,
 } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
@@ -46,14 +48,17 @@ const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
 let potentialConflictsTotal = 0;
 
+type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
+
 type JoinDocumentContext = {
   api: string;
   apiFilename: string;
   apiTitle?: string;
-  tags?: Oas3Tag[];
+  tags?: (Oas3Tag | Oas3_2Tag)[];
   potentialConflicts: any;
   tagsPrefix: string;
   componentsPrefix: string | undefined;
+  oasVersion: Extract<SpecVersion, 'oas3_0' | 'oas3_1' | 'oas3_2'> | null;
 };
 
 export type JoinArgv = {
@@ -154,9 +159,9 @@ export async function handleJoin({
     try {
       const version = detectSpec(document.parsed);
       collectSpecData?.(document.parsed);
-      if (version !== 'oas3_0' && version !== 'oas3_1') {
+      if (version !== 'oas3_0' && version !== 'oas3_1' && version !== 'oas3_2') {
         return exitWithError(
-          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(document.source.absoluteRef)}.`
+          `Only OpenAPI 3.0, 3.1, and 3.2 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
@@ -171,7 +176,7 @@ export async function handleJoin({
     }
   }
 
-  const [first, ...others] = (documents ?? []) as Document<Oas3Definition | Oas3_1Definition>[];
+  const [first, ...others] = (documents ?? []) as Document<AnyOas3Definition>[];
   const serversAreTheSame = others.every(({ parsed: { paths, servers } }) => {
     // include only documents with paths
     if (!paths || isEmptyObject(paths || {})) {
@@ -197,9 +202,9 @@ export async function handleJoin({
   }
 
   for (const document of documents) {
-    const openapi = isPlainObject<Oas3Definition | Oas3_1Definition>(document.parsed)
+    const openapi = isPlainObject<AnyOas3Definition>(document.parsed)
       ? document.parsed
-      : ({} as Oas3Definition | Oas3_1Definition);
+      : ({} as AnyOas3Definition);
     const { tags, info } = openapi;
     const api = path.relative(process.cwd(), document.source.absoluteRef);
     const apiFilename = getApiFilename(api);
@@ -220,6 +225,7 @@ export async function handleJoin({
       potentialConflicts,
       tagsPrefix,
       componentsPrefix,
+      oasVersion,
     };
     if (tags) {
       populateTags(context);
@@ -227,7 +233,7 @@ export async function handleJoin({
     collectExternalDocs(openapi, context);
     collectPaths(openapi, context, serversAreTheSame);
     collectComponents(openapi, context);
-    collectWebhooks(oasVersion!, openapi, context);
+    collectWebhooks(openapi, context);
     if (componentsPrefix) {
       replace$Refs(openapi, componentsPrefix);
     }
@@ -252,6 +258,7 @@ export async function handleJoin({
     potentialConflicts,
     tagsPrefix,
     componentsPrefix,
+    oasVersion,
   }: JoinDocumentContext) {
     if (!joinedDef.hasOwnProperty(Tags)) {
       joinedDef[Tags] = [];
@@ -268,7 +275,9 @@ export async function handleJoin({
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
 
-      const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
+      const tagDuplicate = joinedDef.tags.find(
+        (t: Oas3Tag | Oas3_2Tag) => t.name === entrypointTagName
+      );
 
       if (tagDuplicate && withoutXTagGroups) {
         // If tag already exist and `without-x-tag-groups` option,
@@ -281,7 +290,11 @@ export async function handleJoin({
         );
       } else if (!tagDuplicate) {
         // Instead add tag to joinedDef if there no duplicate;
-        tag['x-displayName'] = tag['x-displayName'] || tag.name;
+        if (oasVersion === 'oas3_0' || oasVersion === 'oas3_1') {
+          (tag as Oas3Tag)['x-displayName'] = (tag as Oas3Tag)['x-displayName'] || tag.name;
+        } else if (oasVersion === 'oas3_2') {
+          (tag as Oas3_2Tag).summary = (tag as Oas3_2Tag).summary || tag.name;
+        }
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
 
@@ -290,7 +303,7 @@ export async function handleJoin({
         }
       }
 
-      if (!withoutXTagGroups) {
+      if (!withoutXTagGroups && oasVersion !== 'oas3_2') {
         const groupName = apiTitle || apiFilename;
         createXTagGroups(groupName);
         if (!tagDuplicate) {
@@ -337,10 +350,7 @@ export async function handleJoin({
     }
   }
 
-  function collectExternalDocs(
-    openapi: Oas3Definition | Oas3_1Definition,
-    { api }: JoinDocumentContext
-  ) {
+  function collectExternalDocs(openapi: AnyOas3Definition, { api }: JoinDocumentContext) {
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (joinedDef.hasOwnProperty('externalDocs')) {
@@ -352,7 +362,7 @@ export async function handleJoin({
   }
 
   function collectPaths(
-    openapi: Oas3Definition | Oas3_1Definition,
+    openapi: AnyOas3Definition,
     {
       apiFilename,
       apiTitle,
@@ -360,6 +370,7 @@ export async function handleJoin({
       potentialConflicts,
       tagsPrefix,
       componentsPrefix,
+      oasVersion,
     }: JoinDocumentContext,
     serversAreTheSame: boolean
   ) {
@@ -521,6 +532,7 @@ export async function handleJoin({
           potentialConflicts,
           tagsPrefix,
           componentsPrefix,
+          oasVersion,
         });
       } else {
         joinedDef.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix || apiFilename)];
@@ -532,6 +544,7 @@ export async function handleJoin({
           potentialConflicts,
           tagsPrefix: tagsPrefix || apiFilename,
           componentsPrefix,
+          oasVersion,
         });
       }
       if (!security && openapi.hasOwnProperty('security')) {
@@ -557,7 +570,7 @@ export async function handleJoin({
   }
 
   function collectComponents(
-    openapi: Oas3Definition | Oas3_1Definition,
+    openapi: AnyOas3Definition,
     { api, potentialConflicts, componentsPrefix }: JoinDocumentContext
   ) {
     const { components } = openapi;
@@ -583,8 +596,7 @@ export async function handleJoin({
   }
 
   function collectWebhooks(
-    oasVersion: SpecVersion,
-    openapi: Oas3Definition | Oas3_1Definition,
+    openapi: AnyOas3Definition,
     {
       apiFilename,
       apiTitle,
@@ -592,10 +604,11 @@ export async function handleJoin({
       potentialConflicts,
       tagsPrefix,
       componentsPrefix,
+      oasVersion,
     }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === 'oas3_1' ? 'webhooks' : 'x-webhooks';
-    const openapiWebhooks = (openapi as Exact<Oas3Definition | Oas3_1Definition>)[webhooks];
+    const webhooks = oasVersion === 'oas3_0' ? 'x-webhooks' : 'webhooks';
+    const openapiWebhooks = (openapi as Exact<AnyOas3Definition>)[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {
         joinedDef[webhooks] = {};
@@ -626,6 +639,7 @@ export async function handleJoin({
               potentialConflicts,
               tagsPrefix,
               componentsPrefix,
+              oasVersion,
             });
           }
         }

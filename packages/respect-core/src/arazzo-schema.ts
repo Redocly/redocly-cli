@@ -106,6 +106,16 @@ export const extendedSecurity = {
               },
               required: ['authorizationUrl', 'tokenUrl', 'scopes'],
             },
+            deviceAuthorization: {
+              type: 'object',
+              properties: {
+                deviceAuthorizationUrl: { type: 'string' },
+                tokenUrl: { type: 'string' },
+                scopes: { type: 'object', additionalProperties: { type: 'string' } },
+                refreshUrl: { type: 'string' },
+              },
+              required: ['deviceAuthorizationUrl', 'tokenUrl', 'scopes'],
+            },
           },
         },
         openIdConnectUrl: { type: 'string' },

@@ -398,6 +398,7 @@ describe('E2E', () => {
         'references-in-parameters',
         'ignore-decorators',
         'multi-references-to-one-file',
+        'oas3.2',
       ];
 
       test.each(testDirNames)('test: %s', async (dir) => {

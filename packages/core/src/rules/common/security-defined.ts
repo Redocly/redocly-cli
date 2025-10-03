@@ -10,10 +10,13 @@ import type {
 import type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Operation,
   Oas3PathItem,
   Oas3SecurityScheme,
 } from '../../typings/openapi.js';
+
+type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
   exceptions?: { path: string; methods?: string[] }[];
@@ -32,7 +35,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = (opts: {
 
   return {
     Root: {
-      leave(root: Oas2Definition | Oas3Definition | Oas3_1Definition, { report }: UserContext) {
+      leave(root: Oas2Definition | AnyOas3Definition, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {

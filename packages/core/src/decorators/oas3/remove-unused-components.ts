@@ -5,9 +5,12 @@ import type { Oas3Decorator } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
+  Oas3_2Definition,
   Oas3Components,
   Oas3_1Components,
 } from '../../typings/openapi.js';
+
+type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
@@ -31,10 +34,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     });
   }
 
-  function removeUnusedComponents(
-    root: Oas3Definition | Oas3_1Definition,
-    removedPaths: string[]
-  ): number {
+  function removeUnusedComponents(root: AnyOas3Definition, removedPaths: string[]): number {
     const removedLengthStart = removedPaths.length;
 
     for (const [path, { usedIn, name, componentType }] of components) {

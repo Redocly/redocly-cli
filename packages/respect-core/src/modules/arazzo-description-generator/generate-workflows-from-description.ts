@@ -18,7 +18,6 @@ export type WorkflowsFromDescriptionInput = {
   descriptionPaths: {
     [name: string]: Oas3PathItem<Oas3_1Schema> & {
       connect?: Oas3Operation<Oas3_1Schema>;
-      query?: Oas3Operation<Oas3_1Schema>;
     };
   };
   sourceDescriptionName: string;
