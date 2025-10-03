@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.3.0
+
+### Minor Changes
+
+- Added basic support for **OpenAPI 3.2** specification.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.3.0.
+
 ## 2.2.3
 
 ### Patch Changes
