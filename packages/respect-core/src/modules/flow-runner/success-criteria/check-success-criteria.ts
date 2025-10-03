@@ -6,7 +6,7 @@ import {
 import { CHECKS } from '../../checks/index.js';
 import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
 import { createRuntimeExpressionCtx } from '../context/index.js';
-import { evaluateJSONPAthCondition } from './evaluate-jsonpath-condition.js';
+import { evaluateJSONPathCondition } from './evaluate-jsonpath-condition.js';
 
 import type {
   TestContext,
@@ -84,7 +84,7 @@ export function checkCriteria({
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          passed: evaluateJSONPAthCondition(condition, data),
+          passed: evaluateJSONPathCondition(condition, data),
           message: `Checking jsonpath criteria: ${condition}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
           condition: condition,
