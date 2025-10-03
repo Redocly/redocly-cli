@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.3.1
+
+### Patch Changes
+
+- Arazzo decorators and preprocessors now merge both root and Arazzo-specific config, ensuring all relevant settings are applied.
+
 ## 2.3.0
 
 ### Minor Changes
