@@ -20,7 +20,7 @@ Before submitting your contribution though, please make sure to take a moment an
 
 - Before opening a new issue, try to make sure the same problem or idea hasn't already been reported.
   You can do that on the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem.
-  It helps us notice that more people have the same issue or use-case, and reduces the chance of getting your issue marked as a duplicate.
+  It helps us notice that more people have the same issue or use case, and reduces the chance of getting your issue marked as a duplicate.
   Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
 
 - The best way to get your bug fixed is to provide a (reduced) test case.
