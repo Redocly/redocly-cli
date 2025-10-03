@@ -1,4 +1,3 @@
-import { JSONPath } from 'jsonpath-plus';
 import {
   validateSuccessCriteria,
   isRegexpSuccessCriteria,
@@ -7,6 +6,7 @@ import {
 import { CHECKS } from '../../checks/index.js';
 import { evaluateRuntimeExpression } from '../../runtime-expressions/index.js';
 import { createRuntimeExpressionCtx } from '../context/index.js';
+import { evaluateJSONPathCondition } from './evaluate-jsonpath-condition.js';
 
 import type {
   TestContext,
@@ -84,7 +84,7 @@ export function checkCriteria({
 
         checks.push({
           name: CHECKS.SUCCESS_CRITERIA_CHECK,
-          passed: evaluateJSONPAthCondition(condition, data),
+          passed: evaluateJSONPathCondition(condition, data),
           message: `Checking jsonpath criteria: ${condition}`,
           severity: ctx.severity['SUCCESS_CRITERIA_CHECK'],
           condition: condition,
@@ -110,23 +110,4 @@ export function checkCriteria({
   });
 
   return checks;
-}
-
-function evaluateJSONPAthCondition(condition: string, context: Record<string, any>) {
-  // Extract JSONPath expressions from the string
-  const jsonpathMatches = condition.match(/\$\.[a-zA-Z0-9_]+/g) || [];
-
-  // Replace JSONPath expressions with their values
-  const replacedCondition = jsonpathMatches.reduce((acc, match) => {
-    const jsonpathResult = JSONPath({ path: match, json: context });
-    const jsonpathResultValue = jsonpathResult[0] || null;
-    return acc.replace(match, JSON.stringify(jsonpathResultValue));
-  }, condition);
-
-  try {
-    const evaluateFn = new Function(`return ${replacedCondition};`);
-    return !!evaluateFn();
-  } catch (_error) {
-    return false;
-  }
 }

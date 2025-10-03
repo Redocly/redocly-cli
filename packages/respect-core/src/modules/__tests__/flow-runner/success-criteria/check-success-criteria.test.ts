@@ -333,15 +333,85 @@ describe('checkSuccessCriteria', () => {
     ]);
   });
 
-  it('should fail JSONPath success criteria', () => {
+  it('should pass composite jsonpath criteria (RFC 9535)', () => {
+    const stepMock: Step = {
+      stepId: 'stepId',
+      'x-operation': { method: 'get', url: 'http://localhost:3000/some/path' },
+      checks: [],
+      response: {
+        body: {
+          received_headers: {
+            'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+            'content-length': 23,
+            filledList: ['one', 'two', 'three'],
+            emptyList: [],
+          },
+          pets: ['dog', 'cat', 'bunny'],
+          someProp: 'someValue',
+          users: [{ name: 'Alice Wonderland' }, { name: 'Bob Smith' }],
+        },
+        statusCode: 200,
+        header: {},
+        contentType: 'application/json',
+      },
+    } as unknown as Step;
+
     const result = checkCriteria({
       workflowId: 'workflowId',
       step: stepMock,
       criteria: [
         {
-          type: 'jsonpath',
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
           context: '$response.body',
-          condition: '$.pets[?(@.length>3)] && $.access_token != null',
+          condition: '$.pets[?length(@) > 0]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition:
+            '$.received_headers[?(@.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.received_headers.filledList[?length(@) == 3]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          // property-style ".length" ❌ not in RFC 9535, but we support it for backwards compatibility
+          condition: '$.received_headers.filledList.length == 3',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$[?count($.received_headers.*) >= 4]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?value(@.name) == "Bob Smith"]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 0)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition:
+            '$.pets.length == 3 && $.received_headers.filledList.length == 3 && $.someProp == "someValue"',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?(@.name.search(/Alice/) >= 0)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?(@.name.match(/Alice Wonderland/))]',
         },
       ],
       ctx: {
@@ -352,8 +422,14 @@ describe('checkSuccessCriteria', () => {
               stepId: {
                 response: {
                   body: {
-                    pets: [{ name: 'cat' }, { name: 'bunny' }],
-                    access_token: 'some token',
+                    received_headers: {
+                      'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+                      'content-length': 23,
+                      filledList: ['one', 'two', 'three'],
+                      emptyList: [],
+                    },
+                    pets: ['dog', 'cat', 'bunny'],
+                    someProp: 'someValue',
                   },
                   code: 200,
                   headers: new Headers(),
@@ -366,9 +442,7 @@ describe('checkSuccessCriteria', () => {
                   url: '',
                   path: '',
                   method: '',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
+                  headers: { 'content-type': 'application/json' },
                   body: {},
                 },
               },
@@ -378,120 +452,123 @@ describe('checkSuccessCriteria', () => {
         descriptions: '',
         $response: {
           body: {
-            pets: [{ name: 'cat' }, { name: 'bunny' }],
-            access_token: 'some token',
+            received_headers: {
+              'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+              'content-length': 23,
+              filledList: ['one', 'two', 'three'],
+              emptyList: [],
+            },
+            pets: ['dog', 'cat', 'bunny'],
+            someProp: 'someValue',
           },
         },
         severity: DEFAULT_SEVERITY_CONFIGURATION,
-        options: {
-          logger,
-        },
+        options: { logger },
       } as unknown as TestContext,
     });
+
     expect(result).toEqual([
       {
-        message: 'Checking jsonpath criteria: $.pets[?(@.length>3)] && $.access_token != null',
+        message: 'Checking jsonpath criteria: $.pets[?length(@) > 0]',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        passed: false,
+        passed: true,
         severity: 'error',
-        condition: '$.pets[?(@.length>3)] && $.access_token != null',
+        condition: '$.pets[?length(@) > 0]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.received_headers[?(@.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition:
+          '$.received_headers[?(@.x-trace-id == "A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.received_headers.filledList[?length(@) == 3]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.received_headers.filledList[?length(@) == 3]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.received_headers.filledList.length == 3',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.received_headers.filledList.length == 3',
+      },
+      {
+        message: 'Checking jsonpath criteria: $[?count($.received_headers.*) >= 4]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$[?count($.received_headers.*) >= 4]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?value(@.name) == "Bob Smith"]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.users[?value(@.name) == "Bob Smith"]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 0)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 0)]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.pets.length == 3 && $.received_headers.filledList.length == 3 && $.someProp == "someValue"',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition:
+          '$.pets.length == 3 && $.received_headers.filledList.length == 3 && $.someProp == "someValue"',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?(@.name.search(/Alice/) >= 0)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.users[?(@.name.search(/Alice/) >= 0)]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?(@.name.match(/Alice Wonderland/))]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: true,
+        severity: 'error',
+        condition: '$.users[?(@.name.match(/Alice Wonderland/))]',
       },
     ]);
   });
 
-  it('should pass jsonpath success criteria', () => {
+  it('should fail composite jsonpath criteria (RFC 9535)', () => {
     const stepMock: Step = {
       stepId: 'stepId',
-      'x-operation': {
-        method: 'get',
-        url: 'http://localhost:3000/some/path',
-      },
+      'x-operation': { method: 'get', url: 'http://localhost:3000/some/path' },
       checks: [],
       response: {
-        body: { pets: ['dog', 'cat', 'bunny'], access_token: null, checks: [] },
+        body: {
+          received_headers: {
+            'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+            'content-length': 23,
+            filledList: ['one', 'two', 'three'],
+            emptyList: [],
+          },
+          pets: ['dog', 'cat', 'bunny'],
+          someProp: 'someValue',
+          users: [{ name: 'Alice Wonderland' }, { name: 'Bob Smith' }],
+        },
         statusCode: 200,
         header: {},
         contentType: 'application/json',
       },
-    };
-    const result = checkCriteria({
-      workflowId: 'workflowId',
-      step: stepMock,
-      criteria: [
-        {
-          type: {
-            type: 'jsonpath',
-            version: 'draft-goessner-dispatch-jsonpath-00',
-          },
-          context: '$response.body',
-          condition: '$.pets.length > 0',
-        },
-        {
-          type: {
-            type: 'jsonpath',
-            version: 'draft-goessner-dispatch-jsonpath-00',
-          },
-          context: '$response.body',
-          condition: '$.checks.length == 0',
-        },
-      ],
-      ctx: {
-        workflows: [],
-        $workflows: {
-          workflowId: {
-            steps: {
-              stepId: {
-                response: {
-                  body: { pets: ['dog', 'cat', 'bunny'], access_token: null },
-                  code: 200,
-                  headers: new Headers(),
-                  contentType: 'application/json',
-                },
-                request: {
-                  queryParams: {},
-                  pathParams: {},
-                  headerParams: {},
-                  url: '',
-                  path: '',
-                  method: '',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
-                  body: {},
-                },
-              },
-            },
-          },
-        },
-        descriptions: '',
-        $response: {
-          body: { pets: ['dog', 'cat', 'bunny'], access_token: null },
-        },
-        severity: DEFAULT_SEVERITY_CONFIGURATION,
-        options: {
-          logger,
-        },
-      } as unknown as TestContext,
-    });
-    expect(result).toEqual([
-      {
-        message: 'Checking jsonpath criteria: $.pets.length > 0',
-        name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        passed: true,
-        severity: 'error',
-        condition: '$.pets.length > 0',
-      },
-      {
-        message: 'Checking jsonpath criteria: $.checks.length == 0',
-        name: CHECKS.SUCCESS_CRITERIA_CHECK,
-        passed: true,
-        severity: 'error',
-        condition: '$.checks.length == 0',
-      },
-    ]);
-  });
+    } as unknown as Step;
 
-  it('should fail jsonpath success criteria when context is missing', () => {
     const result = checkCriteria({
       workflowId: 'workflowId',
       step: stepMock,
@@ -502,7 +579,60 @@ describe('checkSuccessCriteria', () => {
             version: 'draft-goessner-dispatch-jsonpath-00',
           },
           context: '$response.body',
-          condition: '$.pets.length > 2',
+          condition: '$.not_exists.length > 2',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.pets[?length(@) == 0]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition:
+            '$.received_headers[?(@.x-trace-id == "B-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.received_headers.filledList[?length(@) == 1]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          // property-style ".length" ❌ not in RFC 9535, but we support it for backwards compatibility
+          condition: '$.received_headers.filledList.length == 1',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$[?count($.received_headers.*) < 4]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?value(@.name) == "Bob Wonderland"]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 3)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition:
+            '$.pets.length == 2 && $.received_headers.filledList.length == 4 && $.someProp == "someValue"',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?(@.name.search(/Sammy/) >= 0)]',
+        },
+        {
+          type: { type: 'jsonpath', version: 'draft-goessner-dispatch-jsonpath-00' },
+          context: '$response.body',
+          condition: '$.users[?(@.name.match(/Bob Wonderland/))]',
         },
       ],
       ctx: {
@@ -512,7 +642,16 @@ describe('checkSuccessCriteria', () => {
             steps: {
               stepId: {
                 response: {
-                  body: { access_token: null },
+                  body: {
+                    received_headers: {
+                      'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+                      'content-length': 23,
+                      filledList: ['one', 'two', 'three'],
+                      emptyList: [],
+                    },
+                    pets: ['dog', 'cat', 'bunny'],
+                    someProp: 'someValue',
+                  },
                   code: 200,
                   headers: new Headers(),
                   contentType: 'application/json',
@@ -524,9 +663,7 @@ describe('checkSuccessCriteria', () => {
                   url: '',
                   path: '',
                   method: '',
-                  headers: {
-                    'content-type': 'application/json',
-                  },
+                  headers: { 'content-type': 'application/json' },
                   body: {},
                 },
               },
@@ -535,21 +672,104 @@ describe('checkSuccessCriteria', () => {
         },
         descriptions: '',
         $response: {
-          body: { access_token: null },
+          body: {
+            received_headers: {
+              'x-trace-id': 'A-AaAaa-Aaaa-AaAA-AaAaaAAaaA1',
+              'content-length': 23,
+              filledList: ['one', 'two', 'three'],
+              emptyList: [],
+            },
+            pets: ['dog', 'cat', 'bunny'],
+            someProp: 'someValue',
+          },
         },
         severity: DEFAULT_SEVERITY_CONFIGURATION,
-        options: {
-          logger,
-        },
+        options: { logger },
       } as unknown as TestContext,
     });
+
     expect(result).toEqual([
       {
-        message: 'Checking jsonpath criteria: $.pets.length > 2',
+        message: 'Checking jsonpath criteria: $.not_exists.length > 2',
         name: CHECKS.SUCCESS_CRITERIA_CHECK,
         passed: false,
         severity: 'error',
-        condition: '$.pets.length > 2',
+        condition: '$.not_exists.length > 2',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.pets[?length(@) == 0]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.pets[?length(@) == 0]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.received_headers[?(@.x-trace-id == "B-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition:
+          '$.received_headers[?(@.x-trace-id == "B-AaAaa-Aaaa-AaAA-AaAaaAAaaA1" && @.content_length == 23)]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.received_headers.filledList[?length(@) == 1]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.received_headers.filledList[?length(@) == 1]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.received_headers.filledList.length == 1',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.received_headers.filledList.length == 1',
+      },
+      {
+        message: 'Checking jsonpath criteria: $[?count($.received_headers.*) < 4]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$[?count($.received_headers.*) < 4]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?value(@.name) == "Bob Wonderland"]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.users[?value(@.name) == "Bob Wonderland"]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 3)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.received_headers[?(@.filledList.length > 2 && @.emptyList.length == 3)]',
+      },
+      {
+        message:
+          'Checking jsonpath criteria: $.pets.length == 2 && $.received_headers.filledList.length == 4 && $.someProp == "someValue"',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition:
+          '$.pets.length == 2 && $.received_headers.filledList.length == 4 && $.someProp == "someValue"',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?(@.name.search(/Sammy/) >= 0)]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.users[?(@.name.search(/Sammy/) >= 0)]',
+      },
+      {
+        message: 'Checking jsonpath criteria: $.users[?(@.name.match(/Bob Wonderland/))]',
+        name: CHECKS.SUCCESS_CRITERIA_CHECK,
+        passed: false,
+        severity: 'error',
+        condition: '$.users[?(@.name.match(/Bob Wonderland/))]',
       },
     ]);
   });
