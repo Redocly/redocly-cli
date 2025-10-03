@@ -263,6 +263,7 @@ export interface Oas3Responses<T extends Oas3Schema | Oas3_1Schema = Oas3Schema 
 
 export interface Oas3Response<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> {
   description?: string;
+  summary?: string; // added in OAS 3.2
   headers?: { [name: string]: Referenced<Oas3Header<T>> };
   content?: { [mime: string]: Oas3MediaType<T> };
   links?: { [name: string]: Referenced<Oas3Link> };

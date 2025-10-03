@@ -147,6 +147,14 @@ const Parameter: NodeType = {
   },
 };
 
+const Response: Omit<NodeType, 'required'> = {
+  ...Oas3_1Types.Response,
+  properties: {
+    ...Oas3_1Types.Response.properties,
+    summary: { type: 'string' },
+  },
+};
+
 const MediaType: NodeType = {
   ...Oas3_1Types.MediaType,
   properties: {
@@ -174,6 +182,7 @@ export const Oas3_2Types = {
   SecurityScheme,
   PathItem,
   Parameter,
+  Response,
   MediaType,
   Example,
 } as const;

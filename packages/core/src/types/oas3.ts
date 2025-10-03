@@ -41,7 +41,7 @@ const TagGroup: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const ExternalDocs: NodeType = {
+const ExternalDocs: NodeType = {
   properties: {
     description: { type: 'string' },
     url: { type: 'string' },
@@ -367,7 +367,7 @@ const Schema: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Xml: NodeType = {
+const Xml: NodeType = {
   properties: {
     name: { type: 'string' },
     namespace: { type: 'string' },
@@ -383,7 +383,7 @@ const SchemaProperties: NodeType = {
   additionalProperties: 'Schema',
 };
 
-export const DiscriminatorMapping: NodeType = {
+const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
     if (isMappingRef(value)) {
@@ -394,7 +394,7 @@ export const DiscriminatorMapping: NodeType = {
   },
 };
 
-export const Discriminator: NodeType = {
+const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
     mapping: 'DiscriminatorMapping',

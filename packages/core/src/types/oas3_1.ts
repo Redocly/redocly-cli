@@ -84,7 +84,7 @@ const Operation: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Schema: NodeType = {
+const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
     $anchor: { type: 'string' },
