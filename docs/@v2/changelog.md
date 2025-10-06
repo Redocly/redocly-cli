@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.3.1 (2025-10-06)
+
+### Patch Changes
+
+- Fixed an issue where JSONPath-based success criteria did not support property names with hyphens in `Respect`.
+- Updated @redocly/openapi-core to v2.3.1.
+
 ## 2.3.0 (2025-10-03)
 
 ### Minor Changes
