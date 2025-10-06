@@ -2,53 +2,48 @@ import { query, type JsonValue } from 'jsonpath-rfc9535';
 
 export function evaluateJSONPathCondition(condition: string, context: JsonValue) {
   try {
-    const jsonpathExpressions = parseJSONPathExpressions(condition);
-    let replacedCondition = condition;
+    const jsonpathExpressions = parseJSONPathExpressions(condition, context);
+    const evaluateFn = new Function(`return ${jsonpathExpressions.join('')};`);
 
-    for (let j = jsonpathExpressions.length - 1; j >= 0; j--) {
-      const { expression, start, end } = jsonpathExpressions[j];
-      const replacement = evaluateExpression(expression, context);
-
-      replacedCondition =
-        replacedCondition.slice(0, start) + replacement + replacedCondition.slice(end);
-    }
-
-    const evaluateFn = new Function(`return ${replacedCondition};`);
     return !!evaluateFn();
   } catch (error) {
     return false;
   }
 }
 
-function parseJSONPathExpressions(condition: string) {
-  const jsonpathExpressions: Array<{ expression: string; start: number; end: number }> = [];
+function parseJSONPathExpressions(condition: string, context: JsonValue) {
+  const jsonpathExpressions: Array<string> = [];
   let i = 0;
+  let logicalExpressionOrValues = '';
 
   while (i < condition.length) {
     if (condition[i] === '$') {
-      const start = i;
-      const jsonpath = parseSingleJSONPath(condition, i);
-
-      if (jsonpath.expression.length > 1) {
-        jsonpathExpressions.push({
-          expression: jsonpath.expression,
-          start,
-          end: jsonpath.end,
-        });
+      if (logicalExpressionOrValues.length > 0) {
+        jsonpathExpressions.push(logicalExpressionOrValues);
+        logicalExpressionOrValues = '';
       }
-      i = jsonpath.end;
+      const start = i;
+      const expression = parseSingleJSONPath(condition, i);
+
+      if (expression.length > 1) {
+        const evaluatedExpression = evaluateExpression(expression, context);
+        jsonpathExpressions.push(evaluatedExpression);
+      }
+      i = start + expression.length;
     } else {
+      logicalExpressionOrValues += condition[i];
       i++;
+
+      if (i >= condition.length && logicalExpressionOrValues.length > 0) {
+        jsonpathExpressions.push(logicalExpressionOrValues);
+      }
     }
   }
 
   return jsonpathExpressions;
 }
 
-function parseSingleJSONPath(
-  condition: string,
-  startIndex: number
-): { expression: string; end: number } {
+function parseSingleJSONPath(condition: string, startIndex: number): string {
   let jsonpath = '$';
   let bracketDepth = 0;
   let inQuotes = false;
@@ -83,7 +78,7 @@ function parseSingleJSONPath(
 
     if (char === '[') {
       bracketDepth++;
-      if (condition[i + 1] === '?') {
+      if (i + 1 < condition.length && condition[i + 1] === '?') {
         inFilter = true;
         filterDepth = bracketDepth;
       }
@@ -111,7 +106,7 @@ function parseSingleJSONPath(
     i++;
   }
 
-  return { expression: jsonpath, end: i };
+  return jsonpath;
 }
 
 function evaluateExpression(expression: string, context: JsonValue): string {
