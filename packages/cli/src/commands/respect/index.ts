@@ -30,6 +30,7 @@ export type RespectArgv = {
   config?: string;
   'max-fetch-timeout': number;
   'execution-timeout': number;
+  'no-mask-secrets': boolean;
 };
 
 export async function handleRespect({
