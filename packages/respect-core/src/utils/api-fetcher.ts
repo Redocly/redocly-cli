@@ -10,11 +10,11 @@ import { isEmpty } from './is-empty.js';
 import { resolvePath } from '../modules/context-parser/index.js';
 import {
   getVerboseLogs,
-  maskSecrets,
+  conditionallyMaskSecrets,
   findPotentiallySecretObjectFields,
 } from '../modules/logger-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
-import { collectSecretFields } from '../modules/flow-runner/index.js';
+import { collectSecretValues } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
@@ -217,7 +217,11 @@ export class ApiFetcher implements IFetcher {
     }
 
     // Mask the secrets in the header params and the body
-    const maskedHeaderParams = maskSecrets(headers, ctx.secretFields);
+    const maskedHeaderParams = conditionallyMaskSecrets({
+      value: headers,
+      secretsReveal: ctx.secretsReveal,
+      secretsSet: ctx.secretsSet,
+    });
     let maskedBody;
 
     if (encodedBody instanceof FormData) {
@@ -227,17 +231,29 @@ export class ApiFetcher implements IFetcher {
         if (value instanceof File) {
           maskedFormData.append(key, value);
         } else {
-          const maskedValue = maskSecrets(value, ctx.secretFields);
+          const maskedValue = conditionallyMaskSecrets({
+            value: value,
+            secretsReveal: ctx.secretsReveal,
+            secretsSet: ctx.secretsSet,
+          });
           maskedFormData.append(key, maskedValue);
         }
       }
       maskedBody = maskedFormData;
     } else if (isJsonContentType(contentType) && encodedBody) {
-      maskedBody = maskSecrets(JSON.parse(encodedBody), ctx.secretFields);
+      maskedBody = conditionallyMaskSecrets({
+        value: JSON.parse(encodedBody),
+        secretsReveal: ctx.secretsReveal,
+        secretsSet: ctx.secretsSet,
+      });
     } else {
       maskedBody = encodedBody;
     }
-    const maskedPathParams = maskSecrets(pathWithSearchParams, ctx.secretFields);
+    const maskedPathParams = conditionallyMaskSecrets({
+      value: pathWithSearchParams,
+      secretsReveal: ctx.secretsReveal,
+      secretsSet: ctx.secretsSet,
+    });
 
     // Start of the verbose logs
     this.initVerboseLogs({
@@ -352,7 +368,11 @@ export class ApiFetcher implements IFetcher {
       }
 
       this.updateVerboseLogs({
-        headerParams: maskSecrets(updatedHeaders, ctx.secretFields),
+        headerParams: conditionallyMaskSecrets({
+          value: updatedHeaders,
+          secretsReveal: ctx.secretsReveal,
+          secretsSet: ctx.secretsSet,
+        }),
       });
 
       fetchResult = await customFetch(urlToFetch, {
@@ -393,22 +413,26 @@ export class ApiFetcher implements IFetcher {
       descriptionResponses: openapiOperation?.responses,
     });
 
-    collectSecretFields(ctx, responseSchema, transformedBody);
+    collectSecretValues(ctx, responseSchema, transformedBody);
 
     const foundResponseBodySecrets = findPotentiallySecretObjectFields(transformedBody);
     for (const secretItem of foundResponseBodySecrets) {
-      ctx.secretFields.add(secretItem);
+      ctx.secretsSet.add(secretItem);
     }
 
     const maskedResponseBody = isJsonContentType(responseContentType)
-      ? maskSecrets(transformedBody, ctx.secretFields)
+      ? conditionallyMaskSecrets({
+          value: transformedBody,
+          secretsReveal: ctx.secretsReveal,
+          secretsSet: ctx.secretsSet,
+        })
       : transformedBody;
 
     const responseHeaders = Object.fromEntries(fetchResult.headers?.entries() || []);
     const foundResponseHeadersSecrets = findPotentiallySecretObjectFields(responseHeaders);
 
     for (const secretItem of foundResponseHeadersSecrets) {
-      ctx.secretFields.add(secretItem);
+      ctx.secretsSet.add(secretItem);
     }
 
     this.initVerboseResponseLogs({
@@ -420,7 +444,11 @@ export class ApiFetcher implements IFetcher {
       path: pathWithSearchParams || '',
       statusCode: fetchResult.status,
       responseTime,
-      headerParams: maskSecrets(responseHeaders, ctx.secretFields),
+      headerParams: conditionallyMaskSecrets({
+        value: responseHeaders,
+        secretsReveal: ctx.secretsReveal,
+        secretsSet: ctx.secretsSet,
+      }),
     });
 
     return {

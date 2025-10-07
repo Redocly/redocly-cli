@@ -25,7 +25,7 @@ export function getSecurityParameter(
     const { username, password } = security.values;
     const value = btoa(`${username}:${password}`);
 
-    ctx.secretFields.add(value);
+    ctx.secretsSet.add(value);
 
     return getAuthHeader(`Basic ${value}`, ctx);
   }
@@ -33,7 +33,7 @@ export function getSecurityParameter(
   if (isBearerAuth(security)) {
     const { token } = security.values;
 
-    ctx.secretFields.add(token);
+    ctx.secretsSet.add(token);
 
     return getAuthHeader(`Bearer ${token}`, ctx);
   }
@@ -41,7 +41,7 @@ export function getSecurityParameter(
   if (isOpenIdConnectAuth(security)) {
     const { accessToken } = security.values;
 
-    ctx.secretFields.add(accessToken);
+    ctx.secretsSet.add(accessToken);
 
     return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }
@@ -49,7 +49,7 @@ export function getSecurityParameter(
   if (isOAuth2Auth(security)) {
     const { accessToken } = security.values;
 
-    ctx.secretFields.add(accessToken);
+    ctx.secretsSet.add(accessToken);
 
     return getAuthHeader(`Bearer ${accessToken}`, ctx);
   }

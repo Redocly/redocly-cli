@@ -5,7 +5,7 @@ import type { TestContext } from '../../../types';
 
 describe('getSecurityParameter', () => {
   const ctx = {
-    secretFields: new Set(),
+    secretsSet: new Set(),
   } as TestContext;
 
   it('should return security parameters for API Key Auth', () => {

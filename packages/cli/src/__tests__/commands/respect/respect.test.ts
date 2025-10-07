@@ -81,6 +81,7 @@ describe('handleRespect', () => {
         totalTimeMs: 100,
         totalRequests: 1,
         globalTimeoutError: false,
+        secretValues: [],
       },
     ]);
 

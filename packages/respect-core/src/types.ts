@@ -133,6 +133,7 @@ export type AppOptions = {
   logger: LoggerInterface;
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
+  secretsReveal?: boolean;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -250,6 +251,7 @@ export type RunFileResult = {
   totalTimeMs: number;
   totalRequests: number;
   globalTimeoutError: boolean;
+  secretValues?: string[];
 };
 
 export interface WorkflowExecutionResult {
@@ -284,7 +286,8 @@ export type TestContext = RuntimeExpressionContext & {
   options: AppOptions;
   testDescription: TestDescription;
   components?: Record<string, any>;
-  secretFields: Set<string>;
+  secretsSet: Set<string>;
+  secretsReveal: boolean;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;
 };
@@ -330,6 +333,9 @@ export type JsonLogs = {
     {
       totalRequests: number;
       executedWorkflows: WorkflowExecutionResultJson[];
+      totalTimeMs: number;
+      globalTimeoutError: boolean;
+      secretValues?: string[];
     }
   >;
   status: string;

@@ -2,6 +2,7 @@ import {
   findPotentiallySecretObjectFields,
   containsSecret,
   maskSecrets,
+  conditionallyMaskSecrets,
 } from '../../logger-output/mask-secrets.js';
 
 describe('findPotentiallySecretObjectFields', () => {
@@ -126,5 +127,25 @@ describe('maskSecrets', () => {
 
     expect(result.token).toBe('********');
     expect(result.nested.password).toBe('********');
+  });
+});
+
+describe('conditionallyMaskSecrets', () => {
+  it('should mask secrets if secretsReveal is false', () => {
+    const result = conditionallyMaskSecrets({
+      value: 'token123456',
+      secretsReveal: false,
+      secretsSet: new Set(['token123456']),
+    });
+    expect(result).toEqual('********');
+  });
+
+  it('should preserve secrets if secretsReveal is true', () => {
+    const result = conditionallyMaskSecrets({
+      value: 'token123456',
+      secretsReveal: true,
+      secretsSet: new Set(['token123456']),
+    });
+    expect(result).toEqual('token123456');
   });
 });

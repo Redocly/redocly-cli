@@ -764,7 +764,7 @@ yargs(hideBin(process.argv))
             default: 3_600_000,
             coerce: validatePositiveNumber('execution-timeout', false),
           },
-          'no-mask-secrets': {
+          'secrets-reveal': {
             describe: 'Do not mask secrets in the output.',
             type: 'boolean',
           },

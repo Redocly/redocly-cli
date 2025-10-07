@@ -5,7 +5,7 @@ import type { Step, RuntimeExpressionContext, TestContext } from 'respect-core/s
 
 describe('resolveXSecurityParameters', () => {
   const ctx = {
-    secretFields: new Set(),
+    secretsSet: new Set(),
     options: {
       logger,
     },

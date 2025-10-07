@@ -1,4 +1,4 @@
-import { maskSecrets, calculateTotals } from '@redocly/respect-core';
+import { calculateTotals, conditionallyMaskSecrets } from '@redocly/respect-core';
 
 import type {
   TestContext,
@@ -18,23 +18,30 @@ export function composeJsonLogsFiles(
     executedWorkflows: WorkflowExecutionResult[];
     ctx: TestContext;
     globalTimeoutError: boolean;
+    secretValues?: string[];
   }[]
 ): JsonLogs['files'] {
   const files: JsonLogs['files'] = {};
 
   for (const fileResult of filesResult) {
-    const { executedWorkflows, globalTimeoutError: fileGlobalTimeoutError } = fileResult;
-    const { secretFields } = fileResult.ctx;
+    const {
+      executedWorkflows,
+      globalTimeoutError: fileGlobalTimeoutError,
+      ctx,
+      secretValues,
+    } = fileResult;
 
-    files[fileResult.file] = maskSecrets(
-      {
+    files[fileResult.file] = conditionallyMaskSecrets({
+      value: {
         totalRequests: fileResult.totalRequests,
         executedWorkflows: executedWorkflows.map((workflow) => mapJsonWorkflow(workflow)),
         totalTimeMs: fileResult.totalTimeMs,
         globalTimeoutError: fileGlobalTimeoutError,
+        secretValues,
       },
-      secretFields || new Set()
-    );
+      secretsReveal: ctx.secretsReveal,
+      secretsSet: ctx.secretsSet || new Set(),
+    });
   }
 
   return files;

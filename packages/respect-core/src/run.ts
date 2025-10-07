@@ -94,5 +94,6 @@ async function runFile({
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
+    ...(ctx.secretsReveal && { secretValues: Array.from(ctx.secretsSet) || [] }),
   };
 }
