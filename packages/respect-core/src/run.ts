@@ -29,6 +29,7 @@ export type RespectOptions = {
   fetch: typeof fetch;
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
+  secretsReveal?: boolean;
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {

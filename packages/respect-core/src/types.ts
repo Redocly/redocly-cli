@@ -90,6 +90,7 @@ export type RunOptions = Omit<RespectOptions, 'files'> & {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
+  secretsReveal?: boolean;
 };
 
 export type CommandArgs<T> = {
