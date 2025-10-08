@@ -3,7 +3,7 @@
 Redocly CLI is the recommended replacement for the deprecated [swagger-cli](https://www.npmjs.com/package/swagger-cli) package. This guide shows you how to replace the old commands with Redocly CLI commands. Redocly CLI is built for OpenAPI but you can assume that Swagger 2.0 is also supported when the documentation refers to an OpenAPI description. We know those existing APIs are still working hard in many places!
 
 {% admonition type="success" name="Modern API tooling" %}
-Redocly CLI is open source and actively maintained, supporting newer versions of OpenAPI (3.1) and continuing to evolve. It also provides extensive [linting](../api-standards.md) options, easy and beautiful [API reference documentation](../api-docs.md), and plenty of extensibility with [custom plugins](../custom-plugins/index.md).
+Redocly CLI is open source and actively maintained, supporting newer versions of OpenAPI (3.x) and continuing to evolve. It also provides extensive [linting](../api-standards.md) options, easy and beautiful [API reference documentation](../api-docs.md), and plenty of extensibility with [custom plugins](../custom-plugins/index.md).
 {% /admonition %}
 
 ## Validate OpenAPI/Swagger files

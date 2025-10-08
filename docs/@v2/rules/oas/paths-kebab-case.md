@@ -11,6 +11,7 @@ Require kebab-case in paths instead of camelCase or snake_case.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

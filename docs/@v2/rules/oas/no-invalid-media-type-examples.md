@@ -11,6 +11,7 @@ Disallow invalid media type examples by ensuring they comply with the correspond
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD

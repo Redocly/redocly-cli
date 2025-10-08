@@ -13,6 +13,7 @@ The rule only produces a warning or an error, and expects you to modify your API
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 
