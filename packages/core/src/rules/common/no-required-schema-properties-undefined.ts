@@ -14,9 +14,14 @@ export const NoRequiredSchemaPropertiesUndefined:
   | Async3Rule
   | Async2Rule
   | Arazzo1Rule = () => {
+  const parents: AnySchema[] = [];
   return {
     Schema: {
-      enter(schema: AnySchema, { location, report, resolve, parents }: UserContext) {
+      leave(_: AnySchema) {
+        parents.pop();
+      },
+      enter(schema: AnySchema, { location, report, resolve }: UserContext) {
+        parents.push(schema);
         if (!schema.required) return;
         const visitedSchemas: Set<AnySchema> = new Set();
 
@@ -56,30 +61,29 @@ export const NoRequiredSchemaPropertiesUndefined:
          * The index to use to lookup grand parent schemas when dealing with composed schemas.
          * @summary The current schema should always end up with under ../anyOf/1, if we get multiple ancestors, they should always be a multiple.
          */
-        const grandParentBaseIndex = 2;
-        const getGrandParentSchema = (grandParentLookupIndex: number): AnySchema | undefined => {
-          if (grandParentLookupIndex % grandParentBaseIndex !== 0)
-            throw new Error('grandParentIndex must be an even number');
-          if (!parents || parents.length < grandParentLookupIndex) return undefined;
-          const grandParent = parents[parents.length - grandParentLookupIndex];
+        const locationLookupIndex = 2;
+        const getParentSchema = (lookupIndex: number): AnySchema | undefined => {
+          lookupIndex++;
+          if (!parents || parents.length < lookupIndex) return undefined;
+          const grandParent = parents[parents.length - lookupIndex];
           return grandParent;
         };
         const recursivelyGetGrandParentProperties = (
           splitLocation: string[],
-          grandParentLookupIndex: number = grandParentBaseIndex
+          parentLookupIndex: number = 0
         ): Record<string, AnySchema> | undefined => {
           const isMemberOfComposedType =
-            splitLocation.length > grandParentBaseIndex &&
+            splitLocation.length > locationLookupIndex &&
             !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
-            /(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - grandParentBaseIndex]);
+            !!/(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - locationLookupIndex]);
           const grandParentSchema = isMemberOfComposedType
-            ? getGrandParentSchema(grandParentLookupIndex)
+            ? getParentSchema(++parentLookupIndex)
             : undefined;
           const greatGrandParentProperties =
-            splitLocation.length >= grandParentBaseIndex + grandParentBaseIndex
+            splitLocation.length >= locationLookupIndex + locationLookupIndex
               ? recursivelyGetGrandParentProperties(
-                  splitLocation.slice(0, -grandParentBaseIndex),
-                  grandParentLookupIndex + grandParentBaseIndex
+                  splitLocation.slice(0, -locationLookupIndex),
+                  parentLookupIndex
                 )
               : {};
           return grandParentSchema
