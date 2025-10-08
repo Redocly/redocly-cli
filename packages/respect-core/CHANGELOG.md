@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 2.4.0
+
+### Minor Changes
+
+- Added the `no-secrets-masking` option to the respect command, allowing raw (unmasked) output to be generated.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.4.0.
+
 ## 2.3.1
 
 ### Patch Changes
