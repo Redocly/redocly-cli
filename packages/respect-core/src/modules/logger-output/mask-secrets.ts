@@ -123,12 +123,12 @@ export function findPotentiallySecretObjectFields(
 
 export function conditionallyMaskSecrets<T extends { [x: string]: any } | string>({
   value,
-  secretsReveal,
+  noSecretsMasking,
   secretsSet,
 }: {
   value: T;
-  secretsReveal: boolean;
+  noSecretsMasking: boolean;
   secretsSet: Set<string>;
 }): T {
-  return secretsReveal ? value : maskSecrets(value, secretsSet);
+  return noSecretsMasking ? value : maskSecrets(value, secretsSet);
 }

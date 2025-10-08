@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added the `secrets-reveal` option to the respect command, allowing raw (unmasked) output to be generated.
+Added the `no-secrets-masking` option to the respect command, allowing raw (unmasked) output to be generated.

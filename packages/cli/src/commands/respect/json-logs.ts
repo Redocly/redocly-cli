@@ -39,7 +39,7 @@ export function composeJsonLogsFiles(
         globalTimeoutError: fileGlobalTimeoutError,
         secretValues,
       },
-      secretsReveal: ctx.secretsReveal,
+      noSecretsMasking: ctx.noSecretsMasking,
       secretsSet: ctx.secretsSet || new Set(),
     });
   }

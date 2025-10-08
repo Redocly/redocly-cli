@@ -15,7 +15,7 @@ test('should reveal masked input values', () => {
     '--verbose',
     '--input',
     '{"username":"John","password":"password","secret": {"secretValue":"secretToken"}}',
-    '--secrets-reveal',
+    '--no-secrets-masking',
   ]);
 
   const result = getCommandOutput(args);

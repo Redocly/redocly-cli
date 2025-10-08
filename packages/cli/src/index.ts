@@ -684,6 +684,7 @@ yargs(hideBin(process.argv))
     (yargs) => {
       return yargs
         .env('REDOCLY_CLI_RESPECT')
+        .parserConfiguration({ 'boolean-negation': false })
         .positional('files', {
           describe: 'Test files or glob pattern.',
           type: 'string',
@@ -764,9 +765,10 @@ yargs(hideBin(process.argv))
             default: 3_600_000,
             coerce: validatePositiveNumber('execution-timeout', false),
           },
-          'secrets-reveal': {
+          'no-secrets-masking': {
             describe: 'Do not mask secrets in the output.',
             type: 'boolean',
+            default: false,
           },
         });
     },

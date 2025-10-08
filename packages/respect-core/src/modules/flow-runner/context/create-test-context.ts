@@ -94,7 +94,7 @@ export async function createTestContext(
     info: testDescription.info || infoSubstitute,
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
-    secretsReveal: options.secretsReveal || false,
+    noSecretsMasking: options.noSecretsMasking || false,
     secretsSet: new Set<string>(),
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,

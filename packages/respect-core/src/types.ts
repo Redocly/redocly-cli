@@ -90,7 +90,7 @@ export type RunOptions = Omit<RespectOptions, 'files'> & {
   input?: string | string[];
   server?: string | string[];
   severity?: string | string[];
-  secretsReveal?: boolean;
+  noSecretsMasking?: boolean;
 };
 
 export type CommandArgs<T> = {
@@ -134,7 +134,7 @@ export type AppOptions = {
   logger: LoggerInterface;
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
-  secretsReveal?: boolean;
+  noSecretsMasking?: boolean;
 };
 export type RegexpSuccessCriteria = {
   condition: string;
@@ -288,7 +288,7 @@ export type TestContext = RuntimeExpressionContext & {
   testDescription: TestDescription;
   components?: Record<string, any>;
   secretsSet: Set<string>;
-  secretsReveal: boolean;
+  noSecretsMasking: boolean;
   severity: Record<string, RuleSeverity>;
   apiClient: ApiFetcher;
 };

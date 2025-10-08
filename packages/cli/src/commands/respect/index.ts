@@ -30,7 +30,7 @@ export type RespectArgv = {
   config?: string;
   'max-fetch-timeout': number;
   'execution-timeout': number;
-  'secrets-reveal': boolean;
+  'no-secrets-masking': boolean;
 };
 
 export async function handleRespect({
@@ -93,7 +93,7 @@ export async function handleRespect({
       envVariables: readEnvVariables(workingDir) || {},
       logger,
       fetch: customFetch as unknown as typeof fetch,
-      secretsReveal: argv['secrets-reveal'],
+      noSecretsMasking: argv['no-secrets-masking'],
     };
 
     if (options.skip && options.workflow) {
@@ -144,7 +144,7 @@ export async function handleRespect({
       for (const result of runAllFilesResult) {
         const parsedHarLogs = conditionallyMaskSecrets({
           value: harLogs,
-          secretsReveal: result.ctx.secretsReveal,
+          noSecretsMasking: result.ctx.noSecretsMasking,
           secretsSet: result.ctx.secretsSet || new Set(),
         });
         writeFileSync(argv['har-output'], jsonStringifyWithArrayBuffer(parsedHarLogs, 2), 'utf-8');

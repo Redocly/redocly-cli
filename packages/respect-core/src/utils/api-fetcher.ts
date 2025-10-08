@@ -219,7 +219,7 @@ export class ApiFetcher implements IFetcher {
     // Mask the secrets in the header params and the body
     const maskedHeaderParams = conditionallyMaskSecrets({
       value: headers,
-      secretsReveal: ctx.secretsReveal,
+      noSecretsMasking: ctx.noSecretsMasking,
       secretsSet: ctx.secretsSet,
     });
     let maskedBody;
@@ -233,7 +233,7 @@ export class ApiFetcher implements IFetcher {
         } else {
           const maskedValue = conditionallyMaskSecrets({
             value: value,
-            secretsReveal: ctx.secretsReveal,
+            noSecretsMasking: ctx.noSecretsMasking,
             secretsSet: ctx.secretsSet,
           });
           maskedFormData.append(key, maskedValue);
@@ -243,7 +243,7 @@ export class ApiFetcher implements IFetcher {
     } else if (isJsonContentType(contentType) && encodedBody) {
       maskedBody = conditionallyMaskSecrets({
         value: JSON.parse(encodedBody),
-        secretsReveal: ctx.secretsReveal,
+        noSecretsMasking: ctx.noSecretsMasking,
         secretsSet: ctx.secretsSet,
       });
     } else {
@@ -251,7 +251,7 @@ export class ApiFetcher implements IFetcher {
     }
     const maskedPathParams = conditionallyMaskSecrets({
       value: pathWithSearchParams,
-      secretsReveal: ctx.secretsReveal,
+      noSecretsMasking: ctx.noSecretsMasking,
       secretsSet: ctx.secretsSet,
     });
 
@@ -370,7 +370,7 @@ export class ApiFetcher implements IFetcher {
       this.updateVerboseLogs({
         headerParams: conditionallyMaskSecrets({
           value: updatedHeaders,
-          secretsReveal: ctx.secretsReveal,
+          noSecretsMasking: ctx.noSecretsMasking,
           secretsSet: ctx.secretsSet,
         }),
       });
@@ -423,7 +423,7 @@ export class ApiFetcher implements IFetcher {
     const maskedResponseBody = isJsonContentType(responseContentType)
       ? conditionallyMaskSecrets({
           value: transformedBody,
-          secretsReveal: ctx.secretsReveal,
+          noSecretsMasking: ctx.noSecretsMasking,
           secretsSet: ctx.secretsSet,
         })
       : transformedBody;
@@ -446,7 +446,7 @@ export class ApiFetcher implements IFetcher {
       responseTime,
       headerParams: conditionallyMaskSecrets({
         value: responseHeaders,
-        secretsReveal: ctx.secretsReveal,
+        noSecretsMasking: ctx.noSecretsMasking,
         secretsSet: ctx.secretsSet,
       }),
     });

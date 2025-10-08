@@ -131,19 +131,19 @@ describe('maskSecrets', () => {
 });
 
 describe('conditionallyMaskSecrets', () => {
-  it('should mask secrets if secretsReveal is false', () => {
+  it('should mask secrets if noSecretsMasking is false', () => {
     const result = conditionallyMaskSecrets({
       value: 'token123456',
-      secretsReveal: false,
+      noSecretsMasking: false,
       secretsSet: new Set(['token123456']),
     });
     expect(result).toEqual('********');
   });
 
-  it('should preserve secrets if secretsReveal is true', () => {
+  it('should preserve secrets if noSecretsMasking is true', () => {
     const result = conditionallyMaskSecrets({
       value: 'token123456',
-      secretsReveal: true,
+      noSecretsMasking: true,
       secretsSet: new Set(['token123456']),
     });
     expect(result).toEqual('token123456');
