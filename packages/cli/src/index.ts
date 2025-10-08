@@ -42,7 +42,7 @@ cacheLatestVersion();
 yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-  .parserConfiguration({ 'greedy-arrays': false })
+  .parserConfiguration({ 'greedy-arrays': false, 'boolean-negation': false })
   .command(
     'stats [api]',
     'Show statistics for an API description.',
@@ -763,6 +763,11 @@ yargs(hideBin(process.argv))
             type: 'number',
             default: 3_600_000,
             coerce: validatePositiveNumber('execution-timeout', false),
+          },
+          'no-secrets-masking': {
+            describe: 'Do not mask secrets in the output.',
+            type: 'boolean',
+            default: false,
           },
         });
     },

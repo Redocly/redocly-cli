@@ -30,6 +30,7 @@ export type RespectArgv = {
   config?: string;
   'max-fetch-timeout': number;
   'execution-timeout': number;
+  'no-secrets-masking': boolean;
 };
 
 export async function handleRespect({
@@ -42,7 +43,7 @@ export async function handleRespect({
   let harLogs;
 
   try {
-    const { run, maskSecrets } = await import('@redocly/respect-core');
+    const { run, conditionallyMaskSecrets } = await import('@redocly/respect-core');
     const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
     if (argv['client-cert'] || argv['client-key'] || argv['ca-cert']) {
@@ -92,6 +93,7 @@ export async function handleRespect({
       envVariables: readEnvVariables(workingDir) || {},
       logger,
       fetch: customFetch as unknown as typeof fetch,
+      noSecretsMasking: argv['no-secrets-masking'],
     };
 
     if (options.skip && options.workflow) {
@@ -140,7 +142,11 @@ export async function handleRespect({
     if (argv['har-output']) {
       // TODO: implement multiple run files HAR output
       for (const result of runAllFilesResult) {
-        const parsedHarLogs = maskSecrets(harLogs, result.ctx.secretFields || new Set());
+        const parsedHarLogs = conditionallyMaskSecrets({
+          value: harLogs,
+          noSecretsMasking: result.ctx.noSecretsMasking,
+          secretsSet: result.ctx.secretsSet || new Set(),
+        });
         writeFileSync(argv['har-output'], jsonStringifyWithArrayBuffer(parsedHarLogs, 2), 'utf-8');
         logger.output(blue(`Har logs saved in ${green(argv['har-output'])}`));
         logger.printNewLine();

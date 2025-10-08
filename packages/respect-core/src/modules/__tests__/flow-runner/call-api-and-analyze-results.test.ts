@@ -339,7 +339,7 @@ describe('callAPIAndAnalyzeResults', () => {
       },
     ],
     $outputs: {},
-    secretFields: new Set(),
+    secretsSet: new Set(),
   } as unknown as TestContext;
 
   it('should call API and return checks result', async () => {

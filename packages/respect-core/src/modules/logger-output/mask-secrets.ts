@@ -10,7 +10,7 @@ export const POTENTIALLY_SECRET_FIELDS = [
 
 export function maskSecrets<T extends { [x: string]: any } | string>(
   target: T,
-  secretValues: Set<string>
+  secretsSet: Set<string>
 ): T {
   const maskValue = (value: string, secret: string): string => {
     return value.replace(secret, '*'.repeat(8));
@@ -18,7 +18,7 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
 
   if (typeof target === 'string') {
     let maskedString = target as string;
-    secretValues.forEach((secret) => {
+    secretsSet.forEach((secret) => {
       maskedString = maskedString.split(secret).join('*'.repeat(8));
     });
     return maskedString as T;
@@ -28,7 +28,7 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
   const maskIfContainsSecret = (value: string): string => {
     let maskedValue = value;
 
-    for (const secret of secretValues) {
+    for (const secret of secretsSet) {
       if (maskedValue.includes(secret)) {
         maskedValue = maskValue(maskedValue, secret);
       }
@@ -65,8 +65,8 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
   return masked;
 }
 
-export function containsSecret(value: string, secretValues: Set<string>): boolean {
-  return Array.from(secretValues).some((secret) => value.includes(secret));
+export function containsSecret(value: string, secretsSet: Set<string>): boolean {
+  return Array.from(secretsSet).some((secret) => value.includes(secret));
 }
 
 export function findPotentiallySecretObjectFields(
@@ -119,4 +119,16 @@ export function findPotentiallySecretObjectFields(
 
   searchInObject(obj);
   return foundTokens;
+}
+
+export function conditionallyMaskSecrets<T extends { [x: string]: any } | string>({
+  value,
+  noSecretsMasking,
+  secretsSet,
+}: {
+  value: T;
+  noSecretsMasking: boolean;
+  secretsSet: Set<string>;
+}): T {
+  return noSecretsMasking ? value : maskSecrets(value, secretsSet);
 }

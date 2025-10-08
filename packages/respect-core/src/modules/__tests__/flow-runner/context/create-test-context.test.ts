@@ -5,7 +5,7 @@ import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createTestContext,
   DEFAULT_SEVERITY_CONFIGURATION,
-  collectSecretFields,
+  collectSecretValues,
 } from '../../../../modules/flow-runner/index.js';
 
 describe('createTestContext', () => {
@@ -524,7 +524,7 @@ describe('createTestContext', () => {
       },
       info: { title: 'API', version: '1.0' },
       arazzo: '1.0.1',
-      secretFields: {},
+      secretsSet: {},
       severity: DEFAULT_SEVERITY_CONFIGURATION,
       sourceDescriptions: [
         { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
@@ -762,10 +762,10 @@ describe('createTestContext', () => {
   });
 });
 
-describe('storeSecretFields', () => {
+describe('storeSecretValues', () => {
   it('should store secret fields with inputs', () => {
     const ctx = {
-      secretFields: new Set<string>(),
+      secretsSet: new Set<string>(),
     } as unknown as TestContext;
 
     const schema = {
@@ -788,14 +788,14 @@ describe('storeSecretFields', () => {
       },
     };
 
-    collectSecretFields(ctx, schema, inputs);
+    collectSecretValues(ctx, schema, inputs);
 
-    expect(ctx.secretFields).toEqual(new Set(['password', 'nested-password']));
+    expect(ctx.secretsSet).toEqual(new Set(['password', 'nested-password']));
   });
 
   it('should store secret env fields', () => {
     const ctx = {
-      secretFields: new Set<string>(),
+      secretsSet: new Set<string>(),
     } as unknown as TestContext;
 
     const schema = {
@@ -825,14 +825,14 @@ describe('storeSecretFields', () => {
       },
     };
 
-    collectSecretFields(ctx, schema, inputs);
+    collectSecretValues(ctx, schema, inputs);
 
-    expect(ctx.secretFields).toEqual(new Set(['password', 'nested-password']));
+    expect(ctx.secretsSet).toEqual(new Set(['password', 'nested-password']));
   });
 
   it('should not store secret fields if not password format', () => {
     const ctx = {
-      secretFields: new Set<string>(),
+      secretsSet: new Set<string>(),
     } as unknown as TestContext;
 
     const schema = {
@@ -855,14 +855,14 @@ describe('storeSecretFields', () => {
       },
     };
 
-    collectSecretFields(ctx, schema, inputs);
+    collectSecretValues(ctx, schema, inputs);
 
-    expect(ctx.secretFields).toEqual(new Set());
+    expect(ctx.secretsSet).toEqual(new Set());
   });
 
   it('should store secret field with format password in object', () => {
     const ctx = {
-      secretFields: new Set<string>(),
+      secretsSet: new Set<string>(),
     } as unknown as TestContext;
 
     const schema = {
@@ -874,8 +874,8 @@ describe('storeSecretFields', () => {
       tocken: 'secret-token',
     };
 
-    collectSecretFields(ctx, schema, inputs, ['tocken']);
+    collectSecretValues(ctx, schema, inputs, ['tocken']);
 
-    expect(ctx.secretFields).toEqual(new Set(['secret-token']));
+    expect(ctx.secretsSet).toEqual(new Set(['secret-token']));
   });
 });

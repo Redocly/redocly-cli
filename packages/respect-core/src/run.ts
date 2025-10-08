@@ -29,6 +29,7 @@ export type RespectOptions = {
   fetch: typeof fetch;
   externalRefResolver?: BaseResolver;
   skipLint?: boolean;
+  noSecretsMasking?: boolean;
 };
 
 export async function run(options: RespectOptions): Promise<RunFileResult[]> {
@@ -94,5 +95,6 @@ async function runFile({
     totalTimeMs: performance.now() - startedAt,
     totalRequests: totals.totalRequests,
     globalTimeoutError: hasGlobalTimeoutError,
+    ...(ctx.noSecretsMasking && { secretValues: Array.from(ctx.secretsSet) || [] }),
   };
 }

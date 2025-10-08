@@ -10,7 +10,7 @@ import {
   handlePayloadReplacements,
 } from '../context-parser/index.js';
 import { getServerUrl } from './get-server-url.js';
-import { createRuntimeExpressionCtx, collectSecretFields } from './context/index.js';
+import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 
@@ -168,7 +168,7 @@ export async function prepareRequest(
 
   for (const param of openapiOperation?.parameters || []) {
     const { schema, name } = param;
-    collectSecretFields(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
+    collectSecretValues(ctx, schema, groupParametersValuesByName(parameters, param.in), [name]);
   }
 
   const evaluatedBody = evaluateRuntimeExpressionPayload({
@@ -190,7 +190,7 @@ export async function prepareRequest(
   if (contentType && openapiOperation?.requestBody) {
     const requestBodySchema = getRequestBodySchema(contentType, openapiOperation);
     if (typeof requestBody === 'object') {
-      collectSecretFields(ctx, requestBodySchema, requestBody);
+      collectSecretValues(ctx, requestBodySchema, requestBody);
     }
   }
 

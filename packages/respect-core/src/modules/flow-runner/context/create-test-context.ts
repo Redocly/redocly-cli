@@ -94,7 +94,8 @@ export async function createTestContext(
     info: testDescription.info || infoSubstitute,
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
-    secretFields: new Set<string>(),
+    noSecretsMasking: options.noSecretsMasking || false,
+    secretsSet: new Set<string>(),
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
   };
@@ -102,14 +103,14 @@ export async function createTestContext(
   // Collect all secret fields from the input schema and the workflow inputs
   for (const workflow of testDescription.workflows || []) {
     if (workflow.inputs) {
-      collectSecretFields(ctx, workflow.inputs, ctx.$workflows[workflow.workflowId].inputs);
+      collectSecretValues(ctx, workflow.inputs, ctx.$workflows[workflow.workflowId].inputs);
     }
   }
 
   return ctx;
 }
 
-export function collectSecretFields(
+export function collectSecretValues(
   ctx: TestContext,
   schema: InputSchema | undefined,
   inputs: Record<string, any> | undefined,
@@ -120,13 +121,13 @@ export function collectSecretFields(
   const inputValue = getNestedValue(inputs, path);
 
   if (schema.format === 'password' && inputValue) {
-    ctx.secretFields.add(inputValue);
+    ctx.secretsSet.add(inputValue);
   }
 
   if (schema.properties) {
     Object.entries(schema.properties).forEach(([key, value]: [string, any]) => {
       const currentPath = [...path, key];
-      collectSecretFields(ctx, value, inputs, currentPath);
+      collectSecretValues(ctx, value, inputs, currentPath);
     });
   }
 }
