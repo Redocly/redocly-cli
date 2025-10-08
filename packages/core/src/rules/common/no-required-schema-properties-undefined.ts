@@ -65,10 +65,10 @@ export const NoRequiredSchemaPropertiesUndefined:
         const getParentSchema = (lookupIndex: number): AnySchema | undefined => {
           lookupIndex++;
           if (!parents || parents.length < lookupIndex) return undefined;
-          const grandParent = parents[parents.length - lookupIndex];
-          return grandParent;
+          const parent = parents[parents.length - lookupIndex];
+          return parent;
         };
-        const recursivelyGetGrandParentProperties = (
+        const recursivelyGetParentProperties = (
           splitLocation: string[],
           parentLookupIndex: number = 0
         ): Record<string, AnySchema> | undefined => {
@@ -76,34 +76,31 @@ export const NoRequiredSchemaPropertiesUndefined:
             splitLocation.length > locationLookupIndex &&
             !isNaN(parseInt(splitLocation[splitLocation.length - 1])) &&
             !!/(allOf|oneOf|anyOf)/.exec(splitLocation[splitLocation.length - locationLookupIndex]);
-          const grandParentSchema = isMemberOfComposedType
+          const parentSchema = isMemberOfComposedType
             ? getParentSchema(++parentLookupIndex)
             : undefined;
-          const greatGrandParentProperties =
+          const grandParentProperties =
             splitLocation.length >= locationLookupIndex + locationLookupIndex
-              ? recursivelyGetGrandParentProperties(
+              ? recursivelyGetParentProperties(
                   splitLocation.slice(0, -locationLookupIndex),
                   parentLookupIndex
                 )
               : {};
-          return grandParentSchema
+          return parentSchema
             ? {
-                ...elevateProperties(grandParentSchema, undefined, false),
-                ...greatGrandParentProperties,
+                ...elevateProperties(parentSchema, undefined, false),
+                ...grandParentProperties,
               }
             : undefined;
         };
 
         const allProperties = elevateProperties(schema);
-        const grandParentProperties = recursivelyGetGrandParentProperties(
-          location.pointer.split('/')
-        );
+        const parentProperties = recursivelyGetParentProperties(location.pointer.split('/'));
 
         for (const [i, requiredProperty] of schema.required.entries()) {
           if (
             (!allProperties || getOwn(allProperties, requiredProperty) === undefined) &&
-            (!grandParentProperties ||
-              getOwn(grandParentProperties, requiredProperty) === undefined)
+            (!parentProperties || getOwn(parentProperties, requiredProperty) === undefined)
           ) {
             report({
               message: `Required property '${requiredProperty}' is undefined.`,
