@@ -184,7 +184,9 @@ npx @redocly/cli@latest respect <your-test-file | multiple files | files bash qu
 
 - --no-secrets-masking
 - boolean
-- Disables masking of secrets in the output. By default, any sensitive information, such as values described with `format: password`, as well as tokens and authentication headers from `x-security`, are masked with `********` in both terminal logs and file outputs. When this flag is set to `true`, the raw (unmasked) data shows in all outputs.
+- Disables masking of secrets in the output.
+By default, any sensitive information, such as values described with `format: password`, as well as tokens and authentication headers from `x-security`, are masked with `********` in both terminal logs and file outputs.
+When this flag is set to `true`, the raw (unmasked) data shows in all outputs.
 
   For example, the following command disables sensitive output masking:
 
