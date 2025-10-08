@@ -42,7 +42,7 @@ cacheLatestVersion();
 yargs(hideBin(process.argv))
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-  .parserConfiguration({ 'greedy-arrays': false })
+  .parserConfiguration({ 'greedy-arrays': false, 'boolean-negation': false })
   .command(
     'stats [api]',
     'Show statistics for an API description.',
@@ -684,7 +684,6 @@ yargs(hideBin(process.argv))
     (yargs) => {
       return yargs
         .env('REDOCLY_CLI_RESPECT')
-        .parserConfiguration({ 'boolean-negation': false })
         .positional('files', {
           describe: 'Test files or glob pattern.',
           type: 'string',
