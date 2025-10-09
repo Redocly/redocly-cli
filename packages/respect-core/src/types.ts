@@ -239,7 +239,7 @@ export interface StepExecutionResult {
     body: any;
     headers: Record<string, string | number | boolean>;
     time: number;
-    size: number;
+    size: number | undefined;
   };
   checks: (Check & { status: ExecutionStatus })[];
 }

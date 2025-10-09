@@ -37,7 +37,7 @@ export function getVerboseLogs({
     verboseLogs.responseTime = responseTime;
   }
 
-  if (responseSize) {
+  if (responseSize !== undefined) {
     verboseLogs.responseSize = responseSize;
   }
 

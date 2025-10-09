@@ -318,6 +318,7 @@ export class ApiFetcher implements IFetcher {
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
+          responseSize: undefined,
         });
         throw new StatusCodeError(
           `Digest auth failed, expected 401 status code, but received ${first401Result.status} in the first response`
@@ -332,6 +333,7 @@ export class ApiFetcher implements IFetcher {
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
+          responseSize: undefined,
         });
         throw new UnexpectedError(
           'Digest auth failed, no www-authenticate header received in the first response'
@@ -437,18 +439,18 @@ export class ApiFetcher implements IFetcher {
       ctx.secretsSet.add(secretItem);
     }
 
-    let responseSize: number;
+    let responseSize: number | undefined;
     const contentLength = fetchResult.headers.get('content-length');
 
-    if (contentLength && !isNaN(parseInt(contentLength, 10))) {
-      responseSize = parseInt(contentLength, 10);
+    if (contentLength && !isNaN(+contentLength)) {
+      responseSize = +contentLength;
     } else {
       if (responseBody instanceof ArrayBuffer) {
         responseSize = responseBody.byteLength;
       } else if (typeof responseBody === 'string') {
         responseSize = new TextEncoder().encode(responseBody).length;
       } else {
-        responseSize = 0;
+        responseSize = undefined;
       }
     }
 
