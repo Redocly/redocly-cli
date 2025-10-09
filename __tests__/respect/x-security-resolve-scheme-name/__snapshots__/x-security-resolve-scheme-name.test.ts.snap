@@ -16,6 +16,7 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {
@@ -85,6 +86,7 @@ exports[`should resolve securitySchemes described in x-security by schemeName 1`
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {

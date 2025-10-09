@@ -18,6 +18,7 @@ exports[`should apply x-security schemes in Top-Down order, the Last one have bi
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {

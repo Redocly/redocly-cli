@@ -100,6 +100,7 @@ export class ApiFetcher implements IFetcher {
     body,
     statusCode,
     responseTime,
+    responseSize,
   }: VerboseLog) => {
     this.verboseResponseLogs = getVerboseLogs({
       headerParams,
@@ -109,6 +110,7 @@ export class ApiFetcher implements IFetcher {
       body,
       statusCode,
       responseTime,
+      responseSize,
     });
   };
 
@@ -316,6 +318,7 @@ export class ApiFetcher implements IFetcher {
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
+          responseSize: undefined,
         });
         throw new StatusCodeError(
           `Digest auth failed, expected 401 status code, but received ${first401Result.status} in the first response`
@@ -330,6 +333,7 @@ export class ApiFetcher implements IFetcher {
           path: pathWithSearchParams || '',
           statusCode: first401Result.status,
           responseTime: 0,
+          responseSize: undefined,
         });
         throw new UnexpectedError(
           'Digest auth failed, no www-authenticate header received in the first response'
@@ -435,6 +439,21 @@ export class ApiFetcher implements IFetcher {
       ctx.secretsSet.add(secretItem);
     }
 
+    let responseSize: number | undefined;
+    const contentLength = fetchResult.headers.get('content-length');
+
+    if (contentLength && !isNaN(+contentLength)) {
+      responseSize = +contentLength;
+    } else {
+      if (responseBody instanceof ArrayBuffer) {
+        responseSize = responseBody.byteLength;
+      } else if (typeof responseBody === 'string') {
+        responseSize = new TextEncoder().encode(responseBody).length;
+      } else {
+        responseSize = undefined;
+      }
+    }
+
     this.initVerboseResponseLogs({
       body: isJsonContentType(responseContentType)
         ? JSON.stringify(maskedResponseBody)
@@ -449,6 +468,7 @@ export class ApiFetcher implements IFetcher {
         noSecretsMasking: ctx.noSecretsMasking,
         secretsSet: ctx.secretsSet,
       }),
+      responseSize,
     });
 
     return {
@@ -458,6 +478,7 @@ export class ApiFetcher implements IFetcher {
       header: Object.fromEntries(fetchResult.headers?.entries() || []),
       contentType: responseContentType,
       requestUrl: urlToFetch,
+      responseSize,
     };
   };
 }
