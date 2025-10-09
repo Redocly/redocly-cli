@@ -581,13 +581,23 @@ yargs(hideBin(process.argv))
               'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
             type: 'string',
           },
+          inlineBundle: {
+            describe: 'Include CE Redoc bundle into the output HTML.',
+            type: 'boolean',
+            default: false,
+          },
           templateOptions: {
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
           theme: {
+            deprecated: true,
             describe:
               'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+          },
+          openapi: {
+            describe:
+              'Redoc openapi configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
           },
           config: {
             describe: 'Path to the config file.',
@@ -600,8 +610,12 @@ yargs(hideBin(process.argv))
           },
         })
         .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
+          if (argv.theme && !argv.theme?.openapi) {
             throw Error('Invalid option: theme.openapi not set.');
+          }
+          if (argv.theme) {
+            logger.warn('--theme.openpai options deprecated, please use --openapi instead\n');
+          }
           return true;
         }),
     async (argv) => {
