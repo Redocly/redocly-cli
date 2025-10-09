@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.5.0
+
+### Minor Changes
+
+- Added response size to the `Respect` terminal and JSON file outputs.
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.5.0.
+
 ## 2.4.0
 
 ### Minor Changes
