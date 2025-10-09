@@ -273,6 +273,31 @@ describe('bundle', () => {
 
     `);
   });
+
+  it('should normalize self-file explicit $ref to internal pointer', async () => {
+    const config = await createConfig({});
+
+    const { bundle: res, problems } = await bundle({
+      config,
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-refs-to-itself.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should dereference even if self-file explicit $ref is used', async () => {
+    const config = await createConfig({});
+
+    const { bundle: res, problems } = await bundle({
+      config,
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-refs-to-itself.yaml'),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
 });
 
 describe('bundleFromString', () => {

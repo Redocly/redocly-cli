@@ -338,6 +338,12 @@ function makeBundleVisitor(
           reportUnresolvedRef(resolved, ctx.report, ctx.location);
           return;
         }
+
+        // Normalize explicit self-file refs to internal pointer
+        if (ctx.location.source.absoluteRef === resolved.location.source.absoluteRef) {
+          node.$ref = resolved.location.pointer;
+        }
+
         if (
           resolved.location.source === rootDocument.source &&
           resolved.location.source === ctx.location.source &&

@@ -104,6 +104,25 @@ components: {}
 
 `;
 
+exports[`bundle > should dereference even if self-file explicit $ref is used 1`] = `
+openapi: 3.0.0
+paths:
+  /test:
+    get:
+      parameters:
+        - name: p1
+    post:
+      parameters:
+        - name: param_b
+components:
+  parameters:
+    p1:
+      name: p1
+    param-b:
+      name: param_b
+
+`;
+
 exports[`bundle > should dereferenced correctly when used with dereference 1`] = `
 openapi: 3.0.0
 paths:
@@ -121,6 +140,25 @@ components:
   parameters:
     shared_a:
       name: shared-a
+
+`;
+
+exports[`bundle > should normalize self-file explicit $ref to internal pointer 1`] = `
+openapi: 3.0.0
+paths:
+  /test:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/p1'
+    post:
+      parameters:
+        - $ref: '#/components/parameters/param-b'
+components:
+  parameters:
+    p1:
+      name: p1
+    param-b:
+      name: param_b
 
 `;
 
