@@ -89,7 +89,7 @@ function mapJsonStep(
       body: publicStep.response?.body,
       headers: step.response?.header || {},
       time: step.response?.time || 0,
-      size: step.response?.responseSize || undefined,
+      size: step.response?.responseSize,
     },
     checks: step.checks.map((check) => ({
       ...check,
