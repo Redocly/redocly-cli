@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Normalize explicit self-file $ref to internal pointer during bundling
+Fixed an issue where the `bundle` command did not substitute self-references with local references.
