@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { minimatch } from 'minimatch';
 import pluralizeOne from 'pluralize';
 import { parseYaml } from './js-yaml/index.js';
@@ -213,10 +212,8 @@ export function isCustomRuleId(id: string) {
 }
 
 export function doesYamlFileExist(filePath: string): boolean {
-  return (
-    (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') &&
-    !!fs?.existsSync?.(filePath)
-  );
+  const ext = filePath.substr(filePath.lastIndexOf('.'));
+  return (ext === '.yaml' || ext === '.yml') && !!fs?.existsSync?.(filePath);
 }
 
 export type Falsy = undefined | null | false | '' | 0;
