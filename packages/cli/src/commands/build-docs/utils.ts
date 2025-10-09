@@ -70,6 +70,7 @@ export async function getPageHTML(
           definition,
         },
         router: 'memory',
+        disableTelemetry,
         withCommonStyles: true,
       })
     )
@@ -97,7 +98,7 @@ export async function getPageHTML(
         )};
 
         const container = document.getElementById('redoc');
-        Redoc.hydrate(__redoc_state, container);
+        Redoc.hydrate(__redoc_state, container, ${disableTelemetry});
       }).catch(error => {
         console.error('Failed to load Redoc:', error);
       });
@@ -114,7 +115,7 @@ export async function getPageHTML(
           })
         )};
         var container = document.getElementById('redoc');
-        Redoc.hydrate(__redoc_state, container);
+        Redoc.hydrate(__redoc_state, container, ${disableTelemetry});
       </script>
     `;
 
