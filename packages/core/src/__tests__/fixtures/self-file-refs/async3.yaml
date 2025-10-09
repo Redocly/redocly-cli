@@ -1,0 +1,14 @@
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 self-file ref
+  version: '1.0.0'
+channels:
+  test:
+    messages:
+      M1:
+        $ref: 'async3.yaml#/components/messages/M'
+components:
+  messages:
+    M:
+      payload:
+        type: string

@@ -106,20 +106,35 @@ components: {}
 
 exports[`bundle > should dereference even if self-file explicit $ref is used 1`] = `
 openapi: 3.0.0
+info:
+  title: Self-file ref normalization
+  version: 1.0.0
+  license:
+    name: MIT
+servers:
+  - url: https://api.example.org
+security: []
 paths:
   /test:
     get:
+      summary: Test
+      operationId: getTest
       parameters:
-        - name: p1
-    post:
-      parameters:
-        - name: param_b
+        - name: myParam
+          in: query
+          schema: &ref_0
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
 components:
   parameters:
-    p1:
-      name: p1
-    param-b:
-      name: param_b
+    myParam:
+      name: myParam
+      in: query
+      schema: *ref_0
 
 `;
 
@@ -143,22 +158,66 @@ components:
 
 `;
 
-exports[`bundle > should normalize self-file explicit $ref to internal pointer 1`] = `
-openapi: 3.0.0
+exports[`bundle > should normalize self-file explicit $ref in oas2 1`] = `
+swagger: '2.0'
+info:
+  title: OAS2 self-file ref
+  version: '1.0'
+  license:
+    name: MIT
+host: example.com
+schemes:
+  - https
+security: []
 paths:
   /test:
     get:
+      summary: Test
+      operationId: getTest
       parameters:
-        - $ref: '#/components/parameters/p1'
-    post:
+        - $ref: '#/parameters/p1'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+parameters:
+  p1:
+    name: p1
+    in: query
+    type: string
+
+`;
+
+exports[`bundle > should normalize self-file explicit $ref to internal pointer 1`] = `
+openapi: 3.0.0
+info:
+  title: Self-file ref normalization
+  version: 1.0.0
+  license:
+    name: MIT
+servers:
+  - url: https://api.example.org
+security: []
+paths:
+  /test:
+    get:
+      summary: Test
+      operationId: getTest
       parameters:
-        - $ref: '#/components/parameters/param-b'
+        - $ref: '#/components/parameters/myParam'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
 components:
   parameters:
-    p1:
-      name: p1
-    param-b:
-      name: param_b
+    myParam:
+      name: myParam
+      in: query
+      schema:
+        type: string
 
 `;
 
@@ -313,5 +372,41 @@ components:
           items:
             $ref: '#/components/schemas/someexternal'
     someexternal: External schema content
+
+`;
+
+exports[`bundle async > should normalize self-file explicit $ref in asyncapi 2 1`] = `
+asyncapi: 2.6.0
+info:
+  title: AsyncAPI 2 self-file ref
+  version: 1.0.0
+channels:
+  c:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/A'
+components:
+  schemas:
+    A:
+      type: string
+
+`;
+
+exports[`bundle async > should normalize self-file explicit $ref in asyncapi 3 1`] = `
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 self-file ref
+  version: 1.0.0
+channels:
+  test:
+    messages:
+      M1:
+        $ref: '#/components/messages/M'
+components:
+  messages:
+    M:
+      payload:
+        type: string
 
 `;

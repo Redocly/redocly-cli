@@ -279,7 +279,7 @@ describe('bundle', () => {
 
     const { bundle: res, problems } = await bundle({
       config,
-      ref: path.join(__dirname, 'fixtures/refs/openapi-with-refs-to-itself.yaml'),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/oas3.yaml'),
     });
 
     expect(problems).toHaveLength(0);
@@ -291,10 +291,19 @@ describe('bundle', () => {
 
     const { bundle: res, problems } = await bundle({
       config,
-      ref: path.join(__dirname, 'fixtures/refs/openapi-with-refs-to-itself.yaml'),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/oas3.yaml'),
       dereference: true,
     });
 
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should normalize self-file explicit $ref in oas2', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/oas2.yaml'),
+    });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
@@ -456,5 +465,25 @@ describe('bundle async', () => {
             payload: *ref_1
 
     `);
+  });
+
+  it('should normalize self-file explicit $ref in asyncapi 2', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/async2.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should normalize self-file explicit $ref in asyncapi 3', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/async3.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
   });
 });
