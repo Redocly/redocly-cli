@@ -17,6 +17,7 @@ exports[`should make request with X-API-KEY in header 1`] = `
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {

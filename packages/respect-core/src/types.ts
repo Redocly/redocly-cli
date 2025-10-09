@@ -73,6 +73,7 @@ export type VerboseLog = {
   headerParams?: Record<string, string>;
   statusCode?: number;
   responseTime?: number;
+  responseSize?: number;
 };
 type AdditionalStepProps = {
   verboseLog?: VerboseLog;
@@ -238,6 +239,7 @@ export interface StepExecutionResult {
     body: any;
     headers: Record<string, string | number | boolean>;
     time: number;
+    size: number;
   };
   checks: (Check & { status: ExecutionStatus })[];
 }

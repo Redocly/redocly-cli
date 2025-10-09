@@ -16,6 +16,7 @@ exports[`should not follow the default behavior to break and return if onFailure
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {
@@ -90,6 +91,7 @@ exports[`should not follow the default behavior to break and return if onFailure
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {
@@ -228,6 +230,7 @@ exports[`should not follow the default behavior to break and return if onFailure
     Response status code: 200
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       [
         {

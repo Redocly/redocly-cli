@@ -100,6 +100,7 @@ export class ApiFetcher implements IFetcher {
     body,
     statusCode,
     responseTime,
+    responseSize,
   }: VerboseLog) => {
     this.verboseResponseLogs = getVerboseLogs({
       headerParams,
@@ -109,6 +110,7 @@ export class ApiFetcher implements IFetcher {
       body,
       statusCode,
       responseTime,
+      responseSize,
     });
   };
 
@@ -435,6 +437,21 @@ export class ApiFetcher implements IFetcher {
       ctx.secretsSet.add(secretItem);
     }
 
+    let responseSize: number;
+    const contentLength = fetchResult.headers.get('content-length');
+
+    if (contentLength && !isNaN(parseInt(contentLength, 10))) {
+      responseSize = parseInt(contentLength, 10);
+    } else {
+      if (responseBody instanceof ArrayBuffer) {
+        responseSize = responseBody.byteLength;
+      } else if (typeof responseBody === 'string') {
+        responseSize = new TextEncoder().encode(responseBody).length;
+      } else {
+        responseSize = 0;
+      }
+    }
+
     this.initVerboseResponseLogs({
       body: isJsonContentType(responseContentType)
         ? JSON.stringify(maskedResponseBody)
@@ -449,6 +466,7 @@ export class ApiFetcher implements IFetcher {
         noSecretsMasking: ctx.noSecretsMasking,
         secretsSet: ctx.secretsSet,
       }),
+      responseSize,
     });
 
     return {
@@ -458,6 +476,7 @@ export class ApiFetcher implements IFetcher {
       header: Object.fromEntries(fetchResult.headers?.entries() || []),
       contentType: responseContentType,
       requestUrl: urlToFetch,
+      responseSize,
     };
   };
 }
