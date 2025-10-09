@@ -5,6 +5,7 @@ export type BuildDocsOptions = {
   output?: string;
   title?: string;
   disableGoogleFont?: boolean;
+  disableTelemetry?: boolean;
   port?: number;
   templateFileName?: string;
   templateOptions?: Record<string, unknown>;
@@ -17,6 +18,7 @@ export type BuildDocsArgv = {
   o: string;
   title?: string;
   disableGoogleFont?: boolean;
+  disableTelemetry?: boolean;
   template?: string;
   templateOptions: Record<string, unknown>;
   theme: {

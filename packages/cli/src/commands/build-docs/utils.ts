@@ -52,6 +52,7 @@ export async function getPageHTML(
   {
     title,
     disableGoogleFont,
+    disableTelemetry,
     templateFileName,
     templateOptions,
     redocOptions = {},
@@ -122,6 +123,7 @@ export async function getPageHTML(
     redocHead: sheet.getStyleTags(),
     title: title || definition.info.title || 'ReDoc documentation',
     disableGoogleFont,
+    disableTelemetry,
     templateOptions,
   });
 }

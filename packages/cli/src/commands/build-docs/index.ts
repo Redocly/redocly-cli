@@ -26,6 +26,7 @@ export const handlerBuildCommand = async ({
     output: argv.o,
     title: argv.title,
     disableGoogleFont: argv.disableGoogleFont,
+    disableTelemetry: argv.disableTelemetry,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
     redocOptions: getObjectOrJSON(argv.openapi || argv.theme?.openapi, config.forAlias(alias)),

@@ -572,6 +572,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          disableTelemetry: {
+            describe: 'Disable telemetry.',
+            type: 'boolean',
+            default: false,
+          },
           t: {
             alias: 'template',
             describe:
