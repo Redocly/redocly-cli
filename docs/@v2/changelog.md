@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.5.0 (2025-10-09)
+
+### Minor Changes
+
+- Added response size to the `Respect` terminal and JSON file outputs.
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.5.0.
+
 ## 2.4.0 (2025-10-08)
 
 ### Minor Changes
