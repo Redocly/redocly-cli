@@ -399,7 +399,12 @@ export async function resolveDocument(opts: {
       }
 
       const { uri, pointer } = parseRef(ref.$ref);
-      const isRemote = uri !== null;
+
+      const isRemote =
+        uri !== null &&
+        externalRefResolver.resolveExternalRef(document.source.absoluteRef, uri) !==
+          document.source.absoluteRef;
+
       let targetDoc: Document;
       try {
         targetDoc = isRemote
