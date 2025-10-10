@@ -11,6 +11,7 @@ Ensures that every operation with (400-499) HTTP response has content-type `appl
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

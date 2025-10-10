@@ -11,6 +11,7 @@ Requires the `description` field for every operation in your API.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

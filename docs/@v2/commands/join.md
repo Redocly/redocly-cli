@@ -3,23 +3,33 @@
 ## Introduction
 
 {% admonition type="warning" name="Important" %}
-The `join` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
+The `join` command is considered an experimental feature.
+This means it's still a work in progress and may go through major changes.
 
 The `join` command supports OpenAPI 3.x descriptions only.
 {% /admonition %}
 
-Maintainers of multiple API descriptions can benefit from storing each endpoint as a standalone API description file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API description file. With Redocly CLI, you can solve this problem by using the `join` command to combine two or more API description files into a single one.
+Maintainers of multiple API descriptions can benefit from storing each endpoint as a standalone API description file.
+However, this approach is not supported by the majority of OpenAPI tools, as they require a single API description file.
+With Redocly CLI, you can solve this problem by using the `join` command to combine two or more API description files into a single one.
 
-The `join` command differs from the [`bundle`](./bundle.md) command. The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file. The `join` command can combine multiple OpenAPI files into a single unified API description file.
+The `join` command differs from the [`bundle`](./bundle.md) command.
+The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file.
+The `join` command can combine multiple OpenAPI files into a single unified API description file.
+Unlike the `bundle` command, `join` does not execute preprocessors or decorators and combines the API description files as-is without modifying the original source files.
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to prepend custom prefixes to them.
 
-The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` or `openapi.json` file. Setting a custom name and extension for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten. If the `--output` option is not provided, the command uses the extension of the first entry point file.
+The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` or `openapi.json` file.
+Setting a custom name and extension for this file can be achieved by providing it through the `--output` argument.
+Any existing file is overwritten.
+If the `--output` option is not provided, the command uses the extension of the first entry point file.
 
-Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.(yaml/json)`). The `join` command collects all matching files and combines them into one file.
+Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.(yaml/json)`).
+The `join` command collects all matching files and combines them into one file.
 
 We recommend running [`lint`](./lint.md) before joining API descriptions to ensure that they are valid and meet the expected standards.
-You may also want to use [decorators](./../decorators.md) to add any filtering or transformation needed for your API descriptions, either before or after combining.
+If you need to apply any filtering or transformation using [decorators](./../decorators.md), use the [`bundle`](./bundle.md) command on your API descriptions before or after joining them.
 
 ## Usage
 
@@ -66,7 +76,9 @@ redocly join first-api.yaml second-api.json
 
 The output file `openapi.yaml` is created in the working directory:
 
-The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API description are always taken only from the first input file:
+The order of input files affects how their content is processed.
+The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them.
+Specifically, the following properties of the API description are always taken only from the first input file:
 
 <pre>
 info:
@@ -100,11 +112,13 @@ If some operations in an input file don't have a tag assigned to them, the `join
 
 If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
 
-The `info.title` field is used as a name in `x-tagGroups` instead of a file name for the `join` command, so you can join files with the same names. If you need to adjust the `info.title` field, you can also use the [info-override decorator](https://redocly.com/docs/cli/decorators/info-override/).
+The `info.title` field is used as a name in `x-tagGroups` instead of a file name for the `join` command, so you can join files with the same names.
+If you need to adjust the `info.title` field, apply the [info-override decorator](https://redocly.com/docs/cli/decorators/info-override/) using the [`bundle`](./bundle.md) command before joining the files.
 
 {% /admonition %}
 
-The `servers` object combines the content from all input files, starting with the content from the first file. Commented lines are not included in the output file.
+The `servers` object combines the content from all input files, starting with the content from the first file.
+Commented lines are not included in the output file.
 
 Path names and component names must be unique in all input files, but their content doesn't have to be unique for the `join` command to produce the output file. For each path item object, only the operation ID must be unique.
 
@@ -184,7 +198,8 @@ This command sets the `--without-x-tag-groups` option:
 redocly join first-api.yaml second-api.json --without-x-tag-groups
 ```
 
-The tag description is taken from the first file that contains the tag. You may see a warning about conflicts in the command output:
+The tag description is taken from the first file that contains the tag.
+You may see a warning about conflicts in the command output:
 
 <pre>
 warning: 1 conflict(s) on tags description.
@@ -194,7 +209,8 @@ openapi.yaml: join processed in 69ms
 
 ### Resolve conflicting component names
 
-If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
+If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file.
+All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
 
 This command uses the `version` property as the prefix:
 
@@ -256,7 +272,8 @@ components:
 
 ### Specify output file
 
-By default, the CLI tool writes the joined file as `openapi.yaml` or `openapi.json` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
+By default, the CLI tool writes the joined file as `openapi.yaml` or `openapi.json` in the current working directory.
+Use the optional `--output` argument to provide an alternative output file path.
 
 ```bash Command
 redocly join --output=openapi-custom.yaml

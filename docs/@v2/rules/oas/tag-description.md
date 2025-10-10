@@ -11,6 +11,7 @@ Requires that the tags all have a non-empty `description`.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```yaml Object structure
 tags:

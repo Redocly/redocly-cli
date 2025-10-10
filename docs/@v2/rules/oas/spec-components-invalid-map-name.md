@@ -11,6 +11,7 @@ Requires that specific objects inside `components` MUST use keys that match the 
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD

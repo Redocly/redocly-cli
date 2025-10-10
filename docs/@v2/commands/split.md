@@ -2,12 +2,16 @@
 
 ## Introduction
 
-The `split` command takes an API description file and creates a [multi-file structure](https://redocly.com/docs/resources/multi-file-definitions/) out of it by extracting referenced parts into standalone, separate files. Code samples, components, and paths are split from the root API description into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool. The advantage of this approach is making smaller files that are easier to manage and a structure that makes reviewing simpler.
+The `split` command takes an API description file and creates a [multi-file structure](https://redocly.com/docs/resources/multi-file-definitions/) out of it by extracting referenced parts into standalone, separate files.
+Code samples, components, and paths are split from the root API description into separate files and folders.
+The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.
+The advantage of this approach is making smaller files that are easier to manage and a structure that makes reviewing simpler.
 
-Use the [`bundle`](./bundle.md) command and supply the main file as the entrypoint to get your OpenAPI description in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
+Use the [`bundle`](./bundle.md) command and supply the main file as the entrypoint to get your OpenAPI description in one file.
+Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 
 {% admonition type="warning" name="OpenAPI 3.x only" %}
-The `split` command doesn't support OpenAPI 2.0 descriptions.
+The `split` command supports OpenAPI 3.x descriptions only.
 {% /admonition %}
 
 ## Usage

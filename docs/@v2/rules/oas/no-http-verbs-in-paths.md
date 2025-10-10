@@ -11,6 +11,7 @@ Disallows HTTP verbs used in paths.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -29,6 +30,7 @@ List of HTTP verbs:
 - `delete`
 - `options`
 - `trace`
+- `query` (introduced in OpenAPI 3.2)
 
 ## API design principles
 

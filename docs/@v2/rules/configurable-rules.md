@@ -595,7 +595,7 @@ rules:
 
 Redocly defines a type tree based on the document type.
 OpenAPI 2.0 has one type tree.
-OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
+OpenAPI 3.0, 3.1, and 3.2 mostly share a type tree.
 
 Learn more about the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 

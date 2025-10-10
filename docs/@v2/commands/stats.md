@@ -16,6 +16,10 @@ This command generates statistics for the following metrics:
 
 If you're interested in the technical details, the statistics are calculated using the counting logic from the `StatsVisitor` module.
 
+{% admonition type="warning" name="OpenAPI 3.x only" %}
+The `stats` command supports OpenAPI 3.x descriptions only.
+{% /admonition %}
+
 ## Usage
 
 ```bash
@@ -68,11 +72,13 @@ You can obtain the statistics by giving the API alias name, as shown below:
 redocly stats core@v1
 ```
 
-In this case, after resolving the path behind the `core@v1` name, `stats` displays statistics for the `openapi/api-description.json` file. For this approach, the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name, `stats` displays statistics for the `openapi/api-description.json` file.
+For this approach, the Redocly configuration file is mandatory.
 
 ### Use alternative configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory.
+Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 redocly stats --config=./another/directory/config.yaml

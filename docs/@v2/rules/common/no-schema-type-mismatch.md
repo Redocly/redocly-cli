@@ -14,6 +14,7 @@ Ensures that a schema's structural properties match its declared `type`. In part
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 | AsyncAPI | Compatibility |
 | -------- | ------------- |
