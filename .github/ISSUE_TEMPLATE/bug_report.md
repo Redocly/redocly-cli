@@ -29,7 +29,7 @@ Steps to reproduce the behavior:
 **OpenAPI description**
 
 <!-- If applicable, add an OpenAPI description and `redocly.yaml` configuration file that helps reproduce the problem.
-At a minimum, please state the specification version(s) you're using (e.g. 2.0, 3.0, 3.1, 3.2). -->
+At a minimum, please state the specification and version(s) you're using. -->
 
 **Redocly Version(s)**
 
@@ -37,7 +37,7 @@ At a minimum, please state the specification version(s) you're using (e.g. 2.0, 
 
 **`Node.js` Version(s)**
 
-<!-- What version of `node.js` are you using? -->
+<!-- What version of `node.js` and `npm` are you using? -->
 
 **OS, environment**
 
