@@ -1,0 +1,9 @@
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 root with external ref to file with self-refs
+  version: '1.0.0'
+channels:
+  userTest:
+    messages:
+      TestMessage:
+        $ref: './async3-nested.yaml#/components/messages/TestMessage'

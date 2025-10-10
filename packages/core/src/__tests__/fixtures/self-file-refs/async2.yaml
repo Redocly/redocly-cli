@@ -3,12 +3,12 @@ info:
   title: AsyncAPI 2 self-file ref
   version: '1.0.0'
 channels:
-  c:
+  user/test:
     subscribe:
       message:
         payload:
-          $ref: 'async2.yaml#/components/schemas/A'
+          $ref: 'async2.yaml#/components/schemas/TestPayload'
 components:
   schemas:
-    A:
+    TestPayload:
       type: string

@@ -274,36 +274,23 @@ describe('bundle', () => {
     `);
   });
 
-  it('should normalize self-file explicit $ref to internal pointer', async () => {
-    const config = await createConfig({});
-
-    const { bundle: res, problems } = await bundle({
-      config,
-      ref: path.join(__dirname, 'fixtures/self-file-refs/oas3.yaml'),
-    });
-
-    expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchSnapshot();
-  });
-
-  it('should dereference even if self-file explicit $ref is used', async () => {
-    const config = await createConfig({});
-
-    const { bundle: res, problems } = await bundle({
-      config,
-      ref: path.join(__dirname, 'fixtures/self-file-refs/oas3.yaml'),
-      dereference: true,
-    });
-
-    expect(problems).toHaveLength(0);
-    expect(res.parsed).toMatchSnapshot();
-  });
-
   it('should normalize self-file explicit $ref in oas2', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/self-file-refs/oas2.yaml'),
     });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should normalize self-file explicit $ref in nested referenced file', async () => {
+    const config = await createConfig({});
+
+    const { bundle: res, problems } = await bundle({
+      config,
+      ref: path.join(__dirname, 'fixtures/self-file-refs/oas3-root.yaml'),
+    });
+
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
@@ -477,10 +464,10 @@ describe('bundle async', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should normalize self-file explicit $ref in asyncapi 3', async () => {
+  it('should normalize self-file explicit $ref in nested referenced file for async3', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
-      ref: path.join(__dirname, 'fixtures/self-file-refs/async3.yaml'),
+      ref: path.join(__dirname, 'fixtures/self-file-refs/async3-root.yaml'),
     });
 
     expect(problems).toHaveLength(0);

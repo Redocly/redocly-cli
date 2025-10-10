@@ -2,26 +2,13 @@ swagger: '2.0'
 info:
   title: OAS2 self-file ref
   version: '1.0'
-  license:
-    name: MIT
-host: example.com
-schemes:
-  - https
-security: []
 paths:
   /test:
     get:
-      summary: Test
-      operationId: getTest
       parameters:
-        - $ref: 'oas2.yaml#/parameters/p1'
-      responses:
-        200:
-          description: OK
-        400:
-          description: Bad Request
+        - $ref: 'oas2.yaml#/parameters/testParam'
 parameters:
-  p1:
-    name: p1
+  testParam:
+    name: testParam
     in: query
     type: string

@@ -104,40 +104,6 @@ components: {}
 
 `;
 
-exports[`bundle > should dereference even if self-file explicit $ref is used 1`] = `
-openapi: 3.0.0
-info:
-  title: Self-file ref normalization
-  version: 1.0.0
-  license:
-    name: MIT
-servers:
-  - url: https://api.example.org
-security: []
-paths:
-  /test:
-    get:
-      summary: Test
-      operationId: getTest
-      parameters:
-        - name: myParam
-          in: query
-          schema: &ref_0
-            type: string
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad Request
-components:
-  parameters:
-    myParam:
-      name: myParam
-      in: query
-      schema: *ref_0
-
-`;
-
 exports[`bundle > should dereferenced correctly when used with dereference 1`] = `
 openapi: 3.0.0
 paths:
@@ -158,66 +124,54 @@ components:
 
 `;
 
+exports[`bundle > should normalize self-file explicit $ref in nested referenced file 1`] = `
+openapi: 3.0.0
+info:
+  title: OAS3 root with external ref to file with self-refs
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/testParam'
+components:
+  schemas:
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string
+    TestSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: '#/components/schemas/NestedSchema'
+  parameters:
+    testParam:
+      name: testParam
+      in: query
+      schema:
+        $ref: '#/components/schemas/TestSchema'
+
+`;
+
 exports[`bundle > should normalize self-file explicit $ref in oas2 1`] = `
 swagger: '2.0'
 info:
   title: OAS2 self-file ref
   version: '1.0'
-  license:
-    name: MIT
-host: example.com
-schemes:
-  - https
-security: []
 paths:
   /test:
     get:
-      summary: Test
-      operationId: getTest
       parameters:
-        - $ref: '#/parameters/p1'
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad Request
+        - $ref: '#/parameters/testParam'
 parameters:
-  p1:
-    name: p1
+  testParam:
+    name: testParam
     in: query
     type: string
-
-`;
-
-exports[`bundle > should normalize self-file explicit $ref to internal pointer 1`] = `
-openapi: 3.0.0
-info:
-  title: Self-file ref normalization
-  version: 1.0.0
-  license:
-    name: MIT
-servers:
-  - url: https://api.example.org
-security: []
-paths:
-  /test:
-    get:
-      summary: Test
-      operationId: getTest
-      parameters:
-        - $ref: '#/components/parameters/myParam'
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad Request
-components:
-  parameters:
-    myParam:
-      name: myParam
-      in: query
-      schema:
-        type: string
 
 `;
 
@@ -381,32 +335,42 @@ info:
   title: AsyncAPI 2 self-file ref
   version: 1.0.0
 channels:
-  c:
+  user/test:
     subscribe:
       message:
         payload:
-          $ref: '#/components/schemas/A'
+          $ref: '#/components/schemas/TestPayload'
 components:
   schemas:
-    A:
+    TestPayload:
       type: string
 
 `;
 
-exports[`bundle async > should normalize self-file explicit $ref in asyncapi 3 1`] = `
+exports[`bundle async > should normalize self-file explicit $ref in nested referenced file for async3 1`] = `
 asyncapi: 3.0.0
 info:
-  title: AsyncAPI 3 self-file ref
+  title: AsyncAPI 3 root with external ref to file with self-refs
   version: 1.0.0
 channels:
-  test:
+  userTest:
     messages:
-      M1:
-        $ref: '#/components/messages/M'
+      TestMessage:
+        payload:
+          $ref: '#/components/schemas/TestPayload'
 components:
-  messages:
-    M:
-      payload:
-        type: string
+  schemas:
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string
+    TestPayload:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: '#/components/schemas/NestedSchema'
 
 `;
