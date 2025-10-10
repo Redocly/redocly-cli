@@ -16,7 +16,8 @@ Have the following values ready to use with the `push` command:
 - An active organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
 - [Redocly CLI](../installation.md) installed.
 
-Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key. See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
+Use the `REDOCLY_AUTHORIZATION` environment variable to set the API key.
+See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) page in the documentation for details on how to get your API key in Reunite.
 
 ## Command usage
 
@@ -115,7 +116,8 @@ npx @redocly/cli push docs/museum.yaml \
               --wait-for-deployment
 ```
 
-The `docs/museum.yaml` file from the repository the action is running on is added to the `/docs/remotes/cicd` folder. The change is made on behalf of the latest commit author and uses the most recent commit message.
+The `docs/museum.yaml` file from the repository the action is running on is added to the `/docs/remotes/cicd` folder.
+The change is made on behalf of the latest commit author and uses the most recent commit message.
 
 The `--commit-sha`, `--commit-url`, `--namespace`, `--repository` options are used to attach the details of the push to the deployment and are also shown on the Reunite "Deployments" page.
 This information is useful in case you have multiple sources for the pushes.

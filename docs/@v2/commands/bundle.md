@@ -2,11 +2,16 @@
 
 ## Introduction
 
-API descriptions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API description by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API description.
+API descriptions can grow and become difficult to manage, especially if several teams are collaborating on them.
+It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API description by referencing them with `$ref`.
+However, most OpenAPI tools don't support that multi-file approach, and require a single-file API description.
 
-Redocly CLI can help you combine separate API description files (such as if you used the [`split`](./split.md) command) into one. The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API description files (such as if you used the [`split`](./split.md) command) into one.
+The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
 
-The `bundle` command differs from the [`join`](./join.md) command. The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file. The `join` command can combine multiple OpenAPI files into a single unified API description file.
+The `bundle` command differs from the [`join`](./join.md) command.
+The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file.
+The `join` command can combine multiple OpenAPI files into a single unified API description file.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
