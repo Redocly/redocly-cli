@@ -5,7 +5,7 @@ import type { Oas2PathItem } from '../../typings/swagger.js';
 import type { Oas3PathItem } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace', 'query'];
+const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
 export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
   return {
