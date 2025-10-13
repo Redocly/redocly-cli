@@ -1,4 +1,5 @@
 import { type SpecVersion } from '../../oas-types.js';
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import { Config } from '../config.js';
 import * as utils from '../../utils.js';
 import * as jsYaml from '../../js-yaml/index.js';
@@ -6,6 +7,7 @@ import * as fs from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'node:path';
 import { createConfig } from '../index.js';
+import { specVersions } from '../../oas-types.js';
 
 vi.mock('../../js-yaml/index.js', async () => {
   const actual = await vi.importActual('../../js-yaml/index.js');
@@ -237,5 +239,46 @@ describe('generation ignore object', () => {
     config.resolvedConfig = 'resolvedConfig stub' as any;
 
     expect(config).toMatchSnapshot();
+  });
+});
+
+describe('rootRedoclyConfigSchema synchronization', () => {
+  it('should have all spec version rules, preprocessors and decorators in rootRedoclyConfigSchema', () => {
+    const schemaProperties = rootRedoclyConfigSchema.properties as Record<string, unknown>;
+
+    const specVersionsRequiringConfig = specVersions.filter((version) => version !== 'overlay1');
+
+    const missingProperties: string[] = [];
+
+    for (const version of specVersionsRequiringConfig) {
+      const rulesKey = `${version}Rules`;
+      const preprocessorsKey = `${version}Preprocessors`;
+      const decoratorsKey = `${version}Decorators`;
+
+      if (!schemaProperties[rulesKey]) {
+        missingProperties.push(rulesKey);
+      }
+      if (!schemaProperties[preprocessorsKey]) {
+        missingProperties.push(preprocessorsKey);
+      }
+      if (!schemaProperties[decoratorsKey]) {
+        missingProperties.push(decoratorsKey);
+      }
+    }
+
+    if (!schemaProperties['overlay1Rules']) {
+      missingProperties.push('overlay1Rules');
+    }
+
+    if (missingProperties.length > 0) {
+      throw new Error(
+        `Missing properties in rootRedoclyConfigSchema from @redocly/config package:\n` +
+          `  ${missingProperties.join('\n  ')}\n\n` +
+          `When adding a new spec version, you must also add the corresponding properties ` +
+          `(e.g., ${missingProperties[0]}) to the rootRedoclyConfigSchema in the @redocly/config package.`
+      );
+    }
+
+    expect(missingProperties).toEqual([]);
   });
 });
