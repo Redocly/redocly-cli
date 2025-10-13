@@ -319,7 +319,8 @@ components:
       type: object
       properties:
         field:
-          description: This is a description resolved from a reference file.
+          description: |
+            This is a description resolved from a reference file.
           $ref: '#/components/schemas/Child'
     Child:
       type: object
@@ -346,8 +347,10 @@ paths:
                 type: object
                 properties:
                   field:
-                    description: This is a description resolved from a reference file.
-                    summary: Summary from reference
+                    description: |
+                      This is a description resolved from a reference file.
+                    summary: |
+                      Summary from reference
                     $ref: '#/components/schemas/Child'
 components:
   schemas:
@@ -376,8 +379,10 @@ workflows:
       type: object
       properties:
         field:
-          description: This is a description resolved from a reference file.
-          summary: Summary from reference
+          description: |
+            This is a description resolved from a reference file.
+          summary: |
+            Summary from reference
           $ref: '#/components/inputs/Child'
 components:
   inputs:

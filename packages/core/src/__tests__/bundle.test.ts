@@ -482,6 +482,6 @@ describe('sibling $ref resolution by spec', () => {
     ].schema.properties.field;
 
     expect(problems).toHaveLength(0);
-    expect(field.description).toBe('This is a description resolved from a reference file.');
+    expect(field.description).toBe('This is a description resolved from a reference file.\n');
   });
 });

@@ -13,8 +13,10 @@ paths:
                 type: object
                 properties:
                   field:
-                    description: This is a description resolved from a reference file.
-                    summary: Summary from reference
+                    description: |
+                      This is a description resolved from a reference file.
+                    summary: |
+                      Summary from reference
                     $ref: '#/components/schemas/Child'
 components:
   schemas:
