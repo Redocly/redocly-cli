@@ -1,0 +1,27 @@
+arazzo: 1.0.0
+info:
+  title: Arazzo Test
+  version: 1.0.0
+sourceDescriptions:
+  - name: example-source
+    type: arazzo
+    url: https://example.com
+workflows:
+  - workflowId: example-workflow
+    steps: []
+    inputs:
+      type: object
+      properties:
+        field:
+          description:
+            $ref: './description.md'
+          summary:
+            $ref: './summary.md'
+          $ref: '#/components/inputs/Child'
+components:
+  inputs:
+    Child:
+      type: object
+      properties:
+        name:
+          type: string
