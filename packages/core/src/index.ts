@@ -118,6 +118,7 @@ export { type Assertions, type Assertion } from './rules/common/assertions/index
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
+export { EntityTypes, createEntityTypes } from './types/entity-yaml.js';
 
 export type {
   Oas3Definition,
