@@ -339,17 +339,15 @@ function makeBundleVisitor(
           return;
         }
 
-        // Normalize explicit self-file refs to internal pointer
-        if (ctx.location.source.absoluteRef === resolved.location.source.absoluteRef) {
-          node.$ref = resolved.location.pointer;
-        }
-
         if (
           resolved.location.source === rootDocument.source &&
           resolved.location.source === ctx.location.source &&
           ctx.type.name !== 'scalar' &&
           !dereference
         ) {
+          // Normalize explicit self-file refs to internal pointer
+          node.$ref = resolved.location.pointer;
+
           return;
         }
 

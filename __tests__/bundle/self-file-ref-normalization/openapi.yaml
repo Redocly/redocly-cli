@@ -2,16 +2,12 @@ openapi: 3.0.0
 info:
   title: Self-file ref normalization
   version: 1.0.0
-  license:
-    name: MIT
 servers:
   - url: http://example.com
 security: []
 paths:
   /test:
     get:
-      summary: Test
-      operationId: getTest
       parameters:
         - $ref: 'openapi.yaml#/components/parameters/myParam'
       responses:
