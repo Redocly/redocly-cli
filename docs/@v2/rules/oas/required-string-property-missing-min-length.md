@@ -11,6 +11,7 @@ Requires that every required property in the API description with type `string` 
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

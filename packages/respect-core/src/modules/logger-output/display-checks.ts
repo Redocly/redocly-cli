@@ -74,6 +74,7 @@ function displayVerboseLogs({
 }): string {
   const { path, host, headerParams, body, statusCode } = logs;
   const responseTime = !isBrowser && process.env.NODE_ENV === 'test' ? '<test>' : logs.responseTime;
+  const responseSize = !isBrowser && process.env.NODE_ENV === 'test' ? '<test>' : logs.responseSize;
 
   const urlString = indent(`Request URL: ${blue(combineUrl(host, path))}`, 4);
   const requestHeadersString = indent(`Request Headers:`, 4);
@@ -131,6 +132,7 @@ function displayVerboseLogs({
     !isBrowser && process.env.NODE_ENV === 'test'
       ? gray(indent('Response Headers: <response headers test>', 4))
       : headersString && gray(responseHeadersString) + '\n' + gray(headersString),
+    responseSize && gray(indent('Response Size: ' + blue(responseSize as number), 4) + ' bytes'),
     body && gray(responseBodyString),
     body && bodyString,
   ]

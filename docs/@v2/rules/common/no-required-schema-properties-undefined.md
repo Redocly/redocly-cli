@@ -11,6 +11,7 @@ Ensures there are no required schema properties that are undefined.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 | AsyncAPI | Compatibility |
 | -------- | ------------- |

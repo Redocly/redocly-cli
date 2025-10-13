@@ -2,7 +2,8 @@
 
 ## Introduction
 
-The `preview` command starts a local preview server for a Redocly project. Use the preview server to develop your project locally before deployment.
+The `preview` command starts a local preview server for a Redocly project.
+Use the preview server to develop your project locally before deployment.
 
 ## Usage
 
@@ -37,7 +38,8 @@ redocly preview --product=revel
 
 ### Select a plan for preview
 
-By default, previews are run in enterprise plan mode. This mode makes all of the enterprise features available.
+By default, previews are run in enterprise plan mode.
+This mode makes all of the enterprise features available.
 Switch the preview to pro plan mode by setting the `--plan` option to `pro`:
 
 ```bash
@@ -46,7 +48,8 @@ redocly preview --plan=pro
 
 ### Specify project directory
 
-By default, the preview command uses the current directory. To specify another directory, provide a path relative to the current directory using the `--project-dir` option:
+By default, the preview command uses the current directory.
+To specify another directory, provide a path relative to the current directory using the `--project-dir` option:
 
 ```bash
 redocly preview --project-dir=./path/to/my/docs/

@@ -2,7 +2,8 @@
 
 ## Introduction
 
-The `completion` command generates the scripts to add autocompletion to your bash or zsh shell. This addition is a handy productivity boost if you regularly use `redocly` from the command line.
+The `completion` command generates the scripts to add autocompletion to your bash or zsh shell.
+This addition is a handy productivity boost if you regularly use `redocly` from the command line.
 
 ## Usage
 

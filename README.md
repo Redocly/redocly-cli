@@ -3,7 +3,7 @@
 [@Redocly](https://redocly.com) CLI is your all-in-one OpenAPI utility.
 It builds, manages, improves, and quality-checks your OpenAPI descriptions, all of which comes in handy for various phases of the API Lifecycle.
 Create your own rulesets to make API governance easy, publish beautiful API reference documentation, and more.
-Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6, Arazzo 1.0.
+Supports OpenAPI 3.2, 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6, Arazzo 1.0.
 
 ![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)

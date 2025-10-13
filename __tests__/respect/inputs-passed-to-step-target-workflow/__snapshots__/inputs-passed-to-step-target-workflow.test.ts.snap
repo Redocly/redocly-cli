@@ -35,6 +35,7 @@ exports[`should pass inputs to step target workflow with additional input parame
     Response status code: 201
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       {
         "eventId": "dad4bce8-f5cb-4078-a211-995864315e39",

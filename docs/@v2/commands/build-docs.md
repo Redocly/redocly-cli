@@ -5,6 +5,11 @@
 The `build-docs` command builds Redoc into an HTML file that contains your API documentation.
 The standalone HTML file can be easily shared or hosted on a platform of your choice.
 
+{% admonition type="warning" name="OpenAPI only" %}
+The `build-docs` command currently supports only Swagger 2.0 and OpenAPI 3.0/3.1 descriptions.
+Support for OpenAPI 3.2 is coming soon.
+{% /admonition %}
+
 ## Usage
 
 ```bash
@@ -63,12 +68,14 @@ You can generate a build by including the API name with the command, as shown in
 redocly build-docs games@v1
 ```
 
-In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `games@v1` name, `build-docs` generates a build of the `api-description.json` file.
+For this approach, the Redocly configuration file is mandatory.
 Any additional configurations provided in the file are also used by the command.
 
 ### Use an alternative configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory.
+Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 redocly build-docs --config=./another/directory/config.yaml

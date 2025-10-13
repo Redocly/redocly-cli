@@ -8,6 +8,7 @@ export function getVerboseLogs({
   body,
   statusCode,
   responseTime,
+  responseSize,
 }: VerboseLog): VerboseLog {
   const verboseLogs: VerboseLog = {
     path,
@@ -34,6 +35,10 @@ export function getVerboseLogs({
 
   if (responseTime) {
     verboseLogs.responseTime = responseTime;
+  }
+
+  if (responseSize !== undefined) {
+    verboseLogs.responseSize = responseSize;
   }
 
   return verboseLogs;

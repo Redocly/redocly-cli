@@ -9,6 +9,7 @@ slug: /docs/cli/rules/oas/request-mine-type
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 
@@ -84,6 +85,6 @@ paths:
 
 ## Resources
 
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/request-mime-type.ts)
+- [Rule source for OAS 3.0, 3.1, and 3.2](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/request-mime-type.ts)
 - [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/request-mime-type.ts)
 - [Request body docs](https://redocly.com/docs/openapi-visual-reference/request-body/)

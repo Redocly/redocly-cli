@@ -35,6 +35,7 @@ exports[`should pass inputs to step target workflow with additional input parame
     Response status code: 400
     Response time: <test> ms
     Response Headers: <response headers test>
+    Response Size: <test> bytes
     Response Body:
       {
         "type": "object",

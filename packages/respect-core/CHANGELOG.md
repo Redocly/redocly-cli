@@ -1,5 +1,21 @@
 # @redocly/respect-core
 
+## 2.5.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.5.1.
+
+## 2.5.0
+
+### Minor Changes
+
+- Added response size to the `Respect` terminal and JSON file outputs.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.5.0.
+
 ## 2.4.0
 
 ### Minor Changes
