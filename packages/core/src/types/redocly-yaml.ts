@@ -426,11 +426,17 @@ const Assert: NodeType = {
   required: ['subject', 'assertions'],
 };
 
-export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
-  const nodeNames = specVersions.flatMap((version) => {
-    const types = config ? config.extendTypes(getTypes(version), version) : getTypes(version);
-    return Object.keys(types);
-  });
+export async function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
+  const nodeNames = (
+    await Promise.all(
+      specVersions.map(async (version) => {
+        const types = config
+          ? config.extendTypes(await getTypes(version), version)
+          : await getTypes(version);
+        return Object.keys(types);
+      })
+    )
+  ).flat();
   // Create types based on external schemas
   const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
 
@@ -460,5 +466,37 @@ const CoreConfigTypes: Record<string, NodeType> = {
 // @ts-ignore FIXME: remove this once we remove `theme` from the schema
 delete rootRedoclyConfigSchema.properties.theme;
 
-export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);
+// Lazy-loaded config types to support dynamic imports
+let _configTypesPromise: Promise<Record<string, NodeType>> | null = null;
+let _normalizedConfigTypes: ReturnType<typeof normalizeTypes> | null = null;
+
+export function getConfigTypes(): Promise<Record<string, NodeType>> {
+  if (!_configTypesPromise) {
+    _configTypesPromise = createConfigTypes(rootRedoclyConfigSchema);
+  }
+  return _configTypesPromise;
+}
+
+export async function getNormalizedConfigTypes() {
+  if (!_normalizedConfigTypes) {
+    const configTypes = await getConfigTypes();
+    _normalizedConfigTypes = normalizeTypes(configTypes);
+  }
+  return _normalizedConfigTypes;
+}
+
+// Synchronous exports for backwards compatibility (minimal set for sync initialization)
+// Note: This only includes core config types without spec-specific node names
+// For full type support with all specs, use getConfigTypes() or getNormalizedConfigTypes()
+const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', rootRedoclyConfigSchema);
+
+export const ConfigTypes: Record<string, NodeType> = {
+  ...CoreConfigTypes,
+  ConfigRoot: createConfigRoot(nodeTypes),
+  ConfigApisProperties: createConfigApisProperties(nodeTypes),
+  AssertionDefinitionSubject: createAssertionDefinitionSubject([]), // Empty for sync version
+  ...nodeTypes,
+  'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
+};
+
 export const NormalizedConfigTypes = normalizeTypes(ConfigTypes);

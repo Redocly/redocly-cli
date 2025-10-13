@@ -10,6 +10,11 @@
       "require": "./lib/index.js",
       "types": "./lib/index.d.ts"
     },
+    "./resolve": {
+      "import": "./lib/resolve.js",
+      "require": "./lib/resolve.js",
+      "types": "./lib/resolve.d.ts"
+    },
     "./lib/config/config": {
       "import": "./lib/config/index.js",
       "require": "./lib/config/index.js",

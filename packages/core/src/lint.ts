@@ -76,7 +76,7 @@ export async function lintDocument(opts: {
   const specMajorVersion = getMajorSpecVersion(specVersion);
   const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    config.extendTypes(customTypes ?? (await getTypes(specVersion)), specVersion),
     config
   );
 
@@ -143,7 +143,7 @@ export async function lintConfig(opts: {
   };
 
   const types = normalizeTypes(
-    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config)
+    opts.externalConfigTypes || (await createConfigTypes(rootRedoclyConfigSchema, config))
   );
 
   const rules: (RuleInstanceConfig & {

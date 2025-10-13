@@ -1,11 +1,3 @@
-import { Oas2Types } from './types/oas2.js';
-import { Oas3Types } from './types/oas3.js';
-import { Oas3_1Types } from './types/oas3_1.js';
-import { Oas3_2Types } from './types/oas3_2.js';
-import { AsyncApi2Types } from './types/asyncapi2.js';
-import { AsyncApi3Types } from './types/asyncapi3.js';
-import { Arazzo1Types } from './types/arazzo.js';
-import { Overlay1Types } from './types/overlay.js';
 import { isPlainObject } from './utils.js';
 import { VERSION_PATTERN } from './typings/arazzo.js';
 
@@ -46,17 +38,6 @@ export const specVersions = [
 export type SpecVersion = typeof specVersions[number];
 
 export type SpecMajorVersion = 'oas2' | 'oas3' | 'async2' | 'async3' | 'arazzo1' | 'overlay1';
-
-const typesMap = {
-  oas2: Oas2Types,
-  oas3_0: Oas3Types,
-  oas3_1: Oas3_1Types,
-  oas3_2: Oas3_2Types,
-  async2: AsyncApi2Types,
-  async3: AsyncApi3Types,
-  arazzo1: Arazzo1Types,
-  overlay1: Overlay1Types,
-};
 
 export type RuleMap<Key extends string, RuleConfig, T> = Record<
   T extends 'built-in' ? Key : string,
@@ -175,6 +156,25 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
   }
 }
 
-export function getTypes(spec: SpecVersion) {
-  return typesMap[spec];
+export async function getTypes(spec: SpecVersion) {
+  switch (spec) {
+    case 'oas2':
+      return (await import('./types/oas2.js')).Oas2Types;
+    case 'oas3_0':
+      return (await import('./types/oas3.js')).Oas3Types;
+    case 'oas3_1':
+      return (await import('./types/oas3_1.js')).Oas3_1Types;
+    case 'oas3_2':
+      return (await import('./types/oas3_2.js')).Oas3_2Types;
+    case 'async2':
+      return (await import('./types/asyncapi2.js')).AsyncApi2Types;
+    case 'async3':
+      return (await import('./types/asyncapi3.js')).AsyncApi3Types;
+    case 'arazzo1':
+      return (await import('./types/arazzo.js')).Arazzo1Types;
+    case 'overlay1':
+      return (await import('./types/overlay.js')).Overlay1Types;
+    default:
+      throw new Error(`Unsupported specification: ${spec}`);
+  }
 }

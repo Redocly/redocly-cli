@@ -167,7 +167,7 @@ export async function bundleDocument(opts: {
   const specMajorVersion = getMajorSpecVersion(specVersion);
   const rules = config.getRulesForSpecVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
+    config.extendTypes(customTypes ?? (await getTypes(specVersion)), specVersion),
     config
   );
 

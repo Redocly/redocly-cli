@@ -1160,7 +1160,7 @@ describe('lint', () => {
   it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
     const config = await createConfig(testPortalConfigContent);
     const results = await lintConfig({
-      externalConfigTypes: createConfigTypes(
+      externalConfigTypes: await createConfigTypes(
         {
           type: 'object',
           properties: {

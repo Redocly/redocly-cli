@@ -98,7 +98,10 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const { bundle: document } = await bundle({ config, ref: path });
   collectSpecData?.(document.parsed);
   const specVersion = detectSpec(document.parsed);
-  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+  const types = normalizeTypes(
+    config.extendTypes(await getTypes(specVersion), specVersion),
+    config
+  );
 
   const startedAt = performance.now();
   const ctx: WalkContext = {
