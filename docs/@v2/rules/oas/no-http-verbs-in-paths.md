@@ -30,7 +30,6 @@ List of HTTP verbs:
 - `delete`
 - `options`
 - `trace`
-- `query` (introduced in OpenAPI 3.2)
 
 ## API design principles
 
