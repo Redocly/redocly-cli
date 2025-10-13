@@ -23,7 +23,11 @@ export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
 export { Overlay1Types } from './types/overlay.js';
-export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
+export {
+  createConfigTypes,
+  getConfigTypes,
+  getNormalizedConfigTypes,
+} from './types/redocly-yaml.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 export {

@@ -1,4 +1,4 @@
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { getNormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { normalizeVisitors } from '../visitors.js';
 import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -31,38 +31,47 @@ function collectorHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-export const pluginsCollectorVisitor = normalizeVisitors(
-  [
-    {
-      severity: 'error',
-      ruleId: PLUGINS_COLLECTOR_VISITOR_ID,
-      visitor: {
-        ref: {},
-        ConfigGovernance: {
-          leave(node: unknown, ctx: UserContext) {
-            collectorHandleNode(node, ctx);
-          },
+// Cache for visitors
+let _pluginsCollectorVisitor: any = null;
+
+export async function getPluginsCollectorVisitor() {
+  if (!_pluginsCollectorVisitor) {
+    const NormalizedConfigTypes = await getNormalizedConfigTypes();
+    _pluginsCollectorVisitor = normalizeVisitors(
+      [
+        {
+          severity: 'error',
+          ruleId: PLUGINS_COLLECTOR_VISITOR_ID,
+          visitor: {
+            ref: {},
+            ConfigGovernance: {
+              leave(node: unknown, ctx: UserContext) {
+                collectorHandleNode(node, ctx);
+              },
+            },
+            ConfigApisProperties: {
+              leave(node: unknown, ctx: UserContext) {
+                collectorHandleNode(node, ctx);
+              },
+            },
+            'rootRedoclyConfigSchema.scorecard.levels_items': {
+              leave(node: unknown, ctx: UserContext) {
+                collectorHandleNode(node, ctx);
+              },
+            },
+            ConfigRoot: {
+              leave(node: unknown, ctx: UserContext) {
+                collectorHandleNode(node, ctx);
+              },
+            },
+          } as any,
         },
-        ConfigApisProperties: {
-          leave(node: unknown, ctx: UserContext) {
-            collectorHandleNode(node, ctx);
-          },
-        },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
-          leave(node: unknown, ctx: UserContext) {
-            collectorHandleNode(node, ctx);
-          },
-        },
-        ConfigRoot: {
-          leave(node: unknown, ctx: UserContext) {
-            collectorHandleNode(node, ctx);
-          },
-        },
-      },
-    },
-  ],
-  NormalizedConfigTypes
-);
+      ],
+      NormalizedConfigTypes
+    );
+  }
+  return _pluginsCollectorVisitor;
+}
 
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
@@ -77,40 +86,48 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-export const configBundlerVisitor = normalizeVisitors(
-  [
-    {
-      severity: 'error',
-      ruleId: CONFIG_BUNDLER_VISITOR_ID,
-      visitor: {
-        ref: {
-          leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            replaceRef(node, resolved, ctx);
-          },
+let _configBundlerVisitor: any = null;
+
+export async function getConfigBundlerVisitor() {
+  if (!_configBundlerVisitor) {
+    const NormalizedConfigTypes = await getNormalizedConfigTypes();
+    _configBundlerVisitor = normalizeVisitors(
+      [
+        {
+          severity: 'error',
+          ruleId: CONFIG_BUNDLER_VISITOR_ID,
+          visitor: {
+            ref: {
+              leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+                replaceRef(node, resolved, ctx);
+              },
+            },
+            ConfigGovernance: {
+              leave(node: unknown, ctx: UserContext) {
+                bundlerHandleNode(node, ctx);
+              },
+            },
+            ConfigApisProperties: {
+              leave(node: unknown, ctx: UserContext) {
+                // ignore extends from root config if defined in the current node
+                bundlerHandleNode(node, ctx);
+              },
+            },
+            'rootRedoclyConfigSchema.scorecard.levels_items': {
+              leave(node: unknown, ctx: UserContext) {
+                bundlerHandleNode(node, ctx);
+              },
+            },
+            ConfigRoot: {
+              leave(node: unknown, ctx: UserContext) {
+                bundlerHandleNode(node, ctx);
+              },
+            },
+          } as any,
         },
-        ConfigGovernance: {
-          leave(node: unknown, ctx: UserContext) {
-            bundlerHandleNode(node, ctx);
-          },
-        },
-        ConfigApisProperties: {
-          leave(node: unknown, ctx: UserContext) {
-            // ignore extends from root config if defined in the current node
-            bundlerHandleNode(node, ctx);
-          },
-        },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
-          leave(node: unknown, ctx: UserContext) {
-            bundlerHandleNode(node, ctx);
-          },
-        },
-        ConfigRoot: {
-          leave(node: unknown, ctx: UserContext) {
-            bundlerHandleNode(node, ctx);
-          },
-        },
-      },
-    },
-  ],
-  NormalizedConfigTypes
-);
+      ],
+      NormalizedConfigTypes
+    );
+  }
+  return _configBundlerVisitor;
+}

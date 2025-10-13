@@ -1,198 +1,27 @@
 import path from 'node:path';
-import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf, mapOf } from './index.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isCustomRuleId, omit } from '../utils.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+import { builtInRules } from './built-in-rules.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType, PropType } from './index.js';
 import type { Config, RawGovernanceConfig } from '../config/index.js';
 
-const builtInOAS2Rules = [
-  'info-contact',
-  'operation-operationId',
-  'tag-description',
-  'tags-alphabetical',
-  'info-license-strict',
-  'info-license',
-  'no-ambiguous-paths',
-  'no-enum-type-mismatch',
-  'no-http-verbs-in-paths',
-  'no-identical-paths',
-  'no-invalid-parameter-examples',
-  'no-invalid-schema-examples',
-  'no-path-trailing-slash',
-  'operation-2xx-response',
-  'operation-4xx-response',
-  'operation-description',
-  'operation-operationId-unique',
-  'operation-operationId-url-safe',
-  'operation-parameters-unique',
-  'operation-singular-tag',
-  'operation-summary',
-  'operation-tag-defined',
-  'parameter-description',
-  'path-declaration-must-exist',
-  'path-http-verbs-order',
-  'path-not-include-query',
-  'path-params-defined',
-  'path-parameters-defined',
-  'path-segment-plural',
-  'paths-kebab-case',
-  'required-string-property-missing-min-length',
-  'response-contains-header',
-  'scalar-property-missing-example',
-  'security-defined',
-  'spec-strict-refs',
-  'no-required-schema-properties-undefined',
-  'no-schema-type-mismatch',
-  'boolean-parameter-prefixes',
-  'request-mime-type',
-  'response-contains-property',
-  'response-mime-type',
-  'no-duplicated-tag-names',
-] as const;
-
-export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
-
-const builtInOAS3Rules = [
-  'info-contact',
-  'operation-operationId',
-  'tag-description',
-  'tags-alphabetical',
-  'info-license-strict',
-  'info-license',
-  'no-ambiguous-paths',
-  'no-enum-type-mismatch',
-  'no-http-verbs-in-paths',
-  'no-identical-paths',
-  'no-invalid-parameter-examples',
-  'no-invalid-schema-examples',
-  'no-path-trailing-slash',
-  'operation-2xx-response',
-  'operation-4xx-response',
-  'operation-description',
-  'operation-operationId-unique',
-  'operation-operationId-url-safe',
-  'operation-parameters-unique',
-  'operation-singular-tag',
-  'operation-summary',
-  'operation-tag-defined',
-  'parameter-description',
-  'path-declaration-must-exist',
-  'path-http-verbs-order',
-  'path-not-include-query',
-  'path-params-defined',
-  'path-parameters-defined',
-  'path-segment-plural',
-  'paths-kebab-case',
-  'required-string-property-missing-min-length',
-  'response-contains-header',
-  'scalar-property-missing-example',
-  'security-defined',
-  'spec-strict-refs',
-  'no-required-schema-properties-undefined',
-  'no-schema-type-mismatch',
-  'boolean-parameter-prefixes',
-  'component-name-unique',
-  'no-empty-servers',
-  'no-example-value-and-externalValue',
-  'no-invalid-media-type-examples',
-  'no-server-example.com',
-  'no-server-trailing-slash',
-  'no-server-variables-empty-enum',
-  'no-undefined-server-variable',
-  'no-unused-components',
-  'operation-4xx-problem-details-rfc7807',
-  'request-mime-type',
-  'response-contains-property',
-  'response-mime-type',
-  'spec-components-invalid-map-name',
-  'array-parameter-serialization',
-  'no-duplicated-tag-names',
-  'nullable-type-sibling',
-] as const;
-
-export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
-
-const builtInAsync2Rules = [
-  'info-contact',
-  'info-license-strict',
-  'operation-operationId',
-  'tag-description',
-  'tags-alphabetical',
-  'channels-kebab-case',
-  'no-channel-trailing-slash',
-  'no-duplicated-tag-names',
-  'no-required-schema-properties-undefined',
-  'no-enum-type-mismatch',
-  'no-schema-type-mismatch',
-] as const;
-
-const builtInAsync3Rules = [
-  'info-contact',
-  'info-license-strict',
-  'operation-operationId',
-  'tag-description',
-  'tags-alphabetical',
-  'channels-kebab-case',
-  'no-channel-trailing-slash',
-  'no-duplicated-tag-names',
-  'no-required-schema-properties-undefined',
-  'no-enum-type-mismatch',
-  'no-schema-type-mismatch',
-] as const;
-
-export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
-
-export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
-
-const builtInArazzo1Rules = [
-  'sourceDescription-type',
-  'workflowId-unique',
-  'stepId-unique',
-  'sourceDescription-name-unique',
-  'sourceDescriptions-not-empty',
-  'workflow-dependsOn',
-  'parameters-unique',
-  'step-onSuccess-unique',
-  'step-onFailure-unique',
-  'respect-supported-versions',
-  'requestBody-replacements-unique',
-  'no-criteria-xpath',
-  'criteria-unique',
-  'no-x-security-scheme-name-without-openapi',
-  'x-security-scheme-required-values',
-  'no-x-security-scheme-name-in-workflow',
-  'no-required-schema-properties-undefined',
-  'no-enum-type-mismatch',
-  'no-schema-type-mismatch',
-] as const;
-
-export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
-
-const builtInOverlay1Rules = ['info-contact'] as const;
-
-export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
-
-const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
-
-export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
-
-const builtInRules = [
-  ...builtInOAS2Rules,
-  ...builtInOAS3Rules,
-  ...builtInAsync2Rules,
-  ...builtInAsync3Rules,
-  ...builtInArazzo1Rules,
-  ...builtInOverlay1Rules,
-  ...builtInCommonRules,
-] as const;
-
-type BuiltInRuleId = typeof builtInRules[number];
+// Re-export types for backward compatibility
+export type {
+  BuiltInOAS2RuleId,
+  BuiltInOAS3RuleId,
+  BuiltInAsync2RuleId,
+  BuiltInAsync3RuleId,
+  BuiltInArazzo1RuleId,
+  BuiltInOverlay1RuleId,
+  BuiltInCommonRuleId,
+  BuiltInRuleId,
+} from './built-in-rules.js';
 
 const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,
@@ -296,7 +125,7 @@ const Rules: NodeType = {
       } else {
         return 'Assert';
       }
-    } else if (builtInRules.includes(key as BuiltInRuleId) || isCustomRuleId(key)) {
+    } else if ((builtInRules as readonly string[]).includes(key) || isCustomRuleId(key)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
@@ -462,17 +291,21 @@ const CoreConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionAssertions,
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore FIXME: remove this once we remove `theme` from the schema
-delete rootRedoclyConfigSchema.properties.theme;
-
 // Lazy-loaded config types to support dynamic imports
 let _configTypesPromise: Promise<Record<string, NodeType>> | null = null;
 let _normalizedConfigTypes: ReturnType<typeof normalizeTypes> | null = null;
 
+async function loadSchema(): Promise<JSONSchema> {
+  const { rootRedoclyConfigSchema } = await import('@redocly/config');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore FIXME: remove this once we remove `theme` from the schema
+  delete rootRedoclyConfigSchema.properties.theme;
+  return rootRedoclyConfigSchema;
+}
+
 export function getConfigTypes(): Promise<Record<string, NodeType>> {
   if (!_configTypesPromise) {
-    _configTypesPromise = createConfigTypes(rootRedoclyConfigSchema);
+    _configTypesPromise = loadSchema().then((schema) => createConfigTypes(schema));
   }
   return _configTypesPromise;
 }
@@ -484,19 +317,3 @@ export async function getNormalizedConfigTypes() {
   }
   return _normalizedConfigTypes;
 }
-
-// Synchronous exports for backwards compatibility (minimal set for sync initialization)
-// Note: This only includes core config types without spec-specific node names
-// For full type support with all specs, use getConfigTypes() or getNormalizedConfigTypes()
-const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', rootRedoclyConfigSchema);
-
-export const ConfigTypes: Record<string, NodeType> = {
-  ...CoreConfigTypes,
-  ConfigRoot: createConfigRoot(nodeTypes),
-  ConfigApisProperties: createConfigApisProperties(nodeTypes),
-  AssertionDefinitionSubject: createAssertionDefinitionSubject([]), // Empty for sync version
-  ...nodeTypes,
-  'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
-};
-
-export const NormalizedConfigTypes = normalizeTypes(ConfigTypes);

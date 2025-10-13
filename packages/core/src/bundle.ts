@@ -10,9 +10,9 @@ import { isTruthy } from './utils.js';
 import { dequal } from './utils/dequal.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
-import { NormalizedConfigTypes } from './types/redocly-yaml.js';
+import { getNormalizedConfigTypes } from './types/redocly-yaml.js';
 import { type Config } from './config/config.js';
-import { configBundlerVisitor, pluginsCollectorVisitor } from './config/visitors.js';
+import { getConfigBundlerVisitor, getPluginsCollectorVisitor } from './config/visitors.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './config/constants.js';
 
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
@@ -34,7 +34,7 @@ export type CoreBundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-export function collectConfigPlugins(
+export async function collectConfigPlugins(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
   rootConfigDir: string
@@ -49,6 +49,9 @@ export function collectConfigPlugins(
     },
   };
 
+  const pluginsCollectorVisitor = await getPluginsCollectorVisitor();
+  const NormalizedConfigTypes = await getNormalizedConfigTypes();
+
   walkDocument({
     document,
     rootType: NormalizedConfigTypes.ConfigRoot,
@@ -60,11 +63,11 @@ export function collectConfigPlugins(
   return visitorsData.plugins;
 }
 
-export function bundleConfig(
+export async function bundleConfig(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
-): ResolvedConfig {
+): Promise<ResolvedConfig> {
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
@@ -74,6 +77,9 @@ export function bundleConfig(
       [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,
     },
   };
+
+  const configBundlerVisitor = await getConfigBundlerVisitor();
+  const NormalizedConfigTypes = await getNormalizedConfigTypes();
 
   walkDocument({
     document,

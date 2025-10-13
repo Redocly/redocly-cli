@@ -18,7 +18,7 @@ import {
 import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { getNormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { bundleConfig, collectConfigPlugins } from '../bundle.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 
@@ -77,6 +77,9 @@ export async function resolveConfig({
     source: new Source(configPath ?? '', JSON.stringify(config)),
     parsed: config,
   };
+
+  const NormalizedConfigTypes = await getNormalizedConfigTypes();
+
   const resolvedRefMap = await resolveDocument({
     rootDocument,
     rootType: NormalizedConfigTypes.ConfigRoot,
@@ -96,7 +99,7 @@ export async function resolveConfig({
     resolvedPlugins = [...instantiatedPlugins, defaultPlugin];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
-    pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
+    pluginsOrPaths = await collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
     const plugins = await resolvePlugins(
       pluginsOrPaths.map((p) => (isPluginResolveInfo(p) ? p.absolutePath : p)),
       rootConfigDir
@@ -104,7 +107,7 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
-  const bundledConfig = bundleConfig(
+  const bundledConfig = await bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins
