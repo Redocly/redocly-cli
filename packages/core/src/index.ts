@@ -111,7 +111,7 @@ export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
 
-export type { CollectFn, Exact } from './utils.js';
+export type { CollectFn, Exact } from './types.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,

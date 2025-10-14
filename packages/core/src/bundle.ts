@@ -13,7 +13,7 @@ import type { Plugin, ResolvedConfig } from './config/types.js';
 import type { NormalizedNodeType } from './types/index.js';
 import type { WalkContext, NormalizedProblem } from './walk.js';
 import type { Document, ResolvedRefMap } from './resolve.js';
-import type { CollectFn } from './utils.js';
+import type { CollectFn } from './types.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;

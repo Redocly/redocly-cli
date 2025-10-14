@@ -10,7 +10,7 @@ import { Config } from './config/config.js';
 
 import type { NodeType } from './types/index.js';
 import type { Document } from './resolve.js';
-import type { CollectFn } from './utils.js';
+import type { CollectFn } from './types.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;

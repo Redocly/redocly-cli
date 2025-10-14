@@ -1,4 +1,4 @@
-import { readFileAsStringSync, resolveRelativePath } from '../../utils.js';
+import { readFileAsStringSync, resolveRelativePath } from '../../utils/yaml-fs-helper.js';
 
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

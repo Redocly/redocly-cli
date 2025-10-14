@@ -1,5 +1,5 @@
 import { isRef } from '../../../ref-utils.js';
-import { isEmptyArray } from '../../../utils.js';
+import { isEmptyArray } from '../../../utils/is-empty-array.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isEmptyObject } from '../../../utils/is-empty-object.js';
 

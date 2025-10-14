@@ -3,7 +3,7 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString } from '../utils.js';
+import { isNotString } from '../utils/is-not-string.js';
 import { keysOf } from '../utils/keys-of.js';
 import { isString } from '../utils/is-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';

@@ -1,4 +1,4 @@
-import { resolveRelativePath, yamlAndJsonSyncReader } from '../../utils.js';
+import { resolveRelativePath, yamlAndJsonSyncReader } from '../../utils/yaml-fs-helper.js';
 import { isRef } from '../../ref-utils.js';
 
 import type { Oas3Decorator } from '../../visitors.js';

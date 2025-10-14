@@ -1,4 +1,4 @@
-import { assignOnlyExistingConfig, assignConfig } from '../utils.js';
+import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 
 import type {

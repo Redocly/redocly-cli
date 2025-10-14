@@ -25,7 +25,7 @@ import type {
   Overlay1Visitor,
   RuleInstanceConfig,
 } from './visitors.js';
-import type { CollectFn } from './utils.js';
+import type { CollectFn } from './types.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore FIXME: remove this once we remove `theme` from the schema
