@@ -14,6 +14,8 @@ More information and examples for individual rules can be found in the [built-in
 
 The minimal rulesets are a decent baseline that you can use to selective enable more rules or extend rulesets from.
 
+<!-- FIXME: update according to recommended/minimal/spec &c. -->
+
 ### Minimal ruleset: OpenAPI 3.1/3.2
 
 ```yaml
