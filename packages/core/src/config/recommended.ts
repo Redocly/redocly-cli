@@ -108,7 +108,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
-    'no-invalid-tag-parents': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -165,7 +164,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
-    'no-invalid-tag-parents': 'off',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
