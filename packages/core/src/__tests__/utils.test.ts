@@ -4,6 +4,9 @@ import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
 import { isBrowser } from '../env.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { isTruthy } from '../utils/is-truthy.js';
+import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
+import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 
 vi.mock('node:fs');
 vi.mock('node:path');
@@ -74,6 +77,49 @@ describe('utils', () => {
   describe('isBrowser', () => {
     it('should not be browser', () => {
       expect(isBrowser).toBe(false);
+    });
+  });
+
+  describe('isTruthy', () => {
+    it('should return true for truthy values', () => {
+      expect(isTruthy(true)).toBe(true);
+      expect(isTruthy(1)).toBe(true);
+      expect(isTruthy('foo')).toBe(true);
+      expect(isTruthy({})).toBe(true);
+      expect(isTruthy([])).toBe(true);
+      expect(isTruthy(new Date())).toBe(true);
+      expect(isTruthy(new Error())).toBe(true);
+      expect(isTruthy(new Set())).toBe(true);
+      expect(isTruthy(new Map())).toBe(true);
+      expect(isTruthy(new Promise(() => {}))).toBe(true);
+    });
+
+    it('should return false for falsy values', () => {
+      expect(isTruthy(false)).toBe(false);
+      expect(isTruthy(0)).toBe(false);
+      expect(isTruthy('')).toBe(false);
+      expect(isTruthy(null)).toBe(false);
+      expect(isTruthy(undefined)).toBe(false);
+    });
+  });
+
+  describe('isNotEmptyArray', () => {
+    it('should return true for non-empty arrays', () => {
+      expect(isNotEmptyArray([1])).toBe(true);
+    });
+
+    it('should return false for empty arrays', () => {
+      expect(isNotEmptyArray([])).toBe(false);
+    });
+  });
+
+  describe('isNotEmptyObject', () => {
+    it('should return true for non-empty objects', () => {
+      expect(isNotEmptyObject({ a: 1 })).toBe(true);
+    });
+
+    it('should return false for empty objects', () => {
+      expect(isNotEmptyObject({})).toBe(false);
     });
   });
 });
