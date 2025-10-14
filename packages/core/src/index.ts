@@ -106,7 +106,14 @@ export {
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
-export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export {
+  lint,
+  lint as validate,
+  lintDocument,
+  lintFromString,
+  lintConfig,
+  lintEntityFile,
+} from './lint.js';
 export {
   bundle,
   bundleDocument,

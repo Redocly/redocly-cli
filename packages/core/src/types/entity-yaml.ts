@@ -5,15 +5,18 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from './index.js';
 
 export function createEntityTypes(entityFileSchema: JSONSchema) {
-  const entitySchemaTypes = getNodeTypesFromJSONSchema('entityFileSchema', entityFileSchema);
-  const entitiesSchemaTypes = getNodeTypesFromJSONSchema('entitiesFilesSchema', {
-    type: 'array',
-    items: entityFileSchema,
+  const entityFileSchemaTypes = getNodeTypesFromJSONSchema('entityFileSchema', {
+    oneOf: [
+      entityFileSchema,
+      {
+        type: 'array',
+        items: entityFileSchema,
+      },
+    ],
   });
 
   return {
-    EntityFileTypes: entitySchemaTypes.entityFileSchema,
-    EntitiesFileTypes: entitiesSchemaTypes.entitiesFilesSchema,
+    EntityFileTypes: entityFileSchemaTypes.entityFileSchema,
   };
 }
 
