@@ -12,6 +12,7 @@ Errors:
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md)
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
+- [no-invalid-tag-parents](./oas/no-invalid-tag-parents.md)
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md)
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
 - [no-server-trailing-slash](./oas/no-server-trailing-slash.md)
