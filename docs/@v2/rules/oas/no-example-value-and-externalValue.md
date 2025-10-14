@@ -6,12 +6,12 @@ slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
-| OAS | Compatibility |
-| --- | ------------- |
-| 2.0 | ❌            |
-| 3.0 | ✅            |
-| 3.1 | ✅            |
-| 3.2 | ✅            |
+| OAS | Compatibility   |
+| --- | --------------- |
+| 2.0 | ❌              |
+| 3.0 | ✅              |
+| 3.1 | ✅              |
+| 3.2 | ✅ (deprecated) |
 
 ```mermaid
 flowchart TD
@@ -100,6 +100,7 @@ requestBody:
 
 - [configurable rules](../configurable-rules.md)
 - [struct](../common/struct.md)
+- [example-values](../oas3/example-values.md)
 
 ## Resources
 

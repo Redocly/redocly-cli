@@ -115,6 +115,9 @@ const builtInOAS3Rules = [
   'no-duplicated-tag-names',
   'nullable-type-sibling',
   'spec-no-invalid-tag-parents',
+  'no-invalid-encoding-combinations',
+  'discriminator-defaultMapping',
+  'example-values',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];

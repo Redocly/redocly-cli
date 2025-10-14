@@ -108,6 +108,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'off',
     'tags-alphabetical': 'off',
     'nullable-type-sibling': 'error',
+    'example-values': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -164,6 +165,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'example-values': 'off',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -186,7 +188,6 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'no-server-example.com': 'off',
     'no-server-trailing-slash': 'off',
     'no-empty-servers': 'off',
-    'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'off',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'off',
@@ -221,6 +222,9 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'off',
     'tags-alphabetical': 'off',
     'spec-no-invalid-tag-parents': 'error',
+    'no-invalid-encoding-combinations': 'error',
+    'discriminator-defaultMapping': 'error',
+    'example-values': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
