@@ -175,10 +175,11 @@ It only checks links within the local docs (it can't check links to other docs s
 ## Built-in rules changes
 
 After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error), `spec`, and `all` rulesets with appropriate severity levels.
-The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+The defaults are `off` or `warn` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 
 Separately, open a merge request with the corresponding documentation changes.
+That involves creating a new page for the rule in the `docs/@v2` folder, adding the rule to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/sidebars.yaml), updating the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
 ## Arguments usage
 
