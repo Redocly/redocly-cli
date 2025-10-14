@@ -1,11 +1,12 @@
-export { keysOf, isNotEmptyArray, type CollectFn, type Exact } from './utils.js';
 export { doesYamlFileExist } from './utils/does-yaml-file-exist.js';
 export { dequal } from './utils/dequal.js';
 export { isEmptyObject } from './utils/is-empty-object.js';
+export { isNotEmptyArray } from './utils/is-not-empty-array.js';
 export { isNotEmptyObject } from './utils/is-not-empty-object.js';
 export { isPlainObject } from './utils/is-plain-object.js';
 export { isString } from './utils/is-string.js';
 export { isTruthy } from './utils/is-truthy.js';
+export { keysOf } from './utils/keys-of.js';
 export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
@@ -110,6 +111,7 @@ export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
 
+export type { CollectFn, Exact } from './utils.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,

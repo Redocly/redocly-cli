@@ -19,10 +19,6 @@ export function isEmptyArray(value: unknown): value is [] {
   return Array.isArray(value) && value.length === 0;
 }
 
-export function isNotEmptyArray<T>(args?: T[]): args is [T, ...T[]] {
-  return Array.isArray(args) && !!args.length;
-}
-
 export function splitCamelCaseIntoWords(str: string) {
   const camel = str
     .split(/(?:[-._])|([A-Z][a-z]+)/)
@@ -133,11 +129,6 @@ export type Falsy = undefined | null | false | '' | 0;
 
 export function identity<T>(value: T): T {
   return value;
-}
-
-export function keysOf<T>(obj: T) {
-  if (!obj) return [];
-  return Object.keys(obj) as (keyof T)[];
 }
 
 export type CollectFn = (value: unknown) => void;

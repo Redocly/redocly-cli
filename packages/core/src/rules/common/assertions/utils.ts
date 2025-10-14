@@ -2,7 +2,7 @@ import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
 import { colorize } from '../../../logger.js';
 import { isRef } from '../../../ref-utils.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
-import { keysOf } from '../../../utils.js';
+import { keysOf } from '../../../utils/keys-of.js';
 import { isString } from '../../../utils/is-string.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
 
