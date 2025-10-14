@@ -317,9 +317,8 @@ paths:
   /users:
     post:
       requestBody:
-        description: |+
-          some desc
-
+        description: |
+          This is a description resolved from a reference file.
         $ref: '#/components/requestBodies/User'
       responses:
         '200':

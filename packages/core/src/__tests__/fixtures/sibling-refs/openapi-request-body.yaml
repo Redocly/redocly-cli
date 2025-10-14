@@ -7,7 +7,7 @@ paths:
     post:
       requestBody:
         description:
-          $ref: '../../../../../../test-schemas/desc.md'
+          $ref: 'description.md'
         $ref: '#/components/requestBodies/User'
       responses:
         '200':
