@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: OAS3 nested file with self-refs
+  version: 1.0.0
+paths: {}
+components:
+  parameters:
+    testParam:
+      name: testParam
+      in: query
+      schema:
+        $ref: 'oas3-nested.yaml#/components/schemas/TestSchema'
+  schemas:
+    TestSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: 'oas3-nested.yaml#/components/schemas/NestedSchema'
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string
