@@ -87,7 +87,7 @@ describe('Oas3.2 tag-parents', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report on circular reference', async () => {
+  it('should report on circular references', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.2.0
@@ -96,10 +96,19 @@ describe('Oas3.2 tag-parents', () => {
           version: 1.0.0
         paths: {}
         tags:
-          - name: foo
-            parent: bar
-          - name: bar
-            parent: foo
+        - name: foo
+          parent: bar
+          description: Circular references
+        - name: bar
+          parent: foo
+          description: Circular references
+        - name: baz
+          parent: foo
+          description: Circular references
+      
+        - name: self
+          parent: self
+          description: Self-referencing tag
         `,
       'foobar.yaml'
     );
@@ -134,6 +143,32 @@ describe('Oas3.2 tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'bar'.",
+          "ruleId": "tag-parents",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/tags/2/parent",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Circular reference detected in tag parent hierarchy for tag 'baz'.",
+          "ruleId": "tag-parents",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/tags/3/parent",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Circular reference detected in tag parent hierarchy for tag 'self'.",
           "ruleId": "tag-parents",
           "severity": "error",
           "suggest": [],

@@ -1,5 +1,0 @@
-apis:
-  main:
-    root: openapi.yaml
-rules:
-  tag-parents: error
