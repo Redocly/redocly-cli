@@ -47,11 +47,11 @@ export {
   BaseResolver,
   Document,
   ResolveError,
-  YamlParseError,
   resolveDocument,
   makeDocumentFromString,
   type ResolvedRefMap,
 } from './resolve.js';
+export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointer,
@@ -107,13 +107,9 @@ export {
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export {
-  bundle,
-  bundleDocument,
-  mapTypeToComponent,
-  bundleFromString,
-  type BundleResult,
-} from './bundle.js';
+export { bundle, bundleFromString, type BundleResult } from './bundle.js';
+export { bundleDocument } from './bundle-document.js';
+export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';

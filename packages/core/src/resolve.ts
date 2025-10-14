@@ -10,7 +10,11 @@ import {
   isExternalValue,
 } from './ref-utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
-import { readFileFromUrl, parseYaml, nextTick, getOwn } from './utils.js';
+import { getOwn } from './utils/get-own.js';
+import { readFileFromUrl } from './utils/read-file-from-url.js';
+import { parseYaml } from './js-yaml/index.js';
+import { nextTick } from './utils/next-tick.js';
+import { YamlParseError } from './errors/yaml-parse-error.js';
 
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import type { NormalizedNodeType } from './types/index.js';
@@ -57,23 +61,6 @@ export class ResolveError extends Error {
     super(originalError.message);
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, ResolveError.prototype);
-  }
-}
-
-const jsYamlErrorLineColRegexp = /\((\d+):(\d+)\)$/;
-
-export class YamlParseError extends Error {
-  col: number;
-  line: number;
-
-  constructor(public originalError: Error, public source: Source) {
-    super(originalError.message.split('\n')[0]);
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, YamlParseError.prototype);
-
-    const [, line, col] = this.message.match(jsYamlErrorLineColRegexp) || [];
-    this.line = parseInt(line, 10);
-    this.col = parseInt(col, 10);
   }
 }
 

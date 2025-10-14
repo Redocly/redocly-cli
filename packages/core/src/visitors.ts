@@ -1,5 +1,5 @@
 import { SpecExtension } from './types/index.js';
-import { isPlainObject } from './utils.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 
 import type { Stack } from './utils.js';
 import type { NormalizedNodeType } from './types/index.js';

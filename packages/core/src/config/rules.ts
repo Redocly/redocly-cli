@@ -1,4 +1,4 @@
-import { isDefined } from '../utils.js';
+import { isDefined } from '../utils/is-defined.js';
 
 import type {
   Arazzo1RuleSet,

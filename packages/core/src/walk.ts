@@ -1,7 +1,10 @@
 import { Location, isRef } from './ref-utils.js';
-import { pushStack, popStack, getOwn } from './utils.js';
-import { YamlParseError, makeRefId } from './resolve.js';
+// import { pushStack, popStack, getOwn } from './utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
+import { YamlParseError } from './errors/yaml-parse-error.js';
+import { makeRefId } from './utils/make-ref-id.js';
+import { pushStack, popStack } from './utils/stack.js';
+import { getOwn } from './utils/get-own.js';
 
 import type { SpecVersion } from './oas-types.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
