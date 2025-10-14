@@ -106,7 +106,14 @@ export {
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
-export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export {
+  lint,
+  lint as validate,
+  lintDocument,
+  lintFromString,
+  lintConfig,
+  lintEntityFile,
+} from './lint.js';
 export {
   bundle,
   bundleDocument,
@@ -118,6 +125,7 @@ export { type Assertions, type Assertion } from './rules/common/assertions/index
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
+export { EntityTypes, createEntityTypes } from './types/entity-yaml.js';
 
 export type {
   Oas3Definition,

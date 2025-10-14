@@ -69,6 +69,9 @@ function transformJSONSchemaToNodeType(
       return { type: 'object' };
     } else if (schema.additionalProperties === false) {
       return { type: 'object', properties: {} };
+    } else {
+      // Handle case where additionalProperties is a schema
+      return { type: 'object' };
     }
   }
 
@@ -97,31 +100,70 @@ function transformJSONSchemaToNodeType(
       if (!discriminatedPropertyName) {
         throw new Error(`Unexpected discriminator without a propertyName in ${propertyName}.`);
       }
-      const oneOfs = schema.oneOf.map((option, i) => {
-        if (typeof option === 'boolean') {
-          throw new Error(
-            `Unexpected boolean schema in ${propertyName} at position ${i} in oneOf.`
-          );
-        }
-        const discriminatedProperty = option?.properties?.[discriminatedPropertyName];
-        if (!discriminatedProperty || typeof discriminatedProperty === 'boolean') {
-          throw new Error(
-            `Unexpected property '${discriminatedProperty}' schema in ${propertyName} at position ${i} in oneOf.`
-          );
-        }
-        const name = discriminatedProperty.const as string;
-        return transformJSONSchemaToNodeType(name, option, ctx);
-      });
 
-      return (value: unknown, key: string) => {
-        if (isPlainObject(value)) {
-          const discriminatedTypeName = value[discriminatedPropertyName];
-          if (typeof discriminatedTypeName === 'string' && ctx[discriminatedTypeName]) {
-            return discriminatedTypeName;
+      // Create a NodeType that represents the discriminated union
+      // Extract common properties from all oneOf options
+      const commonProperties: Record<string, PropType | ResolveTypeFn> = {};
+
+      // Find properties that exist in all oneOf options
+      if (schema.oneOf && schema.oneOf.length > 0) {
+        const firstOption = schema.oneOf[0] as any;
+        if (firstOption && firstOption.properties) {
+          for (const [propName, propSchema] of Object.entries(firstOption.properties)) {
+            // Check if this property exists in all oneOf options
+            const existsInAll = schema.oneOf.every(
+              (option: any) => option && option.properties && option.properties[propName]
+            );
+
+            if (existsInAll) {
+              // Special handling for the discriminator property - it should resolve to specific types
+              if (propName === discriminatedPropertyName) {
+                commonProperties[propName] = (value: any) => {
+                  if (
+                    isPlainObject(value) &&
+                    typeof value[discriminatedPropertyName] === 'string'
+                  ) {
+                    const typeName = value[discriminatedPropertyName];
+                    if (ctx[typeName]) {
+                      return typeName;
+                    }
+                  }
+                  // Fallback to the property schema
+                  const fallbackType = transformJSONSchemaToNodeType(
+                    `${propertyName}.${propName}`,
+                    propSchema as JSONSchema,
+                    ctx
+                  );
+                  return typeof fallbackType === 'string' ? fallbackType : (propSchema as PropType);
+                };
+              } else {
+                // For other common properties, we need to process them inline
+                // rather than creating separate type references to avoid "Unknown type" errors
+                const processedType = transformJSONSchemaToNodeType(
+                  `${propertyName}_${propName}`, // Use a unique name that won't conflict
+                  propSchema as JSONSchema,
+                  ctx
+                );
+
+                // If it returned a type name, we need to use that reference
+                // If it returned an inline type, use that directly
+                if (typeof processedType === 'string') {
+                  commonProperties[propName] = processedType;
+                } else {
+                  // For inline types (like arrays, primitives), use them directly
+                  commonProperties[propName] = processedType;
+                }
+              }
+            }
           }
         }
-        return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
+      }
+
+      ctx[propertyName] = {
+        properties: commonProperties,
       };
+
+      return propertyName;
     } else {
       const oneOfs = schema.oneOf.map((option, i) =>
         transformJSONSchemaToNodeType(propertyName + '_' + i, option, ctx)

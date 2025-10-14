@@ -192,3 +192,61 @@ export async function lintConfig(opts: {
 
   return ctx.problems;
 }
+
+export async function lintEntityFile(opts: {
+  document: Document;
+  entityTypes: Record<string, NodeType>;
+  severity?: ProblemSeverity;
+  externalRefResolver?: BaseResolver;
+}) {
+  const { document, entityTypes, severity, externalRefResolver = new BaseResolver() } = opts;
+
+  const ctx: WalkContext = {
+    problems: [],
+    specVersion: 'oas3_0', // Not used for entity validation but required by context
+    visitorsData: {},
+  };
+
+  const types = normalizeTypes(entityTypes);
+
+  const rules: (RuleInstanceConfig & {
+    visitor: NestedVisitObject<
+      unknown,
+      | Oas3Visitor
+      | Oas3Visitor[]
+      | Oas2Visitor
+      | Oas2Visitor[]
+      | Async2Visitor
+      | Async2Visitor[]
+      | Async3Visitor
+      | Async3Visitor[]
+      | Arazzo1Visitor
+      | Arazzo1Visitor[]
+      | Overlay1Visitor
+      | Overlay1Visitor[]
+    >;
+  })[] = [
+    {
+      severity: severity || 'error',
+      ruleId: 'entity struct',
+      visitor: Struct({ severity: 'error' }),
+    },
+  ];
+
+  const normalizedVisitors = normalizeVisitors(rules, types);
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.EntityFileTypes,
+    externalRefResolver,
+  });
+
+  walkDocument({
+    document,
+    rootType: types.EntityFileTypes,
+    normalizedVisitors,
+    resolvedRefMap,
+    ctx,
+  });
+
+  return ctx.problems;
+}
