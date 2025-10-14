@@ -117,6 +117,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'tag-parents': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'error',
@@ -179,6 +180,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'tag-parents': 'off',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'error',
@@ -241,6 +243,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
+    'tag-parents': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',

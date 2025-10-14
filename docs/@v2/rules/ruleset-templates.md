@@ -14,7 +14,7 @@ More information and examples for individual rules can be found in the [built-in
 
 The minimal rulesets are a decent baseline that you can use to selective enable more rules or extend rulesets from.
 
-### Minimal ruleset: OpenAPI 3.1/3.2
+### Minimal ruleset: OpenAPI 3.2
 
 ```yaml
 rules:
@@ -74,6 +74,70 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
+  tag-parents: warn
+```
+
+### Minimal ruleset: OpenAPI 3.1
+
+```yaml
+rules:
+  info-contact: off
+  info-license: off
+  info-license-strict: off
+  tag-description: warn
+  tags-alphabetical: off
+  parameter-description: off
+  no-path-trailing-slash: warn
+  no-identical-paths: warn
+  no-ambiguous-paths: warn
+  path-declaration-must-exist: warn
+  path-not-include-query: warn
+  path-parameters-defined: warn
+  operation-description: off
+  operation-2xx-response: warn
+  operation-4xx-response: off
+  operation-operationId: warn
+  operation-summary: warn
+  operation-operationId-unique: warn
+  operation-parameters-unique: warn
+  operation-tag-defined: off
+  security-defined: warn
+  operation-operationId-url-safe: warn
+  operation-singular-tag: off
+  no-unresolved-refs: error
+  paths-kebab-case: off
+  struct: error
+  spec-strict-refs: off
+  no-http-verbs-in-paths: off
+  no-invalid-parameter-examples: off
+  no-invalid-schema-examples: off
+  path-http-verbs-order: off
+  path-params-defined: off
+  required-string-property-missing-min-length: off
+  response-contains-header: off
+  path-segment-plural: off
+  scalar-property-missing-example: off
+  no-invalid-media-type-examples: warn
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-empty-servers: warn
+  no-example-value-and-externalValue: warn
+  no-unused-components: warn
+  no-undefined-server-variable: warn
+  no-server-variables-empty-enum: error
+  spec-components-invalid-map-name: warn
+  boolean-parameter-prefixes: off
+  component-name-unique: off
+  operation-4xx-problem-details-rfc7807: off
+  request-mime-type: off
+  response-contains-property: off
+  response-mime-type: off
+  array-parameter-serialization: off
+  no-duplicated-tag-names: off
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-enum-type-mismatch: warn
+  tag-parents: off
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -257,7 +321,7 @@ The default behavior is to use a recommended ruleset.
 The recommended rulesets for each format are listed below.
 There is also a "recommended-strict" ruleset which is identical but with all `warn` settings changed to `error`.
 
-### Recommended ruleset: OpenAPI 3.1/3.2
+### Recommended ruleset: OpenAPI 3.2
 
 ```yaml
 rules:
@@ -301,6 +365,54 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
+  tag-parents: error
+```
+
+### Recommended ruleset: OpenAPI 3.1
+
+```yaml
+rules:
+  info-contact: off
+  info-license: warn
+  info-license-strict: warn
+  tag-description: warn
+  tags-alphabetical: off
+  parameter-description: off
+  no-path-trailing-slash: error
+  no-identical-paths: error
+  no-ambiguous-paths: warn
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  operation-description: off
+  operation-2xx-response: warn
+  operation-4xx-response: warn
+  operation-operationId: warn
+  operation-summary: error
+  operation-operationId-unique: error
+  operation-operationId-url-safe: error
+  operation-parameters-unique: error
+  operation-tag-defined: off
+  security-defined: error
+  operation-singular-tag: off
+  no-unresolved-refs: error
+  paths-kebab-case: off
+  struct: error
+  spec-strict-refs: off
+  no-http-verbs-in-paths: off
+  no-invalid-parameter-examples: off
+  no-invalid-schema-examples: off
+  path-http-verbs-order: off
+  path-params-defined: off
+  path-segment-plural: off
+  required-string-property-missing-min-length: off
+  response-contains-header: off
+  scalar-property-missing-example: off
+  no-duplicated-tag-names: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: error
+  no-enum-type-mismatch: error
+  tag-parents: off
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
@@ -364,6 +476,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
+  tag-parents: off
 ```
 
 ### Recommended ruleset: OpenAPI 2.0

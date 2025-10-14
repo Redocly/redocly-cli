@@ -138,6 +138,7 @@
             - page: rules/oas/spec-components-invalid-map-name.md
             - page: rules/oas/spec-strict-refs.md
             - page: rules/oas/tag-description.md
+            - page: rules/oas/tag-parents.md
             - page: rules/oas/tags-alphabetical.md
             - separator: AsyncAPI
             - page: rules/async/channels-kebab-case.md

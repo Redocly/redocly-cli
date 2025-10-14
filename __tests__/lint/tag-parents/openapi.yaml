@@ -1,0 +1,23 @@
+openapi: 3.2.0
+info:
+  title: Test API
+  version: 1.0.0
+paths: {}
+tags:
+  - name: tag
+    parent: none
+    description: A tag with an undefined parent
+
+  - name: foo
+    parent: bar
+    description: Circular references
+  - name: bar
+    parent: foo
+    description: Circular references
+  - name: baz
+    parent: foo
+    description: Circular references
+
+  - name: self
+    parent: self
+    description: Self-referencing tag
