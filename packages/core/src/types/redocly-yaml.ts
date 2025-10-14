@@ -114,7 +114,7 @@ const builtInOAS3Rules = [
   'array-parameter-serialization',
   'no-duplicated-tag-names',
   'nullable-type-sibling',
-  'tag-parents',
+  'no-invalid-tag-parents',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];

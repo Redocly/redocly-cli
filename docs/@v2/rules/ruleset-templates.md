@@ -74,7 +74,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
-  tag-parents: warn
+  no-invalid-tag-parents: warn
 ```
 
 ### Minimal ruleset: OpenAPI 3.1
@@ -137,7 +137,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
-  tag-parents: off
+  no-invalid-tag-parents: off
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -201,6 +201,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
+  no-invalid-tag-parents: off
 ```
 
 ### Minimal ruleset: OpenAPI 2.0
@@ -365,7 +366,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
-  tag-parents: error
+  no-invalid-tag-parents: error
 ```
 
 ### Recommended ruleset: OpenAPI 3.1
@@ -412,7 +413,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
-  tag-parents: off
+  no-invalid-tag-parents: off
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
@@ -476,7 +477,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
-  tag-parents: off
+  no-invalid-tag-parents: off
 ```
 
 ### Recommended ruleset: OpenAPI 2.0

@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/oas/tag-parents
+slug: /docs/cli/rules/oas/no-invalid-tag-parents
 ---
 
-# tag-parents
+# no-invalid-tag-parents
 
 Validates that tag parent references are properly defined and don't create circular dependencies.
 
@@ -49,7 +49,7 @@ Set the desired [severity](../../rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
-  tag-parents: error
+  no-invalid-tag-parents: error
 ```
 
 | Option   | Type   | Description                                                                                |
@@ -60,7 +60,7 @@ An example configuration:
 
 ```yaml
 rules:
-  tag-parents: error
+  no-invalid-tag-parents: error
 ```
 
 ## Examples
@@ -69,7 +69,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  tag-parents: error
+  no-invalid-tag-parents: error
 ```
 
 Example of **incorrect** tags (undefined parent):
@@ -101,11 +101,10 @@ tags:
 
 ## Related rules
 
-- [tag-description](./tag-description.md)
 - [no-duplicated-tag-names](./no-duplicated-tag-names.md)
 - [operation-tag-defined](./operation-tag-defined.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/tag-parents.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-invalid-tag-parents.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)

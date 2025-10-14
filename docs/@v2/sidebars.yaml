@@ -104,6 +104,7 @@
             - page: rules/oas/no-invalid-media-type-examples.md
             - page: rules/oas/no-invalid-parameter-examples.md
             - page: rules/oas/no-invalid-schema-examples.md
+            - page: rules/oas/no-invalid-tag-parents.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
@@ -138,7 +139,6 @@
             - page: rules/oas/spec-components-invalid-map-name.md
             - page: rules/oas/spec-strict-refs.md
             - page: rules/oas/tag-description.md
-            - page: rules/oas/tag-parents.md
             - page: rules/oas/tags-alphabetical.md
             - separator: AsyncAPI
             - page: rules/async/channels-kebab-case.md

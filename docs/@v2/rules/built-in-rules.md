@@ -102,10 +102,10 @@ The rules list is split into sections.
 ### Tags
 
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md): No duplicated tag names
+- [no-invalid-tag-parents](./oas/no-invalid-tag-parents.md): Tag parent references must be properly defined and free of circular dependencies
 - [operation-singular-tag](./oas/operation-singular-tag.md): Each operation may only have one tag
 - [operation-tag-defined](./oas/operation-tag-defined.md): Tags can only be used if they are defined at the top level
 - [tag-description](./oas/tag-description.md): Tags must have descriptions
-- [tag-parents](./oas/tag-parents.md): Tag parent references must be properly defined and free of circular dependencies
 - [tags-alphabetical](./oas/tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
 
 ## AsyncAPI rules
