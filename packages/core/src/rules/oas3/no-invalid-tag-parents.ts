@@ -31,7 +31,7 @@ export const NoInvalidTagParents: Oas3Rule = () => {
               message: `Circular reference detected in tag parent hierarchy for tag '${tag.name}'.`,
               location: location.child('parent'),
             });
-            break;
+            return;
           }
           visited.add(currentParent);
           currentParent = tags.find((t) => t.name === currentParent)?.parent;
