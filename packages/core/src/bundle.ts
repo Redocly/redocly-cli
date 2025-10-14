@@ -346,7 +346,9 @@ function makeBundleVisitor(
           !dereference
         ) {
           // Normalize explicit self-file refs to internal pointer
-          node.$ref = resolved.location.pointer;
+          if (node.$ref !== resolved.location.pointer) {
+            node.$ref = resolved.location.pointer;
+          }
 
           return;
         }
