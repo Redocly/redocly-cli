@@ -484,4 +484,14 @@ describe('sibling $ref resolution by spec', () => {
     expect(problems).toHaveLength(0);
     expect(field.description).toBe('This is a description resolved from a reference file.\n');
   });
+
+  it('should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-request-body.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
 });

@@ -308,6 +308,32 @@ components:
 
 `;
 
+exports[`sibling $ref resolution by spec > should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context) 1`] = `
+openapi: 3.1.0
+info:
+  title: RequestBody Sibling Ref
+  version: 1.0.0
+paths:
+  /users:
+    post:
+      requestBody:
+        description: |+
+          some desc
+
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '200':
+          description: OK
+components:
+  requestBodies:
+    User:
+      content:
+        application/json:
+          schema:
+            type: object
+
+`;
+
 exports[`sibling $ref resolution by spec > should resolve description and summary refs alongside $ref in Schema - AsyncAPI 3 1`] = `
 asyncapi: 3.0.0
 info:
