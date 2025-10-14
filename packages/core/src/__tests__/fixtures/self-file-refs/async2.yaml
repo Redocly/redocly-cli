@@ -1,0 +1,14 @@
+asyncapi: '2.6.0'
+info:
+  title: AsyncAPI 2 self-file ref
+  version: '1.0.0'
+channels:
+  user/test:
+    subscribe:
+      message:
+        payload:
+          $ref: 'async2.yaml#/components/schemas/TestPayload'
+components:
+  schemas:
+    TestPayload:
+      type: string

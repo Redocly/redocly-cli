@@ -1,0 +1,23 @@
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 nested file with self-refs
+  version: '1.0.0'
+channels: {}
+components:
+  messages:
+    TestMessage:
+      payload:
+        $ref: 'async3-nested.yaml#/components/schemas/TestPayload'
+  schemas:
+    TestPayload:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: 'async3-nested.yaml#/components/schemas/NestedSchema'
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string

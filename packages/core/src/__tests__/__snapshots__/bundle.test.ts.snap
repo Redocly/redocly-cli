@@ -124,6 +124,57 @@ components:
 
 `;
 
+exports[`bundle > should normalize self-file explicit $ref in nested referenced file 1`] = `
+openapi: 3.0.0
+info:
+  title: OAS3 root with external ref to file with self-refs
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/testParam'
+components:
+  schemas:
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string
+    TestSchema:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: '#/components/schemas/NestedSchema'
+  parameters:
+    testParam:
+      name: testParam
+      in: query
+      schema:
+        $ref: '#/components/schemas/TestSchema'
+
+`;
+
+exports[`bundle > should normalize self-file explicit $ref in oas2 1`] = `
+swagger: '2.0'
+info:
+  title: OAS2 self-file ref
+  version: '1.0'
+paths:
+  /test:
+    get:
+      parameters:
+        - $ref: '#/parameters/testParam'
+parameters:
+  testParam:
+    name: testParam
+    in: query
+    type: string
+
+`;
+
 exports[`bundle > should not bundle url refs if used with keepUrlRefs 1`] = `
 openapi: 3.0.0
 paths:
@@ -275,6 +326,52 @@ components:
           items:
             $ref: '#/components/schemas/someexternal'
     someexternal: External schema content
+
+`;
+
+exports[`bundle async > should normalize self-file explicit $ref in asyncapi 2 1`] = `
+asyncapi: 2.6.0
+info:
+  title: AsyncAPI 2 self-file ref
+  version: 1.0.0
+channels:
+  user/test:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/TestPayload'
+components:
+  schemas:
+    TestPayload:
+      type: string
+
+`;
+
+exports[`bundle async > should normalize self-file explicit $ref in nested referenced file for async3 1`] = `
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 root with external ref to file with self-refs
+  version: 1.0.0
+channels:
+  userTest:
+    messages:
+      TestMessage:
+        payload:
+          $ref: '#/components/schemas/TestPayload'
+components:
+  schemas:
+    NestedSchema:
+      type: object
+      properties:
+        value:
+          type: string
+    TestPayload:
+      type: object
+      properties:
+        id:
+          type: string
+        nested:
+          $ref: '#/components/schemas/NestedSchema'
 
 `;
 

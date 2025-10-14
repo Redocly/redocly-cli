@@ -1,0 +1,14 @@
+swagger: '2.0'
+info:
+  title: OAS2 self-file ref
+  version: '1.0'
+paths:
+  /test:
+    get:
+      parameters:
+        - $ref: 'oas2.yaml#/parameters/testParam'
+parameters:
+  testParam:
+    name: testParam
+    in: query
+    type: string
