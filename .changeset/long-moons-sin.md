@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added a `no-invalid-tag-parents` rule for validating the OpenAPI 3.2 specification.
+Added a `no-invalid-tag-parents` rule for validating OpenAPI 3.2 description files.
