@@ -12,6 +12,7 @@ Scalar properties are any of the following types: `string`, `number`, `null`, `b
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

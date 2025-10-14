@@ -11,6 +11,7 @@ Requires all path template variables are defined as path parameters.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

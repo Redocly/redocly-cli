@@ -11,6 +11,7 @@ Requires that the contents of every `enum` value in your API description conform
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD

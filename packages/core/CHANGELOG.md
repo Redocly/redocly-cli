@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.5.1
+
+### Patch Changes
+
+- Fixed an issue where the `no-http-verbs-in-paths` rule was incorrectly flagging path names containing the verb `query`.
+
 ## 2.5.0
 
 ## 2.4.0

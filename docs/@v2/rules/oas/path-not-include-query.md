@@ -12,6 +12,7 @@ The query parameters should be defined on the `PathItem` or `Operation`.
 | 2.0 | ✅            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ## API design principles
 

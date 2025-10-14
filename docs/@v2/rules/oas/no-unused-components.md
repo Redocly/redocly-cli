@@ -12,6 +12,7 @@ In this context, "used" means that a component defined in the `components` objec
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
+| 3.2 | ✅            |
 
 ```mermaid
 flowchart TD
