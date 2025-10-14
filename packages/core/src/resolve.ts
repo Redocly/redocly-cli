@@ -15,6 +15,7 @@ import { readFileFromUrl } from './utils/read-file-from-url.js';
 import { parseYaml } from './js-yaml/index.js';
 import { nextTick } from './utils/next-tick.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
+import { makeRefId } from './utils/make-ref-id.js';
 
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import type { NormalizedNodeType } from './types/index.js';
@@ -68,10 +69,6 @@ export type Document<T = unknown> = {
   source: Source;
   parsed: T;
 };
-
-export function makeRefId(absoluteRef: string, pointer: string) {
-  return absoluteRef + '::' + pointer;
-}
 
 export function makeDocumentFromString<T = unknown>(
   sourceString: string,

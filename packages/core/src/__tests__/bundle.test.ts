@@ -1,10 +1,12 @@
 import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bundleDocument, bundle, bundleFromString } from '../bundle.js';
+import { bundleDocument } from '../bundle/bundle-document.js';
+import { bundle, bundleFromString } from '../bundle.js';
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
-import { Config, ResolvedConfig, createConfig, loadConfig } from '../config/index.js';
+import { createConfig, loadConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
+import { AsyncApi2Types, AsyncApi3Types, Oas3Types } from '../index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +49,7 @@ describe('bundle', () => {
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: await createConfig({}),
+      types: Oas3Types,
     });
 
     const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
@@ -82,6 +85,7 @@ describe('bundle', () => {
       config: await createConfig({}),
       document: testDocument,
       dereference: true,
+      types: Oas3Types,
     });
 
     expect(problems).toHaveLength(0);
@@ -170,6 +174,7 @@ describe('bundle', () => {
       document: testDocument,
       config: config,
       externalRefResolver: new BaseResolver(),
+      types: Oas3Types,
     });
 
     expect(problems).toHaveLength(0);
@@ -252,6 +257,7 @@ describe('bundle', () => {
       document: testDocument,
       config: config,
       externalRefResolver: new BaseResolver(),
+      types: Oas3Types,
     });
 
     expect(problems).toHaveLength(0);
@@ -353,6 +359,7 @@ describe('bundle async', () => {
       config: config,
       externalRefResolver: new BaseResolver(),
       dereference: true,
+      types: AsyncApi2Types,
     });
 
     expect(problems).toHaveLength(0);
@@ -423,6 +430,7 @@ describe('bundle async', () => {
       config: config,
       externalRefResolver: new BaseResolver(),
       dereference: true,
+      types: AsyncApi3Types,
     });
 
     expect(problems).toHaveLength(0);

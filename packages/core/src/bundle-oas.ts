@@ -1,6 +1,7 @@
+// Specialized OAS only bundle export for vite bundle
 import { BaseResolver } from './resolve.js';
 import { detectSpec } from './detect-spec.js';
-import { bundleDocument } from './bundle-document.js';
+import { bundleDocument } from './bundle/bundle-document.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
@@ -73,14 +74,11 @@ export async function bundleOas(
   });
 }
 
-// export { loadConfig } from './config/load.js';
-
 export function loadConfig(options: {
   configPath?: string;
   customExtends?: string[];
   externalRefResolver?: BaseResolver;
 }) {
-  // const resolvedConfig = externalRefResolver.resolveDocument<RawUniversalConfig>(null, options.configPath, true)
   return new Config(
     {
       rules: {},

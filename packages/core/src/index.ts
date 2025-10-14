@@ -1,20 +1,15 @@
-export {
-  keysOf,
-  readFileFromUrl,
-  slash,
-  doesYamlFileExist,
-  isTruthy,
-  pause,
-  isPlainObject,
-  isString,
-  pluralize,
-  isEmptyObject,
-  isNotEmptyArray,
-  isNotEmptyObject,
-  type CollectFn,
-  type Exact,
-} from './utils.js';
+export { keysOf, isNotEmptyArray, type CollectFn, type Exact } from './utils.js';
+export { doesYamlFileExist } from './utils/does-yaml-file-exist.js';
 export { dequal } from './utils/dequal.js';
+export { isEmptyObject } from './utils/is-empty-object.js';
+export { isNotEmptyObject } from './utils/is-not-empty-object.js';
+export { isPlainObject } from './utils/is-plain-object.js';
+export { isString } from './utils/is-string.js';
+export { isTruthy } from './utils/is-truthy.js';
+export { pause } from './utils/pause.js';
+export { pluralize } from './utils/pluralize.js';
+export { readFileFromUrl } from './utils/read-file-from-url.js';
+export { slash } from './utils/slash.js';
 export { Oas2Types } from './types/oas2.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas3_1Types } from './types/oas3_1.js';
@@ -60,8 +55,8 @@ export {
   escapePointer,
   type Location,
 } from './ref-utils.js';
+export { detectSpec } from './detect-spec.js';
 export {
-  detectSpec,
   getMajorSpecVersion,
   getTypes,
   type SpecVersion,
@@ -108,7 +103,7 @@ export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle.js';
-export { bundleDocument } from './bundle-document.js';
+export { bundleDocument } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';

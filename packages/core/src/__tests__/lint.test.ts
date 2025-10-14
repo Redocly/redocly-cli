@@ -4,7 +4,7 @@ import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig } from '../config/load.js';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
-import { detectSpec } from '../oas-types.js';
+import { detectSpec } from '../detect-spec.js';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
 import { fileURLToPath } from 'node:url';

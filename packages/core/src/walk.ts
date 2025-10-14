@@ -1,5 +1,4 @@
 import { Location, isRef } from './ref-utils.js';
-// import { pushStack, popStack, getOwn } from './utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { makeRefId } from './utils/make-ref-id.js';

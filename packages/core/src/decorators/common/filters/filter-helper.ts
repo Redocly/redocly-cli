@@ -1,5 +1,7 @@
 import { isRef } from '../../../ref-utils.js';
-import { isEmptyArray, isEmptyObject, isPlainObject } from '../../../utils.js';
+import { isEmptyArray } from '../../../utils.js';
+import { isPlainObject } from '../../../utils/is-plain-object.js';
+import { isEmptyObject } from '../../../utils/is-empty-object.js';
 
 import type { UserContext } from '../../../walk.js';
 

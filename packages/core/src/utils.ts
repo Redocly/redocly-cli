@@ -1,57 +1,18 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { minimatch } from 'minimatch';
-import pluralizeOne from 'pluralize';
 import { parseYaml } from './js-yaml/index.js';
-import { env } from './env.js';
 import { isAbsoluteUrl } from './ref-utils.js';
+import { isPlainObject } from './utils/is-plain-object.js';
+import { isString } from './utils/is-string.js';
+import { isTruthy } from './utils/is-truthy.js';
 
-import type { HttpResolveConfig } from './config/index.js';
 import type { UserContext } from './walk.js';
 
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 
-export type StackFrame<T> = {
-  prev: StackFrame<T> | null;
-  value: T;
-};
-
-export type Stack<T> = StackFrame<T> | null;
-export type StackNonEmpty<T> = StackFrame<T>;
-export function pushStack<T, P extends Stack<T> = Stack<T>>(head: P, value: T) {
-  return { prev: head, value };
-}
-
-export function pluralize(sentence: string, count?: number, inclusive?: boolean) {
-  return sentence
-    .split(' ')
-    .map((word) => pluralizeOne(word, count, inclusive))
-    .join(' ');
-}
-
-export function popStack<T, P extends Stack<T>>(head: P) {
-  return head?.prev ?? null;
-}
-
 export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
   return parseYaml(contents) as T;
-}
-
-export function isDefined<T>(x: T | undefined): x is T {
-  return x !== undefined;
-}
-
-export function isPlainObject<T = Record<string, unknown>>(value: unknown): value is T {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
-export function isEmptyObject(value: unknown): value is Record<string, unknown> {
-  return isPlainObject(value) && Object.keys(value).length === 0;
-}
-
-export function isNotEmptyObject(obj: unknown): boolean {
-  return isPlainObject(obj) && !isEmptyObject(obj);
 }
 
 export function isEmptyArray(value: unknown): value is [] {
@@ -60,34 +21,6 @@ export function isEmptyArray(value: unknown): value is [] {
 
 export function isNotEmptyArray<T>(args?: T[]): args is [T, ...T[]] {
   return Array.isArray(args) && !!args.length;
-}
-
-export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
-  const headers: Record<string, string> = {};
-  for (const header of config.headers) {
-    if (match(url, header.matches)) {
-      headers[header.name] =
-        header.envVariable !== undefined ? env[header.envVariable] || '' : header.value;
-    }
-  }
-
-  const req = await (config.customFetch || fetch)(url, {
-    headers: headers,
-  });
-
-  if (!req.ok) {
-    throw new Error(`Failed to load ${url}: ${req.status} ${req.statusText}`);
-  }
-
-  return { body: await req.text(), mimeType: req.headers.get('content-type') };
-}
-
-function match(url: string, pattern: string) {
-  if (!pattern.match(/^https?:\/\//)) {
-    // if pattern doesn't specify protocol directly, do not match against it
-    url = url.replace(/^https?:\/\//, '');
-  }
-  return minimatch(url, pattern);
 }
 
 export function splitCamelCaseIntoWords(str: string) {
@@ -155,22 +88,6 @@ export function isPathParameter(pathSegment: string) {
   return pathSegment.startsWith('{') && pathSegment.endsWith('}');
 }
 
-/**
- * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
- */
-export function slash(path: string): string {
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path);
-  if (isExtendedLengthPath) {
-    return path;
-  }
-
-  return path.replace(/\\/g, '/');
-}
-
-export function isString(value: unknown): value is string {
-  return typeof value === 'string';
-}
-
 export function isNotString<T>(value: string | T): value is T {
   return !isString(value);
 }
@@ -212,18 +129,7 @@ export function isCustomRuleId(id: string) {
   return id.includes('/');
 }
 
-export function doesYamlFileExist(filePath: string): boolean {
-  return (
-    (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') &&
-    !!fs?.existsSync?.(filePath)
-  );
-}
-
 export type Falsy = undefined | null | false | '' | 0;
-
-export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
-  return !!value;
-}
 
 export function identity<T>(value: T): T {
   return value;
@@ -232,20 +138,6 @@ export function identity<T>(value: T): T {
 export function keysOf<T>(obj: T) {
   if (!obj) return [];
   return Object.keys(obj) as (keyof T)[];
-}
-
-export function nextTick() {
-  return new Promise((resolve) => {
-    setTimeout(resolve);
-  });
-}
-
-export async function pause(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function getOwn(obj: Record<string, any>, key: string) {
-  return obj.hasOwnProperty(key) ? obj[key] : undefined;
 }
 
 export type CollectFn = (value: unknown) => void;

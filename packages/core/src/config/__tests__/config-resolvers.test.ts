@@ -296,9 +296,7 @@ describe('resolveConfig', () => {
       new Config(config.resolvedConfig, { plugins: config.plugins });
     } catch (e) {
       expect(e.message.toString()).toContain(
-        `Plugin ${colorize.red(
-          'test-plugin'
-        )} doesn't export assertions function with name ${colorize.red('checkWordsCount2')}.`
+        `Plugin test-plugin doesn't export assertions function with name checkWordsCount2.`
       );
     }
   });

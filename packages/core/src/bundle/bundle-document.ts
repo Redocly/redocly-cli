@@ -1,17 +1,17 @@
-import { resolveDocument } from './resolve.js';
-import { normalizeVisitors } from './visitors.js';
-import { normalizeTypes } from './types/index.js';
-import { walkDocument } from './walk.js';
-import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
-import { initRules } from './config/rules.js';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
-import { makeBundleVisitor } from './bundle/bundle-visitor.js';
+import { resolveDocument } from '../resolve.js';
+import { normalizeVisitors } from '../visitors.js';
+import { normalizeTypes } from '../types/index.js';
+import { walkDocument } from '../walk.js';
+import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
+import { initRules } from '../config/rules.js';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from '../decorators/oas2/remove-unused-components.js';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from '../decorators/oas3/remove-unused-components.js';
+import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
 
-import type { Config } from './config/config.js';
-import type { NormalizedNodeType, NodeType } from './types/index.js';
-import type { WalkContext, NormalizedProblem } from './walk.js';
-import type { Document, BaseResolver } from './resolve.js';
+import type { Config } from '../config/config.js';
+import type { NormalizedNodeType, NodeType } from '../types/index.js';
+import type { WalkContext, NormalizedProblem } from '../walk.js';
+import type { Document, BaseResolver } from '../resolve.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;

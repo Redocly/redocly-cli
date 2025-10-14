@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle.js';
+import { bundleDocument } from '../../bundle/bundle-document.js';
 import { BaseResolver } from '../../resolve.js';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { createConfig } from '../../config/index.js';
+import { Oas2Types, Oas3Types } from '../../index.js';
 
 describe('oas3 filter-in', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -60,6 +61,7 @@ describe('oas3 filter-in', () => {
       config: await createConfig({
         decorators: { 'filter-in': { value: 'public', property: 'x-access' } },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -88,6 +90,7 @@ describe('oas3 filter-in', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -141,6 +144,7 @@ describe('oas3 filter-in', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -181,6 +185,7 @@ describe('oas3 filter-in', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -229,6 +234,7 @@ describe('oas3 filter-in', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -287,6 +293,7 @@ describe('oas2 filter-in', () => {
           },
         },
       }),
+      types: Oas2Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       swagger: '2.0'

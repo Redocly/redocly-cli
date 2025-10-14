@@ -105,6 +105,11 @@ export function makeBundleVisitor(
           ctx.type.name !== 'scalar' &&
           !dereference
         ) {
+          // Normalize explicit self-file refs to internal pointer
+          if (node.$ref !== resolved.location.pointer) {
+            node.$ref = resolved.location.pointer;
+          }
+
           return;
         }
 

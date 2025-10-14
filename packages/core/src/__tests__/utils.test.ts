@@ -1,4 +1,6 @@
-import { slash, getMatchingStatusCodeRange, doesYamlFileExist } from '../utils.js';
+import { getMatchingStatusCodeRange } from '../utils.js';
+import { slash } from '../utils/slash.js';
+import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
 import { isBrowser } from '../env.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

@@ -1,11 +1,13 @@
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
-// import { isOrdered, getIntersectionLength, regexFromString } from './utils.js'; fixme
+import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
+import { isOrdered } from '../../../utils/is-ordered.js';
+import { regexFromString } from '../../../utils/regex-from-string.js';
 
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
 import type { Location } from '../../../ref-utils.js';
-import type { OrderOptions, OrderDirection } from './utils.js';
+import type { OrderOptions, OrderDirection } from '../../../utils/is-ordered.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -60,56 +62,6 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'ref',
   'const',
 ]);
-
-// FIXME - need to check
-
-function getIntersectionLength(keys: string[], properties: string[]): number {
-  const props = new Set(properties);
-  let count = 0;
-  for (const key of keys) {
-    if (props.has(key)) {
-      count++;
-    }
-  }
-  return count;
-}
-
-function isOrdered(value: any[], options: OrderOptions | OrderDirection): boolean {
-  const direction = (options as OrderOptions).direction || (options as OrderDirection);
-  const property = (options as OrderOptions).property;
-  for (let i = 1; i < value.length; i++) {
-    let currValue = value[i];
-    let prevVal = value[i - 1];
-
-    if (property) {
-      const currPropValue = value[i][property];
-      const prevPropValue = value[i - 1][property];
-
-      if (!currPropValue || !prevPropValue) {
-        return false; // property doesn't exist, so collection is not ordered
-      }
-
-      currValue = currPropValue;
-      prevVal = prevPropValue;
-    }
-
-    if (typeof currValue === 'string' && typeof prevVal === 'string') {
-      currValue = currValue.toLowerCase();
-      prevVal = prevVal.toLowerCase();
-    }
-
-    const result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
-    if (!result) {
-      return false;
-    }
-  }
-  return true;
-}
-
-export function regexFromString(input: string): RegExp | null {
-  const matches = input.match(/^\/(.*)\/(.*)|(.*)/);
-  return matches && new RegExp(matches[1] || matches[3], matches[2]);
-}
 
 export const asserts: Asserts = {
   pattern: (

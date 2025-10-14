@@ -3,7 +3,10 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString, isString, isDefined, keysOf, isPlainObject } from '../utils.js';
+import { isNotString, keysOf } from '../utils.js';
+import { isString } from '../utils/is-string.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isDefined } from '../utils/is-defined.js';
 import { resolveDocument, BaseResolver, Source } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {

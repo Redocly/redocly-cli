@@ -6,8 +6,6 @@ import { AsyncApi2Types } from './types/asyncapi2.js';
 import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Arazzo1Types } from './types/arazzo.js';
 import { Overlay1Types } from './types/overlay.js';
-import { isPlainObject } from './utils.js';
-import { VERSION_PATTERN } from './typings/arazzo.js';
 
 import type {
   BuiltInAsync2RuleId,
@@ -106,58 +104,6 @@ export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
 export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
 export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
-
-export function detectSpec(root: unknown): SpecVersion {
-  if (!isPlainObject(root)) {
-    throw new Error(`Document must be JSON object, got ${typeof root}`);
-  }
-
-  if (root.openapi && typeof root.openapi !== 'string') {
-    throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
-  }
-
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.0.')) {
-    return 'oas3_0';
-  }
-
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.1.')) {
-    return 'oas3_1';
-  }
-
-  if (typeof root.openapi === 'string' && root.openapi.startsWith('3.2.')) {
-    return 'oas3_2';
-  }
-
-  if (root.swagger && root.swagger === '2.0') {
-    return 'oas2';
-  }
-
-  if (root.openapi || root.swagger) {
-    throw new Error(`Unsupported OpenAPI version: ${root.openapi || root.swagger}`);
-  }
-
-  if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('2.')) {
-    return 'async2';
-  }
-
-  if (typeof root.asyncapi === 'string' && root.asyncapi.startsWith('3.')) {
-    return 'async3';
-  }
-
-  if (root.asyncapi) {
-    throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
-  }
-
-  if (typeof root.arazzo === 'string' && VERSION_PATTERN.test(root.arazzo)) {
-    return 'arazzo1';
-  }
-
-  if (typeof root.overlay === 'string' && VERSION_PATTERN.test(root.overlay)) {
-    return 'overlay1';
-  }
-
-  throw new Error(`Unsupported specification`);
-}
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
   if (version === 'oas2') {
