@@ -263,10 +263,11 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'workflow-dependsOn': 'off',
     'no-x-security-scheme-name-without-openapi': 'off',
     'x-security-scheme-required-values': 'off',
-    'no-x-security-scheme-name-in-workflow': 'off',
     'no-required-schema-properties-undefined': 'warn',
     'no-enum-type-mismatch': 'warn',
     'no-schema-type-mismatch': 'warn',
+    'x-security-scheme-name-link': 'off',
+    'no-x-security-both-scheme-and-scheme-name': 'off',
   },
   overlay1Rules: {
     'info-contact': 'off',

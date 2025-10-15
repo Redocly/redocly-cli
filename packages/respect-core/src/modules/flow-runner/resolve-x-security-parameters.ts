@@ -1,6 +1,7 @@
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { getSecurityParameter } from '../context-parser/get-security-parameters.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
+import { resolveSecurityScheme } from './resolve-security-scheme.js';
 
 import type { ExtendedSecurity } from '@redocly/openapi-core';
 import type { ParameterWithIn } from '../context-parser/index.js';
@@ -28,10 +29,11 @@ export function resolveXSecurityParameters({
   const parameters: ParameterWithIn[] = [];
 
   for (const security of securities) {
-    const scheme =
-      'schemeName' in security
-        ? (operation?.securitySchemes?.[security.schemeName] as Oas3SecurityScheme)
-        : security.scheme;
+    const scheme = resolveSecurityScheme({
+      ctx,
+      security,
+      operation,
+    });
 
     if ('schemeName' in security && !scheme) {
       throw new Error(`Security scheme "${security.schemeName}" not found`);

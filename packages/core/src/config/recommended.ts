@@ -263,10 +263,11 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'workflow-dependsOn': 'error',
     'no-x-security-scheme-name-without-openapi': 'off',
     'x-security-scheme-required-values': 'off',
-    'no-x-security-scheme-name-in-workflow': 'off',
     'no-required-schema-properties-undefined': 'warn',
     'no-enum-type-mismatch': 'error',
     'no-schema-type-mismatch': 'error',
+    'x-security-scheme-name-link': 'error',
+    'no-x-security-both-scheme-and-scheme-name': 'error',
   },
   overlay1Rules: {
     'info-contact': 'off',
