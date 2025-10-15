@@ -108,7 +108,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'error',
-    'no-ambiguous-one-of-usage': 'error',
+    'no-illogical-one-of-usage': 'error',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -165,7 +165,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'error',
-    'no-ambiguous-one-of-usage': 'error',
+    'no-illogical-one-of-usage': 'error',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',

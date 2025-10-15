@@ -108,7 +108,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
-    'no-ambiguous-one-of-usage': 'warn',
+    'no-illogical-one-of-usage': 'warn',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -165,7 +165,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
-    'no-ambiguous-one-of-usage': 'warn',
+    'no-illogical-one-of-usage': 'warn',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
