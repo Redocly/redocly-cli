@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 
-describe('example-values', () => {
+describe('spec-example-values', () => {
   it('should validate example field combinations according to OAS 3.2', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -55,7 +55,7 @@ describe('example-values', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'example-values': 'error' } }),
+      config: await createConfig({ rules: { 'spec-example-values': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -69,7 +69,7 @@ describe('example-values', () => {
             },
           ],
           "message": "The 'value' filed must be absent if 'dataValue' is present in an example object.",
-          "ruleId": "example-values",
+          "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
         },
@@ -82,7 +82,7 @@ describe('example-values', () => {
             },
           ],
           "message": "The 'value' filed must be absent if 'serializedValue' is present in an example object.",
-          "ruleId": "example-values",
+          "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
         },
@@ -95,7 +95,7 @@ describe('example-values', () => {
             },
           ],
           "message": "The 'serializedValue' and 'externalValue' fields of an example object are mutually exclusive.",
-          "ruleId": "example-values",
+          "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
         },
@@ -108,7 +108,7 @@ describe('example-values', () => {
             },
           ],
           "message": "The 'value' and 'externalValue' fields of an example object are mutually exclusive.",
-          "ruleId": "example-values",
+          "ruleId": "spec-example-values",
           "severity": "error",
           "suggest": [],
         },

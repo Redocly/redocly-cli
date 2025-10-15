@@ -58,7 +58,7 @@ import { NullableTypeSibling } from './nullable-type-sibling.js';
 import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { NoInvalidEncodingCombinations } from './no-invalid-encoding-combinations.js';
 import { DiscriminatorDefaultMapping } from './discriminator-defaultMapping.js';
-import { ExampleValues } from './example-values.js';
+import { SpecExampleValues } from './spec-example-values.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
@@ -125,7 +125,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-no-invalid-tag-parents': SpecNoInvalidTagParents,
   'no-invalid-encoding-combinations': NoInvalidEncodingCombinations,
   'discriminator-defaultMapping': DiscriminatorDefaultMapping,
-  'example-values': ExampleValues,
+  'spec-example-values': SpecExampleValues,
 };
 
 export const preprocessors = {};

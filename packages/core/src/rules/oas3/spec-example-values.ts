@@ -1,6 +1,6 @@
 import { type Oas3Rule } from '../../visitors.js';
 
-export const ExampleValues: Oas3Rule = () => {
+export const SpecExampleValues: Oas3Rule = () => {
   return {
     Example({ value, externalValue, dataValue, serializedValue }, { report, location }) {
       if (value !== undefined && externalValue !== undefined) {
