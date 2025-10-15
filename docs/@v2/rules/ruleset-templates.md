@@ -74,6 +74,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
+  spec-no-invalid-tag-parents: warn
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -301,6 +302,7 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
+  spec-no-invalid-tag-parents: error
 ```
 
 ### Recommended ruleset: OpenAPI 3.0

@@ -4,8 +4,8 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 
-describe('Oas3 as3-no-server-variables-empty-enum', () => {
-  it('oas3-no-server-variables-empty-enum: should report on server object with empty enum and unknown enum value', async () => {
+describe('Oas3 no-server-variables-empty-enum', () => {
+  it('should report on server object with empty enum and unknown enum value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -60,7 +60,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     `);
   });
 
-  it('oas3-no-server-variables-empty-enum: should report on server object with empty enum', async () => {
+  it('should report on server object with empty enum', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -101,7 +101,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     `);
   });
 
-  it('oas3-no-server-variables-empty-enum: should be success because variables is empty object', async () => {
+  it('should be success because variables is empty object', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -124,7 +124,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('oas3-no-server-variables-empty-enum: should be success because variable is empty object', async () => {
+  it('should be success because variable is empty object', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -148,7 +148,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
+  it('should be success because enum contains default value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -175,7 +175,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
+  it('should be success because enum contains default value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
