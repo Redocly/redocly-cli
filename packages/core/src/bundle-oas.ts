@@ -74,11 +74,13 @@ export async function bundleOas(
   });
 }
 
-export function loadConfig(options: {
-  configPath?: string;
-  customExtends?: string[];
-  externalRefResolver?: BaseResolver;
-}) {
+export function loadConfig(
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    externalRefResolver?: BaseResolver;
+  } = {}
+) {
   return new Config(
     {
       rules: {},
