@@ -1,0 +1,20 @@
+arazzo: '1.0.1'
+info:
+  title: Cool API
+  version: 1.0.0
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: openapi.yaml
+  - name: pets-api
+    type: openapi
+    url: pets.yaml
+workflows:
+  - workflowId: get-museum-hours
+    x-security:
+      - schemeName: MuseumPlaceholderAuth
+        values:
+          token: some-token
+    steps:
+      - stepId: step-with-openapi-operation
+        operationId: museum-api.getMuseumHours
