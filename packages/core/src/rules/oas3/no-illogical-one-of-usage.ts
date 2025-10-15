@@ -16,6 +16,11 @@ type SchemaSignature = {
   [key: string]: any;
 };
 
+type ReturnType = {
+  isExclusive: boolean;
+  reason?: string;
+};
+
 export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
@@ -32,11 +37,28 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
               location: location.child(['oneOf']),
             });
           } else {
-            // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-            checkOneOfMutualExclusivity(schema.oneOf, report, location, resolve, schema);
-
             // Check for duplicate schemas
-            checkForDuplicateSchemas(schema.oneOf, report, location);
+            const { isDuplicate, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
+            if (isDuplicate && duplicatedReason) {
+              report({
+                message: duplicatedReason,
+                location,
+              });
+            }
+
+            // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
+            const { isExclusive, reason: exclusivityReason } = areOneOfSchemasMutuallyExclusive(
+              schema.oneOf,
+              resolve,
+              schema
+            );
+
+            if (!isExclusive && exclusivityReason) {
+              report({
+                message: exclusivityReason,
+                location: location.child(['oneOf']),
+              });
+            }
           }
         }
       },
@@ -152,7 +174,7 @@ function createSchemaSignature(
 function arePropertySchemasMutuallyExclusive(
   prop1: SchemaSignature,
   prop2: SchemaSignature
-): { isExclusive: boolean; reason?: string } {
+): ReturnType {
   // Check for null type distinction (OpenAPI 3.1)
   // If one schema is type: null and the other is not, they're mutually exclusive
   const checkIsNull = (sig: SchemaSignature) => {
@@ -276,10 +298,7 @@ function arePropertySchemasMutuallyExclusive(
   return { isExclusive: false };
 }
 
-function areSignaturesMutuallyExclusive(
-  sig1: SchemaSignature,
-  sig2: SchemaSignature
-): { isExclusive: boolean; reason?: string } {
+function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSignature): ReturnType {
   // Check top-level constraint exclusivity (types, formats, const values, enum values, and all constraints)
   const topLevelResult = arePropertySchemasMutuallyExclusive(sig1, sig2);
   if (topLevelResult.isExclusive || topLevelResult.reason) {
@@ -432,11 +451,10 @@ function areSignaturesMutuallyExclusive(
   return { isExclusive: true };
 }
 
-function checkForDuplicateSchemas(
-  schemas: Array<Oas3Schema | Oas3_1Schema>,
-  report: UserContext['report'],
-  location: UserContext['location']
-): void {
+function areDuplicatedSchemas(schemas: Array<Oas3Schema | Oas3_1Schema>): {
+  isDuplicate: boolean;
+  reason?: string;
+} {
   const seen = new Map<string, number>();
 
   for (let i = 0; i < schemas.length; i++) {
@@ -444,25 +462,23 @@ function checkForDuplicateSchemas(
     const schemaStr = JSON.stringify(schema);
 
     if (seen.has(schemaStr)) {
-      report({
-        message: `Duplicate schema found in \`oneOf\` at positions ${seen.get(
-          schemaStr
-        )} and ${i}.`,
-        location,
-      });
+      return {
+        isDuplicate: true,
+        reason: `Duplicate schema found in \`oneOf\` at positions ${seen.get(schemaStr)} and ${i}.`,
+      };
     } else {
       seen.set(schemaStr, i);
     }
   }
+
+  return { isDuplicate: false };
 }
 
-function checkOneOfMutualExclusivity(
+function areOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
-  report: UserContext['report'],
-  location: UserContext['location'],
   resolve: UserContext['resolve'],
   parentSchema: Oas3Schema | Oas3_1Schema
-): void {
+): ReturnType {
   // Check for empty schemas first - an empty schema {} accepts any value
   for (let i = 0; i < schemas.length; i++) {
     const schema = schemas[i];
@@ -473,10 +489,10 @@ function checkOneOfMutualExclusivity(
     // Check if schema is empty (no properties defined)
     const keys = Object.keys(schema);
     if (keys.length === 0) {
-      report({
-        message: `Empty schema at position ${i} in \`oneOf\` matches all values and cannot be mutually exclusive.`,
-        location: location.child(['oneOf', i]),
-      });
+      return {
+        isExclusive: false,
+        reason: `Empty schema at position ${i} in \`oneOf\` matches all values and cannot be mutually exclusive.`,
+      };
     }
   }
 
@@ -495,10 +511,10 @@ function checkOneOfMutualExclusivity(
     });
 
     if (hasNullTypeInOneOf) {
-      report({
-        message: `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`,
-        location: location.child(['oneOf']),
-      });
+      return {
+        isExclusive: false,
+        reason: `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`,
+      };
     }
   }
 
@@ -523,18 +539,20 @@ function checkOneOfMutualExclusivity(
   // Check for ambiguous combinations
   for (let i = 0; i < signatures.length; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
-      const exclusivityResult = areSignaturesMutuallyExclusive(signatures[i], signatures[j]);
-      if (!exclusivityResult.isExclusive) {
+      const { isExclusive, reason } = areSignaturesMutuallyExclusive(signatures[i], signatures[j]);
+      if (!isExclusive) {
         const schema1Id = getSchemaIdentifier(schemas[i], i);
         const schema2Id = getSchemaIdentifier(schemas[j], j);
 
-        report({
-          message: `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
-            exclusivityResult.reason ? exclusivityResult.reason : ''
+        return {
+          isExclusive: false,
+          reason: `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
+            reason ? reason : ''
           }`,
-          location: location.child('oneOf'),
-        });
+        };
       }
     }
   }
+
+  return { isExclusive: false };
 }
