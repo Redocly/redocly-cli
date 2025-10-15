@@ -105,22 +105,6 @@ export type Async3DecoratorsSet = Record<string, Async3Preprocessor>;
 export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
 
-export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
-  if (version === 'oas2') {
-    return 'oas2';
-  } else if (version === 'async2') {
-    return 'async2';
-  } else if (version === 'async3') {
-    return 'async3';
-  } else if (version === 'arazzo1') {
-    return 'arazzo1';
-  } else if (version === 'overlay1') {
-    return 'overlay1';
-  } else {
-    return 'oas3';
-  }
-}
-
 export function getTypes(spec: SpecVersion) {
   return typesMap[spec];
 }

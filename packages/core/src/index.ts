@@ -57,12 +57,8 @@ export {
   type Location,
 } from './ref-utils.js';
 export { detectSpec } from './detect-spec.js';
-export {
-  getMajorSpecVersion,
-  getTypes,
-  type SpecVersion,
-  type SpecMajorVersion,
-} from './oas-types.js';
+export { getTypes, type SpecVersion, type SpecMajorVersion } from './oas-types.js';
+export { getMajorSpecVersion } from './detect-spec.js';
 export {
   normalizeVisitors,
   type Oas3Visitor,
@@ -103,7 +99,7 @@ export {
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export { bundle, bundleFromString, type BundleResult } from './bundle.js';
+export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
@@ -111,7 +107,7 @@ export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
 
-export type { CollectFn, Exact } from './types.js';
+export type { CollectFn, Exact } from './utils/types.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,

@@ -16,14 +16,14 @@
       "types": "./lib/config/index.d.ts"
     },
     "./lib/bundle": {
-      "import": "./lib/bundle.js",
-      "require": "./lib/bundle.js",
-      "types": "./lib/bundle.d.ts"
+      "import": "./lib/bundle/bundle.js",
+      "require": "./lib/bundle/bundle.js",
+      "types": "./lib/bundle/bundle.d.ts"
     },
     "./lib/bundle-oas": {
-      "import": "./lib/bundle-oas.js",
-      "require": "./lib/bundle-oas.js",
-      "types": "./lib/bundle-oas.d.ts"
+      "import": "./lib/bundle/bundle-oas.js",
+      "require": "./lib/bundle/bundle-oas.js",
+      "types": "./lib/bundle/bundle-oas.d.ts"
     }
   },
   "engines": {

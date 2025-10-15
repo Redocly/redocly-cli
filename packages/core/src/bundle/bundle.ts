@@ -1,19 +1,19 @@
-import { BaseResolver, makeDocumentFromString } from './resolve.js';
-import { walkDocument } from './walk.js';
-import { detectSpec } from './detect-spec.js';
-import { getTypes } from './oas-types.js';
-import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import { type Config } from './config/config.js';
-import { configBundlerVisitor, pluginsCollectorVisitor } from './config/visitors.js';
-import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './config/constants.js';
-import { bundleDocument } from './bundle/bundle-document.js';
+import { BaseResolver, makeDocumentFromString } from '../resolve.js';
+import { walkDocument } from '../walk.js';
+import { detectSpec } from '../detect-spec.js';
+import { getTypes } from '../oas-types.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { type Config } from '../config/config.js';
+import { configBundlerVisitor, pluginsCollectorVisitor } from '../config/visitors.js';
+import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from '../config/constants.js';
+import { bundleDocument } from './bundle-document.js';
 
-import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
-import type { Plugin, ResolvedConfig } from './config/types.js';
-import type { NormalizedNodeType } from './types/index.js';
-import type { WalkContext, NormalizedProblem } from './walk.js';
-import type { Document, ResolvedRefMap } from './resolve.js';
-import type { CollectFn } from './types.js';
+import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from '../config/visitors.js';
+import type { Plugin, ResolvedConfig } from '../config/types.js';
+import type { NormalizedNodeType } from '../types/index.js';
+import type { WalkContext, NormalizedProblem } from '../walk.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
+import type { CollectFn } from '../utils/types.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;

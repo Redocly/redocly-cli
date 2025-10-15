@@ -5,8 +5,8 @@ import { walkDocument } from './walk.js';
 import { initRules } from './config/rules.js';
 import { normalizeTypes } from './types/index.js';
 import { releaseAjvInstance } from './rules/ajv.js';
-import { getMajorSpecVersion, getTypes } from './oas-types.js';
-import { detectSpec } from './detect-spec.js';
+import { getTypes } from './oas-types.js';
+import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
@@ -25,7 +25,7 @@ import type {
   Overlay1Visitor,
   RuleInstanceConfig,
 } from './visitors.js';
-import type { CollectFn } from './types.js';
+import type { CollectFn } from './utils/types.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore FIXME: remove this once we remove `theme` from the schema

@@ -1,16 +1,16 @@
 // Specialized OAS only bundle export for vite bundle
-import { BaseResolver } from './resolve.js';
-import { detectSpec } from './detect-spec.js';
-import { bundleDocument } from './bundle/bundle-document.js';
-import { Oas2Types } from './types/oas2.js';
-import { Oas3Types } from './types/oas3.js';
-import { Oas3_1Types } from './types/oas3_1.js';
-import { Oas3_2Types } from './types/oas3_2.js';
-import { Config } from './config/config.js';
+import { BaseResolver } from '../resolve.js';
+import { detectSpec } from '../detect-spec.js';
+import { bundleDocument } from './bundle-document.js';
+import { Oas2Types } from '../types/oas2.js';
+import { Oas3Types } from '../types/oas3.js';
+import { Oas3_1Types } from '../types/oas3_1.js';
+import { Oas3_2Types } from '../types/oas3_2.js';
+import { Config } from '../config/config.js';
 
-import type { NodeType } from './types/index.js';
-import type { Document } from './resolve.js';
-import type { CollectFn } from './types.js';
+import type { NodeType } from '../types/index.js';
+import type { Document } from '../resolve.js';
+import type { CollectFn } from '../utils/types.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;

@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { outdent } from 'outdent';
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { bundleDocument } from '../../../bundle/bundle-document.js';
-import { bundle } from '../../../bundle.js';
+import { bundle } from '../../../bundle/bundle.js';
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 import { Oas3Types } from '../../../index.js';

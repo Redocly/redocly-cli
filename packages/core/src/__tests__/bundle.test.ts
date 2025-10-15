@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundleDocument } from '../bundle/bundle-document.js';
-import { bundle, bundleFromString } from '../bundle.js';
+import { bundle, bundleFromString } from '../bundle/bundle.js';
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { createConfig, loadConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
