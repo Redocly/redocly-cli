@@ -1,5 +1,6 @@
 import { dequal } from '../../utils/dequal.js';
 import { isRef } from '../../ref-utils.js';
+import { areDuplicatedSchemas } from '../utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -38,8 +39,8 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
           });
         } else {
           // Check for duplicate schemas
-          const { isDuplicate, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
-          if (isDuplicate && duplicatedReason) {
+          const { isDuplicated, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
+          if (isDuplicated && duplicatedReason) {
             report({
               message: duplicatedReason,
               location,
@@ -448,29 +449,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
   }
 
   return { isExclusive: true };
-}
-
-function areDuplicatedSchemas(schemas: Array<Oas3Schema | Oas3_1Schema>): {
-  isDuplicate: boolean;
-  reason?: string;
-} {
-  const seen = new Map<string, number>();
-
-  for (let i = 0; i < schemas.length; i++) {
-    const schema = schemas[i];
-    const schemaStr = JSON.stringify(schema);
-
-    if (seen.has(schemaStr)) {
-      return {
-        isDuplicate: true,
-        reason: `Duplicate schema found in \`oneOf\` at positions ${seen.get(schemaStr)} and ${i}.`,
-      };
-    } else {
-      seen.set(schemaStr, i);
-    }
-  }
-
-  return { isDuplicate: false };
 }
 
 function areOneOfSchemasMutuallyExclusive(
