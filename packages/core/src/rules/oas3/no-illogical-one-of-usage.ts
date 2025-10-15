@@ -261,6 +261,18 @@ function arePropertySchemasMutuallyExclusive(
     }
   }
 
+  // Object property count constraints - check if ranges don't overlap
+  if (prop1.type === 'object' && prop2.type === 'object') {
+    const minProps1 = prop1.minProperties ?? 0;
+    const maxProps1 = prop1.maxProperties ?? Infinity;
+    const minProps2 = prop2.minProperties ?? 0;
+    const maxProps2 = prop2.maxProperties ?? Infinity;
+
+    if (rangesDoNotOverlap(minProps1, maxProps1, minProps2, maxProps2)) {
+      return { isExclusive: true };
+    }
+  }
+
   return { isExclusive: false };
 }
 
@@ -358,6 +370,26 @@ function areSignaturesMutuallyExclusive(
         reason: `Schemas have overlapping properties: ${ambiguousProperties.join(', ')}.`,
       };
     }
+
+    // Check if one schema requires properties that the other doesn't have at all
+    // This makes them mutually exclusive
+    if (sig1.required && sig1.required.size > 0) {
+      const requiredNotInSig2Properties = [...sig1.required].filter(
+        (prop) => !sig2.properties || !sig2.properties.has(prop)
+      );
+      if (requiredNotInSig2Properties.length > 0) {
+        return { isExclusive: true };
+      }
+    }
+
+    if (sig2.required && sig2.required.size > 0) {
+      const requiredNotInSig1Properties = [...sig2.required].filter(
+        (prop) => !sig1.properties || !sig1.properties.has(prop)
+      );
+      if (requiredNotInSig1Properties.length > 0) {
+        return { isExclusive: true };
+      }
+    }
   }
 
   // Array items check
@@ -368,6 +400,32 @@ function areSignaturesMutuallyExclusive(
         isExclusive: false,
         reason: reason || 'Array items are not mutually exclusive.',
       };
+    }
+  }
+
+  // additionalProperties check - schemas with conflicting additionalProperties settings
+  if (sig1.additionalProperties !== undefined || sig2.additionalProperties !== undefined) {
+    const addlProps1 = sig1.additionalProperties;
+    const addlProps2 = sig2.additionalProperties;
+
+    // If one explicitly disallows additional properties (false) and the other allows them (true or schema)
+    // AND they have overlapping required properties, this creates ambiguity
+    const allowsAdditional1 = addlProps1 !== false;
+    const allowsAdditional2 = addlProps2 !== false;
+
+    if (allowsAdditional1 !== allowsAdditional2) {
+      // Check if they have overlapping required properties
+      if (sig1.required && sig2.required) {
+        const requiredOverlap = [...sig1.required].filter((prop) => sig2.required!.has(prop));
+        if (requiredOverlap.length > 0) {
+          return {
+            isExclusive: false,
+            reason: `Schemas have conflicting additionalProperties settings with overlapping required properties: ${requiredOverlap.join(
+              ', '
+            )}.`,
+          };
+        }
+      }
     }
   }
 
@@ -405,6 +463,23 @@ function checkOneOfMutualExclusivity(
   resolve: UserContext['resolve'],
   parentSchema: Oas3Schema | Oas3_1Schema
 ): void {
+  // Check for empty schemas first - an empty schema {} accepts any value
+  for (let i = 0; i < schemas.length; i++) {
+    const schema = schemas[i];
+
+    // Skip $ref schemas - they're not empty
+    if (isRef(schema)) continue;
+
+    // Check if schema is empty (no properties defined)
+    const keys = Object.keys(schema);
+    if (keys.length === 0) {
+      report({
+        message: `Empty schema at position ${i} in \`oneOf\` matches all values and cannot be mutually exclusive.`,
+        location: location.child(['oneOf', i]),
+      });
+    }
+  }
+
   // Check for impossible nullable + oneOf with null type combination
   // This is a specific anti-pattern where the parent schema is nullable
   // AND one of the oneOf options is type: 'null', making it impossible to distinguish
