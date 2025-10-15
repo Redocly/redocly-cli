@@ -28,37 +28,36 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
         return !node.oneOf;
       },
       enter(schema: Oas3Schema | Oas3_1Schema, { report, location, resolve }: UserContext) {
-        if (schema.oneOf) {
-          if (!Array.isArray(schema.oneOf)) return;
+        if (!schema.oneOf) return;
+        if (!Array.isArray(schema.oneOf)) return;
 
-          if (schema.oneOf.length < 2) {
+        if (schema.oneOf.length < 2) {
+          report({
+            message: `Schema object \`oneOf\` should contain at least 2 schemas. Use the schema directly instead.`,
+            location: location.child(['oneOf']),
+          });
+        } else {
+          // Check for duplicate schemas
+          const { isDuplicate, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
+          if (isDuplicate && duplicatedReason) {
             report({
-              message: `Schema object \`oneOf\` should contain at least 2 schemas. Use the schema directly instead.`,
+              message: duplicatedReason,
+              location,
+            });
+          }
+
+          // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
+          const { isExclusive, reason: exclusivityReason } = areOneOfSchemasMutuallyExclusive(
+            schema.oneOf,
+            resolve,
+            schema
+          );
+
+          if (!isExclusive && exclusivityReason) {
+            report({
+              message: exclusivityReason,
               location: location.child(['oneOf']),
             });
-          } else {
-            // Check for duplicate schemas
-            const { isDuplicate, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
-            if (isDuplicate && duplicatedReason) {
-              report({
-                message: duplicatedReason,
-                location,
-              });
-            }
-
-            // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-            const { isExclusive, reason: exclusivityReason } = areOneOfSchemasMutuallyExclusive(
-              schema.oneOf,
-              resolve,
-              schema
-            );
-
-            if (!isExclusive && exclusivityReason) {
-              report({
-                message: exclusivityReason,
-                location: location.child(['oneOf']),
-              });
-            }
           }
         }
       },
