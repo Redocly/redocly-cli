@@ -222,6 +222,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-components-invalid-map-name': 'error',
     'tag-description': 'off',
     'tags-alphabetical': 'off',
+    'no-illogical-one-of-usage': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
