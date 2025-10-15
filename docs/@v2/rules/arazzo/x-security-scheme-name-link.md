@@ -1,6 +1,7 @@
 # x-security-scheme-name-link
 
-When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a link to a specific source description (for example, `$sourceDescriptions.{name}.scheme`). If there is only one source description, a plain string is allowed.
+When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a link to a specific source description (for example, `$sourceDescriptions.{name}.scheme`).
+If there is only one source description, a plain string is allowed.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -8,7 +9,8 @@ When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must 
 
 ## Design principles
 
-With multiple source descriptions, using a plain `schemeName` is ambiguous. Requiring a link of the form `$sourceDescriptions.{name}.scheme` disambiguates which source description provides the security scheme.
+With multiple source descriptions, using a plain `schemeName` is ambiguous.
+Requiring a link of the form `$sourceDescriptions.{name}.scheme` disambiguates which source description provides the security scheme.
 
 ## Configuration
 

@@ -8,7 +8,8 @@ Forbids using both `scheme` and `schemeName` in the same `x-security` item.
 
 ## Rationale
 
-A single `x-security` item must reference a security scheme in exactly one way: either by embedding the `scheme` object or by referencing it with `schemeName`. Having both is ambiguous and is rejected by the runtime.
+A single `x-security` item must reference a security scheme in exactly one way: either by embedding the `scheme` object or by referencing it with `schemeName`.
+Having both is ambiguous and is rejected by the runtime.
 
 ## Configuration
 
