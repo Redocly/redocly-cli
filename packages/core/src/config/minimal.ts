@@ -220,7 +220,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
-    'no-invalid-tag-parents': 'warn',
+    'spec-no-invalid-tag-parents': 'warn',
   },
   async2Rules: {
     'channels-kebab-case': 'off',

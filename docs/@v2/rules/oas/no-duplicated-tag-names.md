@@ -91,7 +91,7 @@ tags:
 
 ## Related rules
 
-- [no-invalid-tag-parents](./no-invalid-tag-parents.md)
+- [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources
 

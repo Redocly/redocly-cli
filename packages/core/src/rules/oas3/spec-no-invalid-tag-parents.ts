@@ -2,7 +2,7 @@ import type { Oas3Rule } from '../../visitors.js';
 import type { Oas3_2Tag } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-export const NoInvalidTagParents: Oas3Rule = () => {
+export const SpecNoInvalidTagParents: Oas3Rule = () => {
   let tags: Oas3_2Tag[];
   return {
     Root: {

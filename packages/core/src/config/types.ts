@@ -59,9 +59,9 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
 
   rules?: RuleMap<BuiltInCommonRuleId, RuleConfig, T>;
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
-  oas3_0Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'no-invalid-tag-parents'>, RuleConfig, T>;
+  oas3_0Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'spec-no-invalid-tag-parents'>, RuleConfig, T>;
   oas3_1Rules?: RuleMap<
-    Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling' | 'no-invalid-tag-parents'>,
+    Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling' | 'spec-no-invalid-tag-parents'>,
     RuleConfig,
     T
   >;

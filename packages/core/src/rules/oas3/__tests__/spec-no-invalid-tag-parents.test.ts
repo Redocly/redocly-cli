@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
 
-describe('Oas3.2 no-invalid-tag-parents', () => {
+describe('Oas3.2 spec-no-invalid-tag-parents', () => {
   it('should report on tag with undefined parent', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -25,7 +25,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'no-invalid-tag-parents': 'error' } }),
+      config: await createConfig({ rules: { 'spec-no-invalid-tag-parents': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -39,7 +39,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Tag parent 'products' is not defined in the API description.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },
@@ -52,7 +52,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Tag parent 'products' is not defined in the API description.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },
@@ -81,7 +81,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'no-invalid-tag-parents': 'error' } }),
+      config: await createConfig({ rules: { 'spec-no-invalid-tag-parents': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -116,7 +116,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'no-invalid-tag-parents': 'error' } }),
+      config: await createConfig({ rules: { 'spec-no-invalid-tag-parents': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -130,7 +130,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'foo'.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },
@@ -143,7 +143,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'bar'.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },
@@ -156,7 +156,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'baz'.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },
@@ -169,7 +169,7 @@ describe('Oas3.2 no-invalid-tag-parents', () => {
             },
           ],
           "message": "Circular reference detected in tag parent hierarchy for tag 'self'.",
-          "ruleId": "no-invalid-tag-parents",
+          "ruleId": "spec-no-invalid-tag-parents",
           "severity": "error",
           "suggest": [],
         },

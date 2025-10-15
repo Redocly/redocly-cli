@@ -241,7 +241,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
-    'no-invalid-tag-parents': 'error',
+    'spec-no-invalid-tag-parents': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',
