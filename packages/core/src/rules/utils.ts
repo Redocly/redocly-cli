@@ -218,3 +218,26 @@ export function validateResponseCodes(
 export function getTagName(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ignoreCase: boolean): string {
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
 }
+
+export function areDuplicatedSchemas(schemas: Array<Oas3Schema | Oas3_1Schema>): {
+  isDuplicated: boolean;
+  reason?: string;
+} {
+  const seen = new Map<string, number>();
+
+  for (let i = 0; i < schemas.length; i++) {
+    const schema = schemas[i];
+    const schemaStr = JSON.stringify(schema);
+
+    if (seen.has(schemaStr)) {
+      return {
+        isDuplicated: true,
+        reason: `Duplicate schema found in \`oneOf\` at positions ${seen.get(schemaStr)} and ${i}.`,
+      };
+    } else {
+      seen.set(schemaStr, i);
+    }
+  }
+
+  return { isDuplicated: false };
+}
