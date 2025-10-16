@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.6.0 (2025-10-16)
+
+### Minor Changes
+
+- Added new rules for validating OpenAPI 3.2 description files: `spec-no-invalid-tag-parents`, `spec-example-values`, `spec-discriminator-defaultMapping`, and `spec-no-invalid-encoding-combinations`.
+  Deprecated the `no-example-value-and-externalValue` rule in favor of `spec-example-values`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.6.0.
+
 ## 2.5.1 (2025-10-13)
 
 ### Patch Changes
