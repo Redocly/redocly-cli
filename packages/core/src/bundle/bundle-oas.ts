@@ -11,6 +11,8 @@ import { Config } from '../config/config.js';
 import type { NodeType } from '../types/index.js';
 import type { Document } from '../resolve.js';
 
+export { Source, Document } from '../resolve.js';
+
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
