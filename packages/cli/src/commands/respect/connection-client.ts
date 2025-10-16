@@ -56,7 +56,7 @@ export function withConnectionClientIfNeeded(mtlsCerts: MtlsCerts = {}) {
     return fetch;
   }
 
-  return function fetchWithMtls(input: string | URL | RequestInfo, init?: RequestInit) {
+  return function fetchWithDispatcher(input: string | URL | RequestInfo, init?: RequestInit) {
     const url = typeof input === 'string' ? input : 'url' in input ? input.url : input.toString();
 
     return fetch(input, {
