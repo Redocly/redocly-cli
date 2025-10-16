@@ -17,15 +17,15 @@ Disallow invalid media type examples by ensuring they comply with the correspond
 flowchart TD
 
 Root ==> Paths --> PathItem --> Operation --> MediaType --> Example
-MediaType --> Examples --> Example
+                                              MediaType --> Examples --> Example
 
 Root ==> components
-
-NamedExamples --> Example
 
 subgraph components
 NamedExamples
 end
+
+NamedExamples --> Example
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
