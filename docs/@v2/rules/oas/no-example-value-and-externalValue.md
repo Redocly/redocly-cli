@@ -32,8 +32,6 @@ NamedExamples
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-style NamedExamples fill:#codaf9,stroke:#0044d4,stroke-width:5px
-
 ```
 
 ## API design principles
