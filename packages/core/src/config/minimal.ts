@@ -266,7 +266,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'warn',
     'no-enum-type-mismatch': 'warn',
     'no-schema-type-mismatch': 'warn',
-    'x-security-scheme-name-link': 'off',
+    'x-security-scheme-name-reference': 'off',
     'no-x-security-both-scheme-and-scheme-name': 'off',
   },
   overlay1Rules: {

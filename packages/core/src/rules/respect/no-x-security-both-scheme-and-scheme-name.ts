@@ -1,3 +1,5 @@
+import { getOwn } from '../../utils.js';
+
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import type { ExtendedSecurity } from '../../typings/arazzo.js';
@@ -10,10 +12,8 @@ export const NoXSecurityBothSchemeAndSchemeName: Arazzo1Rule = () => {
     if (!Array.isArray(extendedSecurity)) return;
 
     for (const security of extendedSecurity) {
-      if (!security || typeof security !== 'object') continue;
-
-      const hasScheme = Object.prototype.hasOwnProperty.call(security, 'scheme');
-      const hasSchemeName = Object.prototype.hasOwnProperty.call(security, 'schemeName');
+      const hasScheme = getOwn(security, 'scheme');
+      const hasSchemeName = getOwn(security, 'schemeName');
 
       if (hasScheme && hasSchemeName) {
         report({

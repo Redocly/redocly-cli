@@ -4,8 +4,8 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
 
-describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
-  it('should report when both scheme and schemeName are provided at workflow level', async () => {
+describe('Arazzo x-security-scheme-name-reference', () => {
+  it('should report when multiple sourceDescriptions exist and schemeName is a plain string', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -16,13 +16,13 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
           - name: museum-api
             type: openapi
             url: openapi.yaml
+          - name: pets-api
+            type: openapi
+            url: pets.yaml
         workflows:
           - workflowId: get-museum-hours
             x-security:
-              - scheme:
-                  type: http
-                  scheme: bearer
-                schemeName: MuseumPlaceholderAuth
+              - schemeName: MuseumPlaceholderAuth
                 values:
                   token: some-token
             steps:
@@ -36,7 +36,7 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-x-security-both-scheme-and-scheme-name': 'error' },
+        rules: { 'x-security-scheme-name-reference': 'error' },
       }),
     });
 
@@ -45,13 +45,13 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
         {
           "location": [
             {
-              "pointer": "#/workflows/0/x-security/0",
+              "pointer": "#/workflows/0/x-security/0/schemeName",
               "reportOnKey": false,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "\`x-security\` item must not contain both \`scheme\` and \`schemeName\`.",
-          "ruleId": "no-x-security-both-scheme-and-scheme-name",
+          "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{scheme}\`)",
+          "ruleId": "x-security-scheme-name-reference",
           "severity": "error",
           "suggest": [],
         },
@@ -59,7 +59,7 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
     `);
   });
 
-  it('should report when both scheme and schemeName are provided at step level', async () => {
+  it('should not report when multiple sourceDescriptions exist and schemeName is a valid reference', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -70,66 +70,13 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
           - name: museum-api
             type: openapi
             url: openapi.yaml
-        workflows:
-          - workflowId: get-museum-hours
-            steps:
-              - stepId: s1
-                operationId: museum-api.getMuseumHours
-                x-security:
-                  - scheme:
-                      type: http
-                      scheme: bearer
-                    schemeName: MuseumPlaceholderAuth
-                    values:
-                      token: some-token
-      `,
-      'arazzo.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({
-        rules: { 'no-x-security-both-scheme-and-scheme-name': 'error' },
-      }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/workflows/0/steps/0/x-security/0",
-              "reportOnKey": false,
-              "source": "arazzo.yaml",
-            },
-          ],
-          "message": "\`x-security\` item must not contain both \`scheme\` and \`schemeName\`.",
-          "ruleId": "no-x-security-both-scheme-and-scheme-name",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
-  it('should not report when only scheme is provided', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        arazzo: '1.0.1'
-        info:
-          title: Cool API
-          version: 1.0.0
-        sourceDescriptions:
-          - name: museum-api
+          - name: pets-api
             type: openapi
-            url: openapi.yaml
+            url: pets.yaml
         workflows:
           - workflowId: get-museum-hours
             x-security:
-              - scheme:
-                  type: http
-                  scheme: bearer
+              - schemeName: $sourceDescriptions.museum-api.MuseumPlaceholderAuth
                 values:
                   token: some-token
             steps:
@@ -143,14 +90,14 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-x-security-both-scheme-and-scheme-name': 'error' },
+        rules: { 'x-security-scheme-name-reference': 'error' },
       }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should not report when only schemeName is provided', async () => {
+  it('should not report when only one sourceDescription exists and schemeName is a plain string', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
@@ -178,7 +125,7 @@ describe('Arazzo no-x-security-both-scheme-and-schemeName', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-x-security-both-scheme-and-scheme-name': 'error' },
+        rules: { 'x-security-scheme-name-reference': 'error' },
       }),
     });
 

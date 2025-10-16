@@ -48,7 +48,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
       'respect-supported-versions': 'warn',
       'no-x-security-scheme-name-without-openapi': 'error',
       'x-security-scheme-required-values': 'error',
-      'x-security-scheme-name-link': 'error',
+      'x-security-scheme-name-reference': 'error',
       'no-x-security-both-scheme-and-scheme-name': 'error',
     },
   });

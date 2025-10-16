@@ -1,6 +1,8 @@
 import { resolveSecurityScheme } from '../../flow-runner/resolve-security-scheme.js';
 
 import type { TestContext, ExtendedSecurity } from '../../../types.js';
+import { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import { OperationDetails } from '../../description-parser/get-operation-from-description.js';
 
 describe('resolveSecurityScheme', () => {
   const ctx = {
@@ -19,18 +21,19 @@ describe('resolveSecurityScheme', () => {
   it('should return inline scheme when provided directly', () => {
     const scheme = resolveSecurityScheme({
       ctx,
-      security: { scheme: { type: 'http', scheme: 'bearer' } } as ExtendedSecurity,
+      security: { scheme: { type: 'http', scheme: 'bearer' }, values: {} },
     });
 
     expect(scheme).toEqual({ type: 'http', scheme: 'bearer' });
   });
 
-  it('should resolve scheme by schemeName link from $sourceDescriptions', () => {
+  it('should resolve scheme by schemeName reference from $sourceDescriptions', () => {
     const scheme = resolveSecurityScheme({
       ctx,
       security: {
         schemeName: '$sourceDescriptions.museum-api.MuseumPlaceholderAuth',
-      } as ExtendedSecurity,
+        values: {},
+      },
     });
 
     expect(scheme).toEqual({ type: 'http', scheme: 'basic' });
@@ -41,11 +44,11 @@ describe('resolveSecurityScheme', () => {
       securitySchemes: {
         ApiKeyAuth: { type: 'apiKey', in: 'query', name: 'api_key' },
       },
-    } as any;
+    } as unknown as OperationDetails & { securitySchemes?: Record<string, Oas3SecurityScheme> };
 
     const scheme = resolveSecurityScheme({
       ctx,
-      security: { schemeName: 'ApiKeyAuth' } as ExtendedSecurity,
+      security: { schemeName: 'ApiKeyAuth', values: {} },
       operation,
     });
 

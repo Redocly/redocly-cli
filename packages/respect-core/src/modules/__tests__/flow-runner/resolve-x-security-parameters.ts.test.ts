@@ -194,7 +194,7 @@ describe('resolveXSecurityParameters', () => {
     const ctxWithSources = {
       ...ctx,
       $sourceDescriptions: { 'museum-api': { components: { securitySchemes: {} } } },
-    } as TestContext;
+    };
 
     expect(() => resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })).toThrow(
       'Security scheme "$sourceDescriptions.museum-api.Missing" not found'

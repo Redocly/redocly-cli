@@ -23,10 +23,8 @@ export function resolveSecurityScheme({
 
   if (typeof schemeName === 'string' && schemeName.startsWith('$sourceDescriptions.')) {
     const [_, sourceName, schemeKey] = schemeName.split('.');
-    const src = sourceName && ctx.$sourceDescriptions[sourceName];
-    const schemes = src?.components?.securitySchemes as
-      | Record<string, Oas3SecurityScheme>
-      | undefined;
+    const sourceDescription = sourceName && ctx.$sourceDescriptions[sourceName];
+    const schemes = sourceDescription?.components?.securitySchemes;
 
     return schemeKey && schemes ? schemes[schemeKey] : undefined;
   }
