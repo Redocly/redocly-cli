@@ -223,7 +223,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'off',
     'spec-no-invalid-tag-parents': 'warn',
     'no-invalid-encoding-combinations': 'warn',
-    'discriminator-defaultMapping': 'off',
+    'spec-discriminator-defaultMapping': 'off',
     'spec-example-values': 'off',
   },
   async2Rules: {

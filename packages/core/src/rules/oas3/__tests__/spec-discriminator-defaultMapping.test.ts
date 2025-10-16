@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 
-describe('discriminator-defaultMapping', () => {
+describe('spec-discriminator-defaultMapping', () => {
   it('should pass when optional propertyName has defaultMapping', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -32,7 +32,7 @@ describe('discriminator-defaultMapping', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'discriminator-defaultMapping': 'error' } }),
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -65,7 +65,7 @@ describe('discriminator-defaultMapping', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'discriminator-defaultMapping': 'error' } }),
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
@@ -96,7 +96,7 @@ describe('discriminator-defaultMapping', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'discriminator-defaultMapping': 'error' } }),
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -110,7 +110,7 @@ describe('discriminator-defaultMapping', () => {
             },
           ],
           "message": "Discriminator with optional property 'test' must include a defaultMapping field.",
-          "ruleId": "discriminator-defaultMapping",
+          "ruleId": "spec-discriminator-defaultMapping",
           "severity": "error",
           "suggest": [],
         },
@@ -144,7 +144,7 @@ describe('discriminator-defaultMapping', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'discriminator-defaultMapping': 'error' } }),
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -158,7 +158,7 @@ describe('discriminator-defaultMapping', () => {
             },
           ],
           "message": "defaultMapping value 'TypeB' does not point to an existing schema component.",
-          "ruleId": "discriminator-defaultMapping",
+          "ruleId": "spec-discriminator-defaultMapping",
           "severity": "error",
           "suggest": [],
         },

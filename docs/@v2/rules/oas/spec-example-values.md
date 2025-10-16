@@ -31,7 +31,6 @@ NamedSchemas
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-
 ```
 
 ## API design principles
@@ -112,7 +111,7 @@ components:
 - [struct](../common/struct.md)
 - [no-example-value-and-externalValue](./no-example-value-and-externalValue.md)
 - [no-invalid-encoding-combinations](./no-invalid-encoding-combinations.md)
-- [discriminator-defaultMapping](./discriminator-defaultMapping.md)
+- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md)
 - [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources

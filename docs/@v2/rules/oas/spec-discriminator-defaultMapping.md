@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/oas/discriminator-default-mapping
+slug: /docs/cli/rules/oas/spec-discriminator-defaultMapping
 ---
 
-# discriminator-default-mapping
+# spec-discriminator-defaultMapping
 
 Ensures that discriminator objects with optional `propertyName` include a `defaultMapping` field as required by the OpenAPI 3.2.0 specification.
 
@@ -42,7 +42,7 @@ An example configuration:
 
 ```yaml
 rules:
-  discriminator-default-mapping: warn
+  spec-discriminator-defaultMapping: warn
 ```
 
 ## Examples
@@ -51,7 +51,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  discriminator-default-mapping: warn
+  spec-discriminator-defaultMapping: warn
 ```
 
 Example of an **incorrect** discriminator object:
@@ -100,5 +100,5 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/discriminator-defaultMapping.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-discriminator-defaultMapping.ts)
 - [Discriminator object docs](https://redocly.com/docs/openapi-visual-reference/discriminator/)

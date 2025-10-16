@@ -116,7 +116,7 @@ const builtInOAS3Rules = [
   'nullable-type-sibling',
   'spec-no-invalid-tag-parents',
   'no-invalid-encoding-combinations',
-  'discriminator-defaultMapping',
+  'spec-discriminator-defaultMapping',
   'spec-example-values',
 ] as const;
 

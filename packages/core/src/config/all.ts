@@ -244,7 +244,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'error',
     'spec-no-invalid-tag-parents': 'error',
     'no-invalid-encoding-combinations': 'error',
-    'discriminator-defaultMapping': 'error',
+    'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
   },
   async2Rules: {

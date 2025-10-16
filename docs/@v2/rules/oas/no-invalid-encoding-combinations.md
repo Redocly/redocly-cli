@@ -109,7 +109,7 @@ requestBody:
 
 - [struct](../common/struct.md)
 - [spec-example-values](./spec-example-values.md)
-- [discriminator-default-mapping](./discriminator-default-mapping.md)
+- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md)
 - [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources

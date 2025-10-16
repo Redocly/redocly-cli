@@ -223,7 +223,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'spec-no-invalid-tag-parents': 'error',
     'no-invalid-encoding-combinations': 'error',
-    'discriminator-defaultMapping': 'error',
+    'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
   },
   async2Rules: {

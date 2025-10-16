@@ -7,7 +7,7 @@ slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
 {% admonition type="warning" name="Deprecated" %}
-This rule is deprecated in favor of[ `spec-example-values`](../oas/spec-example-values.md).
+This rule is deprecated in favor of [`spec-example-values`](../oas/spec-example-values.md).
 {% /admonition %}
 
 | OAS | Compatibility |

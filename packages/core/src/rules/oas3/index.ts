@@ -57,7 +57,7 @@ import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NullableTypeSibling } from './nullable-type-sibling.js';
 import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { NoInvalidEncodingCombinations } from './no-invalid-encoding-combinations.js';
-import { DiscriminatorDefaultMapping } from './discriminator-defaultMapping.js';
+import { SpecDiscriminatorDefaultMapping } from './spec-discriminator-defaultMapping.js';
 import { SpecExampleValues } from './spec-example-values.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
@@ -124,7 +124,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'nullable-type-sibling': NullableTypeSibling,
   'spec-no-invalid-tag-parents': SpecNoInvalidTagParents,
   'no-invalid-encoding-combinations': NoInvalidEncodingCombinations,
-  'discriminator-defaultMapping': DiscriminatorDefaultMapping,
+  'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
 };
 
