@@ -81,30 +81,60 @@ function hasNullableType(schema: Oas3Schema | Oas3_1Schema): boolean {
 }
 
 // Helper to get effective minimum/maximum bounds for numeric constraints
-function getEffectiveBounds(prop: SchemaSignature): { min: number; max: number } {
+function getEffectiveBounds(prop: SchemaSignature): {
+  min: number;
+  max: number;
+  minExclusive: boolean;
+  maxExclusive: boolean;
+} {
   let min = prop.minimum !== undefined ? prop.minimum : -Infinity;
   let max = prop.maximum !== undefined ? prop.maximum : Infinity;
+  let minExclusive = false;
+  let maxExclusive = false;
 
   // Handle exclusiveMinimum
-  // OAS 3.0: boolean flag (uses minimum value if true, already set above)
+  // OAS 3.0: boolean flag (if true, the boundary is exclusive)
   // OAS 3.1: numeric value that replaces the minimum
   if (typeof prop.exclusiveMinimum === 'number') {
+    // OAS 3.1 style: exclusiveMinimum is the actual exclusive minimum value
     min = prop.exclusiveMinimum;
+    minExclusive = true;
+  } else if (prop.exclusiveMinimum === true && prop.minimum !== undefined) {
+    // OAS 3.0 style: exclusiveMinimum is a boolean
+    minExclusive = true;
   }
 
   // Handle exclusiveMaximum
-  // OAS 3.0: boolean flag (uses maximum value if true, already set above)
+  // OAS 3.0: boolean flag (if true, the boundary is exclusive)
   // OAS 3.1: numeric value that replaces the maximum
   if (typeof prop.exclusiveMaximum === 'number') {
+    // OAS 3.1 style: exclusiveMaximum is the actual exclusive maximum value
     max = prop.exclusiveMaximum;
+    maxExclusive = true;
+  } else if (prop.exclusiveMaximum === true && prop.maximum !== undefined) {
+    // OAS 3.0 style: exclusiveMaximum is a boolean
+    maxExclusive = true;
   }
 
-  return { min, max };
+  return { min, max, minExclusive, maxExclusive };
 }
 
 // Helper to check if two ranges don't overlap
-function rangesDoNotOverlap(min1: number, max1: number, min2: number, max2: number): boolean {
+function rangesDoNotOverlap(
+  min1: number,
+  max1: number,
+  min2: number,
+  max2: number,
+  max1Exclusive: boolean = false,
+  min2Exclusive: boolean = false
+): boolean {
   // Non-overlapping if: max1 < min2 OR max2 < min1
+  // For exclusive boundaries at the same value, they don't overlap
+  // E.g., max1=50 (exclusive) and min2=50 (inclusive) don't overlap
+  if (max1Exclusive && !min2Exclusive) {
+    // max1 is exclusive, so max1 <= min2 means no overlap
+    return max1 <= min2 || max2 < min1;
+  }
   return max1 < min2 || max2 < min1;
 }
 
@@ -236,7 +266,16 @@ function arePropertySchemasMutuallyExclusive(
     const bounds1 = getEffectiveBounds(prop1);
     const bounds2 = getEffectiveBounds(prop2);
 
-    if (rangesDoNotOverlap(bounds1.min, bounds1.max, bounds2.min, bounds2.max)) {
+    if (
+      rangesDoNotOverlap(
+        bounds1.min,
+        bounds1.max,
+        bounds2.min,
+        bounds2.max,
+        bounds1.maxExclusive,
+        bounds2.minExclusive
+      )
+    ) {
       return { isExclusive: true };
     }
   }
@@ -256,13 +295,23 @@ function arePropertySchemasMutuallyExclusive(
     // Note: Full regex overlap detection is complex, so we do simple heuristics
     if (prop1.pattern && prop2.pattern && prop1.pattern !== prop2.pattern) {
       // Check for some obvious non-overlapping patterns
+      // Match patterns like ^[0-9] or [0-9] at the start
       const numericPattern = /^\^?\[0-9\]/;
+      // Match patterns like ^[a-z], ^[A-Z], ^[a-zA-Z] at the start
       const alphaPattern = /^\^?\[a-zA-Z\]/;
+      const lowerAlphaPattern = /^\^?\[a-z\]/;
+      const upperAlphaPattern = /^\^?\[A-Z\]/;
 
       const isNumeric1 = numericPattern.test(prop1.pattern);
       const isNumeric2 = numericPattern.test(prop2.pattern);
-      const isAlpha1 = alphaPattern.test(prop1.pattern);
-      const isAlpha2 = alphaPattern.test(prop2.pattern);
+      const isAlpha1 =
+        alphaPattern.test(prop1.pattern) ||
+        lowerAlphaPattern.test(prop1.pattern) ||
+        upperAlphaPattern.test(prop1.pattern);
+      const isAlpha2 =
+        alphaPattern.test(prop2.pattern) ||
+        lowerAlphaPattern.test(prop2.pattern) ||
+        upperAlphaPattern.test(prop2.pattern);
 
       // If one is numeric-only and other is alpha-only, they're mutually exclusive
       if ((isNumeric1 && isAlpha2) || (isAlpha1 && isNumeric2)) {
@@ -343,7 +392,7 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
       }
 
       // If all overlapping properties have mutually exclusive values, schemas are not ambiguous
-      if (ambiguousProperties.length === 0) {
+      if (ambiguousProperties.length === 0 && mutuallyExclusiveProperties.length > 0) {
         return { isExclusive: true };
       }
 
