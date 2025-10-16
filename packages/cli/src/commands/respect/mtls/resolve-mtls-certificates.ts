@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { MtlsCerts } from './connection-client.js';
+import type { MtlsCerts } from '../connection-client.js';
 
 export function resolveMtlsCertificates(
   mtlsCertificates: Partial<MtlsCerts> = {},

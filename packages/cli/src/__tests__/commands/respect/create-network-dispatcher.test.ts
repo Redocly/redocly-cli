@@ -1,5 +1,5 @@
 import { ProxyAgent } from 'undici';
-import { createNetworkDispatcher } from '../../../../commands/respect/mtls/connection-client.js';
+import { createNetworkDispatcher } from '../../../commands/respect/connection-client.js';
 
 describe('createNetworkDispatcher', () => {
   it('should create a client with the correct certificates', () => {
