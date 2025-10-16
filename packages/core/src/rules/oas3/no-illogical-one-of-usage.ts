@@ -513,7 +513,9 @@ function areOneOfSchemasMutuallyExclusive(
     if (keys.length === 0) {
       return {
         isExclusive: false,
-        reason: `Empty schema at position ${i} in \`oneOf\` matches all values and cannot be mutually exclusive.`,
+        reason: `Empty schema at position ${
+          i + 1
+        } in \`oneOf\` matches all values and cannot be mutually exclusive.`,
       };
     }
   }
@@ -566,9 +568,9 @@ function areOneOfSchemasMutuallyExclusive(
       return `\`${schema.$ref}\``;
     }
     if (schema.title) {
-      return `\`${schema.title}\` (position ${index})`;
+      return `\`${schema.title}\` (position ${index + 1})`;
     }
-    return `position ${index}`;
+    return `at position ${index + 1}`;
   };
 
   // Check for ambiguous combinations - collect all non-exclusive pairs
