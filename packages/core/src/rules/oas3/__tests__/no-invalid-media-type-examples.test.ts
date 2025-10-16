@@ -594,7 +594,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
                       examples:
                         first:
-                          externalValue: "https://example.com/example.json"
+                          externalValue: https://localhost/example.json
                           value:
                             a: "A"
                             b: 0
@@ -631,7 +631,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
                       examples:
                         first:
-                          externalValue: "https://example.com/example.json"
+                          externalValue: https://localhost/example.json
                           value:
                             a: 0
                             b: "0"

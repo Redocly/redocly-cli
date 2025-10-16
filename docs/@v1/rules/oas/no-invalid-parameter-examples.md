@@ -20,12 +20,12 @@ PathItem --> Parameter
 Parameter --> Schema
 Root ==> components
 
-NamedParameter --> Parameter
+NamedParameters --> Parameter
 
 Schema -.compares schema\nto example.- Example
 
 subgraph components
-NamedParameter
+NamedParameters
 end
 
 

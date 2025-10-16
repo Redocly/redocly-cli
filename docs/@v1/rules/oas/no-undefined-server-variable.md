@@ -15,7 +15,7 @@ Disallow undefined server variables.
 ```mermaid
 flowchart TD
 
-root ==> ServersList --> Server --> ServerVariable
+Root ==> ServersList --> Server --> ServerVariable
 
 style ServerVariable fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

@@ -6,12 +6,16 @@ slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
+{% admonition type="warning" name="Deprecated" %}
+This rule is deprecated in favor of [`spec-example-values`](../oas/spec-example-values.md).
+{% /admonition %}
+
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ❌            |
 | 3.0 | ✅            |
 | 3.1 | ✅            |
-| 3.2 | ✅            |
+| 3.2 | ❌            |
 
 ```mermaid
 flowchart TD
@@ -20,16 +24,14 @@ Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
 Operation --> Responses --> MediaType
-NamedExample --> Example
+NamedExamples --> Example
 Root ==> components
 
 subgraph components
-NamedExample
+NamedExamples
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-style NamedExample fill:#codaf9,stroke:#0044d4,stroke-width:5px
-
 ```
 
 ## API design principles
@@ -72,11 +74,11 @@ requestBody:
         foo:
           summary: A foo example
           value: {"foo": "bar"}
-          externalValue: 'https://example.org/examples/foo-example.xml'
+          externalValue: https://example.org/examples/foo-example.xml
         bar:
           summary: A bar example
           value: {"bar": "baz"}
-          externalValue: 'https://example.org/examples/bar-example.xml'
+          externalValue: https://example.org/examples/bar-example.xml
 ```
 
 Example of a **correct** example object:
@@ -93,13 +95,14 @@ requestBody:
           value: {"foo": "bar"}
         bar:
           summary: A bar example
-          externalValue: 'https://example.org/examples/address-example.xml'
+          externalValue: https://example.org/examples/address-example.xml
 ```
 
 ## Related rules
 
 - [configurable rules](../configurable-rules.md)
 - [struct](../common/struct.md)
+- [spec-example-values](./spec-example-values.md)
 
 ## Resources
 

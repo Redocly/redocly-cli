@@ -29,9 +29,9 @@ According to the OpenAPI specification:
 ```mermaid
 flowchart TD
 
-root ==> Paths
+Root ==> Paths
 
-root ==> components
+Root ==> components
 
 style Paths fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

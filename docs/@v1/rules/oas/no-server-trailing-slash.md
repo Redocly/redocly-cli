@@ -15,7 +15,7 @@ Disallow servers with a trailing slash.
 ```mermaid
 flowchart TD
 
-root ==> ServersList
+Root ==> ServersList
 
 style ServersList fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

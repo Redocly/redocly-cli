@@ -17,7 +17,7 @@ The rule checks for all URL schemes (`http`, `https`...).
 ```mermaid
 flowchart TD
 
-root ==> ServersList
+Root ==> ServersList
 
 style ServersList fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

@@ -177,7 +177,7 @@ const MediaType: NodeType = {
   properties: {
     ...Oas3_1Types.MediaType.properties,
     itemSchema: 'Schema',
-    prefixEncodingList: listOf('Encoding'),
+    prefixEncoding: listOf('Encoding'),
     itemEncoding: 'Encoding',
   },
 };
