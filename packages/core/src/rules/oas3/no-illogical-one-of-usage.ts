@@ -23,6 +23,13 @@ type ReturnType = {
   reasons?: string[];
 };
 
+type RangeBounds = {
+  min: number;
+  max: number;
+  minExclusive: boolean;
+  maxExclusive: boolean;
+};
+
 export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
@@ -73,12 +80,7 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
 };
 
 // Helper to get effective minimum/maximum bounds for numeric constraints
-function getEffectiveBounds(prop: SchemaSignature): {
-  min: number;
-  max: number;
-  minExclusive: boolean;
-  maxExclusive: boolean;
-} {
+function getEffectiveBounds(prop: SchemaSignature): RangeBounds {
   let min = prop.minimum !== undefined ? prop.minimum : -Infinity;
   let max = prop.maximum !== undefined ? prop.maximum : Infinity;
   let minExclusive = false;
@@ -109,6 +111,158 @@ function getEffectiveBounds(prop: SchemaSignature): {
   }
 
   return { min, max, minExclusive, maxExclusive };
+}
+
+// Unified function to check if two ranges overlap
+function doRangesOverlap(bounds1: RangeBounds, bounds2: RangeBounds): boolean {
+  const {
+    min: min1,
+    max: max1,
+    minExclusive: min1Exclusive,
+    maxExclusive: max1Exclusive,
+  } = bounds1;
+  const {
+    min: min2,
+    max: max2,
+    minExclusive: min2Exclusive,
+    maxExclusive: max2Exclusive,
+  } = bounds2;
+
+  // Ranges overlap if they are NOT completely separated
+  // Range1 is completely before range2 if:
+  const range1BeforeRange2 = (() => {
+    if (max1Exclusive && min2Exclusive) {
+      return max1 <= min2;
+    } else if (max1Exclusive || min2Exclusive) {
+      return max1 <= min2;
+    } else {
+      return max1 < min2;
+    }
+  })();
+
+  // Range2 is completely before range1 if:
+  const range2BeforeRange1 = (() => {
+    if (max2Exclusive && min1Exclusive) {
+      return max2 <= min1;
+    } else if (max2Exclusive || min1Exclusive) {
+      return max2 <= min1;
+    } else {
+      return max2 < min1;
+    }
+  })();
+
+  // Ranges overlap if neither is completely before the other
+  return !range1BeforeRange2 && !range2BeforeRange1;
+}
+
+// Helper to check range constraints for any type
+function checkRangeConstraints(
+  prop1: SchemaSignature,
+  prop2: SchemaSignature,
+  type: 'numeric' | 'string' | 'array' | 'object'
+): ReturnType | null {
+  let hasConstraints1 = false;
+  let hasConstraints2 = false;
+  let bounds1: RangeBounds;
+  let bounds2: RangeBounds;
+  let errorMessage = '';
+
+  switch (type) {
+    case 'numeric':
+      hasConstraints1 =
+        prop1.minimum !== undefined ||
+        prop1.maximum !== undefined ||
+        prop1.exclusiveMinimum !== undefined ||
+        prop1.exclusiveMaximum !== undefined;
+      hasConstraints2 =
+        prop2.minimum !== undefined ||
+        prop2.maximum !== undefined ||
+        prop2.exclusiveMinimum !== undefined ||
+        prop2.exclusiveMaximum !== undefined;
+
+      if (hasConstraints1 || hasConstraints2) {
+        bounds1 = getEffectiveBounds(prop1);
+        bounds2 = getEffectiveBounds(prop2);
+        errorMessage = 'Schemas have overlapping numeric ranges.';
+      }
+      break;
+
+    case 'string':
+      hasConstraints1 = prop1.minLength !== undefined || prop1.maxLength !== undefined;
+      hasConstraints2 = prop2.minLength !== undefined || prop2.maxLength !== undefined;
+
+      if (hasConstraints1 || hasConstraints2) {
+        bounds1 = {
+          min: prop1.minLength ?? 0,
+          max: prop1.maxLength ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        bounds2 = {
+          min: prop2.minLength ?? 0,
+          max: prop2.maxLength ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        errorMessage = 'Schemas have overlapping string length ranges.';
+      }
+      break;
+
+    case 'array':
+      hasConstraints1 = prop1.minItems !== undefined || prop1.maxItems !== undefined;
+      hasConstraints2 = prop2.minItems !== undefined || prop2.maxItems !== undefined;
+
+      if (hasConstraints1 || hasConstraints2) {
+        bounds1 = {
+          min: prop1.minItems ?? 0,
+          max: prop1.maxItems ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        bounds2 = {
+          min: prop2.minItems ?? 0,
+          max: prop2.maxItems ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        errorMessage = 'Schemas have overlapping array item count ranges.';
+      }
+      break;
+
+    case 'object':
+      hasConstraints1 = prop1.minProperties !== undefined || prop1.maxProperties !== undefined;
+      hasConstraints2 = prop2.minProperties !== undefined || prop2.maxProperties !== undefined;
+
+      if (hasConstraints1 || hasConstraints2) {
+        bounds1 = {
+          min: prop1.minProperties ?? 0,
+          max: prop1.maxProperties ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        bounds2 = {
+          min: prop2.minProperties ?? 0,
+          max: prop2.maxProperties ?? Infinity,
+          minExclusive: false,
+          maxExclusive: false,
+        };
+        errorMessage = 'Schemas have overlapping property count ranges.';
+      }
+      break;
+  }
+
+  if (hasConstraints1 || hasConstraints2) {
+    if (doRangesOverlap(bounds1!, bounds2!)) {
+      return {
+        isExclusive: false,
+        reason: errorMessage,
+      };
+    }
+    // If ranges don't overlap, they're mutually exclusive
+    return { isExclusive: true };
+  }
+
+  return null;
 }
 
 function createSchemaSignature(
@@ -231,65 +385,21 @@ function arePropertySchemasMutuallyExclusive(
     }
   }
 
-  // Helper to check if two ranges don't overlap
-  const rangesDoNotOverlap = (
-    min1: number,
-    max1: number,
-    min2: number,
-    max2: number,
-    max1Exclusive: boolean = false,
-    min2Exclusive: boolean = false
-  ): boolean => {
-    // Non-overlapping if: max1 < min2 OR max2 < min1
-    // For exclusive boundaries at the same value, they don't overlap
-    // E.g., max1=50 (exclusive) and min2=50 (inclusive) don't overlap
-    if (max1Exclusive && !min2Exclusive) {
-      // max1 is exclusive, so max1 <= min2 means no overlap
-      return max1 <= min2 || max2 < min1;
-    }
-    return max1 < min2 || max2 < min1;
-  };
-
-  // Numeric range constraints - check if ranges don't overlap
-  if (
-    (prop1.type === 'number' || prop1.type === 'integer') &&
-    (prop2.type === 'number' || prop2.type === 'integer')
-  ) {
-    const bounds1 = getEffectiveBounds(prop1);
-    const bounds2 = getEffectiveBounds(prop2);
-
-    if (
-      rangesDoNotOverlap(
-        bounds1.min,
-        bounds1.max,
-        bounds2.min,
-        bounds2.max,
-        bounds1.maxExclusive,
-        bounds2.minExclusive
-      )
-    ) {
-      return { isExclusive: true };
+  // Check range constraints using unified function
+  if (prop1.type === 'number' || prop1.type === 'integer') {
+    if (prop2.type === 'number' || prop2.type === 'integer') {
+      const rangeResult = checkRangeConstraints(prop1, prop2, 'numeric');
+      if (rangeResult) return rangeResult;
     }
   }
 
-  // String length constraints - check if ranges don't overlap
   if (prop1.type === 'string' && prop2.type === 'string') {
-    const minLen1 = prop1.minLength ?? 0;
-    const maxLen1 = prop1.maxLength ?? Infinity;
-    const minLen2 = prop2.minLength ?? 0;
-    const maxLen2 = prop2.maxLength ?? Infinity;
-
-    if (rangesDoNotOverlap(minLen1, maxLen1, minLen2, maxLen2)) {
-      return { isExclusive: true };
-    }
+    const rangeResult = checkRangeConstraints(prop1, prop2, 'string');
+    if (rangeResult) return rangeResult;
 
     // Pattern constraints - basic check if patterns are obviously different
-    // Note: Full regex overlap detection is complex, so we do simple heuristics
     if (prop1.pattern && prop2.pattern && prop1.pattern !== prop2.pattern) {
-      // Check for some obvious non-overlapping patterns
-      // Match patterns like ^[0-9] or [0-9] at the start
       const numericPattern = /^\^?\[0-9\]/;
-      // Match patterns like ^[a-z], ^[A-Z], ^[a-zA-Z] at the start
       const alphaPattern = /^\^?\[a-zA-Z\]/;
       const lowerAlphaPattern = /^\^?\[a-z\]/;
       const upperAlphaPattern = /^\^?\[A-Z\]/;
@@ -312,38 +422,40 @@ function arePropertySchemasMutuallyExclusive(
     }
   }
 
-  // Array length constraints - check if ranges don't overlap
   if (prop1.type === 'array' && prop2.type === 'array') {
-    const minItems1 = prop1.minItems ?? 0;
-    const maxItems1 = prop1.maxItems ?? Infinity;
-    const minItems2 = prop2.minItems ?? 0;
-    const maxItems2 = prop2.maxItems ?? Infinity;
-
-    if (rangesDoNotOverlap(minItems1, maxItems1, minItems2, maxItems2)) {
-      return { isExclusive: true };
-    }
+    const rangeResult = checkRangeConstraints(prop1, prop2, 'array');
+    if (rangeResult) return rangeResult;
   }
 
-  // Object property count constraints - check if ranges don't overlap
   if (prop1.type === 'object' && prop2.type === 'object') {
-    const minProps1 = prop1.minProperties ?? 0;
-    const maxProps1 = prop1.maxProperties ?? Infinity;
-    const minProps2 = prop2.minProperties ?? 0;
-    const maxProps2 = prop2.maxProperties ?? Infinity;
-
-    if (rangesDoNotOverlap(minProps1, maxProps1, minProps2, maxProps2)) {
-      return { isExclusive: true };
-    }
+    const rangeResult = checkRangeConstraints(prop1, prop2, 'object');
+    if (rangeResult) return rangeResult;
   }
 
+  // If we reach here, the properties have not been proven to be mutually exclusive
   return { isExclusive: false };
 }
 
 function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSignature): ReturnType {
   // Check top-level constraint exclusivity (types, formats, const values, enum values, and all constraints)
   const topLevelResult = arePropertySchemasMutuallyExclusive(sig1, sig2);
-  if (topLevelResult.isExclusive || topLevelResult.reason) {
+  if (!topLevelResult.isExclusive && topLevelResult.reason) {
     return topLevelResult;
+  }
+
+  // Array items check - moved here to check before property overlap
+  if (sig1.items && sig2.items) {
+    const { isExclusive, reason } = areSignaturesMutuallyExclusive(sig1.items, sig2.items);
+    if (!isExclusive) {
+      return {
+        isExclusive: false,
+        reason: reason || 'Array items are not mutually exclusive.',
+      };
+    }
+    // If array items ARE mutually exclusive, the parent schemas are mutually exclusive
+    if (isExclusive) {
+      return { isExclusive: true };
+    }
   }
 
   // Property overlap check
@@ -360,7 +472,17 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
 
         // If we have both property schemas, check if they're mutually exclusive
         if (prop1Schema && prop2Schema) {
-          const { isExclusive } = arePropertySchemasMutuallyExclusive(prop1Schema, prop2Schema);
+          const { isExclusive, reason } = arePropertySchemasMutuallyExclusive(
+            prop1Schema,
+            prop2Schema
+          );
+
+          if (!isExclusive && reason) {
+            return {
+              isExclusive: false,
+              reason,
+            };
+          }
 
           // A property is truly mutually exclusive only if:
           // 1. It has mutually exclusive values (different types, enums, etc.), AND
@@ -389,8 +511,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
       }
 
       // Key insight: If ANY required property is mutually exclusive, the schemas are distinguishable
-      // Example: artworkType: enum[painting] vs enum[sculpture] makes them mutually exclusive
-      // even if they share other properties like artist, dimensions, etc.
       if (sig1.required && sig2.required && mutuallyExclusiveProperties.length > 0) {
         const requiredAndMutuallyExclusive = mutuallyExclusiveProperties.filter(
           (prop) => sig1.required!.has(prop) && sig2.required!.has(prop)
@@ -402,8 +522,7 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
         }
       }
 
-      // Check if there are any required ambiguous properties that could be discriminators
-      // but currently have overlapping values
+      // Check if there are any required ambiguous properties
       let hasRequiredAmbiguousProperty = false;
       if (sig1.required && sig2.required) {
         const requiredIntersection = [...sig1.required].filter(
@@ -412,9 +531,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
         hasRequiredAmbiguousProperty = requiredIntersection.length > 0;
       }
 
-      // If there's at least one required property with ambiguous values,
-      // report ONLY those specific properties (not the "same required fields" message)
-      // because fixing that required property would make the schemas distinguishable
       if (hasRequiredAmbiguousProperty) {
         return {
           isExclusive: false,
@@ -424,7 +540,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
         };
       }
 
-      // Otherwise, report general overlapping properties
       if (ambiguousProperties.length > 0) {
         return {
           isExclusive: false,
@@ -436,7 +551,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
     }
 
     // Check if one schema requires properties that the other doesn't have at all
-    // This makes them mutually exclusive
     if (sig1.required && sig1.required.size > 0) {
       const requiredNotInSig2Properties = [...sig1.required].filter(
         (prop) => !sig2.properties || !sig2.properties.has(prop)
@@ -456,29 +570,15 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
     }
   }
 
-  // Array items check
-  if (sig1.items && sig2.items) {
-    const { isExclusive, reason } = areSignaturesMutuallyExclusive(sig1.items, sig2.items);
-    if (!isExclusive) {
-      return {
-        isExclusive: false,
-        reason: reason || 'Array items are not mutually exclusive.',
-      };
-    }
-  }
-
-  // additionalProperties check - schemas with conflicting additionalProperties settings
+  // additionalProperties check
   if (sig1.additionalProperties !== undefined || sig2.additionalProperties !== undefined) {
     const addlProps1 = sig1.additionalProperties;
     const addlProps2 = sig2.additionalProperties;
 
-    // If one explicitly disallows additional properties (false) and the other allows them (true or schema)
-    // AND they have overlapping required properties, this creates ambiguity
     const allowsAdditional1 = addlProps1 !== false;
     const allowsAdditional2 = addlProps2 !== false;
 
     if (allowsAdditional1 !== allowsAdditional2) {
-      // Check if they have overlapping required properties
       if (sig1.required && sig2.required) {
         const requiredOverlap = [...sig1.required].filter((prop) => sig2.required!.has(prop));
         if (requiredOverlap.length > 0) {
@@ -501,41 +601,58 @@ function areOneOfSchemasMutuallyExclusive(
   resolve: UserContext['resolve'],
   parentSchema: Oas3Schema | Oas3_1Schema
 ): ReturnType {
-  // Check for empty schemas first - an empty schema {} accepts any value
-  for (let i = 0; i < schemas.length; i++) {
-    const schema = schemas[i];
+  // Check for ambiguous combinations
+  const ambiguousReasons: string[] = [];
 
-    // Skip $ref schemas - they're not empty
-    if (isRef(schema)) continue;
+  // Check for empty schemas first
+  for (let i = 0; i < schemas.length; i++) {
+    let schema = schemas[i];
+
+    // Resolve $ref if present
+    if (isRef(schema)) {
+      const { node: resolvedSchema } = resolve(schema);
+      if (resolvedSchema) {
+        schema = resolvedSchema;
+      }
+    }
 
     // Check if schema is empty (no properties defined)
     const keys = Object.keys(schema);
     if (keys.length === 0) {
-      return {
-        isExclusive: false,
-        reason: `Empty schema at position ${
+      ambiguousReasons.push(
+        `Empty schema at position ${
           i + 1
-        } in \`oneOf\` matches all values and cannot be mutually exclusive.`,
-      };
+        } in \`oneOf\` matches all values and cannot be mutually exclusive.`
+      );
     }
   }
 
+  if (ambiguousReasons.length > 0) {
+    return {
+      isExclusive: false,
+      reasons: ambiguousReasons,
+    };
+  }
+
   const hasNullableType = (schema: Oas3Schema | Oas3_1Schema): boolean => {
-    // Check for OAS 3.0 nullable property
     if ('nullable' in schema && schema.nullable === true) {
       return true;
     }
 
-    // Check for OAS 3.1 type array containing null
+    // Check if type is the string 'null'
+    if (schema.type === 'null') {
+      return true;
+    }
+
+    // Check if type is an array containing 'null'
     if (schema.type && Array.isArray(schema.type)) {
       return schema.type.includes('null');
     }
 
     return false;
   };
+
   // Check for impossible nullable + oneOf with null type combination
-  // This is a specific anti-pattern where the parent schema is nullable
-  // AND one of the oneOf options is type: 'null', making it impossible to distinguish
   if (hasNullableType(parentSchema)) {
     const hasNullTypeInOneOf = schemas.some((subSchema) => {
       if (isRef(subSchema)) {
@@ -548,11 +665,17 @@ function areOneOfSchemasMutuallyExclusive(
     });
 
     if (hasNullTypeInOneOf) {
-      return {
-        isExclusive: false,
-        reason: `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`,
-      };
+      ambiguousReasons.push(
+        `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`
+      );
     }
+  }
+
+  if (ambiguousReasons.length > 0) {
+    return {
+      isExclusive: false,
+      reasons: ambiguousReasons,
+    };
   }
 
   const signatures: SchemaSignature[] = [];
@@ -572,9 +695,6 @@ function areOneOfSchemasMutuallyExclusive(
     }
     return `at position ${index + 1}`;
   };
-
-  // Check for ambiguous combinations - collect all non-exclusive pairs
-  const ambiguousReasons: string[] = [];
 
   for (let i = 0; i < signatures.length; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
