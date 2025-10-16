@@ -104,6 +104,7 @@
             - page: rules/oas/no-invalid-media-type-examples.md
             - page: rules/oas/no-invalid-parameter-examples.md
             - page: rules/oas/no-invalid-schema-examples.md
+            - page: rules/oas/spec-no-invalid-tag-parents.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
