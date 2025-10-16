@@ -63,17 +63,17 @@ components:
   examples:
     InvalidDataValueAndValue:
       dataValue:
-        name: "John Doe"
+        name: John Doe
       value:
-        name: "Jane Doe"
+        name: Jane Doe
     InvalidSerializedValueAndValue:
       serializedValue: '{"name":"John Doe"}'
       value:
-        name: "Jane Doe"
+        name: Jane Doe
     InvalidExternalValueAndValue:
-      externalValue: "https://example.com/user-example.json"
+      externalValue: https://example.com/user-example.json
       value:
-        name: "Jane Doe"
+        name: Jane Doe
 ```
 
 Example of **correct** example objects:
@@ -83,11 +83,11 @@ components:
   examples:
     ValidDataValue:
       dataValue:
-        name: "John Doe"
+        name: John Doe
     ValidSerializedValue:
       serializedValue: '{"name":"John Doe"}'
     ValidExternalValue:
-      externalValue: "https://example.com/user-example.json"
+      externalValue: https://example.com/user-example.json
 ```
 
 ## Related rules

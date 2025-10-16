@@ -25,4 +25,4 @@ paths:
             examples:
               test-wrong-ref:
                 summary: Example shouldn't resolved to value
-                externalValue: './external-value-bad-path.json'
+                externalValue: ./external-value-bad-path.json

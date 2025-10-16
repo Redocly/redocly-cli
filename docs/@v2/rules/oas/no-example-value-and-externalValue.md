@@ -74,11 +74,11 @@ requestBody:
         foo:
           summary: A foo example
           value: {"foo": "bar"}
-          externalValue: 'https://example.org/examples/foo-example.xml'
+          externalValue: https://example.org/examples/foo-example.xml
         bar:
           summary: A bar example
           value: {"bar": "baz"}
-          externalValue: 'https://example.org/examples/bar-example.xml'
+          externalValue: https://example.org/examples/bar-example.xml
 ```
 
 Example of a **correct** example object:
@@ -95,7 +95,7 @@ requestBody:
           value: {"foo": "bar"}
         bar:
           summary: A bar example
-          externalValue: 'https://example.org/examples/address-example.xml'
+          externalValue: https://example.org/examples/address-example.xml
 ```
 
 ## Related rules

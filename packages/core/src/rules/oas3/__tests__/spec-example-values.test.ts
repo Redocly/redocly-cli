@@ -28,7 +28,7 @@ describe('spec-example-values', () => {
                         ValidSerializedValue:
                           serializedValue: '{"name":"John Doe"}'
                         ValidExternalValue:
-                          externalValue: 'https://example.com/user-example.json'
+                          externalValue: https://localhost/user-example.json
                         ValidValue:
                           value:
                             name: 'John Doe'
@@ -43,9 +43,9 @@ describe('spec-example-values', () => {
                             name: 'Jane Doe'
                         InvalidSerializedValueAndExternalValue:
                           serializedValue: '{"name":"John Doe"}'
-                          externalValue: 'https://example.com/user-example.json'
+                          externalValue: https://localhost/user-example.json
                         InvalidExternalValueAndValue:
-                          externalValue: 'https://example.com/user-example.json'
+                          externalValue: https://localhost/user-example.json
                           value:
                             name: 'Jane Doe'
       `,
