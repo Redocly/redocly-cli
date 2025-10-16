@@ -20,6 +20,7 @@ type SchemaSignature = {
 type ReturnType = {
   isExclusive: boolean;
   reason?: string;
+  reasons?: string[];
 };
 
 export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
@@ -43,42 +44,33 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
           if (isDuplicated && duplicatedReason) {
             report({
               message: duplicatedReason,
-              location,
+              location: location.child(['oneOf']),
             });
+            // Skip mutual exclusivity check if duplicates found - duplicates are by definition not mutually exclusive
+            return;
           }
 
           // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-          const { isExclusive, reason: exclusivityReason } = areOneOfSchemasMutuallyExclusive(
+          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(
             schema.oneOf,
             resolve,
             schema
           );
 
-          if (!isExclusive && exclusivityReason) {
-            report({
-              message: exclusivityReason,
-              location: location.child(['oneOf']),
-            });
+          if (!isExclusive && reasons && reasons.length > 0) {
+            // Report each ambiguous pair as a separate warning
+            for (const reason of reasons) {
+              report({
+                message: reason,
+                location: location.child(['oneOf']),
+              });
+            }
           }
         }
       },
     },
   };
 };
-
-function hasNullableType(schema: Oas3Schema | Oas3_1Schema): boolean {
-  // Check for OAS 3.0 nullable property
-  if ('nullable' in schema && schema.nullable === true) {
-    return true;
-  }
-
-  // Check for OAS 3.1 type array containing null
-  if (schema.type && Array.isArray(schema.type)) {
-    return schema.type.includes('null');
-  }
-
-  return false;
-}
 
 // Helper to get effective minimum/maximum bounds for numeric constraints
 function getEffectiveBounds(prop: SchemaSignature): {
@@ -117,25 +109,6 @@ function getEffectiveBounds(prop: SchemaSignature): {
   }
 
   return { min, max, minExclusive, maxExclusive };
-}
-
-// Helper to check if two ranges don't overlap
-function rangesDoNotOverlap(
-  min1: number,
-  max1: number,
-  min2: number,
-  max2: number,
-  max1Exclusive: boolean = false,
-  min2Exclusive: boolean = false
-): boolean {
-  // Non-overlapping if: max1 < min2 OR max2 < min1
-  // For exclusive boundaries at the same value, they don't overlap
-  // E.g., max1=50 (exclusive) and min2=50 (inclusive) don't overlap
-  if (max1Exclusive && !min2Exclusive) {
-    // max1 is exclusive, so max1 <= min2 means no overlap
-    return max1 <= min2 || max2 < min1;
-  }
-  return max1 < min2 || max2 < min1;
 }
 
 function createSchemaSignature(
@@ -257,6 +230,25 @@ function arePropertySchemasMutuallyExclusive(
       return { isExclusive: true };
     }
   }
+
+  // Helper to check if two ranges don't overlap
+  const rangesDoNotOverlap = (
+    min1: number,
+    max1: number,
+    min2: number,
+    max2: number,
+    max1Exclusive: boolean = false,
+    min2Exclusive: boolean = false
+  ): boolean => {
+    // Non-overlapping if: max1 < min2 OR max2 < min1
+    // For exclusive boundaries at the same value, they don't overlap
+    // E.g., max1=50 (exclusive) and min2=50 (inclusive) don't overlap
+    if (max1Exclusive && !min2Exclusive) {
+      // max1 is exclusive, so max1 <= min2 means no overlap
+      return max1 <= min2 || max2 < min1;
+    }
+    return max1 < min2 || max2 < min1;
+  };
 
   // Numeric range constraints - check if ranges don't overlap
   if (
@@ -433,10 +425,14 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
       }
 
       // Otherwise, report general overlapping properties
-      return {
-        isExclusive: false,
-        reason: `Schemas have overlapping properties: ${ambiguousProperties.join(', ')}.`,
-      };
+      if (ambiguousProperties.length > 0) {
+        return {
+          isExclusive: false,
+          reason: `Schemas have overlapping properties: ${ambiguousProperties.join(', ')}.`,
+        };
+      }
+
+      return { isExclusive: true };
     }
 
     // Check if one schema requires properties that the other doesn't have at all
@@ -522,6 +518,19 @@ function areOneOfSchemasMutuallyExclusive(
     }
   }
 
+  const hasNullableType = (schema: Oas3Schema | Oas3_1Schema): boolean => {
+    // Check for OAS 3.0 nullable property
+    if ('nullable' in schema && schema.nullable === true) {
+      return true;
+    }
+
+    // Check for OAS 3.1 type array containing null
+    if (schema.type && Array.isArray(schema.type)) {
+      return schema.type.includes('null');
+    }
+
+    return false;
+  };
   // Check for impossible nullable + oneOf with null type combination
   // This is a specific anti-pattern where the parent schema is nullable
   // AND one of the oneOf options is type: 'null', making it impossible to distinguish
@@ -562,7 +571,9 @@ function areOneOfSchemasMutuallyExclusive(
     return `position ${index}`;
   };
 
-  // Check for ambiguous combinations
+  // Check for ambiguous combinations - collect all non-exclusive pairs
+  const ambiguousReasons: string[] = [];
+
   for (let i = 0; i < signatures.length; i++) {
     for (let j = i + 1; j < signatures.length; j++) {
       const { isExclusive, reason } = areSignaturesMutuallyExclusive(signatures[i], signatures[j]);
@@ -570,15 +581,22 @@ function areOneOfSchemasMutuallyExclusive(
         const schema1Id = getSchemaIdentifier(schemas[i], i);
         const schema2Id = getSchemaIdentifier(schemas[j], j);
 
-        return {
-          isExclusive: false,
-          reason: `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
-            reason ? reason : ''
-          }`,
-        };
+        const message = `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
+          reason ? reason : ''
+        }`;
+        ambiguousReasons.push(message);
       }
     }
   }
 
-  return { isExclusive: false };
+  // If any ambiguous pairs found, return them all
+  if (ambiguousReasons.length > 0) {
+    return {
+      isExclusive: false,
+      reasons: ambiguousReasons,
+    };
+  }
+
+  // All schemas are mutually exclusive
+  return { isExclusive: true };
 }
