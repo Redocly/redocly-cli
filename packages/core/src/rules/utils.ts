@@ -232,8 +232,8 @@ export function areDuplicatedSchemas(schemas: Array<Oas3Schema | Oas3_1Schema>):
     if (seen.has(schemaStr)) {
       return {
         isDuplicated: true,
-        reason: `Duplicate schema found in \`oneOf\` at positions ${
-          seen.get(schemaStr) ?? 0 + 1
+        reason: `Duplicated schema found in \`oneOf\` at positions ${
+          (seen.get(schemaStr) ?? 0) + 1
         } and ${i + 1}.`,
       };
     } else {
