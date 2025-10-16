@@ -15,11 +15,6 @@
       "require": "./lib/config/index.js",
       "types": "./lib/config/index.d.ts"
     },
-    "./lib/bundle": {
-      "import": "./lib/bundle/bundle.js",
-      "require": "./lib/bundle/bundle.js",
-      "types": "./lib/bundle/bundle.d.ts"
-    },
     "./lib/bundle-oas": {
       "import": "./lib/bundle/bundle-oas.js",
       "require": "./lib/bundle/bundle-oas.js",
