@@ -18,14 +18,14 @@ flowchart TD
 
 Root ==> Paths --> PathItem --> Operation --> Parameter --> Schema
 PathItem --> Parameter
-NamedParameter --> Parameter
+NamedParameters --> Parameter
 Operation --> RequestBody --> MediaType --> Schema
 Operation --> Responses --> MediaType
 NamedSchemas --> Schema
 Root ==> components
 
 subgraph components
-NamedParameter
+NamedParameters
 NamedSchemas
 end
 

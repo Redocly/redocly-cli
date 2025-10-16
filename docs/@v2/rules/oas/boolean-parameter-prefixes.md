@@ -19,12 +19,12 @@ flowchart TD
 
 Root ==> Paths --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
 PathItem --> Parameter
-NamedParameter --> Parameter
+NamedParameters --> Parameter
 
 Root ==> components
 
 subgraph components
-NamedParameter
+NamedParameters
 end
 
 style Parameter fill:#codaf9,stroke:#0044d4,stroke-width:5px
