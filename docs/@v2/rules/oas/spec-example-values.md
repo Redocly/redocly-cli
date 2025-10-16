@@ -16,8 +16,20 @@ Ensures that example objects have valid field combinations according to the Open
 ```mermaid
 flowchart TD
 
-Root --> Paths --> PathItem --> Operation --> RequestBody --> MediaType --> Example
+Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
+PathItem --> Parameter
+Operation --> RequestBody --> MediaType --> Example
 Operation --> Responses --> MediaType
+MediaType --> Schema --> Example
+NamedExamples --> Example
+NamedSchemas --> Schema
+Root ==> components
+
+subgraph components
+NamedExamples
+NamedSchemas
+end
+
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ```

@@ -6,12 +6,16 @@ slug: /docs/cli/rules/oas/no-example-value-and-externalValue
 
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
-| OAS | Compatibility   |
-| --- | --------------- |
-| 2.0 | ❌              |
-| 3.0 | ✅              |
-| 3.1 | ✅              |
-| 3.2 | ✅ (deprecated) |
+{% admonition type="warning" name="Deprecated" %}
+This rule is deprecated in favor of[ `spec-example-values`](../oas/spec-example-values.md).
+{% /admonition %}
+
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
+| 3.2 | ❌            |
 
 ```mermaid
 flowchart TD
@@ -20,15 +24,15 @@ Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
 Operation --> Responses --> MediaType
-NamedExample --> Example
+NamedExamples --> Example
 Root ==> components
 
 subgraph components
-NamedExample
+NamedExamples
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-style NamedExample fill:#codaf9,stroke:#0044d4,stroke-width:5px
+style NamedExamples fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ```
 

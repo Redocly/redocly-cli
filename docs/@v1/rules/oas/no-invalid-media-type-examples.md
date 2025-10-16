@@ -20,14 +20,14 @@ MediaType --> Examples --> Example
 
 root ==> components
 
-NamedExample --> Example
+NamedExamples --> Example
 
 subgraph components
-NamedExample
+NamedExamples
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-style NamedExample fill:#codaf9,stroke:#0044d4,stroke-width:5px
+style NamedExamples fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 ## API design principles

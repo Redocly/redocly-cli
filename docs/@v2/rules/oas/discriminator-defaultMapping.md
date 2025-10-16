@@ -16,8 +16,14 @@ Ensures that discriminator objects with optional `propertyName` include a `defau
 ```mermaid
 flowchart TD
 
-Root --> Paths --> PathItem --> Operation --> RequestBody --> MediaType --> Schema --> Discriminator
+Root ==> Paths --> PathItem --> Operation --> RequestBody --> MediaType --> Schema --> Discriminator
 Operation --> Responses --> MediaType
+NamedSchemas --> Schema
+Root ==> components
+
+subgraph components
+NamedSchemas
+end
 
 style Discriminator fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
