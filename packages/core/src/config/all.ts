@@ -292,8 +292,8 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-required-schema-properties-undefined': 'error',
     'no-enum-type-mismatch': 'error',
     'no-schema-type-mismatch': 'error',
-    'x-security-scheme-name-link': 'error',
-    'no-x-security-both-scheme-and-scheme-name': 'error',
+    'x-security-scheme-name-reference': 'off',
+    'no-x-security-both-scheme-and-scheme-name': 'off',
   },
   overlay1Rules: {
     'info-contact': 'error',

@@ -136,8 +136,6 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 - [workflow-dependsOn](./arazzo/workflow-dependsOn.md): the items in the `workflow` `dependsOn` property must exist and be unique
 - [workflowId-unique](./arazzo/workflowId-unique.md): the `workflowId` property must be unique across all workflows
 - [sourceDescriptions-not-empty](./arazzo/sourceDescriptions-not-empty.md): the `sourceDescriptions` must be defined and the list must have at least one entry.
-- [x-security-scheme-name-link](./arazzo/x-security-scheme-name-link.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must link to a source description (for example, `$sourceDescriptions.{name}.scheme`)
-- [no-x-security-both-scheme-and-scheme-name](./arazzo/no-x-security-both-scheme-and-scheme-name.md): forbids using both `scheme` and `schemeName` in the same `x-security` item
 
 ### Respect
 
@@ -147,6 +145,8 @@ The below rules are being migrated to Respect:
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
+- [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.scheme`)
+- [no-x-security-both-scheme-and-scheme-name](./respect/no-x-security-both-scheme-and-scheme-name.md): forbids using both `scheme` and `schemeName` in the same `x-security` item
 
 ## Resources
 

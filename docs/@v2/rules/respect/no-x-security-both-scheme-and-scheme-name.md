@@ -8,8 +8,8 @@ Forbids using both `scheme` and `schemeName` in the same `x-security` item.
 
 ## Rationale
 
-A single `x-security` item must reference a security scheme in exactly one way: either by embedding the `scheme` object or by referencing it with `schemeName`.
-Having both is ambiguous and is rejected by the runtime.
+Each `x-security` entry must reference a security scheme in exactly one way—either embed the `scheme` object or reference it via `schemeName`.
+You can include multiple `x-security` entries in a workflow; this rule applies to each entry individually. Using both `scheme` and `schemeName` in the same entry is ambiguous and is rejected by the runtime.
 
 ## Configuration
 
@@ -66,9 +66,9 @@ workflows:
 
 ## Related rules
 
-- [x-security-scheme-name-link](./x-security-scheme-name-link.md)
-- [x-security-scheme-required-values](../respect/x-security-scheme-required-values.md)
+- [x-security-scheme-name-reference](./x-security-scheme-name-reference.md)
+- [x-security-scheme-required-values](./x-security-scheme-required-values.md)
 
 ## Resources
 
-- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/arazzo/no-x-security-both-scheme-and-scheme-name.ts
+- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/no-x-security-both-scheme-and-scheme-name.ts

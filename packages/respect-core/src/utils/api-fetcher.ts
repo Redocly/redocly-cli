@@ -22,7 +22,6 @@ import { isBinaryContentType } from './binary-content-type-checker.js';
 import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
 
 import type { RequestData } from '../modules/flow-runner/index.js';
-import type { ExtendedSecurity } from '@redocly/openapi-core';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -295,20 +294,21 @@ export class ApiFetcher implements IFetcher {
 
     const workflowLevelXSecurityParameters =
       ctx.workflows.find((workflow) => workflow.workflowId === workflowId)?.['x-security'] || [];
-    const stepXSecurity = step['x-security'] || [];
-    const allXSecurity = [
-      ...workflowLevelXSecurityParameters,
-      ...stepXSecurity,
-    ] as ExtendedSecurity[];
-    const lastDigestSecurityScheme = allXSecurity.reverse().find((security) => {
-      const scheme = resolveSecurityScheme({
-        ctx,
-        security,
-        operation: openapiOperation,
-      });
 
-      return scheme?.type === 'http' && scheme?.scheme === 'digest';
-    });
+    const lastDigestSecurityScheme = [
+      ...workflowLevelXSecurityParameters,
+      ...(step['x-security'] || []),
+    ]
+      .reverse()
+      .find((security) => {
+        const scheme = resolveSecurityScheme({
+          ctx,
+          security,
+          operation: openapiOperation,
+        });
+
+        return scheme?.type === 'http' && scheme?.scheme === 'digest';
+      });
 
     if (lastDigestSecurityScheme) {
       // FETCH WITH DIGEST AUTH

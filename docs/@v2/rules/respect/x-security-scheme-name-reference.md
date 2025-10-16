@@ -1,7 +1,6 @@
-# x-security-scheme-name-link
+# x-security-scheme-name-reference
 
-When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a link to a specific source description (for example, `$sourceDescriptions.{name}.scheme`).
-If there is only one source description, a plain string is allowed.
+When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a specific source description (for example, `$sourceDescriptions.{name}.scheme`). If there is only one source description, a plain string is allowed.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -9,8 +8,7 @@ If there is only one source description, a plain string is allowed.
 
 ## Design principles
 
-With multiple source descriptions, using a plain `schemeName` is ambiguous.
-Requiring a link of the form `$sourceDescriptions.{name}.scheme` disambiguates which source description provides the security scheme.
+With multiple source descriptions, using a plain `schemeName` is ambiguous. Requiring a reference of the form `$sourceDescriptions.{name}.scheme` disambiguates which source description provides the security scheme.
 
 ## Configuration
 
@@ -22,7 +20,7 @@ An example configuration:
 
 ```yaml
 rules:
-  x-security-scheme-name-link: error
+  x-security-scheme-name-reference: error
 ```
 
 ## Examples
@@ -31,7 +29,7 @@ Given the following configuration:
 
 ```yaml
 rules:
-  x-security-scheme-name-link: error
+  x-security-scheme-name-reference: error
 ```
 
 Example with multiple source descriptions — incorrect (plain string `schemeName`):
@@ -48,13 +46,13 @@ sourceDescriptions:
 workflows:
   - workflowId: list-users
     x-security:
-      - schemeName: BasicAuth   # <- must be a link when multiple sources exist
+      - schemeName: BasicAuth   # <- must be a reference when multiple sources exist
         values:
           username: test@example.com
           password: 123456
 ```
 
-Example with multiple source descriptions — correct (linked `schemeName`):
+Example with multiple source descriptions — correct (referenced `schemeName`):
 
 ```yaml
 sourceDescriptions:
@@ -93,10 +91,9 @@ workflows:
 
 ## Related rules
 
-- [sourceDescriptions-not-empty](./sourceDescriptions-not-empty.md)
-- [sourceDescriptions-name-unique](./sourceDescriptions-name-unique.md)
-- [sourceDescriptions-type](./sourceDescriptions-type.md)
+- [no-x-security-both-scheme-and-scheme-name](./no-x-security-both-scheme-and-scheme-name.md)
+- [x-security-scheme-required-values](./x-security-scheme-required-values.md)
 
 ## Resources
 
-- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/arazzo/x-security-scheme-name-link.ts
+- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/x-security-scheme-name-reference.ts
