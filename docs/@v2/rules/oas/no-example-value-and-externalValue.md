@@ -102,7 +102,7 @@ requestBody:
 
 - [configurable rules](../configurable-rules.md)
 - [struct](../common/struct.md)
-- [spec-example-values](../oas3/spec-example-values.md)
+- [spec-example-values](./spec-example-values.md)
 
 ## Resources
 
