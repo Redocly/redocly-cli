@@ -10,7 +10,6 @@ import { Config } from '../config/config.js';
 
 import type { NodeType } from '../types/index.js';
 import type { Document } from '../resolve.js';
-import type { CollectFn } from '../utils/types.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
@@ -25,7 +24,6 @@ export async function bundleOas(
   opts: {
     ref?: string;
     doc?: Document;
-    collectSpecData?: CollectFn;
   } & CoreBundleOptions
 ) {
   const {
@@ -44,7 +42,6 @@ export async function bundleOas(
   if (document instanceof Error) {
     throw document;
   }
-  opts.collectSpecData?.(document.parsed);
 
   const version = detectSpec(document.parsed);
 
@@ -74,7 +71,7 @@ export async function bundleOas(
   });
 }
 
-export function loadConfig(
+export function createEmptyRedoclyConfig(
   options: {
     configPath?: string;
     customExtends?: string[];

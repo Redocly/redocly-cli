@@ -1,9 +1,8 @@
 import outdent from 'outdent';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bundleOas, loadConfig } from '../bundle/bundle-oas.js';
+import { bundleOas, createEmptyRedoclyConfig } from '../bundle/bundle-oas.js';
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
-import { createConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,7 +43,7 @@ describe('bundle-oas', () => {
 
   it('should bundle external refs', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -53,7 +52,7 @@ describe('bundle-oas', () => {
 
   it('should bundle external refs and warn for conflicting names', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
@@ -65,7 +64,7 @@ describe('bundle-oas', () => {
 
   it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
     });
 
@@ -75,7 +74,7 @@ describe('bundle-oas', () => {
 
   it('should not place referenced schema inline when component in question is not of type "schemas"', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
     });
 
@@ -85,7 +84,7 @@ describe('bundle-oas', () => {
 
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
@@ -104,7 +103,7 @@ describe('bundle-oas', () => {
 
   it('should not bundle url refs if used with keepUrlRefs', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
@@ -119,7 +118,7 @@ describe('bundle-oas', () => {
   });
 
   it('should throw an error when there is no document to bundle', async () => {
-    const config = await createConfig({});
+    const config = await createEmptyRedoclyConfig({});
     const wrapper = () =>
       bundleOas({
         config,
@@ -133,7 +132,9 @@ describe('bundle-oas', () => {
       bundle: { parsed },
       problems,
     } = await bundleOas({
-      config: await loadConfig({ configPath: path.join(__dirname, 'fixtures/redocly.yaml') }),
+      config: await createEmptyRedoclyConfig({
+        configPath: path.join(__dirname, 'fixtures/redocly.yaml'),
+      }),
       doc: testDocument,
     });
 
@@ -145,7 +146,7 @@ describe('bundle-oas', () => {
 
   it('should bundle schemas with properties named $ref and externalValues correctly', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-special-names-in-props.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -154,7 +155,7 @@ describe('bundle-oas', () => {
 
   it('should normalize self-file explicit $ref in oas2', async () => {
     const { bundle: res, problems } = await bundleOas({
-      config: await createConfig({}),
+      config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/self-file-refs/oas2.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -162,7 +163,7 @@ describe('bundle-oas', () => {
   });
 
   it('should normalize self-file explicit $ref in nested referenced file', async () => {
-    const config = await createConfig({});
+    const config = await createEmptyRedoclyConfig({});
 
     const { bundle: res, problems } = await bundleOas({
       config,
