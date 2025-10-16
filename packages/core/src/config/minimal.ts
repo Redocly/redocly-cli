@@ -222,7 +222,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
     'spec-no-invalid-tag-parents': 'warn',
-    'no-invalid-encoding-combinations': 'warn',
+    'spec-no-invalid-encoding-combinations': 'warn',
     'spec-discriminator-defaultMapping': 'off',
     'spec-example-values': 'off',
   },

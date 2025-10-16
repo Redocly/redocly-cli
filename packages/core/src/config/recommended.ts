@@ -222,7 +222,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
     'spec-no-invalid-tag-parents': 'error',
-    'no-invalid-encoding-combinations': 'error',
+    'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'warn',
     'spec-example-values': 'error',
   },

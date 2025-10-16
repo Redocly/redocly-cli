@@ -222,7 +222,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'off',
     'tags-alphabetical': 'off',
     'spec-no-invalid-tag-parents': 'error',
-    'no-invalid-encoding-combinations': 'error',
+    'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
   },

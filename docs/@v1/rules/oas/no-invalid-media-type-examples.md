@@ -15,10 +15,10 @@ Disallow invalid media type examples by ensuring they comply with the correspond
 ```mermaid
 flowchart TD
 
-root ==> Paths --> PathItem --> Operation --> MediaType --> Example
+Root ==> Paths --> PathItem --> Operation --> MediaType --> Example
 MediaType --> Examples --> Example
 
-root ==> components
+Root ==> components
 
 NamedExamples --> Example
 

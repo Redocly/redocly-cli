@@ -16,18 +16,13 @@ Ensures that example objects have valid field combinations according to the Open
 ```mermaid
 flowchart TD
 
-Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
-PathItem --> Parameter
-Operation --> RequestBody --> MediaType --> Example
-Operation --> Responses --> MediaType
-MediaType --> Schema --> Example
-NamedExamples --> Example
-NamedSchemas --> Schema
+Root ==> Paths --> PathItem --> Operation --> MediaType --> Example
+MediaType --> Examples --> Example
 Root ==> components
+NamedExamples --> Example
 
 subgraph components
 NamedExamples
-NamedSchemas
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
@@ -64,53 +59,41 @@ Example of **incorrect** example objects:
 
 ```yaml Bad example
 components:
-  schemas:
-    User:
-      type: object
-      properties:
-        name:
-          type: string
-      examples:
-        invalid-data-value-and-value:
-          dataValue:
-            name: "John Doe"
-          value:
-            name: "Jane Doe"
-        invalid-serialized-value-and-value:
-          serializedValue: '{"name":"John Doe"}'
-          value:
-            name: "Jane Doe"
-        invalid-external-value-and-value:
-          externalValue: "https://example.com/user-example.json"
-          value:
-            name: "Jane Doe"
+  examples:
+    InvalidDataValueAndValue:
+      dataValue:
+        name: "John Doe"
+      value:
+        name: "Jane Doe"
+    InvalidSerializedValueAndValue:
+      serializedValue: '{"name":"John Doe"}'
+      value:
+        name: "Jane Doe"
+    InvalidExternalValueAndValue:
+      externalValue: "https://example.com/user-example.json"
+      value:
+        name: "Jane Doe"
 ```
 
 Example of **correct** example objects:
 
 ```yaml Good example
 components:
-  schemas:
-    User:
-      type: object
-      properties:
-        name:
-          type: string
-      examples:
-        valid-data-value:
-          dataValue:
-            name: "John Doe"
-        valid-serialized-value:
-          serializedValue: '{"name":"John Doe"}'
-        valid-external-value:
-          externalValue: "https://example.com/user-example.json"
+  examples:
+    ValidDataValue:
+      dataValue:
+        name: "John Doe"
+    ValidSerializedValue:
+      serializedValue: '{"name":"John Doe"}'
+    ValidExternalValue:
+      externalValue: "https://example.com/user-example.json"
 ```
 
 ## Related rules
 
 - [struct](../common/struct.md)
 - [no-example-value-and-externalValue](./no-example-value-and-externalValue.md)
-- [no-invalid-encoding-combinations](./no-invalid-encoding-combinations.md)
+- [spec-no-invalid-encoding-combinations](./spec-no-invalid-encoding-combinations.md)
 - [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md)
 - [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 

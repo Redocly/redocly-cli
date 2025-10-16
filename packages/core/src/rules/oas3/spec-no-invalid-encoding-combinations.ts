@@ -1,7 +1,7 @@
 import { type Oas3Rule } from '../../visitors.js';
 import { type UserContext } from '../../walk.js';
 
-export const NoInvalidEncodingCombinations: Oas3Rule = () => {
+export const SpecNoInvalidEncodingCombinations: Oas3Rule = () => {
   return {
     MediaType: {
       leave(mediaType, ctx: UserContext) {

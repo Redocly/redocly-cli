@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/oas/no-invalid-encoding-combinations
+slug: /docs/cli/rules/oas/spec-no-invalid-encoding-combinations
 ---
 
-# no-invalid-encoding-combinations
+# spec-no-invalid-encoding-combinations
 
 Ensures that MediaType objects have valid combinations of encoding fields according to the OpenAPI 3.2.0 specification.
 
@@ -16,7 +16,9 @@ Ensures that MediaType objects have valid combinations of encoding fields accord
 ```mermaid
 flowchart TD
 
-Root --> Paths --> PathItem --> Operation --> RequestBody --> MediaType
+Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
+PathItem --> Parameter
+Operation --> RequestBody --> MediaType
 Operation --> Responses --> MediaType
 
 style MediaType fill:#codaf9,stroke:#0044d4,stroke-width:5px
@@ -38,7 +40,7 @@ An example configuration:
 
 ```yaml
 rules:
-  no-invalid-encoding-combinations: error
+  spec-no-invalid-encoding-combinations: error
 ```
 
 ## Examples
@@ -47,7 +49,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  no-invalid-encoding-combinations: error
+  spec-no-invalid-encoding-combinations: error
 ```
 
 Example of **incorrect** MediaType objects:
@@ -114,5 +116,5 @@ requestBody:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-invalid-encoding-combinations.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-no-invalid-encoding-combinations.ts)
 - [MediaType object docs](https://redocly.com/docs/openapi-visual-reference/media-type/)

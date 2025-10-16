@@ -16,7 +16,7 @@ Requires the license info in your API descriptions.
 ```mermaid
 flowchart TD
 
-root ==> Info --> License
+Root ==> Info --> License
 
 style License fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

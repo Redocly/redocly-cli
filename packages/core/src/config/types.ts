@@ -63,7 +63,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
     Exclude<
       BuiltInOAS3RuleId,
       | 'spec-no-invalid-tag-parents'
-      | 'no-invalid-encoding-combinations'
+      | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
     >,
     RuleConfig,
@@ -74,7 +74,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
       BuiltInOAS3RuleId,
       | 'nullable-type-sibling'
       | 'spec-no-invalid-tag-parents'
-      | 'no-invalid-encoding-combinations'
+      | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
     >,
     RuleConfig,

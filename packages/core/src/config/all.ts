@@ -243,7 +243,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
     'spec-no-invalid-tag-parents': 'error',
-    'no-invalid-encoding-combinations': 'error',
+    'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
   },

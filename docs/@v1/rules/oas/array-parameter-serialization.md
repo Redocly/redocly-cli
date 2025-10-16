@@ -15,11 +15,11 @@ Enforces the inclusion of `style` and `explode` fields for parameters with array
 ```mermaid
 flowchart TD
 
-root ==> Paths --> PathItem --> Operation --> Parameter --enforces style and explode fields for array types--> Schema
+Root ==> Paths --> PathItem --> Operation --> Parameter --enforces style and explode fields for array types--> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 
-root ==> components
+Root ==> components
 
 subgraph components
 NamedParameter

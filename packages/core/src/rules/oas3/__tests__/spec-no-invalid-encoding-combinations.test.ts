@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 
-describe('no-invalid-encoding-combinations', () => {
+describe('spec-no-invalid-encoding-combinations', () => {
   it('should report on invalid encoding combinations', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -61,7 +61,7 @@ describe('no-invalid-encoding-combinations', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await createConfig({ rules: { 'no-invalid-encoding-combinations': 'error' } }),
+      config: await createConfig({ rules: { 'spec-no-invalid-encoding-combinations': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -75,7 +75,7 @@ describe('no-invalid-encoding-combinations', () => {
             },
           ],
           "message": "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
-          "ruleId": "no-invalid-encoding-combinations",
+          "ruleId": "spec-no-invalid-encoding-combinations",
           "severity": "error",
           "suggest": [],
         },
@@ -88,7 +88,7 @@ describe('no-invalid-encoding-combinations', () => {
             },
           ],
           "message": "The 'encoding' field cannot be used together with 'prefixEncoding' or 'itemEncoding'.",
-          "ruleId": "no-invalid-encoding-combinations",
+          "ruleId": "spec-no-invalid-encoding-combinations",
           "severity": "error",
           "suggest": [],
         },

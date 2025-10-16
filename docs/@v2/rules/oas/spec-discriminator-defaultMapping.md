@@ -95,7 +95,7 @@ components:
 
 - [struct](../common/struct.md)
 - [spec-example-values](./spec-example-values.md)
-- [no-invalid-encoding-combinations](./no-invalid-encoding-combinations.md)
+- [spec-no-invalid-encoding-combinations](./spec-no-invalid-encoding-combinations.md)
 - [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources
