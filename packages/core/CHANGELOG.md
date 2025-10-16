@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.6.0
+
+### Minor Changes
+
+- Added new rules for validating OpenAPI 3.2 description files: `spec-no-invalid-tag-parents`, `spec-example-values`, `spec-discriminator-defaultMapping`, and `spec-no-invalid-encoding-combinations`.
+  Deprecated the `no-example-value-and-externalValue` rule in favor of `spec-example-values`.
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command did not substitute self-references with local references.
+
 ## 2.5.1
 
 ### Patch Changes
