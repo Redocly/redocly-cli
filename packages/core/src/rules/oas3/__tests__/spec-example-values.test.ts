@@ -24,30 +24,30 @@ describe('spec-example-values', () => {
                       examples:
                         ValidDataValue:
                           dataValue:
-                            name: 'John Doe'
+                            name: John Doe
                         ValidSerializedValue:
                           serializedValue: '{"name":"John Doe"}'
                         ValidExternalValue:
                           externalValue: https://localhost/user-example.json
                         ValidValue:
                           value:
-                            name: 'John Doe'
+                            name: John Doe
                         InvalidDataValueAndValue:
                           dataValue:
-                            name: 'John Doe'
+                            name: John Doe
                           value:
-                            name: 'Jane Doe'
+                            name: Jane Doe
                         InvalidSerializedValueAndValue:
                           serializedValue: '{"name":"John Doe"}'
                           value:
-                            name: 'Jane Doe'
+                            name: Jane Doe
                         InvalidSerializedValueAndExternalValue:
                           serializedValue: '{"name":"John Doe"}'
                           externalValue: https://localhost/user-example.json
                         InvalidExternalValueAndValue:
                           externalValue: https://localhost/user-example.json
                           value:
-                            name: 'Jane Doe'
+                            name: Jane Doe
       `,
       'foobar.yaml'
     );
