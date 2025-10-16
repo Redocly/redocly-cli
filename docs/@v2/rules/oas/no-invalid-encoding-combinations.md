@@ -108,9 +108,9 @@ requestBody:
 ## Related rules
 
 - [struct](../common/struct.md)
-- [example-values](./example-values.md)
+- [spec-example-values](./spec-example-values.md)
 - [discriminator-default-mapping](./discriminator-default-mapping.md)
-- [no-invalid-tag-parents](./no-invalid-tag-parents.md)
+- [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources
 

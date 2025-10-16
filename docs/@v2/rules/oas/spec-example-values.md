@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/oas/example-values
+slug: /docs/cli/rules/oas/spec-example-values
 ---
 
-# example-values
+# spec-example-values
 
 Ensures that example objects have valid field combinations according to the OpenAPI 3.2.0 specification.
 
@@ -37,7 +37,7 @@ An example configuration:
 
 ```yaml
 rules:
-  example-values: error
+  spec-example-values: error
 ```
 
 ## Examples
@@ -46,7 +46,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  example-values: error
+  spec-example-values: error
 ```
 
 Example of **incorrect** example objects:
@@ -101,9 +101,9 @@ components:
 - [no-example-value-and-externalValue](./no-example-value-and-externalValue.md)
 - [no-invalid-encoding-combinations](./no-invalid-encoding-combinations.md)
 - [discriminator-defaultMapping](./discriminator-defaultMapping.md)
-- [no-invalid-tag-parents](./no-invalid-tag-parents.md)
+- [spec-no-invalid-tag-parents](./spec-no-invalid-tag-parents.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/example-values.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-example-values.ts)
 - [Example object docs](https://redocly.com/docs/openapi-visual-reference/example/)
