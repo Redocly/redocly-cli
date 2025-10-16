@@ -30,7 +30,8 @@ style Discriminator fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-According to the OpenAPI 3.2.0 specification, when a discriminator's `propertyName` is optional (not in the `required` array), the discriminator MUST include a `defaultMapping` field. This field specifies the schema to validate against when the discriminating property is absent or has no explicit/implicit mapping.
+According to the OpenAPI 3.2.0 specification, when a discriminator's `propertyName` is optional (not in the `required` array), the discriminator MUST include a `defaultMapping` field.
+This field specifies the schema to validate against when the discriminating property is absent or has no explicit/implicit mapping.
 
 ## Configuration
 
