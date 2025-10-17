@@ -137,7 +137,9 @@ function areSchemaEmpty(
   return false;
 }
 
-function hasNullableType(schema: Oas3Schema | Oas3_1Schema): boolean {
+// Helper to check if a schema or signature represents a nullable type
+// Works with both Schema objects and SchemaSignature objects
+function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): boolean {
   if ('nullable' in schema && schema.nullable === true) {
     return true;
   }
@@ -420,17 +422,10 @@ function arePropertySchemasMutuallyExclusive(
   prop1: SchemaSignature,
   prop2: SchemaSignature
 ): ReturnType {
-  // Check for null type distinction (OpenAPI 3.1)
-  // If one schema is type: null and the other is not, they're mutually exclusive
-  const checkIsNull = (sig: SchemaSignature) => {
-    return (
-      sig.type === 'null' ||
-      (Array.isArray(sig.type) && sig.type.length === 1 && sig.type[0] === 'null')
-    );
-  };
-
+  // Check for null type distinction (OpenAPI 3.0 and 3.1)
+  // If one schema is type: null or nullable: true and the other is not, they're mutually exclusive
   // If exactly one is null type, they're mutually exclusive
-  if (checkIsNull(prop1) !== checkIsNull(prop2)) {
+  if (hasNullableType(prop1) !== hasNullableType(prop2)) {
     return { isExclusive: true };
   }
 
@@ -552,7 +547,7 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
 
           if (!isExclusive && reason) {
             return {
-              isExclusive: false,
+              isExclusive,
               reason,
             };
           }
