@@ -10,7 +10,7 @@ All the rules are of severity `error`:
 - [criteria-unique](./arazzo/criteria-unique.md)
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md)
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
-- [no-invalid-tag-parents](./oas/no-invalid-tag-parents.md)
+- [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-undefined-server-variable](./oas/no-undefined-server-variable.md)
 - [no-unresolved-refs](./common/no-unresolved-refs.md)
