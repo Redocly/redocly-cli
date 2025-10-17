@@ -592,9 +592,13 @@ describe('cleanArgs', () => {
       apis: ['main@v1', 'fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       format: 'codeframe',
       input: 'some-input',
-      'client-cert': 'some-client-cert',
-      'client-key': 'some-client-key',
-      'ca-cert': 'some-ca-cert',
+      mtls: {
+        'https://example.com': {
+          clientCert: 'some-client-cert',
+          clientKey: 'some-client-key',
+          caCert: 'some-ca-cert',
+        },
+      },
     };
     const rawArgs = [
       'redocly',
@@ -605,9 +609,7 @@ describe('cleanArgs', () => {
       '--config=fixtures/redocly.yaml',
       '--format=codeframe',
       '--input=some-input',
-      '--client-cert=some-client-cert',
-      '--client-key=some-client-key',
-      '--ca-cert=some-ca-cert',
+      '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
     ];
     const result = cleanArgs(parsedArgs, rawArgs);
     expect(result.arguments).toEqual(
@@ -616,9 +618,13 @@ describe('cleanArgs', () => {
         apis: ['main@v1', 'file-yaml', 'http://url'],
         format: 'codeframe',
         input: '***',
-        'client-cert': '***',
-        'client-key': '***',
-        'ca-cert': '***',
+        mtls: {
+          'https://example.com': {
+            clientCert: '***',
+            clientKey: '***',
+            caCert: '***',
+          },
+        },
       })
     );
   });
@@ -633,12 +639,7 @@ describe('cleanArgs', () => {
       '--config=fixtures/redocly.yaml',
       '--output',
       'fixtures',
-      '--client-cert',
-      'fixtures/client-cert.pem',
-      '--client-key',
-      'fixtures/client-key.pem',
-      '--ca-cert',
-      'fixtures/ca-cert.pem',
+      '--mtls={"https://example.com": {"clientCert": "some-client-cert", "clientKey": "some-client-key", "caCert": "some-ca-cert"}}',
       '--organization',
       'my-org',
       '--input',
@@ -650,24 +651,32 @@ describe('cleanArgs', () => {
       apis: ['./fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       input: ['timeout=10000', '{"apiKey":"some=111=1111"}'],
       organization: 'my-org',
-      'client-cert': 'fixtures/client-cert.pem',
-      'client-key': 'fixtures/client-key.pem',
-      'ca-cert': 'fixtures/ca-cert.pem',
+      mtls: {
+        'https://example.com': {
+          clientCert: 'some-client-cert',
+          clientKey: 'some-client-key',
+          caCert: 'some-ca-cert',
+        },
+      },
       config: 'fixtures/redocly.yaml',
       output: 'fixtures',
     };
     const result = cleanArgs(parsedArgs, rawInput);
     expect(result.raw_input).toEqual(
-      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --client-cert *** --client-key *** --ca-cert *** --organization *** --input *** --input ***'
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder --mtls={"https://example.com": {"clientCert": "***", "clientKey": "***", "caCert": "***"}} --organization *** --input *** --input ***'
     );
     expect(result.arguments).toEqual(
       JSON.stringify({
         apis: ['file-yaml', 'http://url'],
         input: '***',
         organization: '***',
-        'client-cert': '***',
-        'client-key': '***',
-        'ca-cert': '***',
+        mtls: {
+          'https://example.com': {
+            clientCert: '***',
+            clientKey: '***',
+            caCert: '***',
+          },
+        },
         config: 'file-yaml',
         output: 'folder',
       })

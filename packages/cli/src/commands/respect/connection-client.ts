@@ -7,6 +7,10 @@ export type MtlsCerts = {
   caCert?: string;
 };
 
+export type MtlsPerDomainCerts = {
+  [domain: string]: MtlsCerts;
+};
+
 export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: MtlsCerts = {}) {
   const { clientCert, clientKey, caCert } = mtlsCerts;
   const baseUrl = new URL(parsedPathToFetch).origin;
@@ -20,9 +24,7 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
         key: Buffer.from(clientKey),
         cert: Buffer.from(clientCert),
         ...(caCert && { ca: Buffer.from(caCert) }),
-        // Keeping this `false` to have the ability to call different servers in one Arazzo file
-        // some of them might not require mTLS.
-        rejectUnauthorized: false,
+        rejectUnauthorized: true,
       },
     });
   }
@@ -34,9 +36,7 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
         key: Buffer.from(clientKey),
         cert: Buffer.from(clientCert),
         ...(caCert && { ca: Buffer.from(caCert) }),
-        // Keeping this `false` to have the ability to call different servers in one Arazzo file
-        // some of them might not require mTLS.
-        rejectUnauthorized: false,
+        rejectUnauthorized: true,
       },
     });
   }
@@ -49,12 +49,14 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   return undefined;
 }
 
-export function withConnectionClient(mtlsCerts: MtlsCerts = {}) {
+export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
   const proxyUrl = getProxyUrl();
 
-  if (!mtlsCerts && !proxyUrl) {
+  if (!perDomainCerts || Object.keys(perDomainCerts).length === 0 && !proxyUrl) {
     return fetch;
   }
+
+  const dispatcherCache = new Map<string, Client | ProxyAgent>();
 
   return (input: RequestInfo, init?: RequestInit) => {
     const url =
@@ -70,9 +72,30 @@ export function withConnectionClient(mtlsCerts: MtlsCerts = {}) {
       throw new Error('Invalid input URL');
     }
 
+    const mtlsCerts = selectCertsForDomain(url, perDomainCerts);
+
+    const origin = new URL(url).origin;
+    let dispatcher = dispatcherCache.get(origin);
+
+    if (!dispatcher) {
+      dispatcher = createNetworkDispatcher(url, mtlsCerts) || init?.dispatcher;
+      if (dispatcher) {
+        dispatcherCache.set(origin, dispatcher);
+      }
+    }
+
     return fetch(input, {
       ...init,
-      dispatcher: createNetworkDispatcher(url, mtlsCerts) || init?.dispatcher,
+      dispatcher,
     });
   };
+}
+
+function selectCertsForDomain(
+  url: string,
+  perDomainCerts: MtlsPerDomainCerts
+): MtlsCerts | undefined {
+  const parsedUrl = new URL(url);
+
+  return perDomainCerts[parsedUrl.origin] || perDomainCerts[parsedUrl.hostname];
 }

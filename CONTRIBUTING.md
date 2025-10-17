@@ -291,8 +291,9 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 What should be verified when changes applied to the `respect-core` package:
 
-- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --ca-cert="ca-cert.pem" --client-key="client-key.pem" --client-cert="client-cert.pem"`.
+- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
+  4
 
 ## Project structure
 

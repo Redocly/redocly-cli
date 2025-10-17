@@ -50,7 +50,7 @@ exports[`should use server override from CLI and env 1`] = `
  
     stepId - list-events 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
   Summary for server-override-with-console-parameters.arazzo.yaml
   
