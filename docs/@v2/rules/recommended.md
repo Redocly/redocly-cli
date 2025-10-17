@@ -27,7 +27,6 @@ Errors:
 - [path-declaration-must-exist](./oas/path-declaration-must-exist.md)
 - [path-not-include-query](./oas/path-not-include-query.md)
 - [path-parameters-defined](./oas/path-parameters-defined.md)
-- [path-params-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
 - [sourceDescription-name-unique](./arazzo/sourceDescriptions-name-unique.md)
 - [sourceDescription-type](./arazzo/sourceDescriptions-type.md)

@@ -34,7 +34,7 @@ paths:
               schema:
                 type: array
                 prefixItems:
-                  - type: 'string'
+                  - type: string
                 items: false
         400:
           description: An error response
@@ -109,10 +109,10 @@ paths:
   /unevaluated-properties:
     get:
       operationId: getUnevaluatedProperties
-      summary: Checks if unevaluetedProperties work
+      summary: Checks if unevaluatedProperties work
       responses:
         200:
-          description: 'OK'
+          description: OK
           content:
             application/json:
               schema:
@@ -177,11 +177,11 @@ components:
   pathItems: {}
   schemas:
     Problem:
-      id: 'https://tools.ietf.org/rfc/rfc7807.txt'
+      id: https://tools.ietf.org/rfc/rfc7807.txt
       $schema: 'http://json-schema.org/draft-06/schema#'
-      description: 'schema for a rfc7807'
+      description: schema for a rfc7807
       definitions: {}
-      type: 'object'
+      type: object
       properties:
         type:
           description: A URI reference [RFC3986] that identifies the problem type.
