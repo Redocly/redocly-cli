@@ -1,6 +1,6 @@
 import { dequal } from '../../utils/dequal.js';
 import { isRef } from '../../ref-utils.js';
-import { areDuplicatedSchemas } from '../utils.js';
+import { areSchemasDuplicated } from '../utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -20,7 +20,6 @@ type SchemaSignature = {
 type ReturnType = {
   isExclusive: boolean;
   reason?: string;
-  reasons?: string[];
 };
 
 type RangeBounds = {
@@ -39,30 +38,57 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
       enter(schema: Oas3Schema | Oas3_1Schema, { report, location, resolve }: UserContext) {
         if (!schema.oneOf) return;
         if (!Array.isArray(schema.oneOf)) return;
+        const oneOfSchema = schema.oneOf;
 
-        if (schema.oneOf.length < 2) {
+        if (oneOfSchema.length < 2) {
           report({
             message: `Schema object \`oneOf\` should contain at least 2 schemas. Use the schema directly instead.`,
             location: location.child(['oneOf']),
           });
         } else {
+          // Check for empty schema
+          for (let i = 0; i < oneOfSchema.length; i++) {
+            if (areSchemaEmpty(oneOfSchema[i], resolve)) {
+              report({
+                message:
+                  'Schema in `oneOf` is empty, which makes it impossible to discriminate between schemas.',
+                location: location.child(['oneOf', String(i)]),
+              });
+              return;
+            }
+          }
+
+          // Check for nullable type
+          // Check for impossible nullable + oneOf with null type combination
+          if (hasNullableType(schema)) {
+            const hasNullTypeInOneOf = oneOfSchema.some((subSchema) => {
+              const resolved = resolveSchema(subSchema, resolve);
+              return hasNullableType(resolved);
+            });
+
+            if (hasNullTypeInOneOf) {
+              report({
+                message: `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`,
+                location: location.child(['oneOf']),
+              });
+
+              return;
+            }
+          }
+
           // Check for duplicate schemas
-          const { isDuplicated, reason: duplicatedReason } = areDuplicatedSchemas(schema.oneOf);
+          const { isDuplicated, reason: duplicatedReason } = areSchemasDuplicated(oneOfSchema);
           if (isDuplicated && duplicatedReason) {
             report({
               message: duplicatedReason,
               location: location.child(['oneOf']),
             });
-            // Skip mutual exclusivity check if duplicates found - duplicates are by definition not mutually exclusive
+
             return;
           }
 
           // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(
-            schema.oneOf,
-            resolve,
-            schema
-          );
+          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(oneOfSchema, resolve);
 
           if (!isExclusive && reasons && reasons.length > 0) {
             // Report each ambiguous pair as a separate warning
@@ -78,6 +104,53 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
     },
   };
 };
+
+// Helper function to resolve a schema if it's a reference
+function resolveSchema(
+  schema: Oas3Schema | Oas3_1Schema,
+  resolve: UserContext['resolve']
+): Oas3Schema | Oas3_1Schema {
+  if (isRef(schema)) {
+    const { node: resolvedSchema } = resolve(schema);
+    if (resolvedSchema) {
+      return resolvedSchema;
+    }
+  }
+  return schema;
+}
+
+function areSchemaEmpty(
+  schema: Oas3Schema | Oas3_1Schema,
+  resolve: UserContext['resolve']
+): boolean {
+  const resolvedSchema = resolveSchema(schema, resolve);
+
+  // Check if schema is empty (no properties defined)
+  const keys = Object.keys(resolvedSchema);
+  if (keys.length === 0) {
+    return true;
+  }
+
+  return false;
+}
+
+function hasNullableType(schema: Oas3Schema | Oas3_1Schema): boolean {
+  if ('nullable' in schema && schema.nullable === true) {
+    return true;
+  }
+
+  // Check if type is the string 'null'
+  if (schema.type === 'null') {
+    return true;
+  }
+
+  // Check if type is an array containing 'null'
+  if (schema.type && Array.isArray(schema.type)) {
+    return schema.type.includes('null');
+  }
+
+  return false;
+}
 
 // Helper to get effective minimum/maximum bounds for numeric constraints
 function getEffectiveBounds(prop: SchemaSignature): RangeBounds {
@@ -251,7 +324,19 @@ function checkRangeConstraints(
       break;
   }
 
-  if (hasConstraints1 || hasConstraints2) {
+  // Only check if BOTH schemas have constraints - if only one has constraints, it's not useful for exclusivity
+  if (hasConstraints1 && hasConstraints2) {
+    // Check if ranges are identical - if so, they don't help with mutual exclusivity
+    if (
+      bounds1!.min === bounds2!.min &&
+      bounds1!.max === bounds2!.max &&
+      bounds1!.minExclusive === bounds2!.minExclusive &&
+      bounds1!.maxExclusive === bounds2!.maxExclusive
+    ) {
+      // Identical ranges don't help distinguish schemas
+      return null;
+    }
+
     if (doRangesOverlap(bounds1!, bounds2!)) {
       return {
         isExclusive: false,
@@ -270,11 +355,11 @@ function createSchemaSignature(
   resolve: UserContext['resolve']
 ): SchemaSignature {
   // Resolve $ref if present
-  if (isRef(schema)) {
-    const { node: resolvedSchema } = resolve(schema);
-    if (resolvedSchema) {
-      return createSchemaSignature(resolvedSchema, resolve);
-    }
+  const resolvedSchema = resolveSchema(schema, resolve);
+
+  // If resolving returned a different schema, recurse with the resolved one
+  if (resolvedSchema !== schema) {
+    return createSchemaSignature(resolvedSchema, resolve);
   }
 
   const signature: SchemaSignature = {};
@@ -443,21 +528,6 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
     return topLevelResult;
   }
 
-  // Array items check - moved here to check before property overlap
-  if (sig1.items && sig2.items) {
-    const { isExclusive, reason } = areSignaturesMutuallyExclusive(sig1.items, sig2.items);
-    if (!isExclusive) {
-      return {
-        isExclusive: false,
-        reason: reason || 'Array items are not mutually exclusive.',
-      };
-    }
-    // If array items ARE mutually exclusive, the parent schemas are mutually exclusive
-    if (isExclusive) {
-      return { isExclusive: true };
-    }
-  }
-
   // Property overlap check
   if (sig1.properties && sig2.properties) {
     const intersection = [...sig1.properties].filter((prop) => sig2.properties!.has(prop));
@@ -598,86 +668,12 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
 
 function areOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
-  resolve: UserContext['resolve'],
-  parentSchema: Oas3Schema | Oas3_1Schema
-): ReturnType {
+  resolve: UserContext['resolve']
+): ReturnType & {
+  reasons?: string[];
+} {
   // Check for ambiguous combinations
   const ambiguousReasons: string[] = [];
-
-  // Check for empty schemas first
-  for (let i = 0; i < schemas.length; i++) {
-    let schema = schemas[i];
-
-    // Resolve $ref if present
-    if (isRef(schema)) {
-      const { node: resolvedSchema } = resolve(schema);
-      if (resolvedSchema) {
-        schema = resolvedSchema;
-      }
-    }
-
-    // Check if schema is empty (no properties defined)
-    const keys = Object.keys(schema);
-    if (keys.length === 0) {
-      ambiguousReasons.push(
-        `Empty schema at position ${
-          i + 1
-        } in \`oneOf\` matches all values and cannot be mutually exclusive.`
-      );
-    }
-  }
-
-  if (ambiguousReasons.length > 0) {
-    return {
-      isExclusive: false,
-      reasons: ambiguousReasons,
-    };
-  }
-
-  const hasNullableType = (schema: Oas3Schema | Oas3_1Schema): boolean => {
-    if ('nullable' in schema && schema.nullable === true) {
-      return true;
-    }
-
-    // Check if type is the string 'null'
-    if (schema.type === 'null') {
-      return true;
-    }
-
-    // Check if type is an array containing 'null'
-    if (schema.type && Array.isArray(schema.type)) {
-      return schema.type.includes('null');
-    }
-
-    return false;
-  };
-
-  // Check for impossible nullable + oneOf with null type combination
-  if (hasNullableType(parentSchema)) {
-    const hasNullTypeInOneOf = schemas.some((subSchema) => {
-      if (isRef(subSchema)) {
-        const { node: resolved } = resolve(subSchema);
-        if (resolved && hasNullableType(resolved)) {
-          return true;
-        }
-      }
-      return hasNullableType(subSchema);
-    });
-
-    if (hasNullTypeInOneOf) {
-      ambiguousReasons.push(
-        `Schema with nullable type cannot have a oneOf option that is also nullable. This creates ambiguity when the value is null.`
-      );
-    }
-  }
-
-  if (ambiguousReasons.length > 0) {
-    return {
-      isExclusive: false,
-      reasons: ambiguousReasons,
-    };
-  }
-
   const signatures: SchemaSignature[] = [];
 
   // Collect signatures

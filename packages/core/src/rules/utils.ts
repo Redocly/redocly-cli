@@ -219,7 +219,7 @@ export function getTagName(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ignoreCase: boole
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
 }
 
-export function areDuplicatedSchemas(schemas: Array<Oas3Schema | Oas3_1Schema>): {
+export function areSchemasDuplicated(schemas: Array<Oas3Schema | Oas3_1Schema>): {
   isDuplicated: boolean;
   reason?: string;
 } {

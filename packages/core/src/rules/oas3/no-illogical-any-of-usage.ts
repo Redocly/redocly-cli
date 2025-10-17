@@ -1,4 +1,4 @@
-import { areDuplicatedSchemas } from '../utils.js';
+import { areSchemasDuplicated } from '../utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -20,7 +20,7 @@ export const NoIllogicalAnyOfUsage: Oas3Rule = (): Oas3Visitor => {
             location,
           });
         } else {
-          const { isDuplicated, reason: duplicatedReason } = areDuplicatedSchemas(schema.anyOf);
+          const { isDuplicated, reason: duplicatedReason } = areSchemasDuplicated(schema.anyOf);
           if (isDuplicated && duplicatedReason) {
             report({
               message: duplicatedReason,
