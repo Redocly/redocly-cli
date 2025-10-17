@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.7.0
+
+### Minor Changes
+
+- Added new `bundleOas` export: a lightweight function for bundling OpenAPI specifications.
+
 ## 2.6.0
 
 ### Minor Changes
