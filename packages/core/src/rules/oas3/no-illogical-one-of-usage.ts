@@ -1,6 +1,7 @@
 import { dequal } from '../../utils/dequal.js';
 import { isRef } from '../../ref-utils.js';
 import { areDuplicatedSchemas } from '../utils.js';
+import { isEmptyObject, isDefined, isPlainObject } from '../../utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -129,12 +130,7 @@ function areSchemaEmpty(
   const resolvedSchema = resolveSchema(schema, resolve);
 
   // Check if schema is empty (no properties defined)
-  const keys = Object.keys(resolvedSchema);
-  if (keys.length === 0) {
-    return true;
-  }
-
-  return false;
+  return isEmptyObject(resolvedSchema);
 }
 
 // Helper to check if a schema or signature represents a nullable type
@@ -159,8 +155,8 @@ function hasNullableType(schema: Oas3Schema | Oas3_1Schema | SchemaSignature): b
 
 // Helper to get effective minimum/maximum bounds for numeric constraints
 function getEffectiveBounds(prop: SchemaSignature): RangeBounds {
-  let min = prop.minimum !== undefined ? prop.minimum : -Infinity;
-  let max = prop.maximum !== undefined ? prop.maximum : Infinity;
+  let min = isDefined(prop.minimum) ? prop.minimum : -Infinity;
+  let max = isDefined(prop.maximum) ? prop.maximum : Infinity;
   let minExclusive = false;
   let maxExclusive = false;
 
@@ -171,7 +167,7 @@ function getEffectiveBounds(prop: SchemaSignature): RangeBounds {
     // OAS 3.1 style: exclusiveMinimum is the actual exclusive minimum value
     min = prop.exclusiveMinimum;
     minExclusive = true;
-  } else if (prop.exclusiveMinimum === true && prop.minimum !== undefined) {
+  } else if (prop.exclusiveMinimum === true && isDefined(prop.minimum)) {
     // OAS 3.0 style: exclusiveMinimum is a boolean
     minExclusive = true;
   }
@@ -183,7 +179,7 @@ function getEffectiveBounds(prop: SchemaSignature): RangeBounds {
     // OAS 3.1 style: exclusiveMaximum is the actual exclusive maximum value
     max = prop.exclusiveMaximum;
     maxExclusive = true;
-  } else if (prop.exclusiveMaximum === true && prop.maximum !== undefined) {
+  } else if (prop.exclusiveMaximum === true && isDefined(prop.maximum)) {
     // OAS 3.0 style: exclusiveMaximum is a boolean
     maxExclusive = true;
   }
@@ -248,15 +244,15 @@ function checkRangeConstraints(
   switch (type) {
     case 'numeric':
       hasConstraints1 =
-        prop1.minimum !== undefined ||
-        prop1.maximum !== undefined ||
-        prop1.exclusiveMinimum !== undefined ||
-        prop1.exclusiveMaximum !== undefined;
+        isDefined(prop1.minimum) ||
+        isDefined(prop1.maximum) ||
+        isDefined(prop1.exclusiveMinimum) ||
+        isDefined(prop1.exclusiveMaximum);
       hasConstraints2 =
-        prop2.minimum !== undefined ||
-        prop2.maximum !== undefined ||
-        prop2.exclusiveMinimum !== undefined ||
-        prop2.exclusiveMaximum !== undefined;
+        isDefined(prop2.minimum) ||
+        isDefined(prop2.maximum) ||
+        isDefined(prop2.exclusiveMinimum) ||
+        isDefined(prop2.exclusiveMaximum);
 
       if (hasConstraints1 || hasConstraints2) {
         bounds1 = getEffectiveBounds(prop1);
@@ -266,8 +262,8 @@ function checkRangeConstraints(
       break;
 
     case 'string':
-      hasConstraints1 = prop1.minLength !== undefined || prop1.maxLength !== undefined;
-      hasConstraints2 = prop2.minLength !== undefined || prop2.maxLength !== undefined;
+      hasConstraints1 = isDefined(prop1.minLength) || isDefined(prop1.maxLength);
+      hasConstraints2 = isDefined(prop2.minLength) || isDefined(prop2.maxLength);
 
       if (hasConstraints1 || hasConstraints2) {
         bounds1 = {
@@ -287,8 +283,8 @@ function checkRangeConstraints(
       break;
 
     case 'array':
-      hasConstraints1 = prop1.minItems !== undefined || prop1.maxItems !== undefined;
-      hasConstraints2 = prop2.minItems !== undefined || prop2.maxItems !== undefined;
+      hasConstraints1 = isDefined(prop1.minItems) || isDefined(prop1.maxItems);
+      hasConstraints2 = isDefined(prop2.minItems) || isDefined(prop2.maxItems);
 
       if (hasConstraints1 || hasConstraints2) {
         bounds1 = {
@@ -308,8 +304,8 @@ function checkRangeConstraints(
       break;
 
     case 'object':
-      hasConstraints1 = prop1.minProperties !== undefined || prop1.maxProperties !== undefined;
-      hasConstraints2 = prop2.minProperties !== undefined || prop2.maxProperties !== undefined;
+      hasConstraints1 = isDefined(prop1.minProperties) || isDefined(prop1.maxProperties);
+      hasConstraints2 = isDefined(prop2.minProperties) || isDefined(prop2.maxProperties);
 
       if (hasConstraints1 || hasConstraints2) {
         bounds1 = {
@@ -393,7 +389,7 @@ function createSchemaSignature(
 
     // Store property schemas for deeper comparison
     for (const [propName, propSchema] of Object.entries(schema.properties)) {
-      if (typeof propSchema === 'object' && propSchema !== null) {
+      if (isPlainObject(propSchema)) {
         signature.propertySchemas.set(propName, createSchemaSignature(propSchema, resolve));
       }
     }
@@ -403,11 +399,11 @@ function createSchemaSignature(
     signature.required = new Set(schema.required);
   }
 
-  if (schema.items && typeof schema.items === 'object') {
+  if (schema.items && isPlainObject(schema.items)) {
     signature.items = createSchemaSignature(schema.items, resolve);
   }
 
-  if (schema.additionalProperties !== undefined) {
+  if (isDefined(schema.additionalProperties)) {
     if (typeof schema.additionalProperties === 'boolean') {
       signature.additionalProperties = schema.additionalProperties;
     } else {
@@ -443,7 +439,7 @@ function arePropertySchemasMutuallyExclusive(
   }
 
   // If both have const values and they're different, they're mutually exclusive
-  if (prop1.const !== undefined && prop2.const !== undefined) {
+  if (isDefined(prop1.const) && isDefined(prop2.const)) {
     const areDifferent = !dequal(prop1.const, prop2.const);
 
     return areDifferent
@@ -637,7 +633,7 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
   }
 
   // additionalProperties check
-  if (sig1.additionalProperties !== undefined || sig2.additionalProperties !== undefined) {
+  if (isDefined(sig1.additionalProperties) || isDefined(sig2.additionalProperties)) {
     const addlProps1 = sig1.additionalProperties;
     const addlProps2 = sig2.additionalProperties;
 
@@ -665,7 +661,7 @@ function areSignaturesMutuallyExclusive(sig1: SchemaSignature, sig2: SchemaSigna
 function areOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
   resolve: UserContext['resolve']
-): ReturnType & {
+): Pick<ReturnType, 'isExclusive'> & {
   reasons?: string[];
 } {
   // Check for ambiguous combinations
