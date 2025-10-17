@@ -1,19 +1,25 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { MtlsCerts } from './create-mtls-client.js';
+import type { MtlsPerDomainCerts } from './create-mtls-client.js';
 
 export function resolveMtlsCertificates(
-  mtlsCertificates: Partial<MtlsCerts> = {},
+  perDomainCertificates: {
+    [domain: string]: { 'client-cert'?: string; 'client-key'?: string; 'ca-cert'?: string };
+  } = {},
   workingDir: string
-) {
-  const { clientCert, clientKey, caCert } = mtlsCertificates;
+): MtlsPerDomainCerts {
+  const resolved: MtlsPerDomainCerts = {};
 
-  return {
-    clientCert: resolveCertificate(clientCert, workingDir),
-    clientKey: resolveCertificate(clientKey, workingDir),
-    caCert: resolveCertificate(caCert, workingDir),
-  };
+  for (const [domain, certs] of Object.entries(perDomainCertificates)) {
+    resolved[domain] = {
+      clientCert: resolveCertificate(certs['client-cert'], workingDir),
+      clientKey: resolveCertificate(certs['client-key'], workingDir),
+      caCert: resolveCertificate(certs['ca-cert'], workingDir),
+    };
+  }
+
+  return resolved;
 }
 
 function resolveCertificate(cert: string | undefined, workingDir: string): string | undefined {
