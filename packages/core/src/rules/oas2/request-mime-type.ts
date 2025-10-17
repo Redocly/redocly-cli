@@ -1,4 +1,4 @@
-import { validateMimeType } from '../../utils.js';
+import { validateMimeType } from '../../utils/validate-mime-type.js';
 
 import type { Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

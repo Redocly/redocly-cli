@@ -1,16 +1,13 @@
 import util from 'node:util';
-import { colorize } from '../../logger.js';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
 import { resolveConfig } from '../config-resolvers.js';
 import recommended from '../recommended.js';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 
 import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 import { Source } from '../../resolve.js';
 import { Config } from '../config.js';
-import { SpecVersion } from '../../oas-types.js';
 import { after } from 'node:test';
 
 vi.mock('node:module', () => ({
@@ -296,9 +293,7 @@ describe('resolveConfig', () => {
       new Config(config.resolvedConfig, { plugins: config.plugins });
     } catch (e) {
       expect(e.message.toString()).toContain(
-        `Plugin ${colorize.red(
-          'test-plugin'
-        )} doesn't export assertions function with name ${colorize.red('checkWordsCount2')}.`
+        `Plugin test-plugin doesn't export assertions function with name checkWordsCount2.`
       );
     }
   });

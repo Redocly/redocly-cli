@@ -159,6 +159,8 @@ describe('handleJoin', () => {
   it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
     vi.mocked(detectSpec)
       .mockImplementationOnce(() => 'oas3_0')
+      .mockImplementationOnce(() => 'oas3_1')
+      .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1');
     await handleJoin({
       argv: {

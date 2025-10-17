@@ -14,6 +14,7 @@ import {
   isPlainObject,
   keysOf,
   isEmptyObject,
+  getTypes,
 } from '@redocly/openapi-core';
 import {
   getFallbackApisOrExit,
@@ -133,6 +134,7 @@ export async function handleJoin({
         document,
         config,
         externalRefResolver: new BaseResolver(config.resolve),
+        types: getTypes(detectSpec(document.parsed)),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
       })

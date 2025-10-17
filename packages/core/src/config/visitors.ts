@@ -3,7 +3,7 @@ import { normalizeVisitors } from '../visitors.js';
 import { replaceRef } from '../ref-utils.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath } from './config-resolvers.js';
-import { isPlainObject } from '../utils.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
 
 import type { PluginResolveInfo } from './config-resolvers.js';

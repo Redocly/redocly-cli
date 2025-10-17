@@ -1,7 +1,10 @@
 import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
 import { colorize } from '../../../logger.js';
 import { isRef } from '../../../ref-utils.js';
-import { isTruthy, keysOf, isString } from '../../../utils.js';
+import { isTruthy } from '../../../utils/is-truthy.js';
+import { keysOf } from '../../../utils/keys-of.js';
+import { isString } from '../../../utils/is-string.js';
+import { regexFromString } from '../../../utils/regex-from-string.js';
 
 import type { UserContext } from '../../../walk.js';
 import type { Asserts } from './asserts.js';
@@ -13,13 +16,6 @@ import type {
   SkipFunctionContext,
   VisitFunction,
 } from '../../../visitors.js';
-
-export type OrderDirection = 'asc' | 'desc';
-
-export type OrderOptions = {
-  direction: OrderDirection;
-  property: string;
-};
 
 export type AssertToApply = {
   name: keyof Asserts;
@@ -253,49 +249,6 @@ function getProblemsMessage(problems: AssertResult[]) {
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 
-export function getIntersectionLength(keys: string[], properties: string[]): number {
-  const props = new Set(properties);
-  let count = 0;
-  for (const key of keys) {
-    if (props.has(key)) {
-      count++;
-    }
-  }
-  return count;
-}
-
-export function isOrdered(value: any[], options: OrderOptions | OrderDirection): boolean {
-  const direction = (options as OrderOptions).direction || (options as OrderDirection);
-  const property = (options as OrderOptions).property;
-  for (let i = 1; i < value.length; i++) {
-    let currValue = value[i];
-    let prevVal = value[i - 1];
-
-    if (property) {
-      const currPropValue = value[i][property];
-      const prevPropValue = value[i - 1][property];
-
-      if (!currPropValue || !prevPropValue) {
-        return false; // property doesn't exist, so collection is not ordered
-      }
-
-      currValue = currPropValue;
-      prevVal = prevPropValue;
-    }
-
-    if (typeof currValue === 'string' && typeof prevVal === 'string') {
-      currValue = currValue.toLowerCase();
-      prevVal = prevVal.toLowerCase();
-    }
-
-    const result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
-    if (!result) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export function runAssertion({
   assert,
   ctx,
@@ -325,9 +278,4 @@ export function runAssertion({
       baseLocation: currentLocation,
     });
   }
-}
-
-export function regexFromString(input: string): RegExp | null {
-  const matches = input.match(/^\/(.*)\/(.*)|(.*)/);
-  return matches && new RegExp(matches[1] || matches[3], matches[2]);
 }

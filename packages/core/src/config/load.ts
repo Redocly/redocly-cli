@@ -1,15 +1,16 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { resolveConfig } from './config-resolvers.js';
+import { Config } from './config.js';
 import {
   BaseResolver,
   makeDocumentFromString,
   type Document,
   type ResolvedRefMap,
 } from '../resolve.js';
-import { Config } from './config.js';
-import { type RawUniversalConfig } from './types.js';
 import { CONFIG_FILE_NAME } from './constants.js';
+
+import type { RawUniversalConfig } from './types.js';
 
 export async function loadConfig(
   options: {

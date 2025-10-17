@@ -1,13 +1,7 @@
-import { assignOnlyExistingConfig, assignConfig, isPlainObject } from '../utils.js';
+import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 
-import type {
-  ImportedPlugin,
-  RawResolveConfig,
-  ResolveConfig,
-  ResolvedGovernanceConfig,
-  Plugin,
-  PluginCreator,
-} from './types.js';
+import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -141,15 +135,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
   }
 
   return result;
-}
-
-export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
-  return {
-    http: {
-      headers: resolve?.http?.headers ?? [],
-      customFetch: undefined,
-    },
-  };
 }
 
 export class ConfigValidationError extends Error {}

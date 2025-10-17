@@ -1,4 +1,4 @@
-import { YamlParseError } from '../../resolve.js';
+import { YamlParseError } from '../../errors/yaml-parse-error.js';
 
 import type {
   Oas2Rule,

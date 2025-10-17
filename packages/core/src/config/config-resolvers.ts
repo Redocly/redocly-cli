@@ -3,23 +3,25 @@ import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString, isString, isDefined, keysOf, isPlainObject } from '../utils.js';
+import { isNotString } from '../utils/is-not-string.js';
+import { isString } from '../utils/is-string.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isDefined } from '../utils/is-defined.js';
 import { resolveDocument, BaseResolver, Source } from '../resolve.js';
 import { defaultPlugin } from './builtIn.js';
 import {
   deepCloneMapWithJSON,
-  getResolveConfig,
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
   mergeExtends,
   parsePresetName,
   prefixRules,
 } from './utils.js';
+import { getResolveConfig } from './get-resolve-config.js';
 import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { bundleConfig, collectConfigPlugins } from '../bundle.js';
+import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 
 import type {
@@ -27,15 +29,8 @@ import type {
   RawUniversalConfig,
   ResolvedConfig,
   RawGovernanceConfig,
-  RuleConfig,
   ImportedPlugin,
 } from './types.js';
-import type {
-  Assertion,
-  AssertionDefinition,
-  RawAssertion,
-} from '../rules/common/assertions/index.js';
-import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 
 // Cache instantiated plugins during a single execution
@@ -471,71 +466,4 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): RawGoverna
     );
   }
   return preset;
-}
-
-export function groupAssertionRules(
-  config: RawGovernanceConfig,
-  plugins: Plugin[]
-): Record<string, RuleConfig> {
-  if (!config.rules) {
-    return {};
-  }
-
-  // Create a new record to avoid mutating original
-  const transformedRules: Record<string, RuleConfig> = {};
-
-  // Collect assertion rules
-  const assertions: Assertion[] = [];
-  for (const [ruleKey, rule] of Object.entries(config.rules)) {
-    if (ruleKey.startsWith('rule/') && typeof rule === 'object' && rule !== null) {
-      const assertion = rule as RawAssertion;
-
-      if (plugins) {
-        registerCustomAssertions(plugins, assertion);
-
-        // We may have custom assertion inside where block
-        for (const context of assertion.where || []) {
-          registerCustomAssertions(plugins, context);
-        }
-      }
-      assertions.push({
-        ...assertion,
-        assertionId: ruleKey,
-      });
-    } else {
-      // If it's not an assertion, keep it as is
-      transformedRules[ruleKey] = rule;
-    }
-  }
-  if (assertions.length > 0) {
-    transformedRules.assertions = assertions;
-  }
-
-  return transformedRules;
-}
-
-function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinition) {
-  for (const field of keysOf(assertion.assertions)) {
-    const [pluginId, fn] = field.split('/');
-
-    if (!pluginId || !fn) continue;
-
-    const plugin = plugins.find((plugin) => plugin.id === pluginId);
-
-    if (!plugin) {
-      throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
-    }
-
-    if (!plugin.assertions || !plugin.assertions[fn]) {
-      throw Error(
-        `Plugin ${colorize.red(
-          pluginId
-        )} doesn't export assertions function with name ${colorize.red(fn)}.`
-      );
-    }
-
-    (asserts as Asserts & { [name: string]: AssertionFn })[field] = buildAssertCustomFunction(
-      plugin.assertions[fn]
-    );
-  }
 }

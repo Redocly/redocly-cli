@@ -10,15 +10,10 @@
       "require": "./lib/index.js",
       "types": "./lib/index.d.ts"
     },
-    "./lib/config/config": {
-      "import": "./lib/config/index.js",
-      "require": "./lib/config/index.js",
-      "types": "./lib/config/index.d.ts"
-    },
-    "./lib/bundle": {
-      "import": "./lib/bundle.js",
-      "require": "./lib/bundle.js",
-      "types": "./lib/bundle.d.ts"
+    "./lib/bundle-oas": {
+      "import": "./lib/bundle/bundle-oas.js",
+      "require": "./lib/bundle/bundle-oas.js",
+      "types": "./lib/bundle/bundle-oas.d.ts"
     }
   },
   "engines": {
@@ -63,14 +58,14 @@
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
-    "minimatch": "^10.0.1",
+    "picomatch": "^4.0.3",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
     "@types/js-levenshtein": "^1.1.0",
     "@types/js-yaml": "^4.0.3",
-    "@types/minimatch": "^5.1.2",
+    "@types/picomatch": "^4.0.2",
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
     "typescript": "5.5.3"

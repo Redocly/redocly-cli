@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle.js';
+import { bundleDocument } from '../../bundle/bundle-document.js';
 import { BaseResolver } from '../../resolve.js';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { createConfig } from '../../config/index.js';
+import { Oas2Types, Oas3Types } from '../../index.js';
 
 describe('oas3 filter-out', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -56,6 +57,7 @@ describe('oas3 filter-out', () => {
       config: await createConfig({
         decorators: { 'filter-out': { property: 'x-access', value: 'private' } },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
@@ -80,6 +82,7 @@ describe('oas3 filter-out', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -110,6 +113,7 @@ describe('oas3 filter-out', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
         openapi: 3.0.0
@@ -148,6 +152,7 @@ describe('oas3 filter-out', () => {
           },
         },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -195,6 +200,7 @@ describe('oas3 filter-out', () => {
       config: await createConfig({
         decorators: { 'filter-out': { property: 'x-prop', value: false } },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -249,6 +255,7 @@ describe('oas3 filter-out', () => {
       config: await createConfig({
         decorators: { 'filter-out': { property: 'x-prop', value: null } },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
@@ -318,6 +325,7 @@ describe('oas2 filter-out', () => {
           },
         },
       }),
+      types: Oas2Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       swagger: '2.0'

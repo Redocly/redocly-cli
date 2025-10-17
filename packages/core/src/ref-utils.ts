@@ -1,4 +1,5 @@
-import { isPlainObject, isTruthy } from './utils.js';
+import { isTruthy } from './utils/is-truthy.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 
 import type { ResolveResult, UserContext } from './walk.js';
 import type { Source } from './resolve.js';

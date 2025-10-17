@@ -20,8 +20,19 @@ describe('local-json-server', () => {
   });
 
   afterAll(() => {
-    // Kill the process group to ensure child processes are cleaned up
-    process.kill(-serverProcess.pid);
+    try {
+      if (process.platform === 'win32') {
+        spawn('taskkill', ['/pid', serverProcess.pid.toString(), '/f', '/t']);
+      } else {
+        spawn('kill', ['-TERM', `-${serverProcess.pid}`]);
+      }
+    } catch (error) {
+      try {
+        serverProcess.kill('SIGTERM');
+      } catch (e) {
+        // Process may have already exited
+      }
+    }
 
     // Restore original state
     if (originalData) {
