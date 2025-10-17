@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.7.1
+
+### Patch Changes
+
+- Fixed an issue where `no-required-schema-properties-undefined` rule did not evaluate properties in `any` and `oneOf`.
+
 ## 2.7.0
 
 ### Minor Changes
