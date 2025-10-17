@@ -1,6 +1,6 @@
 import { dequal } from '../../utils/dequal.js';
 import { isRef } from '../../ref-utils.js';
-import { areSchemasDuplicated } from '../utils.js';
+import { areDuplicatedSchemas } from '../utils.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
@@ -38,17 +38,17 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
       enter(schema: Oas3Schema | Oas3_1Schema, { report, location, resolve }: UserContext) {
         if (!schema.oneOf) return;
         if (!Array.isArray(schema.oneOf)) return;
-        const oneOfSchema = schema.oneOf;
+        const oneOfSchemas = schema.oneOf;
 
-        if (oneOfSchema.length < 2) {
+        if (oneOfSchemas.length < 2) {
           report({
             message: `Schema object \`oneOf\` should contain at least 2 schemas. Use the schema directly instead.`,
             location: location.child(['oneOf']),
           });
         } else {
           // Check for empty schema
-          for (let i = 0; i < oneOfSchema.length; i++) {
-            if (areSchemaEmpty(oneOfSchema[i], resolve)) {
+          for (let i = 0; i < oneOfSchemas.length; i++) {
+            if (areSchemaEmpty(oneOfSchemas[i], resolve)) {
               report({
                 message:
                   'Schema in `oneOf` is empty, which makes it impossible to discriminate between schemas.',
@@ -61,7 +61,7 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
           // Check for nullable type
           // Check for impossible nullable + oneOf with null type combination
           if (hasNullableType(schema)) {
-            const hasNullTypeInOneOf = oneOfSchema.some((subSchema) => {
+            const hasNullTypeInOneOf = oneOfSchemas.some((subSchema) => {
               const resolved = resolveSchema(subSchema, resolve);
               return hasNullableType(resolved);
             });
@@ -77,7 +77,10 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
           }
 
           // Check for duplicate schemas
-          const { isDuplicated, reason: duplicatedReason } = areSchemasDuplicated(oneOfSchema);
+          const { isDuplicated, reason: duplicatedReason } = areDuplicatedSchemas(
+            oneOfSchemas,
+            'oneOf'
+          );
           if (isDuplicated && duplicatedReason) {
             report({
               message: duplicatedReason,
@@ -88,7 +91,7 @@ export const NoIllogicalOneOfUsage: Oas3Rule = (): Oas3Visitor => {
           }
 
           // Always check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(oneOfSchema, resolve);
+          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(oneOfSchemas, resolve);
 
           if (!isExclusive && reasons && reasons.length > 0) {
             // Report each ambiguous pair as a separate warning

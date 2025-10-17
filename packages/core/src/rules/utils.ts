@@ -219,7 +219,10 @@ export function getTagName(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ignoreCase: boole
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
 }
 
-export function areSchemasDuplicated(schemas: Array<Oas3Schema | Oas3_1Schema>): {
+export function areDuplicatedSchemas(
+  schemas: Array<Oas3Schema | Oas3_1Schema>,
+  context?: string
+): {
   isDuplicated: boolean;
   reason?: string;
 } {
@@ -230,11 +233,13 @@ export function areSchemasDuplicated(schemas: Array<Oas3Schema | Oas3_1Schema>):
     const schemaStr = JSON.stringify(schema);
 
     if (seen.has(schemaStr)) {
+      const firstPosition = (seen.get(schemaStr) ?? 0) + 1;
+      const secondPosition = i + 1;
+      const contextStr = context ? ` in \`${context}\`` : '';
+
       return {
         isDuplicated: true,
-        reason: `Duplicated schema found in \`oneOf\` at positions ${
-          (seen.get(schemaStr) ?? 0) + 1
-        } and ${i + 1}.`,
+        reason: `Duplicated schema found${contextStr} at positions ${firstPosition} and ${secondPosition}.`,
       };
     } else {
       seen.set(schemaStr, i);
