@@ -181,4 +181,23 @@ describe('resolveXSecurityParameters', () => {
       },
     ]);
   });
+
+  it('should throw when schemeName is provided but scheme cannot be resolved', () => {
+    const runtimeContext = {} as RuntimeExpressionContext;
+    const step = {
+      stepId: 'getPet',
+      'x-security': [
+        { schemeName: '$sourceDescriptions.museum-api.Missing', values: { token: 'x' } },
+      ],
+    } as unknown as Step;
+
+    const ctxWithSources = {
+      ...ctx,
+      $sourceDescriptions: { 'museum-api': { components: { securitySchemes: {} } } },
+    };
+
+    expect(() => resolveXSecurityParameters({ ctx: ctxWithSources, runtimeContext, step })).toThrow(
+      'Security scheme "$sourceDescriptions.museum-api.Missing" not found'
+    );
+  });
 });

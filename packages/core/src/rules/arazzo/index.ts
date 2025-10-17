@@ -15,11 +15,12 @@ import { NoCriteriaXpath } from '../respect/no-criteria-xpath.js';
 import { CriteriaUnique } from './criteria-unique.js';
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
 import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
-import { NoXSecuritySchemeNameInWorkflow } from '../respect/no-x-security-scheme-name-in-workflow.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
+import { NoXSecurityBothSchemeAndSchemeName } from '../respect/no-x-security-both-scheme-and-scheme-name.js';
+import { XSecuritySchemeNameReference } from '../respect/x-security-scheme-name-reference.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';
@@ -43,7 +44,8 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'criteria-unique': CriteriaUnique,
   'no-x-security-scheme-name-without-openapi': NoXSecuritySchemeNameWithoutOpenAPI,
   'x-security-scheme-required-values': XSecuritySchemaRequiredValues,
-  'no-x-security-scheme-name-in-workflow': NoXSecuritySchemeNameInWorkflow,
+  'x-security-scheme-name-reference': XSecuritySchemeNameReference,
+  'no-x-security-both-scheme-and-scheme-name': NoXSecurityBothSchemeAndSchemeName,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Arazzo1Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Arazzo1Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Arazzo1Rule,
