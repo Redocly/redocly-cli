@@ -423,10 +423,8 @@ function arePropertySchemasMutuallyExclusive(
   prop2: SchemaSignature
 ): ReturnType {
   // Check for null type distinction (OpenAPI 3.0 and 3.1)
-  // If one schema is type: null or nullable: true and the other is not, they're mutually exclusive
-  // If exactly one is null type, they're mutually exclusive
-  if (hasNullableType(prop1) !== hasNullableType(prop2)) {
-    return { isExclusive: true };
+  if (hasNullableType(prop1) && hasNullableType(prop2)) {
+    return { isExclusive: false, reason: 'Both schemas allow null values, creating ambiguity.' };
   }
 
   // If both have enums, check if they're completely non-overlapping
