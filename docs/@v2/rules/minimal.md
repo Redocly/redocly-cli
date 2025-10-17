@@ -24,7 +24,6 @@ Warnings:
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md)
 - [no-identical-paths](./oas/no-identical-paths.md)
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md)
-- [no-invalid-tag-parents](./oas/no-invalid-tag-parents.md)
 - [no-path-trailing-slash](./oas/no-path-trailing-slash.md)
 - [no-required-schema-properties-undefined](./common/no-required-schema-properties-undefined.md)
 - [no-schema-type-mismatch](./common/no-schema-type-mismatch.md)
@@ -43,6 +42,8 @@ Warnings:
 - [path-parameters-defined](./oas/path-parameters-defined.md)
 - [security-defined](./oas/security-defined.md)
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md)
+- [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md)
+- [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md)
 - [tag-description](./oas/tag-description.md)
 
 A copy-pastable version of this ruleset is available as a [ruleset template](./ruleset-templates.md).
