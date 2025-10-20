@@ -10,6 +10,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "catalogEntity1": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -24,6 +25,7 @@ Config {
     "arazzo1": {},
     "async2": {},
     "async3": {},
+    "catalogEntity1": {},
     "oas2": {},
     "oas3_0": {},
     "oas3_1": {},
@@ -153,6 +155,7 @@ Config {
       "no-empty-servers": "error",
       "operation-summary": "error",
     },
+    "catalogEntity1": {},
     "oas2": {
       "assertions": [
         {

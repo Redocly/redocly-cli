@@ -40,10 +40,18 @@ export const specVersions = [
   'async3',
   'arazzo1',
   'overlay1',
+  'catalogEntity1',
 ] as const;
 export type SpecVersion = typeof specVersions[number];
 
-export type SpecMajorVersion = 'oas2' | 'oas3' | 'async2' | 'async3' | 'arazzo1' | 'overlay1';
+export type SpecMajorVersion =
+  | 'oas2'
+  | 'oas3'
+  | 'async2'
+  | 'async3'
+  | 'arazzo1'
+  | 'overlay1'
+  | 'catalogEntity1';
 
 const typesMap = {
   oas2: Oas2Types,
@@ -106,5 +114,8 @@ export type Arazzo1DecoratorsSet = Record<string, Arazzo1Preprocessor>;
 export type Overlay1DecoratorsSet = Record<string, Overlay1Preprocessor>;
 
 export function getTypes(spec: SpecVersion) {
+  if (spec === 'catalogEntity1') {
+    return {};
+  }
   return typesMap[spec];
 }

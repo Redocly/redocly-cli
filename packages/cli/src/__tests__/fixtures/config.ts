@@ -25,6 +25,7 @@ export const configFixture: Config = {
     async3: {},
     arazzo1: {},
     overlay1: {},
+    catalogEntity1: {},
   },
   preprocessors: {
     oas2: {},
@@ -35,6 +36,7 @@ export const configFixture: Config = {
     async3: {},
     arazzo1: {},
     overlay1: {},
+    catalogEntity1: {},
   },
   plugins: [],
   doNotResolveExamples: false,
@@ -47,6 +49,7 @@ export const configFixture: Config = {
     async3: {},
     arazzo1: {},
     overlay1: {},
+    catalogEntity1: {},
   },
   resolveIgnore: vi.fn(),
   addProblemToIgnore: vi.fn(),

@@ -20,6 +20,7 @@ export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
 export { Overlay1Types } from './types/overlay.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
+export { createEntityTypes } from './types/entity-yaml.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 export {
@@ -98,7 +99,14 @@ export {
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
-export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
+export {
+  lint,
+  lint as validate,
+  lintDocument,
+  lintFromString,
+  lintConfig,
+  lintEntityFile,
+} from './lint.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
@@ -148,3 +156,4 @@ export type {
   ResolvedSecurity,
 } from './typings/arazzo.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
+export { getNodeTypesFromJSONSchema } from './types/json-schema-adapter.js';

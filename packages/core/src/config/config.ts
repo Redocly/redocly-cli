@@ -95,6 +95,7 @@ export class Config {
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
+      catalogEntity1: group({}),
     };
 
     this.preprocessors = {
@@ -127,6 +128,7 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
       },
+      catalogEntity1: {},
     };
 
     this.decorators = {
@@ -141,6 +143,7 @@ export class Config {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
       },
+      catalogEntity1: {},
     };
 
     this.resolveIgnore(getIgnoreFilePath(opts.configPath));
@@ -264,6 +267,8 @@ export class Config {
             if (!plugin.typeExtension.overlay1) continue;
             extendedTypes = plugin.typeExtension.overlay1(extendedTypes, version);
             break;
+          case 'catalogEntity1':
+            continue;
           default:
             throw new Error('Not implemented');
         }
@@ -397,6 +402,8 @@ export class Config {
           (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
         );
         return overlay1Rules;
+      case 'catalogEntity1':
+        return [];
     }
   }
 

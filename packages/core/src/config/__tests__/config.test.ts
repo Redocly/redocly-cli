@@ -52,6 +52,7 @@ describe('Config.forAlias', () => {
           "arazzo1": {},
           "async2": {},
           "async3": {},
+          "catalogEntity1": {},
           "oas2": {},
           "oas3_0": {},
           "oas3_1": {},
@@ -92,6 +93,7 @@ describe('Config.forAlias', () => {
           "arazzo1": {},
           "async2": {},
           "async3": {},
+          "catalogEntity1": {},
           "oas2": {},
           "oas3_0": {},
           "oas3_1": {},
@@ -157,6 +159,7 @@ describe('Config.forAlias', () => {
             "no-empty-servers": "error",
             "operation-summary": "warn",
           },
+          "catalogEntity1": {},
           "oas2": {
             "no-empty-servers": "error",
             "operation-summary": "warn",
