@@ -52,7 +52,7 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
 export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
   const proxyUrl = getProxyUrl();
 
-  if (!perDomainCerts || Object.keys(perDomainCerts).length === 0 && !proxyUrl) {
+  if (!proxyUrl && (!perDomainCerts || Object.keys(perDomainCerts).length === 0)) {
     return fetch;
   }
 
@@ -72,8 +72,7 @@ export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
       throw new Error('Invalid input URL');
     }
 
-    const mtlsCerts = selectCertsForDomain(url, perDomainCerts);
-
+    const mtlsCerts = perDomainCerts ? selectCertsForDomain(url, perDomainCerts) : undefined;
     const origin = new URL(url).origin;
     let dispatcher = dispatcherCache.get(origin);
 
