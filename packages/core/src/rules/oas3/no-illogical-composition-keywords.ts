@@ -169,15 +169,15 @@ function createSchemaSignature(
 
   // Copy all simple properties automatically
   for (const [key, value] of Object.entries(schema)) {
-    if (value === undefined || specialProperties.has(key)) {
+    if (!isDefined(value) || specialProperties.has(key)) {
       continue; // Skip undefined values and special properties
     }
 
     // Clone arrays to avoid mutation
     if (Array.isArray(value)) {
-      (signature as Record<string, unknown>)[key] = [...value];
+      signature[key] = [...value];
     } else {
-      (signature as Record<string, unknown>)[key] = value;
+      signature[key] = value;
     }
   }
 
@@ -238,7 +238,7 @@ function arePropertiesMutuallyExclusive(
   }
 
   // If both have const values and they're different, they're mutually exclusive
-  if (isDefined(prop1.const) && isDefined(prop2.const)) {
+  if (prop1.const && prop2.const) {
     const areDifferent = !dequal(prop1.const, prop2.const);
 
     return areDifferent
