@@ -1,6 +1,8 @@
 import { dequal } from '../../utils/dequal.js';
 import { isRef } from '../../ref-utils.js';
-import { isEmptyObject, isDefined, isPlainObject } from '../../utils.js';
+import { isEmptyObject } from '../../utils/is-empty-object.js';
+import { isDefined } from '../../utils/is-defined.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
