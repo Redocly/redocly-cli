@@ -56,8 +56,19 @@ export function withConnectionClient(mtlsCerts: MtlsCerts = {}) {
     return fetch;
   }
 
-  return (input: string | URL | RequestInfo, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : 'url' in input ? input.url : input.toString();
+  return (input: RequestInfo, init?: RequestInit) => {
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+        ? input.toString()
+        : 'url' in input
+        ? input.url
+        : undefined;
+
+    if (!url) {
+      throw new Error('Invalid input URL');
+    }
 
     return fetch(input, {
       ...init,
