@@ -184,7 +184,7 @@ Separately, open a merge request with the corresponding documentation changes.
 To make changes to documentation:
 
 1. Create a new page for the rule in the `docs/@v2` folder.
-2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/sidebars.yaml). 
+2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/sidebars.yaml).
 3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
 ## Arguments usage
