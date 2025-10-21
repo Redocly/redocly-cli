@@ -1,8 +1,8 @@
 import { ProxyAgent } from 'undici';
-import { 
+import {
   createNetworkDispatcher,
   type MtlsPerDomainCerts,
-  withMtlsClientIfNeeded,
+  withConnectionClient,
 } from '../../../commands/respect/connection-client.js';
 
 describe('createNetworkDispatcher', () => {
@@ -63,7 +63,7 @@ describe('withMtlsClientIfNeeded', () => {
       },
     };
 
-    const customFetch = withMtlsClientIfNeeded(perDomainCerts);
+    const customFetch = withConnectionClient(perDomainCerts);
     expect(customFetch).not.toBe(fetch);
     expect(typeof customFetch).toBe('function');
   });
@@ -76,7 +76,7 @@ describe('withMtlsClientIfNeeded', () => {
       },
     };
 
-    const customFetch = withMtlsClientIfNeeded(perDomainCerts);
+    const customFetch = withConnectionClient(perDomainCerts);
     expect(customFetch).not.toBe(fetch);
     expect(typeof customFetch).toBe('function');
   });
@@ -93,7 +93,7 @@ describe('withMtlsClientIfNeeded', () => {
       },
     };
 
-    const customFetch = withMtlsClientIfNeeded(perDomainCerts);
+    const customFetch = withConnectionClient(perDomainCerts);
     expect(customFetch).not.toBe(fetch);
     expect(typeof customFetch).toBe('function');
   });
