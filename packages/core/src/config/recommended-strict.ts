@@ -109,6 +109,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'error',
     'spec-example-values': 'off',
+    'no-illogical-composition-keywords': 'error',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -165,6 +166,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'error',
+    'no-illogical-composition-keywords': 'error',
     'spec-example-values': 'off',
   },
   oas3_2Rules: {
@@ -221,6 +223,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'error',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'error',
+    'no-illogical-composition-keywords': 'error',
     'spec-no-invalid-tag-parents': 'error',
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',

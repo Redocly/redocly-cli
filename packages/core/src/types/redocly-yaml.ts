@@ -119,6 +119,7 @@ const builtInOAS3Rules = [
   'spec-no-invalid-encoding-combinations',
   'spec-discriminator-defaultMapping',
   'spec-example-values',
+  'no-illogical-composition-keywords',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];

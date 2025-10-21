@@ -109,6 +109,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
     'spec-example-values': 'off',
+    'no-illogical-composition-keywords': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -165,6 +166,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
+    'no-illogical-composition-keywords': 'off',
     'spec-example-values': 'off',
   },
   oas3_2Rules: {
@@ -221,6 +223,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'off',
+    'no-illogical-composition-keywords': 'off',
     'spec-no-invalid-tag-parents': 'warn',
     'spec-no-invalid-encoding-combinations': 'warn',
     'spec-discriminator-defaultMapping': 'off',

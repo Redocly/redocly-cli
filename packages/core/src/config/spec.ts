@@ -109,6 +109,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'off',
     'nullable-type-sibling': 'error',
     'spec-example-values': 'off',
+    'no-illogical-composition-keywords': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -166,6 +167,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'off',
     'tags-alphabetical': 'off',
     'spec-example-values': 'off',
+    'no-illogical-composition-keywords': 'error',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -225,6 +227,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
+    'no-illogical-composition-keywords': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'off',
