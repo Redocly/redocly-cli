@@ -8,7 +8,7 @@ import { composeJsonLogsFiles } from './json-logs.js';
 import { displayFilesSummaryTable } from './display-files-summary-table.js';
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
-import { withConnectionClientIfNeeded } from './connection-client.js';
+import { withConnectionClient } from './connection-client.js';
 import { withHar } from './har-logs/index.js';
 import { createHarLog } from './har-logs/har-logs.js';
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
@@ -60,7 +60,7 @@ export async function handleRespect({
           : undefined;
     }
 
-    let customFetch = withConnectionClientIfNeeded(mtlsCerts);
+    let customFetch = withConnectionClient(mtlsCerts);
     if (argv['har-output']) {
       harLogs = createHarLog({ version });
       customFetch = withHar(customFetch, { har: harLogs });

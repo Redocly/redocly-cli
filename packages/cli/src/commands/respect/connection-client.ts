@@ -49,14 +49,14 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   return undefined;
 }
 
-export function withConnectionClientIfNeeded(mtlsCerts: MtlsCerts = {}) {
+export function withConnectionClient(mtlsCerts: MtlsCerts = {}) {
   const proxyUrl = getProxyUrl();
 
   if (!mtlsCerts && !proxyUrl) {
     return fetch;
   }
 
-  return function fetchWithDispatcher(input: string | URL | RequestInfo, init?: RequestInit) {
+  return (input: string | URL | RequestInfo, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : 'url' in input ? input.url : input.toString();
 
     return fetch(input, {
