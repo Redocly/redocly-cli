@@ -1,0 +1,21 @@
+info:
+  title: Account Service
+  version: 1.0.0
+components:
+  schemas:
+    Parent:
+      type: object
+      properties:
+        field:
+          description: |
+            This is a description resolved from a reference file.
+          $ref: '#/components/schemas/Child'
+    Child:
+      type: object
+      properties:
+        name:
+          type: string
+asyncapi: 3.0.0
+
+bundling asyncapi.yaml using configuration for api 'main'...
+📦 Created a bundle for asyncapi.yaml at stdout <test>ms.
