@@ -15,8 +15,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Prepare Smoke
@@ -50,32 +50,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
-
-  run-smoke--npm--node-20:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
-
-  run-smoke--npm--node-20--redoc:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-22:
@@ -113,43 +87,6 @@ jobs:
           for i in {1..2}; do # workaround for yarn cache issue
             sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
-
-  run-smoke--yarn--node-20:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Clear Yarn Cache
-        run: yarn cache clean
-      - run: |
-          for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
-          done
-
-  run-smoke--yarn--node-20--redoc:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Clear Yarn Cache
-        run: yarn cache clean
-      - run: |
-          for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
-          done
-
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
     runs-on: ubuntu-latest
@@ -205,6 +142,68 @@ jobs:
               Start-Sleep -Seconds 5
             }
           }
+
+  run-smoke--npm--node-20:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--npm--node-20--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-20:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+      - run: |
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
+          done
+
+  run-smoke--yarn--node-20--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+      - run: |
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
+          done
 
   run-smoke--npm--node-20--windows:
     needs: prepare-smoke
