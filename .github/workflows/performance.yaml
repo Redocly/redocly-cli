@@ -1,7 +1,8 @@
 name: Performance Benchmark
 
 permissions:
-  contents: write
+  contents: read
+  pull-requests: write
 
 on:
   pull_request:
