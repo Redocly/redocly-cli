@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Allow resolving references inside other properties alongside the `$ref` keyword.
+Fixed an issue where references were not resolved when used inside other properties alongside the `$ref` keyword.
