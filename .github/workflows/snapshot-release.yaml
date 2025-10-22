@@ -19,9 +19,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
+
+      - name: Update npm
+        run: npm install -g npm@11
 
       - name: Update package versions
         run: |
@@ -66,8 +69,6 @@ jobs:
         run: npm run compile
 
       - name: Publish snapshot packages
-        # env:
-        #    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git diff
 
