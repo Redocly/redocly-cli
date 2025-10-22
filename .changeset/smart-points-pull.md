@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Allow resolving `description`/`summary` sibling refs alongside `$ref` in Schema contexts.
+Allow resolving references inside other properties alongside the `$ref` keyword.
