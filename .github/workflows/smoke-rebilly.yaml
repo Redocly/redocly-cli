@@ -1,5 +1,7 @@
 name: Smoke tests
 
+#
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -17,8 +19,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Run Rebilly smoke test

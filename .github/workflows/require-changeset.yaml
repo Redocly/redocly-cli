@@ -18,8 +18,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - run: npm ci
       - name: Check for changeset
         run: npx changeset status --since origin/main

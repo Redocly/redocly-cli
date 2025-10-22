@@ -1,5 +1,8 @@
 name: Smoke tests
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -25,6 +28,123 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  run-smoke--npm--node-24:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--npm--node-24--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-24:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+      - run: |
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
+          done
+
+  run-smoke--yarn--node-24--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+      - run: |
+          for i in {1..2}; do # workaround for yarn cache issue
+            sleep 5 && bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
+          done
+  run-smoke--pnpm--node-24:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - run: bash ./__tests__/smoke/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
+
+  run-smoke--npm--node-24--windows:
+    needs: prepare-smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-24--windows:
+    needs: prepare-smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - name: Run Smoke Tests
+        run: |
+          Start-Sleep -Seconds 20 # workaround for yarn cache issue
+          for ($i = 1; $i -le 3; $i++) {
+            try {
+              bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              if ($LASTEXITCODE -eq 0) { break }
+            } catch {
+              if ($i -eq 3) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   run-smoke--npm--node-22:
     needs: prepare-smoke

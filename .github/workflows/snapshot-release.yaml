@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [labeled]
 
-permissions:
-  id-token: write # Required for OIDC
-  contents: read
-
 jobs:
   release-snapshot:
     if: github.event.label.name == 'snapshot'
@@ -15,7 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # id-token: write # Required for OIDC
+      id-token: write # Required for OIDC
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +21,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
 
       - name: Update package versions
         run: |
