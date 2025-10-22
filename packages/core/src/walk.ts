@@ -341,6 +341,11 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               propType = { name: 'scalar', properties: {} };
             }
 
+            if (isRef(node[propName]) && propType?.name === 'scalar') {
+              walkNode(node[propName], propType, location.child([propName]), node, propName);
+              continue;
+            }
+
             if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
               continue;
             }

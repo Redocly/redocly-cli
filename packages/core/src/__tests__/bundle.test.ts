@@ -482,3 +482,65 @@ describe('bundle async', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 });
+
+describe('sibling $ref resolution by spec', () => {
+  it('should resolve description and summary refs alongside $ref in Schema - OAS 3', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should resolve description and summary refs alongside $ref in Schema - AsyncAPI 3', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/asyncapi.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should resolve description and summary refs alongside $ref in Schema contexts - Arazzo 1', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/arazzo.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not resolve non-description/summary sibling ref', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-non-summary-desc-ref.yaml'),
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should prefer description from sibling ref over target schema description', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-with-description-ref.yaml'),
+    });
+
+    const field = (res.parsed as any).paths['/test'].get.responses['200'].content[
+      'application/json'
+    ].schema.properties.field;
+
+    expect(problems).toHaveLength(0);
+    expect(field.description).toBe('This is a description resolved from a reference file.\n');
+  });
+
+  it('should resolve RequestBody.description as $ref sibling to RequestBody $ref (non-Schema context)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/sibling-refs/openapi-request-body.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+});
