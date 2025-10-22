@@ -12,7 +12,6 @@ export const specVersions = [
   'async3',
   'arazzo1',
   'overlay1',
-  'catalogEntity1',
 ] as const;
 
 export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
@@ -26,8 +25,6 @@ export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
     return 'arazzo1';
   } else if (version === 'overlay1') {
     return 'overlay1';
-  } else if (version === 'catalogEntity1') {
-    return 'catalogEntity1';
   } else {
     return 'oas3';
   }

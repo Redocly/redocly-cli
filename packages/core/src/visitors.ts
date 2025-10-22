@@ -377,7 +377,6 @@ export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async
 export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async3Visitor[];
 export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
 export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
-export type CatalogEntity1Rule = (options: Record<string, any>) => BaseVisitor | BaseVisitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;

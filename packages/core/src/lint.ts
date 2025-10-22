@@ -11,7 +11,7 @@ import { createConfigTypes } from './types/redocly-yaml.js';
 import { createEntityTypes } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
-import { EntityKeyValid } from './rules/catalogEntity1/entity-key-valid.js';
+import { EntityKeyValid } from './rules/common/entity-key-valid.js';
 import { type Config } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
@@ -220,7 +220,7 @@ export async function lintEntityFile(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'catalogEntity1',
+    specVersion: 'oas3_0',
     config,
     visitorsData: {},
   };

@@ -79,8 +79,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
-    case 'catalogEntity1':
-      return null;
   }
 }
 

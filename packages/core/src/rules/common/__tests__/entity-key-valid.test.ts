@@ -5,7 +5,7 @@ import { createEntityTypes } from '../../../types/entity-yaml.js';
 import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';
-import { EntityKeyValid } from '../../catalogEntity1/entity-key-valid.js';
+import { EntityKeyValid } from '../entity-key-valid.js';
 import type { WalkContext } from '../../../walk.js';
 
 const entityFileSchema = {
