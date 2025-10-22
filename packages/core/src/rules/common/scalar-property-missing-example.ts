@@ -1,4 +1,4 @@
-import { getOwn } from '../../utils.js';
+import { getOwn } from '../../utils/get-own.js';
 
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

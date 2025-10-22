@@ -89,6 +89,9 @@ The rules list is split into sections.
 - [response-contains-header](./oas/response-contains-header.md): List headers that must be included with specific response types
 - [response-contains-property](./oas/response-contains-property.md): Specify properties that should be present in specific response types
 - [scalar-property-missing-example](./oas/scalar-property-missing-example.md): All required scalar (non-object) properties must have examples defined
+- [spec-discriminator-defaultMapping](./oas/spec-discriminator-defaultMapping.md): Ensures that discriminator objects with optional `propertyName` include a `defaultMapping` field
+- [spec-example-values](./oas/spec-example-values.md): Ensures that example objects have valid field combinations
+- [spec-no-invalid-encoding-combinations](./oas/spec-no-invalid-encoding-combinations.md): Ensures that MediaType objects have valid combinations of encoding fields
 - [required-string-property-missing-min-length](./oas/required-string-property-missing-min-length.md): All required properties of type string must have a `minLength` configured
 
 ### Servers
@@ -104,6 +107,7 @@ The rules list is split into sections.
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md): No duplicated tag names
 - [operation-singular-tag](./oas/operation-singular-tag.md): Each operation may only have one tag
 - [operation-tag-defined](./oas/operation-tag-defined.md): Tags can only be used if they are defined at the top level
+- [spec-no-invalid-tag-parents](./oas/spec-no-invalid-tag-parents.md): Tag parent references must be properly defined and free of circular dependencies
 - [tag-description](./oas/tag-description.md): Tags must have descriptions
 - [tags-alphabetical](./oas/tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
 

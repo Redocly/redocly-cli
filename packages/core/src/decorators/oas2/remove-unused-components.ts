@@ -1,4 +1,4 @@
-import { isEmptyObject } from '../../utils.js';
+import { isEmptyObject } from '../../utils/is-empty-object.js';
 
 import type { Location } from '../../ref-utils.js';
 import type { Oas2Decorator } from '../../visitors.js';

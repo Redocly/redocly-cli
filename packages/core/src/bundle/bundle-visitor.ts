@@ -1,255 +1,16 @@
-import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve.js';
-import { normalizeVisitors } from './visitors.js';
-import { normalizeTypes } from './types/index.js';
-import { walkDocument } from './walk.js';
-import { detectSpec, getTypes, getMajorSpecVersion, type SpecMajorVersion } from './oas-types.js';
-import { isAbsoluteUrl, isExternalValue, isRef, refBaseName, replaceRef } from './ref-utils.js';
-import { initRules } from './config/rules.js';
-import { reportUnresolvedRef } from './rules/common/no-unresolved-refs.js';
-import { isTruthy } from './utils.js';
-import { dequal } from './utils/dequal.js';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components.js';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components.js';
-import { NormalizedConfigTypes } from './types/redocly-yaml.js';
-import { type Config } from './config/config.js';
-import { configBundlerVisitor, pluginsCollectorVisitor } from './config/visitors.js';
-import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './config/constants.js';
+import { isAbsoluteUrl, replaceRef, isExternalValue, isRef, refBaseName } from '../ref-utils.js';
+import { makeRefId } from '../utils/make-ref-id.js';
+import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
+import { isTruthy } from '../utils/is-truthy.js';
+import { dequal } from '../utils/dequal.js';
 
-import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from './config/visitors.js';
-import type { Plugin, ResolvedConfig } from './config/types.js';
-import type { Location } from './ref-utils.js';
-import type { Oas3Visitor, Oas2Visitor } from './visitors.js';
-import type { NormalizedNodeType, NodeType } from './types/index.js';
-import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk.js';
-import type { OasRef } from './typings/openapi.js';
-import type { Document, ResolvedRefMap } from './resolve.js';
-import type { CollectFn } from './utils.js';
-
-export type CoreBundleOptions = {
-  externalRefResolver?: BaseResolver;
-  config: Config;
-  dereference?: boolean;
-  base?: string | null;
-  removeUnusedComponents?: boolean;
-  keepUrlRefs?: boolean;
-};
-
-export function collectConfigPlugins(
-  document: Document,
-  resolvedRefMap: ResolvedRefMap,
-  rootConfigDir: string
-) {
-  const visitorsData: PluginsCollectorVisitorData = { plugins: [], rootConfigDir };
-  const ctx: BundleContext = {
-    problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
-    refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {
-      [PLUGINS_COLLECTOR_VISITOR_ID]: visitorsData,
-    },
-  };
-
-  walkDocument({
-    document,
-    rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: pluginsCollectorVisitor,
-    resolvedRefMap,
-    ctx,
-  });
-
-  return visitorsData.plugins;
-}
-
-export function bundleConfig(
-  document: Document,
-  resolvedRefMap: ResolvedRefMap,
-  plugins: Plugin[]
-): ResolvedConfig {
-  const visitorsData: ConfigBundlerVisitorData = { plugins };
-  const ctx: BundleContext = {
-    problems: [],
-    specVersion: 'oas3_0', // TODO: change it to a config-specific type
-    refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {
-      [CONFIG_BUNDLER_VISITOR_ID]: visitorsData,
-    },
-  };
-
-  walkDocument({
-    document,
-    rootType: NormalizedConfigTypes.ConfigRoot,
-    normalizedVisitors: configBundlerVisitor,
-    resolvedRefMap,
-    ctx,
-  });
-
-  return document.parsed ?? {};
-}
-
-export async function bundle(
-  opts: {
-    ref?: string;
-    doc?: Document;
-    collectSpecData?: CollectFn;
-  } & CoreBundleOptions
-) {
-  const {
-    ref,
-    doc,
-    externalRefResolver = new BaseResolver(opts.config.resolve),
-    base = null,
-  } = opts;
-  if (!(ref || doc)) {
-    throw new Error('Document or reference is required.\n');
-  }
-
-  const document =
-    doc === undefined ? await externalRefResolver.resolveDocument(base, ref!, true) : doc;
-
-  if (document instanceof Error) {
-    throw document;
-  }
-  opts.collectSpecData?.(document.parsed);
-
-  return bundleDocument({
-    document,
-    ...opts,
-    externalRefResolver,
-  });
-}
-
-export async function bundleFromString(
-  opts: {
-    source: string;
-    absoluteRef?: string;
-  } & CoreBundleOptions
-) {
-  const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
-  const document = makeDocumentFromString(source, absoluteRef || '/');
-
-  return bundleDocument({
-    document,
-    ...opts,
-    externalRefResolver,
-  });
-}
-
-type BundleContext = WalkContext;
-
-export type BundleResult = {
-  bundle: Document;
-  problems: NormalizedProblem[];
-  fileDependencies: Set<string>;
-  rootType: NormalizedNodeType;
-  refTypes?: Map<string, NormalizedNodeType>;
-  visitorsData: Record<string, Record<string, unknown>>;
-};
-
-export async function bundleDocument(opts: {
-  document: Document;
-  config: Config;
-  customTypes?: Record<string, NodeType>;
-  externalRefResolver: BaseResolver;
-  dereference?: boolean;
-  removeUnusedComponents?: boolean;
-  keepUrlRefs?: boolean;
-}): Promise<BundleResult> {
-  const {
-    document,
-    config,
-    customTypes,
-    externalRefResolver,
-    dereference = false,
-    removeUnusedComponents = false,
-    keepUrlRefs = false,
-  } = opts;
-  const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = getMajorSpecVersion(specVersion);
-  const rules = config.getRulesForSpecVersion(specMajorVersion);
-  const types = normalizeTypes(
-    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
-    config
-  );
-
-  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  const decorators = initRules(rules, config, 'decorators', specVersion);
-
-  const ctx: BundleContext = {
-    problems: [],
-    specVersion,
-    config,
-    refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {},
-  };
-
-  if (removeUnusedComponents && !decorators.some((d) => d.ruleId === 'remove-unused-components')) {
-    decorators.push({
-      severity: 'error',
-      ruleId: 'remove-unused-components',
-      visitor:
-        specMajorVersion === 'oas2'
-          ? RemoveUnusedComponentsOas2({})
-          : RemoveUnusedComponentsOas3({}),
-    });
-  }
-
-  let resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-
-  if (preprocessors.length > 0) {
-    // Make additional pass to resolve refs defined in preprocessors.
-    walkDocument({
-      document,
-      rootType: types.Root as NormalizedNodeType,
-      normalizedVisitors: normalizeVisitors(preprocessors, types),
-      resolvedRefMap,
-      ctx,
-    });
-    resolvedRefMap = await resolveDocument({
-      rootDocument: document,
-      rootType: types.Root,
-      externalRefResolver,
-    });
-  }
-
-  const bundleVisitor = normalizeVisitors(
-    [
-      {
-        severity: 'error',
-        ruleId: 'bundler',
-        visitor: makeBundleVisitor(
-          specMajorVersion,
-          dereference,
-          document,
-          resolvedRefMap,
-          keepUrlRefs
-        ),
-      },
-      ...decorators,
-    ],
-    types
-  );
-
-  walkDocument({
-    document,
-    rootType: types.Root,
-    normalizedVisitors: bundleVisitor,
-    resolvedRefMap,
-    ctx,
-  });
-
-  return {
-    bundle: document,
-    problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
-    fileDependencies: externalRefResolver.getFiles(),
-    rootType: types.Root,
-    refTypes: ctx.refTypes,
-    visitorsData: ctx.visitorsData,
-  };
-}
+import type { OasRef } from '../typings/openapi';
+import type { Location } from '../ref-utils.js';
+import type { Document } from '../resolve.js';
+import type { ResolvedRefMap } from '../resolve';
+import type { SpecMajorVersion } from '../oas-types';
+import type { Oas3Visitor, Oas2Visitor } from '../visitors';
+import type { UserContext, ResolveResult } from '../walk';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -321,7 +82,7 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
   }
 }
 
-function makeBundleVisitor(
+export function makeBundleVisitor(
   version: SpecMajorVersion,
   dereference: boolean,
   rootDocument: Document,
@@ -338,7 +99,6 @@ function makeBundleVisitor(
           reportUnresolvedRef(resolved, ctx.report, ctx.location);
           return;
         }
-
         if (
           resolved.location.source === rootDocument.source &&
           resolved.location.source === ctx.location.source &&

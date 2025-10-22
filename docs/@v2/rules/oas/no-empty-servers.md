@@ -16,7 +16,7 @@ Requires the `servers` list is defined in your API.
 ```mermaid
 flowchart TD
 
-root ==> ServersList
+Root ==> ServersList
 
 style ServersList fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

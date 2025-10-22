@@ -2,7 +2,8 @@ import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf, mapOf } from './index.js';
 import { specVersions, getTypes } from '../oas-types.js';
-import { isCustomRuleId, omit } from '../utils.js';
+import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
+import { omit } from '../utils/omit.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -114,6 +115,10 @@ const builtInOAS3Rules = [
   'array-parameter-serialization',
   'no-duplicated-tag-names',
   'nullable-type-sibling',
+  'spec-no-invalid-tag-parents',
+  'spec-no-invalid-encoding-combinations',
+  'spec-discriminator-defaultMapping',
+  'spec-example-values',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];

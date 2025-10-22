@@ -55,6 +55,10 @@ import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schem
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NullableTypeSibling } from './nullable-type-sibling.js';
+import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
+import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
+import { SpecDiscriminatorDefaultMapping } from './spec-discriminator-defaultMapping.js';
+import { SpecExampleValues } from './spec-example-values.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
@@ -118,6 +122,10 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Oas3Rule,
   'no-duplicated-tag-names': NoDuplicatedTagNames as Oas3Rule,
   'nullable-type-sibling': NullableTypeSibling,
+  'spec-no-invalid-tag-parents': SpecNoInvalidTagParents,
+  'spec-no-invalid-encoding-combinations': SpecNoInvalidEncodingCombinations,
+  'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
+  'spec-example-values': SpecExampleValues,
 };
 
 export const preprocessors = {};

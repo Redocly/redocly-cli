@@ -1,5 +1,5 @@
 import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
-import { isString } from '../../../utils.js';
+import { isString } from '../../../utils/is-string.js';
 
 import type { asserts, AssertionFn } from './asserts.js';
 import type {

@@ -1,5 +1,5 @@
 import { ARAZZO_VERSIONS_SUPPORTED_BY_RESPECT } from '../../typings/arazzo.js';
-import { pluralize } from '../../utils.js';
+import { pluralize } from '../../utils/pluralize.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

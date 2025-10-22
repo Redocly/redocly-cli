@@ -1,15 +1,17 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
-import { slash, doesYamlFileExist, isPlainObject } from '../utils.js';
-import { specVersions } from '../oas-types.js';
+import { slash } from '../utils/slash.js';
+import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { specVersions } from '../detect-spec.js';
 import { isBrowser } from '../env.js';
-import { getResolveConfig } from './utils.js';
+import { getResolveConfig } from './get-resolve-config.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { type Document, type ResolvedRefMap } from '../resolve.js';
-import { groupAssertionRules } from './config-resolvers.js';
+import { groupAssertionRules } from './group-assertion-rules.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
+import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NormalizedProblem } from '../walk.js';
 import type {
   Oas2RuleSet,

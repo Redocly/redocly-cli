@@ -59,9 +59,32 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
 
   rules?: RuleMap<BuiltInCommonRuleId, RuleConfig, T>;
   oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
-  oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
-  oas3_1Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;
-  oas3_2Rules?: RuleMap<Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling'>, RuleConfig, T>;
+  oas3_0Rules?: RuleMap<
+    Exclude<
+      BuiltInOAS3RuleId,
+      | 'spec-no-invalid-tag-parents'
+      | 'spec-no-invalid-encoding-combinations'
+      | 'spec-discriminator-defaultMapping'
+    >,
+    RuleConfig,
+    T
+  >;
+  oas3_1Rules?: RuleMap<
+    Exclude<
+      BuiltInOAS3RuleId,
+      | 'nullable-type-sibling'
+      | 'spec-no-invalid-tag-parents'
+      | 'spec-no-invalid-encoding-combinations'
+      | 'spec-discriminator-defaultMapping'
+    >,
+    RuleConfig,
+    T
+  >;
+  oas3_2Rules?: RuleMap<
+    Exclude<BuiltInOAS3RuleId, 'nullable-type-sibling' | 'no-example-value-and-externalValue'>,
+    RuleConfig,
+    T
+  >;
   async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
   async3Rules?: RuleMap<BuiltInAsync3RuleId, RuleConfig, T>;
   arazzo1Rules?: RuleMap<BuiltInArazzo1RuleId, RuleConfig, T>;

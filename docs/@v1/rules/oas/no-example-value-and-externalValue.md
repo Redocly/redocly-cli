@@ -19,16 +19,14 @@ Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
 Operation --> Responses --> MediaType
-NamedExample --> Example
+NamedExamples --> Example
 Root ==> components
 
 subgraph components
-NamedExample
+NamedExamples
 end
 
 style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
-style NamedExample fill:#codaf9,stroke:#0044d4,stroke-width:5px
-
 ```
 
 ## API design principles

@@ -77,7 +77,6 @@ tags:
 ## Related rules
 
 - [tag-description](./tag-description.md)
-- [operation-description](./operation-description.md)
 - [configurable rules](../configurable-rules.md)
 
 ## Resources

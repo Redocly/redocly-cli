@@ -16,7 +16,7 @@ Disallow server variables without enum list defined.
 ```mermaid
 flowchart TD
 
-root ==> ServersList --> Server --> ServerVariables
+Root ==> ServersList --> Server --> ServerVariables
 
 style ServerVariables fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```

@@ -108,7 +108,7 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
       printConfigLintTotals({ errors: 1, warnings: 0, ignored: 0 } as Totals, logger);
       expect(mockLogger).toHaveBeenCalledWith(
-        expect.stringMatching('❌  Your config has 1 one error.')
+        expect.stringMatching('❌  Your config has 1 error.')
       );
       mockLogger.mockRestore();
     });
@@ -117,7 +117,7 @@ describe('cliOutputs', () => {
       const mockLogger = vi.spyOn(logger, 'error').mockImplementation(() => {});
       printConfigLintTotals({ errors: 0, warnings: 1, ignored: 0 } as Totals, logger);
       expect(mockLogger).toHaveBeenCalledWith(
-        expect.stringMatching('⚠️  Your config has 1 one warning.')
+        expect.stringMatching('⚠️  Your config has 1 warning.')
       );
       mockLogger.mockRestore();
     });

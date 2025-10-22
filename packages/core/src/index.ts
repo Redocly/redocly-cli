@@ -1,20 +1,16 @@
-export {
-  keysOf,
-  readFileFromUrl,
-  slash,
-  doesYamlFileExist,
-  isTruthy,
-  pause,
-  isPlainObject,
-  isString,
-  pluralize,
-  isEmptyObject,
-  isNotEmptyArray,
-  isNotEmptyObject,
-  type CollectFn,
-  type Exact,
-} from './utils.js';
+export { doesYamlFileExist } from './utils/does-yaml-file-exist.js';
 export { dequal } from './utils/dequal.js';
+export { isEmptyObject } from './utils/is-empty-object.js';
+export { isNotEmptyArray } from './utils/is-not-empty-array.js';
+export { isNotEmptyObject } from './utils/is-not-empty-object.js';
+export { isPlainObject } from './utils/is-plain-object.js';
+export { isString } from './utils/is-string.js';
+export { isTruthy } from './utils/is-truthy.js';
+export { keysOf } from './utils/keys-of.js';
+export { pause } from './utils/pause.js';
+export { pluralize } from './utils/pluralize.js';
+export { readFileFromUrl } from './utils/read-file-from-url.js';
+export { slash } from './utils/slash.js';
 export { Oas2Types } from './types/oas2.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas3_1Types } from './types/oas3_1.js';
@@ -47,11 +43,11 @@ export {
   BaseResolver,
   Document,
   ResolveError,
-  YamlParseError,
   resolveDocument,
   makeDocumentFromString,
   type ResolvedRefMap,
 } from './resolve.js';
+export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointer,
@@ -60,13 +56,9 @@ export {
   escapePointer,
   type Location,
 } from './ref-utils.js';
-export {
-  detectSpec,
-  getMajorSpecVersion,
-  getTypes,
-  type SpecVersion,
-  type SpecMajorVersion,
-} from './oas-types.js';
+export { detectSpec } from './detect-spec.js';
+export { getTypes, type SpecVersion, type SpecMajorVersion } from './oas-types.js';
+export { getMajorSpecVersion } from './detect-spec.js';
 export {
   normalizeVisitors,
   type Oas3Visitor,
@@ -107,18 +99,15 @@ export {
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
-export {
-  bundle,
-  bundleDocument,
-  mapTypeToComponent,
-  bundleFromString,
-  type BundleResult,
-} from './bundle.js';
+export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
+export { bundleDocument } from './bundle/bundle-document.js';
+export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { HandledError } from './utils/error.js';
 export { isBrowser } from './env.js';
 
+export type { CollectFn, Exact } from './utils/types.js';
 export type {
   Oas3Definition,
   Oas3_1Definition,

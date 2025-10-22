@@ -2,7 +2,7 @@ import path from 'node:path';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { resolvePreset } from './config-resolvers.js';
 import { mergeExtends } from './utils.js';
-import { isTruthy } from '../utils.js';
+import { isTruthy } from '../utils/is-truthy.js';
 
 import type { UserContext } from '../walk.js';
 import type { Plugin, RawGovernanceConfig } from './types.js';

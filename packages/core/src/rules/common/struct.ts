@@ -1,7 +1,8 @@
 import { isNamedType, SpecExtension } from '../../types/index.js';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 import { isRef } from '../../ref-utils.js';
-import { getOwn, isPlainObject } from '../../utils.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
+import { getOwn } from '../../utils/get-own.js';
 
 import type { UserContext } from '../../walk.js';
 import type {

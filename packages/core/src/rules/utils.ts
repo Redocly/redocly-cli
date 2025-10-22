@@ -1,7 +1,7 @@
 import { default as levenshtein } from 'js-levenshtein';
 import { Location } from '../ref-utils.js';
 import { validateJsonSchema } from './ajv.js';
-import { isPlainObject } from '../utils.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 
 import type {
   Oas3Schema,

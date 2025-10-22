@@ -1,7 +1,7 @@
 import { SpecExtension } from './types/index.js';
-import { isPlainObject } from './utils.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 
-import type { Stack } from './utils.js';
+import type { Stack } from './utils/stack.js';
 import type { NormalizedNodeType } from './types/index.js';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 import type { Location } from './ref-utils.js';

@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle.js';
+import { bundleDocument } from '../../bundle/bundle-document.js';
 import { BaseResolver } from '../../resolve.js';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { createConfig } from '../../config/index.js';
+import { Oas3Types, Oas2Types } from '../../index.js';
 
 describe('oas3 remove-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -29,6 +30,7 @@ describe('oas3 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': { internalFlagProperty: 'removeit' } },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
@@ -98,6 +100,7 @@ describe('oas3 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': 'on' },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.1.0
@@ -173,6 +176,7 @@ describe('oas3 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': 'on' },
       }),
+      types: Oas3Types,
     });
 
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -249,6 +253,7 @@ describe('oas3 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': 'on' },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.1
@@ -334,6 +339,7 @@ describe('oas3 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': 'on' },
       }),
+      types: Oas3Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.1.0
@@ -413,6 +419,7 @@ describe('oas2 remove-x-internal', () => {
       config: await createConfig({
         decorators: { 'remove-x-internal': 'on' },
       }),
+      types: Oas2Types,
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           swagger: '2.0'

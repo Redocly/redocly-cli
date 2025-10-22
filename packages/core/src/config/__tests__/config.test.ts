@@ -1,11 +1,11 @@
 import { type SpecVersion } from '../../oas-types.js';
 import { Config } from '../config.js';
-import * as utils from '../../utils.js';
 import * as jsYaml from '../../js-yaml/index.js';
 import * as fs from 'node:fs';
 import { ignoredFileStub } from './fixtures/ingore-file.js';
 import * as path from 'node:path';
 import { createConfig } from '../index.js';
+import * as doesYamlFileExistModule from '../../utils/does-yaml-file-exist.js';
 
 vi.mock('../../js-yaml/index.js', async () => {
   const actual = await vi.importActual('../../js-yaml/index.js');
@@ -230,7 +230,7 @@ describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
     vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => '');
     vi.spyOn(jsYaml, 'parseYaml').mockImplementationOnce(() => ignoredFileStub);
-    vi.spyOn(utils, 'doesYamlFileExist').mockImplementationOnce(() => true);
+    vi.spyOn(doesYamlFileExistModule, 'doesYamlFileExist').mockImplementationOnce(() => true);
     vi.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
 
     const config = new Config(testConfig.resolvedConfig);

@@ -108,6 +108,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
+    'spec-example-values': 'off',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'off',
@@ -164,6 +165,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
+    'spec-example-values': 'off',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'off',
@@ -185,7 +187,6 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
-    'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
@@ -220,6 +221,10 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
     'no-duplicated-tag-names': 'warn',
+    'spec-no-invalid-tag-parents': 'error',
+    'spec-no-invalid-encoding-combinations': 'error',
+    'spec-discriminator-defaultMapping': 'warn',
+    'spec-example-values': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'off',

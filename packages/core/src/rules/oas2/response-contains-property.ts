@@ -1,4 +1,4 @@
-import { getMatchingStatusCodeRange } from '../../utils.js';
+import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
 
 import type { Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

@@ -74,6 +74,10 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
   no-enum-type-mismatch: warn
+  spec-no-invalid-tag-parents: warn
+  spec-example-values: off
+  spec-discriminator-defaultMapping: off
+  spec-no-invalid-encoding-combinations: warn
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
@@ -301,6 +305,10 @@ rules:
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
   no-enum-type-mismatch: error
+  spec-no-invalid-tag-parents: error
+  spec-example-values: error
+  spec-discriminator-defaultMapping: warn
+  spec-no-invalid-encoding-combinations: error
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
