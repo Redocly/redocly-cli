@@ -1,4 +1,8 @@
 name: Require Either a Changeset or a Label 'no changeset needed'
+
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]

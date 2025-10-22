@@ -1,6 +1,7 @@
 name: Performance Benchmark
 
-#
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -19,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: 'npm'
+          cache: npm
       - name: Install Dependencies
         run: npm ci
       - name: Install External
@@ -52,7 +53,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: 'npm'
+          cache: npm
       - name: Install Dependencies
         run: npm ci
       - name: Install External
