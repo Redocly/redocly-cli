@@ -100,9 +100,10 @@ export function validateJsonSchema(
   specVersion: string = 'oas3_1'
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate =
-    specVersion === 'oas3_1'
-      ? getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties)
-      : getAjvDraft04Validator(schema, schemaLoc, resolve);
+    specVersion === 'oas3_0' || specVersion === 'oas2'
+      ? getAjvDraft04Validator(schema, schemaLoc, resolve)
+      : getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
+
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
   const valid = validate(data, {
