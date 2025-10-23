@@ -1,5 +1,5 @@
 import addFormats from 'ajv-formats';
-import Ajv2020 from '@redocly/ajv/dist/2020.js';
+import Ajv from '@redocly/ajv/dist/2020.js';
 import AjvDraft04 from 'ajv-draft-04';
 import { escapePointer } from '../ref-utils.js';
 
@@ -8,7 +8,7 @@ import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ValidateFunction as ValidateFunctionDraft04 } from 'ajv-draft-04';
 import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: Ajv2020 | null = null;
+let ajvInstance: any = null;
 let ajvDraft04Instance: InstanceType<typeof AjvDraft04> | null = null;
 
 export function releaseAjvInstance() {
@@ -18,7 +18,7 @@ export function releaseAjvInstance() {
 
 function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   if (!ajvInstance) {
-    ajvInstance = new Ajv2020({
+    ajvInstance = new Ajv({
       schemaId: '$id',
       meta: true,
       allErrors: true,
