@@ -8,8 +8,8 @@ import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ValidateFunction as ValidateFunctionDraft04 } from 'ajv-draft-04';
 import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: any = null;
-let ajvDraft04Instance: InstanceType<typeof AjvDraft04> | null = null;
+let ajvInstance: Ajv | null = null;
+let ajvDraft04Instance: AjvDraft04 | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;
@@ -55,7 +55,7 @@ function getAjvDraft04() {
       validateFormats: true,
       logger: false,
     });
-    addFormats(ajvDraft04Instance);
+    addFormats(ajvDraft04Instance as any);
   }
 
   return ajvDraft04Instance;
