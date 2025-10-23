@@ -55,7 +55,7 @@ function getAjvDraft04() {
       validateFormats: true,
       logger: false,
     });
-    addFormats(ajvDraft04Instance as any);
+    addFormats(ajvDraft04Instance);
   }
 
   return ajvDraft04Instance;
