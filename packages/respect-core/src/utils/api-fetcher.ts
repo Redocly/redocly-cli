@@ -118,6 +118,10 @@ export class ApiFetcher implements IFetcher {
     return this.verboseResponseLogs;
   };
 
+  clearVerboseResponseLogs = () => {
+    this.verboseResponseLogs = undefined;
+  };
+
   fetchResult = async ({
     ctx,
     step,

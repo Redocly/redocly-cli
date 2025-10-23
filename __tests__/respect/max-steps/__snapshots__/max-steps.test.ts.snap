@@ -103,43 +103,43 @@ exports[`should quit an infinite loop on REDOCLY_CLI_RESPECT_MAX_STEPS 1`] = `
  
     stepId - pre-step 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - step-1 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - step-2 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ failed network request 
-      fetch failed
+      fetch failed (cause: ENOTFOUND)
        
     stepId - ping 
     ✗ maximum steps reached 

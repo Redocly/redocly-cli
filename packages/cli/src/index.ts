@@ -28,6 +28,7 @@ import {
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
+import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
@@ -728,17 +729,11 @@ yargs(hideBin(process.argv))
             type: 'string',
             alias: 'J',
           },
-          'client-cert': {
-            describe: 'Mutual TLS client certificate.',
+          mtls: {
+            describe:
+              'Per-domain mutual TLS certificates configuration as JSON. Format: {"<domain>": {"clientCert": "<path>", "clientKey": "<path>", "caCert": "<path>"}}',
             type: 'string',
-          },
-          'client-key': {
-            describe: 'Mutual TLS client key.',
-            type: 'string',
-          },
-          'ca-cert': {
-            describe: 'Mutual TLS CA certificate.',
-            type: 'string',
+            coerce: validateMtlsCommandOption,
           },
           severity: {
             describe: 'Severity of the check.',
