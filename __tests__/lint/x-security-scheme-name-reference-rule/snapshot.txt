@@ -1,6 +1,6 @@
 [1] museum.yaml:15:21 at #/workflows/0/x-security/0/schemeName
 
-When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a source description (e.g. `$sourceDescriptions.{name}.{scheme}`)
+When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a source description (e.g. `$sourceDescriptions.{name}.{schemeName}`)
 
 13 | - workflowId: get-museum-hours
 14 |   x-security:

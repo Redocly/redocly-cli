@@ -1,6 +1,6 @@
 # x-security-scheme-name-reference
 
-When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a specific source description (for example, `$sourceDescriptions.{name}.schemeName`). If there is only one source description, a plain string is allowed.
+When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a specific source description (for example, `$sourceDescriptions.{name}.{schemeName}`). If there is only one source description, a plain string is allowed.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
@@ -8,7 +8,7 @@ When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must 
 
 ## Design principles
 
-With multiple source descriptions, using a plain `schemeName` is ambiguous. Requiring a reference of the form `$sourceDescriptions.{name}.schemeName` disambiguates which source description provides the security scheme.
+With multiple source descriptions, using a plain `schemeName` is ambiguous. Requiring a reference of the form `$sourceDescriptions.{name}.{schemeName}` disambiguates which source description provides the security scheme.
 
 ## Configuration
 
@@ -66,7 +66,7 @@ sourceDescriptions:
 workflows:
   - workflowId: list-users
     x-security:
-      - schemeName: $sourceDescriptions.museum-api.scheme
+      - schemeName: $sourceDescriptions.museum-api.MuseumPlaceholderAuth
         values:
           username: test@example.com
           password: 123456

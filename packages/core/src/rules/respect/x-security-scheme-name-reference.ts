@@ -27,7 +27,7 @@ export const XSecuritySchemeNameReference: Arazzo1Rule = () => {
             if (!isReference) {
               report({
                 message:
-                  'When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a source description (e.g. `$sourceDescriptions.{name}.{scheme}`)',
+                  'When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must be a reference to a source description (e.g. `$sourceDescriptions.{name}.{schemeName}`)',
                 location: location.child([
                   'x-security',
                   extendedSecurity.indexOf(security),

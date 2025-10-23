@@ -50,7 +50,7 @@ describe('Arazzo x-security-scheme-name-reference', () => {
               "source": "arazzo.yaml",
             },
           ],
-          "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{scheme}\`)",
+          "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{schemeName}\`)",
           "ruleId": "x-security-scheme-name-reference",
           "severity": "error",
           "suggest": [],
