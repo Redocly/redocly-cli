@@ -15,7 +15,7 @@ jobs:
   prepare-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 24
@@ -368,7 +368,7 @@ jobs:
   run-smoke--docker-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build docker image
         run: docker build -t redocly/cli:latest .
       - name: Run docker image
