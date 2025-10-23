@@ -258,7 +258,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'warn',
     'no-required-schema-properties-undefined': 'warn',
     'no-schema-type-mismatch': 'warn',
-    'no-x-security-scheme-name-in-workflow': 'off',
+    'no-x-security-both-scheme-and-scheme-name': 'off',
     'no-x-security-scheme-name-without-openapi': 'off',
     'parameters-unique': 'off',
     'requestBody-replacements-unique': 'off',
@@ -271,6 +271,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'stepId-unique': 'error',
     'workflow-dependsOn': 'off',
     'workflowId-unique': 'error',
+    'x-security-scheme-name-reference': 'off',
     'x-security-scheme-required-values': 'off',
   },
   overlay1Rules: {
