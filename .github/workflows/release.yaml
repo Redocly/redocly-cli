@@ -20,6 +20,7 @@ jobs:
     permissions:
       id-token: write # Required for OIDC
       contents: write
+      pull-requests: write
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
