@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
+  push: # for the regular release flow (release --> dockerhub --> post-release-smoke-checks --> notify)
     branches:
       - main
+  pull_request: # for the snapshot release flow
+    types:
+      - labeled
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,20 +14,24 @@ concurrency:
 
 jobs:
   release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci
@@ -43,7 +50,6 @@ jobs:
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   dockerhub:
     needs: [release]
@@ -109,7 +115,7 @@ jobs:
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
       - name: Install CLI from npm
         run: npm i -g @redocly/cli@latest
@@ -151,13 +157,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci
@@ -170,6 +176,82 @@ jobs:
         uses: slackapi/slack-github-action@v1.25.0
         with:
           channel-id: C019K52TC0L #releases
-          payload-file-path: './output/release-message.json'
+          payload-file-path: ./output/release-message.json
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
+
+  release-snapshot:
+    if: github.event_name == 'pull_request' && github.event.label.name == 'snapshot'
+    name: Release Snapshot
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write # Required for OIDC
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Update package versions
+        run: |
+          TIMESTAMP=$(date +%s)
+          VERSION="0.0.0-snapshot.$TIMESTAMP"
+
+          # Update Core package version
+          jq ".version = \"$VERSION\"" packages/core/package.json > tmp.json && mv tmp.json packages/core/package.json
+
+          # Update Respect Core package version and dependencies
+          jq ".version = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/respect-core/package.json > tmp.json && mv tmp.json packages/respect-core/package.json
+
+          # Update CLI package version and dependencies
+          jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".dependencies[\"@redocly/respect-core\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+
+          # Add comment with installation instructions
+          COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
+
+          Install with NPM:
+          \`\`\`bash
+          npm install @redocly/cli@$VERSION
+          # or
+          npm install @redocly/openapi-core@$VERSION
+          # or
+          npm install @redocly/respect-core@$VERSION
+          \`\`\`
+
+          ⚠️ Note: This is a development build and may contain unstable features."
+
+          gh pr comment $PR_NUMBER --body "$COMMENT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build packages
+        run: npm run compile
+
+      - name: Publish snapshot packages
+        run: |
+          git diff
+
+          cd packages/core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../cli
+          npm publish --tag snapshot
