@@ -5,6 +5,7 @@ import { escapePointer } from '../ref-utils.js';
 
 import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
+import type { ValidateFunction as ValidateFunctionDraft04 } from 'ajv-draft-04';
 import type { ResolveFn } from '../walk.js';
 
 let ajvInstance: Ajv | null = null;
@@ -79,12 +80,12 @@ function getAjvDraft04Validator(
   schema: any,
   loc: Location,
   resolve: ResolveFn
-): ValidateFunction | undefined {
-  const ajv = getAjvDraft04();
+): ValidateFunctionDraft04 | undefined {
+  const ajvDraft04 = getAjvDraft04();
 
   const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
 
-  return ajv.compile(dereferencedSchema);
+  return ajvDraft04.compile(dereferencedSchema);
 }
 
 export function validateJsonSchema(
