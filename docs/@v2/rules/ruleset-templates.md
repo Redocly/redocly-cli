@@ -14,245 +14,169 @@ More information and examples for individual rules can be found in the [built-in
 
 The minimal rulesets are a decent baseline that you can use to selective enable more rules or extend rulesets from.
 
-### Minimal ruleset: OpenAPI 3.1/3.2
+### Minimal ruleset: OpenAPI 3.2
 
 ```yaml
 rules:
-  info-contact: off
-  info-license: off
-  info-license-strict: off
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: warn
-  no-identical-paths: warn
   no-ambiguous-paths: warn
+  no-empty-servers: warn
+  no-enum-type-mismatch: warn
+  no-identical-paths: warn
+  no-invalid-media-type-examples: warn
+  no-path-trailing-slash: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: warn
+  operation-2xx-response: warn
+  operation-operationId: warn
+  operation-operationId-unique: warn
+  operation-operationId-url-safe: warn
+  operation-parameters-unique: warn
+  operation-summary: warn
   path-declaration-must-exist: warn
   path-not-include-query: warn
   path-parameters-defined: warn
-  operation-description: off
-  operation-2xx-response: warn
-  operation-4xx-response: off
-  operation-operationId: warn
-  operation-summary: warn
-  operation-operationId-unique: warn
-  operation-parameters-unique: warn
-  operation-tag-defined: off
   security-defined: warn
-  operation-operationId-url-safe: warn
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  paths-kebab-case: off
-  struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  path-segment-plural: off
-  scalar-property-missing-example: off
-  no-invalid-media-type-examples: warn
-  no-server-example.com: warn
-  no-server-trailing-slash: error
-  no-empty-servers: warn
-  no-example-value-and-externalValue: warn
-  no-unused-components: warn
-  no-undefined-server-variable: warn
-  no-server-variables-empty-enum: error
   spec-components-invalid-map-name: warn
-  boolean-parameter-prefixes: off
-  component-name-unique: off
-  operation-4xx-problem-details-rfc7807: off
-  request-mime-type: off
-  response-contains-property: off
-  response-mime-type: off
-  array-parameter-serialization: off
-  no-duplicated-tag-names: off
+  spec-no-invalid-encoding-combinations: warn
+  spec-no-invalid-tag-parents: warn
+  struct: error
+  tag-description: warn
+```
+
+### Minimal ruleset: OpenAPI 3.1
+
+```yaml
+rules:
+  no-ambiguous-paths: warn
+  no-empty-servers: warn
+  no-enum-type-mismatch: warn
+  no-example-value-and-externalValue: warn
+  no-identical-paths: warn
+  no-invalid-media-type-examples: warn
+  no-path-trailing-slash: warn
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
-  no-enum-type-mismatch: warn
-  spec-no-invalid-tag-parents: warn
-  spec-example-values: off
-  spec-discriminator-defaultMapping: off
-  spec-no-invalid-encoding-combinations: warn
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: warn
+  operation-2xx-response: warn
+  operation-operationId: warn
+  operation-operationId-unique: warn
+  operation-operationId-url-safe: warn
+  operation-parameters-unique: warn
+  operation-summary: warn
+  path-declaration-must-exist: warn
+  path-not-include-query: warn
+  path-parameters-defined: warn
+  security-defined: warn
+  spec-components-invalid-map-name: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Minimal ruleset: OpenAPI 3.0
 
 ```yaml
 rules:
-  info-contact: off
-  info-license: off
-  info-license-strict: off
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: warn
-  no-identical-paths: warn
   no-ambiguous-paths: warn
+  no-empty-servers: warn
+  no-enum-type-mismatch: warn
+  no-example-value-and-externalValue: warn
+  no-identical-paths: warn
+  no-invalid-media-type-examples: warn
+  no-path-trailing-slash: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: warn
+  nullable-type-sibling: warn
+  operation-2xx-response: warn
+  operation-operationId: warn
+  operation-operationId-unique: warn
+  operation-operationId-url-safe: warn
+  operation-parameters-unique: warn
+  operation-summary: warn
   path-declaration-must-exist: warn
   path-not-include-query: warn
   path-parameters-defined: warn
-  operation-description: off
-  operation-2xx-response: warn
-  operation-4xx-response: off
-  operation-operationId: warn
-  operation-summary: warn
-  operation-operationId-unique: warn
-  operation-parameters-unique: warn
-  operation-tag-defined: off
   security-defined: warn
-  operation-operationId-url-safe: warn
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  nullable-type-sibling: warn
-  paths-kebab-case: off
-  struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  path-segment-plural: off
-  scalar-property-missing-example: off
-  no-invalid-media-type-examples: warn
-  no-server-example.com: warn
-  no-server-trailing-slash: error
-  no-empty-servers: warn
-  no-example-value-and-externalValue: warn
-  no-unused-components: warn
-  no-undefined-server-variable: warn
-  no-server-variables-empty-enum: error
   spec-components-invalid-map-name: warn
-  boolean-parameter-prefixes: off
-  component-name-unique: off
-  operation-4xx-problem-details-rfc7807: off
-  request-mime-type: off
-  response-contains-property: off
-  response-mime-type: off
-  array-parameter-serialization: off
-  no-duplicated-tag-names: off
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: warn
-  no-enum-type-mismatch: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Minimal ruleset: OpenAPI 2.0
 
 ```yaml
 rules:
-  info-contact: off
-  info-license: off
-  info-license-strict: off
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: warn
-  no-identical-paths: warn
   no-ambiguous-paths: warn
+  no-enum-type-mismatch: warn
+  no-identical-paths: warn
+  no-path-trailing-slash: warn
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: warn
+  no-unresolved-refs: error
+  operation-2xx-response: warn
+  operation-operationId: warn
+  operation-operationId-unique: warn
+  operation-operationId-url-safe: warn
+  operation-parameters-unique: warn
+  operation-summary: warn
   path-declaration-must-exist: warn
   path-not-include-query: warn
   path-parameters-defined: warn
-  operation-description: off
-  operation-2xx-response: warn
-  operation-4xx-response: off
-  operation-operationId: warn
-  operation-summary: warn
-  operation-operationId-unique: warn
-  operation-parameters-unique: warn
-  operation-tag-defined: off
   security-defined: warn
-  operation-operationId-url-safe: warn
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  paths-kebab-case: off
   struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  path-segment-plural: off
-  scalar-property-missing-example: off
-  boolean-parameter-prefixes: off
-  request-mime-type: off
-  response-contains-property: off
-  response-mime-type: off
-  no-duplicated-tag-names: off
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: warn
-  no-enum-type-mismatch: warn
+  tag-description: warn
 ```
 
 ### Minimal ruleset: AsyncAPI 3.0
 
 ```yaml
 rules:
-  struct: error
-  info-contact: off
-  info-license-strict: off
-  operation-operationId: warn
-  tag-description: warn
-  tags-alphabetical: off
-  channels-kebab-case: off
-  no-channel-trailing-slash: off
-  no-duplicated-tag-names: off
-  no-required-schema-properties-undefined: warn
   no-enum-type-mismatch: warn
+  no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  operation-operationId: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Minimal ruleset: AsyncAPI 2.6
 
 ```yaml
 rules:
-  struct: error
-  info-contact: off
-  info-license-strict: off
-  operation-operationId: warn
-  tag-description: warn
-  tags-alphabetical: off
-  channels-kebab-case: off
-  no-channel-trailing-slash: off
-  no-duplicated-tag-names: off
-  no-required-schema-properties-undefined: warn
   no-enum-type-mismatch: warn
+  no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  operation-operationId: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Minimal ruleset: Arazzo 1.0
 
 ```yaml
 rules:
-  struct: error
-  sourceDescription-type: off
-  workflowId-unique: error
-  stepId-unique: error
-  sourceDescription-name-unique: off
-  workflow-dependsOn: off
-  parameters-unique: off
-  step-onSuccess-unique: off
-  step-onFailure-unique: off
-  respect-supported-versions: off
-  requestBody-replacements-unique: off
-  no-criteria-xpath: off
-  no-actions-type-end: off
-  criteria-unique: off
-  no-x-security-scheme-name-without-openapi: off
-  x-security-scheme-required-values: off
-  no-x-security-scheme-name-in-workflow: off
-  no-required-schema-properties-undefined: warn
   no-enum-type-mismatch: warn
+  no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: warn
+  stepId-unique: error
+  struct: error
+  workflowId-unique: error
 ```
 
 ## Recommended rulesets
@@ -261,229 +185,212 @@ The default behavior is to use a recommended ruleset.
 The recommended rulesets for each format are listed below.
 There is also a "recommended-strict" ruleset which is identical but with all `warn` settings changed to `error`.
 
-### Recommended ruleset: OpenAPI 3.1/3.2
+### Recommended ruleset: OpenAPI 3.2
 
 ```yaml
 rules:
-  info-contact: off
   info-license: warn
   info-license-strict: warn
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: error
-  no-identical-paths: error
   no-ambiguous-paths: warn
-  path-declaration-must-exist: error
-  path-not-include-query: error
-  path-parameters-defined: error
-  operation-description: off
+  no-duplicated-tag-names: warn
+  no-empty-servers: error
+  no-enum-type-mismatch: error
+  no-identical-paths: error
+  no-invalid-media-type-examples: warn
+  no-invalid-parameter-examples: warn
+  no-invalid-schema-examples: warn
+  no-path-trailing-slash: error
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: error
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: error
   operation-2xx-response: warn
   operation-4xx-response: warn
   operation-operationId: warn
-  operation-summary: error
   operation-operationId-unique: error
   operation-operationId-url-safe: error
   operation-parameters-unique: error
-  operation-tag-defined: off
+  operation-summary: error
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  path-params-defined: error
   security-defined: error
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  paths-kebab-case: off
+  spec-components-invalid-map-name: error
+  spec-discriminator-defaultMapping: warn
+  spec-example-values: error
+  spec-no-invalid-encoding-combinations: error
+  spec-no-invalid-tag-parents: error
   struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  path-segment-plural: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  scalar-property-missing-example: off
+  tag-description: warn
+```
+
+### Recommended ruleset: OpenAPI 3.1
+
+```yaml
+rules:
+  info-license: warn
+  info-license-strict: warn
+  no-ambiguous-paths: warn
   no-duplicated-tag-names: warn
+  no-empty-servers: error
+  no-enum-type-mismatch: error
+  no-example-value-and-externalValue: error
+  no-identical-paths: error
+  no-invalid-media-type-examples: warn
+  no-invalid-parameter-examples: warn
+  no-invalid-schema-examples: warn
+  no-path-trailing-slash: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
-  spec-no-invalid-tag-parents: error
-  spec-example-values: error
-  spec-discriminator-defaultMapping: warn
-  spec-no-invalid-encoding-combinations: error
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: error
+  operation-2xx-response: warn
+  operation-4xx-response: warn
+  operation-operationId: warn
+  operation-operationId-unique: error
+  operation-operationId-url-safe: error
+  operation-parameters-unique: error
+  operation-summary: error
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  path-params-defined: error
+  security-defined: error
+  spec-components-invalid-map-name: error
+  struct: error
+  tag-description: warn
 ```
 
 ### Recommended ruleset: OpenAPI 3.0
 
 ```yaml
 rules:
-  info-contact: off
   info-license: warn
   info-license-strict: warn
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: error
-  no-identical-paths: error
   no-ambiguous-paths: warn
-  path-declaration-must-exist: error
-  path-not-include-query: error
-  path-parameters-defined: error
-  operation-description: off
+  no-duplicated-tag-names: warn
+  no-empty-servers: error
+  no-enum-type-mismatch: error
+  no-example-value-and-externalValue: error
+  no-identical-paths: error
+  no-invalid-media-type-examples: warn
+  no-invalid-parameter-examples: warn
+  no-invalid-schema-examples: warn
+  no-path-trailing-slash: error
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: error
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-server-variables-empty-enum: error
+  no-unresolved-refs: error
+  no-unused-components: warn
+  no-undefined-server-variable: error
+  nullable-type-sibling: error
   operation-2xx-response: warn
   operation-4xx-response: warn
   operation-operationId: warn
-  operation-summary: error
   operation-operationId-unique: error
   operation-operationId-url-safe: error
   operation-parameters-unique: error
-  operation-tag-defined: off
+  operation-summary: error
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  path-params-defined: error
   security-defined: error
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  nullable-type-sibling: error
-  paths-kebab-case: off
-  struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  path-segment-plural: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  scalar-property-missing-example: off
-  no-invalid-media-type-examples: warn
-  no-server-example.com: warn
-  no-server-trailing-slash: error
-  no-empty-servers: error
-  no-example-value-and-externalValue: error
-  no-unused-components: warn
-  no-undefined-server-variable: error
-  no-server-variables-empty-enum: error
   spec-components-invalid-map-name: error
-  boolean-parameter-prefixes: off
-  component-name-unique: off
-  operation-4xx-problem-details-rfc7807: off
-  request-mime-type: off
-  response-contains-property: off
-  response-mime-type: off
-  array-parameter-serialization: off
-  no-duplicated-tag-names: warn
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
+  struct: error
+  tag-description: warn
 ```
 
 ### Recommended ruleset: OpenAPI 2.0
 
 ```yaml
 rules:
-  info-contact: off
   info-license: warn
   info-license-strict: warn
-  tag-description: warn
-  tags-alphabetical: off
-  parameter-description: off
-  no-path-trailing-slash: error
-  no-identical-paths: error
   no-ambiguous-paths: warn
-  path-declaration-must-exist: error
-  path-not-include-query: error
-  path-parameters-defined: error
-  operation-description: off
+  no-duplicated-tag-names: warn
+  no-enum-type-mismatch: error
+  no-identical-paths: error
+  no-invalid-parameter-examples: warn
+  no-invalid-schema-examples: warn
+  no-path-trailing-slash: error
+  no-required-schema-properties-undefined: warn
+  no-schema-type-mismatch: error
+  no-unresolved-refs: error
   operation-2xx-response: warn
   operation-4xx-response: warn
   operation-operationId: warn
-  operation-summary: error
   operation-operationId-unique: error
   operation-operationId-url-safe: error
   operation-parameters-unique: error
-  operation-tag-defined: off
+  operation-summary: error
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  path-params-defined: error
   security-defined: error
-  operation-singular-tag: off
-  no-unresolved-refs: error
-  paths-kebab-case: off
   struct: error
-  spec-strict-refs: off
-  no-http-verbs-in-paths: off
-  no-invalid-parameter-examples: off
-  no-invalid-schema-examples: off
-  path-http-verbs-order: off
-  path-params-defined: off
-  path-segment-plural: off
-  required-string-property-missing-min-length: off
-  response-contains-header: off
-  scalar-property-missing-example: off
-  boolean-parameter-prefixes: off
-  request-mime-type: off
-  response-contains-property: off
-  response-mime-type: off
-  no-duplicated-tag-names: warn
-  no-required-schema-properties-undefined: warn
-  no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
+  tag-description: warn
 ```
 
 ### Recommended ruleset: AsyncAPI 3.0
 
 ```yaml
 rules:
-  struct: error
-  info-contact: off
   info-license-strict: warn
-  operation-operationId: warn
-  tag-description: warn
-  tags-alphabetical: off
-  channels-kebab-case: off
-  no-channel-trailing-slash: off
   no-duplicated-tag-names: warn
+  no-enum-type-mismatch: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
+  operation-operationId: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Recommended ruleset: AsyncAPI 2.6
 
 ```yaml
 rules:
-  struct: error
-  info-contact: off
   info-license-strict: warn
-  operation-operationId: warn
-  tag-description: warn
-  tags-alphabetical: off
-  channels-kebab-case: off
-  no-channel-trailing-slash: off
   no-duplicated-tag-names: warn
+  no-enum-type-mismatch: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
+  operation-operationId: warn
+  struct: error
+  tag-description: warn
 ```
 
 ### Recommended ruleset: Arazzo 1.0
 
 ```yaml
 rules:
-  struct: error
-  sourceDescription-type: error
-  workflowId-unique: error
-  stepId-unique: error
-  sourceDescription-name-unique: error
-  workflow-dependsOn: error
-  parameters-unique: error
-  step-onSuccess-unique: warn
-  step-onFailure-unique: warn
-  respect-supported-versions: off
-  requestBody-replacements-unique: warn
-  no-criteria-xpath: off
-  no-actions-type-end: warn
   criteria-unique: warn
-  no-x-security-scheme-name-without-openapi: off
-  x-security-scheme-required-values: off
-  no-x-security-scheme-name-in-workflow: 'off',
+  no-enum-type-mismatch: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
-  no-enum-type-mismatch: error
+  parameters-unique: error
+  requestBody-replacements-unique: warn
+  sourceDescription-name-unique: error
+  sourceDescription-type: error
+  sourceDescriptions-not-empty: error
+  step-onFailure-unique: warn
+  step-onSuccess-unique: warn
+  stepId-unique: error
+  struct: error
+  workflow-dependsOn: error
+  workflowId-unique: error
 ```
 
 ## Resources
