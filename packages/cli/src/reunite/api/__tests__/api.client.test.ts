@@ -223,7 +223,7 @@ describe('ApiClient', () => {
       let passedFormData: FormData = new FormData();
 
       vi.mocked(fetch).mockImplementationOnce(async (_: any, options: any): Promise<Response> => {
-        passedFormData = options.body as FormData;
+        passedFormData = options.body;
         return {
           ok: true,
           json: vi.fn().mockResolvedValue(responseMock),
@@ -251,7 +251,15 @@ describe('ApiClient', () => {
           },
         })
       );
-      expect(passedFormData).toEqual(formData);
+
+      // Compare FormData property-by-property for Node.js v24 compatibility
+      expect(passedFormData.get('remoteId')).toBe(testRemoteId);
+      expect(passedFormData.get('commit[message]')).toBe(pushPayload.commit.message);
+      expect(passedFormData.get('commit[author][name]')).toBe(pushPayload.commit.author.name);
+      expect(passedFormData.get('commit[author][email]')).toBe(pushPayload.commit.author.email);
+      expect(passedFormData.get('commit[branchName]')).toBe(pushPayload.commit.branchName);
+      expect(passedFormData.get('files[some-file.yaml]')).toBeInstanceOf(Blob);
+
       expect(result).toEqual(responseMock);
     });
 
