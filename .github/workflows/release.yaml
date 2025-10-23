@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for OIDC
-      contents: read
+      contents: write
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
