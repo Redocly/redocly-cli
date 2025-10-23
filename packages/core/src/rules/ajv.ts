@@ -82,12 +82,9 @@ function getAjvDraft04Validator(
 ): ValidateFunction | undefined {
   const ajv = getAjvDraft04();
 
-  if (!ajv.getSchema(loc.absolutePointer)) {
-    const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
-    ajv.addSchema(dereferencedSchema, loc.absolutePointer);
-  }
+  const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
 
-  return ajv.getSchema(loc.absolutePointer);
+  return ajv.compile(dereferencedSchema);
 }
 
 export function validateJsonSchema(
