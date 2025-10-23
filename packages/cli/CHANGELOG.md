@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.8.0
+
+### Minor Changes
+
+- Added the `no-invalid-schema-examples` and `no-invalid-parameter-examples` to the `recommended` ruleset.
+  Added the `no-duplicated-tag-names` to the `spec` ruleset.
+- Added configuration of Respect mTLS certificates on a per-domain basis.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.8.0.
+
 ## 2.7.1
 
 ### Patch Changes
