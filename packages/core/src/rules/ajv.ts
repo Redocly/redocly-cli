@@ -81,7 +81,6 @@ function getAjvDraft04Validator(
   const ajv = getAjvDraft04();
 
   if (!ajv.getSchema(loc.absolutePointer)) {
-    // Dereference the schema to resolve all $refs before adding to Ajv
     const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
 
     ajv.addSchema(dereferencedSchema, loc.absolutePointer);
