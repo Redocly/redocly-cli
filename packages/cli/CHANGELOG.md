@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.7.1
+
+### Patch Changes
+
+- Applied proxy settings during Respect execution.
+- Updated @redocly/openapi-core to v2.7.1.
+
 ## 2.7.0
 
 ### Patch Changes
