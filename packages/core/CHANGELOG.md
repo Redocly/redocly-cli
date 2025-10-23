@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.7.1
+
+### Patch Changes
+
+- Fixed an issue where `no-required-schema-properties-undefined` rule did not evaluate properties in `any` and `oneOf`.
+- Fixed an issue where references were not resolved when used inside other properties alongside the `$ref` keyword.
+
 ## 2.7.0
 
 ### Minor Changes
