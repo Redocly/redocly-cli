@@ -34,7 +34,7 @@ export type Analytics = {
   respect_x_security_auth_types?: string;
 };
 
-const REPLACEMENT_VALUE = '***';
+const SECRET_REPLACEMENT = '***';
 
 export async function sendTelemetry({
   config,
@@ -192,7 +192,7 @@ function cleanObject(obj: any, keysToClean: string[]): any {
 
   for (const [key, value] of Object.entries(obj)) {
     if (keysToClean.includes(key)) {
-      cleaned[key] = REPLACEMENT_VALUE;
+      cleaned[key] = SECRET_REPLACEMENT;
     } else if (typeof value === 'object' && value !== null) {
       cleaned[key] = cleanObject(value, keysToClean);
     } else {
@@ -230,8 +230,8 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
 
   for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
-      commandArguments[key] = REPLACEMENT_VALUE;
-      commandInput = replaceArgs(commandInput, value, REPLACEMENT_VALUE);
+      commandArguments[key] = SECRET_REPLACEMENT;
+      commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {
       const cleanedValue = cleanString(value);
       commandArguments[key] = cleanedValue;
@@ -247,7 +247,7 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
     } else if (typeof value === 'object' && value !== null) {
       const sensitiveValues = collectSensitiveValues(value, KEYS_TO_CLEAN);
       for (const sensitiveValue of sensitiveValues) {
-        commandInput = replaceArgs(commandInput, sensitiveValue, REPLACEMENT_VALUE);
+        commandInput = replaceArgs(commandInput, sensitiveValue, SECRET_REPLACEMENT);
       }
       commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN);
     } else {
