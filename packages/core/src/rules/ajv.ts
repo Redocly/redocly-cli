@@ -8,15 +8,15 @@ import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ValidateFunction as ValidateFunctionDraft04 } from 'ajv-draft-04';
 import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: Ajv | null = null;
-let ajvDraft04Instance: AjvDraft04 | null = null;
+let ajvInstance: InstanceType<typeof Ajv> | null = null;
+let ajvDraft04Instance: InstanceType<typeof AjvDraft04> | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;
   ajvDraft04Instance = null;
 }
 
-function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean): Ajv {
+function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -36,12 +36,12 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean): Ajv {
       },
       logger: false,
     });
-    addFormats(ajvInstance as any);
+    addFormats(ajvInstance as any); // TODO: fix type mismatch
   }
   return ajvInstance;
 }
 
-function getAjvDraft04(): AjvDraft04 {
+function getAjvDraft04() {
   if (!ajvDraft04Instance) {
     ajvDraft04Instance = new AjvDraft04({
       schemaId: 'id',
@@ -55,7 +55,7 @@ function getAjvDraft04(): AjvDraft04 {
       validateFormats: true,
       logger: false,
     });
-    addFormats(ajvDraft04Instance as any);
+    addFormats(ajvDraft04Instance);
   }
 
   return ajvDraft04Instance;
