@@ -7,13 +7,15 @@ import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ResolveFn } from '../walk.js';
 
-let ajvInstance: Ajv | AjvDraft04 | null = null;
+let ajvInstance: Ajv | null = null;
+let ajvDraft04Instance: AjvDraft04 | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;
+  ajvDraft04Instance = null;
 }
 
-function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
+function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean): Ajv {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -33,14 +35,14 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       },
       logger: false,
     });
-    addFormats(ajvInstance as any); // TODO: fix type mismatch
+    addFormats(ajvInstance as any);
   }
   return ajvInstance;
 }
 
 function getAjvDraft04(): AjvDraft04 {
-  if (!ajvInstance) {
-    ajvInstance = new AjvDraft04({
+  if (!ajvDraft04Instance) {
+    ajvDraft04Instance = new AjvDraft04({
       schemaId: 'id',
       meta: false,
       allErrors: true,
@@ -52,10 +54,10 @@ function getAjvDraft04(): AjvDraft04 {
       validateFormats: true,
       logger: false,
     });
-    addFormats(ajvInstance);
+    addFormats(ajvDraft04Instance as any);
   }
 
-  return ajvInstance as AjvDraft04;
+  return ajvDraft04Instance;
 }
 
 function getAjvValidator(
@@ -82,7 +84,6 @@ function getAjvDraft04Validator(
 
   if (!ajv.getSchema(loc.absolutePointer)) {
     const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
-
     ajv.addSchema(dereferencedSchema, loc.absolutePointer);
   }
 
