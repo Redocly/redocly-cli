@@ -31,7 +31,14 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             return;
           }
 
-          validateExample(schema.example, schema, ctx.location.child('example'), ctx, true);
+          validateExample(
+            schema.example,
+            schema,
+            ctx.location.child('example'),
+            ctx,
+            true,
+            ctx.specVersion
+          );
         }
       },
     },

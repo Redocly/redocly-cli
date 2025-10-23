@@ -1,0 +1,43 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0.0
+
+paths:
+  /pet:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/validExample'
+      responses:
+        '200':
+          description: Response description
+          content:
+            application/json:
+              schema: {}
+
+components:
+  parameters:
+    validExample:
+      in: header
+      name: Test
+      schema:
+        type: integer
+        minimum: 10
+        exclusiveMinimum: true
+        example: 11
+    notValidExampleWithExclusiveMaximum:
+      in: query
+      name: anotherTest
+      schema:
+        type: integer
+        minimum: 5
+        exclusiveMaximum: true
+        example: 10
+    notValidExample:
+      in: query
+      name: yetAnotherTest
+      schema:
+        type: integer
+        minimum: 0
+        exclusiveMinimum: true
+        example: 0
