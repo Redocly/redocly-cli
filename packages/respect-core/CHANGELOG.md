@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.8.0
+
+### Patch Changes
+
+- Fixed an issue where verbose logs were incorrectly shown in some conditions for failed network requests.
+- Updated @redocly/openapi-core to v2.8.0.
+
 ## 2.7.1
 
 ### Patch Changes
