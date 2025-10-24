@@ -71,12 +71,14 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
 
         // Check for duplicate schemas
         for (let i = 0; i < schemas.length - 1; i++) {
-          if (dequal(Object.values(schemas[i]), Object.values(schemas[i + 1]))) {
-            report({
-              message: `Duplicate schemas found in \`${keyword}\`, which makes it impossible to discriminate between schemas.`,
-              location: location.child([keyword]),
-            });
-            return;
+          for (let j = i + 1; j < schemas.length; j++) {
+            if (dequal(Object.values(schemas[i]), Object.values(schemas[j]))) {
+              report({
+                message: `Duplicate schemas found in \`${keyword}\`, which makes it impossible to discriminate between schemas.`,
+                location: location.child([keyword]),
+              });
+              return;
+            }
           }
         }
 
