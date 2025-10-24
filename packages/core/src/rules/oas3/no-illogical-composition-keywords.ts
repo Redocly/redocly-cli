@@ -27,7 +27,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
   return {
     Schema: {
       skip(node) {
-        return !node.oneOf && !node.anyOf && !node.allOf;
+        return !(node.oneOf || node.anyOf || node.allOf);
       },
       enter(schema, { report, location, resolve }) {
         // Helper function to get the composition keyword and schemas
