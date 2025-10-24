@@ -34,6 +34,8 @@ export type Analytics = {
   respect_x_security_auth_types?: string;
 };
 
+const SECRET_REPLACEMENT = '***';
+
 export async function sendTelemetry({
   config,
   argv,
@@ -177,14 +179,59 @@ function replaceArgs(
   return commandInput;
 }
 
+function cleanObject(obj: any, keysToClean: string[]): any {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => cleanObject(item, keysToClean));
+  }
+
+  const cleaned: any = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (keysToClean.includes(key)) {
+      cleaned[key] = SECRET_REPLACEMENT;
+    } else if (typeof value === 'object' && value !== null) {
+      cleaned[key] = cleanObject(value, keysToClean);
+    } else {
+      cleaned[key] = value;
+    }
+  }
+
+  return cleaned;
+}
+
+function collectSensitiveValues(obj: any, keysToClean: string[], values: string[] = []): string[] {
+  if (typeof obj !== 'object' || obj === null) {
+    return values;
+  }
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item) => collectSensitiveValues(item, keysToClean, values));
+    return values;
+  }
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (keysToClean.includes(key) && typeof value === 'string') {
+      values.push(value);
+    } else if (typeof value === 'object' && value !== null) {
+      collectSensitiveValues(value, keysToClean, values);
+    }
+  }
+  return values;
+}
+
 export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
-  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'client-cert', 'client-key', 'ca-cert'];
+  const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'clientCert', 'clientKey', 'caCert'];
   let commandInput = rawArgv.join(' ');
   const commandArguments: Record<string, string | string[]> = {};
+
   for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
-      commandArguments[key] = '***';
-      commandInput = replaceArgs(commandInput, value, '***');
+      commandArguments[key] = SECRET_REPLACEMENT;
+      commandInput = replaceArgs(commandInput, value, SECRET_REPLACEMENT);
     } else if (typeof value === 'string') {
       const cleanedValue = cleanString(value);
       commandArguments[key] = cleanedValue;
@@ -197,6 +244,12 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
           commandInput = commandInput.replaceAll(replacedValue, newValue);
         }
       }
+    } else if (typeof value === 'object' && value !== null) {
+      const sensitiveValues = collectSensitiveValues(value, KEYS_TO_CLEAN);
+      for (const sensitiveValue of sensitiveValues) {
+        commandInput = replaceArgs(commandInput, sensitiveValue, SECRET_REPLACEMENT);
+      }
+      commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN);
     } else {
       commandArguments[key] = value;
     }

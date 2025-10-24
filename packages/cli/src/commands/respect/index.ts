@@ -13,6 +13,14 @@ import { withHar } from './har-logs/index.js';
 import { createHarLog } from './har-logs/har-logs.js';
 import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
 
+export type MtlsConfig = {
+  [domain: string]: {
+    clientCert?: string;
+    clientKey?: string;
+    caCert?: string;
+  };
+};
+
 export type RespectArgv = {
   files: string[];
   input?: string;
@@ -22,9 +30,7 @@ export type RespectArgv = {
   verbose?: boolean;
   'har-output'?: string;
   'json-output'?: string;
-  'client-cert'?: string;
-  'client-key'?: string;
-  'ca-cert'?: string;
+  mtls?: MtlsConfig;
   'max-steps': number;
   severity?: string;
   config?: string;
@@ -46,18 +52,8 @@ export async function handleRespect({
     const { run, conditionallyMaskSecrets } = await import('@redocly/respect-core');
     const workingDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
-    if (argv['client-cert'] || argv['client-key'] || argv['ca-cert']) {
-      mtlsCerts =
-        argv['client-cert'] || argv['client-key'] || argv['ca-cert']
-          ? resolveMtlsCertificates(
-              {
-                clientCert: argv['client-cert'],
-                clientKey: argv['client-key'],
-                caCert: argv['ca-cert'],
-              },
-              workingDir
-            )
-          : undefined;
+    if (argv.mtls) {
+      mtlsCerts = resolveMtlsCertificates(argv.mtls, workingDir);
     }
 
     let customFetch = withConnectionClient(mtlsCerts);

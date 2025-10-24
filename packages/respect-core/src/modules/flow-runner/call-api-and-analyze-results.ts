@@ -59,10 +59,12 @@ export async function callAPIAndAnalyzeResults({
     step.checks.push({
       name: CHECKS.NETWORK_ERROR,
       passed: false,
-      message: error.message,
+      message: error.cause?.code ? error.message + ` (cause: ${error.cause.code})` : error.message,
       severity: ctx.severity['NETWORK_ERROR'],
     });
     checksResult.networkCheck = false;
+    // clear current step verbose response log
+    ctx.apiClient.clearVerboseResponseLogs();
     return checksResult;
   }
 

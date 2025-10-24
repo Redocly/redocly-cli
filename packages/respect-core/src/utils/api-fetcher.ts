@@ -14,6 +14,7 @@ import {
   findPotentiallySecretObjectFields,
 } from '../modules/logger-output/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
+import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
 import { collectSecretValues } from '../modules/flow-runner/index.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
@@ -116,6 +117,10 @@ export class ApiFetcher implements IFetcher {
 
   getVerboseResponseLogs = () => {
     return this.verboseResponseLogs;
+  };
+
+  clearVerboseResponseLogs = () => {
+    this.verboseResponseLogs = undefined;
   };
 
   fetchResult = async ({
@@ -289,15 +294,18 @@ export class ApiFetcher implements IFetcher {
 
     const workflowLevelXSecurityParameters =
       ctx.workflows.find((workflow) => workflow.workflowId === workflowId)?.['x-security'] || [];
+
     const lastDigestSecurityScheme = [
       ...workflowLevelXSecurityParameters,
       ...(step['x-security'] || []),
     ]
       .reverse()
       .find((security) => {
-        const scheme = security.schemeName
-          ? openapiOperation?.securitySchemes?.[security.schemeName]
-          : security.scheme;
+        const scheme = resolveSecurityScheme({
+          ctx,
+          security,
+          operation: openapiOperation,
+        });
 
         return scheme?.type === 'http' && scheme?.scheme === 'digest';
       });

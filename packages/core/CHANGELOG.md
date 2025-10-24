@@ -1,5 +1,19 @@
 # @redocly/openapi-core
 
+## 2.8.0
+
+### Minor Changes
+
+- Added the `no-invalid-schema-examples` and `no-invalid-parameter-examples` to the `recommended` ruleset.
+  Added the `no-duplicated-tag-names` to the `spec` ruleset.
+
+## 2.7.1
+
+### Patch Changes
+
+- Fixed an issue where `no-required-schema-properties-undefined` rule did not evaluate properties in `any` and `oneOf`.
+- Fixed an issue where references were not resolved when used inside other properties alongside the `$ref` keyword.
+
 ## 2.7.0
 
 ### Minor Changes

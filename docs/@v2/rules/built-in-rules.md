@@ -142,10 +142,11 @@ Within the Arazzo family of rules, there are rules for the main Arazzo specifica
 The below rules are being migrated to Respect:
 
 - [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
-- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
+- [no-x-security-both-scheme-and-scheme-name](./respect/no-x-security-both-scheme-and-scheme-name.md): forbids using both `scheme` and `schemeName` in the same `x-security` item
 - [no-x-security-scheme-name-without-openapi](./respect/no-x-security-scheme-name-without-openapi.md): the `x-security` can't use `schemeName` when Step request is described with `x-operation`.
+- [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
+- [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
-- [no-x-security-scheme-name-in-workflow](./respect/no-x-security-scheme-name-in-workflow.md) the `x-security` can't use `schemeName` when described in Workflow.
 
 ## Resources
 

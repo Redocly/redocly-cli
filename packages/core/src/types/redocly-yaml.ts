@@ -171,10 +171,11 @@ const builtInArazzo1Rules = [
   'criteria-unique',
   'no-x-security-scheme-name-without-openapi',
   'x-security-scheme-required-values',
-  'no-x-security-scheme-name-in-workflow',
+  'no-x-security-both-scheme-and-scheme-name',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
   'no-schema-type-mismatch',
+  'x-security-scheme-name-reference',
 ] as const;
 
 export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];

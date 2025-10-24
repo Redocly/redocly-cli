@@ -175,10 +175,17 @@ It only checks links within the local docs (it can't check links to other docs s
 ## Built-in rules changes
 
 After adding a new rule, make sure it is added to the `minimal`, `recommended`, `recommended-strict` (the same as the previous but with warnings turned into error), `spec`, and `all` rulesets with appropriate severity levels.
-The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+The defaults are `off` or `warn` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the built-in rules list in [the config types tree](./packages/core/src/types/redocly-yaml.ts).
 
+If the rule reflects a specification requirement, prefix it with `spec-` and add it to the [spec ruleset](./packages/core/src/rules/oas3/spec-ruleset.ts).
+
 Separately, open a merge request with the corresponding documentation changes.
+To make changes to documentation:
+
+1. Create a new page for the rule in the `docs/@v2` folder.
+2. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/sidebars.yaml).
+3. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
 ## Arguments usage
 
@@ -291,8 +298,9 @@ You might need to adjust the CLI versions that need to be tested in the `benchma
 
 What should be verified when changes applied to the `respect-core` package:
 
-- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --ca-cert="ca-cert.pem" --client-key="client-key.pem" --client-cert="client-cert.pem"`.
+- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
+  4
 
 ## Project structure
 

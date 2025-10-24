@@ -15,11 +15,11 @@ jobs:
   build-and-unit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Typecheck
@@ -32,11 +32,11 @@ jobs:
   cli-package-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Prepare CLI and Core packages
@@ -51,21 +51,21 @@ jobs:
   coverage-report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       # FIXME: add vitest coverage report (2.0)
 
   code-style-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 24
+          cache: npm
       - name: Install dependencies
         run: npm ci
       - run: npm run eslint
