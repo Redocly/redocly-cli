@@ -5,12 +5,15 @@ import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig } from '../config/load.js';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { detectSpec } from '../detect-spec.js';
-import { rootRedoclyConfigSchema } from '@redocly/config';
+import {
+  rootRedoclyConfigSchema,
+  entityFileDefaultSchema,
+  entityFileSchema,
+} from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { lintEntityFile } from '../lint.js';
-import { entityFileSchema, entityFileDefaultSchema } from './consts.js';
 import { makeDocumentFromString } from '../resolve.js';
 import { type Config } from '../config/index.js';
 
@@ -516,6 +519,7 @@ describe('lint', () => {
             "apis",
             "seo",
             "sso",
+            "mcp",
             "env",
           ],
         },
