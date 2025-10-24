@@ -4,15 +4,106 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/load.js';
 
-describe('Arazzo no-x-security-scheme-name-in-workflow', () => {
-  it('should report when the `schemeName` is used in `x-security` in a workflow', async () => {
+describe('Arazzo x-security-scheme-name-reference', () => {
+  it('should report when multiple sourceDescriptions exist and schemeName is a plain string', async () => {
     const document = parseYamlToDocument(
       outdent`
         arazzo: '1.0.1'
         info:
           title: Cool API
           version: 1.0.0
-          description: A cool API
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+          - name: pets-api
+            type: openapi
+            url: pets.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            x-security:
+              - schemeName: MuseumPlaceholderAuth
+                values:
+                  token: some-token
+            steps:
+              - stepId: s1
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-name-reference': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/x-security/0/schemeName",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "When multiple \`sourceDescriptions\` exist, \`workflow.x-security.schemeName\` must be a reference to a source description (e.g. \`$sourceDescriptions.{name}.{schemeName}\`)",
+          "ruleId": "x-security-scheme-name-reference",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report when multiple sourceDescriptions exist and schemeName is a valid reference', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+          - name: pets-api
+            type: openapi
+            url: pets.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            x-security:
+              - schemeName: $sourceDescriptions.museum-api.MuseumPlaceholderAuth
+                values:
+                  token: some-token
+            steps:
+              - stepId: s1
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-name-reference': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when only one sourceDescription exists and schemeName is a plain string', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
         sourceDescriptions:
           - name: museum-api
             type: openapi
@@ -22,95 +113,19 @@ describe('Arazzo no-x-security-scheme-name-in-workflow', () => {
             x-security:
               - schemeName: MuseumPlaceholderAuth
                 values:
-                  email: todd@example.com
-                  password: 123456
-              - scheme:
-                  type: apiKey
-                  name: api-key
-                  in: header
-                values:
                   token: some-token
             steps:
-              - stepId: step-with-openapi-operation
+              - stepId: s1
                 operationId: museum-api.getMuseumHours
-                successCriteria:
-                  - condition: $statusCode == 200
-              - stepId: step-without-openapi-operation-and-security-scheme-name
-                x-operation:
-                  method: GET
-                  url: https://api.example.com/v1/users
-                successCriteria:
-                  - condition: $statusCode == 200
       `,
       'arazzo.yaml'
     );
+
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-x-security-scheme-name-in-workflow': 'error' },
-      }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/workflows/0/x-security/0",
-              "reportOnKey": false,
-              "source": "arazzo.yaml",
-            },
-          ],
-          "message": "The \`schemeName\` can't be used in Workflow, please use \`scheme\` instead.",
-          "ruleId": "no-x-security-scheme-name-in-workflow",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
-  it('should not report when the `scheme` is used in `x-security` in a workflow', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        arazzo: '1.0.1'
-        info:
-          title: Cool API
-          version: 1.0.0
-          description: A cool API
-        sourceDescriptions:
-          - name: museum-api
-            type: openapi
-            url: openapi.yaml
-        workflows:
-          - workflowId: get-museum-hours
-            x-security:
-              - scheme:
-                  type: apiKey
-                  name: api-key
-                  in: header
-                values:
-                  token: some-token
-            steps:
-              - stepId: step-with-openapi-operation
-                operationId: museum-api.getMuseumHours
-                successCriteria:
-                  - condition: $statusCode == 200
-              - stepId: step-without-openapi-operation-and-security-scheme-name
-                x-operation:
-                  method: GET
-                  url: https://api.example.com/v1/users
-                successCriteria:
-                  - condition: $statusCode == 200
-      `,
-      'arazzo.yaml'
-    );
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({
-        rules: { 'no-x-security-scheme-name-in-workflow': 'error' },
+        rules: { 'x-security-scheme-name-reference': 'error' },
       }),
     });
 
