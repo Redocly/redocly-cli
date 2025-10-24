@@ -5,68 +5,70 @@ exports[`local-json-server > local-json-server test case 1`] = `
  
   Running workflow local-json-server.arazzo.yaml / before 
  
-  ✗ GET /items - step get-all-items-before 
-    ✗ status code check
+  ✓ GET /items - step get-all-items-before 
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow local-json-server.arazzo.yaml / crud-items 
  
-  ✗ POST /items - step add-item 
-    ✗ success criteria check - $statusCode == 201
-    ✗ status code check
-    ✗ unexpected error
+  ✓ POST /items - step add-item 
+    ✓ success criteria check - $statusCode == 201
+    ✓ status code check - $statusCode in [201]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✗ GET /items - step get-all-items-again 
+    ✗ success criteria check - $response.body#/0/value == 100
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
   Running workflow local-json-server.arazzo.yaml / auto-inherit 
  
-  ✗ POST /items - step add-item-auto-inherit 
-    ✗ status code check
-    ✗ unexpected error
+  ✓ POST /items - step add-item-auto-inherit 
+    ✓ status code check - $statusCode in [201]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /items - step get-all-items 
+    ✓ status code check - $statusCode in [200]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /items/{id} - step get-item-by-id-auto-inherit 
+    ✓ status code check - $statusCode in [200, 404]
+    ✓ content-type check
+ 
+  ✓ DELETE /items/{id} - step drop-item-auto-inherit 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200]
  
 
   Failed tests info:
 
-  Workflow name: before
- 
-    stepId - get-all-items-before 
-    ✗ status code check 
-      
-      
   Workflow name: crud-items
  
-    stepId - add-item 
+    stepId - get-all-items-again 
     ✗ success criteria check 
-      Checking simple criteria: {"condition":"$statusCode == 201"}
+      Checking simple criteria: {"condition":"$response.body#/0/value == 100"}
        
-    ✗ status code check 
-      
-       
-    ✗ unexpected error 
-    Reason: Error in resolving runtime expression '$response.body#/id'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
-  Workflow name: auto-inherit
- 
-    stepId - add-item-auto-inherit 
-    ✗ status code check 
-      
-       
-    ✗ unexpected error 
-    Reason: Error in resolving runtime expression '$response.body#/id'. 
-    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for local-json-server.arazzo.yaml
   
-  Workflows: 3 failed, 3 total
-  Steps: 3 failed, 3 total
-  Checks: 6 failed, 6 total
+  Workflows: 2 passed, 1 failed, 3 total
+  Steps: 6 passed, 1 failed, 7 total
+  Checks: 20 passed, 1 failed, 21 total
   Time: <test>ms 
  
  
 ┌───────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                              │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├───────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ x local-json-server.arazzo.yaml                                       │ 3          │ 0       │ 3       │ -        │
+│ x local-json-server.arazzo.yaml                                       │ 3          │ 2       │ 1       │ -        │
 └───────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
 
