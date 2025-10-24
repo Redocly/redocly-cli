@@ -1,5 +1,6 @@
 import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
+import AjvDraft04 from 'ajv-draft-04';
 import { escapePointer } from '../ref-utils.js';
 
 import type { Location } from '../ref-utils.js';
@@ -7,9 +8,11 @@ import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ResolveFn } from '../walk.js';
 
 let ajvInstance: Ajv | null = null;
+let ajvDraft04Instance: AjvDraft04 | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;
+  ajvDraft04Instance = null;
 }
 
 function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
@@ -37,6 +40,32 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   return ajvInstance;
 }
 
+function getAjvDraft04(resolve: ResolveFn, allowAdditionalProperties: boolean) {
+  if (!ajvDraft04Instance) {
+    ajvDraft04Instance = new AjvDraft04({
+      schemaId: 'id',
+      meta: false,
+      allErrors: true,
+      strictSchema: false,
+      inlineRefs: true,
+      validateSchema: false,
+      discriminator: true,
+      allowUnionTypes: true,
+      validateFormats: true,
+      logger: false,
+      defaultAdditionalProperties: allowAdditionalProperties,
+      loadSchemaSync(base, $ref, id) {
+        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
+        if (!resolvedRef || !resolvedRef.location) return false;
+        return { $id: resolvedRef.location.source.absoluteRef + '#' + id, ...resolvedRef.node };
+      },
+    });
+    addFormats(ajvDraft04Instance as any);
+  }
+
+  return ajvDraft04Instance;
+}
+
 function getAjvValidator(
   schema: any,
   loc: Location,
@@ -52,15 +81,35 @@ function getAjvValidator(
   return ajv.getSchema(loc.absolutePointer);
 }
 
+function getAjvDraft04Validator(
+  schema: any,
+  loc: Location,
+  resolve: ResolveFn,
+  allowAdditionalProperties: boolean
+): ValidateFunction | undefined {
+  const ajv = getAjvDraft04(resolve, allowAdditionalProperties);
+
+  if (!ajv.getSchema(loc.absolutePointer)) {
+    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+  }
+
+  return ajv.getSchema(loc.absolutePointer);
+}
+
 export function validateJsonSchema(
   data: any,
   schema: any,
   schemaLoc: Location,
   instancePath: string,
   resolve: ResolveFn,
-  allowAdditionalProperties: boolean
+  allowAdditionalProperties: boolean,
+  specVersion: string = 'oas3_1'
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
-  const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
+  const validate =
+    specVersion === 'oas3_0' || specVersion === 'oas2'
+      ? getAjvDraft04Validator(schema, schemaLoc, resolve, allowAdditionalProperties)
+      : getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
+
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
   const valid = validate(data, {
