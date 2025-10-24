@@ -41,7 +41,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           if (schema.allOf && Array.isArray(schema.allOf)) {
             return { keyword: 'allOf' as const, schemas: schema.allOf };
           }
-          return null;
+          return undefined;
         })();
 
         if (!compositionData) return;
