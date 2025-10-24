@@ -1,5 +1,0 @@
-apis:
-  main:
-    root: ./museum.yaml
-rules:
-  x-security-scheme-name-reference: error
