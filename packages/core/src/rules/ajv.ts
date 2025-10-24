@@ -40,7 +40,7 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   return ajvInstance;
 }
 
-function getAjvDraft04() {
+function getAjvDraft04(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   if (!ajvDraft04Instance) {
     ajvDraft04Instance = new AjvDraft04({
       schemaId: 'id',
@@ -53,8 +53,14 @@ function getAjvDraft04() {
       allowUnionTypes: true,
       validateFormats: true,
       logger: false,
+      defaultAdditionalProperties: allowAdditionalProperties,
+      loadSchemaSync(base, $ref, id) {
+        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
+        if (!resolvedRef || !resolvedRef.location) return false;
+        return { $id: resolvedRef.location.source.absoluteRef + '#' + id, ...resolvedRef.node };
+      },
     });
-    addFormats(ajvDraft04Instance);
+    addFormats(ajvDraft04Instance as any);
   }
 
   return ajvDraft04Instance;
@@ -78,13 +84,16 @@ function getAjvValidator(
 function getAjvDraft04Validator(
   schema: any,
   loc: Location,
-  resolve: ResolveFn
+  resolve: ResolveFn,
+  allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
-  const ajvDraft04 = getAjvDraft04();
+  const ajv = getAjvDraft04(resolve, allowAdditionalProperties);
 
-  const dereferencedSchema = dereferenceSchema(schema, loc.source.absoluteRef, resolve);
+  if (!ajv.getSchema(loc.absolutePointer)) {
+    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+  }
 
-  return ajvDraft04.compile(dereferencedSchema);
+  return ajv.getSchema(loc.absolutePointer);
 }
 
 export function validateJsonSchema(
@@ -98,7 +107,7 @@ export function validateJsonSchema(
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate =
     specVersion === 'oas3_0' || specVersion === 'oas2'
-      ? getAjvDraft04Validator(schema, schemaLoc, resolve)
+      ? getAjvDraft04Validator(schema, schemaLoc, resolve, allowAdditionalProperties)
       : getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
 
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
@@ -144,43 +153,4 @@ export function validateJsonSchema(
       suggest,
     };
   }
-}
-
-function dereferenceSchema(
-  schema: any,
-  baseRef: string,
-  resolve: ResolveFn,
-  visited: WeakSet<any> = new WeakSet()
-): any {
-  if (!schema || typeof schema !== 'object') {
-    return schema;
-  }
-
-  if (visited.has(schema)) {
-    return schema;
-  }
-  visited.add(schema);
-
-  if (Array.isArray(schema)) {
-    return schema.map((item) => dereferenceSchema(item, baseRef, resolve, visited));
-  }
-
-  if (schema.$ref) {
-    const resolved = resolve({ $ref: schema.$ref });
-    if (resolved && resolved.node) {
-      return dereferenceSchema(
-        resolved.node,
-        resolved.location.source.absoluteRef,
-        resolve,
-        visited
-      );
-    }
-    return schema;
-  }
-
-  const result: any = {};
-  for (const [key, value] of Object.entries(schema)) {
-    result[key] = dereferenceSchema(value, baseRef, resolve, visited);
-  }
-  return result;
 }
