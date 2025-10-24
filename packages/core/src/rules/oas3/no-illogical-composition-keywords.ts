@@ -51,7 +51,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
         // Check for minimum schema count (oneOf and anyOf require at least 2)
         if ((keyword === 'oneOf' || keyword === 'anyOf') && schemas.length < 2) {
           report({
-            message: `Schema object \`${keyword}\` should contain at least 2 schemas. Use the schema directly instead.`,
+            message: `Schema object '${keyword}' should contain at least 2 schemas. Use the schema directly instead.`,
             location: location.child([keyword]),
           });
           return;
@@ -62,7 +62,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           const resolvedSchema = resolveSchema(schemas[i], resolve);
           if (isEmptyObject(resolvedSchema)) {
             report({
-              message: `Schema in \`${keyword}\` is empty, which provides no validation constraints.`,
+              message: `Schema is empty.`,
               location: location.child([keyword, String(i)]),
             });
             return;
@@ -74,7 +74,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
           for (let j = i + 1; j < schemas.length; j++) {
             if (dequal(Object.values(schemas[i]), Object.values(schemas[j]))) {
               report({
-                message: `Duplicate schemas found in \`${keyword}\`, which makes it impossible to discriminate between schemas.`,
+                message: `Duplicate schemas found in '${keyword}', which makes it impossible to discriminate between schemas.`,
                 location: location.child([keyword]),
               });
               return;
