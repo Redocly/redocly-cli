@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createEntityTypes } from '../types/entity-yaml.js';
 import { normalizeTypes } from '../types/index.js';
-import { entityFileSchema, entityFileDefaultSchema } from './consts.js';
+import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 
 describe('entity-yaml', () => {
   it('should create entity types with discriminator', () => {
