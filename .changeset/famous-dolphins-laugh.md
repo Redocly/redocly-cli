@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Adjusted CLI to properly handle root level paths during split operations
+Adjusted the `split` command to properly handle root level paths.
