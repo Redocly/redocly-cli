@@ -100,18 +100,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = (): Oas3Visitor => {
             }
           }
 
-          // Check mutual exclusivity - oneOf schemas should ALWAYS be mutually exclusive
-          const { isExclusive, reasons } = areOneOfSchemasMutuallyExclusive(schemas, resolve);
-
-          if (!isExclusive && reasons && reasons.length > 0) {
-            // Report each ambiguous pair as a separate warning
-            for (const reason of reasons) {
-              report({
-                message: reason,
-                location: location.child(['oneOf']),
-              });
-            }
-          }
+          checkOneOfSchemasMutuallyExclusive(schemas, resolve, report, location);
         }
       },
     },
@@ -437,14 +426,12 @@ function areSignaturesMutuallyExclusive(
   return { isExclusive: true };
 }
 
-function areOneOfSchemasMutuallyExclusive(
+function checkOneOfSchemasMutuallyExclusive(
   schemas: Array<Oas3Schema | Oas3_1Schema>,
-  resolve: UserContext['resolve']
-): Pick<ReturnType, 'isExclusive'> & {
-  reasons?: string[];
-} {
-  // Check for ambiguous combinations
-  const ambiguousReasons: string[] = [];
+  resolve: UserContext['resolve'],
+  report: UserContext['report'],
+  location: UserContext['location']
+) {
   const signatures: SchemaSignature[] = [];
 
   // Collect signatures
@@ -470,22 +457,13 @@ function areOneOfSchemasMutuallyExclusive(
         const schema1Id = getSchemaIdentifier(schemas[i], i);
         const schema2Id = getSchemaIdentifier(schemas[j], j);
 
-        const message = `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
-          reason ? reason : ''
-        }`;
-        ambiguousReasons.push(message);
+        report({
+          message: `Ambiguous oneOf schemas detected. Schemas ${schema1Id} and ${schema2Id} are not mutually exclusive. ${
+            reason ? reason : ''
+          }`,
+          location: location.child(['oneOf']),
+        });
       }
     }
   }
-
-  // If any ambiguous pairs found, return them all
-  if (ambiguousReasons.length > 0) {
-    return {
-      isExclusive: false,
-      reasons: ambiguousReasons,
-    };
-  }
-
-  // All schemas are mutually exclusive
-  return { isExclusive: true };
 }
