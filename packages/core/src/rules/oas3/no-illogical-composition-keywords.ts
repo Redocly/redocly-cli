@@ -249,7 +249,7 @@ function arePropertiesMutuallyExclusive(
   }
 
   // If types are different, they're mutually exclusive.
-  if (prop1.type && prop2.type && prop1.type !== 'object' && prop2.type !== 'object') {
+  if (prop1.type && prop2.type && !isPlainObject(prop1.type) && !isPlainObject(prop2.type)) {
     if (!dequal(prop1.type, prop2.type)) {
       return { isExclusive: true };
     } else if (prop1.format && prop2.format && prop1.format !== prop2.format) {
