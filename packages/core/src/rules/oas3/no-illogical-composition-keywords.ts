@@ -229,9 +229,8 @@ function arePropertiesMutuallyExclusive(
     const overlappingEnums = prop1.enum.filter((val) =>
       prop2.enum!.some((val2) => dequal(val, val2))
     );
-    const hasOverlap = overlappingEnums.length > 0;
 
-    return hasOverlap
+    return overlappingEnums.length > 0
       ? {
           isExclusive: false,
           reason: `Schemas have overlapping enum values: ${JSON.stringify(overlappingEnums)}.`,
@@ -241,9 +240,7 @@ function arePropertiesMutuallyExclusive(
 
   // If both have const values and they're different, they're mutually exclusive
   if (prop1.const && prop2.const) {
-    const areDifferent = !dequal(prop1.const, prop2.const);
-
-    return areDifferent
+    return !dequal(prop1.const, prop2.const)
       ? { isExclusive: true }
       : {
           isExclusive: false,
@@ -251,20 +248,17 @@ function arePropertiesMutuallyExclusive(
         };
   }
 
-  // If types are different, they're mutually exclusive
-  if (prop1.type && prop2.type && !dequal(prop1.type, prop2.type)) {
-    return { isExclusive: true };
-  }
-
-  // If same type but different formats, they're mutually exclusive
-  if (prop1.type && prop2.type && dequal(prop1.type, prop2.type)) {
-    if (prop1.format && prop2.format && prop1.format !== prop2.format) {
+  // If types are different, they're mutually exclusive.
+  if (prop1.type && prop2.type && prop1.type !== 'object' && prop2.type !== 'object') {
+    if (!dequal(prop1.type, prop2.type)) {
+      return { isExclusive: true };
+    } else if (prop1.format && prop2.format && prop1.format !== prop2.format) {
       return { isExclusive: true };
     }
+    return { isExclusive: false };
   }
 
-  // If we reach here, the properties have not been proven to be mutually exclusive
-  return { isExclusive: false };
+  return { isExclusive: true };
 }
 
 function areSignaturesMutuallyExclusive(
