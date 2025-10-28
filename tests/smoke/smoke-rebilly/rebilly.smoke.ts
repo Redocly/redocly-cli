@@ -1,6 +1,6 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getCommandOutput, getParams } from '../../../__tests__/helpers.js';
+import { getCommandOutput, getParams } from '../../e2e/__tests__/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

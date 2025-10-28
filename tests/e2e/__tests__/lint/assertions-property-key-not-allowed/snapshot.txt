@@ -1,0 +1,6 @@
+
+validating openapi.yaml using lint rules for api 'main'...
+Something went wrong when processing ./tests/e2e/__tests__/lint/assertions-property-key-not-allowed/openapi.yaml:
+
+  - The 'disallowed' assertion can't be used on properties. Please remove the 'property' key.
+

@@ -23,7 +23,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
         thresholds: {
           lines: 78,
           functions: 81,
-          statements: 77,
+          statements: 78,
           branches: 70,
         },
       },
@@ -31,7 +31,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   e2e: defineConfig({
     test: {
-      include: ['__tests__/respect/**/*.test.ts', '__tests__/commands.test.ts'],
+      include: ['tests/e2e/__tests__/respect/**/*.test.ts', 'tests/e2e/__tests__/commands.test.ts'],
     },
   }),
   'smoke-rebilly': defineConfig({
