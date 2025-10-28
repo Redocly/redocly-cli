@@ -267,7 +267,7 @@ When writing tests, keep in mind that the order of stdout and stderr messages in
 
 Smokes are for testing the CLI in different environments.
 
-To run them locally, please follow the steps described in the smoke GitHub actions: [smoke](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
 
 To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
 
@@ -278,21 +278,21 @@ npm run pack:prepare
 npm i -g redocly-cli.tgz
 
 # Re-build the docs
-(cd __tests__/smoke/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
+(cd tests/smoke/smoke-basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
 For other commands you'd have to do something similar.
 
 ### Performance benchmark
 
-To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
-Prepare the local build, go to the `benchmark` folder, clean it up, do the preparations, and run the actual benchmark:
+To run the performance tests locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
+Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations, and run the actual test:
 
 ```sh
-(npm run compile && npm run pack:prepare && cd benchmark/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
+(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
 ```
 
-You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
+You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.
 
 ### Manual tests
 
@@ -300,13 +300,14 @@ What should be verified when changes applied to the `respect-core` package:
 
 - `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
-  4
 
 ## Project structure
 
-- **`__tests__`**: contains e2e and smoke tests.
+- **`tests/e2e`**: contains e2e tests.
 
-- **`benchmark`**: contains the performance benchmark. <!-- TODO: move it under the __tests__ folder -->
+- **`tests/performance`**: contains the performance benchmark.
+
+- **`tests/smoke`**: contains smoke tests.
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 

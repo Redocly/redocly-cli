@@ -2,7 +2,7 @@
 
 set -eo pipefail # Fail on script errors
 
-cd __tests__/smoke-plugins
+cd tests/smoke/smoke-plugins
 echo
 echo "Directory content:"
 ls -a
