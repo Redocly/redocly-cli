@@ -2,7 +2,7 @@
 
 set -eo pipefail # Fail on script errors
 
-cd tests/smoke/smoke-basic
+cd tests/smoke/basic
 echo
 echo "Directory content:"
 ls -a

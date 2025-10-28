@@ -267,7 +267,7 @@ When writing tests, keep in mind that the order of stdout and stderr messages in
 
 Smokes are for testing the CLI in different environments.
 
-To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+To run them locally, please follow the steps described in the smoke GitHub actions: [basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
 
 To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
 
@@ -278,7 +278,7 @@ npm run pack:prepare
 npm i -g redocly-cli.tgz
 
 # Re-build the docs
-(cd tests/smoke/smoke-basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
+(cd tests/smoke/basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
 For other commands you'd have to do something similar.

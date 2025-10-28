@@ -23,10 +23,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Prepare Smoke
-        run: bash ./tests/smoke/smoke-basic/prepare-smoke.sh
+        run: bash ./tests/smoke/basic/prepare-smoke.sh
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   run-smoke--npm--node-24:
@@ -35,12 +35,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-24--redoc:
     needs: prepare-smoke
@@ -48,12 +48,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-24:
     needs: prepare-smoke
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -70,7 +70,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--yarn--node-24--redoc:
@@ -79,7 +79,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -88,7 +88,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
   run-smoke--pnpm--node-24:
     needs: prepare-smoke
@@ -96,7 +96,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -105,7 +105,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
 
   # Skipped due to a known Windows + NodeJS v24 issue: https://github.com/nodejs/node/issues/56645
   # run-smoke--npm--node-24--windows:
@@ -114,13 +114,13 @@ jobs:
   #   steps:
   #     - uses: actions/cache@v3
   #       with:
-  #         path: tests/smoke/smoke-basic/
+  #         path: tests/smoke/basic/
   #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
   #         enableCrossOsArchive: true
   #     - uses: actions/setup-node@v3
   #       with:
   #         node-version: 24
-  #     - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+  #     - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   # run-smoke--yarn--node-24--windows:
   #   needs: prepare-smoke
@@ -128,7 +128,7 @@ jobs:
   #   steps:
   #     - uses: actions/cache@v3
   #       with:
-  #         path: tests/smoke/smoke-basic/
+  #         path: tests/smoke/basic/
   #         key: cache-${{ github.run_id }}-${{ github.run_attempt }}
   #         enableCrossOsArchive: true
   #     - uses: actions/setup-node@v3
@@ -139,7 +139,7 @@ jobs:
   #         Start-Sleep -Seconds 20 # workaround for yarn cache issue
   #         for ($i = 1; $i -le 3; $i++) {
   #           try {
-  #             bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+  #             bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
   #             if ($LASTEXITCODE -eq 0) { break }
   #           } catch {
   #             if ($i -eq 3) { throw }
@@ -153,12 +153,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-22--redoc:
     needs: prepare-smoke
@@ -166,12 +166,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-22:
     needs: prepare-smoke
@@ -179,7 +179,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -188,7 +188,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--yarn--node-22--redoc:
@@ -197,7 +197,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -206,7 +206,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
           done
   run-smoke--pnpm--node-22:
     needs: prepare-smoke
@@ -214,7 +214,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -223,7 +223,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
 
   run-smoke--npm--node-22--windows:
     needs: prepare-smoke
@@ -231,13 +231,13 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
       - uses: actions/setup-node@v3
         with:
           node-version: 22
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-22--windows:
     needs: prepare-smoke
@@ -245,7 +245,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
       - uses: actions/setup-node@v3
@@ -256,7 +256,7 @@ jobs:
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
-              bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
               if ($LASTEXITCODE -eq 0) { break }
             } catch {
               if ($i -eq 3) { throw }
@@ -270,12 +270,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-20--redoc:
     needs: prepare-smoke
@@ -283,12 +283,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-20:
     needs: prepare-smoke
@@ -296,7 +296,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/setup-node@v3
         with:
@@ -305,7 +305,7 @@ jobs:
         run: yarn cache clean
       - run: |
           for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
+            sleep 5 && bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
   run-smoke--npm--node-20--windows:
@@ -314,13 +314,13 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./tests/smoke/smoke-basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+      - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-20--windows:
     needs: prepare-smoke
@@ -328,7 +328,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: tests/smoke/smoke-basic/
+          path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
       - uses: actions/setup-node@v3
@@ -339,7 +339,7 @@ jobs:
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
           for ($i = 1; $i -le 3; $i++) {
             try {
-              bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
+              bash ./tests/smoke/basic/run-smoke.sh "yarn add ./redocly-cli.tgz --no-lockfile --network-timeout 100000" "yarn"
               if ($LASTEXITCODE -eq 0) { break }
             } catch {
               if ($i -eq 3) { throw }
@@ -356,8 +356,8 @@ jobs:
       - name: Run docker image
         run: |
           # Prepare
-          cp resources/pets.yaml resources/museum.yaml resources/museum-tickets.arazzo.yaml tests/smoke/smoke-basic/
-          cd tests/smoke/smoke-basic/
+          cp resources/pets.yaml resources/museum.yaml resources/museum-tickets.arazzo.yaml tests/smoke/basic/
+          cd tests/smoke/basic/
 
           # Run commands
           docker run --rm redocly/cli:latest --version
