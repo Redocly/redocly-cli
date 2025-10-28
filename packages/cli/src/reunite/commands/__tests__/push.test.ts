@@ -348,4 +348,72 @@ describe('handlePush()', () => {
       })
     ).rejects.toThrow('✗ File upload failed. Reason: Deprecated.');
   });
+
+  it('should reject empty mount-path', async () => {
+    const mockConfig = { apis: {} } as any;
+    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+    fsStatSyncSpy.mockReturnValueOnce({
+      isDirectory() {
+        return false;
+      },
+    } as any);
+
+    await expect(
+      handlePush({
+        argv: {
+          domain: 'test-domain',
+          'mount-path': '',
+          organization: 'test-org',
+          project: 'test-project',
+          branch: 'test-branch',
+          author: 'TestAuthor <test-author@mail.com>',
+          message: 'Test message',
+          'default-branch': 'main',
+          files: ['test-file'],
+          'max-execution-time': 10,
+        },
+        config: mockConfig,
+        version,
+      })
+    ).rejects.toThrow('Mount path cannot be empty or "/".');
+
+    expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
+    expect(remotes.upsert).not.toHaveBeenCalled();
+    expect(remotes.push).not.toHaveBeenCalled();
+  });
+
+  it('should reject mount-path with value "/"', async () => {
+    const mockConfig = { apis: {} } as any;
+    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+    fsStatSyncSpy.mockReturnValueOnce({
+      isDirectory() {
+        return false;
+      },
+    } as any);
+
+    await expect(
+      handlePush({
+        argv: {
+          domain: 'test-domain',
+          'mount-path': '/',
+          organization: 'test-org',
+          project: 'test-project',
+          branch: 'test-branch',
+          author: 'TestAuthor <test-author@mail.com>',
+          message: 'Test message',
+          'default-branch': 'main',
+          files: ['test-file'],
+          'max-execution-time': 10,
+        },
+        config: mockConfig,
+        version,
+      })
+    ).rejects.toThrow('Mount path cannot be empty or "/".');
+
+    expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
+    expect(remotes.upsert).not.toHaveBeenCalled();
+    expect(remotes.push).not.toHaveBeenCalled();
+  });
 });
