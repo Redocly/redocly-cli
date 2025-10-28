@@ -35,7 +35,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   'smoke-rebilly': defineConfig({
     test: {
-      include: ['tests/smoke/smoke-rebilly/**/*.smoke.ts'],
+      include: ['tests/smoke/rebilly/**/*.smoke.ts'],
     },
   }),
   default: defineConfig({}),
