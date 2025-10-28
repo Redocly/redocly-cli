@@ -47,8 +47,6 @@ describe('Bundle Examples $ref Resolution', () => {
         types: Oas3Types,
       });
 
-      console.log(problems);
-
       expect(problems).toHaveLength(0);
       expect(result.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
