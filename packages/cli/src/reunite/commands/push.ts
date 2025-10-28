@@ -54,12 +54,6 @@ export async function handlePush({
     );
   }
 
-  if (!mountPath || mountPath === '/') {
-    return exitWithError(
-      `Mount path cannot be empty or "/". Please use --mount-path option with a valid path.`
-    );
-  }
-
   try {
     const {
       'commit-sha': commitSha,
