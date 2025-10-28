@@ -429,7 +429,7 @@ const SecurityRequirement: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: { isExample: true },
+    value: { isExample: true, resolvable: false },
     summary: { type: 'string' },
     description: { type: 'string' },
     externalValue: { type: 'string' },

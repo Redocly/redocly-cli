@@ -1,0 +1,92 @@
+openapi: 3.2.0
+info:
+  title: Test API
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Test endpoint
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  active:
+                    type: boolean
+                example:
+                  $ref: example.json
+              examples:
+                Test:
+                  summary: Example with $ref in value (should NOT resolve)
+                  value:
+                    $ref: example.json
+
+                TestNested:
+                  summary: Example with nested $ref in value (should NOT resolve)
+                  value:
+                    user:
+                      $ref: example.json
+                    status: active
+
+                TestExternal:
+                  summary: Example with externalValue (should resolve)
+                  externalValue: example.json
+
+                TestDataValue:
+                  summary: Example with $ref in dataValue (should NOT resolve)
+                  dataValue:
+                    $ref: example.json
+
+                TestSerialized:
+                  summary: Example with serializedValue
+                  serializedValue: '{"id": 123, "name": "Test"}'
+
+                TestEmpty:
+                  summary: Example with empty value
+                  value: {}
+
+                TestPrimitive:
+                  summary: Example with primitive values
+                  value:
+                    string: 'hello'
+                    number: 42
+                    boolean: true
+                    null: null
+                    array: [1, 2, 3]
+                    object:
+                      nested: true
+
+                TestMultipleRefs:
+                  summary: Example with multiple $ref in value
+                  value:
+                    $ref: example.json
+                    fallback:
+                      $ref: example.json
+                    static: 'constant'
+
+components:
+  examples:
+    UserExample:
+      summary: User example with $ref in value
+      value:
+        $ref: example.json
+
+    UserExternal:
+      summary: User example with externalValue
+      externalValue: example.json
+
+    UserDataValue:
+      summary: User example with dataValue
+      dataValue:
+        $ref: example.json
+
+    UserSerialized:
+      summary: User example with serializedValue
+      serializedValue: '{"id": 456, "name": "User"}'
