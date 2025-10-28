@@ -41,7 +41,6 @@ describe('entity-yaml', () => {
       }
     }
 
-    // Test default resolution when no type
     if (typeof entityFileArrayNode.items === 'function') {
       const unknownEntity = { key: 'unknown', title: 'Unknown' };
       const resolvedType = entityFileArrayNode.items(unknownEntity, 'root');
@@ -57,7 +56,6 @@ describe('entity-yaml', () => {
     const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
     const normalizedTypes = normalizeTypes(entityTypes);
 
-    // Test that user type has correct required fields
     const userNode = normalizedTypes['user'];
     if (userNode && Array.isArray(userNode.required)) {
       expect(userNode.required).toContain('key');
