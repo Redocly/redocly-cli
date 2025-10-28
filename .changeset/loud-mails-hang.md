@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Do not resolve `$ref` inside `Examples.value` during bundling and linting
+Fixed an issue where the content of `$ref`s inside `Examples.value` was erroneously resolved during bundling and linting.
