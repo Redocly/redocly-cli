@@ -10,13 +10,13 @@ describe('validateMountPath', () => {
 
   it('should reject empty mount path', () => {
     expect(() => validateMountPath('')).toThrow(
-      'Mount path cannot be empty or "/". Please use --mount-path option with a valid path.'
+      'Mount path cannot be empty or root path. Please use --mount-path option with a valid path.'
     );
   });
 
   it('should reject root path "/"', () => {
     expect(() => validateMountPath('/')).toThrow(
-      'Mount path cannot be empty or "/". Please use --mount-path option with a valid path.'
+      'Mount path cannot be empty or root path. Please use --mount-path option with a valid path.'
     );
   });
 });
