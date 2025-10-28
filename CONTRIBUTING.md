@@ -267,7 +267,7 @@ When writing tests, keep in mind that the order of stdout and stderr messages in
 
 Smokes are for testing the CLI in different environments.
 
-To run them locally, please follow the steps described in the smoke GitHub actions: [basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
 
 To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
 
