@@ -376,7 +376,9 @@ describe('handlePush()', () => {
         config: mockConfig,
         version,
       })
-    ).rejects.toThrow('Mount path cannot be empty or "/".');
+    ).rejects.toThrow(
+      'Mount path cannot be empty or "/". Please use --mount-path option with a valid path.'
+    );
 
     expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
     expect(remotes.upsert).not.toHaveBeenCalled();
@@ -410,7 +412,9 @@ describe('handlePush()', () => {
         config: mockConfig,
         version,
       })
-    ).rejects.toThrow('Mount path cannot be empty or "/".');
+    ).rejects.toThrow(
+      'Mount path cannot be empty or "/". Please use --mount-path option with a valid path.'
+    );
 
     expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
     expect(remotes.upsert).not.toHaveBeenCalled();
