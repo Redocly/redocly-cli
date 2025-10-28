@@ -16,7 +16,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
         provider: 'istanbul',
         exclude: [
           'packages/**/__tests__/**/*',
-          'packages/core/src/benchmark/**/*',
           'packages/cli/src/index.ts',
           'packages/cli/src/utils/assert-node-version.ts',
         ],
@@ -31,7 +30,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   e2e: defineConfig({
     test: {
-      include: ['tests/e2e/__tests__/respect/**/*.test.ts', 'tests/e2e/__tests__/commands.test.ts'],
+      include: ['tests/e2e/__tests__/**/*.test.ts'],
     },
   }),
   'smoke-rebilly': defineConfig({
