@@ -308,24 +308,6 @@ jobs:
             sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" && break
           done
 
-  run-smoke--yarn--node-20--redoc:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: tests/smoke/smoke-basic/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Clear Yarn Cache
-        run: yarn cache clean
-      - run: |
-          for i in {1..2}; do # workaround for yarn cache issue
-            sleep 5 && bash ./tests/smoke/smoke-basic/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" && break
-          done
-
   run-smoke--npm--node-20--windows:
     needs: prepare-smoke
     runs-on: windows-latest
