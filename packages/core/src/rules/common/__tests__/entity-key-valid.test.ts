@@ -7,36 +7,7 @@ import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';
 import { EntityKeyValid } from '../entity-key-valid.js';
 import type { WalkContext } from '../../../walk.js';
-
-const entityFileSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string' },
-    key: {
-      type: 'string',
-      pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$',
-      minLength: 2,
-      maxLength: 150,
-    },
-    title: { type: 'string' },
-  },
-  required: ['type', 'key', 'title'],
-} as const;
-
-const entityFileDefaultSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string' },
-    key: {
-      type: 'string',
-      pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$',
-      minLength: 2,
-      maxLength: 150,
-    },
-    title: { type: 'string' },
-  },
-  required: ['type', 'key', 'title'],
-} as const;
+import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 
 function lintEntityKey(source: string): WalkContext['problems'] {
   const document = makeDocumentFromString(source, '/test.yaml');
