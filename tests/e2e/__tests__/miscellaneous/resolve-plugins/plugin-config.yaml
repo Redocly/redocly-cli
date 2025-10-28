@@ -1,6 +1,0 @@
-plugins:
-  - '../../../../../packages/core/src/config/__tests__/fixtures/plugin.cjs'
-decorators:
-  test-plugin/inject-x-stats: on
-rules:
-  test-plugin/openid-connect-url-well-known: error

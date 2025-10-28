@@ -30,7 +30,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   e2e: defineConfig({
     test: {
-      include: ['tests/e2e/__tests__/**/*.test.ts'],
+      include: ['tests/e2e/**/*.test.ts'],
     },
   }),
   'smoke-rebilly': defineConfig({

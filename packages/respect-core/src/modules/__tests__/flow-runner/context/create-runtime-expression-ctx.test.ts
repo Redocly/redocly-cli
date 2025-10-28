@@ -13,17 +13,17 @@ const testDescription = {
     {
       name: 'cats',
       type: 'openapi',
-      url: '../../tests/e2e/__tests__/respect/cat-fact-api/cats.yaml',
+      url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
     },
     {
       name: 'catsTwo',
       type: 'openapi',
-      url: '../../tests/e2e/__tests__/respect/cat-fact-api/cats.yaml',
+      url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
     },
     {
       name: 'externalWorkflow',
       type: 'arazzo',
-      url: '../../tests/e2e/__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+      url: '../../tests/e2e/respect/cat-fact-api/auto-cat.arazzo.yaml',
     },
   ],
   workflows: [

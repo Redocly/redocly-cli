@@ -27,7 +27,7 @@
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
     "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
-    "json-server": "json-server --watch tests/e2e/__tests__/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
+    "json-server": "json-server --watch tests/e2e/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
   "workspaces": [
     "packages/*"
