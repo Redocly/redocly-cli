@@ -11,12 +11,15 @@ assignees: ''
 <!-- A clear and concise description of what the bug is. -->
 
 **To Reproduce**
-Steps to reproduce the behavior:
+
+<!--
+Steps to reproduce the behavior, e.g.:
 
 1. Given this `redocly.yaml` file
 2. And this OpenAPI file(s)
-3. Run this command with these arguments... `redocly ...`
-4. See error
+3. Run this command with these arguments: `redocly ...`
+4. See the error
+-->
 
 **Expected behavior**
 
@@ -28,21 +31,28 @@ Steps to reproduce the behavior:
 
 **OpenAPI description**
 
-<!-- If applicable, add an OpenAPI description and `redocly.yaml` configuration file that helps reproduce the problem.
-At a minimum, please state the specification and version(s) you're using. -->
+<!--
+If applicable, add an OpenAPI description and `redocly.yaml` configuration file that helps reproduce the problem.
+At a minimum, please state the specification and version(s) you're using.
+-->
 
-**Redocly Version(s)**
+**Redocly version(s)**
 
 <!-- What version of Redocly CLI are you using? -->
 
-**`Node.js` Version(s)**
+**Node.js version(s)**
 
-<!-- What version of `node.js` and `npm` are you using? -->
+<!-- What version of Node.js and NPM are you using? -->
 
 **OS, environment**
 
-<!-- What OS are you using? -->
+<!-- Which operating system are you using? -->
 
 **Additional context**
 
-<!-- Add any other context about the problem here. -->
+<!--
+Add any other context about the problem here, for example:
+- Are you trying to run the command for the first time?
+- Has it worked before?
+- What was the last working version?
+-->
