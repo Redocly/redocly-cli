@@ -28,6 +28,7 @@ import {
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
+import { validateMountPath } from './utils/validate-mount-path.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 
 import type { Arguments } from 'yargs';
@@ -247,6 +248,7 @@ yargs(hideBin(process.argv))
             type: 'string',
             alias: 'mp',
             required: true,
+            coerce: validateMountPath,
           },
           author: {
             description: 'Author of the commit.',
