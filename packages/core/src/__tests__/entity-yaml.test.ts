@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createEntityTypes } from '../types/entity-yaml.js';
-import { normalizeTypes } from '../types/index.js';
+import { normalizeTypes, ResolveTypeFn } from '../types/index.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
-
 describe('entity-yaml', () => {
   it('should create entity types with discriminator', () => {
     const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
@@ -18,36 +17,39 @@ describe('entity-yaml', () => {
     expect(entityTypes).toHaveProperty('EntityFileArray');
   });
 
+  it('should resolve entity type to default for array items', () => {
+    const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+    const normalizedTypes = normalizeTypes(entityTypes);
+
+    const entityFileArrayNode = normalizedTypes['EntityFileArray'];
+
+    const unknownEntity = { key: 'unknown', title: 'Unknown' };
+    const resolvedType = (entityFileArrayNode.items as ResolveTypeFn)(unknownEntity, 'root');
+
+    expect(resolvedType).toBeTruthy();
+    if (resolvedType && typeof resolvedType === 'object' && 'name' in resolvedType) {
+      expect(resolvedType.name).toBe('EntityFileDefault');
+    }
+  });
+
   it('should resolve entity type based on discriminator for array items', () => {
     const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
     const normalizedTypes = normalizeTypes(entityTypes);
 
     const entityFileArrayNode = normalizedTypes['EntityFileArray'];
-    if (typeof entityFileArrayNode.items === 'function') {
-      const userEntity = {
-        type: 'user',
-        key: 'john-doe',
-        title: 'John Doe',
-        metadata: { email: 'john@example.com' },
-      };
-      const resolvedType = entityFileArrayNode.items(userEntity, 'root');
+    const userEntity = {
+      type: 'user',
+      key: 'john-doe',
+      title: 'John Doe',
+      metadata: { email: 'john@example.com' },
+    };
+    const resolvedType = (entityFileArrayNode.items as ResolveTypeFn)(userEntity, 'root');
 
-      expect(resolvedType).toBeTruthy();
-      if (resolvedType && typeof resolvedType === 'object' && 'name' in resolvedType) {
-        expect(resolvedType.name).toBe('user');
-        if ('properties' in resolvedType) {
-          expect(resolvedType.properties).toHaveProperty('metadata');
-        }
-      }
-    }
-
-    if (typeof entityFileArrayNode.items === 'function') {
-      const unknownEntity = { key: 'unknown', title: 'Unknown' };
-      const resolvedType = entityFileArrayNode.items(unknownEntity, 'root');
-
-      expect(resolvedType).toBeTruthy();
-      if (resolvedType && typeof resolvedType === 'object' && 'name' in resolvedType) {
-        expect(resolvedType.name).toBe('EntityFileDefault');
+    expect(resolvedType).toBeTruthy();
+    if (resolvedType && typeof resolvedType === 'object' && 'name' in resolvedType) {
+      expect(resolvedType.name).toBe('user');
+      if ('properties' in resolvedType) {
+        expect(resolvedType.properties).toHaveProperty('metadata');
       }
     }
   });

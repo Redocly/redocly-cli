@@ -232,9 +232,7 @@ export async function lintEntityFile(opts: {
   if (Array.isArray(config.document.parsed)) {
     rootType = types.EntityFileArray;
   } else if (isPlainObject(config.document.parsed)) {
-    const typeValue = (config.document.parsed as Record<string, unknown>)[
-      ENTITY_DISCRIMINATOR_NAME
-    ];
+    const typeValue = config.document.parsed[ENTITY_DISCRIMINATOR_NAME];
     if (typeof typeValue === 'string' && types[typeValue]) {
       rootType = types[typeValue];
     }
