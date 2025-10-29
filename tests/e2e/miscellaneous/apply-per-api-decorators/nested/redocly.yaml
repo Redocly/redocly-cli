@@ -7,7 +7,7 @@ apis:
     rules:
       info-license: error
   test@external-url:
-    root: https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/__tests__/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml
+    root: https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/tests/e2e/miscellaneous/apply-per-api-decorators/nested/openapi/main.yaml
     rules:
       info-contact: error
 plugins:
