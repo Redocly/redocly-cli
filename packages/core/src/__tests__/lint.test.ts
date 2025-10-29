@@ -1985,7 +1985,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2005,7 +2005,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2038,7 +2038,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2056,7 +2056,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2077,7 +2077,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2096,7 +2096,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2115,7 +2115,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2138,7 +2138,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2162,7 +2162,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2182,7 +2182,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2203,7 +2203,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2231,7 +2231,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(apiOperationYaml, '/entity.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2273,7 +2273,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });
@@ -2318,7 +2318,7 @@ describe('lint', () => {
       const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
 
       const problems = await lintEntityFile({
-        config: { document } as Config,
+        document,
         entitySchema: entityFileSchema,
         entityDefaultSchema: entityFileDefaultSchema,
       });

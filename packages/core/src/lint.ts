@@ -200,28 +200,22 @@ export async function lintConfig(opts: {
 }
 
 export async function lintEntityFile(opts: {
-  config: Config;
+  document: Document;
   entitySchema: JSONSchema;
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
 }) {
   const {
-    config,
+    document,
     entitySchema,
     entityDefaultSchema,
     severity,
     externalRefResolver = new BaseResolver(),
   } = opts;
-
-  if (!config.document) {
-    throw new Error('Config document is not set.');
-  }
-
   const ctx: WalkContext = {
     problems: [],
     specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
-    config,
     visitorsData: {},
   };
 
@@ -229,10 +223,10 @@ export async function lintEntityFile(opts: {
   const types = normalizeTypes(entityTypes);
 
   let rootType = types.EntityFileDefault;
-  if (Array.isArray(config.document.parsed)) {
+  if (Array.isArray(document.parsed)) {
     rootType = types.EntityFileArray;
-  } else if (isPlainObject(config.document.parsed)) {
-    const typeValue = config.document.parsed[ENTITY_DISCRIMINATOR_NAME];
+  } else if (isPlainObject(document.parsed)) {
+    const typeValue = document.parsed[ENTITY_DISCRIMINATOR_NAME];
     if (typeof typeValue === 'string' && types[typeValue]) {
       rootType = types[typeValue];
     }
@@ -260,13 +254,13 @@ export async function lintEntityFile(opts: {
 
   const normalizedVisitors = normalizeVisitors(rules, types);
   const resolvedRefMap = await resolveDocument({
-    rootDocument: config.document,
+    rootDocument: document,
     rootType,
     externalRefResolver,
   });
 
   walkDocument({
-    document: config.document,
+    document,
     rootType,
     normalizedVisitors,
     resolvedRefMap,
