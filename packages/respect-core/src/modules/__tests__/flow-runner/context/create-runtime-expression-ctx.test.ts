@@ -10,12 +10,20 @@ const testDescription = {
   arazzo: '1.0.1',
   info: { title: 'API', version: '1.0' },
   sourceDescriptions: [
-    { name: 'cats', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
-    { name: 'catsTwo', type: 'openapi', url: '../../__tests__/respect/cat-fact-api/cats.yaml' },
+    {
+      name: 'cats',
+      type: 'openapi',
+      url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+    },
+    {
+      name: 'catsTwo',
+      type: 'openapi',
+      url: '../../tests/e2e/respect/cat-fact-api/cats.yaml',
+    },
     {
       name: 'externalWorkflow',
       type: 'arazzo',
-      url: '../../__tests__/respect/cat-fact-api/auto-cat.arazzo.yaml',
+      url: '../../tests/e2e/respect/cat-fact-api/auto-cat.arazzo.yaml',
     },
   ],
   workflows: [
