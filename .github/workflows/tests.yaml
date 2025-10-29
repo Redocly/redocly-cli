@@ -28,7 +28,8 @@ jobs:
         run: npm run unit
 
       - name: Coverage Report
-        if: always() # Generate the report if tests are failing
+        if: always() # Also generate the report if tests are failing
+        continue-on-error: true
         uses: davelosert/vitest-coverage-report-action@v2
 
       - name: E2E Tests
