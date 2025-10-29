@@ -1,6 +1,6 @@
 import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
 import { colorize } from '../../../logger.js';
-import { isRef } from '../../../ref-utils.js';
+import { isRef, isAbsoluteUrl } from '../../../ref-utils.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { keysOf } from '../../../utils/keys-of.js';
 import { isString } from '../../../utils/is-string.js';
@@ -32,6 +32,14 @@ type RunAssertionParams = {
 
 const assertionMessageTemplates = {
   problems: '{{problems}}',
+  assertionName: '{{assertionName}}',
+  subject: '{{subject}}',
+  property: '{{property}}',
+  pointer: '{{pointer}}',
+  key: '{{key}}',
+  file: '{{file}}',
+  absolutePointer: '{{absolutePointer}}',
+  specVersion: '{{specVersion}}',
 };
 
 function getPredicatesFromLocators(
@@ -216,8 +224,23 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       for (const problemGroup of groupProblemsByPointer(problems)) {
         const message = assertion.message || defaultMessage;
         const problemMessage = getProblemsMessage(problemGroup);
+
+        const placeholders = {
+          problems: problemMessage,
+          assertionName: assertId,
+          subject: assertion.subject.type,
+          property: properties.join(', '),
+          pointer: ctx.location.pointer,
+          key: String(ctx.key),
+          file: getFilenameFromPath(ctx.location.source.absoluteRef),
+          absolutePointer: ctx.location.absolutePointer,
+          specVersion: ctx.specVersion,
+        };
+
+        const interpolatedMessage = interpolateMessagePlaceholders(message, placeholders);
+
         ctx.report({
-          message: message.replace(assertionMessageTemplates.problems, problemMessage),
+          message: interpolatedMessage,
           location: getProblemsLocation(problemGroup) || ctx.location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
@@ -247,6 +270,42 @@ function getProblemsMessage(problems: AssertResult[]) {
   return problems.length === 1
     ? problems[0].message ?? ''
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
+}
+
+function getFilenameFromPath(absoluteRef: string): string {
+  if (isAbsoluteUrl(absoluteRef)) {
+    const parts = absoluteRef.split('/');
+    return parts[parts.length - 1] || absoluteRef;
+  }
+  const parts = absoluteRef.split(/[/\\]/);
+  return parts[parts.length - 1] || absoluteRef;
+}
+
+function interpolateMessagePlaceholders(
+  message: string,
+  placeholders: {
+    problems: string;
+    assertionName: string;
+    subject: string;
+    property: string;
+    pointer: string;
+    key: string;
+    file: string;
+    absolutePointer: string;
+    specVersion: string;
+  }
+): string {
+  let result = message;
+
+  for (const [placeholder, value] of Object.entries(placeholders)) {
+    const template =
+      assertionMessageTemplates[placeholder as keyof typeof assertionMessageTemplates];
+    if (template) {
+      result = result.replace(new RegExp(template.replace(/[{}]/g, '\\$&'), 'g'), value);
+    }
+  }
+
+  return result;
 }
 
 export function runAssertion({
