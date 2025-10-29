@@ -2015,25 +2015,25 @@ describe('lint', () => {
     });
 
     it('should lint array of entities', async () => {
-      const entitiesYaml = `
-  - type: user
-    key: john-doe
-    title: John Doe
-    metadata:
-      email: john@example.com
-  
-  - type: service
-    key: api-service
-    title: API Service
-    summary: Core API service
-  
-  - type: api-description
-    key: users-api
-    title: Users API
-    metadata:
-      specType: openapi
-      descriptionFile: users-api.yaml
-  `;
+      const entitiesYaml = outdent`
+        - type: user
+          key: john-doe
+          title: John Doe
+          metadata:
+            email: john@example.com
+        
+        - type: service
+          key: api-service
+          title: API Service
+          summary: Core API service
+        
+        - type: api-description
+          key: users-api
+          title: Users API
+          metadata:
+            specType: openapi
+            descriptionFile: users-api.yaml
+      `;
 
       const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
 
@@ -2220,13 +2220,13 @@ describe('lint', () => {
     });
 
     it('should validate type-specific metadata fields correctly', async () => {
-      const apiOperationYaml = `
-  type: api-operation
-  key: test-operation
-  title: Test Operation
-  metadata:
-    wrongField: value
-  `;
+      const apiOperationYaml = outdent`
+        type: api-operation
+        key: test-operation
+        title: Test Operation
+        metadata:
+          wrongField: value
+      `;
 
       const document = makeDocumentFromString(apiOperationYaml, '/entity.yaml');
 
@@ -2247,28 +2247,28 @@ describe('lint', () => {
     });
 
     it('should validate different metadata schemas in array of mixed entity types', async () => {
-      const mixedEntitiesYaml = `
-  - type: api-description
-    key: my-api
-    title: My API
-    metadata:
-      specType: openapi
-      # Missing descriptionFile
-  
-  - type: api-operation
-    key: my-operation
-    title: My Operation
-    metadata:
-      wrongField: value
-      # Missing method and path
-  
-  - type: data-schema
-    key: my-schema
-    title: My Schema
-    metadata:
-      wrongField: value
-      # Missing specType
-  `;
+      const mixedEntitiesYaml = outdent`
+        - type: api-description
+          key: my-api
+          title: My API
+          metadata:
+            specType: openapi
+            # Missing descriptionFile
+        
+        - type: api-operation
+          key: my-operation
+          title: My Operation
+          metadata:
+            wrongField: value
+            # Missing method and path
+        
+        - type: data-schema
+          key: my-schema
+          title: My Schema
+          metadata:
+            wrongField: value
+            # Missing specType
+      `;
 
       const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
 
@@ -2298,22 +2298,22 @@ describe('lint', () => {
     });
 
     it('should handle entity without type in array using default schema', async () => {
-      const mixedEntitiesYaml = `
-  - type: user
-    key: valid-user
-    title: Valid User
-    metadata:
-      email: user@example.com
-  
-  - key: no-type-entity
-    title: Entity Without Type
-    summary: This entity is missing the type field
-    # Missing type - should use EntityFileDefault schema
-  
-  - type: service
-    key: valid-service
-    title: Valid Service
-  `;
+      const mixedEntitiesYaml = outdent`
+        - type: user
+          key: valid-user
+          title: Valid User
+          metadata:
+            email: user@example.com
+        
+        - key: no-type-entity
+          title: Entity Without Type
+          summary: This entity is missing the type field
+          # Missing type - should use EntityFileDefault schema
+        
+        - type: service
+          key: valid-service
+          title: Valid Service
+      `;
 
       const document = makeDocumentFromString(mixedEntitiesYaml, '/entities.yaml');
 
