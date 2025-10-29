@@ -26,6 +26,12 @@ jobs:
         run: npm run typecheck
       - name: Unit Tests
         run: npm run unit
+
+      - name: Coverage Report
+        if: always() # Also generate the report if tests are failing
+        continue-on-error: true # Do not fail if there is an error during reporting
+        uses: davelosert/vitest-coverage-report-action@v2
+
       - name: E2E Tests
         run: npm run e2e
 
@@ -47,16 +53,6 @@ jobs:
         run: redocly --version
       - name: Definition test
         run: redocly lint resources/rebilly.yaml --format=stylish
-
-  coverage-report:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 24
-          cache: npm
-      # FIXME: add vitest coverage report (2.0)
 
   code-style-check:
     runs-on: ubuntu-latest
