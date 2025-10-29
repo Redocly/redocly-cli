@@ -33,14 +33,13 @@ type RunAssertionParams = {
 const assertionMessageTemplates = {
   problems: '{{problems}}',
   assertionName: '{{assertionName}}',
-  subject: '{{subject}}',
+  objectType: '{{objectType}}',
   property: '{{property}}',
-  pointer: '{{pointer}}',
-  key: '{{key}}',
   file: '{{file}}',
-  absolutePointer: '{{absolutePointer}}',
-  specVersion: '{{specVersion}}',
-};
+  pointer: '{{pointer}}',
+} as const;
+
+type PlaceholderKeys = keyof typeof assertionMessageTemplates;
 
 function getPredicatesFromLocators(
   locators: AssertionLocators
@@ -225,22 +224,17 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
         const message = assertion.message || defaultMessage;
         const problemMessage = getProblemsMessage(problemGroup);
 
-        const placeholders = {
+        const placeholders: Record<PlaceholderKeys, string> = {
           problems: problemMessage,
           assertionName: assertId,
-          subject: assertion.subject.type,
+          objectType: assertion.subject.type,
           property: properties.join(', '),
           pointer: ctx.location.pointer,
-          key: String(ctx.key),
           file: getFilenameFromPath(ctx.location.source.absoluteRef),
-          absolutePointer: ctx.location.absolutePointer,
-          specVersion: ctx.specVersion,
         };
 
-        const interpolatedMessage = interpolateMessagePlaceholders(message, placeholders);
-
         ctx.report({
-          message: interpolatedMessage,
+          message: interpolateMessagePlaceholders(message, placeholders),
           location: getProblemsLocation(problemGroup) || ctx.location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
@@ -275,35 +269,26 @@ function getProblemsMessage(problems: AssertResult[]) {
 function getFilenameFromPath(absoluteRef: string): string {
   if (isAbsoluteUrl(absoluteRef)) {
     const parts = absoluteRef.split('/');
-    return parts[parts.length - 1] || absoluteRef;
+    return parts.at(-1) || absoluteRef;
   }
   const parts = absoluteRef.split(/[/\\]/);
-  return parts[parts.length - 1] || absoluteRef;
+  return parts.at(-1) || absoluteRef;
 }
 
 function interpolateMessagePlaceholders(
   message: string,
-  placeholders: {
-    problems: string;
-    assertionName: string;
-    subject: string;
-    property: string;
-    pointer: string;
-    key: string;
-    file: string;
-    absolutePointer: string;
-    specVersion: string;
-  }
+  placeholders: Record<PlaceholderKeys, string>
 ): string {
   let result = message;
 
-  for (const [placeholder, value] of Object.entries(placeholders)) {
-    const template =
-      assertionMessageTemplates[placeholder as keyof typeof assertionMessageTemplates];
-    if (template) {
-      result = result.split(template).join(value);
-    }
-  }
+  (Object.keys(assertionMessageTemplates) as PlaceholderKeys[]).forEach((key) => {
+    const template = assertionMessageTemplates[key];
+    const value = placeholders[key];
+
+    if (!template) return;
+
+    result = result.split(template).join(value);
+  });
 
   return result;
 }
