@@ -29,11 +29,8 @@ jobs:
 
       - name: Coverage Report
         if: always() # Also generate the report if tests are failing
-        continue-on-error: true
-        # uses: davelosert/vitest-coverage-report-action@v2
-        run: |
-          echo "This step is intentionally broken to throw an error"
-          exit 1
+        continue-on-error: true # Do not fail if there is an error during reporting
+        uses: davelosert/vitest-coverage-report-action@v2
 
       - name: E2E Tests
         run: npm run e2e
