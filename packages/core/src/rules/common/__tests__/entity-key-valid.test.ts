@@ -8,6 +8,7 @@ import { walkDocument } from '../../../walk.js';
 import { EntityKeyValid } from '../entity-key-valid.js';
 import type { WalkContext } from '../../../walk.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
+import { SpecVersion } from '../../../oas-types.js';
 
 function lintEntityKey(source: string): WalkContext['problems'] {
   const document = makeDocumentFromString(source, '/test.yaml');
@@ -16,7 +17,7 @@ function lintEntityKey(source: string): WalkContext['problems'] {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0',
+    specVersion: 'entity' as SpecVersion,
     config: {} as Config,
     visitorsData: {},
   };
