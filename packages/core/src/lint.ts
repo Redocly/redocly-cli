@@ -5,10 +5,10 @@ import { walkDocument } from './walk.js';
 import { initRules } from './config/rules.js';
 import { normalizeTypes } from './types/index.js';
 import { releaseAjvInstance } from './rules/ajv.js';
-import { getTypes } from './oas-types.js';
+import { getTypes, type SpecVersion } from './oas-types.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
-import { createEntityTypes } from './types/entity-yaml.js';
+import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/common/entity-key-valid.js';
@@ -220,7 +220,7 @@ export async function lintEntityFile(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'oas3_0',
+    specVersion: 'entity' as SpecVersion,
     config,
     visitorsData: {},
   };
@@ -232,7 +232,6 @@ export async function lintEntityFile(opts: {
   if (Array.isArray(config.document.parsed)) {
     rootType = types.EntityFileArray;
   } else if (isPlainObject(config.document.parsed)) {
-    const ENTITY_DISCRIMINATOR_NAME = 'type';
     const typeValue = (config.document.parsed as Record<string, unknown>)[
       ENTITY_DISCRIMINATOR_NAME
     ];

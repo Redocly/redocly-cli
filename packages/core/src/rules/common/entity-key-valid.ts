@@ -21,14 +21,14 @@ export const EntityKeyValid: Oas3Rule = () => {
 
         if (key.length < MIN_KEY_LENGTH) {
           report({
-            message: `Entity \`key\` must be at least ${MIN_KEY_LENGTH} characters long.`,
+            message: `Entity 'key' must be at least ${MIN_KEY_LENGTH} characters long.`,
             location: location.child(['key']),
           });
         }
 
         if (key.length > MAX_KEY_LENGTH) {
           report({
-            message: `Entity \`key\` must not exceed ${MAX_KEY_LENGTH} characters.`,
+            message: `Entity 'key' must not exceed ${MAX_KEY_LENGTH} characters.`,
             location: location.child(['key']),
           });
         }

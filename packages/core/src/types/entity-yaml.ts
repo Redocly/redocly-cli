@@ -4,12 +4,12 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from './index.js';
 
+export const ENTITY_DISCRIMINATOR_NAME = 'type';
+
 export function createEntityTypes(
   entitySchema: JSONSchema,
   entityDefaultSchema: JSONSchema
 ): Record<string, NodeType> {
-  const ENTITY_DISCRIMINATOR_NAME = 'type';
-
   const defaultNodeTypes = getNodeTypesFromJSONSchema('EntityFileDefault', entityDefaultSchema);
 
   const namedNodeTypes = getNodeTypesFromJSONSchema('EntityFile', entitySchema);

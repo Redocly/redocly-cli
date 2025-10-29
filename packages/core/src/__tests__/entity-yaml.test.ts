@@ -44,7 +44,7 @@ describe('entity-yaml', () => {
     if (typeof entityFileArrayNode.items === 'function') {
       const unknownEntity = { key: 'unknown', title: 'Unknown' };
       const resolvedType = entityFileArrayNode.items(unknownEntity, 'root');
-      console.log('Resolved type for entity without type:', resolvedType);
+
       expect(resolvedType).toBeTruthy();
       if (resolvedType && typeof resolvedType === 'object' && 'name' in resolvedType) {
         expect(resolvedType.name).toBe('EntityFileDefault');

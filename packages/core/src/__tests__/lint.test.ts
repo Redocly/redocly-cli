@@ -1971,16 +1971,16 @@ describe('lint', () => {
 
   describe('lintEntityFile', () => {
     it('should lint a valid user entity file', async () => {
-      const entityYaml = `
-  type: user
-  key: john-doe
-  title: John Doe
-  summary: Senior Software Engineer
-  metadata:
-    email: john@example.com
-  tags:
-    - engineering
-  `;
+      const entityYaml = outdent`
+        type: user
+        key: john-doe
+        title: John Doe
+        summary: Senior Software Engineer
+        metadata:
+          email: john@example.com
+        tags:
+          - engineering
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -1994,13 +1994,13 @@ describe('lint', () => {
     });
 
     it('should detect missing required fields in entity', async () => {
-      const entityYaml = `
-  type: user
-  key: john-doe
-  # Missing required 'title' field
-  metadata:
-    email: john@example.com
-  `;
+      const entityYaml = outdent`
+        type: user
+        key: john-doe
+        # Missing required 'title' field
+        metadata:
+          email: john@example.com
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2047,11 +2047,11 @@ describe('lint', () => {
     });
 
     it('should use default schema when type is missing', async () => {
-      const entityYaml = `
-  key: unknown-entity
-  title: Unknown Entity
-  summary: An entity without a type field
-  `;
+      const entityYaml = outdent`
+        key: unknown-entity
+        title: Unknown Entity
+        summary: An entity without a type field
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2066,13 +2066,13 @@ describe('lint', () => {
     });
 
     it('should detect missing metadata.email for user entity', async () => {
-      const entityYaml = `
-  type: user
-  key: john-doe
-  title: John Doe
-  metadata:
-    name: John
-  `;
+      const entityYaml = outdent`
+        type: user
+        key: john-doe
+        title: John Doe
+        metadata:
+          name: John
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2087,11 +2087,11 @@ describe('lint', () => {
     });
 
     it('should detect missing metadata for user entity', async () => {
-      const entityYaml = `
-  type: user
-  key: john-doe
-  title: John Doe
-  `;
+      const entityYaml = outdent`
+        type: user
+        key: john-doe
+        title: John Doe
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2106,11 +2106,11 @@ describe('lint', () => {
     });
 
     it('should not validate patterns with Struct rule', async () => {
-      const entityYaml = `
-  type: service
-  key: Invalid_Key_With_Underscores
-  title: Invalid Service
-  `;
+      const entityYaml = outdent`
+        type: service
+        key: Invalid_Key_With_Underscores
+        title: Invalid Service
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2126,14 +2126,14 @@ describe('lint', () => {
     });
 
     it('should detect missing metadata fields for specific entity types', async () => {
-      const entityYaml = `
-  type: api-description
-  key: my-api
-  title: My API
-  metadata:
-    specType: openapi
-    # Missing descriptionFile
-  `;
+      const entityYaml = outdent`
+        type: api-description
+        key: my-api
+        title: My API
+        metadata:
+          specType: openapi
+          # Missing descriptionFile
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2147,17 +2147,17 @@ describe('lint', () => {
     });
 
     it('should detect invalid entity type in array', async () => {
-      const entitiesYaml = `
-  - type: user
-    key: john-doe
-    title: John Doe
-    metadata:
-      email: john@example.com
-  
-  - type: service
-    key: invalid-service
-    # Missing required title field
-  `;
+      const entitiesYaml = outdent`
+        - type: user
+          key: john-doe
+          title: John Doe
+          metadata:
+            email: john@example.com
+        
+        - type: service
+          key: invalid-service
+          # Missing required title field
+      `;
 
       const document = makeDocumentFromString(entitiesYaml, '/entities.yaml');
 
@@ -2172,12 +2172,12 @@ describe('lint', () => {
     });
 
     it('should validate service entity without metadata', async () => {
-      const entityYaml = `
-  type: service
-  key: my-service
-  title: My Service
-  summary: A simple service
-  `;
+      const entityYaml = outdent`
+        type: service
+        key: my-service
+        title: My Service
+        summary: A simple service
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
@@ -2191,14 +2191,14 @@ describe('lint', () => {
     });
 
     it('should detect invalid relation type', async () => {
-      const entityYaml = `
-  type: service
-  key: my-service
-  title: My Service
-  relations:
-    - type: invalidRelationType
-      key: some-entity
-  `;
+      const entityYaml = outdent`
+        type: service
+        key: my-service
+        title: My Service
+        relations:
+          - type: invalidRelationType
+            key: some-entity
+      `;
 
       const document = makeDocumentFromString(entityYaml, '/entity.yaml');
 
