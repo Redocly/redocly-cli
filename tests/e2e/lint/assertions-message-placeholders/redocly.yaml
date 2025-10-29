@@ -13,23 +13,12 @@ rules:
       required:
         - requestBody
 
-  # Test {{key}} placeholder
-  rule/test-key-placeholder:
-    subject:
-      type: Operation
-      filterInParentKeys:
-        - get
-    message: 'Operation with key "{{key}}" is missing tags'
-    assertions:
-      required:
-        - tags
-
-  # Test {{subject}} placeholder
+  # Test {{objectType}} placeholder
   rule/test-subject-placeholder:
     subject:
       type: Operation
       property: description
-    message: 'The {{subject}} type must have a description property'
+    message: 'The {{objectType}} type must have a description property'
     assertions:
       defined: true
 
@@ -57,7 +46,7 @@ rules:
       type: Operation
       filterInParentKeys:
         - post
-    message: 'Rule {{assertionName}} failed: {{subject}} at {{pointer}} with key "{{key}}" - {{problems}}'
+    message: 'Rule {{assertionName}} failed: {{objectType}} at {{pointer}} - {{problems}}'
     assertions:
       required:
         - requestBody
@@ -81,25 +70,3 @@ rules:
     assertions:
       required:
         - requestBody
-
-  # Test {{absolutePointer}} placeholder
-  rule/test-absolute-pointer:
-    subject:
-      type: Operation
-      filterInParentKeys:
-        - post
-    message: 'Full path: {{absolutePointer}}'
-    assertions:
-      required:
-        - requestBody
-
-  # Test {{specVersion}} placeholder
-  rule/test-spec-version:
-    subject:
-      type: Operation
-      filterInParentKeys:
-        - get
-    message: 'This rule applies to {{specVersion}} spec'
-    assertions:
-      required:
-        - tags
