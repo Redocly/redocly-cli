@@ -220,7 +220,7 @@ export async function lintEntityFile(opts: {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'entity' as SpecVersion,
+    specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
     config,
     visitorsData: {},
   };

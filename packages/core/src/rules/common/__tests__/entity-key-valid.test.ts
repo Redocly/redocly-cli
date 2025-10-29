@@ -17,7 +17,7 @@ function lintEntityKey(source: string): WalkContext['problems'] {
 
   const ctx: WalkContext = {
     problems: [],
-    specVersion: 'entity' as SpecVersion,
+    specVersion: 'entity' as SpecVersion, // FIXME: this should be proper SpecVersion
     config: {} as Config,
     visitorsData: {},
   };
