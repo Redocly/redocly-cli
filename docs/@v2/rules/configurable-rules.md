@@ -20,14 +20,14 @@ A configurable rule describes the contents that the linter expects to find in yo
 
 ## Configurable rule object
 
-| Property   | Type                                  | Description                                                                                                                                                                                                                                                                                                                            |
-| ---------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| subject    | [Subject object](#subject-object)     | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.                                                                       |
-| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.                                                                                                                             |
-| where      | [Where object](#where-object)         | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.                                                                   |
-| message    | string                                | Custom text displayed when an assertion fails. Placeholders can be used to include contextual information such as the rule name, object type, property, error location, and problems. See [Using message placeholders](#using-message-placeholders) and [List of available placeholders](#list-of-available-placeholders) for details. |
-| suggest    | [string]                              | List of suggestions to display if the problem occurs.                                                                                                                                                                                                                                                                                  |
-| severity   | string                                | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.                                                                                                                                                                               |
+| Property   | Type                                  | Description                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| subject    | [Subject object](#subject-object)     | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.                                                                         |
+| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.                                                                                                                               |
+| where      | [Where object](#where-object)         | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.                                                                     |
+| message    | string                                | Custom text displayed when an assertion fails. Placeholders can be used to include contextual information such as the rule name, object type, property, error location, and problems. See [Using message placeholders](#use-placeholders-in-messages) and [List of available placeholders](#list-of-available-placeholders) for details. |
+| suggest    | [string]                              | List of suggestions to display if the problem occurs.                                                                                                                                                                                                                                                                                    |
+| severity   | string                                | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.                                                                                                                                                                                 |
 
 ## Subject object
 
@@ -670,7 +670,7 @@ rules:
         - description
 ```
 
-### Using message placeholders
+### Use placeholders in messages
 
 Custom rule messages can include dynamic placeholders that are replaced with contextual information when a rule fails.  
 This helps you provide clear, precise, and useful feedback about where and why a validation error occurred.
@@ -692,7 +692,7 @@ rules:
 
 **Example output:**
 
-```
+```text
 POST operation is missing a requestBody at #/paths/~1users/post
 ```
 
@@ -713,7 +713,7 @@ rules:
 
 **Example output:**
 
-```
+```text
 Rule rule/operation-validation failed: Operation at #/paths/~1users/post with key "post" — requestBody is required
 ```
 
