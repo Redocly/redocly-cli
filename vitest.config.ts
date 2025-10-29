@@ -8,6 +8,8 @@ const configExtension: { [key: string]: ViteUserConfig } = {
       include: ['packages/*/src/**/*.test.ts'],
       coverage: {
         enabled: true,
+        reporter: ['text', 'json-summary', 'json'],
+        reportOnFailure: true,
         include: [
           'packages/cli/src/**/*.ts',
           'packages/core/src/**/*.ts',
