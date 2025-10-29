@@ -9,8 +9,7 @@ export function getParams(indexEntryPoint: string, args: string[] = []): string[
 
 export function getCommandOutput(
   args: string[],
-  env?: Record<string, string>,
-  options?: { testPath?: string }
+  options?: { env?: Record<string, string>; testPath?: string }
 ) {
   const result = spawnSync('node', args, {
     encoding: 'utf-8',
@@ -20,7 +19,7 @@ export function getCommandOutput(
       NODE_ENV: 'test',
       NO_COLOR: 'TRUE',
       FORCE_COLOR: '0',
-      ...env,
+      ...options?.env,
     },
     cwd: options?.testPath,
   });

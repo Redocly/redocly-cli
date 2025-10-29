@@ -4,7 +4,7 @@
   "description": "Test benchmark for Redocly CLI",
   "private": true,
   "scripts": {
-    "chart": "node chart.mjs > benchmark_chart.md",
+    "chart": "node chart.js > benchmark_chart.md",
     "make-test": "bash make-test-command.sh"
   },
   "dependencies": {
