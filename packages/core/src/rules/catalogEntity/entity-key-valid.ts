@@ -1,11 +1,11 @@
 import type { UserContext } from '../../walk.js';
-import type { Oas3Rule } from '../../visitors.js';
+import type { CatalogEntityRule } from '../../visitors.js';
 
 const validKeyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MIN_KEY_LENGTH = 2;
 const MAX_KEY_LENGTH = 150;
 
-export const EntityKeyValid: Oas3Rule = () => {
+export const EntityKeyValid: CatalogEntityRule = () => {
   return {
     any(node: any, { report, location }: UserContext) {
       if (typeof node === 'object' && node !== null && 'key' in node) {

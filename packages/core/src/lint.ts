@@ -11,7 +11,7 @@ import { createConfigTypes } from './types/redocly-yaml.js';
 import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
-import { EntityKeyValid } from './rules/common/entity-key-valid.js';
+import { EntityKeyValid } from './rules/catalogEntity/entity-key-valid.js';
 import { type Config } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
