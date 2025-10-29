@@ -301,7 +301,7 @@ function interpolateMessagePlaceholders(
     const template =
       assertionMessageTemplates[placeholder as keyof typeof assertionMessageTemplates];
     if (template) {
-      result = result.replace(new RegExp(template.replace(/[{}]/g, '\\$&'), 'g'), value);
+      result = result.split(template).join(value);
     }
   }
 
