@@ -16,14 +16,13 @@ const configExtension: { [key: string]: ViteUserConfig } = {
         provider: 'istanbul',
         exclude: [
           'packages/**/__tests__/**/*',
-          'packages/core/src/benchmark/**/*',
           'packages/cli/src/index.ts',
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
           lines: 78,
           functions: 81,
-          statements: 77,
+          statements: 78,
           branches: 70,
         },
       },
@@ -31,12 +30,12 @@ const configExtension: { [key: string]: ViteUserConfig } = {
   }),
   e2e: defineConfig({
     test: {
-      include: ['__tests__/respect/**/*.test.ts', '__tests__/commands.test.ts'],
+      include: ['tests/e2e/**/*.test.ts'],
     },
   }),
   'smoke-rebilly': defineConfig({
     test: {
-      include: ['__tests__/smoke-rebilly/**/*.smoke.ts'],
+      include: ['tests/smoke/rebilly/**/*.smoke.ts'],
     },
   }),
   default: defineConfig({}),

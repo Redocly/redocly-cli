@@ -8,7 +8,7 @@ import * as utils from '../../../utils/miscellaneous.js';
 import { configFixture } from '../../../__tests__/fixtures/config.js';
 
 describe('split', () => {
-  const openapiDir = 'test';
+  const openapiDir = 'output/split-test';
   const componentsFiles: ComponentsFiles = {};
 
   beforeEach(() => {
@@ -97,7 +97,10 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/paths/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/paths/test.yaml'
+    );
   });
 
   it('should have correct path with webhooks', () => {
@@ -116,7 +119,10 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/webhooks/test.yaml'
+    );
   });
 
   it('should have correct path with x-webhooks', () => {
@@ -135,7 +141,10 @@ describe('split', () => {
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
+    expect(path.relative).toHaveBeenCalledWith(
+      'output/split-test',
+      'output/split-test/webhooks/test.yaml'
+    );
   });
 
   it('should create correct folder name for code samples', async () => {
