@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.9.0 (2025-10-30)
+
+### Patch Changes
+
+- Fixed an issue where the `mount-path` option was not validated, leading to errors when used with an empty path or a path identical to the project path.
+- Updated @redocly/openapi-core to v2.9.0.
+
 ## 2.8.0 (2025-10-23)
 
 ### Minor Changes
