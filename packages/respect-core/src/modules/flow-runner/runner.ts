@@ -115,6 +115,7 @@ export async function runWorkflow({
   parentStepId,
   invocationContext,
   executedStepsCount,
+  retriesLeft,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
@@ -166,6 +167,7 @@ export async function runWorkflow({
         ctx,
         workflowId,
         executedStepsCount,
+        retriesLeft,
       });
 
       // When `end` action is used, we should not continue with the next steps
