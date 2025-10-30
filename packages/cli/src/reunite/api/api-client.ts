@@ -190,9 +190,9 @@ class RemotesApi {
     payload.commit.createdAt && formData.append('commit[createdAt]', payload.commit.createdAt);
 
     for (const file of files) {
-      const blob = Buffer.isBuffer(file.stream)
-        ? new Blob([file.stream])
-        : new Blob([await streamToBuffer(file.stream)]);
+      const buffer = Buffer.isBuffer(file.stream) ? file.stream : await streamToBuffer(file.stream);
+      // Convert Buffer to Uint8Array to satisfy TypeScript's stricter type checking in 5.9+
+      const blob = new Blob([Uint8Array.from(buffer)]);
       formData.append(`files[${file.path}]`, blob, file.path);
     }
 
