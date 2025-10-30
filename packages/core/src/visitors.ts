@@ -352,6 +352,8 @@ export type Overlay1Visitor = BaseVisitor &
   Overlay1NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Overlay1NestedVisitor>>;
 
+export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
+
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
@@ -377,6 +379,9 @@ export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async
 export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async3Visitor[];
 export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
 export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
+export type CatalogEntityRule = (
+  options: Record<string, any>
+) => CatalogEntityVisitor | CatalogEntityVisitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor;
