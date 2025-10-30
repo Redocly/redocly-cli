@@ -15,7 +15,6 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { lintEntityFile } from '../lint.js';
 import { makeDocumentFromString } from '../resolve.js';
-import { type Config } from '../config/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

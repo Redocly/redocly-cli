@@ -156,4 +156,3 @@ export type {
   ResolvedSecurity,
 } from './typings/arazzo.js';
 export type { StatsAccumulator, StatsName } from './typings/common.js';
-export { getNodeTypesFromJSONSchema } from './types/json-schema-adapter.js';
