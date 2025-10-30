@@ -28,6 +28,7 @@ jobs:
         run: |
           LATEST_VERSION=$(npm view @redocly/config version)
           CURRENT_VERSION=$(jq -r '.dependencies["@redocly/config"] | ltrimstr("^") | ltrimstr("~")' packages/core/package.json)
+          echo Latest: $LATEST_VERSION, Current: $CURRENT_VERSION
           if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
             COMMENT="⚠️ **Redocly Config version mismatch**: The latest published version of \`@redocly/config\` is \`$LATEST_VERSION\`, but the current version is \`$CURRENT_VERSION\`. Please consider updating to the latest version."
             echo "$COMMENT"
