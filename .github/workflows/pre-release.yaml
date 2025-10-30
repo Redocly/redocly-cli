@@ -23,7 +23,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: npm
       - name: Check Redocly Config Version
         run: |
           LATEST_VERSION=$(npm view @redocly/config version)
