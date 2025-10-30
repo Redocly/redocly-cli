@@ -33,7 +33,7 @@ type RunAssertionParams = {
 const assertionMessageTemplates = {
   problems: '{{problems}}',
   assertionName: '{{assertionName}}',
-  objectType: '{{objectType}}',
+  nodeType: '{{nodeType}}',
   property: '{{property}}',
   file: '{{file}}',
   pointer: '{{pointer}}',
@@ -227,7 +227,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
         const placeholders: Record<PlaceholderKeys, string> = {
           problems: problemMessage,
           assertionName: assertId,
-          objectType: assertion.subject.type,
+          nodeType: assertion.subject.type,
           property: properties.join(', '),
           pointer: ctx.location.pointer,
           file: getFilenameFromPath(ctx.location.source.absoluteRef),
@@ -281,14 +281,14 @@ function interpolateMessagePlaceholders(
 ): string {
   let result = message;
 
-  (Object.keys(assertionMessageTemplates) as PlaceholderKeys[]).forEach((key) => {
+  for (const key of Object.keys(assertionMessageTemplates) as PlaceholderKeys[]) {
     const template = assertionMessageTemplates[key];
     const value = placeholders[key];
 
-    if (!template) return;
+    if (!template) continue;
 
     result = result.split(template).join(value);
-  });
+  }
 
   return result;
 }

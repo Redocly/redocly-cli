@@ -705,7 +705,7 @@ rules:
       type: Operation
       filterInParentKeys:
         - post
-    message: 'Rule {{assertionName}} failed: {{objectType}} at {{pointer}} — {{problems}}'
+    message: 'Rule {{assertionName}} failed: {{nodeType}} at {{pointer}} — {{problems}}'
     assertions:
       required:
         - requestBody
@@ -724,12 +724,11 @@ You can use the following placeholders inside custom rule messages:
 | Placeholder         | Description                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------ |
 | `{{assertionName}}` | Inserts the name of the rule (for example, `rule/my-custom-rule`).                         |
-| `{{objectType}}`    | Inserts the type of the node being validated (for example, `Operation`, `Schema`).         |
+| `{{nodeType}}`      | Inserts the type of the node being validated (for example, `Operation`, `Schema`).         |
 | `{{property}}`      | Inserts the property name being validated (for example, `requestBody`).                    |
 | `{{problems}}`      | Inserts the detailed assertion error message(s).                                           |
 | `{{pointer}}`       | Inserts the JSON Pointer path to the error location (for example, `#/paths/~1users/post`). |
-
-| `{{file}}` | Inserts the name of the file where the error occurred. |
+| `{{file}}`          | Inserts the name of the file where the error occurred.                                     |
 
 ## Find and share examples
 

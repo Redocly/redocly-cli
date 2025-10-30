@@ -13,12 +13,12 @@ rules:
       required:
         - requestBody
 
-  # Test {{objectType}} placeholder
+  # Test {{nodeType}} placeholder
   rule/test-subject-placeholder:
     subject:
       type: Operation
       property: description
-    message: 'The {{objectType}} type must have a description property'
+    message: 'The {{nodeType}} type must have a description property'
     assertions:
       defined: true
 
@@ -46,7 +46,7 @@ rules:
       type: Operation
       filterInParentKeys:
         - post
-    message: 'Rule {{assertionName}} failed: {{objectType}} at {{pointer}} - {{problems}}'
+    message: 'Rule {{assertionName}} failed: {{nodeType}} at {{pointer}} - {{problems}}'
     assertions:
       required:
         - requestBody
