@@ -70,3 +70,14 @@ rules:
     assertions:
       required:
         - requestBody
+
+  # Test {{key}} placeholder
+  rule/test-key-placeholder:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'Error in file {{file}} at {{pointer}} with key "{{key}}"'
+    assertions:
+      required:
+        - requestBody

@@ -725,6 +725,7 @@ You can use the following placeholders inside custom rule messages:
 | ------------------- | ------------------------------------------------------------------------------------------ |
 | `{{assertionName}}` | Inserts the name of the rule (for example, `rule/my-custom-rule`).                         |
 | `{{nodeType}}`      | Inserts the type of the node being validated (for example, `Operation`, `Schema`).         |
+| `{{key}}`           | Inserts the parent key of the node being validated (for example, `post`, `get`).           |
 | `{{property}}`      | Inserts the property name being validated (for example, `requestBody`).                    |
 | `{{problems}}`      | Inserts the detailed assertion error message(s).                                           |
 | `{{pointer}}`       | Inserts the JSON Pointer path to the error location (for example, `#/paths/~1users/post`). |

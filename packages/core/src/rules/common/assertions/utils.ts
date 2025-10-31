@@ -34,6 +34,7 @@ const assertionMessageTemplates = {
   problems: '{{problems}}',
   assertionName: '{{assertionName}}',
   nodeType: '{{nodeType}}',
+  key: '{{key}}',
   property: '{{property}}',
   file: '{{file}}',
   pointer: '{{pointer}}',
@@ -229,6 +230,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
           assertionName: assertId,
           nodeType: assertion.subject.type,
           property: properties.join(', '),
+          key: String(ctx.key),
           pointer: ctx.location.pointer,
           file: getFilenameFromPath(ctx.location.source.absoluteRef),
         };
