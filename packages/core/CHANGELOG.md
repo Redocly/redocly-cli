@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.10.0
+
+### Minor Changes
+
+- Added support for message placeholders in custom rule error messages.
+
 ## 2.9.0
 
 ### Minor Changes
