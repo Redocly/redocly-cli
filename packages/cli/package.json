@@ -75,6 +75,6 @@
     "@types/semver": "^7.5.0",
     "@types/set-cookie-parser": "2.4.10",
     "@types/yargs": "17.0.32",
-    "typescript": "5.5.3"
+    "typescript": "5.9.3"
   }
 }
