@@ -4,6 +4,7 @@ export type ScalarSchema = {
   items?: ScalarSchema;
   enum?: string[];
   isExample?: boolean;
+  resolvable?: boolean;
   directResolveAs?: string;
   minimum?: number;
 };
