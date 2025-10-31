@@ -212,6 +212,7 @@ export type RunWorkflowInput = {
   skipLineSeparator?: boolean;
   invocationContext?: string;
   executedStepsCount: ExecutedStepsCount;
+  retriesLeft?: number;
 };
 
 export type ArrazoItemExecutionResult = StepExecutionResult | WorkflowExecutionResult;
