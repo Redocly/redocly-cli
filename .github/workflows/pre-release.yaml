@@ -1,0 +1,41 @@
+name: Pre-release Checks
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+jobs:
+  checks:
+    # Run only on release branch (changeset-release/main):
+    if: github.head_ref == 'changeset-release/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - name: Check Redocly Config Version
+        run: |
+          LATEST_VERSION=$(npm view @redocly/config version)
+          CURRENT_VERSION=$(jq -r '.dependencies["@redocly/config"] | ltrimstr("^") | ltrimstr("~")' packages/core/package.json)
+          echo Latest: $LATEST_VERSION, Current: $CURRENT_VERSION
+          if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+            COMMENT="⚠️ **Redocly Config version mismatch**: The latest published version of \`@redocly/config\` is \`$LATEST_VERSION\`, but the current version is \`$CURRENT_VERSION\`. Please consider updating to the latest version."
+            echo "$COMMENT"
+            gh pr comment $PR_NUMBER --body "$COMMENT"
+            exit 1
+          else
+            echo "Redocly Config version is up to date: $CURRENT_VERSION"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}

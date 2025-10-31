@@ -20,14 +20,14 @@ A configurable rule describes the contents that the linter expects to find in yo
 
 ## Configurable rule object
 
-| Property   | Type                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ---------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| subject    | [Subject object](#subject-object)     | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.                                                                                                                                                                                                                                                                             |
-| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.                                                                                                                                                                                                                                                                                                                                   |
-| where      | [Where object](#where-object)         | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.                                                                                                                                                                                                                                                                         |
-| message    | string                                | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem. |
-| suggest    | [string]                              | List of suggestions to display if the problem occurs.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| severity   | string                                | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.                                                                                                                                                                                                                                                                                                                                                                                     |
+| Property   | Type                                  | Description                                                                                                                                                                                                                                                                                                                              |
+| ---------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| subject    | [Subject object](#subject-object)     | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.                                                                         |
+| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.                                                                                                                               |
+| where      | [Where object](#where-object)         | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.                                                                     |
+| message    | string                                | Custom text displayed when an assertion fails. Placeholders can be used to include contextual information such as the rule name, object type, property, error location, and problems. See [Using message placeholders](#use-placeholders-in-messages) and [List of available placeholders](#list-of-available-placeholders) for details. |
+| suggest    | [string]                              | List of suggestions to display if the problem occurs.                                                                                                                                                                                                                                                                                    |
+| severity   | string                                | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.                                                                                                                                                                                 |
 
 ## Subject object
 
@@ -669,6 +669,67 @@ rules:
         - name
         - description
 ```
+
+### Use placeholders in messages
+
+Custom rule messages can include dynamic placeholders that are replaced with contextual information when a rule fails.  
+This helps you provide clear, precise, and useful feedback about where and why a validation error occurred.
+
+#### Example: showing the error location with `{{pointer}}`
+
+```yaml
+rules:
+  rule/post-must-define-requestBody:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'POST operation is missing a requestBody at {{pointer}}'
+    assertions:
+      required:
+        - requestBody
+```
+
+**Example output:**
+
+```text
+POST operation is missing a requestBody at #/paths/~1users/post
+```
+
+#### Example: combining multiple placeholders
+
+```yaml
+rules:
+  rule/operation-validation:
+    subject:
+      type: Operation
+      filterInParentKeys:
+        - post
+    message: 'Rule {{assertionName}} failed: {{nodeType}} at {{pointer}} — {{problems}}'
+    assertions:
+      required:
+        - requestBody
+```
+
+**Example output:**
+
+```text
+Rule rule/operation-validation failed: Operation at #/paths/~1users/post with key "post" — requestBody is required
+```
+
+#### List of available placeholders
+
+You can use the following placeholders inside custom rule messages:
+
+| Placeholder         | Description                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `{{assertionName}}` | Inserts the name of the rule (for example, `rule/my-custom-rule`).                         |
+| `{{nodeType}}`      | Inserts the type of the node being validated (for example, `Operation`, `Schema`).         |
+| `{{key}}`           | Inserts the parent key of the node being validated (for example, `post`, `get`).           |
+| `{{property}}`      | Inserts the property name being validated (for example, `requestBody`).                    |
+| `{{problems}}`      | Inserts the detailed assertion error message(s).                                           |
+| `{{pointer}}`       | Inserts the JSON Pointer path to the error location (for example, `#/paths/~1users/post`). |
+| `{{file}}`          | Inserts the name of the file where the error occurred.                                     |
 
 ## Find and share examples
 

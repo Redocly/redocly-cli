@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.10.0
+
+### Patch Changes
+
+- Fixed a bug where workflows triggered by `onFailure` actions with retries were shown with inaccurate results in the overall report.
+- Updated @redocly/openapi-core to v2.10.0.
+
 ## 2.9.0
 
 ### Minor Changes
