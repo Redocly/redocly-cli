@@ -334,6 +334,7 @@ export async function runStep({
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
+              retriesLeft: retriesLeft - 1,
             });
             ctx.executedSteps.push(stepWorkflowResult);
           } else if (targetStep) {
