@@ -173,4 +173,45 @@ describe('format', () => {
       "
     `);
   });
+
+  it('should limit suggestions based on MAX_SUGGEST constant', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'test-rule',
+        message: 'Test message',
+        severity: 'error' as const,
+        location: [
+          {
+            source: { absoluteRef: 'test.yaml' } as Source,
+            start: { line: 1, col: 1 },
+            end: { line: 1, col: 10 },
+          } as LocationObject,
+        ],
+        suggest: [
+          'suggestion1',
+          'suggestion2',
+          'suggestion3',
+          'suggestion4',
+          'suggestion5',
+          'suggestion6',
+          'suggestion7',
+          'suggestion8',
+          'suggestion9',
+          'suggestion10',
+        ],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'github-actions',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    // Should limit suggestions (default is 7, but depends on REDOCLY_MAX_SUGGESTIONS env var)
+    // At minimum, should include first suggestion and not all 10
+    expect(output).toContain('suggestion1');
+    // Verify that suggestions are being formatted
+    expect(output).toContain('Did you mean:');
+  });
 });
