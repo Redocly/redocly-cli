@@ -208,17 +208,9 @@ describe('format', () => {
       totals: getTotals(problems),
     });
 
-    expect(output).toContain('suggestion1');
-    expect(output).toContain('suggestion2');
-    expect(output).toContain('suggestion3');
-    expect(output).toContain('suggestion4');
-    expect(output).toContain('suggestion5');
-    expect(output).toContain('suggestion6');
-    expect(output).toContain('suggestion7');
-    expect(output).not.toContain('suggestion8');
-    expect(output).not.toContain('suggestion9');
-    expect(output).not.toContain('suggestion10');
-
-    expect(output).toContain('Did you mean:');
+    expect(output).toMatchInlineSnapshot(`
+      "::error title=test-rule,file=test.yaml,line=1,col=1,endLine=1,endColumn=10::Test message%0A%0ADid you mean:%0A  - suggestion1%0A  - suggestion2%0A  - suggestion3%0A  - suggestion4%0A  - suggestion5%0A  - suggestion6%0A  - suggestion7%0A%0A
+      "
+    `);
   });
 });
