@@ -25,3 +25,21 @@ Values such as file names, organization IDs, and URLs are removed, replaced by j
 ## Opt out of data collection
 
 To opt out, set the `REDOCLY_TELEMETRY` environment variable to `off`, or set `telemetry: off` in the `redocly.yaml` configuration file.
+
+## Environment variables
+
+The following environment variables can be used to customize the CLI behavior:
+
+### REDOCLY_TELEMETRY
+
+Set to `off` to disable telemetry data collection.
+
+### REDOCLY_MAX_SUGGESTIONS
+
+Set the maximum number of suggestions to display in lint error messages (default: `5`). For example:
+
+```bash
+export REDOCLY_MAX_SUGGESTIONS=10
+```
+
+This is useful when working with rules that provide many suggestions (like typo corrections for property names), allowing you to see more or fewer alternatives as needed.
