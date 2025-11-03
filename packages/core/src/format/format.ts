@@ -41,8 +41,6 @@ const CODECLIMATE_SEVERITY_MAPPING = {
   warn: 'minor',
 };
 
-const MAX_SUGGEST = 5;
-
 function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
@@ -357,7 +355,7 @@ function formatDidYouMean(problem: NormalizedProblem) {
   if (problem.suggest.length === 1) {
     return `Did you mean: ${problem.suggest[0]} ?\n\n`;
   } else {
-    return `Did you mean:\n  - ${problem.suggest.slice(0, MAX_SUGGEST).join('\n  - ')}\n\n`;
+    return `Did you mean:\n  - ${problem.suggest.join('\n  - ')}\n\n`;
   }
 }
 

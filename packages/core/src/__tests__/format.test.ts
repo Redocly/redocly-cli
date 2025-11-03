@@ -144,4 +144,33 @@ describe('format', () => {
       "
     `);
   });
+
+  it('should format problems with suggestions in github-actions format', () => {
+    const problems = [
+      {
+        ruleId: 'invalid-property',
+        message: 'Property is invalid',
+        severity: 'error' as const,
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 5, col: 10 },
+            end: { line: 5, col: 20 },
+          } as LocationObject,
+        ],
+        suggest: ['validProperty', 'anotherValidProperty', 'oneMoreProperty'],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'github-actions',
+      version: '1.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "::error title=invalid-property,file=openapi.yaml,line=5,col=10,endLine=5,endColumn=20::Property is invalid%0A%0ADid you mean:%0A  - validProperty%0A  - anotherValidProperty%0A  - oneMoreProperty%0A%0A
+      "
+    `);
+  });
 });
