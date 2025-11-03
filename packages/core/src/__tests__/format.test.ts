@@ -208,10 +208,17 @@ describe('format', () => {
       totals: getTotals(problems),
     });
 
-    // Should limit suggestions (default is 7, but depends on REDOCLY_MAX_SUGGESTIONS env var)
-    // At minimum, should include first suggestion and not all 10
     expect(output).toContain('suggestion1');
-    // Verify that suggestions are being formatted
+    expect(output).toContain('suggestion2');
+    expect(output).toContain('suggestion3');
+    expect(output).toContain('suggestion4');
+    expect(output).toContain('suggestion5');
+    expect(output).toContain('suggestion6');
+    expect(output).toContain('suggestion7');
+    expect(output).not.toContain('suggestion8');
+    expect(output).not.toContain('suggestion9');
+    expect(output).not.toContain('suggestion10');
+
     expect(output).toContain('Did you mean:');
   });
 });
