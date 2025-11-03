@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Fixed diagnostic messages to display all suggestions without truncation.
+Added `REDOCLY_MAX_SUGGESTIONS` environment variable to limit displayed suggestions (default: 7).
