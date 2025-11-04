@@ -66,3 +66,20 @@ redocly preview --port=8888
 ```
 
 This command starts the preview on port 8888, so you can access the docs at `http://localhost:8888` or `http://127.0.0.1:8888`.
+
+## Troubleshooting
+
+### Internal Server Error when using `npx redocly preview`
+
+If you encounter an "Internal Server Error" page when running `npx redocly preview`, this is often caused by a corrupted or outdated npx cache. Clear the npx cache:
+
+```bash
+npm cache clean --force
+```
+
+Alternatively, install Redocly CLI globally to avoid cache-related issues:
+
+```bash
+npm install -g @redocly/cli@latest
+redocly preview
+```
