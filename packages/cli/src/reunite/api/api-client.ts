@@ -191,8 +191,8 @@ class RemotesApi {
 
     for (const file of files) {
       const blob = Buffer.isBuffer(file.stream)
-        ? new Blob([file.stream])
-        : new Blob([await streamToBuffer(file.stream)]);
+        ? new Blob([file.stream as BlobPart])
+        : new Blob([(await streamToBuffer(file.stream)) as BlobPart]);
       formData.append(`files[${file.path}]`, blob, file.path);
     }
 
