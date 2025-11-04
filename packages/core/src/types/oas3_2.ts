@@ -191,12 +191,15 @@ const Discriminator: NodeType = {
 };
 
 const Example: NodeType = {
-  ...Oas3_1Types.Example,
   properties: {
-    ...Oas3_1Types.Example.properties,
+    value: { isExample: true, resolvable: false },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    externalValue: { type: 'string' },
     dataValue: { isExample: true, resolvable: false },
     serializedValue: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 export const Oas3_2Types = {
@@ -213,4 +216,5 @@ export const Oas3_2Types = {
   MediaType,
   Discriminator,
   Example,
+  ExamplesMap: mapOf('Example'),
 } as const;

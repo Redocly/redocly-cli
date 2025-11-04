@@ -271,6 +271,16 @@ const DependentRequired: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
+const Example: NodeType = {
+  properties: {
+    value: { isExample: true, resolvable: false },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    externalValue: { type: 'string' },
+  },
+  extensionsPrefix: 'x-',
+};
+
 export const Oas3_1Types = {
   ...Oas3Types,
   Info,
@@ -284,4 +294,5 @@ export const Oas3_1Types = {
   SecurityScheme,
   Operation,
   DependentRequired,
+  Example,
 } as const;

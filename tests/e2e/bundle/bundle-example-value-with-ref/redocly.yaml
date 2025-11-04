@@ -1,0 +1,6 @@
+apis:
+  main:
+    root: openapi.yaml
+
+resolve:
+  doNotResolveExamples: true
