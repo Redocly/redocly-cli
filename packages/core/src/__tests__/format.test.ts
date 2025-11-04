@@ -174,7 +174,7 @@ describe('format', () => {
     `);
   });
 
-  it('should limit suggestions based on REDOCLY_CLI_MAX_SUGGESTIONS constant', () => {
+  it('should limit suggestions based on REDOCLY_CLI_LINT_MAX_SUGGESTIONS constant', () => {
     const problems: NormalizedProblem[] = [
       {
         ruleId: 'test-rule',

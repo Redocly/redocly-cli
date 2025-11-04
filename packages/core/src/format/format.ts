@@ -41,7 +41,7 @@ const CODECLIMATE_SEVERITY_MAPPING = {
   warn: 'minor',
 };
 
-const MAX_SUGGEST = +(env.REDOCLY_CLI_MAX_SUGGESTIONS ?? 5);
+const MAX_SUGGEST = +(env.REDOCLY_CLI_LINT_MAX_SUGGESTIONS ?? 5);
 
 function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
