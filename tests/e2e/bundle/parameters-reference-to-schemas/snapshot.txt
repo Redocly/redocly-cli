@@ -1,0 +1,30 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      summary: Get a list of users
+      parameters:
+        - $ref: '#/components/parameters/Param'
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Schema:
+      type: string
+  parameters:
+    Param:
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/Schema'
+
+bundling openapi.yaml using configuration for api 'test-api'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
