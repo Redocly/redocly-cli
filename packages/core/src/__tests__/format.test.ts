@@ -174,7 +174,7 @@ describe('format', () => {
     `);
   });
 
-  it('should limit suggestions based on MAX_SUGGEST constant', () => {
+  it('should limit suggestions based on REDOCLY_CLI_MAX_SUGGESTIONS constant', () => {
     const problems: NormalizedProblem[] = [
       {
         ruleId: 'test-rule',
@@ -209,7 +209,7 @@ describe('format', () => {
     });
 
     expect(output).toMatchInlineSnapshot(`
-      "::error title=test-rule,file=test.yaml,line=1,col=1,endLine=1,endColumn=10::Test message%0A%0ADid you mean:%0A  - suggestion1%0A  - suggestion2%0A  - suggestion3%0A  - suggestion4%0A  - suggestion5%0A  - suggestion6%0A  - suggestion7%0A%0A
+      "::error title=test-rule,file=test.yaml,line=1,col=1,endLine=1,endColumn=10::Test message%0A%0ADid you mean:%0A  - suggestion1%0A  - suggestion2%0A  - suggestion3%0A  - suggestion4%0A  - suggestion5%0A%0A
       "
     `);
   });
