@@ -187,6 +187,7 @@ export function makeBundleVisitor(
   }
 
   function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>) {
+    // make ref from the root document to the bundled component
     const newRefId = makeRefId(rootDocument.source.absoluteRef, node.$ref);
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
