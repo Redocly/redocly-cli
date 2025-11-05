@@ -1,5 +1,6 @@
 Param:
   in: query
+  name: param
   required: true
   schema:
     $ref: schemas.yaml#/Schema
