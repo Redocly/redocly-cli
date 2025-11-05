@@ -21,8 +21,8 @@ components:
       type: string
   parameters:
     Param:
-      in: query
       name: param
+      in: query
       required: true
       schema:
         $ref: '#/components/schemas/Schema'
