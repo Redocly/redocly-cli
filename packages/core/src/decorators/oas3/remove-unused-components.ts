@@ -87,6 +87,7 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           'Response',
           'Example',
           'RequestBody',
+          'SecurityScheme',
         ];
         if (!supportedRefTypes.includes(type.name)) return;
 
@@ -95,6 +96,15 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
 
         const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
         if (!localPointer) return;
+
+        if (type.name === 'SecurityScheme') {
+          components.set(key.toString(), {
+            usedIn: [],
+            componentType: 'securitySchemes',
+            name: key.toString(),
+          });
+          return;
+        }
 
         const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
         const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
@@ -153,17 +163,11 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
         registerComponent(location, 'headers', key.toString());
       },
     },
-    SecurityRequirement(securityRequirement, { key }) {
-      registerComponent(Object.keys(securityRequirement)[0], 'securitySchemes', key.toString());
-    },
-    NamedSecuritySchemes: {
-      SecurityScheme(_securityScheme, { location, key }) {
-        if (components.has(key.toString())) {
-          components.get(key.toString())!.usedIn.push(location);
-        } else {
-          registerComponent(location, 'securitySchemes', key.toString());
-        }
-      },
+    SecurityRequirement(securityRequirement, { location }) {
+      const componentName = Object.keys(securityRequirement)[0];
+      if (components.has(componentName)) {
+        components.get(componentName)!.usedIn.push(location);
+      }
     },
   };
 };
