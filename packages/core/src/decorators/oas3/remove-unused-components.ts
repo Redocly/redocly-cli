@@ -23,30 +23,43 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
   >();
 
   function registerComponent(
-    location: Location,
+    location: string | Location,
     componentType: keyof (Oas3Components | Oas3_1Components),
     name: string
   ): void {
-    components.set(location.absolutePointer, {
-      usedIn: components.get(location.absolutePointer)?.usedIn ?? [],
+    const locPointer = typeof location === 'string' ? location : location.absolutePointer;
+    components.set(locPointer, {
+      usedIn: components.get(locPointer)?.usedIn ?? [],
       componentType,
       name,
     });
+  }
+
+  function isComponentUsed(
+    usedIn: Location[],
+    componentType: keyof (Oas3Components | Oas3_1Components) | undefined,
+    removedPaths: string[]
+  ): boolean {
+    if (componentType === 'securitySchemes') {
+      return usedIn.length > 0;
+    }
+
+    return usedIn.some(
+      (location) =>
+        !removedPaths.some(
+          (removed) =>
+            location.absolutePointer.startsWith(removed) &&
+            (location.absolutePointer.length === removed.length ||
+              location.absolutePointer[removed.length] === '/')
+        )
+    );
   }
 
   function removeUnusedComponents(root: AnyOas3Definition, removedPaths: string[]): number {
     const removedLengthStart = removedPaths.length;
 
     for (const [path, { usedIn, name, componentType }] of components) {
-      const used = usedIn.some(
-        (location) =>
-          !removedPaths.some(
-            (removed) =>
-              location.absolutePointer.startsWith(removed) &&
-              (location.absolutePointer.length === removed.length ||
-                location.absolutePointer[removed.length] === '/')
-          )
-      );
+      const used = isComponentUsed(usedIn, componentType, removedPaths);
 
       if (!used && componentType && root.components) {
         removedPaths.push(path);
@@ -67,30 +80,34 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
   return {
     ref: {
       leave(ref, { location, type, resolve, key }) {
-        if (
-          ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(
-            type.name
-          )
-        ) {
-          const resolvedRef = resolve(ref);
-          if (!resolvedRef.location) return;
+        const supportedRefTypes = [
+          'Schema',
+          'Header',
+          'Parameter',
+          'Response',
+          'Example',
+          'RequestBody',
+        ];
+        if (!supportedRefTypes.includes(type.name)) return;
 
-          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
-          if (!localPointer) return;
+        const resolvedRef = resolve(ref);
+        if (!resolvedRef.location) return;
 
-          const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
-          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
+        const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
+        if (!localPointer) return;
 
-          const registered = components.get(pointer);
+        const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
+        const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
 
-          if (registered) {
-            registered.usedIn.push(location);
-          } else {
-            components.set(pointer, {
-              usedIn: [location],
-              name: key.toString(),
-            });
-          }
+        const registered = components.get(pointer);
+
+        if (registered) {
+          registered.usedIn.push(location);
+        } else {
+          components.set(pointer, {
+            usedIn: [location],
+            name: key.toString(),
+          });
         }
       },
     },
@@ -134,6 +151,18 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     NamedHeaders: {
       Header(_header, { location, key }) {
         registerComponent(location, 'headers', key.toString());
+      },
+    },
+    SecurityRequirement(securityRequirement, { key }) {
+      registerComponent(Object.keys(securityRequirement)[0], 'securitySchemes', key.toString());
+    },
+    NamedSecuritySchemes: {
+      SecurityScheme(_securityScheme, { location, key }) {
+        if (components.has(key.toString())) {
+          components.get(key.toString())!.usedIn.push(location);
+        } else {
+          registerComponent(location, 'securitySchemes', key.toString());
+        }
       },
     },
   };
