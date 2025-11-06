@@ -741,7 +741,7 @@ describe('no-invalid-media-type-examples', () => {
         outdent`
         openapi: 3.1.0
         paths:
-          /v1:
+          /inline-examples:
             get:
               responses:
                 '200':
@@ -763,7 +763,25 @@ describe('no-invalid-media-type-examples', () => {
                       example1:
                         value:
                           password: secret
-          /v2:
+          /inline-example:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      example:
+                        id: 1
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    example:
+                      password: secret
+          /ref:
             get:
               responses:
                 '200':
