@@ -192,11 +192,11 @@ const Discriminator: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: { isExample: true, resolvable: false },
+    value: { resolvable: false },
     summary: { type: 'string' },
     description: { type: 'string' },
     externalValue: { type: 'string' },
-    dataValue: { isExample: true, resolvable: false },
+    dataValue: { resolvable: false },
     serializedValue: { type: 'string' },
   },
   extensionsPrefix: 'x-',

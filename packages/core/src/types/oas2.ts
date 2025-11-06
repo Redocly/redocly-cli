@@ -163,7 +163,7 @@ const Parameter: NodeType = {
     uniqueItems: { type: 'boolean' },
     enum: { type: 'array' },
     multipleOf: { type: 'number' },
-    'x-example': 'XExample',
+    'x-example': {}, // any
     'x-examples': 'ExamplesMap',
   },
   required(value) {
@@ -427,11 +427,9 @@ const SecurityRequirement: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
-const Example = { isExample: true, properties: {} };
-
-const XExample: NodeType = {
+const Example: NodeType = {
   properties: {
-    value: { isExample: true, resolvable: false },
+    value: { isExample: true },
     summary: { type: 'string' },
     description: { type: 'string' },
     externalValue: { type: 'string' },
@@ -477,5 +475,4 @@ export const Oas2Types = {
   XCodeSampleList: listOf('XCodeSample'),
   XServerList: listOf('XServer'),
   XServer,
-  XExample,
 } as const;
