@@ -69,4 +69,38 @@ describe('Referenceable scalars', () => {
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report example value with $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.2.0
+          info:
+            title: Test
+            version: '1.0'
+          paths:
+            '/test':
+              get:
+                parameters:
+                  - name: test
+                    schema:
+                      type: object
+                    examples:
+                      test:
+                        value:
+                          $ref: not $ref, example
+        `,
+      __dirname + '/foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
