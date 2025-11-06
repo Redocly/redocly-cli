@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 2.11.0
+
+### Minor Changes
+
+- Added `REDOCLY_CLI_LINT_MAX_SUGGESTIONS` environment variable to limit displayed suggestions (default: 5).
+
+### Patch Changes
+
+- Updated @redocly/config to v0.37.0.
+
 ## 2.10.0
 
 ### Minor Changes

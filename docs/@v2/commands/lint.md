@@ -333,6 +333,16 @@ If the number of detected problems exceeds the specified threshold, the remainin
 
 Note that the default value is `100`.
 
+### Limit the displayed suggestions count
+
+When lint errors include suggestions (such as "Did you mean: propertyName?"), you can control how many suggestions are displayed using the `REDOCLY_CLI_LINT_MAX_SUGGESTIONS` environment variable.
+
+```bash
+REDOCLY_CLI_LINT_MAX_SUGGESTIONS=10 redocly lint openapi.yaml
+```
+
+The default value is `5`. This is useful when working with rules that provide many suggestions (like typo corrections for property names), allowing you to see more or fewer alternatives as needed.
+
 ### Generate ignore file
 
 With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output.
