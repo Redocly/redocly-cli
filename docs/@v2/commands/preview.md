@@ -67,7 +67,7 @@ redocly preview --port=8888
 
 This command starts the preview on port 8888, so you can access the docs at `http://localhost:8888` or `http://127.0.0.1:8888`.
 
-## Troubleshooting
+## Troubleshoot
 
 ### Internal Server Error
 
