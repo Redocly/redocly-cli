@@ -734,4 +734,219 @@ describe('no-invalid-media-type-examples', () => {
       ]
     `);
   });
+
+  describe('readonly and writeonly properties', () => {
+    it('should not report if examples respect readonly and writeonly properties', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+        openapi: 3.1.0
+        paths:
+          /v1:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      examples:
+                        example1:
+                          value:
+                            id: 1
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    examples:
+                      example1:
+                        value:
+                          password: secret
+          /v2:
+            get:
+              responses:
+                '200':
+                  $ref: '#/components/responses/ObjectResponse'
+            post:
+              requestBody:
+                $ref: '#/components/requestBodies/ObjectRequest'
+        components:
+          schemas:
+            Object:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  readOnly: true
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+                - id
+                - password
+          responses:
+            ObjectResponse:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Object'
+                  examples:
+                    example1:
+                      value:
+                        id: 1
+          requestBodies:
+            ObjectRequest:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Object'
+                  examples:
+                    example1:
+                      value:
+                        password: secret
+      `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: {
+            'no-invalid-media-type-examples': 'error',
+          },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    });
+
+    it('should not report if examples respect readonly and writeonly properties with referenced examples', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+        openapi: 3.1.0
+        paths:
+          /objects:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      examples:
+                        example1:
+                          $ref: '#/components/examples/ObjectResponse'
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    examples:
+                      example1:
+                        $ref: '#/components/examples/ObjectRequest'
+        components:
+          examples:
+            ObjectRequest:
+              value:
+                password: secret
+            ObjectResponse:
+              value:
+                id: 1
+          schemas:
+            Object:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  readOnly: true
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+                - id
+                - password
+      `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: {
+            'no-invalid-media-type-examples': 'error',
+          },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    });
+
+    it('should not report if examples respect readonly and writeonly properties with nested referenced schemas', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+        openapi: 3.1.0
+        paths:
+          /objects:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      examples:
+                        example1:
+                          value:
+                            id: 1
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    examples:
+                      example1:
+                        value:
+                          password: "secret"
+        components:
+          schemas:
+            Object:
+              type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/Id'
+                password:
+                  $ref: '#/components/schemas/Password'
+                CyclicRef:
+                  $ref: '#/components/schemas/Object'
+              required:
+                - id
+                - password
+            Id:
+              type: integer
+              readOnly: true
+            Password:
+              type: string
+              writeOnly: true
+      `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: {
+            'no-invalid-media-type-examples': 'error',
+          },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    });
+  });
 });
