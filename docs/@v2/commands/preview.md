@@ -71,7 +71,8 @@ This command starts the preview on port 8888, so you can access the docs at `htt
 
 ### Internal Server Error
 
-An "Internal Server Error" page when running the preview command is often caused by a corrupted or outdated npx cache. The preview command uses npx internally to launch product packages, and cached packages can sometimes cause issues.
+An **Internal Server Error** page when running the preview command is often caused by a corrupted or outdated npx cache.
+The preview command uses npx internally to launch product packages, and cached packages can sometimes cause issues.
 
 #### Clear the npx cache
 
