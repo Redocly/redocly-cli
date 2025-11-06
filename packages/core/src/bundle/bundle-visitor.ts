@@ -126,10 +126,12 @@ export function makeBundleVisitor(
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
-            resolveBundledComponent(node, resolved);
-
-            if (!dequal(ctx.location.source, rootDocument.source)) {
-              resolveBundledComponent(node, resolved);
+            // Register the bundled component from the original location
+            resolveBundledComponent(node, resolved, ctx.location.source.absoluteRef);
+            // Also register from root document location if this is an external ref
+            // This ensures refs inside bundled components can be resolved when visited later
+            if (ctx.location.source !== rootDocument.source) {
+              resolveBundledComponent(node, resolved, rootDocument.source.absoluteRef);
             }
           }
         }
@@ -190,8 +192,8 @@ export function makeBundleVisitor(
     };
   }
 
-  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>) {
-    const newRefId = makeRefId(rootDocument.source.absoluteRef, node.$ref);
+  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, location: string) {
+    const newRefId = makeRefId(location, node.$ref);
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
       isRemote: false,
