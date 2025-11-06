@@ -69,17 +69,26 @@ This command starts the preview on port 8888, so you can access the docs at `htt
 
 ## Troubleshooting
 
-### Internal Server Error when using `npx redocly preview`
+### Internal Server Error
 
-If you encounter an "Internal Server Error" page when running `npx redocly preview`, this is often caused by a corrupted or outdated npx cache. Clear the npx cache:
+An "Internal Server Error" page when running the preview command is often caused by a corrupted or outdated npx cache. The preview command uses npx internally to launch product packages, and cached packages can sometimes cause issues.
+
+#### Clear the npx cache
+
+Clear the npx cache:
 
 ```bash
 npm cache clean --force
 ```
 
-Alternatively, install Redocly CLI globally to avoid cache-related issues:
+After clearing the cache, try running the preview command again.
+
+#### Install Redocly CLI globally
+
+Install Redocly CLI globally to avoid cache-related issues:
 
 ```bash
 npm install -g @redocly/cli@latest
-redocly preview
 ```
+
+After installation, the `redocly` command is available globally, which helps avoid npx cache issues.
