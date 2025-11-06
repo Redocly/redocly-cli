@@ -127,6 +127,10 @@ export function makeBundleVisitor(
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
             resolveBundledComponent(node, resolved);
+
+            if (!dequal(ctx.location.source, rootDocument.source)) {
+              resolveBundledComponent(node, resolved);
+            }
           }
         }
       },
