@@ -135,9 +135,6 @@ function modifyRequiredProperties(
   const required = clonedSchema.required!;
 
   for (const property of Object.keys(properties)) {
-    if (!required.includes(property)) {
-      continue;
-    }
     // This type cast is safe because `ensureSchemaIsResolved` resolves all $refs in properties.
     const propVal = properties[property] as Oas3Schema | Oas3_1Schema;
 
