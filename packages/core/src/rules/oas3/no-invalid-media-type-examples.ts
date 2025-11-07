@@ -75,6 +75,9 @@ function ensureSchemaIsResolved(
   if (!resolved.location) {
     return;
   }
+  if (!resolved.node.properties) {
+    return resolved.node;
+  }
 
   const clonedNode = structuredClone(resolved.node);
   if (clonedNode.properties) {
