@@ -194,7 +194,7 @@ const Example: NodeType = {
   ...Oas3_1Types.Example,
   properties: {
     ...Oas3_1Types.Example.properties,
-    dataValue: { isExample: true },
+    dataValue: { resolvable: false },
     serializedValue: { type: 'string' },
   },
 };

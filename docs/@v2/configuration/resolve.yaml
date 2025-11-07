@@ -12,7 +12,8 @@ properties:
   doNotResolveExamples:
     type: boolean
     description: >-
-      You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
+      Set this option to `true` to prevent resolving `$ref` fields in singular `example` properties.
+      This affects both `lint` and `bundle` commands.
       This does not affect `$ref` resolution in other parts of the API description.
     default: false
   http:
