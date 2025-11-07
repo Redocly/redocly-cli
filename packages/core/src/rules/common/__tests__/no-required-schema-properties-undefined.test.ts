@@ -954,10 +954,6 @@ describe('no-required-schema-properties-undefined', () => {
               Object:
                 allOf:
                   - $ref: '#/components/schemas/NotExists'
-                  - type: object
-                    properties:
-                      name:
-                        type: string
                 required:
                   - name
         `,
