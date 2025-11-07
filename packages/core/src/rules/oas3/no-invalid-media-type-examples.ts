@@ -143,6 +143,7 @@ function modifyRequiredProperties(
       (propVal.writeOnly && isResponseExample(mediaTypeLocation))
     ) {
       clonedSchema.required = required.filter((requiredProp) => requiredProp !== property);
+      delete clonedSchema.properties![property];
     }
   }
 

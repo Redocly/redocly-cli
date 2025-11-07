@@ -966,5 +966,160 @@ describe('no-invalid-media-type-examples', () => {
 
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
+
+    it.only('should report if examples include contextually invalid values', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+        openapi: 3.1.0
+        paths:
+          /inline-examples:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      examples:
+                        example1:
+                          value:
+                            id: 1
+                            # invalid: password is writeOnly
+                            password: secret
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    examples:
+                      example1:
+                        value:
+                          # invalid: id is readOnly
+                          id: 1
+                          password: secret
+          /inline-example:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Object'
+                      example:
+                        id: 1
+                        # invalid: password is writeOnly
+                        password: secret
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Object'
+                    example:
+                      # invalid: id is readOnly
+                      id: 1
+                      password: secret
+        components:
+          schemas:
+            Object:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  readOnly: true
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+                - id
+                - password
+      `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: {
+            'no-invalid-media-type-examples': 'error',
+          },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "from": {
+              "pointer": "#/paths/~1inline-examples/get/responses/200/content/application~1json",
+              "source": "foobar.yaml",
+            },
+            "location": [
+              {
+                "pointer": "#/paths/~1inline-examples/get/responses/200/content/application~1json/examples/example1/value/password",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Example value must conform to the schema: must NOT have unevaluated properties \`password\`.",
+            "ruleId": "no-invalid-media-type-examples",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "from": {
+              "pointer": "#/paths/~1inline-examples/post/requestBody/content/application~1json",
+              "source": "foobar.yaml",
+            },
+            "location": [
+              {
+                "pointer": "#/paths/~1inline-examples/post/requestBody/content/application~1json/examples/example1/value/id",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Example value must conform to the schema: must NOT have unevaluated properties \`id\`.",
+            "ruleId": "no-invalid-media-type-examples",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "from": {
+              "pointer": "#/paths/~1inline-example/get/responses/200/content/application~1json",
+              "source": "foobar.yaml",
+            },
+            "location": [
+              {
+                "pointer": "#/paths/~1inline-example/get/responses/200/content/application~1json/example/password",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Example value must conform to the schema: must NOT have unevaluated properties \`password\`.",
+            "ruleId": "no-invalid-media-type-examples",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "from": {
+              "pointer": "#/paths/~1inline-example/post/requestBody/content/application~1json",
+              "source": "foobar.yaml",
+            },
+            "location": [
+              {
+                "pointer": "#/paths/~1inline-example/post/requestBody/content/application~1json/example/id",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Example value must conform to the schema: must NOT have unevaluated properties \`id\`.",
+            "ruleId": "no-invalid-media-type-examples",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
   });
 });
