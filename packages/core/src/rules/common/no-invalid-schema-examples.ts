@@ -11,7 +11,6 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
         const examples = (schema as Oas3_1Schema).examples;
         if (examples) {
           for (const example of examples) {
-            console.log('no-invalid-schema-examples', example);
             validateExample(
               example,
               schema,
@@ -32,7 +31,6 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             return;
           }
 
-          console.log('no-invalid-schema-examples', schema.example);
           validateExample(
             schema.example,
             schema,

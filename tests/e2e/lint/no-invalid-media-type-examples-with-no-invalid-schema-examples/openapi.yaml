@@ -1,0 +1,23 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: 1.0.0
+servers:
+  - url: https://test.com/v1
+paths:
+  /test1:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: John
+              examples:
+                wrongExample:
+                  value:
+                    names: John
