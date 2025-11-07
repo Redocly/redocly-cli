@@ -36,14 +36,28 @@ export class ReuniteApiClient implements BaseApiClient {
       'user-agent': `redocly-cli/${version} ${this.command}`,
     };
 
-    const response = await fetchWithTimeout(url, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetchWithTimeout(url, {
+        ...options,
+        headers,
+      });
 
-    this.collectSunsetWarning(response);
+      this.collectSunsetWarning(response);
 
-    return response;
+      return response;
+    } catch (err) {
+      let errorMessage = 'Failed to fetch.';
+
+      if (err.cause) {
+        errorMessage += ` Caused by ${err.cause.message || err.cause.name}.`;
+      }
+
+      if (err.code || err.cause?.code) {
+        errorMessage += ` Code: ${err.code || err.cause?.code}`;
+      }
+
+      throw new Error(errorMessage);
+    }
   }
 
   private collectSunsetWarning(response: Response) {
