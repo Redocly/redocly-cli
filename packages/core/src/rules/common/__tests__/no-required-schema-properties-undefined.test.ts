@@ -944,4 +944,32 @@ describe('no-required-schema-properties-undefined', () => {
       ]
     `);
   });
+
+  it('should not crash on unresolved $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Object:
+                allOf:
+                  - $ref: '#/components/schemas/NotExists'
+                  - type: object
+                    properties:
+                      name:
+                        type: string
+                required:
+                  - name
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
