@@ -61,6 +61,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
 function ensureSchemaIsResolved(
   schema: Oas3Schema | Oas3_1Schema,
   ctx: UserContext,
+  from?: string,
   visited: Set<string> = new Set()
 ): Oas3Schema | Oas3_1Schema | undefined {
   if (!isRef(schema) || visited.has(schema.$ref)) {
@@ -70,7 +71,7 @@ function ensureSchemaIsResolved(
 
   const { resolve } = ctx;
 
-  const resolved = resolve<Oas3Schema | Oas3_1Schema>(schema);
+  const resolved = resolve<Oas3Schema | Oas3_1Schema>(schema, from);
   if (!resolved.location) {
     return;
   }
@@ -79,7 +80,12 @@ function ensureSchemaIsResolved(
   if (clonedNode.properties) {
     for (const [key, value] of Object.entries(clonedNode.properties)) {
       if (isRef(value)) {
-        const nestedResolvedSchema = ensureSchemaIsResolved(value, ctx, visited);
+        const nestedResolvedSchema = ensureSchemaIsResolved(
+          value,
+          ctx,
+          resolved.location?.source.absoluteRef,
+          visited
+        );
         if (nestedResolvedSchema) {
           clonedNode.properties[key] = nestedResolvedSchema;
         } else {
