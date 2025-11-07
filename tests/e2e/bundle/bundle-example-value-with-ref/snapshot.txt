@@ -12,12 +12,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  name:
+                  $ref:
                     type: string
-                  active:
-                    type: boolean
                 example:
                   $ref: example.json
               examples:

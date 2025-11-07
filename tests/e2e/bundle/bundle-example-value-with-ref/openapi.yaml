@@ -12,21 +12,17 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
-                  name:
+                  $ref:
                     type: string
-                  active:
-                    type: boolean
                 example:
-                  $ref: example.json
+                  $ref: example.json # should NOT be resolved
               examples:
                 Test:
                   summary: Example with $ref in value (should NOT resolve)
                   value:
-                    $ref: example.json
+                    $ref: example.json # should NOT be resolved
 
                 TestDataValue:
                   summary: Example with $ref in dataValue (should NOT resolve)
                   dataValue:
-                    $ref: example.json
+                    $ref: example.json # should NOT be resolved
