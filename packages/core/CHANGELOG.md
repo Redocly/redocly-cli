@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.11.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.38.0.
+- Fixed an issue where the content of `$ref`s inside example values was erroneously resolved during bundling and linting.
+- Fixed `no-invalid-media-type-examples` for schemas using `anyOf`/`oneOf`.
+
 ## 2.11.0
 
 ### Minor Changes
