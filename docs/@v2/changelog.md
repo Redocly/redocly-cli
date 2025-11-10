@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.11.1 (2025-11-10)
+
+### Patch Changes
+
+- Fixed an issue where the content of `$ref`s inside example values was erroneously resolved during bundling and linting.
+- Fixed `no-invalid-media-type-examples` for schemas using `anyOf`/`oneOf`.
+- Updated @redocly/openapi-core to v2.11.1.
+
 ## 2.11.0 (2025-11-04)
 
 ### Patch Changes
