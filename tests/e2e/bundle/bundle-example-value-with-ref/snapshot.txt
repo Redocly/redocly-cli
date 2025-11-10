@@ -1,0 +1,31 @@
+openapi: 3.2.0
+info:
+  title: Test API
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $ref:
+                    type: string
+                example:
+                  $ref: example.json
+              examples:
+                Test:
+                  summary: Example with $ref in value (should NOT resolve)
+                  value:
+                    $ref: example.json
+                TestDataValue:
+                  summary: Example with $ref in dataValue (should NOT resolve)
+                  dataValue:
+                    $ref: example.json
+components: {}
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.

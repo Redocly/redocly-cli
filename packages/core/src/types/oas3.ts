@@ -233,7 +233,7 @@ const MediaType: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: { isExample: true },
+    value: { resolvable: false },
     summary: { type: 'string' },
     description: { type: 'string' },
     externalValue: { type: 'string' },
