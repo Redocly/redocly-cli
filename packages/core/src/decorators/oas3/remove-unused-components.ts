@@ -1,4 +1,5 @@
 import { isEmptyObject } from '../../utils/is-empty-object.js';
+import { getOwn } from '../../utils/get-own.js';
 
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Decorator } from '../../visitors.js';
@@ -13,6 +14,7 @@ import type {
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
+  let componentKey: string | null = null;
   const components = new Map<
     string,
     {
@@ -117,8 +119,23 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedResponses: {
-      Response(_response, { location, key }) {
-        registerComponent(location, 'responses', key.toString());
+      Response: {
+        enter(response, { location, key }) {
+          componentKey = key.toString();
+          if (!getOwn(response, 'content')) {
+            registerComponent(location, 'responses', key.toString());
+          }
+        },
+        leave() {
+          componentKey = null;
+        },
+        MediaTypesMap: {
+          MediaType: {
+            Schema(_schema, { parentLocations }) {
+              registerComponent(parentLocations.Response, 'responses', componentKey!);
+            },
+          },
+        },
       },
     },
     NamedExamples: {
@@ -127,8 +144,23 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
       },
     },
     NamedRequestBodies: {
-      RequestBody(_requestBody, { location, key }) {
-        registerComponent(location, 'requestBodies', key.toString());
+      RequestBody: {
+        enter(requestBody, { location, key }) {
+          componentKey = key.toString();
+          if (!getOwn(requestBody, 'content')) {
+            registerComponent(location, 'requestBodies', key.toString());
+          }
+        },
+        leave() {
+          componentKey = null;
+        },
+        MediaTypesMap: {
+          MediaType: {
+            Schema(_schema, { parentLocations }) {
+              registerComponent(parentLocations.RequestBody, 'requestBodies', componentKey!);
+            },
+          },
+        },
       },
     },
     NamedHeaders: {

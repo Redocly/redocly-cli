@@ -127,12 +127,7 @@ export function makeBundleVisitor(
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
             // Register the bundled component from the original location
-            resolveBundledComponent(node, resolved, ctx.location.source.absoluteRef);
-            // Also register from root document location if this is an external ref
-            // This ensures refs inside bundled components can be resolved when visited later
-            if (ctx.location.source !== rootDocument.source) {
-              resolveBundledComponent(node, resolved, rootDocument.source.absoluteRef);
-            }
+            resolveBundledComponent(node, resolved, rootDocument.source.absoluteRef);
           }
         }
       },
