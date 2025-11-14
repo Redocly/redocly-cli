@@ -57,7 +57,7 @@
     "ajv-formats": "^2.1.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "picomatch": "^4.0.3",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
