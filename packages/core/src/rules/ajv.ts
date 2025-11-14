@@ -25,8 +25,8 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       allowUnionTypes: true,
       validateFormats: true,
       defaultUnevaluatedProperties: allowAdditionalProperties,
-      loadSchemaSync(_: string, $ref: string, $id: string) {
-        const resolvedRef = resolve({ $ref });
+      loadSchemaSync(base: string, $ref: string, $id: string) {
+        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return false;
         return { $id: resolvedRef.location.source.absoluteRef + '#' + $id, ...resolvedRef.node };
       },

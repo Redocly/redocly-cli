@@ -163,7 +163,7 @@ describe('collect refs', () => {
     // expect(resolvedRefs.size).toEqual(2);
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toEqual([
       'foobar.yaml::./externalInfo.yaml#/info',
-      'foobar.yaml::./externalLicense.yaml',
+      'externalInfo.yaml::./externalLicense.yaml',
     ]);
 
     expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([
@@ -201,9 +201,9 @@ describe('collect refs', () => {
         .sort()
     ).toMatchInlineSnapshot(`
       [
-        "openapi-with-back.yaml::../openapi-with-back.yaml#/components/schemas/TypeB",
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
+        "schemas/type-a.yaml::../openapi-with-back.yaml#/components/schemas/TypeB",
       ]
     `);
 
@@ -277,8 +277,8 @@ describe('collect refs', () => {
           "openapi.yaml::#/components/schemas/Local/properties/string",
           "openapi.yaml::./External.yaml#/properties/string",
           "openapi.yaml::./External.yaml",
-          "openapi.yaml::./External2.yaml",
-          "openapi.yaml::./External.yaml#/properties",
+          "External.yaml::./External2.yaml",
+          "External2.yaml::./External.yaml#/properties",
         ]
       `);
 

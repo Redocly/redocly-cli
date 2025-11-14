@@ -141,7 +141,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     parent: any,
     key: string | number
   ) {
-    const resolve: ResolveFn = (ref, from = document.source.absoluteRef) => {
+    const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
       if (!isRef(ref)) return { location, node: ref };
       const refId = makeRefId(from, ref.$ref);
       const resolvedRef = resolvedRefMap.get(refId);
