@@ -272,15 +272,15 @@ describe('collect refs', () => {
     expect(resolvedRefs).toBeDefined();
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
       .toMatchInlineSnapshot(`
-        [
-          "openapi.yaml::#/components/schemas/Local",
-          "openapi.yaml::#/components/schemas/Local/properties/string",
-          "openapi.yaml::./External.yaml#/properties/string",
-          "openapi.yaml::./External.yaml",
-          "External.yaml::./External2.yaml",
-          "External2.yaml::./External.yaml#/properties",
-        ]
-      `);
+      [
+        "openapi.yaml::#/components/schemas/Local",
+        "openapi.yaml::#/components/schemas/Local/properties/string",
+        "openapi.yaml::./External.yaml#/properties/string",
+        "openapi.yaml::./External.yaml",
+        "External.yaml::./External2.yaml",
+        "External2.yaml::./External.yaml#/properties",
+      ]
+    `);
 
     expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
       [
@@ -402,8 +402,8 @@ describe('collect refs', () => {
     expect(resolvedRefs).toBeDefined();
     expect(resolvedRefs.size).toEqual(3);
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toEqual([
-      'foobar.yaml::./schemas.yaml#/schemas',
-      'foobar.yaml::a.yaml',
+      'transitive/components.yaml::./schemas.yaml#/schemas',
+      'transitive/schemas.yaml::a.yaml',
       'foobar.yaml::./transitive/components.yaml#/components/schemas/a',
     ]);
 
