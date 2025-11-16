@@ -38,10 +38,10 @@ export const NoRequiredSchemaPropertiesUndefined:
 
           if (isRef(schema)) {
             const resolved = resolve<AnySchema>(schema, from);
-            return elevateProperties(
-              resolved.node as AnySchema,
-              resolved.location?.source.absoluteRef
-            );
+            if (!resolved.node) {
+              return {};
+            }
+            return elevateProperties(resolved.node, resolved.location?.source.absoluteRef);
           }
 
           return Object.assign(
