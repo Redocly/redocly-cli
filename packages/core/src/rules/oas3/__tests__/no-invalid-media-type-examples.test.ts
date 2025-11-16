@@ -967,7 +967,7 @@ describe('no-invalid-media-type-examples', () => {
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
-    it.only('should report if examples include contextually invalid values', async () => {
+    it('should report if examples include contextually invalid values', async () => {
       const document = parseYamlToDocument(
         outdent`
         openapi: 3.1.0
