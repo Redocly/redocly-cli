@@ -391,11 +391,15 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       for (const { visit: visitor, ruleId, severity, context, message } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {
           const report = reportFn.bind(undefined, ruleId, severity, message);
+          // Use a resolve function with document.source.absoluteRef as default
+          const resolveForRefLeave: ResolveFn = (ref, from = document.source.absoluteRef) => {
+            return resolve(ref, from);
+          };
           visitor(
             node,
             {
               report,
-              resolve,
+              resolve: resolveForRefLeave,
               rawNode: node,
               rawLocation,
               location,
