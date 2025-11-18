@@ -944,4 +944,44 @@ describe('no-required-schema-properties-undefined', () => {
       ]
     `);
   });
+
+  it('should not crash on unresolved $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Object:
+                allOf:
+                  - $ref: '#/components/schemas/NotExists'
+                required:
+                  - name
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Object/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'name' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
