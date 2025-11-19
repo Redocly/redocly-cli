@@ -124,11 +124,12 @@ export interface Oas3Example {
 }
 
 export interface Oas3Xml {
+  nodeType?: 'element' | 'attribute' | 'text' | 'cdata' | 'none'; // added in OAS 3.2
   name?: string;
   namespace?: string;
   prefix?: string;
-  attribute?: string;
-  wrapped?: string;
+  attribute?: boolean; // Deprecated in OAS 3.2: Use nodeType: "attribute" instead
+  wrapped?: boolean; // Deprecated in OAS 3.2: Use nodeType: "element" instead
 }
 
 // common fields for OpenAPI Schema v3.x

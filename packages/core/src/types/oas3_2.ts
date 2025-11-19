@@ -199,6 +199,26 @@ const Example: NodeType = {
   },
 };
 
+const Xml: NodeType = {
+  properties: {
+    nodeType: { type: 'string', enum: ['element', 'attribute', 'text', 'cdata', 'none'] },
+    name: { type: 'string' },
+    namespace: { type: 'string' },
+    prefix: { type: 'string' },
+    attribute: { type: 'boolean' }, // Deprecated in OAS 3.2: Use nodeType: "attribute" instead
+    wrapped: { type: 'boolean' }, // Deprecated in OAS 3.2: Use nodeType: "element" instead
+  },
+  extensionsPrefix: 'x-',
+};
+
+const Schema: NodeType = {
+  ...Oas3_1Types.Schema,
+  properties: {
+    ...Oas3_1Types.Schema.properties,
+    xml: 'Xml',
+  },
+};
+
 export const Oas3_2Types = {
   ...Oas3_1Types,
   Root,
@@ -213,4 +233,6 @@ export const Oas3_2Types = {
   MediaType,
   Discriminator,
   Example,
+  Xml,
+  Schema,
 } as const;
