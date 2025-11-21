@@ -119,7 +119,7 @@ If you need to adjust the `info.title` field, apply the [info-override decorator
 {% /admonition %}
 
 The root `servers` object combines only the common content from all input files.
-If the servers are different for each input file, the `join` command will put the content inside the `servers` object under the corresponding `paths`.
+If the servers are different for each input file, the `join` command puts the content inside the `servers` object under the corresponding `paths`.
 
 Commented lines are not included in the output file.
 
