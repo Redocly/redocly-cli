@@ -108,7 +108,7 @@ export async function sendTelemetry({
     };
 
     const { otelTelemetry } = await import('./otel.js');
-    await otelTelemetry.sendAndWait(cloudEvent);
+    otelTelemetry.send(cloudEvent);
   } catch (err) {
     // Do nothing.
   }
