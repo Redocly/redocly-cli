@@ -5,7 +5,10 @@ import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import { respondWithinMs } from './network-check.js';
-import { getCachedUserId, cacheUserId } from './user-id-cache.js';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { existsSync, writeFileSync, readFileSync } from 'node:fs';
+import { USER_ID_CACHE_FILE } from './constants.js';
 
 import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
@@ -271,3 +274,36 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
 
   return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
 }
+
+export const cacheUserId = (userId: string): void => {
+  const isCI = !!process.env.CI;
+  if (isCI || !userId) {
+    return;
+  }
+
+  try {
+    const userIdFile = join(tmpdir(), USER_ID_CACHE_FILE);
+    writeFileSync(userIdFile, userId);
+  } catch (e) {
+    // Silently fail - telemetry should not break the CLI
+  }
+};
+
+export const getCachedUserId = (): string | undefined => {
+  const isCI = !!process.env.CI;
+  if (isCI) {
+    return;
+  }
+
+  try {
+    const userIdFile = join(tmpdir(), USER_ID_CACHE_FILE);
+
+    if (!existsSync(userIdFile)) {
+      return;
+    }
+
+    return readFileSync(userIdFile).toString().trim();
+  } catch (e) {
+    return;
+  }
+};
