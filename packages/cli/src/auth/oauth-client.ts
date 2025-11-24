@@ -91,6 +91,27 @@ export class RedoclyOAuthClient {
     }
   };
 
+  public getUserId = async (reuniteUrl: string): Promise<string | null> => {
+    try {
+      const credentials = await this.readCredentials();
+
+      if (
+        !credentials ||
+        !isValidReuniteUrl(reuniteUrl) ||
+        (credentials.residency && credentials.residency !== reuniteUrl)
+      ) {
+        return null;
+      }
+
+      const deviceFlow = new RedoclyOAuthDeviceFlow(reuniteUrl);
+      const response = await deviceFlow.getSessionUser(credentials.access_token);
+
+      return response?.user?.id || null;
+    } catch {
+      return null;
+    }
+  };
+
   private async saveCredentials(credentials: Credentials): Promise<void> {
     try {
       const encryptedCredentials = this.encryptCredentials(credentials);

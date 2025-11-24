@@ -1,51 +1,84 @@
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
+import { isDefined } from '../../../core/src/utils/is-defined.js';
 
-import type { Analytics } from './telemetry.js';
+import type { Messages } from '@redocly/cli-opentelemetry';
 
-type Events = {
-  [key: string]: Analytics;
-};
+type CloudEvent = Messages.CommandRanMessage;
 
 export class OtelServerTelemetry {
-  send<K extends keyof Events>(event: K, data: Events[K]): void {
-    const nodeTracerProvider = new NodeTracerProvider({
+  private nodeTracerProvider: NodeTracerProvider;
+
+  constructor() {
+    this.nodeTracerProvider = new NodeTracerProvider({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
+        session_id: `ses_${crypto.randomUUID()}`,
       }),
       spanProcessors: [
-        new SimpleSpanProcessor(
+        new BatchSpanProcessor(
           new OTLPTraceExporter({
             url: OTEL_TRACES_URL,
             headers: {},
             timeoutMillis: DEFAULT_FETCH_TIMEOUT,
-          })
+          }),
+          // Override default BatchSpanProcessor settings to better suit CLI usage
+          {
+            scheduledDelayMillis: 2000,
+            maxQueueSize: 100,
+            maxExportBatchSize: 50,
+            // exportTimeoutMillis >= timeoutMillis
+            exportTimeoutMillis: DEFAULT_FETCH_TIMEOUT,
+          }
         ),
       ],
     });
+  }
 
-    const time = new Date();
-    const eventId = crypto.randomUUID();
-    const tracer = nodeTracerProvider.getTracer('CliTelemetry');
-    const span = tracer.startSpan(`event.${event}`, {
-      attributes: {
-        'cloudevents.event_client.id': eventId,
-        'cloudevents.event_client.type': event,
-      },
-      startTime: time,
-    });
-    for (const [key, value] of Object.entries(data)) {
+  send(cloudEvent: CloudEvent): void {
+    const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
+    const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
+    const spanName = `event.${cloudEvent.data.command}`;
+
+    const attributes: Record<string, string | number | boolean> = {
+      'cloudevents.event_id': cloudEvent.id,
+      'cloudevents.event_type': cloudEvent.type,
+      'cloudevents.event_source': cloudEvent.source,
+      'cloudevents.event_spec_version': cloudEvent.specversion,
+      'cloudevents.event_data_content_type': cloudEvent.datacontenttype,
+      'cloudevents.event_time': time.toISOString(),
+      'cloudevents.event_origin': cloudEvent.origin,
+    };
+
+    for (const [key, value] of Object.entries(cloudEvent.data)) {
       const keySnakeCase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      if (value !== undefined) {
-        span.setAttribute(`cloudevents.event_data.${keySnakeCase}`, value);
+      if (isDefined(value)) {
+        attributes[`cloudevents.event_data.${keySnakeCase}`] = value;
       }
     }
+
+    const span = tracer.startSpan(spanName, {
+      attributes,
+      startTime: time,
+    });
+
     span.end(time);
+  }
+
+  async sendAndWait(cloudEvent: CloudEvent): Promise<void> {
+    try {
+      this.send(cloudEvent);
+
+      // Force flush and wait for export to complete
+      await this.nodeTracerProvider.forceFlush();
+    } catch (error) {
+      // Do nothing
+    }
   }
 }
 

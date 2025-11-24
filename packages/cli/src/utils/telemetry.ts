@@ -1,38 +1,18 @@
 import * as os from 'node:os';
 import * as fs from 'node:fs';
 import { execSync } from 'node:child_process';
-import { isAbsoluteUrl } from '@redocly/openapi-core';
+import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
 import { version } from './package.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import { respondWithinMs } from './network-check.js';
+import { getCachedUserId, cacheUserId } from './user-id-cache.js';
 
 import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
 import type { CommandArgv } from '../types.js';
-
-export type Analytics = {
-  event: string;
-  event_time: string;
-  logged_in: 'yes' | 'no';
-  command: string;
-  arguments: string;
-  node_version: string;
-  npm_version: string;
-  os_platform: string;
-  version: string;
-  exit_code: ExitCode;
-  environment?: string;
-  metadata?: string;
-  environment_ci?: string;
-  raw_input: string;
-  has_config?: 'yes' | 'no';
-  spec_version?: string;
-  spec_keyword?: string;
-  spec_full_version?: string;
-  respect_x_security_auth_types?: string;
-};
+import type { Messages, OtelTypes } from '@redocly/cli-opentelemetry';
 
 const SECRET_REPLACEMENT = '***';
 
@@ -40,6 +20,7 @@ export async function sendTelemetry({
   config,
   argv,
   exit_code,
+  execution_time,
   spec_version,
   spec_keyword,
   spec_full_version,
@@ -48,6 +29,7 @@ export async function sendTelemetry({
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
   exit_code: ExitCode;
+  execution_time: number;
   spec_version: string | undefined;
   spec_keyword: string | undefined;
   spec_full_version: string | undefined;
@@ -68,22 +50,38 @@ export async function sendTelemetry({
       $0: _,
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
-    const event_time = new Date().toISOString();
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient();
     const reuniteUrl = getReuniteUrl(config, args.residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
-    const data: Analytics = {
-      event: 'cli_command',
-      event_time,
+
+    let user_id = getCachedUserId();
+    if (!user_id) {
+      if (logged_in) {
+        const fetchedUserId = await oauthClient.getUserId(reuniteUrl);
+        if (fetchedUserId) {
+          user_id = fetchedUserId;
+          cacheUserId(user_id);
+        }
+      }
+
+      if (!user_id) {
+        user_id = `usr_${crypto.randomUUID()}`;
+        cacheUserId(user_id);
+      }
+    }
+
+    const eventData: OtelTypes.EventPayload<'command.ran'> = {
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
+      user_id,
       ...cleanArgs(args, process.argv.slice(2)),
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
       os_platform: os.platform(),
       version,
       exit_code,
+      execution_time,
       environment: process.env.REDOCLY_ENVIRONMENT,
       metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
       environment_ci: process.env.CI,
@@ -97,8 +95,20 @@ export async function sendTelemetry({
           : undefined,
     };
 
+    const cloudEvent: Messages.CommandRanMessage = {
+      id: crypto.randomUUID(),
+      time: new Date().toISOString(),
+      type: 'command.ran',
+      object: 'event',
+      specversion: '1.0',
+      datacontenttype: 'application/json',
+      source: 'redocly-cli',
+      origin: 'redocly-cli',
+      data: eventData,
+    };
+
     const { otelTelemetry } = await import('./otel.js');
-    otelTelemetry.send(data.command, data);
+    await otelTelemetry.sendAndWait(cloudEvent);
   } catch (err) {
     // Do nothing.
   }
@@ -179,7 +189,7 @@ function replaceArgs(
   return commandInput;
 }
 
-function cleanObject(obj: any, keysToClean: string[]): any {
+function cleanObject(obj: unknown, keysToClean: string[]): unknown {
   if (typeof obj !== 'object' || obj === null) {
     return obj;
   }
@@ -188,7 +198,7 @@ function cleanObject(obj: any, keysToClean: string[]): any {
     return obj.map((item) => cleanObject(item, keysToClean));
   }
 
-  const cleaned: any = {};
+  const cleaned: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     if (keysToClean.includes(key)) {
@@ -203,7 +213,11 @@ function cleanObject(obj: any, keysToClean: string[]): any {
   return cleaned;
 }
 
-function collectSensitiveValues(obj: any, keysToClean: string[], values: string[] = []): string[] {
+function collectSensitiveValues(
+  obj: unknown,
+  keysToClean: string[],
+  values: string[] = []
+): string[] {
   if (typeof obj !== 'object' || obj === null) {
     return values;
   }
@@ -244,12 +258,12 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
           commandInput = commandInput.replaceAll(replacedValue, newValue);
         }
       }
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (isPlainObject(value)) {
       const sensitiveValues = collectSensitiveValues(value, KEYS_TO_CLEAN);
       for (const sensitiveValue of sensitiveValues) {
         commandInput = replaceArgs(commandInput, sensitiveValue, SECRET_REPLACEMENT);
       }
-      commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN);
+      commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN) as string | string[];
     } else {
       commandArguments[key] = value;
     }
