@@ -61,17 +61,6 @@ export class OtelServerTelemetry {
 
     span.end(time);
   }
-
-  async sendAndWait(cloudEvent: CloudEvent): Promise<void> {
-    try {
-      this.send(cloudEvent);
-
-      // Force flush and wait for export to complete
-      await this.nodeTracerProvider.forceFlush();
-    } catch (error) {
-      // Do nothing
-    }
-  }
 }
 
 export const otelTelemetry = new OtelServerTelemetry();
