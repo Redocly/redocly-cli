@@ -73,6 +73,18 @@ export class RedoclyOAuthDeviceFlow {
     }
   }
 
+  async getSessionUser(accessToken: string): Promise<{ user?: { id?: string } } | null> {
+    try {
+      const response = await this.sendRequest('/session', 'GET', undefined, {
+        Cookie: `accessToken=${accessToken};`,
+      });
+
+      return response;
+    } catch {
+      return null;
+    }
+  }
+
   async verifyApiKey(apiKey: string) {
     try {
       const response = await this.sendRequest('/api-keys-verify', 'POST', {
