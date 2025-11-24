@@ -15,7 +15,7 @@ import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
 import type { CommandArgv } from '../types.js';
-import type { Messages, OtelTypes } from '@redocly/cli-opentelemetry';
+import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-opentelemetry';
 
 const SECRET_REPLACEMENT = '***';
 
@@ -74,7 +74,7 @@ export async function sendTelemetry({
       }
     }
 
-    const eventData: OtelTypes.EventPayload<'command.ran'> = {
+    const eventData: EventPayload<EventType> = {
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
       user_id,
@@ -98,7 +98,7 @@ export async function sendTelemetry({
           : undefined,
     };
 
-    const cloudEvent: Messages.CommandRanMessage = {
+    const cloudEvent: CloudEvents.CommandRanMessage = {
       id: crypto.randomUUID(),
       time: new Date().toISOString(),
       type: 'command.ran',

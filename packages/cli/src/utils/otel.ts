@@ -6,9 +6,9 @@ import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import { isDefined } from '../../../core/src/utils/is-defined.js';
 
-import type { Messages } from '@redocly/cli-opentelemetry';
+import type { CloudEvents } from '@redocly/cli-opentelemetry';
 
-type CloudEvent = Messages.CommandRanMessage;
+type CloudEvent = CloudEvents.Messages;
 
 export class OtelServerTelemetry {
   private nodeTracerProvider: NodeTracerProvider;
