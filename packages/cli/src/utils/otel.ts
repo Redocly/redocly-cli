@@ -1,5 +1,5 @@
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './package.js';
@@ -21,20 +21,12 @@ export class OtelServerTelemetry {
         session_id: `ses_${crypto.randomUUID()}`,
       }),
       spanProcessors: [
-        new BatchSpanProcessor(
+        new SimpleSpanProcessor(
           new OTLPTraceExporter({
             url: OTEL_TRACES_URL,
             headers: {},
             timeoutMillis: DEFAULT_FETCH_TIMEOUT,
-          }),
-          // Override default BatchSpanProcessor settings to better suit CLI usage
-          {
-            scheduledDelayMillis: 2000,
-            maxQueueSize: 100,
-            maxExportBatchSize: 50,
-            // exportTimeoutMillis >= timeoutMillis
-            exportTimeoutMillis: DEFAULT_FETCH_TIMEOUT,
-          }
+          })
         ),
       ],
     });
