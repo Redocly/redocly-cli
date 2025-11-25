@@ -89,7 +89,7 @@ export async function sendTelemetry({
     };
 
     const cloudEvent: CloudEvents.CommandRanMessage = {
-      id: crypto.randomUUID(),
+      id: ulid(),
       time: new Date().toISOString(),
       type: 'command.ran',
       object: 'event',
@@ -98,7 +98,7 @@ export async function sendTelemetry({
       source: 'redocly-cli://telemetry',
       origin: 'redocly-cli',
       productType: 'redocly-cli',
-      sessionId: `ses_${crypto.randomUUID()}`,
+      sessionId: `ses_${ulid()}`,
       sourceDetails: {
         anonymous_id,
       },

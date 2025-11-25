@@ -5,6 +5,7 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic
 import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import { isDefined } from '../../../core/src/utils/is-defined.js';
+import { ulid } from 'ulid';
 
 import type { CloudEvents } from '@redocly/cli-opentelemetry';
 
@@ -16,7 +17,7 @@ export class OtelServerTelemetry {
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
-        session_id: `ses_${crypto.randomUUID()}`,
+        session_id: `ses_${ulid()}`,
       }),
       spanProcessors: [
         new SimpleSpanProcessor(
