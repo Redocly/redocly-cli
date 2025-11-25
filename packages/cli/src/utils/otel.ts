@@ -4,7 +4,6 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
-import { isDefined } from '../../../core/src/utils/is-defined.js';
 import { ulid } from 'ulid';
 
 import type { CloudEvents } from '@redocly/cli-opentelemetry';
@@ -50,7 +49,7 @@ export class OtelServerTelemetry {
 
     for (const [key, value] of Object.entries(cloudEvent.data)) {
       const keySnakeCase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      if (isDefined(value)) {
+      if (value !== undefined) {
         attributes[`cloudevents.event_data.${keySnakeCase}`] = value;
       }
     }
