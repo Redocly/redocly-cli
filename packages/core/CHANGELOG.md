@@ -1,5 +1,16 @@
 # @redocly/openapi-core
 
+## 2.12.0
+
+### Minor Changes
+
+- Added OpenAPI 3.2 XML modeling support.
+
+### Patch Changes
+
+- Fixed an issue where the `no-required-schema-properties-undefined` caused a crash when encountering unresolved `$ref`s.
+- Updated @redocly/config to v0.40.0.
+
 ## 2.11.1
 
 ### Patch Changes
