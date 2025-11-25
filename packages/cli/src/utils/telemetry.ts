@@ -105,8 +105,13 @@ export async function sendTelemetry({
       object: 'event',
       specversion: '1.0',
       datacontenttype: 'application/json',
-      source: 'redocly-cli',
+      source: 'redocly-cli://telemetry',
       origin: 'redocly-cli',
+      productType: 'redocly-cli',
+      sessionId: `ses_${crypto.randomUUID()}`,
+      sourceDetails: {
+        user_id,
+      },
       data: eventData,
     };
 

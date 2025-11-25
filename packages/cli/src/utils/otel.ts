@@ -45,6 +45,7 @@ export class OtelServerTelemetry {
       'cloudevents.event_data_content_type': cloudEvent.datacontenttype,
       'cloudevents.event_time': time.toISOString(),
       'cloudevents.event_origin': cloudEvent.origin,
+      'cloudevents.event_source_details.user_id': cloudEvent.sourceDetails?.user_id ?? 'anonymous',
     };
 
     for (const [key, value] of Object.entries(cloudEvent.data)) {
