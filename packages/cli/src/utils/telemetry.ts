@@ -8,7 +8,7 @@ import { respondWithinMs } from './network-check.js';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
-import { USER_ID_CACHE_FILE } from './constants.js';
+import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import { ulid } from 'ulid';
 
 import type { ExitCode } from './miscellaneous.js';
@@ -58,10 +58,10 @@ export async function sendTelemetry({
     const oauthClient = new RedoclyOAuthClient();
     const reuniteUrl = getReuniteUrl(config, args.residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
-    let anonymous_id = getCachedUserId();
+    let anonymous_id = getCachedAnonymousId();
     if (!anonymous_id) {
       anonymous_id = `ann_${ulid()}`;
-      cacheUserId(anonymous_id);
+      cacheAnonymousId(anonymous_id);
     }
 
     const eventData: EventPayload<EventType> = {
@@ -201,7 +201,7 @@ function cleanObject(obj: unknown, keysToClean: string[]): unknown {
   for (const [key, value] of Object.entries(obj)) {
     if (keysToClean.includes(key)) {
       cleaned[key] = SECRET_REPLACEMENT;
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (isPlainObject(value)) {
       cleaned[key] = cleanObject(value, keysToClean);
     } else {
       cleaned[key] = value;
@@ -270,34 +270,34 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
 }
 
-export const cacheUserId = (userId: string): void => {
+export const cacheAnonymousId = (anonymousId: string): void => {
   const isCI = !!process.env.CI;
-  if (isCI || !userId) {
+  if (isCI || !anonymousId) {
     return;
   }
 
   try {
-    const userIdFile = join(tmpdir(), USER_ID_CACHE_FILE);
-    writeFileSync(userIdFile, userId);
+    const anonymousIdFile = join(tmpdir(), ANONYMOUS_ID_CACHE_FILE);
+    writeFileSync(anonymousIdFile, anonymousId);
   } catch (e) {
     // Silently fail - telemetry should not break the CLI
   }
 };
 
-export const getCachedUserId = (): string | undefined => {
+export const getCachedAnonymousId = (): string | undefined => {
   const isCI = !!process.env.CI;
   if (isCI) {
     return;
   }
 
   try {
-    const userIdFile = join(tmpdir(), USER_ID_CACHE_FILE);
+    const anonymousIdFile = join(tmpdir(), ANONYMOUS_ID_CACHE_FILE);
 
-    if (!existsSync(userIdFile)) {
+    if (!existsSync(anonymousIdFile)) {
       return;
     }
 
-    return readFileSync(userIdFile).toString().trim();
+    return readFileSync(anonymousIdFile).toString().trim();
   } catch (e) {
     return;
   }
