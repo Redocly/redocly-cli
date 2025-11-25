@@ -8,8 +8,6 @@ import { isDefined } from '../../../core/src/utils/is-defined.js';
 
 import type { CloudEvents } from '@redocly/cli-opentelemetry';
 
-type CloudEvent = CloudEvents.Messages;
-
 export class OtelServerTelemetry {
   private nodeTracerProvider: NodeTracerProvider;
 
@@ -32,7 +30,7 @@ export class OtelServerTelemetry {
     });
   }
 
-  send(cloudEvent: CloudEvent): void {
+  send(cloudEvent: CloudEvents.Messages): void {
     const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
     const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
     const spanName = `event.${cloudEvent.data.command}`;
@@ -45,7 +43,8 @@ export class OtelServerTelemetry {
       'cloudevents.event_data_content_type': cloudEvent.datacontenttype,
       'cloudevents.event_time': time.toISOString(),
       'cloudevents.event_origin': cloudEvent.origin,
-      'cloudevents.event_source_details.user_id': cloudEvent.sourceDetails?.user_id ?? 'anonymous',
+      'cloudevents.event_source_details.anonymous_id':
+        cloudEvent.sourceDetails?.anonymous_id ?? 'anonymous',
     };
 
     for (const [key, value] of Object.entries(cloudEvent.data)) {
