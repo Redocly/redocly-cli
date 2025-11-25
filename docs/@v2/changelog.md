@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.12.0 (2025-11-25)
+
+### Minor Changes
+
+- Added OpenAPI 3.2 XML modeling support.
+
+### Patch Changes
+
+- Fixed an issue where the `no-required-schema-properties-undefined` caused a crash when encountering unresolved `$ref`s.
+- Updated @redocly/openapi-core to v2.12.0.
+
 ## 2.11.1 (2025-11-10)
 
 ### Patch Changes
