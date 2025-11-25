@@ -4,19 +4,19 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
+import { isDefined } from '../../../core/src/utils/is-defined.js';
 
-import type { Analytics } from './telemetry.js';
-
-type Events = {
-  [key: string]: Analytics;
-};
+import type { CloudEvents } from '@redocly/cli-opentelemetry';
 
 export class OtelServerTelemetry {
-  send<K extends keyof Events>(event: K, data: Events[K]): void {
-    const nodeTracerProvider = new NodeTracerProvider({
+  private nodeTracerProvider: NodeTracerProvider;
+
+  constructor() {
+    this.nodeTracerProvider = new NodeTracerProvider({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
+        session_id: `ses_${crypto.randomUUID()}`,
       }),
       spanProcessors: [
         new SimpleSpanProcessor(
@@ -28,23 +28,37 @@ export class OtelServerTelemetry {
         ),
       ],
     });
+  }
 
-    const time = new Date();
-    const eventId = crypto.randomUUID();
-    const tracer = nodeTracerProvider.getTracer('CliTelemetry');
-    const span = tracer.startSpan(`event.${event}`, {
-      attributes: {
-        'cloudevents.event_client.id': eventId,
-        'cloudevents.event_client.type': event,
-      },
-      startTime: time,
-    });
-    for (const [key, value] of Object.entries(data)) {
+  send(cloudEvent: CloudEvents.Messages): void {
+    const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
+    const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
+    const spanName = `event.${cloudEvent.data.command}`;
+
+    const attributes: Record<string, string | number | boolean> = {
+      'cloudevents.event_id': cloudEvent.id,
+      'cloudevents.event_type': cloudEvent.type,
+      'cloudevents.event_source': cloudEvent.source,
+      'cloudevents.event_spec_version': cloudEvent.specversion,
+      'cloudevents.event_data_content_type': cloudEvent.datacontenttype,
+      'cloudevents.event_time': time.toISOString(),
+      'cloudevents.event_origin': cloudEvent.origin,
+      'cloudevents.event_source_details.anonymous_id':
+        cloudEvent.sourceDetails?.anonymous_id ?? 'anonymous',
+    };
+
+    for (const [key, value] of Object.entries(cloudEvent.data)) {
       const keySnakeCase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      if (value !== undefined) {
-        span.setAttribute(`cloudevents.event_data.${keySnakeCase}`, value);
+      if (isDefined(value)) {
+        attributes[`cloudevents.event_data.${keySnakeCase}`] = value;
       }
     }
+
+    const span = tracer.startSpan(spanName, {
+      attributes,
+      startTime: time,
+    });
+
     span.end(time);
   }
 }
