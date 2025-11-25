@@ -62,11 +62,12 @@
     "set-cookie-parser": "^2.3.5",
     "simple-websocket": "^9.0.0",
     "styled-components": "^6.0.7",
+    "ulid": "^3.0.1",
     "undici": "^6.21.3",
     "yargs": "17.0.1"
   },
   "devDependencies": {
-    "@redocly/cli-opentelemetry": "^0.0.0-20251124175725",
+    "@redocly/cli-opentelemetry": "^0.0.0-20251125112426",
     "@types/configstore": "^5.0.1",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",

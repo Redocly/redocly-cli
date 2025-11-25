@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import { USER_ID_CACHE_FILE } from './constants.js';
+import { ulid } from 'ulid';
 
 import type { ExitCode } from './miscellaneous.js';
 import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
@@ -57,27 +58,16 @@ export async function sendTelemetry({
     const oauthClient = new RedoclyOAuthClient();
     const reuniteUrl = getReuniteUrl(config, args.residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
-
-    let user_id = getCachedUserId();
-    if (!user_id) {
-      if (logged_in) {
-        const fetchedUserId = await oauthClient.getUserId(reuniteUrl);
-        if (fetchedUserId) {
-          user_id = fetchedUserId;
-          cacheUserId(user_id);
-        }
-      }
-
-      if (!user_id) {
-        user_id = `usr_${crypto.randomUUID()}`;
-        cacheUserId(user_id);
-      }
+    let anonymous_id = getCachedUserId();
+    if (!anonymous_id) {
+      anonymous_id = `ann_${ulid()}`;
+      cacheUserId(anonymous_id);
     }
 
     const eventData: EventPayload<EventType> = {
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
-      user_id,
+      anonymous_id,
       ...cleanArgs(args, process.argv.slice(2)),
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
@@ -110,7 +100,7 @@ export async function sendTelemetry({
       productType: 'redocly-cli',
       sessionId: `ses_${crypto.randomUUID()}`,
       sourceDetails: {
-        user_id,
+        anonymous_id,
       },
       data: eventData,
     };
