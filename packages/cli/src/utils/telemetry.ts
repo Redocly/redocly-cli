@@ -280,7 +280,7 @@ export const cacheAnonymousId = (anonymousId: string): void => {
     const anonymousIdFile = join(tmpdir(), ANONYMOUS_ID_CACHE_FILE);
     writeFileSync(anonymousIdFile, anonymousId);
   } catch (e) {
-    // Silently fail - telemetry should not break the CLI
+    // Do nothing
   }
 };
 
