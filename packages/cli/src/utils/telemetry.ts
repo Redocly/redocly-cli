@@ -187,15 +187,7 @@ function replaceArgs(
   return commandInput;
 }
 
-function cleanObject(obj: unknown, keysToClean: string[]): unknown {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map((item) => cleanObject(item, keysToClean));
-  }
-
+function cleanObject<T extends string | string[] | object>(obj: T, keysToClean: string[]): T {
   const cleaned: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
@@ -208,7 +200,7 @@ function cleanObject(obj: unknown, keysToClean: string[]): unknown {
     }
   }
 
-  return cleaned;
+  return cleaned as T;
 }
 
 function collectSensitiveValues(
@@ -238,7 +230,7 @@ function collectSensitiveValues(
 export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   const KEYS_TO_CLEAN = ['organization', 'o', 'input', 'i', 'clientCert', 'clientKey', 'caCert'];
   let commandInput = rawArgv.join(' ');
-  const commandArguments: Record<string, string | string[]> = {};
+  const commandArguments: Record<string, string | string[] | object> = {};
 
   for (const [key, value] of Object.entries(parsedArgs)) {
     if (KEYS_TO_CLEAN.includes(key)) {
@@ -261,7 +253,7 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
       for (const sensitiveValue of sensitiveValues) {
         commandInput = replaceArgs(commandInput, sensitiveValue, SECRET_REPLACEMENT);
       }
-      commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN) as string | string[];
+      commandArguments[key] = cleanObject(value, KEYS_TO_CLEAN);
     } else {
       commandArguments[key] = value;
     }
