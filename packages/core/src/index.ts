@@ -107,6 +107,7 @@ export {
   lintConfig,
   lintEntityFile,
 } from './lint.js';
+export { lintEntity } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
