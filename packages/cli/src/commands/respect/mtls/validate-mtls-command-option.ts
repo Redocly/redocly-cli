@@ -1,17 +1,12 @@
 import type { MtlsConfig } from '../index.js';
 
-export function validateMtlsCommandOption(
-  value: string | string[] | MtlsConfig | MtlsConfig[]
-): MtlsConfig | undefined {
+export function validateMtlsCommandOption(value: string | string[]): MtlsConfig | undefined {
   if (Array.isArray(value)) {
     const merged: MtlsConfig = {};
 
     for (const item of value) {
       if (!item) continue;
-
-      if (typeof item === 'object' && !Array.isArray(item) && item !== null) {
-        Object.assign(merged, item);
-      } else if (typeof item === 'string') {
+      if (typeof item === 'string') {
         const parsed = parseAndValidateMtlsConfig(item);
         Object.assign(merged, parsed);
       }
@@ -20,17 +15,11 @@ export function validateMtlsCommandOption(
     return Object.keys(merged).length > 0 ? merged : undefined;
   }
 
-  if (!value) return undefined;
-
-  if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-    return value;
+  if (!value || typeof value !== 'string') {
+    return undefined;
   }
 
-  if (typeof value === 'string') {
-    return parseAndValidateMtlsConfig(value);
-  }
-
-  return undefined;
+  return parseAndValidateMtlsConfig(value);
 }
 
 function parseAndValidateMtlsConfig(value: string): MtlsConfig {
