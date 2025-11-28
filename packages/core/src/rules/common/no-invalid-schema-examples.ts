@@ -1,4 +1,5 @@
 import { validateExample } from '../utils.js';
+import { isDefined } from '../../utils/is-defined.js';
 
 import type { UserContext } from '../../walk.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
@@ -9,6 +10,10 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
     Schema: {
       leave(schema: Oas3_1Schema | Oas3Schema, ctx: UserContext) {
         const examples = (schema as Oas3_1Schema).examples;
+        const allowAdditionalProperties = isDefined(opts.allowAdditionalProperties)
+          ? opts.allowAdditionalProperties
+          : true;
+
         if (examples) {
           for (const example of examples) {
             validateExample(
@@ -16,12 +21,12 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
               schema,
               ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
-              !!opts.allowAdditionalProperties
+              allowAdditionalProperties
             );
           }
         }
 
-        if (schema.example !== undefined) {
+        if (isDefined(schema.example)) {
           // Handle nullable example for OAS3
           if (
             (schema as Oas3Schema).nullable === true &&
@@ -31,7 +36,13 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             return;
           }
 
-          validateExample(schema.example, schema, ctx.location.child('example'), ctx, true);
+          validateExample(
+            schema.example,
+            schema,
+            ctx.location.child('example'),
+            ctx,
+            allowAdditionalProperties
+          );
         }
       },
     },
