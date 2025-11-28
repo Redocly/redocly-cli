@@ -51,4 +51,125 @@ describe('no-invalid-parameter-examples', () => {
       ]
     `);
   });
+
+  it('should report on invalid example with additional properties when allowAdditionalProperties is false', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: filter
+                  in: query
+                  schema:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      age:
+                        type: number
+                  example:
+                    name: "John"
+                    age: 30
+                    extraProperty: "not allowed"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-invalid-parameter-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/example/extraProperty",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must NOT have unevaluated properties \`extraProperty\`.",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report on invalid example in examples object when allowAdditionalProperties is false', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: filter
+                  in: query
+                  schema:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                  examples:
+                    invalid:
+                      value:
+                        name: "Jane"
+                        extraProperty: "not allowed"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-invalid-parameter-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/extraProperty",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must NOT have unevaluated properties \`extraProperty\`.",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

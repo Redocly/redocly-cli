@@ -1,0 +1,17 @@
+extends:
+  - recommended
+
+apis:
+  test:
+    root: ./openapi.yaml
+
+rules:
+  no-invalid-schema-examples:
+    severity: error
+    allowAdditionalProperties: true
+  no-invalid-parameter-examples:
+    severity: error
+    allowAdditionalProperties: false
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
