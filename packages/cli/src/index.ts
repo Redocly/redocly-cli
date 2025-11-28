@@ -735,6 +735,7 @@ yargs(hideBin(process.argv))
             describe:
               'Per-domain mutual TLS certificates configuration as JSON. Format: {"<domain>": {"clientCert": "<path>", "clientKey": "<path>", "caCert": "<path>"}}',
             type: 'string',
+            array: true,
             coerce: validateMtlsCommandOption,
           },
           severity: {
