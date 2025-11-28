@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.12.1
+
+### Patch Changes
+
+- Fixed an issue where multiple `--mtls` options in the Respect command did not merge as expected.
+- Updated @redocly/openapi-core to v2.12.1.
+
 ## 2.12.0
 
 ### Minor Changes
