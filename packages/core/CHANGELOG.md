@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.12.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.17.1` and `ajv-formats` to `v3.0.1`.
+
 ## 2.12.0
 
 ### Minor Changes
