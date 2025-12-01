@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.12.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to the `v8.17.1`.
+- Updated @redocly/openapi-core to v2.12.1.
+
 ## 2.12.0
 
 ### Patch Changes
