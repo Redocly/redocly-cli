@@ -12,10 +12,8 @@ export async function evaluatePluginsFromCode(pluginsCode?: string): Promise<Plu
   }
 
   try {
-    // TODO: hotfix for Windows. Related: https://github.com/Redocly/redocly/pull/18127
     const normalizedDirname =
       typeof __dirname === 'undefined' ? '' : __dirname.replaceAll(/\\/g, '/');
-    // https://github.com/Redocly/redocly/pull/17602
     const pluginsCodeWithDirname = pluginsCode.replaceAll(
       '__redocly_dirname',
       `"${normalizedDirname}"`
