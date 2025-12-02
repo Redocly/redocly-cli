@@ -6,7 +6,7 @@ import { version } from './package.js';
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import { ulid } from 'ulid';
 
-import type { CloudEvents } from '@redocly/cli-opentelemetry';
+import type { CloudEvents } from '@redocly/cli-otel';
 
 export class OtelServerTelemetry {
   private nodeTracerProvider: NodeTracerProvider;
@@ -40,11 +40,16 @@ export class OtelServerTelemetry {
       'cloudevents.event_type': cloudEvent.type,
       'cloudevents.event_source': cloudEvent.source,
       'cloudevents.event_spec_version': cloudEvent.specversion,
-      'cloudevents.event_data_content_type': cloudEvent.datacontenttype,
+      'cloudevents.productType': cloudEvent.productType,
+      'cloudevents.event_data_content_type':
+        cloudEvent.datacontenttype || 'application/json; charset=utf-8',
       'cloudevents.event_time': time.toISOString(),
-      'cloudevents.event_origin': cloudEvent.origin,
-      'cloudevents.event_source_details.anonymous_id':
-        cloudEvent.sourceDetails?.anonymous_id ?? 'anonymous',
+      'cloudevents.event_version': '1.0.0',
+      'cloudevents.origin': cloudEvent.origin,
+      'cloudevents.event_origin': cloudEvent.productType,
+      'cloudevents.event_source_details.id': cloudEvent.sourceDetails?.id ?? 'anonymous',
+      'cloudevents.event_source_details.object': cloudEvent.sourceDetails?.object ?? 'anonymous',
+      'cloudevents.event_source_details.uri': cloudEvent.sourceDetails?.uri ?? '',
     };
 
     for (const [key, value] of Object.entries(cloudEvent.data)) {

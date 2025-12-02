@@ -16,7 +16,7 @@ import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import type { Arguments } from 'yargs';
 import type { CommandArgv } from '../types.js';
-import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-opentelemetry';
+import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
 
 const SECRET_REPLACEMENT = '***';
 
@@ -65,17 +65,16 @@ export async function sendTelemetry({
     }
 
     const eventData: EventPayload<EventType> = {
+      id: 'cli-command-run',
+      object: 'command',
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
-      anonymous_id,
       ...cleanArgs(args, process.argv.slice(2)),
       node_version: process.version,
       npm_version: execSync('npm -v').toString().replace('\n', ''),
-      os_platform: os.platform(),
       version,
       exit_code,
       execution_time,
-      environment: process.env.REDOCLY_ENVIRONMENT,
       metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
       environment_ci: process.env.CI,
       has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
@@ -89,18 +88,28 @@ export async function sendTelemetry({
     };
 
     const cloudEvent: CloudEvents.CommandRanMessage = {
-      id: ulid(),
+      id: `evt_${ulid()}`,
       time: new Date().toISOString(),
       type: 'command.ran',
       object: 'event',
       specversion: '1.0',
       datacontenttype: 'application/json',
-      source: 'redocly-cli://telemetry',
-      origin: 'redocly-cli',
+      source: 'com.redocly.cli',
+      origin: 'ui',
       productType: 'redocly-cli',
-      sessionId: `ses_${ulid()}`,
+      os_platform: os.platform(),
+      subjects: [
+        {
+          id: ulid(),
+          object: 'command.ran',
+          uri: '',
+        },
+      ],
+      environment: process.env.REDOCLY_ENVIRONMENT,
       sourceDetails: {
-        anonymous_id,
+        id: anonymous_id,
+        object: 'user',
+        uri: '',
       },
       data: eventData,
     };
