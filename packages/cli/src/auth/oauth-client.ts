@@ -25,8 +25,11 @@ export class RedoclyOAuthClient {
     this.credentialsFileName = 'credentials';
     this.credentialsFilePath = path.join(this.credentialsFolderPath, this.credentialsFileName);
 
-    this.key = crypto.createHash('sha256').update(`${homeDirPath}${CREDENTIALS_SALT}`).digest();
-    this.iv = crypto.createHash('md5').update(homeDirPath).digest();
+    this.key = crypto
+      .createHash('sha256')
+      .update(`${this.credentialsFolderPath}${CREDENTIALS_SALT}`)
+      .digest();
+    this.iv = crypto.createHash('md5').update(this.credentialsFolderPath).digest();
 
     mkdirSync(this.credentialsFolderPath, { recursive: true });
   }
