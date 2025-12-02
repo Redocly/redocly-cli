@@ -12,6 +12,7 @@ import {
 import type { Document } from './resolve.js';
 import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
 import type { Config } from './config/index.js';
+import type { RuleConfig } from './config/types.js';
 import type { Assertion } from './rules/common/assertions/index.js';
 import type { RuleInstanceConfig } from './visitors.js';
 import type { SpecVersion } from './oas-types.js';
@@ -20,45 +21,64 @@ import type { CatalogEntity } from './rules/entity/property-accessor.js';
 /**
  * Extract entity rules from config
  * Entity rules are assertion rules (starting with 'rule/') that have entity subject types
+ * Note: Rules are duplicated across spec versions, so we only check one spec version
+ * and deduplicate by assertionId to be safe
  */
 function getEntityRules(config: Config): Assertion[] {
   const entitySubjectTypes = ['Entity', 'EntityMetadata', 'EntityRelations', 'EntityRelation'];
-  const assertions: Assertion[] = [];
+  const assertionsMap = new Map<string, Assertion>();
 
-  // Check all spec versions for entity rules
+  // Entity rules are not spec-specific, so we only need to check one spec version
+  // Rules are duplicated across all spec versions, so checking one is sufficient
   const specVersions: SpecVersion[] = [
-    'oas2',
     'oas3_0',
     'oas3_1',
     'oas3_2',
+    'oas2',
     'async2',
     'async3',
     'arazzo1',
     'overlay1',
   ];
 
+  // Find the first spec version that has rules
+  let rules: Record<string, RuleConfig> | undefined;
   for (const specVersion of specVersions) {
-    const rules = config.rules[specVersion];
-    if (!rules) continue;
+    if (config.rules[specVersion]) {
+      rules = config.rules[specVersion];
+      break;
+    }
+  }
 
-    // Check if there's an assertions rule
-    const assertionsRule = rules.assertions;
-    if (assertionsRule && Array.isArray(assertionsRule)) {
-      for (const assertion of assertionsRule) {
-        if (
-          assertion &&
-          typeof assertion === 'object' &&
-          'subject' in assertion &&
-          'type' in assertion.subject &&
-          entitySubjectTypes.includes(assertion.subject.type as string)
-        ) {
-          assertions.push(assertion as Assertion);
-        }
+  if (!rules) {
+    return [];
+  }
+
+  // Check if there's an assertions rule
+  const assertionsRule = rules.assertions;
+  if (!assertionsRule || !Array.isArray(assertionsRule)) {
+    return [];
+  }
+
+  for (const assertion of assertionsRule) {
+    if (
+      assertion &&
+      typeof assertion === 'object' &&
+      'subject' in assertion &&
+      'type' in assertion.subject &&
+      entitySubjectTypes.includes(assertion.subject.type as string) &&
+      'assertionId' in assertion
+    ) {
+      // Deduplicate by assertionId (shouldn't be necessary with single spec version check,
+      // but kept for safety in case assertionId format changes)
+      const assertionId = assertion.assertionId as string;
+      if (!assertionsMap.has(assertionId)) {
+        assertionsMap.set(assertionId, assertion as Assertion);
       }
     }
   }
 
-  return assertions;
+  return Array.from(assertionsMap.values());
 }
 
 /**
