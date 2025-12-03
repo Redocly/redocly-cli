@@ -94,6 +94,27 @@ describe('collectXSecurityAuthTypes', () => {
       'SomeSchemeName',
     ]);
   });
+
+  it('should handle documents with no workflows', () => {
+    const respectXSecurityAuthTypesAndSchemeName: string[] = [];
+    const arazzoDocument = {} as Partial<ArazzoDefinition>;
+    collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypesAndSchemeName);
+    expect(respectXSecurityAuthTypesAndSchemeName).toEqual([]);
+  });
+
+  it('should handle workflows with no x-security', () => {
+    const respectXSecurityAuthTypesAndSchemeName: string[] = [];
+    const arazzoDocument = {
+      workflows: [
+        {
+          workflowId: 'workflow1',
+          steps: [],
+        },
+      ],
+    } as Partial<ArazzoDefinition>;
+    collectXSecurityAuthTypes(arazzoDocument, respectXSecurityAuthTypesAndSchemeName);
+    expect(respectXSecurityAuthTypesAndSchemeName).toEqual([]);
+  });
 });
 
 describe('cacheAnonymousId and getCachedAnonymousId', () => {
