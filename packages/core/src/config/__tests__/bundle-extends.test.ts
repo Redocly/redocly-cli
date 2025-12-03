@@ -4,48 +4,93 @@ import type { Plugin, RawGovernanceConfig } from '../types.js';
 import type { UserContext } from '../../walk.js';
 
 describe('bundleExtends', () => {
-  const dummyCtx = {
-    resolve: vi.fn(),
-    getVisitorData: vi.fn(),
-  } as unknown as UserContext;
+  const makeCtx = () =>
+    ({
+      resolve: vi.fn(),
+      getVisitorData: vi.fn(),
+      report: vi.fn(),
+      location: {
+        source: { absoluteRef: 'redocly.yaml' } as any,
+        pointer: '#/rules',
+      },
+    } as unknown as UserContext);
 
   const dummyPlugins: Plugin[] = [];
 
-  it('should throw a descriptive error when extends entry is not a string', () => {
+  it('should report an error when extends entry is not a string', () => {
+    const ctx = makeCtx();
     const node = {
       extends: [42],
     } as unknown as RawGovernanceConfig;
 
-    expect(() => bundleExtends({ node, ctx: dummyCtx, plugins: dummyPlugins })).toThrow(
-      'Invalid "extends" entry at index 0. Expected a non-empty string (ruleset name, path, or URL), but got 42.'
+    const result = bundleExtends({ node, ctx, plugins: dummyPlugins });
+
+    expect(ctx.report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Invalid "extends" entry at index 0 in redocly.yaml. Expected a non-empty string (ruleset name, path, or URL), but got 42.',
+      })
     );
+    // original node should still be returned (with extends preserved for now)
+    expect(result).toEqual(node);
   });
 
-  it('should throw a descriptive error when extends entry is an empty string', () => {
+  it('should report an error when extends entry is an empty string', () => {
+    const ctx = makeCtx();
     const node = {
       extends: ['  '],
     } as unknown as RawGovernanceConfig;
 
-    expect(() => bundleExtends({ node, ctx: dummyCtx, plugins: dummyPlugins })).toThrow(
-      'Invalid "extends" entry at index 0. Expected a non-empty string (ruleset name, path, or URL), but got "  ".'
+    const result = bundleExtends({ node, ctx, plugins: dummyPlugins });
+
+    expect(ctx.report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Invalid "extends" entry at index 0 in redocly.yaml. Expected a non-empty string (ruleset name, path, or URL), but got "  ".',
+      })
     );
+    expect(result).toEqual(node);
   });
 
-  it('should throw a descriptive error when an extends entry cannot be resolved as a file or URL', () => {
+  it('should report an error when an extends entry cannot be resolved as a file or URL', () => {
+    const baseCtx = makeCtx();
     const node = {
       extends: ['missing-config.yaml'],
     } as unknown as RawGovernanceConfig;
 
     const ctx = {
-      ...dummyCtx,
+      ...baseCtx,
       resolve: vi.fn().mockReturnValue({
         location: undefined,
         node: undefined,
       }),
     } as unknown as UserContext;
 
-    expect(() => bundleExtends({ node, ctx, plugins: dummyPlugins })).toThrow(
-      'Could not resolve "extends" entry "missing-config.yaml". Make sure the path, URL, or ruleset name is correct.'
+    const result = bundleExtends({ node, ctx, plugins: dummyPlugins });
+
+    expect(baseCtx.report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Could not resolve "extends" entry "missing-config.yaml" in redocly.yaml. Make sure the path, URL, or ruleset name is correct.',
+      })
     );
+    expect(result).toEqual(node);
+  });
+
+  it('should report an error when an extends entry becomes undefined (e.g. invalid file)', () => {
+    const ctx = makeCtx();
+    const node = {
+      extends: [undefined],
+    } as unknown as RawGovernanceConfig;
+
+    const result = bundleExtends({ node, ctx, plugins: dummyPlugins });
+
+    expect(ctx.report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Could not resolve "extends" entry at index 0 in redocly.yaml. It may refer to a non-existent or invalid rules file.',
+      })
+    );
+    expect(result).toEqual(node);
   });
 });

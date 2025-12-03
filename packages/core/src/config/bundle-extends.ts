@@ -22,12 +22,28 @@ export function bundleExtends({
 
   const resolvedExtends = (node.extends || [])
     .map((presetItem, index) => {
+      const configPath =
+        (ctx.location?.source?.absoluteRef &&
+          path.relative(process.cwd(), ctx.location.source.absoluteRef)) ||
+        ctx.location?.source?.absoluteRef ||
+        'redocly.yaml';
+
+      if (presetItem === undefined) {
+        ctx.report({
+          message: `Could not resolve "extends" entry at index ${index} in ${configPath}. It may refer to a non-existent or invalid rules file.`,
+          location: [ctx.location],
+        });
+        return undefined;
+      }
+
       if (typeof presetItem !== 'string' || !presetItem.trim()) {
-        throw new Error(
-          `Invalid "extends" entry at index ${index}. Expected a non-empty string (ruleset name, path, or URL), but got ${JSON.stringify(
+        ctx.report({
+          message: `Invalid "extends" entry at index ${index} in ${configPath}. Expected a non-empty string (ruleset name, path, or URL), but got ${JSON.stringify(
             presetItem
-          )}.`
-        );
+          )}.`,
+          location: [ctx.location],
+        });
+        return undefined;
       }
 
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
@@ -40,9 +56,11 @@ export function bundleExtends({
         return resolvedRef.node as RawGovernanceConfig;
       }
 
-      throw new Error(
-        `Could not resolve "extends" entry "${presetItem}". Make sure the path, URL, or ruleset name is correct.`
-      );
+      ctx.report({
+        message: `Could not resolve "extends" entry "${presetItem}" in ${configPath}. Make sure the path, URL, or ruleset name is correct.`,
+        location: [ctx.location],
+      });
+      return undefined;
     })
     .filter(isTruthy);
 
