@@ -19,7 +19,7 @@ When a command is run, the following data is collected:
 - whether the `redocly.yaml` configuration file exists
 - API specification version
 - Platform (Linux, macOS, Windows)
-- Anonymous id (a randomly generated identifier that doesn't contain personal information)
+- Anonymous ID (a randomly generated identifier that doesn't contain personal information)
 - Command execution time
 
 Values such as file names, organization IDs, and URLs are removed, replaced by just "URL" or "file", etc.
