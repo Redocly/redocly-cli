@@ -21,16 +21,28 @@ export function bundleExtends({
   }
 
   const resolvedExtends = (node.extends || [])
-    .map((presetItem: string) => {
+    .map((presetItem, index) => {
+      if (typeof presetItem !== 'string' || !presetItem.trim()) {
+        throw new Error(
+          `Invalid "extends" entry at index ${index}. Expected a non-empty string (ruleset name, path, or URL), but got ${JSON.stringify(
+            presetItem
+          )}.`
+        );
+      }
+
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });
+
       if (resolvedRef.location && resolvedRef.node !== undefined) {
         return resolvedRef.node as RawGovernanceConfig;
       }
-      return null;
+
+      throw new Error(
+        `Could not resolve "extends" entry "${presetItem}". Make sure the path, URL, or ruleset name is correct.`
+      );
     })
     .filter(isTruthy);
 
