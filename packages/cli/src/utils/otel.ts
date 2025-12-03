@@ -35,7 +35,7 @@ export class OtelServerTelemetry {
     const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
     const spanName = `event.${cloudEvent.data.command}`;
 
-    const attributes: Record<string, string | number | boolean> = {
+    const attributes: Record<string, string | number | boolean | undefined> = {
       'cloudevents.event_id': cloudEvent.id,
       'cloudevents.event_type': cloudEvent.type,
       'cloudevents.event_source': cloudEvent.source,
@@ -50,6 +50,8 @@ export class OtelServerTelemetry {
       'cloudevents.event_source_details.id': cloudEvent.sourceDetails?.id ?? 'anonymous',
       'cloudevents.event_source_details.object': cloudEvent.sourceDetails?.object ?? 'anonymous',
       'cloudevents.event_source_details.uri': cloudEvent.sourceDetails?.uri ?? '',
+      'cloudevents.event_data.os_platform': cloudEvent.os_platform,
+      'cloudevents.event_data.environment': cloudEvent.environment,
     };
 
     for (const [key, value] of Object.entries(cloudEvent.data)) {
