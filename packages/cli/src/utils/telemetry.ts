@@ -107,7 +107,7 @@ export async function sendTelemetry({
       ],
       environment: process.env.REDOCLY_ENVIRONMENT,
       sourceDetails: {
-        id: anonymous_id,
+        id: !process.env.CI ? anonymous_id : undefined,
         object: 'user',
         uri: '',
       },
