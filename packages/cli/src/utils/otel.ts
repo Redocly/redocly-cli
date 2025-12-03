@@ -47,7 +47,7 @@ export class OtelServerTelemetry {
       'cloudevents.event_version': '1.0.0',
       'cloudevents.origin': cloudEvent.origin,
       'cloudevents.event_origin': cloudEvent.productType,
-      'cloudevents.event_source_details.id': cloudEvent.sourceDetails?.id ?? 'anonymous',
+      'cloudevents.event_source_details.id': cloudEvent.sourceDetails?.id ?? '',
       'cloudevents.event_source_details.object': cloudEvent.sourceDetails?.object ?? 'anonymous',
       'cloudevents.event_source_details.uri': cloudEvent.sourceDetails?.uri ?? '',
       'cloudevents.event_data.os_platform': cloudEvent.os_platform,
