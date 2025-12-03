@@ -3,14 +3,12 @@ import { join } from 'node:path';
 import { existsSync, unlinkSync } from 'node:fs';
 import {
   collectXSecurityAuthTypes,
-  cleanArgs,
   cacheAnonymousId,
   getCachedAnonymousId,
 } from '../../utils/telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from '../../utils/constants.js';
 
 import type { ArazzoDefinition } from '@redocly/openapi-core';
-import type { CommandArgv } from '../../types.js';
 
 describe('collectXSecurityAuthTypes', () => {
   it('should collect X-Security Auth types and schemeNames', () => {
@@ -100,24 +98,19 @@ describe('collectXSecurityAuthTypes', () => {
 
 describe('cacheAnonymousId and getCachedAnonymousId', () => {
   const anonymousIdFile = join(tmpdir(), ANONYMOUS_ID_CACHE_FILE);
-  const originalCI = process.env.CI;
 
   beforeEach(() => {
     if (existsSync(anonymousIdFile)) {
       unlinkSync(anonymousIdFile);
     }
-    delete process.env.CI;
+    vi.unstubAllEnvs();
   });
 
   afterEach(() => {
     if (existsSync(anonymousIdFile)) {
       unlinkSync(anonymousIdFile);
     }
-    if (originalCI) {
-      process.env.CI = originalCI;
-    } else {
-      delete process.env.CI;
-    }
+    vi.unstubAllEnvs();
   });
 
   it('should cache and retrieve anonymous ID', () => {
