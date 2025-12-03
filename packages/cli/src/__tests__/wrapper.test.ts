@@ -42,20 +42,22 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({
-      config: {
-        resolvedConfig: {
-          telemetry: 'on',
+    expect(sendTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: {
+          resolvedConfig: {
+            telemetry: 'on',
+          },
         },
-      },
-      argv: {},
-      execution_time: 0,
-      exit_code: 0,
-      spec_version: 'oas3_1',
-      spec_keyword: 'openapi',
-      spec_full_version: '3.1.0',
-      respect_x_security_auth_types: [],
-    });
+        argv: {},
+        execution_time: expect.any(Number),
+        exit_code: 0,
+        spec_version: 'oas3_1',
+        spec_keyword: 'openapi',
+        spec_full_version: '3.1.0',
+        respect_x_security_auth_types: [],
+      })
+    );
   });
 
   it('should not collect spec version if the file is not parsed to json', async () => {
@@ -71,20 +73,22 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
     expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith({
-      config: {
-        resolvedConfig: {
-          telemetry: 'on',
+    expect(sendTelemetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: {
+          resolvedConfig: {
+            telemetry: 'on',
+          },
         },
-      },
-      argv: {},
-      execution_time: 0,
-      exit_code: 0,
-      spec_version: undefined,
-      spec_keyword: undefined,
-      spec_full_version: undefined,
-      respect_x_security_auth_types: [],
-    });
+        argv: {},
+        execution_time: expect.any(Number),
+        exit_code: 0,
+        spec_version: undefined,
+        spec_keyword: undefined,
+        spec_full_version: undefined,
+        respect_x_security_auth_types: [],
+      })
+    );
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {

@@ -134,7 +134,9 @@ describe('cacheAnonymousId and getCachedAnonymousId', () => {
     vi.unstubAllEnvs();
   });
 
-  it('should cache and retrieve anonymous ID', () => {
+  it('should cache and retrieve anonymous ID if it is not in CI', () => {
+    process.env.CI = '';
+
     const testId = 'ann_test123';
 
     cacheAnonymousId(testId);
