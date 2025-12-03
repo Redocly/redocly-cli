@@ -200,4 +200,154 @@ describe('Oas3 path-params-defined', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should not report on undefined params in callback for next operation in same path item', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl}':
+                    post:
+                      summary: Callback endpoint
+                      responses:
+                        '200':
+                          description: OK
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        callbackUrl:
+                          type: string
+              responses:
+                '201':
+                  description: Created
+
+            patch:
+              operationId: updateProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              responses:
+                '200':
+                  description: OK
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should fail on undefined or missing params in callback', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl/{missingId}}':
+                    post:
+                      parameters:
+                        - name: notDefinedId
+                          in: path
+                          required: true
+                          schema:
+                            type: string
+                      responses:
+                        '200':
+                          description: OK
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        callbackUrl:
+                          type: string
+              responses:
+                '201':
+                  description: Created
+
+            patch:
+              operationId: updateProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              responses:
+                '200':
+                  description: OK
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl~1{missingId}}/post/parameters/0/name",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Path parameter \`notDefinedId\` is not used in the path \`{$request.body#/callbackUrl/{missingId}}\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl~1{missingId}}/post/parameters",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The operation does not define the path parameter \`{missingId}\` expected by path \`{$request.body#/callbackUrl/{missingId}}\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
