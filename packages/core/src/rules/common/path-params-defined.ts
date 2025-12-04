@@ -6,7 +6,7 @@ import type { UserContext } from '../../walk.js';
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
 
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
-  let apiPathContext: {
+  let rootPathContext: {
     path: string;
     templateParams: Set<string>;
     definedParams: Set<string>;
@@ -26,21 +26,21 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
           currentPath = pathKey;
           pathTemplateParams = extractTemplateParams(pathKey);
 
-          apiPathContext = {
+          rootPathContext = {
             path: pathKey,
             templateParams: new Set(pathTemplateParams),
             definedParams: new Set(definedPathParams),
           };
         },
         leave() {
-          apiPathContext = null;
+          rootPathContext = null;
         },
         Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
           if (parameter.in === 'path' && parameter.name) {
             definedPathParams.add(parameter.name);
 
-            if (apiPathContext) {
-              apiPathContext.definedParams = new Set(definedPathParams);
+            if (rootPathContext) {
+              rootPathContext.definedParams = new Set(definedPathParams);
             }
             validatePathParameter(
               parameter.name,
@@ -60,15 +60,15 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
               return;
             }
 
-            if (!apiPathContext) return;
+            if (!rootPathContext) return;
 
             collectPathParamsFromOperation(_op, definedOperationParams);
 
             validateRequiredPathParams(
-              apiPathContext.templateParams,
+              rootPathContext.templateParams,
               definedOperationParams,
               definedPathParams,
-              apiPathContext.path,
+              rootPathContext.path,
               report,
               location
             );
@@ -79,7 +79,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
                 return;
               }
               definedOperationParams.add(parameter.name);
-              const context = apiPathContext!;
+              const context = rootPathContext!;
               validatePathParameter(
                 parameter.name,
                 context.templateParams,
