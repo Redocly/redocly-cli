@@ -715,6 +715,21 @@ describe('cleanArgs', () => {
       })
     );
   });
+
+  it('should clean non-existent file paths that look like files', () => {
+    const rawInput = ['redocly', 'lint', '/Users/username/test/openapi.yam'];
+    const parsedArgs = {
+      apis: ['/Users/username/test/openapi.yam'],
+    };
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly lint invalid-file');
+    expect(result.arguments).toEqual(
+      JSON.stringify({
+        apis: ['invalid-file'],
+      })
+    );
+  });
 });
 
 describe('validateFileExtension', () => {
