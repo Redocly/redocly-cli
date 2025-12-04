@@ -181,10 +181,6 @@ function cleanString(value: string): string {
     return 'folder';
   }
 
-  if ((value.includes('/') || value.includes('\\')) && /\.[^./\\]+$/.test(value)) {
-    return value.replace(/.+\.([^.]+)$/, 'invalid-file');
-  }
-
   return value;
 }
 
