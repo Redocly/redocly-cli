@@ -95,7 +95,7 @@ export async function sendTelemetry({
       specversion: '1.0',
       datacontenttype: 'application/json',
       source: 'com.redocly.cli',
-      origin: 'ui',
+      origin: 'cli',
       productType: 'redocly-cli',
       os_platform: os.platform(),
       subjects: [
@@ -107,7 +107,7 @@ export async function sendTelemetry({
       ],
       environment: process.env.REDOCLY_ENVIRONMENT,
       sourceDetails: {
-        id: !process.env.CI ? anonymous_id : undefined,
+        id: anonymous_id,
         object: 'user',
         uri: '',
       },
