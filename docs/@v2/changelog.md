@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.12.3 (2025-12-05)
+
+### Patch Changes
+
+- Updated telemetry implementation to use standardized OpenTelemetry format.
+- Updated @redocly/openapi-core to v2.12.3.
+
 ## 2.12.2 (2025-12-02)
 
 ### Patch Changes
