@@ -350,4 +350,66 @@ describe('Oas3 path-params-defined', () => {
       ]
     `);
   });
+
+  it('should fail on too deep callback nesting with 4 levels', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.1
+        paths:
+          /projects/{projectId}:
+            post:
+              operationId: createProject
+              parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+              callbacks:
+                onEvent:
+                  '{$request.body#/callbackUrl}':
+                    post:
+                      summary: Callback endpoint
+                      callbacks:
+                        onEvent:
+                          '{$request.body#/callbackUrl}':
+                            post:
+                              summary: Callback endpoint
+                              callbacks:
+                                onEvent:
+                                  '{$request.body#/callbackUrl}':
+                                    post:
+                                      summary: Callback endpoint
+                                      callbacks:
+                                        onEvent:
+                                          '{$request.body#/callbackUrl}':
+                                            post:
+                                              summary: Callback endpoint
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Maximum callback nesting depth (4) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
