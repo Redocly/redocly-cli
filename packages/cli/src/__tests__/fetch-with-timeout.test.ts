@@ -1,6 +1,5 @@
 import AbortController from 'abort-controller';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import { Agent } from 'undici';
+import { Agent, ProxyAgent } from 'undici';
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import * as proxyAgent from '../utils/proxy-agent.js';
 
@@ -64,12 +63,17 @@ describe('fetchWithTimeout', () => {
   });
 
   it('should call fetch with proxy agent', async () => {
-    const dispatcher = new HttpsProxyAgent('http://localhost');
-    vi.spyOn(proxyAgent, 'getProxyAgent').mockReturnValueOnce(dispatcher);
+    const proxyUrl = 'http://localhost:8080';
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce(proxyUrl);
 
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith('url', { dispatcher });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'url',
+      expect.objectContaining({
+        dispatcher: expect.any(ProxyAgent),
+      })
+    );
   });
 
   it('should call fetch without signal and without dispatcher when timeout is not passed', async () => {
