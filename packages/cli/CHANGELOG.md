@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.12.3
+
+### Patch Changes
+
+- Updated telemetry implementation to use standardized OpenTelemetry format.
+- Updated @redocly/openapi-core to v2.12.3.
+
 ## 2.12.2
 
 ### Patch Changes
