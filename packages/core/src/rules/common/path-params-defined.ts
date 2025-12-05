@@ -12,40 +12,37 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
     definedParams: Set<string>;
   } | null = null;
 
-  let currentPath: string;
-  let pathTemplateParams: Set<string>;
-  let definedPathParams: Set<string>;
-  let definedOperationParams: Set<string>;
+  let callbackPathContext: {
+    path: string;
+    templateParams: Set<string>;
+    definedParams: Set<string>;
+  } | null = null;
+
+  let currentOperationParams: Set<string> | null = null;
 
   return {
     Paths: {
       PathItem: {
         enter(_: object, { key }: UserContext) {
           const pathKey = key as string;
-          definedPathParams = new Set();
-          currentPath = pathKey;
-          pathTemplateParams = extractTemplateParams(pathKey);
+          const templateParams = extractTemplateParams(pathKey);
 
           rootPathContext = {
             path: pathKey,
-            templateParams: new Set(pathTemplateParams),
-            definedParams: new Set(definedPathParams),
+            templateParams,
+            definedParams: new Set(),
           };
         },
         leave() {
           rootPathContext = null;
         },
         Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-          if (parameter.in === 'path' && parameter.name) {
-            definedPathParams.add(parameter.name);
-
-            if (rootPathContext) {
-              rootPathContext.definedParams = new Set(definedPathParams);
-            }
+          if (parameter.in === 'path' && parameter.name && rootPathContext) {
+            rootPathContext.definedParams.add(parameter.name);
             validatePathParameter(
               parameter.name,
-              pathTemplateParams,
-              currentPath,
+              rootPathContext.templateParams,
+              rootPathContext.path,
               report,
               location
             );
@@ -53,21 +50,21 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         },
         Operation: {
           enter() {
-            definedOperationParams = new Set();
+            currentOperationParams = new Set();
           },
           leave(_op: unknown, { report, location }: UserContext) {
             if (location.pointer.includes('/callbacks/')) {
               return;
             }
 
-            if (!rootPathContext) return;
+            if (!rootPathContext || !currentOperationParams) return;
 
-            collectPathParamsFromOperation(_op, definedOperationParams);
+            collectPathParamsFromOperation(_op, currentOperationParams);
 
             validateRequiredPathParams(
               rootPathContext.templateParams,
-              definedOperationParams,
-              definedPathParams,
+              currentOperationParams,
+              rootPathContext.definedParams,
               rootPathContext.path,
               report,
               location
@@ -78,15 +75,16 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
               if (location.pointer.includes('/callbacks/')) {
                 return;
               }
-              definedOperationParams.add(parameter.name);
-              const context = rootPathContext!;
-              validatePathParameter(
-                parameter.name,
-                context.templateParams,
-                context.path,
-                report,
-                location
-              );
+              if (rootPathContext && currentOperationParams) {
+                currentOperationParams.add(parameter.name);
+                validatePathParameter(
+                  parameter.name,
+                  rootPathContext.templateParams,
+                  rootPathContext.path,
+                  report,
+                  location
+                );
+              }
             }
           },
         },
@@ -96,17 +94,24 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
       PathItem: {
         enter(_: object, { key }: UserContext) {
           const pathKey = key as string;
-          definedPathParams = new Set();
-          currentPath = pathKey;
-          pathTemplateParams = extractTemplateParams(pathKey);
+          const templateParams = extractTemplateParams(pathKey);
+
+          callbackPathContext = {
+            path: pathKey,
+            templateParams,
+            definedParams: new Set(),
+          };
+        },
+        leave() {
+          callbackPathContext = null;
         },
         Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-          if (parameter.in === 'path' && parameter.name) {
-            definedPathParams.add(parameter.name);
+          if (parameter.in === 'path' && parameter.name && callbackPathContext) {
+            callbackPathContext.definedParams.add(parameter.name);
             validatePathParameter(
               parameter.name,
-              pathTemplateParams,
-              currentPath,
+              callbackPathContext.templateParams,
+              callbackPathContext.path,
               report,
               location
             );
@@ -114,27 +119,34 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         },
         Operation: {
           enter() {
-            definedOperationParams = new Set();
+            currentOperationParams = new Set();
           },
           leave(_op: unknown, { report, location }: UserContext) {
-            collectPathParamsFromOperation(_op, definedOperationParams);
+            if (!callbackPathContext || !currentOperationParams) return;
+
+            collectPathParamsFromOperation(_op, currentOperationParams);
 
             validateRequiredPathParams(
-              pathTemplateParams,
-              definedOperationParams,
-              definedPathParams,
-              currentPath,
+              callbackPathContext.templateParams,
+              currentOperationParams,
+              callbackPathContext.definedParams,
+              callbackPathContext.path,
               report,
               location
             );
           },
           Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-            if (parameter.in === 'path' && parameter.name) {
-              definedOperationParams.add(parameter.name);
+            if (
+              parameter.in === 'path' &&
+              parameter.name &&
+              callbackPathContext &&
+              currentOperationParams
+            ) {
+              currentOperationParams.add(parameter.name);
               validatePathParameter(
                 parameter.name,
-                pathTemplateParams,
-                currentPath,
+                callbackPathContext.templateParams,
+                callbackPathContext.path,
                 report,
                 location
               );
