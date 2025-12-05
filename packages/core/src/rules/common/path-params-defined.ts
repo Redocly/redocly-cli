@@ -92,32 +92,23 @@ const createEmptyOperationHandlers = (maxDepth: number): OperationHandlers => {
     }
   };
 
-  // Return empty no-op handlers that report a warning on first use
   return {
     enter: () => {},
     leave(_op: unknown, { report, location }: UserContext) {
       reportMaxDepthWarning(report, location);
     },
-    Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-      reportMaxDepthWarning(report, location);
-    },
+    Parameter: () => {},
     Callback: {
       PathItem: {
         enter(_: object, { report, location }: UserContext) {
           reportMaxDepthWarning(report, location);
         },
         leave: () => {},
-        Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-          reportMaxDepthWarning(report, location);
-        },
+        Parameter: () => {},
         Operation: {
           enter: () => {},
-          leave(_op: unknown, { report, location }: UserContext) {
-            reportMaxDepthWarning(report, location);
-          },
-          Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-            reportMaxDepthWarning(report, location);
-          },
+          leave: () => {},
+          Parameter: () => {},
           Callback: {},
         },
       },
@@ -134,20 +125,25 @@ const createOperationHandlers = (
     return createEmptyOperationHandlers(MAX_DEPTH);
   }
 
-  const createCallbackPathItem = () => ({
-    enter(_: object, { key }: UserContext) {
-      pathItemEnter(pathContext, key as string);
-    },
-    leave() {
-      pathItemLeave(pathContext);
-    },
-    Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-      createPathItemParameterHandler(parameter, pathContext, report, location);
-    },
-    get Operation() {
-      return createOperationHandlers(pathContext, operationParams, depth + 1);
-    },
-  });
+  const createCallbackPathItem = () => {
+    let parentPathContext: PathContext | null = null;
+
+    return {
+      enter(_: object, { key }: UserContext) {
+        parentPathContext = pathContext.current;
+        pathItemEnter(pathContext, key as string);
+      },
+      leave() {
+        pathContext.current = parentPathContext;
+      },
+      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
+        createPathItemParameterHandler(parameter, pathContext, report, location);
+      },
+      get Operation() {
+        return createOperationHandlers(pathContext, operationParams, depth + 1);
+      },
+    };
+  };
 
   return {
     enter() {
@@ -168,12 +164,10 @@ const createOperationHandlers = (
       );
     },
     Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-      if (
-        parameter.in === 'path' &&
-        parameter.name &&
-        pathContext.current &&
-        operationParams.current
-      ) {
+      if (parameter.in === 'path' && parameter.name && pathContext.current) {
+        if (!operationParams.current) {
+          operationParams.current = new Set();
+        }
         operationParams.current.add(parameter.name);
         validatePathParameter(
           parameter.name,
