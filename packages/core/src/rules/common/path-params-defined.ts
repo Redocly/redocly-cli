@@ -4,7 +4,7 @@ import type { Oas3Parameter } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
-const MAX_DEPTH = 4;
+const MAX_DEPTH = 2;
 
 type PathContext = {
   path: string;
@@ -16,7 +16,7 @@ type OperationHandlers = {
   enter: () => void;
   leave: (op: unknown, ctx: UserContext) => void;
   Parameter: (parameter: Oas2Parameter | Oas3Parameter, ctx: UserContext) => void;
-  Callback: {
+  Callback?: {
     PathItem: {
       enter: (node: object, ctx: UserContext) => void;
       leave: () => void;
@@ -28,7 +28,7 @@ type OperationHandlers = {
 
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   const pathContext = { current: null as PathContext | null };
-  const operationParams = { current: null as Set<string> | null };
+  const currentOperationParams = new Set<string>();
 
   return {
     PathItem: {
@@ -41,7 +41,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
       Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
         createPathItemParameterHandler(parameter, pathContext, report, location);
       },
-      Operation: createOperationHandlers(pathContext, operationParams),
+      Operation: createOperationHandlers(pathContext, currentOperationParams),
     },
   };
 };
@@ -109,16 +109,15 @@ const createEmptyOperationHandlers = (maxDepth: number): OperationHandlers => {
           enter: () => {},
           leave: () => {},
           Parameter: () => {},
-          Callback: {},
         },
       },
     },
-  } as unknown as OperationHandlers;
+  };
 };
 
 const createOperationHandlers = (
   pathContext: { current: PathContext | null },
-  operationParams: { current: Set<string> | null },
+  currentOperationParams: Set<string>,
   depth = 0
 ): OperationHandlers => {
   if (depth >= MAX_DEPTH) {
@@ -140,23 +139,23 @@ const createOperationHandlers = (
         createPathItemParameterHandler(parameter, pathContext, report, location);
       },
       get Operation() {
-        return createOperationHandlers(pathContext, operationParams, depth + 1);
+        return createOperationHandlers(pathContext, currentOperationParams, depth + 1);
       },
     };
   };
 
   return {
     enter() {
-      operationParams.current = new Set();
+      currentOperationParams = new Set();
     },
     leave(_op: unknown, { report, location }: UserContext) {
-      if (!pathContext.current || !operationParams.current) return;
+      if (!pathContext.current || !currentOperationParams) return;
 
-      collectPathParamsFromOperation(_op, operationParams.current);
+      collectPathParamsFromOperation(_op, currentOperationParams);
 
       validateRequiredPathParams(
         pathContext.current.templateParams,
-        operationParams.current,
+        currentOperationParams,
         pathContext.current.definedParams,
         pathContext.current.path,
         report,
@@ -165,10 +164,10 @@ const createOperationHandlers = (
     },
     Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
       if (parameter.in === 'path' && parameter.name && pathContext.current) {
-        if (!operationParams.current) {
-          operationParams.current = new Set();
+        if (!currentOperationParams) {
+          currentOperationParams = new Set();
         }
-        operationParams.current.add(parameter.name);
+        currentOperationParams.add(parameter.name);
         validatePathParameter(
           parameter.name,
           pathContext.current.templateParams,
