@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue with the `HTTP_PROXY` environment variable for the `push` command.
+Fixed an issue with the `HTTP_PROXY` variable for the `push` command.
