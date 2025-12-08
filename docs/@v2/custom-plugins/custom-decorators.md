@@ -211,7 +211,7 @@ decorators:
   plugin2/decoratorC: on
 ```
 
-The execution order in this case is going to be: `plugin2/decoratorC` -> `plugin1/decoratorB` -> `plugin1/decoratorA`.
+The execution order in this case is: `plugin2/decoratorC` -> `plugin1/decoratorB` -> `plugin1/decoratorA`.
 
 ## Preprocessors
 
