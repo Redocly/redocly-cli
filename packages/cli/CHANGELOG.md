@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.12.4
+
+### Patch Changes
+
+- Fixed a compatibility issue with `HTTP_PROXY` environment variable for the `push` command.
+- Updated @redocly/openapi-core to v2.12.4.
+
 ## 2.12.3
 
 ### Patch Changes

@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.12.4 (2025-12-08)
+
+### Patch Changes
+
+- Fixed a compatibility issue with `HTTP_PROXY` environment variable for the `push` command.
+- Updated @redocly/openapi-core to v2.12.4.
+
 ## 2.12.3 (2025-12-05)
 
 ### Patch Changes

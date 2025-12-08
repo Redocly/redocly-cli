@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.12.4
+
+### Patch Changes
+
+- Fixed false positive reports for path parameters in callback operations reported by the `path-parameters-defined` rule.
+
 ## 2.12.3
 
 ## 2.12.2
