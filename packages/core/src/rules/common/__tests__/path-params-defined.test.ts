@@ -375,11 +375,6 @@ describe('Oas3 path-params-defined', () => {
                           '{$request.body#/callbackUrl}':
                             post:
                               summary: Callback endpoint
-                              callbacks:
-                                onEvent:
-                                  '{$request.body#/callbackUrl}':
-                                    post:
-                                      summary: Callback endpoint
       `,
       'foobar.yaml'
     );
@@ -394,7 +389,7 @@ describe('Oas3 path-params-defined', () => {
         {
           "location": [
             {
-              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}",
+              "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post/callbacks/onEvent/{$request.body#~1callbackUrl}/post",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },

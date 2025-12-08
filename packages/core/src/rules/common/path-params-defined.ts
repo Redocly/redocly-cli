@@ -4,26 +4,12 @@ import type { Oas3Parameter } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
-const MAX_DEPTH = 2;
+const MAX_DEPTH = 2; // Only first callback level is supported
 
 type PathContext = {
   path: string;
   templateParams: Set<string>;
   definedParams: Set<string>;
-};
-
-type OperationHandlers = {
-  enter: () => void;
-  leave: (op: unknown, ctx: UserContext) => void;
-  Parameter: (parameter: Oas2Parameter | Oas3Parameter, ctx: UserContext) => void;
-  Callback?: {
-    PathItem: {
-      enter: (node: object, ctx: UserContext) => void;
-      leave: () => void;
-      Parameter: (parameter: Oas2Parameter | Oas3Parameter, ctx: UserContext) => void;
-      Operation: OperationHandlers;
-    };
-  };
 };
 
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
@@ -76,52 +62,30 @@ const createPathItemParameterHandler = (
   }
 };
 
-const createEmptyOperationHandlers = (maxDepth: number): OperationHandlers => {
-  let warningReported = false;
-
-  const reportMaxDepthWarning = (
-    report: UserContext['report'],
-    location: UserContext['location']
-  ) => {
-    if (!warningReported) {
-      warningReported = true;
-      report({
-        message: `Maximum callback nesting depth (${maxDepth}) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.`,
-        location: location,
-      });
-    }
-  };
-
-  return {
-    enter: () => {},
-    leave(_op: unknown, { report, location }: UserContext) {
-      reportMaxDepthWarning(report, location);
-    },
-    Parameter: () => {},
-    Callback: {
-      PathItem: {
-        enter(_: object, { report, location }: UserContext) {
-          reportMaxDepthWarning(report, location);
-        },
-        leave: () => {},
-        Parameter: () => {},
-        Operation: {
-          enter: () => {},
-          leave: () => {},
-          Parameter: () => {},
-        },
-      },
-    },
-  };
-};
-
 const createOperationHandlers = (
   pathContext: { current: PathContext | null },
   currentOperationParams: Set<string>,
   depth = 0
-): OperationHandlers => {
+) => {
+  const reportMaxDepthWarning = (
+    report: UserContext['report'],
+    location: UserContext['location'],
+    depth: number
+  ) => {
+    report({
+      message: `Maximum callback nesting depth (${depth}) reached. Path parameter validation is limited beyond this depth to prevent infinite recursion.`,
+      location: location,
+    });
+  };
   if (depth >= MAX_DEPTH) {
-    return createEmptyOperationHandlers(MAX_DEPTH);
+    return {
+      enter: () => {},
+      leave: (_op: unknown, { report, location }: UserContext) => {
+        reportMaxDepthWarning(report, location, depth);
+      },
+      Parameter: () => {},
+      Callback: undefined,
+    };
   }
 
   const createCallbackPathItem = () => {
