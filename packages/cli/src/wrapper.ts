@@ -26,6 +26,7 @@ export function commandWrapper<T extends CommandArgv>(
   commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
 ) {
   return async (argv: Arguments<T>) => {
+    const startedAt = performance.now();
     let code: ExitCode = 2;
     let telemetry;
     let specVersion: string = 'unknown';
@@ -53,6 +54,9 @@ export function commandWrapper<T extends CommandArgv>(
         : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
+      } else {
+        // Ensure specFullVersion is undefined if specKeyword is not found
+        specFullVersion = undefined;
       }
 
       if (specVersion === 'arazzo1') {
@@ -85,10 +89,12 @@ export function commandWrapper<T extends CommandArgv>(
       }
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
+        const executionTime = Math.round(performance.now() - startedAt);
         await sendTelemetry({
           config,
           argv,
           exit_code: code,
+          execution_time: executionTime,
           spec_version: specVersion,
           spec_keyword: specKeyword,
           spec_full_version: specFullVersion,
