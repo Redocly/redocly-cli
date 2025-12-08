@@ -128,9 +128,6 @@ const createOperationHandlers = (
     },
     Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
       if (parameter.in === 'path' && parameter.name && pathContext.current) {
-        if (!currentOperationParams) {
-          currentOperationParams = new Set();
-        }
         currentOperationParams.add(parameter.name);
         validatePathParameter(
           parameter.name,
