@@ -54,11 +54,6 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --verbose             | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
 | --help                | boolean  | Help output for the command.                                                                                                                                                           |
 
-## Constraints
-
-- Maximum file size: 10 MB per file
-- Maximum number of files: 100
-
 ## Example usage
 
 ### Push files to the `push-docs` project in the default organization
