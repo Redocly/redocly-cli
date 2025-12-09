@@ -1,7 +1,5 @@
 import { writeFileSync } from 'node:fs';
-import { logger, getLineColLocation } from '@redocly/openapi-core';
-import { blue, green } from 'colorette';
-import { formatPath, getExecutionTime } from '../../../utils/miscellaneous.js';
+import { getLineColLocation } from '@redocly/openapi-core';
 
 import type { ScorecardProblem } from '../types.js';
 
@@ -50,11 +48,9 @@ function stripAnsiCodes(text: string): string {
 }
 
 export function exportScorecardResultsToJson(
-  path: string,
   problems: ScorecardProblem[],
   outputPath: string
 ): void {
-  const startedAt = performance.now();
   const groupedByLevel: Record<string, ScorecardProblem[]> = {};
 
   for (const problem of problems) {
@@ -101,19 +97,5 @@ export function exportScorecardResultsToJson(
     };
   }
 
-  try {
-    writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf-8');
-    const elapsed = getExecutionTime(startedAt);
-    logger.info(
-      `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(
-        outputPath || 'stdout'
-      )} ${green(elapsed)}.\n`
-    );
-  } catch (error) {
-    logger.info(
-      `❌ Errors encountered while bundling ${blue(
-        formatPath(path)
-      )}: bundle not created (use --force to ignore errors).\n`
-    );
-  }
+  writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf-8');
 }

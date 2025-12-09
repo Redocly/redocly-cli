@@ -1,5 +1,5 @@
 import { logger, getLineColLocation } from '@redocly/openapi-core';
-import { gray, green, yellow, red, cyan, bold, white } from 'colorette';
+import { gray, yellow, red, cyan, bold, white } from 'colorette';
 
 import type { ScorecardProblem } from '../types.js';
 
@@ -29,14 +29,7 @@ function formatStylishProblem(
   return `  ${location}  ${severity}  ${level}  ${ruleId}  ${problem.message}`;
 }
 
-export function printScorecardResults(problems: ScorecardProblem[], apiPath: string): void {
-  logger.info(`\n${bold('Scorecard Classic results for')} ${cyan(apiPath)}:\n`);
-
-  if (problems.length === 0) {
-    logger.info(green('✅ No issues found! Your API meets all scorecard requirements.\n'));
-    return;
-  }
-
+export function printScorecardResults(problems: ScorecardProblem[]): void {
   const problemsByLevel = problems.reduce((acc, problem) => {
     const level = problem.scorecardLevel || 'Unknown';
     if (!acc[level]) {
@@ -69,7 +62,6 @@ export function printScorecardResults(problems: ScorecardProblem[], apiPath: str
         gray(` (${severityCounts.error || 0} errors, ${severityCounts.warn || 0} warnings) \n`)
     );
 
-    // Calculate padding for alignment
     const locationPad = Math.max(
       ...levelProblems.map((p) => {
         const loc = p.location?.[0];
@@ -77,9 +69,9 @@ export function printScorecardResults(problems: ScorecardProblem[], apiPath: str
           const lineColLoc = getLineColLocation(loc);
           return `${lineColLoc.start.line}:${lineColLoc.start.col}`.length;
         }
-        return 3; // "0:0".length
+        return 3;
       }),
-      8 // minimum padding
+      8
     );
 
     const ruleIdPad = Math.max(...levelProblems.map((p) => p.ruleId.length));

@@ -1,4 +1,4 @@
-import { formatPath, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { BaseResolver, bundle, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
@@ -6,12 +6,13 @@ import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { exportScorecardResultsToJson } from './formatters/json-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
-import { gray } from 'colorette';
+import { blue, gray, green } from 'colorette';
 
 import type { ScorecardClassicArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 
 export async function handleScorecardClassic({ argv, config }: CommandArgs<ScorecardClassicArgv>) {
+  const startedAt = performance.now();
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
@@ -48,9 +49,40 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
     remoteScorecardAndPlugins?.plugins
   );
 
+  if (result.length === 0) {
+    logger.output(
+      green(
+        `✅ No issues found for ${blue(
+          formatPath(path)
+        )}. Your API meets all scorecard requirements.\n`
+      )
+    );
+    return;
+  }
+
   if (argv.output) {
-    exportScorecardResultsToJson(path, result, argv.output);
+    try {
+      exportScorecardResultsToJson(result, argv.output);
+      const elapsed = getExecutionTime(startedAt);
+      logger.info(
+        `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
+          elapsed
+        )}.\n`
+      );
+    } catch (error) {
+      logger.info(
+        `❌ Errors encountered while bundling ${blue(
+          formatPath(path)
+        )}: bundle not created (use --force to ignore errors).\n`
+      );
+    }
   } else {
-    printScorecardResults(result, path);
+    printScorecardResults(result);
+    const elapsed = getExecutionTime(startedAt);
+    logger.info(
+      `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
+        elapsed
+      )}.\n`
+    );
   }
 }
