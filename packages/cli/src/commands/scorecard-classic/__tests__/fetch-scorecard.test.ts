@@ -3,7 +3,7 @@ import * as errorUtils from '../../../utils/error.js';
 
 describe('fetchRemoteScorecardAndPlugins', () => {
   const mockFetch = vi.fn();
-  const validProjectUrl = 'https://app.redocly.com/org/test-org/project/test-project';
+  const validProjectUrl = 'https://app.valid-url.com/org/test-org/project/test-project';
   const testToken = 'test-token';
 
   beforeEach(() => {
