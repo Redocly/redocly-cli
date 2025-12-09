@@ -1,4 +1,4 @@
-import { exitWithError } from 'cli/src/utils/error.js';
+import { exitWithError } from '../../../utils/error.js';
 
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
