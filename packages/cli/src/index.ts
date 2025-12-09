@@ -811,6 +811,11 @@ yargs(hideBin(process.argv))
           describe: 'URL to the project scorecard configuration.',
           type: 'string',
         },
+        output: {
+          describe: 'Output file for JSON results.',
+          type: 'string',
+          alias: 'o',
+        },
       });
     },
     async (argv) => {

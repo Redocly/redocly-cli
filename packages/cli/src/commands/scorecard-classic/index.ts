@@ -1,10 +1,12 @@
-import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { formatPath, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { BaseResolver, bundle, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
+import { exportScorecardResultsToJson } from './formatters/json-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
+import { gray } from 'colorette';
 
 import type { ScorecardClassicArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -37,7 +39,7 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
     );
   }
 
-  logger.info(`\nRunning Scorecard Classic...\n`);
+  logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
   const result = await validateScorecard(
     document,
     externalRefResolver,
@@ -46,5 +48,9 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
     remoteScorecardAndPlugins?.plugins
   );
 
-  printScorecardResults(result, path);
+  if (argv.output) {
+    exportScorecardResultsToJson(path, result, argv.output);
+  } else {
+    printScorecardResults(result, path);
+  }
 }

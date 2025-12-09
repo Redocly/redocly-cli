@@ -5,6 +5,7 @@ export type ScorecardClassicArgv = {
   api: string;
   config: string;
   'project-url'?: string;
+  output?: string;
 } & VerifyConfigOptions;
 
 export type ScorecardProblem = NormalizedProblem & { scorecardLevel?: string };
