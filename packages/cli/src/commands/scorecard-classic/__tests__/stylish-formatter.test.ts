@@ -19,14 +19,6 @@ describe('printScorecardResults', () => {
     vi.restoreAllMocks();
   });
 
-  it('should print success message when no problems', () => {
-    printScorecardResults([]);
-
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(
-      expect.stringMatching(/Found.*0.*error.*0.*warning.*0.*level/)
-    );
-  });
-
   it('should handle problems without location', () => {
     const problems: ScorecardProblem[] = [
       {

@@ -62,7 +62,7 @@ describe('validateScorecard', () => {
       {
         message: 'Test error',
         ruleId: 'test-rule',
-        severity: 'error' as const,
+        severity: 'error',
         location: [],
         ignored: false,
       },
@@ -86,14 +86,14 @@ describe('validateScorecard', () => {
       {
         message: 'Error 1',
         ruleId: 'rule-1',
-        severity: 'error' as const,
+        severity: 'error',
         location: [],
         ignored: false,
       },
       {
         message: 'Error 2',
         ruleId: 'rule-2',
-        severity: 'error' as const,
+        severity: 'error',
         location: [],
         ignored: true,
       },
@@ -113,7 +113,7 @@ describe('validateScorecard', () => {
     };
 
     const mockPlugins = [{ id: 'test-plugin' }];
-    vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins as any);
+    vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
     await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, 'plugin-code');
 
@@ -131,13 +131,7 @@ describe('validateScorecard', () => {
 
     const mockPlugins = [{ id: 'test-plugin' }];
 
-    await validateScorecard(
-      mockDocument,
-      mockResolver,
-      scorecardConfig,
-      undefined,
-      mockPlugins as any
-    );
+    await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, mockPlugins);
 
     expect(evaluatePluginsFromCode).not.toHaveBeenCalled();
     expect(openapiCore.createConfig).toHaveBeenCalledWith(

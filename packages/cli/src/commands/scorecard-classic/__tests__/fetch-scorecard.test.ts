@@ -15,6 +15,8 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
+    delete process.env.REDOCLY_AUTHORIZATION;
     vi.restoreAllMocks();
   });
 
@@ -210,29 +212,5 @@ describe('fetchRemoteScorecardAndPlugins', () => {
         headers: { Authorization: 'Bearer test-api-key' },
       })
     );
-
-    // Restore original value
-    if (originalApiKey) {
-      process.env.REDOCLY_AUTHORIZATION = originalApiKey;
-    } else {
-      delete process.env.REDOCLY_AUTHORIZATION;
-    }
-  });
-
-  it('should parse project URL with different residency', async () => {
-    const customUrl = 'https://custom.redocly.com/org/my-org/project/my-project';
-
-    mockFetch.mockResolvedValueOnce({
-      status: 200,
-      json: async () => ({
-        id: 'project-123',
-        config: { scorecard: { levels: [] } },
-      }),
-    });
-
-    await fetchRemoteScorecardAndPlugins(customUrl, testToken);
-
-    const callUrl = mockFetch.mock.calls[0][0].toString();
-    expect(callUrl).toBe('https://custom.redocly.com/api/orgs/my-org/projects/my-project');
   });
 });

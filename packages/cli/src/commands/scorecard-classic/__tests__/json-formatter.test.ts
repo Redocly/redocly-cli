@@ -24,7 +24,7 @@ describe('exportScorecardResultsToJson', () => {
   it('should export empty results when no problems', () => {
     exportScorecardResultsToJson([], testOutputPath);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8'));
 
     expect(output).toEqual({});
   });
