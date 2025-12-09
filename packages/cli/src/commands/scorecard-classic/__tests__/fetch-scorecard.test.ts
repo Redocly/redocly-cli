@@ -1,5 +1,5 @@
 import { fetchRemoteScorecardAndPlugins } from '../remote/fetch-scorecard.js';
-import * as openapiCore from '@redocly/openapi-core';
+import * as errorUtils from '../../../utils/error.js';
 
 describe('fetchRemoteScorecardAndPlugins', () => {
   const mockFetch = vi.fn();
@@ -9,7 +9,9 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   beforeEach(() => {
     global.fetch = mockFetch;
     mockFetch.mockClear();
-    vi.spyOn(openapiCore.logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
+      throw new Error('exitWithError called');
+    });
   });
 
   afterEach(() => {
@@ -20,87 +22,65 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     await expect(fetchRemoteScorecardAndPlugins('not-a-valid-url', testToken)).rejects.toThrow();
   });
 
-  it('should return undefined when project URL pattern does not match', async () => {
-    const result = await fetchRemoteScorecardAndPlugins(
-      'https://example.com/invalid/path',
-      testToken
-    );
+  it('should throw error when project URL pattern does not match', async () => {
+    await expect(
+      fetchRemoteScorecardAndPlugins('https://example.com/invalid/path', testToken)
+    ).rejects.toThrow();
 
-    expect(result).toBeUndefined();
-    expect(openapiCore.logger.warn).toHaveBeenCalledWith(
+    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('Invalid project URL format')
     );
   });
 
-  it('should return undefined when organization is not found', async () => {
-    mockFetch.mockResolvedValueOnce({
-      status: 200,
-      json: async () => ({ items: [] }),
-    });
-
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
-
-    expect(result).toBeUndefined();
-    expect(openapiCore.logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Organization not found')
-    );
-  });
-
-  it('should return undefined when organization fetch fails', async () => {
+  it('should throw error when project is not found (404)', async () => {
     mockFetch.mockResolvedValueOnce({
       status: 404,
     });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
 
-    expect(result).toBeUndefined();
-    expect(openapiCore.logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Organization not found')
+    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to fetch project')
     );
   });
 
-  it('should return undefined when project is not found', async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({ items: [{ id: 'org-123', slug: 'test-org' }] }),
-      })
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({ items: [] }),
-      });
+  it('should throw error when unauthorized (401)', async () => {
+    mockFetch.mockResolvedValueOnce({
+      status: 401,
+    });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
 
-    expect(result).toBeUndefined();
-    expect(openapiCore.logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('Project not found')
+    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
+      expect.stringContaining('Unauthorized access to project')
     );
   });
 
-  it('should return undefined when project has no scorecard config', async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({ items: [{ id: 'org-123', slug: 'test-org' }] }),
-      })
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({
-          items: [
-            {
-              id: 'project-123',
-              slug: 'test-project',
-              config: {},
-            },
-          ],
-        }),
-      });
+  it('should throw error when forbidden (403)', async () => {
+    mockFetch.mockResolvedValueOnce({
+      status: 403,
+    });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
 
-    expect(result).toBeUndefined();
-    expect(openapiCore.logger.warn).toHaveBeenCalledWith(
+    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
+      expect.stringContaining('Unauthorized access to project')
+    );
+  });
+
+  it('should throw error when project has no scorecard config', async () => {
+    mockFetch.mockResolvedValueOnce({
+      status: 200,
+      json: async () => ({
+        id: 'project-123',
+        slug: 'test-project',
+        config: {},
+      }),
+    });
+
+    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
+
+    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('No scorecard configuration found')
     );
   });
@@ -110,25 +90,16 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       levels: [{ name: 'Gold', rules: {} }],
     };
 
-    mockFetch
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({ items: [{ id: 'org-123', slug: 'test-org' }] }),
-      })
-      .mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({
-          items: [
-            {
-              id: 'project-123',
-              slug: 'test-project',
-              config: {
-                scorecard: mockScorecard,
-              },
-            },
-          ],
-        }),
-      });
+    mockFetch.mockResolvedValueOnce({
+      status: 200,
+      json: async () => ({
+        id: 'project-123',
+        slug: 'test-project',
+        config: {
+          scorecard: mockScorecard,
+        },
+      }),
+    });
 
     const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
 
@@ -136,7 +107,7 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       scorecard: mockScorecard,
       plugins: undefined,
     });
-    expect(openapiCore.logger.warn).not.toHaveBeenCalled();
+    expect(errorUtils.exitWithError).not.toHaveBeenCalled();
   });
 
   it('should return scorecard config with plugins when pluginsUrl is set', async () => {
@@ -148,21 +119,13 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     mockFetch
       .mockResolvedValueOnce({
         status: 200,
-        json: async () => ({ items: [{ id: 'org-123', slug: 'test-org' }] }),
-      })
-      .mockResolvedValueOnce({
-        status: 200,
         json: async () => ({
-          items: [
-            {
-              id: 'project-123',
-              slug: 'test-project',
-              config: {
-                scorecard: mockScorecard,
-                pluginsUrl: 'https://example.com/plugins.js',
-              },
-            },
-          ],
+          id: 'project-123',
+          slug: 'test-project',
+          config: {
+            scorecard: mockScorecard,
+            pluginsUrl: 'https://example.com/plugins.js',
+          },
         }),
       })
       .mockResolvedValueOnce({
@@ -176,7 +139,7 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       scorecard: mockScorecard,
       plugins: mockPluginsCode,
     });
-    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it('should return scorecard without plugins when plugin fetch fails', async () => {
@@ -187,21 +150,13 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     mockFetch
       .mockResolvedValueOnce({
         status: 200,
-        json: async () => ({ items: [{ id: 'org-123', slug: 'test-org' }] }),
-      })
-      .mockResolvedValueOnce({
-        status: 200,
         json: async () => ({
-          items: [
-            {
-              id: 'project-123',
-              slug: 'test-project',
-              config: {
-                scorecard: mockScorecard,
-                pluginsUrl: 'https://example.com/plugins.js',
-              },
-            },
-          ],
+          id: 'project-123',
+          slug: 'test-project',
+          config: {
+            scorecard: mockScorecard,
+            pluginsUrl: 'https://example.com/plugins.js',
+          },
         }),
       })
       .mockResolvedValueOnce({
@@ -216,10 +171,13 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     });
   });
 
-  it('should use correct auth headers when fetching organization', async () => {
+  it('should use correct auth headers with access token', async () => {
     mockFetch.mockResolvedValueOnce({
       status: 200,
-      json: async () => ({ items: [] }),
+      json: async () => ({
+        id: 'project-123',
+        config: { scorecard: { levels: [] } },
+      }),
     });
 
     await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
@@ -232,18 +190,49 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     );
   });
 
+  it('should use correct auth headers with API key', async () => {
+    const originalApiKey = process.env.REDOCLY_AUTHORIZATION;
+    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+
+    mockFetch.mockResolvedValueOnce({
+      status: 200,
+      json: async () => ({
+        id: 'project-123',
+        config: { scorecard: { levels: [] } },
+      }),
+    });
+
+    await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(URL),
+      expect.objectContaining({
+        headers: { Authorization: 'Bearer test-api-key' },
+      })
+    );
+
+    // Restore original value
+    if (originalApiKey) {
+      process.env.REDOCLY_AUTHORIZATION = originalApiKey;
+    } else {
+      delete process.env.REDOCLY_AUTHORIZATION;
+    }
+  });
+
   it('should parse project URL with different residency', async () => {
     const customUrl = 'https://custom.redocly.com/org/my-org/project/my-project';
 
     mockFetch.mockResolvedValueOnce({
       status: 200,
-      json: async () => ({ items: [] }),
+      json: async () => ({
+        id: 'project-123',
+        config: { scorecard: { levels: [] } },
+      }),
     });
 
     await fetchRemoteScorecardAndPlugins(customUrl, testToken);
 
     const callUrl = mockFetch.mock.calls[0][0].toString();
-    expect(callUrl).toContain('https://custom.redocly.com/api/orgs');
-    expect(callUrl).toContain('filter=slug%3Amy-org');
+    expect(callUrl).toBe('https://custom.redocly.com/api/orgs/my-org/projects/my-project');
   });
 });
