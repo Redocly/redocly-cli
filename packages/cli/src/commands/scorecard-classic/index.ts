@@ -14,26 +14,23 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   const projectUrl = argv['project-url'] || config.resolvedConfig.scorecard?.fromProjectUrl;
+  const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
   if (!projectUrl) {
     exitWithError(
-      'scorecard.fromProjectUrl is not configured. Please provide it via --project-url flag or configure it in redocly.yaml. Learn more: https://redocly.com/docs/realm/config/scorecard#fromprojecturl-example'
+      'Scorecard is not configured. Please provide it via --project-url flag or configure it in redocly.yaml. Learn more: https://redocly.com/docs/realm/config/scorecard#fromprojecturl-example'
     );
   }
 
-  const accessToken = await handleLoginAndFetchToken(config);
+  const auth = apiKey || (await handleLoginAndFetchToken(config));
 
-  if (!accessToken) {
-    exitWithError('Failed to obtain access token.');
+  if (!auth) {
+    exitWithError('Failed to obtain access token or API key.');
   }
 
-  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins(projectUrl, accessToken);
+  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins(projectUrl, auth);
 
-  const scorecard =
-    remoteScorecardAndPlugins?.scorecard ||
-    config.resolvedConfig.scorecardClassic ||
-    config.resolvedConfig.scorecard;
-
+  const scorecard = remoteScorecardAndPlugins?.scorecard;
   if (!scorecard) {
     exitWithError(
       'No scorecard configuration found. Please configure scorecard in your redocly.yaml or ensure remote scorecard is accessible.'

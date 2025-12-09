@@ -12,12 +12,9 @@ export async function evaluatePluginsFromCode(pluginsCode?: string): Promise<Plu
   }
 
   try {
-    const normalizedDirname =
-      typeof __dirname === 'undefined' ? '' : __dirname.replaceAll(/\\/g, '/');
-    const pluginsCodeWithDirname = pluginsCode.replaceAll(
-      '__redocly_dirname',
-      `"${normalizedDirname}"`
-    );
+    const dirname = import.meta.url;
+    const pluginsCodeWithDirname = pluginsCode.replaceAll('__redocly_dirname', `"${dirname}"`);
+
     const base64 = btoa(pluginsCodeWithDirname);
     const dataUri = `data:text/javascript;base64,${base64}`;
     const module: PluginsModule = await import(dataUri);

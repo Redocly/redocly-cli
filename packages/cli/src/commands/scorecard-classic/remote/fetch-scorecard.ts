@@ -1,49 +1,39 @@
-import { logger } from '@redocly/openapi-core';
+import { exitWithError } from 'cli/src/utils/error.js';
 
-import type { RemoteScorecardAndPlugins, Organization, Project, PaginatedList } from '../types.js';
+import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
 export async function fetchRemoteScorecardAndPlugins(
   projectUrl: string,
-  accessToken: string
+  auth: string
 ): Promise<RemoteScorecardAndPlugins | undefined> {
   const parsedProjectUrl = parseProjectUrl(projectUrl);
 
   if (!parsedProjectUrl) {
-    logger.warn(`Invalid project URL format: ${projectUrl}`);
-    return;
+    exitWithError(`Invalid project URL format: ${projectUrl}`);
   }
 
   const { residency, orgSlug, projectSlug } = parsedProjectUrl;
+  const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
-  const organization = await fetchOrganizationBySlug(residency, orgSlug, accessToken);
+  try {
+    const project = await fetchProjectConfigBySlugs(residency, orgSlug, projectSlug, apiKey, auth);
+    const scorecard = project?.config.scorecard;
 
-  if (!organization) {
-    logger.warn(`Organization not found: ${orgSlug}`);
-    return;
+    if (!scorecard) {
+      throw new Error('No scorecard configuration found.');
+    }
+
+    const plugins = project.config.pluginsUrl
+      ? await fetchPlugins(project.config.pluginsUrl)
+      : undefined;
+
+    return {
+      scorecard,
+      plugins,
+    };
+  } catch (error) {
+    exitWithError(error.message);
   }
-
-  const project = await fetchProjectBySlug(residency, organization.id, projectSlug, accessToken);
-
-  if (!project) {
-    logger.warn(`Project not found: ${projectSlug}`);
-    return;
-  }
-
-  const scorecard = project?.config.scorecard;
-
-  if (!scorecard) {
-    logger.warn('No scorecard configuration found in the remote project.');
-    return;
-  }
-
-  const plugins = project.config.pluginsUrl
-    ? await fetchPlugins(project.config.pluginsUrl)
-    : undefined;
-
-  return {
-    scorecard,
-    plugins,
-  };
 }
 
 function parseProjectUrl(
@@ -65,47 +55,29 @@ function parseProjectUrl(
   };
 }
 
-async function fetchOrganizationBySlug(
+async function fetchProjectConfigBySlugs(
   residency: string,
   orgSlug: string,
-  accessToken: string
-): Promise<Organization | undefined> {
-  const orgsUrl = new URL(`${residency}/api/orgs`);
-  orgsUrl.searchParams.set('filter', `slug:${orgSlug}`);
-  orgsUrl.searchParams.set('limit', '1');
-
-  const authHeaders = createAuthHeaders(accessToken);
-  const organizationResponse = await fetch(orgsUrl, { headers: authHeaders });
-
-  if (organizationResponse.status !== 200) {
-    return;
-  }
-
-  const organizations: PaginatedList<Organization> = await organizationResponse.json();
-
-  return organizations.items[0];
-}
-
-async function fetchProjectBySlug(
-  residency: string,
-  orgId: string,
   projectSlug: string,
+  apiKey: string | undefined,
   accessToken: string
 ): Promise<Project | undefined> {
-  const projectsUrl = new URL(`${residency}/api/orgs/${orgId}/projects`);
-  projectsUrl.searchParams.set('filter', `slug:${projectSlug}`);
-  projectsUrl.searchParams.set('limit', '1');
+  const authHeaders = createAuthHeaders(apiKey, accessToken);
+  const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
 
-  const authHeaders = createAuthHeaders(accessToken);
-  const projectsResponse = await fetch(projectsUrl, { headers: authHeaders });
+  const projectResponse = await fetch(projectUrl, { headers: authHeaders });
 
-  if (projectsResponse.status !== 200) {
-    return;
+  if (projectResponse.status === 401 || projectResponse.status === 403) {
+    throw new Error(
+      `Unauthorized access to project: ${projectSlug}. Please check your credentials.`
+    );
   }
 
-  const projects: PaginatedList<Project> = await projectsResponse.json();
+  if (projectResponse.status !== 200) {
+    throw new Error(`Failed to fetch project: ${projectSlug}. Status: ${projectResponse.status}`);
+  }
 
-  return projects.items[0];
+  return projectResponse.json();
 }
 
 async function fetchPlugins(pluginsUrl: string): Promise<string | undefined> {
@@ -118,6 +90,13 @@ async function fetchPlugins(pluginsUrl: string): Promise<string | undefined> {
   return pluginsResponse.text();
 }
 
-function createAuthHeaders(accessToken: string) {
+function createAuthHeaders(
+  apiKey: string | undefined,
+  accessToken: string
+): Record<string, string> {
+  if (apiKey) {
+    return { Authorization: `Bearer ${apiKey}` };
+  }
+
   return { Cookie: `accessToken=${accessToken}` };
 }

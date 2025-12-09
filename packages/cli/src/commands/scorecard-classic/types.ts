@@ -14,17 +14,8 @@ export type RemoteScorecardAndPlugins = {
   plugins: string | undefined;
 };
 
-export type Organization = {
-  id: `org_${string}`;
-  slug: string;
-};
-
 export type Project = {
   id: `prj_${string}`;
   slug: string;
   config: ResolvedConfig & { pluginsUrl?: string; scorecardClassic?: ResolvedConfig['scorecard'] };
-};
-
-export type PaginatedList<T> = {
-  items: T[];
 };
