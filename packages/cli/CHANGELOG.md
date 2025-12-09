@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.12.5
+
+### Patch Changes
+
+- Updated React dependency to avoid vulnerable React version (19.0.0) affected by CVE-2025-55182.
+- Updated @redocly/openapi-core to v2.12.5.
+
 ## 2.12.4
 
 ### Patch Changes
