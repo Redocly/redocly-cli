@@ -1,11 +1,11 @@
 import type { VerifyConfigOptions } from '../../types.js';
-import type { NormalizedProblem, ResolvedConfig } from '@redocly/openapi-core';
+import type { NormalizedProblem, OutputFormat, ResolvedConfig } from '@redocly/openapi-core';
 
 export type ScorecardClassicArgv = {
   api: string;
   config: string;
   'project-url'?: string;
-  output?: string;
+  format: OutputFormat;
 } & VerifyConfigOptions;
 
 export type ScorecardProblem = NormalizedProblem & { scorecardLevel?: string };

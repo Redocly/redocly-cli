@@ -1,7 +1,6 @@
-import { readFileSync, unlinkSync } from 'node:fs';
-import { exportScorecardResultsToJson } from '../formatters/json-formatter.js';
+import { printScorecardResultsAsJson } from '../formatters/json-formatter.js';
+import * as openapiCore from '@redocly/openapi-core';
 import type { ScorecardProblem } from '../types.js';
-import type { ScorecardJsonOutput } from '../formatters/json-formatter.js';
 
 const createMockSource = (absoluteRef: string) => ({
   absoluteRef,
@@ -10,23 +9,19 @@ const createMockSource = (absoluteRef: string) => ({
   getLineColLocation: () => ({ line: 1, col: 1 }),
 });
 
-describe('exportScorecardResultsToJson', () => {
-  const testOutputPath = './test-scorecard-output.json';
-
-  afterEach(() => {
-    try {
-      unlinkSync(testOutputPath);
-    } catch {
-      // File might not exist
-    }
+describe('printScorecardResultsAsJson', () => {
+  beforeEach(() => {
+    vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
   });
 
-  it('should export empty results when no problems', () => {
-    exportScorecardResultsToJson([], testOutputPath);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8'));
+  it('should print empty results when no problems', () => {
+    printScorecardResultsAsJson([]);
 
-    expect(output).toEqual({});
+    expect(openapiCore.logger.output).toHaveBeenCalledWith('{}');
   });
 
   it('should group problems by scorecard level', () => {
@@ -69,9 +64,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(Object.keys(output)).toEqual(['Gold', 'Silver']);
     expect(output.Gold.summary).toEqual({ errors: 1, warnings: 1 });
@@ -92,9 +88,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(output.Gold.problems[0].ruleUrl).toBe(
       'https://redocly.com/docs/cli/rules/oas/operation-summary.md'
@@ -113,9 +110,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(output.Gold.problems[0].ruleUrl).toBeUndefined();
   });
@@ -138,9 +136,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(output.Gold.problems[0].location).toHaveLength(1);
     expect(output.Gold.problems[0].location[0].file).toBe('/test/file.yaml');
@@ -160,9 +159,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(Object.keys(output)).toEqual(['Unknown']);
     expect(output.Unknown.problems).toHaveLength(1);
@@ -180,9 +180,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(output.Gold.problems[0].message).toBe('Error message with color');
     expect(output.Gold.problems[0].message).not.toContain('\u001b');
@@ -232,9 +233,10 @@ describe('exportScorecardResultsToJson', () => {
       },
     ];
 
-    exportScorecardResultsToJson(problems, testOutputPath);
+    printScorecardResultsAsJson(problems);
 
-    const output = JSON.parse(readFileSync(testOutputPath, 'utf-8')) as ScorecardJsonOutput;
+    const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
+    const output = JSON.parse(outputCall);
 
     expect(output.Gold.summary.errors).toBe(2);
     expect(output.Gold.summary.warnings).toBe(3);

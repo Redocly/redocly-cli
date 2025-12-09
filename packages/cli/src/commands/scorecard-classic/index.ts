@@ -3,7 +3,7 @@ import { BaseResolver, bundle, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
-import { exportScorecardResultsToJson } from './formatters/json-formatter.js';
+import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
 import { blue, gray, green } from 'colorette';
@@ -60,29 +60,16 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
     return;
   }
 
-  if (argv.output) {
-    try {
-      exportScorecardResultsToJson(result, argv.output);
-      const elapsed = getExecutionTime(startedAt);
-      logger.info(
-        `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
-          elapsed
-        )}.\n`
-      );
-    } catch (error) {
-      logger.info(
-        `❌ Errors encountered while bundling ${blue(
-          formatPath(path)
-        )}: bundle not created (use --force to ignore errors).\n`
-      );
-    }
+  if (argv.format === 'json') {
+    printScorecardResultsAsJson(result);
   } else {
     printScorecardResults(result);
-    const elapsed = getExecutionTime(startedAt);
-    logger.info(
-      `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
-        elapsed
-      )}.\n`
-    );
   }
+
+  const elapsed = getExecutionTime(startedAt);
+  logger.info(
+    `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
+      elapsed
+    )}.\n`
+  );
 }

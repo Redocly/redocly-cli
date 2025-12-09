@@ -1,5 +1,4 @@
-import { writeFileSync } from 'node:fs';
-import { getLineColLocation } from '@redocly/openapi-core';
+import { logger, getLineColLocation } from '@redocly/openapi-core';
 
 import type { ScorecardProblem } from '../types.js';
 
@@ -47,10 +46,7 @@ function stripAnsiCodes(text: string): string {
   return text.replace(/\u001b\[\d+m/g, '');
 }
 
-export function exportScorecardResultsToJson(
-  problems: ScorecardProblem[],
-  outputPath: string
-): void {
+export function printScorecardResultsAsJson(problems: ScorecardProblem[]): void {
   const groupedByLevel: Record<string, ScorecardProblem[]> = {};
 
   for (const problem of problems) {
@@ -97,5 +93,6 @@ export function exportScorecardResultsToJson(
     };
   }
 
-  writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf-8');
+  logger.output(JSON.stringify(output, null, 2));
+  logger.info('\n');
 }
