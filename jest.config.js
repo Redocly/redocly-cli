@@ -3,6 +3,7 @@ module.exports = {
   restoreMocks: true,
   preset: 'ts-jest',
   testEnvironment: 'node',
+  transformIgnorePatterns: ['packages/.*/lib/.*'],
   collectCoverageFrom: [
     'packages/*/src/**/*.ts',
     '!packages/**/__tests__/**/*',
