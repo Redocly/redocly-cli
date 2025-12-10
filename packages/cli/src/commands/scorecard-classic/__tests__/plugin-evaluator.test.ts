@@ -44,4 +44,23 @@ describe('evaluatePluginsFromCode', () => {
     const result = await evaluatePluginsFromCode(pluginCodeWithDirname);
     expect(result).toHaveLength(1);
   });
+
+  it('should handle verbose flag', async () => {
+    const validPluginCode = `
+      export default [
+        () => ({
+          id: 'verbose-test-plugin',
+          rules: {
+            oas3: {
+              'test-rule': () => ({})
+            }
+          }
+        })
+      ];
+    `;
+
+    const result = await evaluatePluginsFromCode(validPluginCode, true);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toHaveProperty('id', 'verbose-test-plugin');
+  });
 });

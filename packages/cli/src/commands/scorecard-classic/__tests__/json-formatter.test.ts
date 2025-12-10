@@ -94,7 +94,7 @@ describe('printScorecardResultsAsJson', () => {
     const output = JSON.parse(outputCall);
 
     expect(output.Gold.problems[0].ruleUrl).toBe(
-      'https://redocly.com/docs/cli/rules/oas/operation-summary.md'
+      'https://redocly.com/docs/cli/rules/oas/operation-summary'
     );
   });
 

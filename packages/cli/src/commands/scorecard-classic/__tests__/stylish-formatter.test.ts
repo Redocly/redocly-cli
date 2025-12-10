@@ -87,8 +87,9 @@ describe('printScorecardResults', () => {
 
     printScorecardResults(problems);
 
+    expect(openapiCore.logger.info).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
     expect(openapiCore.logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('2 errors, 1 warnings')
+      expect.stringMatching(/2.*error.*1.*warning/)
     );
   });
 

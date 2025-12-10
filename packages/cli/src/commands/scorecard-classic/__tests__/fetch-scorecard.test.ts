@@ -7,6 +7,8 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   const testToken = 'test-token';
 
   beforeEach(() => {
+    vi.unstubAllEnvs();
+    delete process.env.REDOCLY_AUTHORIZATION;
     global.fetch = mockFetch;
     mockFetch.mockClear();
     vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
@@ -193,8 +195,8 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   });
 
   it('should use correct auth headers with API key', async () => {
-    const originalApiKey = process.env.REDOCLY_AUTHORIZATION;
-    process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
+    const apiKey = 'test-api-key';
+    process.env.REDOCLY_AUTHORIZATION = apiKey;
 
     mockFetch.mockResolvedValueOnce({
       status: 200,
@@ -204,13 +206,45 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       }),
     });
 
-    await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    await fetchRemoteScorecardAndPlugins(validProjectUrl, apiKey, true);
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(URL),
       expect.objectContaining({
-        headers: { Authorization: 'Bearer test-api-key' },
+        headers: { Authorization: `Bearer ${apiKey}` },
       })
     );
+  });
+
+  it('should handle verbose flag and fetch plugins successfully', async () => {
+    const mockScorecard = {
+      levels: [{ name: 'Gold', rules: {} }],
+    };
+    const mockPluginsCode = 'export default [() => ({ id: "test-plugin" })]';
+
+    mockFetch
+      .mockResolvedValueOnce({
+        status: 200,
+        json: async () => ({
+          id: 'project-123',
+          slug: 'test-project',
+          config: {
+            scorecard: mockScorecard,
+            pluginsUrl: 'https://example.com/plugins.js',
+          },
+        }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        text: async () => mockPluginsCode,
+      });
+
+    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken, false, true);
+
+    expect(result).toEqual({
+      scorecard: mockScorecard,
+      plugins: mockPluginsCode,
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });

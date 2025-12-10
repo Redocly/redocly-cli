@@ -117,7 +117,7 @@ describe('validateScorecard', () => {
 
     await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, 'plugin-code');
 
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code');
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)
@@ -134,6 +134,30 @@ describe('validateScorecard', () => {
     await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, mockPlugins);
 
     expect(evaluatePluginsFromCode).not.toHaveBeenCalled();
+    expect(openapiCore.createConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ plugins: mockPlugins }),
+      expect.any(Object)
+    );
+  });
+
+  it('should handle verbose flag', async () => {
+    const scorecardConfig = {
+      levels: [{ name: 'Gold', rules: {} }],
+    };
+
+    const mockPlugins = [{ id: 'test-plugin' }];
+    vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
+
+    await validateScorecard(
+      mockDocument,
+      mockResolver,
+      scorecardConfig,
+      undefined,
+      'plugin-code',
+      true
+    );
+
+    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)
