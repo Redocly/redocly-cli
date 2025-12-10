@@ -4,7 +4,7 @@ import { exitWithError } from '../../../utils/error.js';
 
 import type { Config } from '@redocly/openapi-core';
 
-export async function handleLoginAndFetchToken(config: Config): Promise<string | undefined> {
+export async function handleLoginAndFetchToken(config: Config): Promise<string | null> {
   const reuniteUrl = getReuniteUrl(config, config.resolvedConfig?.residency);
 
   const oauthClient = new RedoclyOAuthClient();
@@ -19,5 +19,5 @@ export async function handleLoginAndFetchToken(config: Config): Promise<string |
     }
   }
 
-  return accessToken === null ? undefined : accessToken;
+  return accessToken;
 }
