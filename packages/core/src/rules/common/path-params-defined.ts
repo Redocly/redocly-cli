@@ -112,10 +112,8 @@ const createOperationHandlers = (
     enter() {
       currentOperationParams = new Set();
     },
-    leave(_op: unknown, { report, location }: UserContext) {
+    leave(_operation: unknown, { report, location }: UserContext) {
       if (!pathContext.current || !currentOperationParams) return;
-
-      collectPathParamsFromOperation(_op, currentOperationParams);
 
       validateRequiredPathParams(
         pathContext.current.templateParams,
@@ -127,6 +125,8 @@ const createOperationHandlers = (
       );
     },
     Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
+      collectPathParamsFromOperation(parameter, currentOperationParams);
+
       if (parameter.in === 'path' && parameter.name && pathContext.current) {
         currentOperationParams.add(parameter.name);
         validatePathParameter(
@@ -150,13 +150,15 @@ const extractTemplateParams = (path: string): Set<string> => {
   return new Set(Array.from(path.matchAll(pathRegex)).map((m) => m[1]));
 };
 
-const collectPathParamsFromOperation = (operation: unknown, targetSet: Set<string>): void => {
-  const op = operation as { parameters?: Array<{ in?: string; name?: string }> };
-  op?.parameters?.forEach((param) => {
-    if (param?.in === 'path' && param?.name) {
-      targetSet.add(param.name);
+const collectPathParamsFromOperation = (
+  parameter: Oas2Parameter | Oas3Parameter,
+  targetSet: Set<string>
+): void => {
+  if (parameter && typeof parameter === 'object' && 'in' in parameter && 'name' in parameter) {
+    if (parameter.in === 'path' && parameter.name) {
+      targetSet.add(parameter.name);
     }
-  });
+  }
 };
 
 const validatePathParameter = (
