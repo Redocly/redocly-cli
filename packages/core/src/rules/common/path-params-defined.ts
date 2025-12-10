@@ -155,8 +155,7 @@ const collectPathParamsFromOperation = (
   targetSet: Set<string>
 ): void => {
   if (parameter && typeof parameter === 'object' && 'in' in parameter && 'name' in parameter) {
-    const p = parameter as { in?: string; name?: string };
-    if (p.in === 'path' && p.name) {
+    if (parameter.in === 'path' && parameter.name) {
       targetSet.add(parameter.name);
     }
   }
