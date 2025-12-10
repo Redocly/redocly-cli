@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.12.6
+
+### Patch Changes
+
+- Fixed `path-params-defined` rule to correctly skip parameters defined through `$ref`.
+
 ## 2.12.5
 
 ### Patch Changes
