@@ -1,4 +1,4 @@
-import { logger, getLineColLocation } from '@redocly/openapi-core';
+import { logger, getLineColLocation, pluralize } from '@redocly/openapi-core';
 import { gray, yellow, red, cyan, bold, white } from 'colorette';
 
 import type { ScorecardProblem } from '../types.js';
@@ -45,9 +45,11 @@ export function printScorecardResults(problems: ScorecardProblem[]): void {
 
   logger.info(
     white(
-      `Found ${bold(red(totalErrors.toString()))} error(s) and ${bold(
+      `Found ${bold(red(totalErrors.toString()))} ${pluralize('error', totalErrors)} and ${bold(
         yellow(totalWarnings.toString())
-      )} warning(s) across ${bold(cyan(levelCount.toString()))} level(s)\n`
+      )} ${pluralize('warning', totalWarnings)} across ${bold(
+        cyan(levelCount.toString())
+      )} ${pluralize('level', levelCount)}\n`
     )
   );
 
@@ -59,7 +61,11 @@ export function printScorecardResults(problems: ScorecardProblem[]): void {
 
     logger.info(
       bold(cyan(`\n 📋 ${level}`)) +
-        gray(` (${severityCounts.error || 0} errors, ${severityCounts.warn || 0} warnings) \n`)
+        gray(
+          ` (${severityCounts.error || 0} ${pluralize('error', severityCounts.error || 0)}, ${
+            severityCounts.warn || 0
+          } ${pluralize('warning', severityCounts.warn || 0)}) \n`
+        )
     );
 
     const locationPad = Math.max(

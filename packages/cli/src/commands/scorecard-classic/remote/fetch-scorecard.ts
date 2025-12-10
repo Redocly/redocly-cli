@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../../utils/error.js';
 
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
@@ -5,8 +6,13 @@ import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 export async function fetchRemoteScorecardAndPlugins(
   projectUrl: string,
   auth: string,
-  isApiKey = false
+  isApiKey = false,
+  verbose = false
 ): Promise<RemoteScorecardAndPlugins> {
+  if (verbose) {
+    logger.info(`Starting fetch for remote scorecard configuration...\n`);
+  }
+
   const parsedProjectUrl = parseProjectUrl(projectUrl);
 
   if (!parsedProjectUrl) {
@@ -21,7 +27,8 @@ export async function fetchRemoteScorecardAndPlugins(
       orgSlug,
       projectSlug,
       auth,
-      isApiKey
+      isApiKey,
+      verbose
     );
     const scorecard = project?.config.scorecard;
 
@@ -29,15 +36,37 @@ export async function fetchRemoteScorecardAndPlugins(
       throw new Error('No scorecard configuration found.');
     }
 
+    if (verbose) {
+      logger.info(`Successfully fetched scorecard configuration.\n`);
+      logger.info(`Scorecard levels found: ${scorecard.levels?.length || 0}\n`);
+    }
+
     const plugins = project.config.pluginsUrl
-      ? await fetchPlugins(project.config.pluginsUrl)
+      ? await fetchPlugins(project.config.pluginsUrl, verbose)
       : undefined;
+
+    if (verbose) {
+      if (plugins) {
+        logger.info(`Successfully fetched plugins from ${project.config.pluginsUrl}\n`);
+      } else if (project.config.pluginsUrl) {
+        logger.info(`No plugins were loaded from ${project.config.pluginsUrl}\n`);
+      } else {
+        logger.info(`No custom plugins configured for this scorecard.\n`);
+      }
+    }
 
     return {
       scorecard: scorecard!,
       plugins,
     };
   } catch (error) {
+    if (verbose) {
+      logger.error(`❌ Failed to fetch remote scorecard configuration.\n`);
+      logger.error(`Error details: ${error.message}\n`);
+      if (error.stack) {
+        logger.error(`Stack trace:\n${error.stack}\n`);
+      }
+    }
     exitWithError(error.message);
   }
 }
@@ -66,14 +95,23 @@ async function fetchProjectConfigBySlugs(
   orgSlug: string,
   projectSlug: string,
   auth: string,
-  isApiKey: boolean
+  isApiKey: boolean,
+  verbose = false
 ): Promise<Project | undefined> {
   const authHeaders = createAuthHeaders(auth, isApiKey);
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
 
   const projectResponse = await fetch(projectUrl, { headers: authHeaders });
 
+  if (verbose) {
+    logger.info(`Project fetch response status: ${projectResponse.status}\n`);
+  }
+
   if (projectResponse.status === 401 || projectResponse.status === 403) {
+    if (verbose) {
+      logger.error(`Authentication failed with status ${projectResponse.status}.\n`);
+      logger.error(`Check that your credentials are valid and have the necessary permissions.\n`);
+    }
     throw new Error(
       `Unauthorized access to project: ${projectSlug}. Please check your credentials.`
     );
@@ -83,17 +121,39 @@ async function fetchProjectConfigBySlugs(
     throw new Error(`Failed to fetch project: ${projectSlug}. Status: ${projectResponse.status}`);
   }
 
+  if (verbose) {
+    logger.info(`Successfully received project configuration.\n`);
+  }
+
   return projectResponse.json();
 }
 
-async function fetchPlugins(pluginsUrl: string): Promise<string | undefined> {
-  const pluginsResponse = await fetch(pluginsUrl);
-
-  if (pluginsResponse.status !== 200) {
-    return;
+async function fetchPlugins(pluginsUrl: string, verbose = false): Promise<string | undefined> {
+  if (verbose) {
+    logger.info(`Fetching plugins from: ${pluginsUrl}\n`);
   }
 
-  return pluginsResponse.text();
+  try {
+    const pluginsResponse = await fetch(pluginsUrl);
+
+    if (verbose) {
+      logger.info(`Plugins fetch response status: ${pluginsResponse.status}\n`);
+    }
+
+    if (pluginsResponse.status !== 200) {
+      if (verbose) {
+        logger.error(`Failed to fetch plugins\n`);
+      }
+      return;
+    }
+
+    return pluginsResponse.text();
+  } catch (error) {
+    if (verbose) {
+      logger.error(`Error fetching plugins: ${error.message}\n`);
+    }
+    return;
+  }
 }
 
 function createAuthHeaders(auth: string, isApiKey: boolean): Record<string, string> {

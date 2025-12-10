@@ -816,6 +816,11 @@ yargs(hideBin(process.argv))
           choices: ['stylish', 'json'],
           default: 'stylish',
         },
+        verbose: {
+          alias: 'v',
+          describe: 'Apply verbose mode.',
+          type: 'boolean',
+        },
       });
     },
     async (argv) => {
