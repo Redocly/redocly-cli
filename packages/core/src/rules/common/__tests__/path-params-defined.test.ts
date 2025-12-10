@@ -415,7 +415,7 @@ describe('Oas3 path-params-defined', () => {
                 - Test
               summary: Test endpoint to reproduce bug
               parameters:
-                $ref: ./test_params.yaml
+                - $ref: ./test_params.yaml
       `,
       'foobar.yaml'
     );
