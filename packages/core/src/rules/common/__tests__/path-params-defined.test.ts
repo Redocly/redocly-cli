@@ -402,4 +402,30 @@ describe('Oas3 path-params-defined', () => {
       ]
     `);
   });
+
+  it('should not report on undefined params in case of reference', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /test-endpoint:
+            get:
+              operationId: testEndpoint
+              tags:
+                - Test
+              summary: Test endpoint to reproduce bug
+              parameters:
+                $ref: ./test_params.yaml
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });

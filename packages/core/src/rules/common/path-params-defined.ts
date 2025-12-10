@@ -151,12 +151,19 @@ const extractTemplateParams = (path: string): Set<string> => {
 };
 
 const collectPathParamsFromOperation = (operation: unknown, targetSet: Set<string>): void => {
-  const op = operation as { parameters?: Array<{ in?: string; name?: string }> };
-  op?.parameters?.forEach((param) => {
-    if (param?.in === 'path' && param?.name) {
-      targetSet.add(param.name);
+  const op = operation as { parameters?: unknown };
+  const params = op?.parameters;
+
+  if (Array.isArray(params)) {
+    for (const param of params) {
+      if (param && typeof param === 'object' && 'in' in param && 'name' in param) {
+        const p = param as { in?: string; name?: string };
+        if (p.in === 'path' && p.name) {
+          targetSet.add(p.name);
+        }
+      }
     }
-  });
+  }
 };
 
 const validatePathParameter = (
