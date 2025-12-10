@@ -1,5 +1,5 @@
 import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-import { BaseResolver, bundle, logger } from '@redocly/openapi-core';
+import { BaseResolver, logger } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
@@ -10,12 +10,14 @@ import { blue, gray, green } from 'colorette';
 
 import type { ScorecardClassicArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
+import type { Document } from '@redocly/openapi-core';
 
 export async function handleScorecardClassic({ argv, config }: CommandArgs<ScorecardClassicArgv>) {
   const startedAt = performance.now();
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
-  const { bundle: document } = await bundle({ config, ref: path });
+  const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
+
   const projectUrl = argv['project-url'] || config.resolvedConfig.scorecard?.fromProjectUrl;
   const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
