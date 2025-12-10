@@ -14,7 +14,7 @@ export async function handleLoginAndFetchToken(config: Config): Promise<string |
     try {
       await oauthClient.login(reuniteUrl);
       accessToken = await oauthClient.getAccessToken(reuniteUrl);
-    } catch (error) {
+    } catch {
       exitWithError(`Login failed. Please try again or check your connection to ${reuniteUrl}.`);
     }
   }

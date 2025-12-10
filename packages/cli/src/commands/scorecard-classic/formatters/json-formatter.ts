@@ -36,7 +36,7 @@ function formatRange(
 
 function getRuleUrl(ruleId: string): string | undefined {
   if (!ruleId.includes('/')) {
-    return `https://redocly.com/docs/cli/rules/oas/${ruleId}.md`;
+    return `https://redocly.com/docs/cli/rules/oas/${ruleId}`;
   }
   return undefined;
 }

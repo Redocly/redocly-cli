@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { Plugin } from '@redocly/openapi-core';
 
 type PluginFunction = () => Plugin;
@@ -21,7 +23,8 @@ export async function evaluatePluginsFromCode(pluginsCode?: string): Promise<Plu
     const evaluatedPlugins = module.default.map((pluginFunction) => pluginFunction());
 
     return evaluatedPlugins;
-  } catch (error) {
+  } catch {
+    logger.warn(`Something went wrong during plugins evaluation.`);
     return [];
   }
 }

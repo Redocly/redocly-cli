@@ -4,8 +4,9 @@ import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
 export async function fetchRemoteScorecardAndPlugins(
   projectUrl: string,
-  auth: string
-): Promise<RemoteScorecardAndPlugins | undefined> {
+  auth: string,
+  isApiKey = false
+): Promise<RemoteScorecardAndPlugins> {
   const parsedProjectUrl = parseProjectUrl(projectUrl);
 
   if (!parsedProjectUrl) {
@@ -13,10 +14,15 @@ export async function fetchRemoteScorecardAndPlugins(
   }
 
   const { residency, orgSlug, projectSlug } = parsedProjectUrl;
-  const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
   try {
-    const project = await fetchProjectConfigBySlugs(residency, orgSlug, projectSlug, apiKey, auth);
+    const project = await fetchProjectConfigBySlugs(
+      residency,
+      orgSlug,
+      projectSlug,
+      auth,
+      isApiKey
+    );
     const scorecard = project?.config.scorecard;
 
     if (!scorecard) {
@@ -28,7 +34,7 @@ export async function fetchRemoteScorecardAndPlugins(
       : undefined;
 
     return {
-      scorecard,
+      scorecard: scorecard!,
       plugins,
     };
   } catch (error) {
@@ -59,10 +65,10 @@ async function fetchProjectConfigBySlugs(
   residency: string,
   orgSlug: string,
   projectSlug: string,
-  apiKey: string | undefined,
-  accessToken: string
+  auth: string,
+  isApiKey: boolean
 ): Promise<Project | undefined> {
-  const authHeaders = createAuthHeaders(apiKey, accessToken);
+  const authHeaders = createAuthHeaders(auth, isApiKey);
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
 
   const projectResponse = await fetch(projectUrl, { headers: authHeaders });
@@ -90,13 +96,10 @@ async function fetchPlugins(pluginsUrl: string): Promise<string | undefined> {
   return pluginsResponse.text();
 }
 
-function createAuthHeaders(
-  apiKey: string | undefined,
-  accessToken: string
-): Record<string, string> {
-  if (apiKey) {
-    return { Authorization: `Bearer ${apiKey}` };
+function createAuthHeaders(auth: string, isApiKey: boolean): Record<string, string> {
+  if (isApiKey) {
+    return { Authorization: `Bearer ${auth}` };
   }
 
-  return { Cookie: `accessToken=${accessToken}` };
+  return { Cookie: `accessToken=${auth}` };
 }

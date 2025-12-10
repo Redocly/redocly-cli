@@ -31,20 +31,17 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
     exitWithError('Failed to obtain access token or API key.');
   }
 
-  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins(projectUrl, auth);
-
-  const scorecard = remoteScorecardAndPlugins?.scorecard;
-  if (!scorecard) {
-    exitWithError(
-      'No scorecard configuration found. Please configure scorecard in your redocly.yaml or ensure remote scorecard is accessible.'
-    );
-  }
+  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins(
+    projectUrl,
+    auth,
+    !!apiKey
+  );
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
   const result = await validateScorecard(
     document,
     externalRefResolver,
-    scorecard,
+    remoteScorecardAndPlugins.scorecard!,
     config.configPath,
     remoteScorecardAndPlugins?.plugins
   );
