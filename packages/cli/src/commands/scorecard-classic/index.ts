@@ -12,7 +12,11 @@ import type { ScorecardClassicArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { Document } from '@redocly/openapi-core';
 
-export async function handleScorecardClassic({ argv, config }: CommandArgs<ScorecardClassicArgv>) {
+export async function handleScorecardClassic({
+  argv,
+  config,
+  version,
+}: CommandArgs<ScorecardClassicArgv>) {
   const startedAt = performance.now();
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
@@ -69,7 +73,7 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
   }
 
   if (argv.format === 'json') {
-    printScorecardResultsAsJson(result);
+    printScorecardResultsAsJson(result, version);
   } else {
     printScorecardResults(result);
   }

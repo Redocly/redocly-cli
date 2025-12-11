@@ -3,7 +3,8 @@ import { logger, getLineColLocation } from '@redocly/openapi-core';
 import type { ScorecardProblem } from '../types.js';
 
 type ScorecardLevel = {
-  summary: {
+  name: string;
+  total: {
     errors: number;
     warnings: number;
   };
@@ -20,7 +21,10 @@ type ScorecardLevel = {
   }>;
 };
 
-export type ScorecardJsonOutput = Record<string, ScorecardLevel>;
+export type ScorecardJsonOutput = {
+  version: string;
+  levels: ScorecardLevel[];
+};
 
 function formatRange(
   start: { line: number; col: number },
@@ -46,7 +50,10 @@ function stripAnsiCodes(text: string): string {
   return text.replace(/\u001b\[\d+m/g, '');
 }
 
-export function printScorecardResultsAsJson(problems: ScorecardProblem[]): void {
+export function printScorecardResultsAsJson(
+  problems: ScorecardProblem[],
+  version: string = '1.0'
+): void {
   const groupedByLevel: Record<string, ScorecardProblem[]> = {};
 
   for (const problem of problems) {
@@ -57,7 +64,7 @@ export function printScorecardResultsAsJson(problems: ScorecardProblem[]): void 
     groupedByLevel[level].push(problem);
   }
 
-  const output: ScorecardJsonOutput = {};
+  const levels: ScorecardLevel[] = [];
 
   for (const [levelName, levelProblems] of Object.entries(groupedByLevel)) {
     let errors = 0;
@@ -84,14 +91,20 @@ export function printScorecardResultsAsJson(problems: ScorecardProblem[]): void 
       };
     });
 
-    output[levelName] = {
-      summary: {
+    levels.push({
+      name: levelName,
+      total: {
         errors,
         warnings,
       },
       problems: formattedProblems,
-    };
+    });
   }
+
+  const output: ScorecardJsonOutput = {
+    version,
+    levels,
+  };
 
   logger.output(JSON.stringify(output, null, 2));
   logger.info('\n');
