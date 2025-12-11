@@ -22,7 +22,7 @@ export async function handleLoginAndFetchToken(
   }
 
   if (verbose) {
-    logger.warn(`No access token found. Attempting login...\n`);
+    logger.warn(`No valid access token found or refresh token expired. Attempting login...\n`);
   }
 
   try {
