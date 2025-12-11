@@ -34,6 +34,8 @@
           page: commands/push-status.md
         - label: respect
           page: commands/respect.md
+        - label: scorecard-classic
+          page: commands/scorecard-classic.md
         - label: split
           page: commands/split.md
         - label: stats
