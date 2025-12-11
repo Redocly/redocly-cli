@@ -6,7 +6,7 @@ The `scorecard-classic` command evaluates your API descriptions against quality 
 Use this command to validate API quality and track compliance with organizational governance standards across multiple severity levels.
 
 {% admonition type="info" name="Note" %}
-The `scorecard-classic` command requires a scorecard configuration in your Redocly project. You can configure this in your project settings or by providing a `--project-url` flag.
+The `scorecard-classic` command requires a scorecard configuration in your Redocly project. You can configure this in your project settings or by providing a `--project-url` flag. Learn more about [configuring scorecards](https://redocly.com/docs/realm/config/scorecard).
 {% /admonition %}
 
 ## Usage
