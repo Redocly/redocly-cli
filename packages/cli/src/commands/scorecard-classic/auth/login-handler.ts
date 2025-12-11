@@ -15,7 +15,9 @@ export async function handleLoginAndFetchToken(
   let accessToken = await oauthClient.getAccessToken(reuniteUrl);
 
   if (accessToken) {
-    logger.info(`✅ Found existing access token.\n`);
+    if (verbose) {
+      logger.info(`Using existing access token.\n`);
+    }
     return accessToken;
   }
 
