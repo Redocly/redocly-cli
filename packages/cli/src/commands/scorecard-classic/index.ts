@@ -1,6 +1,6 @@
 import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { BaseResolver, logger } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils/error.js';
+import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
@@ -77,4 +77,6 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
       elapsed
     )}.\n`
   );
+
+  throw new AbortFlowError('Scorecard validation failed.');
 }
