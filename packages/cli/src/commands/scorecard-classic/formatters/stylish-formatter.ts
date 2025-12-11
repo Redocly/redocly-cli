@@ -59,7 +59,7 @@ export function printScorecardResults(problems: ScorecardProblem[]): void {
       return acc;
     }, {} as Record<string, number>);
 
-    logger.info(
+    logger.output(
       bold(cyan(`\n 📋 ${level}`)) +
         gray(
           ` (${severityCounts.error || 0} ${pluralize('error', severityCounts.error || 0)}, ${
