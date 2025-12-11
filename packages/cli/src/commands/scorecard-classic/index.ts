@@ -18,7 +18,10 @@ export async function handleScorecardClassic({ argv, config }: CommandArgs<Score
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
 
-  const projectUrl = argv['project-url'] || config.resolvedConfig.scorecard?.fromProjectUrl;
+  const projectUrl =
+    argv['project-url'] ||
+    config.resolvedConfig.scorecardClassic?.fromProjectUrl ||
+    config.resolvedConfig.scorecard?.fromProjectUrl;
   const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
   if (argv.verbose) {

@@ -30,7 +30,7 @@ export async function fetchRemoteScorecardAndPlugins(
       isApiKey,
       verbose
     );
-    const scorecard = project?.config.scorecard;
+    const scorecard = project?.config.scorecardClassic || project?.config.scorecard;
 
     if (!scorecard) {
       throw new Error('No scorecard configuration found.');
