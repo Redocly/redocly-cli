@@ -123,14 +123,14 @@ redocly scorecard-classic openapi/openapi.yaml
 
 The CLI opens a browser window for you to authenticate with your Redocly account.
 
-## Understanding scorecard results
+## Scorecard results
 
 The scorecard evaluation categorizes issues into multiple levels based on your project's configuration.
 Each issue is associated with a specific scorecard level, allowing you to prioritize improvements.
 
-When all checks pass, you'll see a success message:
+When all checks pass, the command displays a success message:
 
-```
+```text
 ✅ No issues found for openapi/openapi.yaml. Your API meets all scorecard requirements.
 ```
 
