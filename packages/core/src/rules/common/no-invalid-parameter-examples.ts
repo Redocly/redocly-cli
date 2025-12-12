@@ -25,7 +25,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
                 parameter.schema!,
                 ctx.location.child(['examples', key]),
                 ctx,
-                true
+                !!opts.allowAdditionalProperties
               );
             }
           }

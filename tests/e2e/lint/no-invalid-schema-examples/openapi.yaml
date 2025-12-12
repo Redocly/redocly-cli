@@ -55,7 +55,7 @@ components:
             - $ref: '#/components/schemas/Dog'
             - type: object
               example:
-                pet: dog
+                huntingSkill: skill
               properties:
                 huntingSkill:
                   type: string
@@ -66,7 +66,7 @@ components:
     Dog:
       type: object
       example:
-        status: 400
+        my_list: test
       properties:
         my_list:
           type: string
