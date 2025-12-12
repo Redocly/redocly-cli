@@ -15,9 +15,9 @@ To install Redocly CLI locally:
 1. In your CLI, `cd` to your project's directory.
 1. Enter the following command:
 
-  ```bash
-  npm i @redocly/cli@latest
-  ```
+```bash
+npm i @redocly/cli@latest
+```
 
 1. (Optional) Run `redocly --version` to confirm that the installation was successful and the currently-installed version of the tool.
 
@@ -71,9 +71,10 @@ docker pull ghcr.io/redocly/cli
 
 1. To give a Docker container access to your OpenAPI description files, mount the containing directory as a volume:
 
-  ```bash Example with lint command
-  docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
-  ```
+```bash Example with lint command
+docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
+```
+
 This example assumes that the API description file is in your current working folder.
 
 ## Run CLI behind a proxy
@@ -85,7 +86,7 @@ These environment variables specify the proxy server for HTTP and HTTPS traffic,
 
 To set the proxy environment variables:
 
--  Open a terminal and use the following command:
+- Open a terminal and use the following command:
 
 {% tabs %}
 {% tab label="HTTP proxy" %}

@@ -41,7 +41,7 @@ export const specVersions = [
   'arazzo1',
   'overlay1',
 ] as const;
-export type SpecVersion = typeof specVersions[number];
+export type SpecVersion = (typeof specVersions)[number];
 
 export type SpecMajorVersion = 'oas2' | 'oas3' | 'async2' | 'async3' | 'arazzo1' | 'overlay1';
 
