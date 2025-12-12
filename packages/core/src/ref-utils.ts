@@ -57,12 +57,12 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
   const [uri, pointer = ''] = ref.split('#/');
   return {
     uri: (uri.endsWith('#') ? uri.slice(0, -1) : uri) || null,
-    pointer: parsePointer(pointer),
+    pointer: pointer.split('/').map(unescapePointerFromURI).filter(isTruthy),
   };
 }
 
 export function parsePointer(pointer: string) {
-  return pointer.split('/').map(unescapePointerFromURI).filter(isTruthy);
+  return pointer.split('/').map(unescapePointer).filter(isTruthy);
 }
 
 export function pointerBaseName(pointer: string) {

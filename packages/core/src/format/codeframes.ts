@@ -1,5 +1,5 @@
 import * as yamlAst from 'yaml-ast-parser';
-import { unescapePointerFromURI } from '../ref-utils.js';
+import { unescapePointer } from '../ref-utils.js';
 import { colorize, colorOptions } from '../logger.js';
 
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
@@ -16,7 +16,7 @@ const MAX_CODEFRAME_LINES = 3;
 
 // TODO: temporary
 function parsePointer(pointer: string) {
-  return pointer.substr(2).split('/').map(unescapePointerFromURI);
+  return pointer.substr(2).split('/').map(unescapePointer);
 }
 
 export function getCodeframe(location: LineColLocationObject, color: boolean) {
