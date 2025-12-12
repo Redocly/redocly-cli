@@ -95,11 +95,7 @@ export async function handleScorecardClassic({
 }
 
 function isNonInteractiveEnvironment(): boolean {
-  if (process.env.CI) {
-    return true;
-  }
-
-  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+  if (process.env.CI || !process.stdin.isTTY) {
     return true;
   }
 
