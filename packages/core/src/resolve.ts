@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import {
   isRef,
   joinPointer,
-  escapePointer,
+  escapePointerFragment,
   parseRef,
   isAbsoluteUrl,
   isAnchor,
@@ -315,7 +315,7 @@ export async function resolveDocument(opts: {
           continue;
         }
 
-        walk(propValue, propType, joinPointer(nodeAbsoluteRef, escapePointer(propName)));
+        walk(propValue, propType, joinPointer(nodeAbsoluteRef, escapePointerFragment(propName)));
       }
 
       if (isRef(node)) {
@@ -426,7 +426,10 @@ export async function resolveDocument(opts: {
           break;
         } else if (target[segment] !== undefined) {
           target = target[segment];
-          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(
+            resolvedRef.nodePointer!,
+            escapePointerFragment(segment)
+          );
         } else if (isRef(target)) {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
           targetDoc = resolvedRef.document || targetDoc;
@@ -437,7 +440,10 @@ export async function resolveDocument(opts: {
           }
 
           target = resolvedRef.node[segment];
-          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(
+            resolvedRef.nodePointer!,
+            escapePointerFragment(segment)
+          );
         } else {
           target = undefined;
           break;

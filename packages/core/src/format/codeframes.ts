@@ -1,5 +1,5 @@
 import * as yamlAst from 'yaml-ast-parser';
-import { unescapePointer } from '../ref-utils.js';
+import { parsePointer } from '../ref-utils.js';
 import { colorize, colorOptions } from '../logger.js';
 
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
@@ -13,11 +13,6 @@ type YAMLNode = YAMLMapping | YAMLMap | YAMLAnchorReference | YAMLSequence | YAM
 
 const MAX_LINE_LENGTH = 150;
 const MAX_CODEFRAME_LINES = 3;
-
-// TODO: temporary
-function parsePointer(pointer: string) {
-  return pointer.substr(2).split('/').map(unescapePointer);
-}
 
 export function getCodeframe(location: LineColLocationObject, color: boolean) {
   colorOptions.enabled = color;
@@ -181,7 +176,8 @@ function positionsToLoc(
 }
 
 export function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey: boolean) {
-  const pointerSegments = parsePointer(pointer);
+  const pointerSegments = parsePointer(pointer.substr(2));
+
   if (root === undefined) {
     return undefined;
   }

@@ -286,10 +286,16 @@ For other commands you'd have to do something similar.
 ### Performance benchmark
 
 To run the performance tests locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
-Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations, and run the actual test:
+Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations:
 
 ```sh
-(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
+(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f package-lock.json && npm i && npm run make-test)
+```
+
+and run the actual test:
+
+```sh
+(cd tests/performance/ && npm run test && cat benchmark_check.md)
 ```
 
 You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.

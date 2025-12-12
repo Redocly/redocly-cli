@@ -1,6 +1,6 @@
 import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
-import { escapePointer } from '../ref-utils.js';
+import { escapePointerFragment } from '../ref-utils.js';
 
 import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
@@ -44,12 +44,13 @@ function getAjvValidator(
   allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, allowAdditionalProperties);
+  const $id = encodeURI(loc.absolutePointer);
 
-  if (!ajv.getSchema(loc.absolutePointer)) {
-    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+  if (!ajv.getSchema($id)) {
+    ajv.addSchema({ $id, ...schema }, $id);
   }
 
-  return ajv.getSchema(loc.absolutePointer);
+  return ajv.getSchema($id);
 }
 
 export function validateJsonSchema(
@@ -95,7 +96,7 @@ export function validateJsonSchema(
     if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
       const property = error.params.additionalProperty || error.params.unevaluatedProperty;
       message = `${message} \`${property}\``;
-      error.instancePath += '/' + escapePointer(property);
+      error.instancePath += '/' + escapePointerFragment(property);
     }
 
     return {

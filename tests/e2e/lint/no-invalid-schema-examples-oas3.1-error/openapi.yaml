@@ -39,6 +39,10 @@ paths:
                   examples:
                     - test
                     - 25
+                three_%:
+                  type: number
+                  example: wrong
+
       responses:
         '200':
           description: My 200 response
