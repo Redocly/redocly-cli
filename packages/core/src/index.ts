@@ -52,6 +52,7 @@ export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointer,
+  unescapePointerFromURI,
   isRef,
   isAbsoluteUrl,
   escapePointer,

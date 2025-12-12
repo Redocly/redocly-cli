@@ -36,12 +36,16 @@ export class Location {
   }
 
   get absolutePointer() {
-    return this.source.absoluteRef + (this.pointer === '#/' ? '' : this.pointer);
+    return this.source.absoluteRef + (this.pointer === '#/' ? '' : encodeURI(this.pointer));
   }
 }
 
 export function unescapePointer(fragment: string): string {
-  return decodeURIComponent(fragment.replace(/~1/g, '/').replace(/~0/g, '~'));
+  return fragment.replace(/~1/g, '/').replace(/~0/g, '~');
+}
+
+export function unescapePointerFromURI(fragment: string): string {
+  return unescapePointer(decodeURIComponent(fragment));
 }
 
 export function escapePointer<T extends string | number>(fragment: T): T {
@@ -53,7 +57,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
   const [uri, pointer = ''] = ref.split('#/');
   return {
     uri: (uri.endsWith('#') ? uri.slice(0, -1) : uri) || null,
-    pointer: parsePointer(pointer),
+    pointer: pointer.split('/').map(unescapePointerFromURI).filter(isTruthy),
   };
 }
 
