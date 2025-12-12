@@ -38,6 +38,12 @@ export async function handleScorecardClassic({
     );
   }
 
+  if (isNonInteractiveEnvironment() && !apiKey) {
+    exitWithError(
+      'Please provide an API key using the REDOCLY_AUTHORIZATION environment variable.\n'
+    );
+  }
+
   const auth = apiKey || (await handleLoginAndFetchToken(config, argv.verbose));
 
   if (!auth) {
@@ -86,4 +92,16 @@ export async function handleScorecardClassic({
   );
 
   throw new AbortFlowError('Scorecard validation failed.');
+}
+
+function isNonInteractiveEnvironment(): boolean {
+  if (process.env.CI) {
+    return true;
+  }
+
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    return true;
+  }
+
+  return false;
 }
