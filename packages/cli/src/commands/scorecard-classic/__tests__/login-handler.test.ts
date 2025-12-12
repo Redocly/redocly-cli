@@ -75,7 +75,9 @@ describe('handleLoginAndFetchToken', () => {
 
     await handleLoginAndFetchToken(mockConfig, true);
 
-    expect(logger.warn).toHaveBeenCalledWith('No access token found. Attempting login...\n');
+    expect(logger.warn).toHaveBeenCalledWith(
+      'No valid access token found or refresh token expired. Attempting login...\n'
+    );
   });
 
   it('should handle login failure and exit with error', async () => {

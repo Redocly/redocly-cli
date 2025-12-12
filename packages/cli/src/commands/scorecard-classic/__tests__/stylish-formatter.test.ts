@@ -33,11 +33,10 @@ describe('printScorecardResults', () => {
 
     printScorecardResults(problems);
 
-    expect(openapiCore.logger.output).toHaveBeenCalled();
     expect(openapiCore.logger.info).toHaveBeenCalledWith(
       expect.stringMatching(/Found.*1.*error.*0.*warning.*1.*level/)
     );
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
+    expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
   });
 
   it('should handle problems with Unknown level', () => {
@@ -54,7 +53,7 @@ describe('printScorecardResults', () => {
 
     printScorecardResults(problems);
 
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(expect.stringContaining('Unknown'));
+    expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('Unknown'));
   });
 
   it('should show correct severity counts per level', () => {
@@ -87,8 +86,8 @@ describe('printScorecardResults', () => {
 
     printScorecardResults(problems);
 
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
-    expect(openapiCore.logger.info).toHaveBeenCalledWith(
+    expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
+    expect(openapiCore.logger.output).toHaveBeenCalledWith(
       expect.stringMatching(/2.*error.*1.*warning/)
     );
   });
@@ -127,6 +126,7 @@ describe('printScorecardResults', () => {
 
     printScorecardResults(problems);
 
-    expect(openapiCore.logger.output).toHaveBeenCalledTimes(2);
+    // Should have 3 calls: 1 for level header + 2 for problems
+    expect(openapiCore.logger.output).toHaveBeenCalledTimes(3);
   });
 });
