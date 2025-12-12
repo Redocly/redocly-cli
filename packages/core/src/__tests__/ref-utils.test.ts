@@ -1,6 +1,6 @@
 import outdent from 'outdent';
 import { parseYamlToDocument } from '../../__tests__/utils.js';
-import { parseRef, refBaseName } from '../ref-utils.js';
+import { escapePointer, parseRef, refBaseName, unescapePointerFromURI } from '../ref-utils.js';
 import { lintDocument } from '../lint.js';
 import { createConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
@@ -137,6 +137,39 @@ describe('ref-utils', () => {
 
     it('returns base name for file without any dots in name', () => {
       expect(refBaseName('abcdefg')).toStrictEqual('abcdefg');
+    });
+  });
+
+  describe('escapePointer', () => {
+    it('should escape a pointer correctly', () => {
+      expect(escapePointer('scope/complex~name')).toStrictEqual('scope~1complex~0name');
+    });
+
+    it('should escape a pointer with a number correctly', () => {
+      expect(escapePointer(123)).toStrictEqual(123);
+    });
+
+    it('should escape a pointer with a string correctly', () => {
+      expect(escapePointer('scope/complex~name')).toStrictEqual('scope~1complex~0name');
+    });
+
+    it('should not URI-encode special characters when escaping pointers', () => {
+      // escapePointer should only handle JSON Pointer escaping, not URI encoding
+      expect(escapePointer('activity_level_%')).toStrictEqual('activity_level_%');
+    });
+  });
+
+  describe('unescapePointerFromURI', () => {
+    it('should unescape a pointer with a percent sign correctly', () => {
+      expect(unescapePointerFromURI('activity_level_%25')).toStrictEqual('activity_level_%');
+    });
+
+    it('should unescape a pointer with a number correctly', () => {
+      expect(unescapePointerFromURI('123')).toStrictEqual('123');
+    });
+
+    it('should unescape a pointer correctly', () => {
+      expect(unescapePointerFromURI('scope~1complex~0name')).toStrictEqual('scope/complex~name');
     });
   });
 });
