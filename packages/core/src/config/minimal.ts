@@ -277,6 +277,11 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   overlay1Rules: {
     'info-contact': 'off',
   },
+  openrpc1Rules: {
+    'info-contact': 'off',
+    'info-license': 'off',
+    'no-unused-components': 'off',
+  },
 };
 
 export default minimal;

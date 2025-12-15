@@ -286,6 +286,13 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tag-description": "warn",
     "tags-alphabetical": "off",
   },
+  "openrpc1Decorators": {},
+  "openrpc1Preprocessors": {},
+  "openrpc1Rules": {
+    "info-contact": "off",
+    "info-license": "warn",
+    "no-unused-components": "warn",
+  },
   "overlay1Decorators": {},
   "overlay1Preprocessors": {},
   "overlay1Rules": {
@@ -656,6 +663,13 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "spec-strict-refs": "off",
     "tag-description": "warn",
     "tags-alphabetical": "off",
+  },
+  "openrpc1Decorators": {},
+  "openrpc1Preprocessors": {},
+  "openrpc1Rules": {
+    "info-contact": "off",
+    "info-license": "warn",
+    "no-unused-components": "warn",
   },
   "overlay1Decorators": {},
   "overlay1Preprocessors": {},

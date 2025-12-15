@@ -79,6 +79,25 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         default:
           return null;
       }
+    case 'openrpc1':
+      switch (typeName) {
+        case 'ContentDescriptor':
+          return 'contentDescriptors';
+        case 'Schema':
+          return 'schemas';
+        case 'Example':
+          return 'examples';
+        case 'Link':
+          return 'links';
+        case 'ErrorObject':
+          return 'errors';
+        case 'ExamplePairing':
+          return 'examplePairingObjects';
+        case 'Tag':
+          return 'tags';
+        default:
+          return null;
+      }
   }
 }
 
@@ -163,6 +182,8 @@ export function makeBundleVisitor(
           components = root.components = root.components || {};
         } else if (version === 'arazzo1') {
           components = root.components = root.components || {};
+        } else if (version === 'openrpc1') {
+          components = root.components = root.components || {};
         }
       },
     },
@@ -205,7 +226,12 @@ export function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === 'oas3' || version === 'async2' || version === 'async3') {
+    if (
+      version === 'oas3' ||
+      version === 'async2' ||
+      version === 'async3' ||
+      version === 'openrpc1'
+    ) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;

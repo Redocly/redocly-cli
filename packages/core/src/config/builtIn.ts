@@ -21,12 +21,17 @@ import {
   rules as overlay1Rules,
   preprocessors as overlay1Preprocessors,
 } from '../rules/overlay1/index.js';
+import {
+  rules as openrpc1Rules,
+  preprocessors as openrpc1Preprocessors,
+} from '../rules/openrpc/index.js';
 import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
 import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
 import { decorators as async2Decorators } from '../decorators/async2/index.js';
 import { decorators as async3Decorators } from '../decorators/async3/index.js';
 import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
+import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
 
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
@@ -46,6 +51,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
     async3: async3Rules,
     arazzo1: arazzo1Rules,
     overlay1: overlay1Rules,
+    openrpc1: openrpc1Rules,
   },
   preprocessors: {
     oas3: oas3Preprocessors,
@@ -54,6 +60,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
     async3: async3Preprocessors,
     arazzo1: arazzoPreprocessors,
     overlay1: overlay1Preprocessors,
+    openrpc1: openrpc1Preprocessors,
   },
   decorators: {
     oas3: oas3Decorators,
@@ -62,6 +69,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
     async3: async3Decorators,
     arazzo1: arazzo1Decorators,
     overlay1: overlay1Decorators,
+    openrpc1: openrpc1Decorators,
   },
   configs: builtInConfigs,
 };

@@ -75,6 +75,23 @@ import type {
   Workflow,
 } from './typings/arazzo.js';
 import type { Overlay1Definition } from './typings/overlay.js';
+import type {
+  OpenRpc1Definition,
+  OpenRpc1Info,
+  OpenRpc1Server,
+  OpenRpc1ServerVariable,
+  OpenRpc1Method,
+  OpenRpc1ContentDescriptor,
+  OpenRpc1ExamplePairing,
+  OpenRpc1Example,
+  OpenRpc1Link,
+  OpenRpc1Error,
+  OpenRpc1Components,
+  OpenRpc1Tag,
+  OpenRpc1ExternalDocs,
+  OpenRpc1Contact,
+  OpenRpc1License,
+} from './typings/openrpc.js';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -272,6 +289,33 @@ type Overlay1FlatVisitor = {
   Root?: VisitFunctionOrObject<Overlay1Definition>;
 };
 
+type OpenRpc1FlatVisitor = {
+  Root?: VisitFunctionOrObject<OpenRpc1Definition>;
+  Info?: VisitFunctionOrObject<OpenRpc1Info>;
+  Contact?: VisitFunctionOrObject<OpenRpc1Contact>;
+  License?: VisitFunctionOrObject<OpenRpc1License>;
+  Server?: VisitFunctionOrObject<OpenRpc1Server>;
+  ServerVariable?: VisitFunctionOrObject<OpenRpc1ServerVariable>;
+  Method?: VisitFunctionOrObject<OpenRpc1Method>;
+  ContentDescriptor?: VisitFunctionOrObject<OpenRpc1ContentDescriptor>;
+  ExamplePairing?: VisitFunctionOrObject<OpenRpc1ExamplePairing>;
+  Example?: VisitFunctionOrObject<OpenRpc1Example>;
+  Link?: VisitFunctionOrObject<OpenRpc1Link>;
+  ErrorObject?: VisitFunctionOrObject<OpenRpc1Error>;
+  Components?: VisitFunctionOrObject<OpenRpc1Components>;
+  Tag?: VisitFunctionOrObject<OpenRpc1Tag>;
+  ExternalDocs?: VisitFunctionOrObject<OpenRpc1ExternalDocs>;
+  Schema?: VisitFunctionOrObject<any>; // generic schema
+  SchemaProperties?: VisitFunctionOrObject<Record<string, any>>;
+  NamedContentDescriptors?: VisitFunctionOrObject<Record<string, OpenRpc1ContentDescriptor>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, any>>;
+  NamedExamples?: VisitFunctionOrObject<Record<string, OpenRpc1Example>>;
+  NamedLinks?: VisitFunctionOrObject<Record<string, OpenRpc1Link>>;
+  NamedErrors?: VisitFunctionOrObject<Record<string, OpenRpc1Error>>;
+  NamedExamplePairingObjects?: VisitFunctionOrObject<Record<string, OpenRpc1ExamplePairing>>;
+  NamedTags?: VisitFunctionOrObject<Record<string, OpenRpc1Tag>>;
+};
+
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
@@ -328,6 +372,13 @@ type Overlay1NestedVisitor = {
     : Overlay1FlatVisitor[T] & NestedVisitor<Overlay1NestedVisitor>;
 };
 
+type OpenRpc1NestedVisitor = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [T in keyof OpenRpc1FlatVisitor]: OpenRpc1FlatVisitor[T] extends Function
+    ? OpenRpc1FlatVisitor[T]
+    : OpenRpc1FlatVisitor[T] & NestedVisitor<OpenRpc1NestedVisitor>;
+};
+
 export type Oas3Visitor = BaseVisitor &
   Oas3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
@@ -351,6 +402,10 @@ export type Arazzo1Visitor = BaseVisitor &
 export type Overlay1Visitor = BaseVisitor &
   Overlay1NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Overlay1NestedVisitor>>;
+
+export type OpenRpc1Visitor = BaseVisitor &
+  OpenRpc1NestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, OpenRpc1NestedVisitor>>;
 
 export type CatalogEntityVisitor = BaseVisitor & Record<string, VisitFunction<any>>;
 
@@ -379,6 +434,7 @@ export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async
 export type Async3Rule = (options: Record<string, any>) => Async3Visitor | Async3Visitor[];
 export type Arazzo1Rule = (options: Record<string, any>) => Arazzo1Visitor | Arazzo1Visitor[];
 export type Overlay1Rule = (options: Record<string, any>) => Overlay1Visitor | Overlay1Visitor[];
+export type OpenRpc1Rule = (options: Record<string, any>) => OpenRpc1Visitor | OpenRpc1Visitor[];
 export type CatalogEntityRule = (
   options: Record<string, any>
 ) => CatalogEntityVisitor | CatalogEntityVisitor[];
@@ -388,12 +444,14 @@ export type Async2Preprocessor = (options: Record<string, any>) => Async2Visitor
 export type Async3Preprocessor = (options: Record<string, any>) => Async3Visitor;
 export type Arazzo1Preprocessor = (options: Record<string, any>) => Arazzo1Visitor;
 export type Overlay1Preprocessor = (options: Record<string, any>) => Overlay1Visitor;
+export type OpenRpc1Preprocessor = (options: Record<string, any>) => OpenRpc1Visitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Decorator = (options: Record<string, any>) => Oas2Visitor;
 export type Async2Decorator = (options: Record<string, any>) => Async2Visitor;
 export type Async3Decorator = (options: Record<string, any>) => Async3Visitor;
 export type Arazzo1Decorator = (options: Record<string, any>) => Arazzo1Visitor;
 export type Overlay1Decorator = (options: Record<string, any>) => Overlay1Visitor;
+export type OpenRpc1Decorator = (options: Record<string, any>) => OpenRpc1Visitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver

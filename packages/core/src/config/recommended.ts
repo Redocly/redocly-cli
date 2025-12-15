@@ -277,6 +277,11 @@ const recommended: RawGovernanceConfig<'built-in'> = {
   overlay1Rules: {
     'info-contact': 'off',
   },
+  openrpc1Rules: {
+    'info-license': 'warn',
+    'no-unused-components': 'warn',
+    'info-contact': 'off',
+  },
 };
 
 export default recommended;

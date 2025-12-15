@@ -211,6 +211,7 @@ const Xml: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+// based on draft-2020-12
 const Schema: NodeType = {
   ...Oas3_1Types.Schema,
   properties: {

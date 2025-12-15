@@ -277,6 +277,11 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
   overlay1Rules: {
     'info-contact': 'off',
   },
+  openrpc1Rules: {
+    'info-contact': 'off',
+    'info-license': 'error',
+    'no-unused-components': 'error',
+  },
 };
 
 export default recommendedStrict;
