@@ -246,7 +246,7 @@ describe('validateScorecard', () => {
       expect(result.problems).toHaveLength(1);
     });
 
-    it('should return previous level when current level has warnings', async () => {
+    it('should achieve level even with warnings (only errors prevent achievement)', async () => {
       const scorecardConfig = {
         levels: [
           { name: 'Bronze', rules: {} },
@@ -264,7 +264,7 @@ describe('validateScorecard', () => {
             location: [],
             ignored: false,
           },
-        ] as any); // Silver: has warning
+        ] as any); // Silver: has warning but no errors
 
       const result = await validateScorecard({
         document: mockDocument,
@@ -272,7 +272,7 @@ describe('validateScorecard', () => {
         scorecardConfig,
       });
 
-      expect(result.achievedLevel).toBe('Bronze');
+      expect(result.achievedLevel).toBe('Silver');
       expect(result.problems).toHaveLength(1);
     });
 

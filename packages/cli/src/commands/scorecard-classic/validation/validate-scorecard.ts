@@ -115,9 +115,9 @@ function determineAchievedLevel(
 
   for (const level of levels) {
     const levelProblems = levelResults.get(level.name) || [];
-    const hasProblems = levelProblems.length > 0;
+    const hasErrors = levelProblems.some((p) => p.severity === 'error');
 
-    if (hasProblems) {
+    if (hasErrors) {
       return lastPassedLevel || 'Non Conformant';
     }
 
