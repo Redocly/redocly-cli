@@ -3,12 +3,19 @@ import { exitWithError } from '../../../utils/error.js';
 
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
-export async function fetchRemoteScorecardAndPlugins(
-  projectUrl: string,
-  auth: string,
+export type FetchRemoteScorecardAndPluginsParams = {
+  projectUrl: string;
+  auth: string;
+  isApiKey?: boolean;
+  verbose?: boolean;
+};
+
+export async function fetchRemoteScorecardAndPlugins({
+  projectUrl,
+  auth,
   isApiKey = false,
-  verbose = false
-): Promise<RemoteScorecardAndPlugins> {
+  verbose = false,
+}: FetchRemoteScorecardAndPluginsParams): Promise<RemoteScorecardAndPlugins> {
   if (verbose) {
     logger.info(`Starting fetch for remote scorecard configuration...\n`);
   }
@@ -22,14 +29,14 @@ export async function fetchRemoteScorecardAndPlugins(
   const { residency, orgSlug, projectSlug } = parsedProjectUrl;
 
   try {
-    const project = await fetchProjectConfigBySlugs(
+    const project = await fetchProjectConfigBySlugs({
       residency,
       orgSlug,
       projectSlug,
       auth,
       isApiKey,
-      verbose
-    );
+      verbose,
+    });
     const scorecard = project?.config.scorecardClassic || project?.config.scorecard;
 
     if (!scorecard) {
@@ -90,14 +97,23 @@ function parseProjectUrl(
   };
 }
 
-async function fetchProjectConfigBySlugs(
-  residency: string,
-  orgSlug: string,
-  projectSlug: string,
-  auth: string,
-  isApiKey: boolean,
-  verbose = false
-): Promise<Project | undefined> {
+type FetchProjectConfigBySlugsParams = {
+  residency: string;
+  orgSlug: string;
+  projectSlug: string;
+  auth: string;
+  isApiKey: boolean;
+  verbose?: boolean;
+};
+
+async function fetchProjectConfigBySlugs({
+  residency,
+  orgSlug,
+  projectSlug,
+  auth,
+  isApiKey,
+  verbose = false,
+}: FetchProjectConfigBySlugsParams): Promise<Project | undefined> {
   const authHeaders = createAuthHeaders(auth, isApiKey);
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
 

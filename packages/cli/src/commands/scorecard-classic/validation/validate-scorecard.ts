@@ -12,15 +12,25 @@ export type ScorecardValidationResult = {
   targetLevelAchieved: boolean;
 };
 
-export async function validateScorecard(
-  document: Document,
-  externalRefResolver: BaseResolver,
-  scorecardConfig: ScorecardConfig,
-  configPath?: string,
-  pluginsCodeOrPlugins?: string | Plugin[],
-  targetLevel?: string,
-  verbose = false
-): Promise<ScorecardValidationResult> {
+export type ValidateScorecardParams = {
+  document: Document;
+  externalRefResolver: BaseResolver;
+  scorecardConfig: ScorecardConfig;
+  configPath?: string;
+  pluginsCodeOrPlugins?: string | Plugin[];
+  targetLevel?: string;
+  verbose?: boolean;
+};
+
+export async function validateScorecard({
+  document,
+  externalRefResolver,
+  scorecardConfig,
+  configPath,
+  pluginsCodeOrPlugins,
+  targetLevel,
+  verbose = false,
+}: ValidateScorecardParams): Promise<ScorecardValidationResult> {
   const problems: ScorecardProblem[] = [];
   const levelResults: Map<string, ScorecardProblem[]> = new Map();
 

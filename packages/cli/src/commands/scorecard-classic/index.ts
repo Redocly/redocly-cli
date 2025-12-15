@@ -51,27 +51,27 @@ export async function handleScorecardClassic({
     exitWithError('Failed to obtain access token or API key.');
   }
 
-  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins(
+  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins({
     projectUrl,
     auth,
-    !!apiKey,
-    argv.verbose
-  );
+    isApiKey: !!apiKey,
+    verbose: argv.verbose,
+  });
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
   const {
     problems: result,
     achievedLevel,
     targetLevelAchieved,
-  } = await validateScorecard(
+  } = await validateScorecard({
     document,
     externalRefResolver,
-    remoteScorecardAndPlugins.scorecard!,
-    config.configPath,
-    remoteScorecardAndPlugins?.plugins,
+    scorecardConfig: remoteScorecardAndPlugins.scorecard!,
+    configPath: config.configPath,
+    pluginsCodeOrPlugins: remoteScorecardAndPlugins?.plugins,
     targetLevel,
-    argv.verbose
-  );
+    verbose: argv.verbose,
+  });
 
   if (result.length === 0) {
     logger.output(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));

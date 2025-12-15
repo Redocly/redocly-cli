@@ -33,7 +33,11 @@ describe('validateScorecard', () => {
   it('should return empty array when no scorecard levels defined', async () => {
     const scorecardConfig = { levels: [] };
 
-    const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
+    const result = await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+    });
 
     expect(result).toEqual({
       achievedLevel: 'Non Conformant',
@@ -51,7 +55,11 @@ describe('validateScorecard', () => {
       ],
     };
 
-    await validateScorecard(mockDocument, mockResolver, scorecardConfig);
+    await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+    });
 
     expect(openapiCore.createConfig).toHaveBeenCalledTimes(2);
     expect(openapiCore.lintDocument).toHaveBeenCalledTimes(2);
@@ -74,7 +82,11 @@ describe('validateScorecard', () => {
 
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
-    const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
+    const result = await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+    });
 
     expect(result.problems).toHaveLength(1);
     expect(result.problems[0].scorecardLevel).toBe('Gold');
@@ -105,7 +117,11 @@ describe('validateScorecard', () => {
 
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
-    const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
+    const result = await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+    });
 
     expect(result.problems).toHaveLength(1);
     expect(result.problems[0].message).toBe('Error 1');
@@ -119,7 +135,12 @@ describe('validateScorecard', () => {
     const mockPlugins = [{ id: 'test-plugin' }];
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
-    await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, 'plugin-code');
+    await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+      pluginsCodeOrPlugins: 'plugin-code',
+    });
 
     expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', false);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
@@ -135,7 +156,12 @@ describe('validateScorecard', () => {
 
     const mockPlugins = [{ id: 'test-plugin' }];
 
-    await validateScorecard(mockDocument, mockResolver, scorecardConfig, undefined, mockPlugins);
+    await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+      pluginsCodeOrPlugins: mockPlugins,
+    });
 
     expect(evaluatePluginsFromCode).not.toHaveBeenCalled();
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
@@ -152,15 +178,13 @@ describe('validateScorecard', () => {
     const mockPlugins = [{ id: 'test-plugin' }];
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
-    await validateScorecard(
-      mockDocument,
-      mockResolver,
+    await validateScorecard({
+      document: mockDocument,
+      externalRefResolver: mockResolver,
       scorecardConfig,
-      undefined,
-      'plugin-code',
-      undefined,
-      true
-    );
+      pluginsCodeOrPlugins: 'plugin-code',
+      verbose: true,
+    });
 
     expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', true);
     expect(openapiCore.createConfig).toHaveBeenCalledWith(

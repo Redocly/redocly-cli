@@ -23,12 +23,17 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   });
 
   it('should handle invalid URL format', async () => {
-    await expect(fetchRemoteScorecardAndPlugins('not-a-valid-url', testToken)).rejects.toThrow();
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: 'not-a-valid-url', auth: testToken })
+    ).rejects.toThrow();
   });
 
   it('should throw error when project URL pattern does not match', async () => {
     await expect(
-      fetchRemoteScorecardAndPlugins('https://example.com/invalid/path', testToken)
+      fetchRemoteScorecardAndPlugins({
+        projectUrl: 'https://example.com/invalid/path',
+        auth: testToken,
+      })
     ).rejects.toThrow();
 
     expect(errorUtils.exitWithError).toHaveBeenCalledWith(
@@ -41,7 +46,9 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       status: 404,
     });
 
-    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toThrow();
 
     expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('Failed to fetch project')
@@ -53,7 +60,9 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       status: 401,
     });
 
-    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toThrow();
 
     expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('Unauthorized access to project')
@@ -65,7 +74,9 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       status: 403,
     });
 
-    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toThrow();
 
     expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('Unauthorized access to project')
@@ -82,7 +93,9 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       }),
     });
 
-    await expect(fetchRemoteScorecardAndPlugins(validProjectUrl, testToken)).rejects.toThrow();
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken })
+    ).rejects.toThrow();
 
     expect(errorUtils.exitWithError).toHaveBeenCalledWith(
       expect.stringContaining('No scorecard configuration found')
@@ -105,7 +118,10 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       }),
     });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    const result = await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+    });
 
     expect(result).toEqual({
       scorecard: mockScorecard,
@@ -137,7 +153,10 @@ describe('fetchRemoteScorecardAndPlugins', () => {
         text: async () => mockPluginsCode,
       });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    const result = await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+    });
 
     expect(result).toEqual({
       scorecard: mockScorecard,
@@ -167,7 +186,10 @@ describe('fetchRemoteScorecardAndPlugins', () => {
         status: 404,
       });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    const result = await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+    });
 
     expect(result).toEqual({
       scorecard: mockScorecard,
@@ -184,7 +206,10 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       }),
     });
 
-    await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken);
+    await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+    });
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(URL),
@@ -206,7 +231,11 @@ describe('fetchRemoteScorecardAndPlugins', () => {
       }),
     });
 
-    await fetchRemoteScorecardAndPlugins(validProjectUrl, apiKey, true);
+    await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: apiKey,
+      isApiKey: true,
+    });
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(URL),
@@ -239,7 +268,12 @@ describe('fetchRemoteScorecardAndPlugins', () => {
         text: async () => mockPluginsCode,
       });
 
-    const result = await fetchRemoteScorecardAndPlugins(validProjectUrl, testToken, false, true);
+    const result = await fetchRemoteScorecardAndPlugins({
+      projectUrl: validProjectUrl,
+      auth: testToken,
+      isApiKey: false,
+      verbose: true,
+    });
 
     expect(result).toEqual({
       scorecard: mockScorecard,
