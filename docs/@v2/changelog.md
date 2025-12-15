@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.12.7 (2025-12-15)
+
+### Patch Changes
+
+- Added `scorecard-classic` command to evaluate API descriptions against project scorecard configurations.
+- Updated @redocly/openapi-core to v2.12.7.
+
 ## 2.12.6 (2025-12-10)
 
 ### Patch Changes
