@@ -6,6 +6,7 @@ export type ScorecardClassicArgv = {
   config: string;
   'project-url'?: string;
   format: OutputFormat;
+  'target-level'?: string;
   verbose?: boolean;
 } & VerifyConfigOptions;
 

@@ -31,10 +31,13 @@ describe('printScorecardResults', () => {
       },
     ];
 
-    printScorecardResults(problems);
+    printScorecardResults(problems, 'Gold', true);
 
     expect(openapiCore.logger.info).toHaveBeenCalledWith(
       expect.stringMatching(/Found.*1.*error.*0.*warning.*1.*level/)
+    );
+    expect(openapiCore.logger.output).toHaveBeenCalledWith(
+      expect.stringContaining('Achieved Level: ')
     );
     expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
   });
@@ -51,7 +54,7 @@ describe('printScorecardResults', () => {
       },
     ];
 
-    printScorecardResults(problems);
+    printScorecardResults(problems, 'Unknown', true);
 
     expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('Unknown'));
   });
@@ -84,7 +87,7 @@ describe('printScorecardResults', () => {
       },
     ];
 
-    printScorecardResults(problems);
+    printScorecardResults(problems, 'Gold', true);
 
     expect(openapiCore.logger.output).toHaveBeenCalledWith(expect.stringContaining('📋 Gold'));
     expect(openapiCore.logger.output).toHaveBeenCalledWith(
@@ -124,9 +127,9 @@ describe('printScorecardResults', () => {
       },
     ];
 
-    printScorecardResults(problems);
+    printScorecardResults(problems, 'Gold', true);
 
-    // Should have 3 calls: 1 for level header + 2 for problems
-    expect(openapiCore.logger.output).toHaveBeenCalledTimes(3);
+    // Should have 4 calls: 1 for level header + 2 for problems + 1 for achieved level
+    expect(openapiCore.logger.output).toHaveBeenCalledTimes(4);
   });
 });

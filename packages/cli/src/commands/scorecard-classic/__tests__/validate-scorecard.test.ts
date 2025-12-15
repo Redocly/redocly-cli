@@ -35,7 +35,11 @@ describe('validateScorecard', () => {
 
     const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({
+      achievedLevel: 'Non Conformant',
+      problems: [],
+      targetLevelAchieved: true,
+    });
     expect(openapiCore.lintDocument).not.toHaveBeenCalled();
   });
 
@@ -72,9 +76,9 @@ describe('validateScorecard', () => {
 
     const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].scorecardLevel).toBe('Gold');
-    expect(result[0].message).toBe('Test error');
+    expect(result.problems).toHaveLength(1);
+    expect(result.problems[0].scorecardLevel).toBe('Gold');
+    expect(result.problems[0].message).toBe('Test error');
   });
 
   it('should filter out ignored problems', async () => {
@@ -103,8 +107,8 @@ describe('validateScorecard', () => {
 
     const result = await validateScorecard(mockDocument, mockResolver, scorecardConfig);
 
-    expect(result).toHaveLength(1);
-    expect(result[0].message).toBe('Error 1');
+    expect(result.problems).toHaveLength(1);
+    expect(result.problems[0].message).toBe('Error 1');
   });
 
   it('should evaluate plugins from code when string provided', async () => {
@@ -154,6 +158,7 @@ describe('validateScorecard', () => {
       scorecardConfig,
       undefined,
       'plugin-code',
+      undefined,
       true
     );
 

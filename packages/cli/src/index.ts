@@ -816,6 +816,10 @@ yargs(hideBin(process.argv))
           choices: ['stylish', 'json'],
           default: 'stylish',
         },
+        'target-level': {
+          describe: 'Target level for the scorecard.',
+          type: 'string',
+        },
         verbose: {
           alias: 'v',
           describe: 'Apply verbose mode.',

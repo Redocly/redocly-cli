@@ -29,7 +29,11 @@ function formatStylishProblem(
   return `  ${location}  ${severity}  ${level}  ${ruleId}  ${problem.message}`;
 }
 
-export function printScorecardResults(problems: ScorecardProblem[]): void {
+export function printScorecardResults(
+  problems: ScorecardProblem[],
+  achievedLevel: string,
+  targetLevelAchieved: boolean
+): void {
   const problemsByLevel = problems.reduce((acc, problem) => {
     const level = problem.scorecardLevel || 'Unknown';
     if (!acc[level]) {
@@ -52,6 +56,9 @@ export function printScorecardResults(problems: ScorecardProblem[]): void {
       )} ${pluralize('level', levelCount)}\n`
     )
   );
+
+  targetLevelAchieved &&
+    logger.output(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));
 
   for (const [level, levelProblems] of Object.entries(problemsByLevel)) {
     const severityCounts = levelProblems.reduce((acc, p) => {

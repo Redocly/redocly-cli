@@ -19,12 +19,13 @@ describe('printScorecardResultsAsJson', () => {
   });
 
   it('should print empty results when no problems', () => {
-    printScorecardResultsAsJson([]);
+    printScorecardResultsAsJson([], 'Gold', true);
 
     expect(openapiCore.logger.output).toHaveBeenCalledWith(
       JSON.stringify(
         {
           version: '1.0',
+          level: 'Gold',
           levels: [],
         },
         null,
@@ -73,12 +74,13 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Silver', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
 
     expect(output.version).toBe('1.0');
+    expect(output.level).toBe('Silver');
     expect(output.levels).toHaveLength(2);
 
     const goldLevel = output.levels.find((l: any) => l.name === 'Gold');
@@ -102,7 +104,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Gold', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
@@ -125,7 +127,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Gold', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
@@ -152,7 +154,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Gold', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
@@ -176,7 +178,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Unknown', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
@@ -198,7 +200,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Gold', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);
@@ -252,7 +254,7 @@ describe('printScorecardResultsAsJson', () => {
       },
     ];
 
-    printScorecardResultsAsJson(problems);
+    printScorecardResultsAsJson(problems, 'Gold', true);
 
     const outputCall = (openapiCore.logger.output as any).mock.calls[0][0];
     const output = JSON.parse(outputCall);

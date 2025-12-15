@@ -23,6 +23,7 @@ type ScorecardLevel = {
 
 export type ScorecardJsonOutput = {
   version: string;
+  level?: string;
   levels: ScorecardLevel[];
 };
 
@@ -52,6 +53,8 @@ function stripAnsiCodes(text: string): string {
 
 export function printScorecardResultsAsJson(
   problems: ScorecardProblem[],
+  achievedLevel: string,
+  targetLevelAchieved: boolean,
   version: string = '1.0'
 ): void {
   const groupedByLevel: Record<string, ScorecardProblem[]> = {};
@@ -103,6 +106,7 @@ export function printScorecardResultsAsJson(
 
   const output: ScorecardJsonOutput = {
     version,
+    ...(targetLevelAchieved ? { level: achievedLevel } : {}),
     levels,
   };
 

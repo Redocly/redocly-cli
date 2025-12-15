@@ -1,9 +1,16 @@
 import { logger, createConfig, lintDocument, pluralize } from '@redocly/openapi-core';
 import { evaluatePluginsFromCode } from './plugin-evaluator.js';
+import { exitWithError } from '../../../utils/error.js';
 
 import type { ScorecardConfig } from '@redocly/config';
 import type { Document, RawUniversalConfig, Plugin, BaseResolver } from '@redocly/openapi-core';
 import type { ScorecardProblem } from '../types.js';
+
+export type ScorecardValidationResult = {
+  problems: ScorecardProblem[];
+  achievedLevel: string;
+  targetLevelAchieved: boolean;
+};
 
 export async function validateScorecard(
   document: Document,
@@ -11,9 +18,17 @@ export async function validateScorecard(
   scorecardConfig: ScorecardConfig,
   configPath?: string,
   pluginsCodeOrPlugins?: string | Plugin[],
+  targetLevel?: string,
   verbose = false
-): Promise<ScorecardProblem[]> {
+): Promise<ScorecardValidationResult> {
   const problems: ScorecardProblem[] = [];
+  const levelResults: Map<string, ScorecardProblem[]> = new Map();
+
+  if (targetLevel && !scorecardConfig.levels?.some((level) => level.name === targetLevel)) {
+    exitWithError(
+      `Target level "${targetLevel}" not found in the scorecard configuration levels.\n`
+    );
+  }
 
   for (const level of scorecardConfig?.levels || []) {
     if (verbose) {
@@ -45,23 +60,63 @@ export async function validateScorecard(
       config,
     });
 
+    const filteredProblems = levelProblems
+      .filter(({ ignored }) => !ignored)
+      .map((problem) => ({
+        ...problem,
+        scorecardLevel: level.name,
+      }));
+
+    levelResults.set(level.name, filteredProblems);
+
     if (verbose) {
       logger.info(
-        `Found ${levelProblems.length} ${pluralize('problem', levelProblems.length)} for level "${
-          level.name
-        }".\n`
+        `Found ${filteredProblems.length} ${pluralize(
+          'problem',
+          filteredProblems.length
+        )} for level "${level.name}".\n`
       );
     }
 
-    problems.push(
-      ...levelProblems
-        .filter(({ ignored }) => !ignored)
-        .map((problem) => ({
-          ...problem,
-          scorecardLevel: level.name,
-        }))
-    );
+    problems.push(...filteredProblems);
   }
 
-  return problems;
+  const achievedLevel = determineAchievedLevel(
+    levelResults,
+    scorecardConfig.levels || [],
+    targetLevel
+  );
+
+  const targetLevelAchieved = targetLevel ? achievedLevel === targetLevel : true;
+
+  return {
+    problems,
+    achievedLevel,
+    targetLevelAchieved,
+  };
+}
+
+function determineAchievedLevel(
+  levelResults: Map<string, ScorecardProblem[]>,
+  levels: Array<{ name: string }>,
+  targetLevel?: string
+): string {
+  let lastPassedLevel: string | null = null;
+
+  for (const level of levels) {
+    const levelProblems = levelResults.get(level.name) || [];
+    const hasErrors = levelProblems.some((p) => p.severity === 'error');
+
+    if (hasErrors) {
+      return lastPassedLevel || 'Non Conformant';
+    }
+
+    lastPassedLevel = level.name;
+
+    if (targetLevel && level.name === targetLevel) {
+      return level.name;
+    }
+  }
+
+  return lastPassedLevel || 'Non Conformant';
 }

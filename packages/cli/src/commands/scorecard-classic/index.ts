@@ -6,7 +6,7 @@ import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
-import { blue, gray, green } from 'colorette';
+import { blue, bold, cyan, gray, green, white } from 'colorette';
 
 import type { ScorecardClassicArgv } from './types.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -21,6 +21,7 @@ export async function handleScorecardClassic({
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
+  const targetLevel = argv['target-level'];
 
   const projectUrl =
     argv['project-url'] ||
@@ -58,16 +59,23 @@ export async function handleScorecardClassic({
   );
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
-  const result = await validateScorecard(
+  const {
+    problems: result,
+    achievedLevel,
+    targetLevelAchieved,
+  } = await validateScorecard(
     document,
     externalRefResolver,
     remoteScorecardAndPlugins.scorecard!,
     config.configPath,
     remoteScorecardAndPlugins?.plugins,
+    targetLevel,
     argv.verbose
   );
 
   if (result.length === 0) {
+    logger.output(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));
+
     logger.output(
       green(
         `✅ No issues found for ${blue(
@@ -78,10 +86,16 @@ export async function handleScorecardClassic({
     return;
   }
 
+  if (targetLevel && !targetLevelAchieved) {
+    logger.error(
+      `\n❌ Your API specification does not satisfy the target scorecard level "${targetLevel}".\n`
+    );
+  }
+
   if (argv.format === 'json') {
-    printScorecardResultsAsJson(result, version);
+    printScorecardResultsAsJson(result, achievedLevel, targetLevelAchieved, version);
   } else {
-    printScorecardResults(result);
+    printScorecardResults(result, achievedLevel, targetLevelAchieved);
   }
 
   const elapsed = getExecutionTime(startedAt);
@@ -90,6 +104,12 @@ export async function handleScorecardClassic({
       elapsed
     )}.\n`
   );
+
+  if (targetLevel && !targetLevelAchieved) {
+    throw new AbortFlowError('Target scorecard level not achieved.');
+  } else if (achievedLevel !== 'Non Conformant') {
+    return;
+  }
 
   throw new AbortFlowError('Scorecard validation failed.');
 }

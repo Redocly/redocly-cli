@@ -15,19 +15,21 @@ The `scorecard-classic` command requires a scorecard configuration in your Redoc
 redocly scorecard-classic <api> --project-url=<url>
 redocly scorecard-classic <api> --config=<path>
 redocly scorecard-classic <api> --format=json
+redocly scorecard-classic <api> --target-level=<level>
 redocly scorecard-classic <api> --verbose
 ```
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                                                                                          |
-| ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api           | string  | Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                                       |
-| --config      | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                       |
-| --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                                                                      |
-| --help        | boolean | Show help.                                                                                                                                                                                           |
-| --project-url | string  | URL to the project scorecard configuration. Required if not configured in the Redocly configuration file. Example: `https://app.cloud.redocly.com/org/my-org/projects/my-project/scorecard-classic`. |
-| --verbose, -v | boolean | Run the command in verbose mode to display additional information during execution.                                                                                                                  |
+| Option         | Type    | Description                                                                                                                                                                                          |
+| -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api            | string  | Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                                       |
+| --config       | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                       |
+| --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                                                                      |
+| --help         | boolean | Show help.                                                                                                                                                                                           |
+| --project-url  | string  | URL to the project scorecard configuration. Required if not configured in the Redocly configuration file. Example: `https://app.cloud.redocly.com/org/my-org/projects/my-project/scorecard-classic`. |
+| --target-level | string  | Target scorecard level to achieve. The command validates that the API meets this level and all preceding levels without errors. Exits with an error if the target level is not achieved.             |
+| --verbose, -v  | boolean | Run the command in verbose mode to display additional information during execution.                                                                                                                  |
 
 ## Examples
 
@@ -79,11 +81,29 @@ redocly scorecard-classic openapi/openapi.yaml --format=json
 
 The JSON output is grouped by scorecard level and includes:
 
+- Version information
+- Achieved scorecard level
 - Summary of errors and warnings for each level
 - Rule ID and documentation link (for built-in rules)
 - Severity level (error or warning)
 - Location information (file path, line/column range, and JSON pointer)
 - Descriptive message about the violation
+
+### Validate against a target level
+
+Use the `--target-level` option to ensure your API meets a specific quality level. The command validates that your API satisfies the target level and all preceding levels without errors:
+
+```bash
+redocly scorecard-classic openapi/openapi.yaml --target-level=Gold
+```
+
+If the API doesn't meet the target level, the command:
+
+- Displays which level was actually achieved
+- Shows all validation issues preventing the target level from being met
+- Exits with a non-zero exit code (useful for CI/CD pipelines)
+
+This is particularly useful in CI/CD pipelines to enforce minimum quality standards before deployment.
 
 ### Run in verbose mode
 
@@ -128,18 +148,26 @@ The CLI opens a browser window for you to authenticate with your Redocly account
 The scorecard evaluation categorizes issues into multiple levels based on your project's configuration.
 Each issue is associated with a specific scorecard level, allowing you to prioritize improvements.
 
+The command displays the achieved scorecard level, which is the highest level your API meets without errors.
+The achieved level is shown in both stylish and JSON output formats.
+
 When all checks pass, the command displays a success message:
 
 ```text
+ ☑️  Achieved Level: Gold
+
 ✅ No issues found for openapi/openapi.yaml. Your API meets all scorecard requirements.
 ```
 
 When issues are found, the output shows:
 
+- The achieved scorecard level
 - The rule that was violated
 - The scorecard level of the rule
 - The location in the API description where the issue occurs
 - A descriptive message explaining the violation
+
+If a `--target-level` is specified and not achieved, the command displays an error message and exits with a non-zero code.
 
 ## Related commands
 
