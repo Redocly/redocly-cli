@@ -281,6 +281,8 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'info-license': 'warn',
     'no-unused-components': 'warn',
     'info-contact': 'off',
+    'spec-no-duplicated-method-params': 'error',
+    'spec-no-required-params-after-optional': 'error',
   },
 };
 

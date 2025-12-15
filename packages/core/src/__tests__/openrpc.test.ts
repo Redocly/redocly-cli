@@ -154,4 +154,64 @@ describe('Open-RPC support', () => {
     expect(result[0].ruleId).toBe('no-unused-components');
     expect(result[0].message).toContain('Component: "UnusedPet" is never used.');
   });
+
+  test('reports duplicated method parameters', async () => {
+    const documentWithDuplicates = JSON.stringify({
+      openrpc: '1.2.6',
+      info: { title: 'Petstore', version: '1.0.0' },
+      methods: [
+        {
+          name: 'listPets',
+          params: [
+            { name: 'limit', schema: { type: 'integer' } },
+            { name: 'limit', schema: { type: 'integer' } },
+          ],
+          result: { name: 'pets', schema: { type: 'array' } },
+        },
+      ],
+    });
+
+    const config = await createConfig({
+      rules: { 'spec-no-duplicated-method-params': 'error' },
+    });
+    const result = await lintFromString({
+      source: documentWithDuplicates,
+      config,
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].ruleId).toBe('spec-no-duplicated-method-params');
+    expect(result[0].message).toContain("Duplicate parameter name 'limit' found.");
+  });
+
+  test('reports required parameters after optional ones', async () => {
+    const documentWithBadOrder = JSON.stringify({
+      openrpc: '1.2.6',
+      info: { title: 'Petstore', version: '1.0.0' },
+      methods: [
+        {
+          name: 'listPets',
+          params: [
+            { name: 'optionalParam', required: false, schema: { type: 'integer' } },
+            { name: 'requiredParam', required: true, schema: { type: 'integer' } },
+          ],
+          result: { name: 'pets', schema: { type: 'array' } },
+        },
+      ],
+    });
+
+    const config = await createConfig({
+      rules: { 'spec-no-required-params-after-optional': 'error' },
+    });
+    const result = await lintFromString({
+      source: documentWithBadOrder,
+      config,
+    });
+
+    expect(result).toHaveLength(1);
+    expect(result[0].ruleId).toBe('spec-no-required-params-after-optional');
+    expect(result[0].message).toContain(
+      "Required parameter 'requiredParam' must be positioned before optional parameters."
+    );
+  });
 });

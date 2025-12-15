@@ -48,6 +48,8 @@ The currently supported rules are:
 
 - `no-unresolved-refs`: Every `$ref` must exist.
 - `no-unused-components`: All components must be used.
+- `spec-no-duplicated-method-params`: The list of parameters must not include duplicated parameters.
+- `spec-no-required-params-after-optional`: Required parameters must be positioned before optional parameters.
 - `info-contact`: Contact section is defined under `info`.
 - `info-license`: License section is defined under `info`.
 

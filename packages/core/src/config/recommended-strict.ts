@@ -281,6 +281,8 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'info-contact': 'off',
     'info-license': 'error',
     'no-unused-components': 'error',
+    'spec-no-duplicated-method-params': 'error',
+    'spec-no-required-params-after-optional': 'error',
   },
 };
 

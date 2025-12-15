@@ -184,7 +184,13 @@ const builtInOverlay1Rules = ['info-contact'] as const;
 
 export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
 
-const builtInOpenRpc1Rules = ['info-contact', 'info-license', 'no-unused-components'] as const;
+const builtInOpenRpc1Rules = [
+  'info-contact',
+  'info-license',
+  'no-unused-components',
+  'spec-no-duplicated-method-params',
+  'spec-no-required-params-after-optional',
+] as const;
 
 export type BuiltInOpenRpc1RuleId = typeof builtInOpenRpc1Rules[number];
 

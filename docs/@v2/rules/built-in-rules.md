@@ -156,6 +156,8 @@ Use the rules in this section for Open-RPC specific linting.
 - [struct](./common/struct.md): Conform to the declared Open-RPC specification version
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 - [no-unused-components](./oas/no-unused-components.md): All components must be used
+- `spec-no-duplicated-method-params`: The list of parameters must not include duplicated parameters
+- `spec-no-required-params-after-optional`: Required parameters must be positioned before optional parameters
 - [info-contact](./oas/info-contact.md): Contact section is defined under `info`
 - [info-license](./oas/info-license.md): License section is defined under `info`
 

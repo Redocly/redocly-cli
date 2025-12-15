@@ -281,6 +281,8 @@ const spec: RawGovernanceConfig<'built-in'> = {
     'info-contact': 'off',
     'info-license': 'off',
     'no-unused-components': 'off',
+    'spec-no-duplicated-method-params': 'error',
+    'spec-no-required-params-after-optional': 'error',
   },
 };
 
