@@ -16,12 +16,19 @@ export async function handleScorecardClassic({
   argv,
   config,
   version,
+  collectSpecData,
 }: CommandArgs<ScorecardClassicArgv>) {
   const startedAt = performance.now();
-  const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  if (!apis.length) {
+    exitWithError('No APIs were provided.');
+  }
+
+  const path = apis[0].path;
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
   const targetLevel = argv['target-level'];
+  collectSpecData?.(document.parsed);
 
   const projectUrl =
     argv['project-url'] ||
