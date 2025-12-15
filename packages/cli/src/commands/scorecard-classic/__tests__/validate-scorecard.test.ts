@@ -192,4 +192,168 @@ describe('validateScorecard', () => {
       expect.any(Object)
     );
   });
+
+  describe('determineAchievedLevel', () => {
+    it('should return highest level when all levels pass without problems', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+          { name: 'Gold', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+      });
+
+      expect(result.achievedLevel).toBe('Gold');
+      expect(result.targetLevelAchieved).toBe(true);
+    });
+
+    it('should return previous level when current level has errors', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+          { name: 'Gold', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument)
+        .mockResolvedValueOnce([]) // Bronze: no problems
+        .mockResolvedValueOnce([
+          {
+            message: 'Silver level error',
+            ruleId: 'test-rule',
+            severity: 'error',
+            location: [],
+            ignored: false,
+          },
+        ] as any); // Silver: has error
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+      });
+
+      expect(result.achievedLevel).toBe('Bronze');
+      expect(result.problems).toHaveLength(1);
+    });
+
+    it('should return previous level when current level has warnings', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument)
+        .mockResolvedValueOnce([]) // Bronze: no problems
+        .mockResolvedValueOnce([
+          {
+            message: 'Silver level warning',
+            ruleId: 'test-rule',
+            severity: 'warn',
+            location: [],
+            ignored: false,
+          },
+        ] as any); // Silver: has warning
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+      });
+
+      expect(result.achievedLevel).toBe('Bronze');
+      expect(result.problems).toHaveLength(1);
+    });
+
+    it('should return "Non Conformant" when first level has problems', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument).mockResolvedValue([
+        {
+          message: 'Bronze level error',
+          ruleId: 'test-rule',
+          severity: 'error',
+          location: [],
+          ignored: false,
+        },
+      ] as any);
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+      });
+
+      expect(result.achievedLevel).toBe('Non Conformant');
+    });
+
+    it('should return target level when specified and achieved', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+          { name: 'Gold', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+        targetLevel: 'Silver',
+      });
+
+      expect(result.achievedLevel).toBe('Silver');
+      expect(result.targetLevelAchieved).toBe(true);
+    });
+
+    it('should indicate target level not achieved when level has problems', async () => {
+      const scorecardConfig = {
+        levels: [
+          { name: 'Bronze', rules: {} },
+          { name: 'Silver', rules: {} },
+        ],
+      };
+
+      vi.mocked(openapiCore.lintDocument)
+        .mockResolvedValueOnce([]) // Bronze: no problems
+        .mockResolvedValueOnce([
+          {
+            message: 'Silver level error',
+            ruleId: 'test-rule',
+            severity: 'error',
+            location: [],
+            ignored: false,
+          },
+        ] as any); // Silver: has error
+
+      const result = await validateScorecard({
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig,
+        targetLevel: 'Silver',
+      });
+
+      expect(result.achievedLevel).toBe('Bronze');
+      expect(result.targetLevelAchieved).toBe(false);
+    });
+  });
 });
