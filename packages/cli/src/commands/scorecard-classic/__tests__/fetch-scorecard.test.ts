@@ -7,8 +7,6 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   const testToken = 'test-token';
 
   beforeEach(() => {
-    vi.unstubAllEnvs();
-    delete process.env.REDOCLY_AUTHORIZATION;
     global.fetch = mockFetch;
     mockFetch.mockClear();
     vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
