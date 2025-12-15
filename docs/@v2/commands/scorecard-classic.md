@@ -81,13 +81,13 @@ redocly scorecard-classic openapi/openapi.yaml --format=json
 
 The JSON output is grouped by scorecard level and includes:
 
-- Version information
-- Achieved scorecard level
-- Summary of errors and warnings for each level
-- Rule ID and documentation link (for built-in rules)
-- Severity level (error or warning)
-- Location information (file path, line/column range, and JSON pointer)
-- Descriptive message about the violation
+- version information
+- achieved scorecard level
+- summary of errors and warnings for each level
+- rule ID and documentation link (for built-in rules)
+- severity level (error or warning)
+- location information (file path, line/column range, and JSON pointer)
+- descriptive message about the violation
 
 ### Validate against a target level
 
@@ -99,9 +99,9 @@ redocly scorecard-classic openapi/openapi.yaml --target-level=Gold
 
 If the API doesn't meet the target level, the command:
 
-- Displays which level was actually achieved
-- Shows all validation issues preventing the target level from being met
-- Exits with a non-zero exit code (useful for CI/CD pipelines)
+- displays which level was actually achieved
+- shows all validation issues preventing the target level from being met
+- exits with a non-zero exit code (useful for CI/CD pipelines)
 
 This is particularly useful in CI/CD pipelines to enforce minimum quality standards before deployment.
 
@@ -115,9 +115,9 @@ redocly scorecard-classic openapi/openapi.yaml --verbose
 
 Verbose mode displays additional information such as:
 
-- Project URL being used
-- Authentication status
-- Detailed logging of the evaluation process
+- project URL being used
+- authentication status
+- detailed logging of the evaluation process
 
 ## Authentication
 
@@ -161,11 +161,11 @@ When all checks pass, the command displays a success message:
 
 When issues are found, the output shows:
 
-- The achieved scorecard level
-- The rule that was violated
-- The scorecard level of the rule
-- The location in the API description where the issue occurs
-- A descriptive message explaining the violation
+- the achieved scorecard level
+- the rule that was violated
+- the scorecard level of the rule
+- the location in the API description where the issue occurs
+- a descriptive message explaining the violation
 
 If a `--target-level` is specified and not achieved, the command displays an error message and exits with a non-zero code.
 
