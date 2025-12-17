@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.13.0 (2025-12-17)
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.13.0.
+
 ## 2.12.7 (2025-12-15)
 
 ### Patch Changes

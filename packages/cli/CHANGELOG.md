@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.13.0.
+
 ## 2.12.7
 
 ### Patch Changes
