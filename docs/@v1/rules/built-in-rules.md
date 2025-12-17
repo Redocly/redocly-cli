@@ -138,6 +138,15 @@ The below rules are being migrated to Respect:
 - [no-criteria-xpath](./respect/no-criteria-xpath.md): the `xpath` type criteria is not supported by Respect.
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 
+## Overlay rules
+
+Rules for the main Overlay specification format.
+
+### Overlay
+
+- [info-contact](./overlay/info-contact.md): Contact section is defined under `info`
+- [no-unresolved-refs](./oas/no-unresolved-refs.md): Every `$ref` must exist
+
 ## Resources
 
 - Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
