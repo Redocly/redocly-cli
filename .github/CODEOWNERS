@@ -4,3 +4,5 @@
 README.md @Redocly/dark-side
 README.md @Redocly/technical-writers
 docs/ @Redocly/technical-writers
+packages/cli/src/utils/otel.ts @Redocly/hot-dogs
+packages/cli/src/utils/telemetry.ts @Redocly/hot-dogs
