@@ -19,6 +19,7 @@ export { AsyncApi2Types } from './types/asyncapi2.js';
 export { AsyncApi3Types } from './types/asyncapi3.js';
 export { Arazzo1Types } from './types/arazzo.js';
 export { Overlay1Types } from './types/overlay.js';
+export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { createEntityTypes } from './types/entity-yaml.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
@@ -68,24 +69,28 @@ export {
   type Async3Visitor,
   type Arazzo1Visitor,
   type Overlay1Visitor,
+  type OpenRpc1Visitor,
   type Oas3Rule,
   type Oas2Rule,
   type Async2Rule,
   type Async3Rule,
   type Arazzo1Rule,
   type Overlay1Rule,
+  type OpenRpc1Rule,
   type Oas3Decorator,
   type Oas2Decorator,
   type Async2Decorator,
   type Async3Decorator,
   type Arazzo1Decorator,
   type Overlay1Decorator,
+  type OpenRpc1Decorator,
   type Oas3Preprocessor,
   type Oas2Preprocessor,
   type Async2Preprocessor,
   type Async3Preprocessor,
   type Arazzo1Preprocessor,
   type Overlay1Preprocessor,
+  type OpenRpc1Preprocessor,
 } from './visitors.js';
 export {
   WalkContext,
@@ -149,6 +154,7 @@ export type {
 export type { Oas2Definition } from './typings/swagger.js';
 export type { Async3Definition } from './typings/asyncapi3.js';
 export type { Async2Definition } from './typings/asyncapi.js';
+export type { OpenRpc1Definition } from './typings/openrpc.js';
 export type {
   ArazzoDefinition,
   ExtendedOperation,

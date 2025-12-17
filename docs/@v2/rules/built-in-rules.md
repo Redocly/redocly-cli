@@ -20,6 +20,7 @@ Redocly CLI can lint multiple API description formats:
 - [OpenAPI](#openapi-rules)
 - [AsyncAPI](#asyncapi-rules)
 - [Arazzo](#arazzo-rules)
+- [Open-RPC](#open-rpc-rules)
 - Overlay
 
 Visit each page for details of what the rule does, additional configuration options, and examples of it in use.
@@ -147,6 +148,18 @@ The below rules are being migrated to Respect:
 - [respect-supported-versions](./respect/respect-supported-versions.md): the `version` property must be one of the supported values.
 - [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
+
+## Open-RPC rules
+
+Use the rules in this section for Open-RPC specific linting.
+
+- [struct](./common/struct.md): Conform to the declared Open-RPC specification version
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+- [no-unused-components](./oas/no-unused-components.md): All components must be used
+- `spec-no-duplicated-method-params`: The list of parameters must not include duplicated parameters
+- `spec-no-required-params-after-optional`: Required parameters must be positioned before optional parameters
+- [info-contact](./oas/info-contact.md): Contact section is defined under `info`
+- [info-license](./oas/info-license.md): License section is defined under `info`
 
 ## Resources
 

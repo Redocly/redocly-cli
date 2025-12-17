@@ -184,6 +184,16 @@ const builtInOverlay1Rules = ['info-contact'] as const;
 
 export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
 
+const builtInOpenRpc1Rules = [
+  'info-contact',
+  'info-license',
+  'no-unused-components',
+  'spec-no-duplicated-method-params',
+  'spec-no-required-params-after-optional',
+] as const;
+
+export type BuiltInOpenRpc1RuleId = typeof builtInOpenRpc1Rules[number];
+
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 
 export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
@@ -195,6 +205,7 @@ const builtInRules = [
   ...builtInAsync3Rules,
   ...builtInArazzo1Rules,
   ...builtInOverlay1Rules,
+  ...builtInOpenRpc1Rules,
   ...builtInCommonRules,
 ] as const;
 
@@ -229,6 +240,7 @@ const configGovernanceProperties: Record<
   async3Rules: 'Rules',
   arazzo1Rules: 'Rules',
   overlay1Rules: 'Rules',
+  openrpc1Rules: 'Rules',
   preprocessors: { type: 'object' },
   oas2Preprocessors: { type: 'object' },
   oas3_0Preprocessors: { type: 'object' },
@@ -238,6 +250,7 @@ const configGovernanceProperties: Record<
   async3Preprocessors: { type: 'object' },
   arazzo1Preprocessors: { type: 'object' },
   overlay1Preprocessors: { type: 'object' },
+  openrpc1Preprocessors: { type: 'object' },
   decorators: { type: 'object' },
   oas2Decorators: { type: 'object' },
   oas3_0Decorators: { type: 'object' },
@@ -247,6 +260,7 @@ const configGovernanceProperties: Record<
   async3Decorators: { type: 'object' },
   arazzo1Decorators: { type: 'object' },
   overlay1Decorators: { type: 'object' },
+  openrpc1Decorators: { type: 'object' },
 };
 
 const ConfigGovernance: NodeType = {
