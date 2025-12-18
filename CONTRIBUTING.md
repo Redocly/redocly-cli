@@ -3,18 +3,38 @@
 Hi! We're really excited that you are interested in contributing to Redocly CLI.
 Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
-- [Issue reporting guidelines](#issue-reporting-guidelines)
-- [Pull request guidelines](#pull-request-guidelines)
-- [Development setup](#development-setup)
-- [Development guidelines](#development-guidelines)
-- [Local source code usage](#local-source-code-usage)
-- [Contribute documentation](#contribute-documentation)
-- [Built-in rules changes](#built-in-rules-changes)
-- [Arguments usage](#arguments-usage)
-- [Exit codes](#exit-codes)
-- [Tests](#tests)
-- [Project structure](#project-structure)
-- [Release flow](#release-flow)
+- [Redocly CLI Contributing Guide](#redocly-cli-contributing-guide)
+  - [Issue reporting guidelines](#issue-reporting-guidelines)
+  - [Pull request guidelines](#pull-request-guidelines)
+  - [Development setup](#development-setup)
+    - [Commonly used NPM scripts](#commonly-used-npm-scripts)
+    - [Debugging with a proxy](#debugging-with-a-proxy)
+  - [Development guidelines](#development-guidelines)
+    - [Logging](#logging)
+  - [Local source code usage](#local-source-code-usage)
+    - [NPM linking](#npm-linking)
+    - [Local packing and installing](#local-packing-and-installing)
+  - [Contribute documentation](#contribute-documentation)
+    - [Prose linting](#prose-linting)
+    - [Markdown linting](#markdown-linting)
+    - [Markdown link checking](#markdown-link-checking)
+  - [Built-in rules changes](#built-in-rules-changes)
+  - [Arguments usage](#arguments-usage)
+    - [Environment variables](#environment-variables)
+    - [Command line arguments](#command-line-arguments)
+    - [Configuration file](#configuration-file)
+  - [Exit codes](#exit-codes)
+  - [Tests](#tests)
+    - [Unit tests](#unit-tests)
+    - [E2E tests](#e2e-tests)
+    - [Smoke tests](#smoke-tests)
+    - [Performance benchmark](#performance-benchmark)
+    - [Manual tests](#manual-tests)
+  - [Project structure](#project-structure)
+  - [Release flow](#release-flow)
+    - [Revert a release](#revert-a-release)
+    - [Snapshot release](#snapshot-release)
+    - [Release a V1 version](#release-a-v1-version)
 
 ## Issue reporting guidelines
 
@@ -70,6 +90,28 @@ Format your code with `npm run prettier` before committing.
 Please check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
+
+### Debugging with a proxy
+
+When debugging commands that make HTTP requests (like `push`), you can use a proxy to inspect the traffic.
+This is useful for debugging API calls to the Redocly platform.
+
+1. Set up a local or online proxy.
+
+2. Run the command with the `HTTP_PROXY` environment variable pointing to your proxy:
+
+```bash
+REDOCLY_AUTHORIZATION=<your-api-key> HTTP_PROXY=<proxy-url> \
+  npx @redocly/cli@snapshot push <file-1> <file-2> \
+  --organization <org-name> \
+  --project '<project-name>' \
+  --mount-path '<mount-path>' \
+  --branch '<branch-name>' \
+  --author 'Name <email@example.com>' \
+  --message '<message>' \
+  --domain <domain> \
+  --wait-for-deployment
+```
 
 ## Development guidelines
 
