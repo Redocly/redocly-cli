@@ -309,6 +309,7 @@ const Link: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+// draft-00
 const Schema: NodeType = {
   properties: {
     externalDocs: 'ExternalDocs',

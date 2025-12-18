@@ -84,6 +84,7 @@ const Operation: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+// draft-2020-12
 const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },

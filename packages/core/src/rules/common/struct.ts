@@ -12,6 +12,7 @@ import type {
   Async3Rule,
   Arazzo1Rule,
   Overlay1Rule,
+  OpenRpc1Rule,
 } from '../../visitors.js';
 
 export const Struct:
@@ -20,7 +21,8 @@ export const Struct:
   | Async2Rule
   | Async3Rule
   | Arazzo1Rule
-  | Overlay1Rule = () => {
+  | Overlay1Rule
+  | OpenRpc1Rule = () => {
   return {
     any(
       node: any,

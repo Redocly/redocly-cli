@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+## 2.12.7
+
 ## 2.12.6
 
 ### Patch Changes

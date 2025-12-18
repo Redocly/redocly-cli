@@ -169,4 +169,19 @@ describe('replaceJSONPointers', () => {
 
     expect(result).toBe('[] == []');
   });
+
+  it('should correctly replace hyphenated keys', () => {
+    const context = {
+      $response: {
+        body: {
+          'test-hyphenated-key-with-value': 'some-value-to-test',
+        },
+      },
+    };
+
+    const expression = '$response.body#/test-hyphenated-key-with-value';
+    const result = replaceJSONPointers(expression, context);
+
+    expect(result).toBe('"some-value-to-test"');
+  });
 });

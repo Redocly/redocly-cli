@@ -27,6 +27,7 @@ import type {
   Oas2Visitor,
   Oas3Visitor,
   Overlay1Visitor,
+  OpenRpc1Visitor,
   RuleInstanceConfig,
 } from './visitors.js';
 import type { CollectFn } from './utils/types.js';
@@ -167,6 +168,8 @@ export async function lintConfig(opts: {
       | Arazzo1Visitor[]
       | Overlay1Visitor
       | Overlay1Visitor[]
+      | OpenRpc1Visitor
+      | OpenRpc1Visitor[]
     >;
   })[] = [
     {

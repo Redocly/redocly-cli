@@ -1,5 +1,22 @@
 # @redocly/cli
 
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.13.0.
+
+## 2.12.7
+
+### Patch Changes
+
+- Added `scorecard-classic` command to evaluate API descriptions against project scorecard configurations.
+- Updated @redocly/openapi-core to v2.12.7.
+
 ## 2.12.6
 
 ### Patch Changes

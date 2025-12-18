@@ -1,5 +1,18 @@
 # @redocly/respect-core
 
+## 2.13.0
+
+### Patch Changes
+
+- Fixed Respect's handling of runtime expressions with hyphenated keys in JSON pointers.
+- Updated @redocly/openapi-core to v2.13.0.
+
+## 2.12.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.7.
+
 ## 2.12.6
 
 ### Patch Changes

@@ -298,6 +298,13 @@ const all: RawGovernanceConfig<'built-in'> = {
   overlay1Rules: {
     'info-contact': 'error',
   },
+  openrpc1Rules: {
+    'info-contact': 'error',
+    'info-license': 'error',
+    'no-unused-components': 'error',
+    'spec-no-duplicated-method-params': 'error',
+    'spec-no-required-params-after-optional': 'error',
+  },
 };
 
 export default all;

@@ -1,11 +1,6 @@
 import { listOf, mapOf } from './index.js';
 import {
   AsyncApi2Bindings,
-  Schema,
-  Dependencies,
-  Discriminator,
-  DiscriminatorMapping,
-  SchemaProperties,
   CorrelationId,
   Tag,
   ServerMap,
@@ -16,6 +11,13 @@ import {
   License,
   MessageExample,
 } from './asyncapi2.js';
+import {
+  Dependencies,
+  Discriminator,
+  DiscriminatorMapping,
+  Schema,
+  SchemaProperties,
+} from './json-schema-draft7.shared.js';
 
 import type { NodeType } from './index.js';
 
@@ -341,7 +343,6 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   ServerMap,
   ExternalDocs,
   Root,
-
   Channel,
   Parameter,
   Info,
