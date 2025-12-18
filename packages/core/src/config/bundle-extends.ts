@@ -35,7 +35,7 @@ export function bundleExtends({
   }
 
   const resolvedExtends = extendsArray
-    .map((presetItem) => {
+    .map((presetItem, index) => {
       if (
         presetItem === undefined ||
         presetItem === null ||
@@ -46,7 +46,7 @@ export function bundleExtends({
       }
 
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins);
+        return resolvePreset(presetItem, plugins, ctx, ctx.location.child(['extends', index]));
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });
