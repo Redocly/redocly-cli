@@ -82,7 +82,7 @@ This is useful for debugging API calls to the Redocly platform.
 
 ```bash
 REDOCLY_AUTHORIZATION=<your-api-key> HTTP_PROXY=<proxy-url> \
-  npx @redocly/cli@snapshot push <file-1> <file-2> \
+  npx @redocly/cli push <file-1> <file-2> \
   --organization <org-name> \
   --project '<project-name>' \
   --mount-path '<mount-path>' \
