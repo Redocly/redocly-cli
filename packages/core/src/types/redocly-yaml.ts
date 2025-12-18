@@ -208,8 +208,10 @@ const configGovernanceProperties: Record<
     name: 'ConfigGovernanceList',
     properties: {},
     items: (node) => {
-      // check if it's preset name
-      if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+      if (typeof node !== 'string') {
+        return undefined;
+      }
+      if (!isAbsoluteUrl(node) && !path.extname(node)) {
         return { type: 'string' };
       }
       return {

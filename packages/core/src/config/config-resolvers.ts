@@ -32,6 +32,8 @@ import type {
   ImportedPlugin,
 } from './types.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
+import type { UserContext, NormalizedProblem } from '../walk.js';
+import type { Location } from '../ref-utils.js';
 
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();
@@ -58,6 +60,7 @@ export async function resolveConfig({
   resolvedConfig: ResolvedConfig;
   resolvedRefMap: ResolvedRefMap;
   plugins: Plugin[];
+  configProblems: NormalizedProblem[];
 }> {
   const config = rawConfigDocument === undefined ? DEFAULT_CONFIG : rawConfigDocument.parsed;
 
@@ -99,7 +102,7 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
-  const bundledConfig = bundleConfig(
+  const { config: bundledConfig, problems: configProblems } = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins
@@ -131,6 +134,7 @@ export async function resolveConfig({
     },
     resolvedRefMap,
     plugins: resolvedPlugins,
+    configProblems,
   };
 }
 
@@ -446,24 +450,45 @@ export async function resolvePlugins(
   return instances.filter(isDefined).flat();
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): RawGovernanceConfig {
+export function resolvePreset(
+  presetName: string,
+  plugins: Plugin[],
+  ctx?: UserContext,
+  location?: Location
+): RawGovernanceConfig | null {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
-    throw new Error(
-      `Invalid config ${colorize.red(presetName)}: plugin ${pluginId} is not included.`
-    );
+    const message = `Invalid config ${colorize.red(
+      presetName
+    )}: plugin ${pluginId} is not included.`;
+    if (ctx && location) {
+      ctx.report({
+        message,
+        location,
+        forceSeverity: 'warn',
+      });
+      return null;
+    }
+    throw new Error(message);
   }
 
   const preset = plugin.configs?.[configName];
   if (!preset) {
-    throw new Error(
-      pluginId
-        ? `Invalid config ${colorize.red(
-            presetName
-          )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-        : `Invalid config ${colorize.red(presetName)}: there is no such built-in config.`
-    );
+    const message = pluginId
+      ? `Invalid config ${colorize.red(
+          presetName
+        )}: plugin ${pluginId} doesn't export config with name ${configName}.`
+      : `Invalid config ${colorize.red(presetName)}: there is no such built-in config.`;
+    if (ctx && location) {
+      ctx.report({
+        message,
+        location,
+        forceSeverity: 'warn',
+      });
+      return null;
+    }
+    throw new Error(message);
   }
   return preset;
 }

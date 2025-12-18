@@ -20,29 +20,28 @@ export function bundleExtends({
     return node;
   }
 
-  const resolvedExtends = (node.extends || [])
-    .map((presetItem, index) => {
-      const configPath =
-        (ctx.location?.source?.absoluteRef &&
-          path.relative(process.cwd(), ctx.location.source.absoluteRef)) ||
-        ctx.location?.source?.absoluteRef ||
-        'redocly.yaml';
+  const extendsArray = node.extends || [];
+  for (let index = 0; index < extendsArray.length; index++) {
+    const item = extendsArray[index];
+    if (item !== undefined && item !== null && typeof item !== 'string') {
+      ctx.report({
+        message: `Invalid "extends" entry: expected a string (ruleset name, path, or URL), but got ${JSON.stringify(
+          item
+        )}.`,
+        location: ctx.location.child(['extends', index]),
+        forceSeverity: 'error',
+      });
+    }
+  }
 
-      if (presetItem === undefined) {
-        ctx.report({
-          message: `Could not resolve "extends" entry at index ${index} in ${configPath}. It may refer to a non-existent or invalid rules file.`,
-          location: [ctx.location],
-        });
-        return undefined;
-      }
-
-      if (typeof presetItem !== 'string' || !presetItem.trim()) {
-        ctx.report({
-          message: `Invalid "extends" entry at index ${index} in ${configPath}. Expected a non-empty string (ruleset name, path, or URL), but got ${JSON.stringify(
-            presetItem
-          )}.`,
-          location: [ctx.location],
-        });
+  const resolvedExtends = extendsArray
+    .map((presetItem) => {
+      if (
+        presetItem === undefined ||
+        presetItem === null ||
+        typeof presetItem !== 'string' ||
+        !presetItem.trim()
+      ) {
         return undefined;
       }
 
@@ -56,10 +55,6 @@ export function bundleExtends({
         return resolvedRef.node as RawGovernanceConfig;
       }
 
-      ctx.report({
-        message: `Could not resolve "extends" entry "${presetItem}" in ${configPath}. Make sure the path, URL, or ruleset name is correct.`,
-        location: [ctx.location],
-      });
       return undefined;
     })
     .filter(isTruthy);

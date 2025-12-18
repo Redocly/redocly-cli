@@ -196,7 +196,8 @@ export async function lintConfig(opts: {
     ctx,
   });
 
-  return ctx.problems;
+  // Merge config problems from bundling with linting problems
+  return [...config.configProblems, ...ctx.problems];
 }
 
 export async function lintEntityFile(opts: {
