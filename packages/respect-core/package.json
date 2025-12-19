@@ -4,6 +4,7 @@
   "description": "API testing framework core",
   "type": "module",
   "types": "lib/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./lib/index.js",
