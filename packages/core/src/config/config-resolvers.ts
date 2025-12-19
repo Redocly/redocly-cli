@@ -32,7 +32,7 @@ import type {
   ImportedPlugin,
 } from './types.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
-import type { UserContext, NormalizedProblem } from '../walk.js';
+import type { UserContext } from '../walk.js';
 import type { Location } from '../ref-utils.js';
 
 // Cache instantiated plugins during a single execution
@@ -60,7 +60,6 @@ export async function resolveConfig({
   resolvedConfig: ResolvedConfig;
   resolvedRefMap: ResolvedRefMap;
   plugins: Plugin[];
-  configProblems: NormalizedProblem[];
 }> {
   const config = rawConfigDocument === undefined ? DEFAULT_CONFIG : rawConfigDocument.parsed;
 
@@ -102,7 +101,7 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
-  const { config: bundledConfig, problems: configProblems } = bundleConfig(
+  const { config: bundledConfig } = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins
@@ -134,7 +133,6 @@ export async function resolveConfig({
     },
     resolvedRefMap,
     plugins: resolvedPlugins,
-    configProblems,
   };
 }
 

@@ -14,6 +14,7 @@ import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
 import { type Config } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+import { ConfigNoUnresolvedRefs } from './rules/config/config-no-unresolved-refs.js';
 
 import type { Document } from './resolve.js';
 import type { ProblemSeverity, WalkContext } from './walk.js';
@@ -177,7 +178,7 @@ export async function lintConfig(opts: {
     {
       severity: severity || 'error',
       ruleId: 'configuration no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' }),
+      visitor: ConfigNoUnresolvedRefs(),
     },
   ];
   const normalizedVisitors = normalizeVisitors(rules, types);
@@ -196,8 +197,7 @@ export async function lintConfig(opts: {
     ctx,
   });
 
-  // Merge config problems from bundling with linting problems
-  return [...config.configProblems, ...ctx.problems];
+  return ctx.problems;
 }
 
 export async function lintEntityFile(opts: {

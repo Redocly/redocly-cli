@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf, mapOf } from './index.js';
 import { specVersions, getTypes } from '../oas-types.js';
@@ -6,10 +5,9 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType, PropType } from './index.js';
+import type { NodeType } from './index.js';
 import type { Config, RawGovernanceConfig } from '../config/index.js';
 
 const builtInOAS2Rules = [
@@ -204,22 +202,23 @@ const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,
   NodeType['properties'][string]
 > = {
-  extends: {
-    name: 'ConfigGovernanceList',
-    properties: {},
-    items: (node) => {
-      if (typeof node !== 'string') {
-        return undefined;
-      }
-      if (!isAbsoluteUrl(node) && !path.extname(node)) {
-        return { type: 'string' };
-      }
-      return {
-        ...ConfigGovernance,
-        directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
-      } as PropType;
-    },
-  } as PropType,
+  // extends: {
+  //   name: 'ConfigGovernanceList',
+  //   properties: {},
+  //   items: (node) => {
+  //     if (typeof node !== 'string') {
+  //       return undefined;
+  //     }
+  //     if (!isAbsoluteUrl(node) && !path.extname(node)) {
+  //       return { type: 'string' };
+  //     }
+  //     return {
+  //       ...ConfigGovernance,
+  //       directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
+  //     } as PropType;
+  //   },
+  // } as PropType,
+  extends: { type: 'array', items: { type: 'string' } },
   plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',

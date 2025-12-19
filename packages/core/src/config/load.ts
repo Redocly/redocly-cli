@@ -31,7 +31,7 @@ export async function loadConfig(
     throw rawConfigDocument;
   }
 
-  const { resolvedConfig, resolvedRefMap, plugins, configProblems } = await resolveConfig({
+  const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
     rawConfigDocument: rawConfigDocument ? cloneConfigDocument(rawConfigDocument) : undefined,
     customExtends,
     configPath,
@@ -41,9 +41,8 @@ export async function loadConfig(
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
-    resolvedRefMap: resolvedRefMap,
+    resolvedRefMap,
     plugins,
-    configProblems,
   });
 
   return config;
@@ -75,7 +74,7 @@ export async function createConfig(
     rawConfigDocument.parsed = config;
   }
 
-  const { resolvedConfig, resolvedRefMap, plugins, configProblems } = await resolveConfig({
+  const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
     externalRefResolver,
@@ -85,7 +84,6 @@ export async function createConfig(
     document: rawConfigDocument,
     resolvedRefMap,
     plugins,
-    configProblems,
   });
 }
 

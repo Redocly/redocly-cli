@@ -21,21 +21,9 @@ export function bundleExtends({
   }
 
   const extendsArray = node.extends || [];
-  for (let index = 0; index < extendsArray.length; index++) {
-    const item = extendsArray[index];
-    if (item !== undefined && item !== null && typeof item !== 'string') {
-      ctx.report({
-        message: `Invalid "extends" entry: expected a string (ruleset name, path, or URL), but got ${JSON.stringify(
-          item
-        )}.`,
-        location: ctx.location.child(['extends', index]),
-        forceSeverity: 'error',
-      });
-    }
-  }
 
   const resolvedExtends = extendsArray
-    .map((presetItem, index) => {
+    .map((presetItem) => {
       if (
         presetItem === undefined ||
         presetItem === null ||
@@ -45,8 +33,14 @@ export function bundleExtends({
         return undefined;
       }
 
+      // Named presets: merge their configs if they exist; ignore errors here.
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins, ctx, ctx.location.child(['extends', index]));
+        try {
+          return resolvePreset(presetItem, plugins) as RawGovernanceConfig | null;
+        } catch {
+          // Invalid preset names are reported during lintConfig; bundling stays best-effort.
+          return undefined;
+        }
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });

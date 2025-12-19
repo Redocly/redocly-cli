@@ -53,7 +53,6 @@ export class Config {
   _alias?: string;
 
   plugins: Plugin[];
-  configProblems: NormalizedProblem[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
@@ -71,7 +70,6 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      configProblems?: NormalizedProblem[];
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -82,7 +80,6 @@ export class Config {
     this._alias = opts.alias;
 
     this.plugins = opts.plugins || [];
-    this.configProblems = opts.configProblems || [];
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
     const group = (rules: Record<string, RuleConfig>) => {
