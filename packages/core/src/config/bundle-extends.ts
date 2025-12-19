@@ -26,7 +26,7 @@ export function bundleExtends({
     .filter(isTruthy)
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins);
+        return resolvePreset(presetItem, plugins, ctx.location);
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });

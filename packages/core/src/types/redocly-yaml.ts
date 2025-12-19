@@ -226,7 +226,6 @@ const configGovernanceProperties: Record<
       } as PropType;
     },
   } as PropType,
-  // extends: { type: 'array', items: { type: 'string' } },
   plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',

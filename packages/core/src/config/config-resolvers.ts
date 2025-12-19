@@ -31,6 +31,7 @@ import type {
   RawGovernanceConfig,
   ImportedPlugin,
 } from './types.js';
+import type { Location } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 
 // Cache instantiated plugins during a single execution
@@ -446,23 +447,39 @@ export async function resolvePlugins(
   return instances.filter(isDefined).flat();
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): RawGovernanceConfig {
+export function resolvePreset(
+  presetName: string,
+  plugins: Plugin[],
+  location: Location
+): RawGovernanceConfig {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
+
   if (!plugin) {
     throw new Error(
-      `Invalid config ${colorize.red(presetName)}: plugin ${pluginId} is not included.`
+      `Invalid preset: plugin ${colorize.blue(pluginId)} is not included.${
+        location.absolutePointer
+      }\n` + `\nAvailable plugins: ${plugins.map((p) => colorize.blue(p.id)).join(', ')}`
     );
   }
 
   const preset = plugin.configs?.[configName];
   if (!preset) {
+    const availableConfigs = plugin.configs ? Object.keys(plugin.configs) : [];
     throw new Error(
       pluginId
-        ? `Invalid config ${colorize.red(
-            presetName
-          )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-        : `Invalid config ${colorize.red(presetName)}: there is no such built-in config.`
+        ? `Invalid preset: plugin ${colorize.blue(
+            pluginId
+          )} doesn't export config with name "${configName}".${location.absolutePointer}\n` +
+          (availableConfigs.length > 0
+            ? `\nAvailable configs in ${colorize.blue(pluginId)}: ${availableConfigs
+                .map((c) => colorize.blue(c))
+                .join(', ')}`
+            : `\nPlugin ${colorize.blue(pluginId)} has no configs exported.`)
+        : `Invalid preset: there is no such built-in config "${configName}" at ${location.absolutePointer}.\n` +
+          `\nAvailable built-in configs: ${colorize.blue(
+            plugin.configs ? Object.keys(plugin.configs).join(', ') : 'none'
+          )}`
     );
   }
   return preset;
