@@ -38,7 +38,25 @@ export const Struct:
           ignoreNextVisitorsOnNode();
         }
         return;
-      } else if (nodeType !== 'object') {
+      }
+
+      // Handle NamedTypes with scalar type validation (for function-based array items)
+      // Check if this type has no real properties (empty or just type definition)
+      const hasRealProperties = Object.keys(type.properties).length > 0;
+      const typeWithScalar = type as typeof type & { type?: string };
+      const scalarType = !hasRealProperties && typeWithScalar.type;
+
+      if (scalarType && !matchesJsonSchemaType(node, scalarType, false)) {
+        // This is a NamedType wrapper around a scalar type (e.g., { name: 'StringValue', type: 'string', properties: {} })
+        report({
+          message: `Expected type \`${scalarType}\` but got \`${nodeType}\`.`,
+          from: refLocation,
+        });
+        ignoreNextVisitorsOnNode();
+        return;
+      }
+
+      if (nodeType !== 'object') {
         if (type !== SpecExtension) {
           // do not validate unknown extensions structure
           report({
@@ -116,6 +134,7 @@ export const Struct:
 
         if (propSchema === undefined) {
           if (propName.startsWith('x-')) continue;
+
           report({
             message: `Property \`${propName}\` is not expected here.`,
             suggest: getSuggest(propName, Object.keys(type.properties)),

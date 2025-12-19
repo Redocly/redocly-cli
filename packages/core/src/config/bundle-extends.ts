@@ -3,6 +3,7 @@ import { isAbsoluteUrl } from '../ref-utils.js';
 import { resolvePreset } from './config-resolvers.js';
 import { mergeExtends } from './utils.js';
 import { isTruthy } from '../utils/is-truthy.js';
+import { isString } from '../utils/is-string.js';
 
 import type { UserContext } from '../walk.js';
 import type { Plugin, RawGovernanceConfig } from './types.js';
@@ -21,6 +22,8 @@ export function bundleExtends({
   }
 
   const resolvedExtends = (node.extends || [])
+    .filter(isString)
+    .filter(isTruthy)
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);

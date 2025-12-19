@@ -208,16 +208,25 @@ const configGovernanceProperties: Record<
     name: 'ConfigGovernanceList',
     properties: {},
     items: (node) => {
+      // Validate that extends items must be strings
+      if (typeof node !== 'string') {
+        // Return a NamedType with scalar type for validation
+        return { name: 'ExtendsItem', type: 'string', properties: {} } as PropType;
+      }
+
       // check if it's preset name
-      if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+      if (!isAbsoluteUrl(node) && !path.extname(node)) {
         return { type: 'string' };
       }
+
+      // It's a file path - resolve it as a reference to ConfigGovernance
       return {
         ...ConfigGovernance,
         directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
       } as PropType;
     },
   } as PropType,
+  // extends: { type: 'array', items: { type: 'string' } },
   plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',
