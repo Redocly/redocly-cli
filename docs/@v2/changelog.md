@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.14.0 (2025-12-19)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.14.0.
+
 ## 2.13.0 (2025-12-17)
 
 ### Minor Changes

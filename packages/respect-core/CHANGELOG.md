@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 2.14.0
+
+### Minor Changes
+
+- Enabled tree shaking to eliminate dead code in the `@redocly/respect-core` package.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.0.
+
 ## 2.13.0
 
 ### Patch Changes
