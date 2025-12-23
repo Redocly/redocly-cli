@@ -309,50 +309,29 @@ function isCIEnvironment(): boolean {
     process.env.CI ||
     process.stdout.isTTY === false ||
     process.env.CONTINUOUS_INTEGRATION ||
-    // GitHub Actions
     process.env.GITHUB_ACTIONS ||
-    // GitLab CI
     process.env.GITLAB_CI ||
-    // Jenkins
     process.env.JENKINS_HOME ||
     process.env.JENKINS_URL ||
-    // Generic CI indicators
     process.env.BUILD_NUMBER ||
     process.env.BUILD_ID ||
-    // Bitbucket
     process.env.BITBUCKET_BUILD_NUMBER ||
     process.env.BITBUCKET_COMMIT ||
-    // CircleCI
     process.env.CIRCLECI ||
-    // Travis CI
     process.env.TRAVIS ||
-    // Azure Pipelines
     process.env.TF_BUILD ||
-    // TeamCity
     process.env.TEAMCITY_VERSION ||
-    // Bamboo
     process.env.bamboo_buildNumber ||
-    // AWS CodeBuild
     process.env.CODEBUILD_BUILD_ID ||
-    // Buildkite
     process.env.BUILDKITE ||
-    // Drone
     process.env.DRONE ||
-    // Semaphore
     process.env.SEMAPHORE ||
-    // AppVeyor
     process.env.APPVEYOR ||
-    // Netlify
     process.env.NETLIFY ||
-    // Vercel
     process.env.VERCEL ||
-    // Render
     process.env.RENDER ||
-    // Heroku
     process.env.HEROKU_TEST_RUN_ID ||
-    // Buddy
     process.env.BUDDY_WORKSPACE_ID ||
-    // CodeShip
     process.env.CI_NAME === 'codeship'
   ) {
     return true;
