@@ -1,6 +1,7 @@
 import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
 import { escapePointerFragment } from '../ref-utils.js';
+import { slash } from '../utils/slash.js';
 
 import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
@@ -26,9 +27,10 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       validateFormats: true,
       defaultUnevaluatedProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, $id: string) {
-        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
+        const resolvedRef = resolve({ $ref }, slash(base.split('#')[0]));
         if (!resolvedRef || !resolvedRef.location) return false;
-        return { $id: resolvedRef.location.source.absoluteRef + '#' + $id, ...resolvedRef.node };
+        const normalizedAbsoluteRef = slash(resolvedRef.location.source.absoluteRef);
+        return { $id: normalizedAbsoluteRef + '#' + $id, ...resolvedRef.node };
       },
       logger: false,
     });
@@ -44,7 +46,7 @@ function getAjvValidator(
   allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, allowAdditionalProperties);
-  const $id = encodeURI(loc.absolutePointer);
+  const $id = encodeURI(slash(loc.absolutePointer));
 
   if (!ajv.getSchema($id)) {
     ajv.addSchema({ $id, ...schema }, $id);
