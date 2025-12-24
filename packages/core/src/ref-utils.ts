@@ -26,7 +26,7 @@ export class Location {
       this.source,
       joinPointer(
         this.pointer,
-        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/')
+        (Array.isArray(components) ? components : [components]).map(escapePointerFragment).join('/')
       )
     );
   }
@@ -40,13 +40,19 @@ export class Location {
   }
 }
 
-export function unescapePointer(fragment: string): string {
-  return decodeURIComponent(fragment.replace(/~1/g, '/').replace(/~0/g, '~'));
+export function unescapePointerFragment(fragment: string): string {
+  const unescaped = fragment.replace(/~1/g, '/').replace(/~0/g, '~');
+
+  try {
+    return decodeURIComponent(unescaped);
+  } catch (e) {
+    return unescaped;
+  }
 }
 
-export function escapePointer<T extends string | number>(fragment: T): T {
+export function escapePointerFragment<T extends string | number>(fragment: T): T {
   if (typeof fragment === 'number') return fragment;
-  return (fragment as string).replace(/~/g, '~0').replace(/\//g, '~1') as T;
+  return fragment.replaceAll('~', '~0').replaceAll('/', '~1') as T;
 }
 
 export function parseRef(ref: string): { uri: string | null; pointer: string[] } {
@@ -58,7 +64,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
 }
 
 export function parsePointer(pointer: string) {
-  return pointer.split('/').map(unescapePointer).filter(isTruthy);
+  return pointer.split('/').map(unescapePointerFragment).filter(isTruthy);
 }
 
 export function pointerBaseName(pointer: string) {

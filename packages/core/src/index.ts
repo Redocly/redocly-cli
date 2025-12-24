@@ -52,10 +52,10 @@ export {
 export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
-  unescapePointer,
+  unescapePointerFragment,
   isRef,
   isAbsoluteUrl,
-  escapePointer,
+  escapePointerFragment,
   type Location,
 } from './ref-utils.js';
 export { detectSpec } from './detect-spec.js';
