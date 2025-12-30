@@ -41,7 +41,8 @@ export class Location {
 }
 
 export function unescapePointerFragment(fragment: string): string {
-  const unescaped = fragment.replace(/~1/g, '/').replace(/~0/g, '~');
+  const unescaped =
+    fragment.indexOf('~') === -1 ? fragment : fragment.replaceAll('~1', '/').replaceAll('~0', '~');
 
   try {
     return decodeURIComponent(unescaped);
@@ -52,6 +53,8 @@ export function unescapePointerFragment(fragment: string): string {
 
 export function escapePointerFragment<T extends string | number>(fragment: T): T {
   if (typeof fragment === 'number') return fragment;
+  if (fragment.indexOf('/') === -1 && fragment.indexOf('~') === -1) return fragment;
+
   return fragment.replaceAll('~', '~0').replaceAll('/', '~1') as T;
 }
 
