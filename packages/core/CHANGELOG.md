@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.14.2
+
+### Patch Changes
+
+- Improved overall performance by skipping unnecessary JSON pointer escaping and unescaping.
+
 ## 2.14.1
 
 ### Patch Changes
