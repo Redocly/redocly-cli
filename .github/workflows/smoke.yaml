@@ -133,6 +133,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 24
+      - name: Clear caches
+        run: |
+          yarn cache clean
+          npm cache clean --force
       - name: Run Smoke Tests
         run: |
           Start-Sleep -Seconds 20 # workaround for yarn cache issue
