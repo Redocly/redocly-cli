@@ -51,6 +51,9 @@
   "contributors": [
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
+  "bundleDependencies": [
+    "ajv-formats"
+  ],
   "dependencies": {
     "@redocly/ajv": "^8.17.1",
     "@redocly/config": "^0.41.1",
