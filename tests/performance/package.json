@@ -20,6 +20,7 @@
     "cli-2.12.6": "npm:@redocly/cli@2.12.6",
     "cli-2.13.0": "npm:@redocly/cli@2.13.0",
     "cli-2.14.1": "npm:@redocly/cli@2.14.1",
+    "cli-2.14.2": "npm:@redocly/cli@2.14.2",
     "cli-latest": "npm:@redocly/cli@latest",
     "cli-next": "file:../../redocly-cli.tgz"
   },
