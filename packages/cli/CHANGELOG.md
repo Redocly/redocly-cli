@@ -1,5 +1,14 @@
 # @redocly/cli
 
+## 2.14.3
+
+### Patch Changes
+
+- Fixed the `split` command to properly handle root-level paths.
+  Previously, the root path `/` was converted to an empty string as a filename, leading to incorrect file structure and broken links.
+  Now, it correctly maps to the specified path separator.
+- Updated @redocly/openapi-core to v2.14.3.
+
 ## 2.14.2
 
 ### Patch Changes
