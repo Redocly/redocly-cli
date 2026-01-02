@@ -45,6 +45,7 @@
     "@redocly/openapi-core": "2.14.2",
     "@redocly/respect-core": "2.14.2",
     "abort-controller": "^3.0.0",
+    "ajv-formats": "^3.0.1",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "cookie": "^0.7.2",
