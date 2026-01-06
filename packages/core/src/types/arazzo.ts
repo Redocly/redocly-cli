@@ -38,7 +38,11 @@ const Info: NodeType = {
   properties: {
     title: { type: 'string' },
     description: { type: 'string' },
-    summary: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: `The object provides metadata about API workflows defined in this Arazzo document. The metadata MAY be used by the clients if needed.`,
+      documentationLink: `https://spec.openapis.org/arazzo/latest.html#info-object`,
+    },
     version: { type: 'string' },
   },
   required: ['title', 'version'],
