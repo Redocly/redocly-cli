@@ -17,6 +17,8 @@ export type NormalizedScalarSchema = {
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
   minimum?: number;
+  description?: string;
+  documentationLink?: string;
 };
 
 export type NodeType = {
@@ -27,6 +29,8 @@ export type NodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
+  description?: string;
+  documentationLink?: string;
 };
 export type PropType = string | NodeType | ScalarSchema | undefined | null;
 export type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -41,24 +45,34 @@ export type NormalizedNodeType = {
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
   directResolveAs?: NormalizedPropType;
+  description?: string;
+  documentationLink?: string;
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
 type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 
-export function listOf(typeName: string) {
+export function listOf(
+  typeName: string,
+  opts: { description?: string; documentationLink?: string } = {}
+) {
   return {
     name: `${typeName}List`,
     properties: {},
     items: typeName,
+    ...opts,
   };
 }
 
-export function mapOf(typeName: string) {
+export function mapOf(
+  typeName: string,
+  opts: { description?: string; documentationLink?: string } = {}
+) {
   return {
     name: `${typeName}Map`,
     properties: {},
     additionalProperties: () => typeName,
+    ...opts,
   };
 }
 
