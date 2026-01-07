@@ -69,12 +69,10 @@ const Operation: NodeType = {
     summary: {
       type: 'string',
       description: `Optional short summary of what the operation does.`,
-      documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
     },
     description: {
       type: 'string',
       description: `Optional description of the operation and its behavior. Supports Markdown formatting. Redocly tools support using $ref in this field to reuse or include content from other sources.`,
-      documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
     },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
