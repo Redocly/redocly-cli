@@ -26,9 +26,11 @@ const Tag: NodeType = {
     name: {
       type: 'string',
       description: `The name of the tag.`,
-      documentationLink: `https://spec.openapis.org/oas/v3.1.0#tag-object-name`,
     },
-    description: { type: 'string' },
+    description: {
+      type: 'string',
+      description: `A short description for the tag. CommonMark syntax MAY be used for rich text representation.`,
+    },
     externalDocs: 'ExternalDocs',
     'x-traitTag': { type: 'boolean' },
     'x-displayName': { type: 'string' },
@@ -49,11 +51,20 @@ const TagGroup: NodeType = {
 
 const ExternalDocs: NodeType = {
   properties: {
-    description: { type: 'string' },
-    url: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
+    },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. The URL for the target documentation. This MUST be in the format of a URL.',
+    },
   },
   required: ['url'],
   extensionsPrefix: 'x-',
+  description: 'Additional external documentation for this operation.',
 };
 
 const Server: NodeType = {
@@ -129,6 +140,8 @@ const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
+  description: 'The available paths and operations for the API.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/paths',
 };
 
 const WebhooksMap: NodeType = {
@@ -138,11 +151,23 @@ const WebhooksMap: NodeType = {
 
 const PathItem: NodeType = {
   properties: {
-    $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
+    $ref: {
+      type: 'string',
+      description:
+        'Allows for a referenced definition of this path item. The referenced structure MUST be in the form of a Path Item Object. In case a Path Item Object field appears both in the defined object and the referenced object, the behavior is undefined. See the rules for resolving Relative References.',
+      documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/reference',
+    }, // TODO: verify special $ref handling for Path Item
     servers: 'ServerList',
     parameters: 'ParameterList',
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: 'An optional, string summary, intended to apply to all operations in this path.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'An optional, string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation.',
+    },
 
     get: 'Operation',
     put: 'Operation',
@@ -154,21 +179,57 @@ const PathItem: NodeType = {
     trace: 'Operation',
   },
   extensionsPrefix: 'x-',
+  description:
+    'Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/path-item#path-item-object',
 };
 
 const Parameter: NodeType = {
   properties: {
-    name: { type: 'string' },
-    in: { enum: ['query', 'header', 'path', 'cookie'] },
-    description: { type: 'string' },
-    required: { type: 'boolean' },
-    deprecated: { type: 'boolean' },
-    allowEmptyValue: { type: 'boolean' },
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The name of the parameter. Parameter names are case sensitive.',
+    },
+    in: {
+      enum: ['query', 'header', 'path', 'cookie'],
+      description:
+        'REQUIRED. The location of the parameter. Possible values are "query", "header", "path", or "cookie".',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.',
+    },
+    required: {
+      type: 'boolean',
+      description:
+        'Determines whether this parameter is mandatory. If the parameter location is "path", this property is REQUIRED and its value MUST be true. Otherwise, the property MAY be included and its default value is false.',
+    },
+    deprecated: {
+      type: 'boolean',
+      description:
+        'Specifies that a parameter is deprecated and SHOULD be transitioned out of usage. Default value is false.',
+    },
+    allowEmptyValue: {
+      type: 'boolean',
+      description:
+        'Sets the ability to pass empty-valued parameters. This is valid only for query parameters and allows sending a parameter with an empty value. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Use of this property is NOT RECOMMENDED, as it is likely to be removed in a later revision.',
+    },
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
+      description:
+        'Describes how the parameter value will be serialized depending on the type of the parameter value. Default values (based on value of in): for query - form; for path - simple; for header - simple; for cookie - form.',
     },
-    explode: { type: 'boolean' },
-    allowReserved: { type: 'boolean' },
+    explode: {
+      type: 'boolean',
+      description:
+        'When this is true, parameter values of type array or object generate separate parameters for each value of the array or key-value pair of the map. For other types of parameters this property has no effect. When style is form, the default value is true. For all other styles, the default value is false.',
+    },
+    allowReserved: {
+      type: 'boolean',
+      description: `Determines whether the parameter value SHOULD allow reserved characters, as defined by RFC3986 :/?#[]@!$&'()*+,;= to be included without percent-encoding. This property only applies to parameters with an in value of query. The default value is false.`,
+    },
     schema: 'Schema',
     example: { isExample: true },
     examples: 'ExamplesMap',
@@ -177,6 +238,9 @@ const Parameter: NodeType = {
   required: ['name', 'in'],
   requiredOneOf: ['schema', 'content'],
   extensionsPrefix: 'x-',
+  description:
+    'Describes a request parameter, which excludes the request body. A unique parameter is defined by a unique combination of the name and in values.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/parameter',
 };
 
 const Operation: NodeType = {
@@ -184,19 +248,31 @@ const Operation: NodeType = {
     tags: {
       type: 'array',
       items: { type: 'string' },
+      description:
+        'A list of tags for API documentation control. Tags can be used for logical grouping of operations by resources or any other qualifier.',
+      documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/operation',
     },
     summary: {
       type: 'string',
-      description: `Optional short summary of what the operation does.`,
-      documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
+      description: 'A short summary of what the operation does.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#summary',
     },
     description: {
       type: 'string',
-      description: `Optional description of the operation and its behavior. Supports Markdown formatting. Redocly tools support using $ref in this field to reuse or include content from other sources.`,
-      documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
+      description:
+        'A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#description',
     },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
+    operationId: {
+      type: 'string',
+      description:
+        'The operationId is path segment or path fragment in deep links to a specific operation.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#operationid',
+    },
     parameters: 'ParameterList',
     security: 'SecurityRequirementList',
     servers: 'ServerList',
@@ -211,7 +287,7 @@ const Operation: NodeType = {
   required: ['responses'],
   extensionsPrefix: 'x-',
   description: `The Operation Object describes a single API operation on a path, including its parameters, responses, and request body (if applicable). Each path can support more than one operation, but those operations must be unique. A unique operation is a combination of a path and an HTTP method, so two GET or two POST methods for the same path are not allowed.`,
-  documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/operation',
 };
 
 const XCodeSample: NodeType = {
@@ -230,6 +306,8 @@ const RequestBody: NodeType = {
   },
   required: ['content'],
   extensionsPrefix: 'x-',
+  description:
+    'The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the HTTP 1.1 specification [RFC7231] Section 4.3.1 has explicitly defined semantics for request bodies. In other cases where the HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined semantics and SHOULD be avoided if possible.',
 };
 
 const MediaTypesMap: NodeType = {
@@ -299,6 +377,7 @@ const Responses: NodeType = {
   properties: { default: 'Response' },
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
+  description: 'The list of possible responses as they are returned from executing this operation.',
 };
 
 const Response: NodeType = {
@@ -564,7 +643,10 @@ export const Oas3Types = {
   Paths,
   PathItem,
   Parameter,
-  ParameterList: listOf('Parameter'),
+  ParameterList: listOf('Parameter', {
+    description:
+      'A list of parameters that are applicable for this operation. If a parameter is already defined at the Path Item, the new definition will override it but can never remove it. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined at the OpenAPI Object’s components/parameters.',
+  }),
   Operation,
   Callback: mapOf('PathItem'),
   CallbacksMap: mapOf('Callback'),
