@@ -48,11 +48,15 @@ export type NormalizedNodeType = {
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
 type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 
-export function listOf(typeName: string) {
+export function listOf(
+  typeName: string,
+  opts: { description?: string; documentationLink?: string } = {}
+) {
   return {
     name: `${typeName}List`,
     properties: {},
     items: typeName,
+    ...opts,
   };
 }
 

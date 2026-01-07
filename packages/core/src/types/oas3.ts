@@ -23,7 +23,11 @@ const Root: NodeType = {
 
 const Tag: NodeType = {
   properties: {
-    name: { type: 'string' },
+    name: {
+      type: 'string',
+      description: `The name of the tag.`,
+      documentationLink: `https://spec.openapis.org/oas/v3.1.0#tag-object-name`,
+    },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     'x-traitTag': { type: 'boolean' },
@@ -31,6 +35,8 @@ const Tag: NodeType = {
   },
   required: ['name'],
   extensionsPrefix: 'x-',
+  description: `The Tag Object represents a tag used by the OAS. It is not mandatory to have a tag object per tag used by the OAS but each tag object can contain additional metadata.`,
+  documentationLink: `https://spec.openapis.org/oas/v3.1.0#tag-object`,
 };
 
 const TagGroup: NodeType = {
@@ -540,7 +546,9 @@ const XUsePkce: NodeType = {
 export const Oas3Types = {
   Root,
   Tag,
-  TagList: listOf('Tag'),
+  TagList: listOf('Tag', {
+    description: `A list of tags used by the document with additional metadata.`,
+  }),
   TagGroups: listOf('TagGroup'),
   TagGroup,
   ExternalDocs,
