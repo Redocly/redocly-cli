@@ -10,6 +10,7 @@ import {
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
+import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
 
 import type { RawUniversalConfig } from './types.js';
 
@@ -19,14 +20,21 @@ async function loadIgnoreFile(
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
   if (!configPath) return undefined;
 
-  const ignorePath = path.join(path.dirname(configPath), IGNORE_FILE);
+  const configDir = doesYamlFileExist(configPath) ? path.dirname(configPath) : configPath;
+  const ignorePath = path.join(configDir, IGNORE_FILE);
+
+  if (!fs.existsSync(ignorePath)) {
+    return undefined;
+  }
+  console.log('####ignorePath', ignorePath);
   const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
+  console.log('####ignoreDocument', ignoreDocument);
+
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
     return undefined;
   }
 
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
-  const configDir = path.dirname(configPath);
 
   for (const fileName of Object.keys(ignore)) {
     ignore[isAbsoluteUrl(fileName) ? fileName : path.resolve(configDir, fileName)] =
