@@ -8,9 +8,41 @@ import {
   type Document,
   type ResolvedRefMap,
 } from '../resolve.js';
-import { CONFIG_FILE_NAME } from './constants.js';
+import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { RawUniversalConfig } from './types.js';
+
+async function loadIgnoreFile(
+  configPath: string | undefined,
+  resolver: BaseResolver
+): Promise<Record<string, Record<string, Set<string>>> | undefined> {
+  if (!configPath) return undefined;
+
+  const ignorePath = path.join(path.dirname(configPath), IGNORE_FILE);
+  const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
+  if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
+    return undefined;
+  }
+
+  const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
+  const configDir = path.dirname(configPath);
+
+  for (const fileName of Object.keys(ignore)) {
+    ignore[isAbsoluteUrl(fileName) ? fileName : path.resolve(configDir, fileName)] =
+      ignore[fileName];
+
+    for (const ruleId of Object.keys(ignore[fileName])) {
+      ignore[fileName][ruleId] = new Set(ignore[fileName][ruleId]);
+    }
+
+    if (!isAbsoluteUrl(fileName)) {
+      delete ignore[fileName];
+    }
+  }
+
+  return ignore;
+}
 
 export async function loadConfig(
   options: {
@@ -38,11 +70,14 @@ export async function loadConfig(
     externalRefResolver,
   });
 
+  const ignore = await loadIgnoreFile(configPath, resolver);
+
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
     plugins,
+    ignore,
   });
 
   return config;
@@ -79,11 +114,16 @@ export async function createConfig(
     configPath,
     externalRefResolver,
   });
+
+  const resolver = externalRefResolver ?? new BaseResolver();
+  const ignore = await loadIgnoreFile(configPath, resolver);
+
   return new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap,
     plugins,
+    ignore,
   });
 }
 
