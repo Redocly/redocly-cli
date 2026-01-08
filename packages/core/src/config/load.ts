@@ -9,106 +9,51 @@ import {
   type ResolvedRefMap,
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { RawUniversalConfig } from './types.js';
 
-// Check if path is a URL (http://, https://, or file://)
 function isUrl(ref: string): boolean {
   return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
 }
 
-// Get directory from path or URL
 function getConfigDir(configPath: string): string {
-  if (configPath.startsWith('file://')) {
-    // Handle file:// URLs using URL API
-    const url = new URL(configPath);
-    const pathPart = url.pathname;
-    // Check if it's a yaml file or directory
-    if (pathPart.endsWith('.yaml') || pathPart.endsWith('.yml')) {
-      url.pathname = pathPart.substring(0, pathPart.lastIndexOf('/'));
-    }
-    return url.href;
-  } else if (isAbsoluteUrl(configPath)) {
-    // Handle http/https URLs
-    if (configPath.endsWith('.yaml') || configPath.endsWith('.yml')) {
-      return configPath.substring(0, configPath.lastIndexOf('/'));
-    }
-    return configPath;
-  } else {
-    // Handle file paths
-    if (configPath.endsWith('.yaml') || configPath.endsWith('.yml')) {
-      return path.dirname(configPath);
-    }
-    return configPath;
+  if (isUrl(configPath)) {
+    return configPath.substring(0, configPath.lastIndexOf('/'));
   }
-}
-
-// Join path or URL with ignore file name
-function joinIgnorePath(configDir: string, ignoreFile: string): string {
-  if (isUrl(configDir)) {
-    const separator = configDir.endsWith('/') ? '' : '/';
-    return configDir + separator + ignoreFile;
-  }
-  return path.join(configDir, ignoreFile);
+  return path.dirname(configPath);
 }
 
 async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
-  console.log('[loadIgnoreFile] configPath:', configPath);
-  console.log('[loadIgnoreFile] typeof configPath:', typeof configPath);
-
-  if (!configPath) {
-    console.log('[loadIgnoreFile] configPath is falsy, returning undefined');
-    return undefined;
-  }
+  if (!configPath) return undefined;
 
   const configDir = getConfigDir(configPath);
-  const ignorePath = joinIgnorePath(configDir, IGNORE_FILE);
-  console.log('[loadIgnoreFile] configDir:', configDir);
-  console.log('[loadIgnoreFile] ignorePath:', ignorePath);
-  console.log('[loadIgnoreFile] isUrl(ignorePath):', isUrl(ignorePath));
+  const ignorePath = isUrl(configDir)
+    ? configDir + '/' + IGNORE_FILE
+    : path.join(configDir, IGNORE_FILE);
 
   // For local file system (not URL), check if file exists before loading
-  const hasFs = !!fs?.existsSync;
-  console.log('[loadIgnoreFile] fs?.existsSync available:', hasFs);
-
-  if (hasFs && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
-    console.log('[loadIgnoreFile] file does not exist locally, returning undefined');
+  if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+    console.log('####ignorePath does not exist', ignorePath);
     return undefined;
   }
 
-  console.log('[loadIgnoreFile] calling resolver.resolveDocument...');
   const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
-  console.log('[loadIgnoreFile] ignoreDocument instanceof Error:', ignoreDocument instanceof Error);
-  console.log(
-    '[loadIgnoreFile] ignoreDocument.parsed:',
-    ignoreDocument instanceof Error ? 'N/A' : !!ignoreDocument.parsed
-  );
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
-    console.log('[loadIgnoreFile] ignoreDocument is Error or no parsed, returning undefined');
     return undefined;
   }
 
-  console.log('[loadIgnoreFile] successfully loaded ignore file');
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
-  console.log('[loadIgnoreFile] ignore keys:', Object.keys(ignore));
 
   for (const fileName of Object.keys(ignore)) {
-    let resolvedFileName: string;
-    if (isUrl(fileName)) {
-      resolvedFileName = fileName;
-    } else if (isUrl(configDir)) {
-      // For file:// or http(s):// URLs, join properly
-      const separator = configDir.endsWith('/') ? '' : '/';
-      resolvedFileName = configDir + separator + fileName;
-    } else {
-      resolvedFileName = path.resolve(configDir, fileName);
-    }
-    console.log('[loadIgnoreFile] resolving fileName:', fileName, '->', resolvedFileName);
+    const resolvedFileName = isUrl(fileName)
+      ? fileName
+      : isUrl(configDir)
+      ? configDir + '/' + fileName
+      : path.resolve(configDir, fileName);
 
     ignore[resolvedFileName] = ignore[fileName];
 
