@@ -49,7 +49,7 @@ export function normalizeHeaders(headers: Record<string, string> | undefined) {
 }
 
 export function isJsonContentType(contentType: string) {
-  return /^application\/([a-z.-]+\+)?json$/.test(contentType);
+  return /^application\/([a-z0-9.-]+\+)?json$/.test(contentType);
 }
 
 export function isXmlContentType(contentType: string) {
