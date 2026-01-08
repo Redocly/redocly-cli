@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.14.4
+
+### Patch Changes
+
+- Corrected an issue where `Respect` did not properly JSON-encode request bodies for custom content-types containing numbers.
+- Updated @redocly/respect-core to v2.14.4.
+
 ## 2.14.3
 
 ### Patch Changes
