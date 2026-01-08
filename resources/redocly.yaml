@@ -1,5 +1,16 @@
-# extends:
-#   - recommended
-
+apis:
+  repro@bug:
+    root: ./pets.yaml
+    decorators: {}
+    extends: []
+extends:
+  - recommended
 rules:
-  no-empty-servers: error
+  rule/message-name-required:
+    subject:
+      type: Message
+      property: name
+    message: Message name should be defined, folks!
+    severity: error
+    assertions:
+      defined: true
