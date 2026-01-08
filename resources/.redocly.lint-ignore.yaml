@@ -1,6 +1,3 @@
-# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
-# See https://redoc.ly/docs/cli/ for more information.
-petstore-with-errors.yaml:
-  no-unused-components:
-    - '#/components/parameters/anotherParam'
-    - '#/components/schemas/Some'
+oas.yaml:
+  no-empty-servers:
+    - '#/openapi'

@@ -20,7 +20,11 @@ function getConfigDir(configPath: string): string {
   if (isUrl(configPath)) {
     return configPath.substring(0, configPath.lastIndexOf('/'));
   }
-  return path.dirname(configPath);
+  // If configPath is a file (ends with .yaml/.yml), get its directory
+  if (configPath.endsWith('.yaml') || configPath.endsWith('.yml')) {
+    return path.dirname(configPath);
+  }
+  return configPath;
 }
 
 async function loadIgnoreFile(
@@ -36,7 +40,6 @@ async function loadIgnoreFile(
 
   // For local file system (not URL), check if file exists before loading
   if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
-    console.log('####ignorePath does not exist', ignorePath);
     return undefined;
   }
 
