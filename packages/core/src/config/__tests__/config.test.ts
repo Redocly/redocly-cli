@@ -219,8 +219,6 @@ describe('Config.extendTypes', () => {
 
 describe('generation ignore object', () => {
   it('should generate config with absoluteUri for ignore', () => {
-    // Ignore file loading now happens in load.ts via loadIgnoreFile(),
-    // so we pass the pre-loaded ignore object to the Config constructor
     const ignore = {
       'some-path/openapi.yaml': {
         'no-unused-components': new Set(['#/components/schemas/Foo']),

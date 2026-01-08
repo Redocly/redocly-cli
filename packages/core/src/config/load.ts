@@ -17,11 +17,10 @@ function isUrl(ref: string): boolean {
 }
 
 function getConfigDir(configPath: string): string {
-  // If no extension, treat as directory
   if (!path.extname(configPath)) {
     return configPath;
   }
-  // Get parent directory for config file
+
   return isUrl(configPath)
     ? configPath.substring(0, configPath.lastIndexOf('/'))
     : path.dirname(configPath);
@@ -38,7 +37,6 @@ async function loadIgnoreFile(
     ? configDir + '/' + IGNORE_FILE
     : path.join(configDir, IGNORE_FILE);
 
-  // For local file system (not URL), check if file exists before loading
   if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
   }
