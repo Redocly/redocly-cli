@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.14.4 (2026-01-08)
+
+### Patch Changes
+
+- Corrected an issue where `Respect` did not properly JSON-encode request bodies for custom content-types containing numbers.
+- Updated @redocly/respect-core to v2.14.4.
+
 ## 2.14.3 (2026-01-02)
 
 ### Patch Changes
