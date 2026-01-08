@@ -16,6 +16,13 @@ function isUrl(ref: string): boolean {
   return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
 }
 
+function resolvePath(base: string, relative: string): string {
+  if (isUrl(base)) {
+    return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
+  }
+  return path.resolve(base, relative);
+}
+
 function getConfigDir(configPath: string): string {
   if (!path.extname(configPath)) {
     return configPath;
@@ -33,9 +40,7 @@ async function loadIgnoreFile(
   if (!configPath) return undefined;
 
   const configDir = getConfigDir(configPath);
-  const ignorePath = isUrl(configDir)
-    ? configDir + '/' + IGNORE_FILE
-    : path.join(configDir, IGNORE_FILE);
+  const ignorePath = resolvePath(configDir, IGNORE_FILE);
 
   if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
@@ -50,11 +55,7 @@ async function loadIgnoreFile(
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
 
   for (const fileName of Object.keys(ignore)) {
-    const resolvedFileName = isUrl(fileName)
-      ? fileName
-      : isUrl(configDir)
-      ? configDir + '/' + fileName
-      : path.resolve(configDir, fileName);
+    const resolvedFileName = isUrl(fileName) ? fileName : resolvePath(configDir, fileName);
 
     ignore[resolvedFileName] = ignore[fileName];
 
