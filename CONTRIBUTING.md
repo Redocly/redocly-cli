@@ -281,6 +281,7 @@ npm i -g redocly-cli.tgz
 (cd tests/smoke/basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
+Don't forget to visually check the [changes](tests/smoke/basic/pre-built/redoc.html) in browser.
 For other commands you'd have to do something similar.
 
 ### Performance benchmark
