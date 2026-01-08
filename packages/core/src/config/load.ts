@@ -17,14 +17,14 @@ function isUrl(ref: string): boolean {
 }
 
 function getConfigDir(configPath: string): string {
-  if (isUrl(configPath)) {
-    return configPath.substring(0, configPath.lastIndexOf('/'));
+  // If no extension, treat as directory
+  if (!path.extname(configPath)) {
+    return configPath;
   }
-  // If configPath is a file (ends with .yaml/.yml), get its directory
-  if (configPath.endsWith('.yaml') || configPath.endsWith('.yml')) {
-    return path.dirname(configPath);
-  }
-  return configPath;
+  // Get parent directory for config file
+  return isUrl(configPath)
+    ? configPath.substring(0, configPath.lastIndexOf('/'))
+    : path.dirname(configPath);
 }
 
 async function loadIgnoreFile(
