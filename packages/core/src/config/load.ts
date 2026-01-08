@@ -31,6 +31,7 @@ async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
+  console.log('#### loadIgnoreFile configPath:', configPath);
   if (!configPath) return undefined;
 
   const configDir = getConfigDir(configPath);
@@ -38,14 +39,26 @@ async function loadIgnoreFile(
     ? configDir + '/' + IGNORE_FILE
     : path.join(configDir, IGNORE_FILE);
 
+  console.log('#### loadIgnoreFile configDir:', configDir);
+  console.log('#### loadIgnoreFile ignorePath:', ignorePath);
+  console.log('#### loadIgnoreFile isUrl(ignorePath):', isUrl(ignorePath));
+  console.log('#### loadIgnoreFile fs?.existsSync:', !!fs?.existsSync);
+
   // For local file system (not URL), check if file exists before loading
   if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+    console.log('#### loadIgnoreFile: file does not exist, returning undefined');
     return undefined;
   }
 
+  console.log('#### loadIgnoreFile: calling resolver.resolveDocument');
   const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
+  console.log(
+    '#### loadIgnoreFile ignoreDocument:',
+    ignoreDocument instanceof Error ? 'Error' : !!ignoreDocument?.parsed
+  );
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
+    console.log('#### loadIgnoreFile: no parsed document, returning undefined');
     return undefined;
   }
 
