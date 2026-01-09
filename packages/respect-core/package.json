@@ -41,6 +41,7 @@
     "@noble/hashes": "^1.8.0",
     "@redocly/ajv": "8.17.1",
     "@redocly/openapi-core": "2.14.4",
+    "ajv": "npm:@redocly/ajv@8.17.1",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
     "json-pointer": "^0.6.2",
