@@ -27,6 +27,8 @@ export type NodeType = {
   requiredOneOf?: string[];
   allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
+  description?: string;
+  documentationLink?: string;
 };
 export type PropType = string | NodeType | ScalarSchema | undefined | null;
 export type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -46,11 +48,15 @@ export type NormalizedNodeType = {
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | null | undefined;
 type NormalizedResolveTypeFn = (value: any, key: string) => NormalizedPropType;
 
-export function listOf(typeName: string) {
+export function listOf(
+  typeName: string,
+  opts: { description?: string; documentationLink?: string } = {}
+) {
   return {
     name: `${typeName}List`,
     properties: {},
     items: typeName,
+    ...opts,
   };
 }
 

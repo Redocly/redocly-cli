@@ -3,7 +3,10 @@ import { Oas3_2Types } from './oas3_2.js';
 
 const Root: NodeType = {
   properties: {
-    arazzo: { type: 'string' },
+    arazzo: {
+      type: 'string',
+      description: 'The version of the Arazzo specification that the document conforms to.',
+    },
     info: 'Info',
     sourceDescriptions: 'SourceDescriptions',
     workflows: 'Workflows',
@@ -38,7 +41,11 @@ const Info: NodeType = {
   properties: {
     title: { type: 'string' },
     description: { type: 'string' },
-    summary: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: `The object provides metadata about API workflows defined in this Arazzo document. The metadata MAY be used by the clients if needed.`,
+      documentationLink: `https://spec.openapis.org/arazzo/latest.html#info-object`,
+    },
     version: { type: 'string' },
   },
   required: ['title', 'version'],
@@ -102,9 +109,19 @@ const Parameters: NodeType = {
 };
 const Workflow: NodeType = {
   properties: {
-    workflowId: { type: 'string' },
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    workflowId: {
+      type: 'string',
+      description: 'REQUIRED. The unique identifier of the workflow.',
+    },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the workflow does.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the workflow behavior. CommonMark syntax MAY be used for rich text representation.',
+    },
     parameters: 'Parameters',
     dependsOn: { type: 'array', items: { type: 'string' } },
     inputs: 'Schema',
@@ -138,6 +155,8 @@ const Step: NodeType = {
   required: ['stepId'],
   requiredOneOf: ['x-operation', 'operationId', 'operationPath', 'workflowId'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#step-object',
+  description: 'A step in a workflow.',
 };
 const Outputs: NodeType = {
   properties: {},

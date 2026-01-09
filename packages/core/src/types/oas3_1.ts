@@ -66,8 +66,14 @@ const Operation: NodeType = {
       type: 'array',
       items: { type: 'string' },
     },
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: `Optional short summary of what the operation does.`,
+    },
+    description: {
+      type: 'string',
+      description: `Optional description of the operation and its behavior. Supports Markdown formatting. Redocly tools support using $ref in this field to reuse or include content from other sources.`,
+    },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
     parameters: 'ParameterList',
@@ -82,6 +88,8 @@ const Operation: NodeType = {
     'x-hideTryItPanel': { type: 'boolean' },
   },
   extensionsPrefix: 'x-',
+  description: `The Operation Object describes a single API operation on a path, including its parameters, responses, and request body (if applicable). Each path can support more than one operation, but those operations must be unique. A unique operation is a combination of a path and an HTTP method, so two GET or two POST methods for the same path are not allowed.`,
+  documentationLink: `https://spec.openapis.org/oas/v3.1.0#operation-object`,
 };
 
 // draft-2020-12
