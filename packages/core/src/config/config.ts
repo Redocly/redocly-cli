@@ -1,11 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseYaml, stringifyYaml } from '../js-yaml/index.js';
+import { stringifyYaml } from '../js-yaml/index.js';
 import { slash } from '../utils/slash.js';
-import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { specVersions } from '../detect-spec.js';
-import { isBrowser } from '../env.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
@@ -35,16 +33,6 @@ import type {
   RuleSettings,
 } from './types.js';
 
-function getIgnoreFilePath(configPath?: string): string | undefined {
-  if (configPath) {
-    return doesYamlFileExist(configPath)
-      ? path.join(path.dirname(configPath), IGNORE_FILE)
-      : path.join(configPath, IGNORE_FILE);
-  } else {
-    return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
-  }
-}
-
 export class Config {
   resolvedConfig: ResolvedConfig;
   configPath?: string;
@@ -71,6 +59,7 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
+      ignore?: Record<string, Record<string, Set<string>>>;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -153,7 +142,7 @@ export class Config {
       },
     };
 
-    this.resolveIgnore(getIgnoreFilePath(opts.configPath));
+    this.ignore = opts.ignore || {};
   }
 
   forAlias(alias?: string) {
@@ -171,33 +160,9 @@ export class Config {
         resolvedRefMap: this.resolvedRefMap,
         alias,
         plugins: this.plugins,
+        ignore: this.ignore,
       }
     );
-  }
-
-  resolveIgnore(ignoreFile?: string) {
-    if (!ignoreFile || !doesYamlFileExist(ignoreFile)) return;
-
-    this.ignore =
-      (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
-        string,
-        Record<string, Set<string>>
-      >) || {};
-
-    // resolve ignore paths
-    for (const fileName of Object.keys(this.ignore)) {
-      this.ignore[
-        isAbsoluteUrl(fileName) ? fileName : path.resolve(path.dirname(ignoreFile), fileName)
-      ] = this.ignore[fileName];
-
-      for (const ruleId of Object.keys(this.ignore[fileName])) {
-        this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
-      }
-
-      if (!isAbsoluteUrl(fileName)) {
-        delete this.ignore[fileName];
-      }
-    }
   }
 
   saveIgnore() {
