@@ -20,17 +20,36 @@ export function bundleExtends({
     return node;
   }
 
-  const resolvedExtends = (node.extends || [])
-    .map((presetItem: string) => {
+  const extendsArray = node.extends || [];
+
+  const resolvedExtends = extendsArray
+    .map((presetItem) => {
+      if (
+        presetItem === undefined ||
+        presetItem === null ||
+        typeof presetItem !== 'string' ||
+        !presetItem.trim()
+      ) {
+        return undefined;
+      }
+
+      // Named presets: merge their configs if they exist; ignore errors here.
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
-        return resolvePreset(presetItem, plugins);
+        try {
+          return resolvePreset(presetItem, plugins) as RawGovernanceConfig | null;
+        } catch {
+          // Invalid preset names are reported during lintConfig; bundling stays best-effort.
+          return undefined;
+        }
       }
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });
+
       if (resolvedRef.location && resolvedRef.node !== undefined) {
         return resolvedRef.node as RawGovernanceConfig;
       }
-      return null;
+
+      return undefined;
     })
     .filter(isTruthy);
 
