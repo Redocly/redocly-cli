@@ -1,4 +1,8 @@
-import { rootRedoclyConfigSchema } from '@redocly/config';
+import {
+  entityFileDefaultSchema,
+  entityFileSchema,
+  rootRedoclyConfigSchema,
+} from '@redocly/config';
 import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
 import { normalizeVisitors } from './visitors.js';
 import { walkDocument } from './walk.js';
@@ -8,15 +12,22 @@ import { releaseAjvInstance } from './rules/ajv.js';
 import { getTypes, type SpecVersion } from './oas-types.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
-import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yaml.js';
+import {
+  createEntityTypes,
+  ENTITY_DISCRIMINATOR_NAME,
+  TYPES_OF_ENTITY,
+} from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import { type Config } from './config/index.js';
+import { createConfig, transformScorecardRulesToAssertions, type Config } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+import { Assertions } from './rules/common/assertions/index.js';
 
+import type { CatalogEntity } from './typings/catalog-entity.js';
+import type { Assertion } from './rules/common/assertions/index.js';
 import type { Document } from './resolve.js';
-import type { ProblemSeverity, WalkContext } from './walk.js';
+import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
 import type { NodeType } from './types/index.js';
 import type {
   Arazzo1Visitor,
@@ -32,6 +43,7 @@ import type {
 } from './visitors.js';
 import type { CollectFn } from './utils/types.js';
 import type { JSONSchema } from 'json-schema-to-ts';
+import type { ScorecardConfig } from '@redocly/config';
 
 // FIXME: remove this once we remove `theme` from the schema
 const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
@@ -211,6 +223,7 @@ export async function lintEntityFile(opts: {
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
+  assertionConfig?: Assertion[];
 }) {
   const {
     document,
@@ -218,6 +231,7 @@ export async function lintEntityFile(opts: {
     entityDefaultSchema,
     severity,
     externalRefResolver = new BaseResolver(),
+    assertionConfig = {},
   } = opts;
   const ctx: WalkContext = {
     problems: [],
@@ -238,24 +252,47 @@ export async function lintEntityFile(opts: {
     }
   }
 
+  // Helper to flatten rule visitors (handles both single visitor and array of visitors)
+  const flattenRuleVisitors = (
+    ruleId: string,
+    severity: ProblemSeverity,
+    visitors: BaseVisitor | BaseVisitor[]
+  ): (RuleInstanceConfig & { visitor: NestedVisitObject<unknown, BaseVisitor> })[] => {
+    if (Array.isArray(visitors)) {
+      return visitors.map((visitor) => ({
+        severity,
+        ruleId,
+        visitor: visitor as NestedVisitObject<unknown, BaseVisitor>,
+      }));
+    }
+    return [
+      {
+        severity,
+        ruleId,
+        visitor: visitors as NestedVisitObject<unknown, BaseVisitor>,
+      },
+    ];
+  };
+
   const rules: (RuleInstanceConfig & {
-    visitor: NestedVisitObject<unknown, BaseVisitor | BaseVisitor[]>;
+    visitor: NestedVisitObject<unknown, BaseVisitor>;
   })[] = [
-    {
-      severity: severity || 'error',
-      ruleId: 'entity struct',
-      visitor: Struct({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity key-valid',
-      visitor: EntityKeyValid({ severity: 'error' }),
-    },
+    ...flattenRuleVisitors('entity struct', severity || 'error', Struct({ severity: 'error' })),
+    ...flattenRuleVisitors(
+      'entity no-unresolved-refs',
+      severity || 'error',
+      NoUnresolvedRefs({ severity: 'error' })
+    ),
+    ...flattenRuleVisitors(
+      'entity key-valid',
+      severity || 'error',
+      EntityKeyValid({ severity: 'error' })
+    ),
+    ...flattenRuleVisitors(
+      'entity assertions',
+      severity || 'error',
+      Assertions(assertionConfig) as BaseVisitor | BaseVisitor[]
+    ),
   ];
 
   const normalizedVisitors = normalizeVisitors(rules, types);
@@ -274,4 +311,64 @@ export async function lintEntityFile(opts: {
   });
 
   return ctx.problems;
+}
+
+export async function lintEntityByScorecardLevel(
+  entity: CatalogEntity,
+  config: NonNullable<ScorecardConfig['levels']>[number],
+  document?: Document
+): Promise<NormalizedProblem[] | void> {
+  if (!config.rules) {
+    throw new Error('Scorecard level rules are not defined.');
+  }
+
+  const externalRefResolver = new BaseResolver();
+  const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity.yaml');
+
+  const assertionConfig = transformScorecardRulesToAssertions(config.rules);
+
+  const entityProblems = await lintEntityFile({
+    document: entityDocument,
+    entitySchema: entityFileSchema,
+    entityDefaultSchema: entityFileDefaultSchema,
+    externalRefResolver,
+    assertionConfig: Object.values(assertionConfig)
+      .filter((r) => r.type === 'entityRule')
+      .map((r) => r.assertion),
+  });
+  const apiRules = Object.values(assertionConfig).filter((r) => r.type === 'apiRule');
+
+  if (TYPES_OF_ENTITY.includes(entity.type)) {
+    if (apiRules.length === 0) {
+      return entityProblems;
+    }
+
+    if (!document) {
+      throw new Error('Document is required to lint API rules.');
+    }
+
+    const apiProblems = await lintDocument({
+      document,
+      externalRefResolver,
+      config: await createConfig(
+        {
+          rules: Object.assign(
+            {},
+            ...Object.values(assertionConfig)
+              .filter((r) => r.type === 'apiRule')
+              .map((r) => ({
+                [r.assertion.assertionId]: r.assertion,
+              }))
+          ),
+        },
+        {}
+      ),
+    });
+
+    return [...entityProblems, ...apiProblems];
+  } else if (apiRules.length !== 0) {
+    throw new Error('API rules are not supported for this entity type.');
+  }
+
+  return entityProblems;
 }
