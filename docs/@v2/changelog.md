@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.14.5 (2026-01-12)
+
+### Patch Changes
+
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+- Updated @redocly/openapi-core to v2.14.5.
+
 ## 2.14.4 (2026-01-08)
 
 ### Patch Changes

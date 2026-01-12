@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.14.5
+
+### Patch Changes
+
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+- Updated @redocly/openapi-core to v2.14.5.
+
 ## 2.14.4
 
 ### Patch Changes
