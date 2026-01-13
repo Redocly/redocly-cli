@@ -31,7 +31,9 @@ import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
+import { handleLintEntity } from './commands/new-scorecard.js';
 
+import type { LintEntityArgv } from './commands/new-scorecard.js';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
@@ -829,6 +831,26 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
+    }
+  )
+  .command(
+    'new-scorecard [entityFilePath]',
+    'Generate a new scorecard based on an entity file and predefined assertion rules.',
+    (yargs) => {
+      yargs.positional('entityFilePath', { type: 'string' }).option({
+        config: {
+          describe: 'Path to the config file.',
+          type: 'string',
+        },
+        api: {
+          describe: 'Path to the API file.',
+          type: 'string',
+          alias: 'a',
+        },
+      });
+    },
+    async (argv) => {
+      commandWrapper(handleLintEntity)(argv as Arguments<LintEntityArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

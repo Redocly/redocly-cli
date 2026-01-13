@@ -21,7 +21,8 @@ export { Arazzo1Types } from './types/arazzo.js';
 export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
-export { createEntityTypes } from './types/entity-yaml.js';
+export { createEntityTypes, TYPES_OF_ENTITY } from './types/entity-yaml.js';
+export { entityNodeTypes } from './types/entity-types.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 export {
@@ -30,6 +31,7 @@ export {
   findConfig,
   resolvePlugins,
   ConfigValidationError,
+  transformScorecardRulesToAssertions,
   Config, // FIXME: export it as a type
   type RawUniversalConfig,
   type RawUniversalApiConfig,
@@ -111,6 +113,8 @@ export {
   lintFromString,
   lintConfig,
   lintEntityFile,
+  lintEntityByScorecardLevel,
+  lintSchema,
 } from './lint.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';

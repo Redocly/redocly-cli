@@ -1,4 +1,8 @@
-import { rootRedoclyConfigSchema } from '@redocly/config';
+import {
+  entityFileDefaultSchema,
+  entityFileSchema,
+  rootRedoclyConfigSchema,
+} from '@redocly/config';
 import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
 import { normalizeVisitors } from './visitors.js';
 import { walkDocument } from './walk.js';
@@ -8,15 +12,27 @@ import { releaseAjvInstance } from './rules/ajv.js';
 import { getTypes, type SpecVersion } from './oas-types.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
-import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yaml.js';
+import {
+  createEntityTypes,
+  ENTITY_DISCRIMINATOR_NAME,
+  TYPES_OF_ENTITY,
+} from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import { type Config } from './config/index.js';
+import {
+  createConfig,
+  transformScorecardRulesToAssertions,
+  categorizeAssertions,
+  apiRulesToConfig,
+  findDataSchemaInDocument,
+} from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+import { Assertions } from './rules/common/assertions/index.js';
 
-import type { Document } from './resolve.js';
-import type { ProblemSeverity, WalkContext } from './walk.js';
+import type { CatalogEntity } from './typings/catalog-entity.js';
+import type { Assertion } from './rules/common/assertions/index.js';
+import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
 import type { NodeType } from './types/index.js';
 import type {
   Arazzo1Visitor,
@@ -32,6 +48,10 @@ import type {
 } from './visitors.js';
 import type { CollectFn } from './utils/types.js';
 import type { JSONSchema } from 'json-schema-to-ts';
+import type { ScorecardConfig } from '@redocly/config';
+import type { Config } from './config/index.js';
+import type { Plugin } from './config/types.js';
+import type { Document } from './resolve.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore FIXME: remove this once we remove `theme` from the schema
@@ -208,6 +228,7 @@ export async function lintEntityFile(opts: {
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
+  assertionConfig?: Assertion[];
 }) {
   const {
     document,
@@ -215,6 +236,7 @@ export async function lintEntityFile(opts: {
     entityDefaultSchema,
     severity,
     externalRefResolver = new BaseResolver(),
+    assertionConfig = {},
   } = opts;
   const ctx: WalkContext = {
     problems: [],
@@ -235,24 +257,47 @@ export async function lintEntityFile(opts: {
     }
   }
 
+  // Helper to flatten rule visitors (handles both single visitor and array of visitors)
+  const flattenRuleVisitors = (
+    ruleId: string,
+    severity: ProblemSeverity,
+    visitors: BaseVisitor | BaseVisitor[]
+  ): (RuleInstanceConfig & { visitor: NestedVisitObject<unknown, BaseVisitor> })[] => {
+    if (Array.isArray(visitors)) {
+      return visitors.map((visitor) => ({
+        severity,
+        ruleId,
+        visitor: visitor as NestedVisitObject<unknown, BaseVisitor>,
+      }));
+    }
+    return [
+      {
+        severity,
+        ruleId,
+        visitor: visitors as NestedVisitObject<unknown, BaseVisitor>,
+      },
+    ];
+  };
+
   const rules: (RuleInstanceConfig & {
-    visitor: NestedVisitObject<unknown, BaseVisitor | BaseVisitor[]>;
+    visitor: NestedVisitObject<unknown, BaseVisitor>;
   })[] = [
-    {
-      severity: severity || 'error',
-      ruleId: 'entity struct',
-      visitor: Struct({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' }),
-    },
-    {
-      severity: severity || 'error',
-      ruleId: 'entity key-valid',
-      visitor: EntityKeyValid({ severity: 'error' }),
-    },
+    ...flattenRuleVisitors('entity struct', severity || 'error', Struct({ severity: 'error' })),
+    ...flattenRuleVisitors(
+      'entity no-unresolved-refs',
+      severity || 'error',
+      NoUnresolvedRefs({ severity: 'error' })
+    ),
+    ...flattenRuleVisitors(
+      'entity key-valid',
+      severity || 'error',
+      EntityKeyValid({ severity: 'error' })
+    ),
+    ...flattenRuleVisitors(
+      'entity assertions',
+      severity || 'error',
+      Assertions(assertionConfig) as BaseVisitor | BaseVisitor[]
+    ),
   ];
 
   const normalizedVisitors = normalizeVisitors(rules, types);
@@ -271,4 +316,142 @@ export async function lintEntityFile(opts: {
   });
 
   return ctx.problems;
+}
+
+export async function lintEntityByScorecardLevel(
+  entity: CatalogEntity,
+  config: NonNullable<ScorecardConfig['levels']>[number],
+  document?: Document,
+  plugins?: Plugin[]
+): Promise<NormalizedProblem[] | void> {
+  if (!config.rules) {
+    throw new Error('Scorecard level rules are not defined.');
+  }
+
+  const externalRefResolver = new BaseResolver();
+  const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity.yaml');
+
+  const assertionConfig = transformScorecardRulesToAssertions(config.rules, plugins);
+  const { entityRules, apiRules } = categorizeAssertions(assertionConfig);
+
+  const entityProblems = await lintEntityFile({
+    document: entityDocument,
+    entitySchema: entityFileSchema,
+    entityDefaultSchema: entityFileDefaultSchema,
+    externalRefResolver,
+    assertionConfig: entityRules,
+  });
+
+  if (TYPES_OF_ENTITY.includes(entity.type)) {
+    if (apiRules.length === 0) {
+      return entityProblems;
+    }
+
+    if (!document) {
+      throw new Error('Document is required to lint API rules.');
+    }
+
+    if (entity.type === 'data-schema' && entity.metadata.schema) {
+      apiRules.map((rule) => {
+        if ('subject' in rule && rule.subject.type !== 'Schema') {
+          throw new Error('API rules must target the Schema subject.');
+        }
+      });
+
+      if (
+        apiRules.some(
+          (rule) =>
+            'config' in rule &&
+            typeof rule.config === 'object' &&
+            rule.config !== null &&
+            'subject' in rule.config &&
+            rule.config.subject.type !== 'Schema'
+        )
+      ) {
+        throw new Error('API rules must target the Schema subject.');
+      }
+
+      const schema = findDataSchemaInDocument(entity.title, entity.metadata.schema, document);
+
+      if (!schema) {
+        throw new Error('Failed to find the data schema in the document.');
+      }
+
+      const schemaProblems = await lintSchema({
+        schema,
+        schemaKey: entity.title,
+        config: await createConfig({
+          rules: apiRulesToConfig(apiRules),
+        }),
+        specType: entity.metadata.specType,
+        sourceDocument: document,
+        externalRefResolver,
+      });
+
+      return [...entityProblems, ...schemaProblems];
+    }
+
+    const apiProblems = await lintDocument({
+      document,
+      externalRefResolver,
+      config: await createConfig({
+        rules: apiRulesToConfig(apiRules),
+      }),
+    });
+
+    return [...entityProblems, ...apiProblems];
+  } else if (apiRules.length !== 0) {
+    throw new Error('API rules are not supported for this entity type.');
+  }
+
+  return entityProblems;
+}
+
+export async function lintSchema(opts: {
+  schema: unknown;
+  schemaKey: string;
+  config: Config;
+  specType: string;
+  sourceDocument: Document;
+  externalRefResolver?: BaseResolver;
+}): Promise<NormalizedProblem[]> {
+  const {
+    schema,
+    schemaKey,
+    config,
+    sourceDocument,
+    specType,
+    externalRefResolver = new BaseResolver(config.resolve),
+  } = opts;
+
+  const parsed = sourceDocument.parsed as Record<string, unknown>;
+  const specVersion = parsed[specType];
+  const info = parsed.info;
+
+  const schemaDocument = makeDocumentFromString(
+    JSON.stringify(
+      {
+        [specType]: specVersion,
+        info,
+        components: {
+          schemas: {
+            [schemaKey]: schema,
+          },
+        },
+      },
+      null,
+      2
+    ),
+    sourceDocument?.source.absoluteRef || `schema:${schemaKey}`
+  );
+
+  const problems = await lintDocument({
+    document: schemaDocument,
+    config,
+    externalRefResolver,
+  });
+
+  return problems.filter((problem) =>
+    problem.location.some((loc) => loc.pointer?.includes(`/components/schemas/${schemaKey}`))
+  );
 }

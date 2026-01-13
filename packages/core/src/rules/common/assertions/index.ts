@@ -50,6 +50,7 @@ export const Assertions = (opts: Record<string, Assertion>) => {
   // https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/config/config.ts#L311
   // that is why we need to iterate through 'opts' values;
   // before - filter only object 'opts' values
+
   const assertions: Assertion[] = Object.values(opts).filter(
     (opt: unknown) => typeof opt === 'object' && opt !== null
   );
