@@ -1,7 +1,11 @@
-import { formatProblems, isAbsoluteUrl, makeDocumentFromString } from '@redocly/openapi-core';
+import {
+  formatProblems,
+  isAbsoluteUrl,
+  makeDocumentFromString,
+  lintEntityByScorecardLevel,
+} from '@redocly/openapi-core';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
-import { lintEntityByScorecardLevel } from 'core/src/lint.js';
 
 import type { VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
