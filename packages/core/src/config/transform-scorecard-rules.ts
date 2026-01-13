@@ -130,19 +130,40 @@ function buildAssertion(ruleKey: string, rawAssertion: RawAssertion): Assertion 
   };
 }
 
+type ApiDefinitionWithComponents = {
+  components?: {
+    schemas?: Record<string, unknown>;
+  };
+  info?: unknown;
+  [key: string]: unknown;
+};
+
+function hasComponents(parsed: unknown): parsed is ApiDefinitionWithComponents {
+  return (
+    typeof parsed === 'object' &&
+    parsed !== null &&
+    'components' in parsed &&
+    typeof (parsed as Record<string, unknown>).components === 'object'
+  );
+}
+
 export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
   const dataSchema = JSON.parse(schema);
 
-  if (document.parsed && typeof document.parsed === 'object' && 'components' in document.parsed) {
-    const schemas = (document.parsed as any).components.schemas;
-    if (!schemas) throw new Error('No schemas found in document components');
+  if (!hasComponents(document.parsed)) {
+    return null;
+  }
 
-    if (schemas && typeof schemas === 'object') {
-      for (const [key, value] of Object.entries(schemas)) {
-        if (key === schemaKey) {
-          if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
-            return value;
-          }
+  const schemas = document.parsed.components?.schemas;
+  if (!schemas) {
+    throw new Error('No schemas found in document components');
+  }
+
+  if (typeof schemas === 'object') {
+    for (const [key, value] of Object.entries(schemas)) {
+      if (key === schemaKey) {
+        if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
+          return value;
         }
       }
     }

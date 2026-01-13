@@ -117,6 +117,8 @@ export {
   lintFromString,
   lintConfig,
   lintEntityFile,
+  lintEntityByScorecardLevel,
+  lintSchema,
 } from './lint.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
 export { bundleDocument } from './bundle/bundle-document.js';

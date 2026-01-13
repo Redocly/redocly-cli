@@ -426,9 +426,10 @@ export async function lintSchema(opts: {
     specType,
     externalRefResolver = new BaseResolver(config.resolve),
   } = opts;
-  const specVersion = (sourceDocument.parsed as any)[specType];
 
-  const info = (sourceDocument.parsed as any).info;
+  const parsed = sourceDocument.parsed as Record<string, unknown>;
+  const specVersion = parsed[specType];
+  const info = parsed.info;
 
   const schemaDocument = makeDocumentFromString(
     JSON.stringify(
