@@ -9,16 +9,9 @@ import {
   type ResolvedRefMap,
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
-import { isAbsoluteUrlOrFileUrl, getDir } from '../ref-utils.js';
+import { isAbsoluteUrlOrFileUrl, getDir, resolvePath } from '../ref-utils.js';
 
 import type { RawUniversalConfig } from './types.js';
-
-function resolvePath(base: string, relative: string): string {
-  if (isAbsoluteUrlOrFileUrl(base)) {
-    return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
-  }
-  return path.resolve(base, relative);
-}
 
 async function loadIgnoreFile(
   configPath: string | undefined,
@@ -83,7 +76,7 @@ export async function loadConfig(
     rawConfigDocument: rawConfigDocument ? cloneConfigDocument(rawConfigDocument) : undefined,
     customExtends,
     configPath,
-    externalRefResolver,
+    externalRefResolver: resolver,
   });
 
   const ignore = await loadIgnoreFile(configPath, resolver);
@@ -125,13 +118,14 @@ export async function createConfig(
     rawConfigDocument.parsed = config;
   }
 
+  const resolver = externalRefResolver ?? new BaseResolver();
+
   const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
-    externalRefResolver,
+    externalRefResolver: resolver,
   });
 
-  const resolver = externalRefResolver ?? new BaseResolver();
   const ignore = await loadIgnoreFile(configPath, resolver);
 
   return new Config(resolvedConfig, {

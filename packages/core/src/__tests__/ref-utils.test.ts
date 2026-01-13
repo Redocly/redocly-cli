@@ -7,6 +7,7 @@ import {
   unescapePointerFragment,
   isAbsoluteUrlOrFileUrl,
   getDir,
+  resolvePath,
 } from '../ref-utils.js';
 import { lintDocument } from '../lint.js';
 import { createConfig } from '../config/index.js';
@@ -211,6 +212,24 @@ describe('ref-utils', () => {
     it('should return path as-is if no extension (directory)', () => {
       expect(getDir('/Users/test/config')).toBe('/Users/test/config');
       expect(getDir('file:///Users/test/config')).toBe('file:///Users/test/config');
+    });
+  });
+
+  describe('resolvePath', () => {
+    it('should resolve paths for URLs', () => {
+      expect(resolvePath('http://example.com/config', 'file.yaml')).toBe(
+        'http://example.com/config/file.yaml'
+      );
+      expect(resolvePath('https://example.com/config/', 'file.yaml')).toBe(
+        'https://example.com/config/file.yaml'
+      );
+      expect(resolvePath('file:///Users/test/config', 'file.yaml')).toBe(
+        'file:///Users/test/config/file.yaml'
+      );
+    });
+
+    it('should resolve relative paths for file system paths', () => {
+      expect(resolvePath('/Users/test/config', 'file.yaml')).toMatch(/file\.yaml$/);
     });
   });
 });

@@ -100,6 +100,13 @@ export function getDir(filePath: string): string {
     : path.dirname(filePath);
 }
 
+export function resolvePath(base: string, relative: string): string {
+  if (isAbsoluteUrlOrFileUrl(base)) {
+    return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
+  }
+  return path.resolve(base, relative);
+}
+
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (
