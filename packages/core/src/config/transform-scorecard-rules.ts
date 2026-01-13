@@ -2,6 +2,7 @@ import { entityNodeTypes } from '../types/entity-types.js';
 
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { Plugin, RuleConfig } from './types.js';
+import type { Document } from '../resolve.js';
 
 export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
@@ -24,6 +25,15 @@ export function transformScorecardRulesToAssertions(
       if (rawAssertion.severity === 'off') {
         continue;
       }
+
+      //TODO: uncomment once plugins with decorators are supported in scorecards
+      // if (plugins) {
+      //   registerCustomAssertions(plugins, rawAssertion);
+      //   // We may have custom assertion inside where block
+      //   for (const context of rawAssertion.where || []) {
+      //     registerCustomAssertions(plugins, context);
+      //   }
+      // }
 
       assertionConfig[ruleKey] = buildAssertion(ruleKey, rawAssertion);
     } else {
@@ -118,4 +128,25 @@ function buildAssertion(ruleKey: string, rawAssertion: RawAssertion): Assertion 
     ...(rawAssertion.message && { message: rawAssertion.message }),
     ...(rawAssertion.severity && { severity: rawAssertion.severity }),
   };
+}
+
+export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
+  const dataSchema = JSON.parse(schema);
+
+  if (document.parsed && typeof document.parsed === 'object' && 'components' in document.parsed) {
+    const schemas = (document.parsed as any).components.schemas;
+    if (!schemas) throw new Error('No schemas found in document components');
+
+    if (schemas && typeof schemas === 'object') {
+      for (const [key, value] of Object.entries(schemas)) {
+        if (key === schemaKey) {
+          if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
+            return value;
+          }
+        }
+      }
+    }
+  }
+
+  return null;
 }
