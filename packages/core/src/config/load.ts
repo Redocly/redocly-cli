@@ -9,28 +9,15 @@ import {
   type ResolvedRefMap,
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
+import { isAbsoluteUrlOrFileUrl, getDir } from '../ref-utils.js';
 
 import type { RawUniversalConfig } from './types.js';
 
-function isUrl(ref: string): boolean {
-  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
-}
-
 function resolvePath(base: string, relative: string): string {
-  if (isUrl(base)) {
+  if (isAbsoluteUrlOrFileUrl(base)) {
     return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
   }
   return path.resolve(base, relative);
-}
-
-function getConfigDir(configPath: string): string {
-  if (!path.extname(configPath)) {
-    return configPath;
-  }
-
-  return isUrl(configPath)
-    ? configPath.substring(0, configPath.lastIndexOf('/'))
-    : path.dirname(configPath);
 }
 
 async function loadIgnoreFile(
@@ -39,10 +26,10 @@ async function loadIgnoreFile(
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
   if (!configPath) return undefined;
 
-  const configDir = getConfigDir(configPath);
+  const configDir = getDir(configPath);
   const ignorePath = resolvePath(configDir, IGNORE_FILE);
 
-  if (fs?.existsSync && !isUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+  if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
   }
 
@@ -55,7 +42,9 @@ async function loadIgnoreFile(
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
 
   for (const fileName of Object.keys(ignore)) {
-    const resolvedFileName = isUrl(fileName) ? fileName : resolvePath(configDir, fileName);
+    const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
+      ? fileName
+      : resolvePath(configDir, fileName);
 
     ignore[resolvedFileName] = ignore[fileName];
 

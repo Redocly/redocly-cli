@@ -1350,11 +1350,12 @@ describe('loadIgnoreFile', () => {
   const ignoreFileConfig = path.join(ignoreFileDir, 'redocly.yaml');
   const expectedIgnoreKey = path.join(ignoreFileDir, 'api.yaml');
 
-  it('should load and parse ignore file correctly', async () => {
+  it('should ignore only rules specified in ignore file', async () => {
     const config = await loadConfig({ configPath: ignoreFileConfig });
 
     expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
     expect(config.ignore[expectedIgnoreKey]['operation-operationId']).toBeInstanceOf(Set);
+    expect(config.ignore[expectedIgnoreKey]['operation-summary']).toBeUndefined();
   });
 
   it('should return empty object when ignore file does not exist', async () => {

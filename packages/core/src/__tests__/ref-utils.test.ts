@@ -5,6 +5,8 @@ import {
   parseRef,
   refBaseName,
   unescapePointerFragment,
+  isAbsoluteUrlOrFileUrl,
+  getDir,
 } from '../ref-utils.js';
 import { lintDocument } from '../lint.js';
 import { createConfig } from '../config/index.js';
@@ -181,6 +183,34 @@ describe('ref-utils', () => {
 
     it('should unescape a pointer correctly', () => {
       expect(unescapePointerFragment('scope~1complex~0name')).toStrictEqual('scope/complex~name');
+    });
+  });
+
+  describe('isAbsoluteUrlOrFileUrl', () => {
+    it('should return true for http://, https://, and file:// URLs', () => {
+      expect(isAbsoluteUrlOrFileUrl('http://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrlOrFileUrl('https://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrlOrFileUrl('file:///Users/test/api.yaml')).toBe(true);
+    });
+
+    it('should return false for relative and absolute file paths', () => {
+      expect(isAbsoluteUrlOrFileUrl('./api.yaml')).toBe(false);
+      expect(isAbsoluteUrlOrFileUrl('../api.yaml')).toBe(false);
+      expect(isAbsoluteUrlOrFileUrl('/Users/test/api.yaml')).toBe(false);
+    });
+  });
+
+  describe('getDir', () => {
+    it('should return directory for file paths and URLs', () => {
+      expect(getDir('/Users/test/config/redocly.yaml')).toBe('/Users/test/config');
+      expect(getDir('http://example.com/config/redocly.yaml')).toBe('http://example.com/config');
+      expect(getDir('https://example.com/config/redocly.yaml')).toBe('https://example.com/config');
+      expect(getDir('file:///Users/test/config/redocly.yaml')).toBe('file:///Users/test/config');
+    });
+
+    it('should return path as-is if no extension (directory)', () => {
+      expect(getDir('/Users/test/config')).toBe('/Users/test/config');
+      expect(getDir('file:///Users/test/config')).toBe('file:///Users/test/config');
     });
   });
 });
