@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Fixed loading of `.redocly.lint-ignore.yaml` in browser environments.
+Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
