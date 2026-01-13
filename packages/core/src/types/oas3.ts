@@ -19,17 +19,20 @@ const Root: NodeType = {
   },
   required: ['openapi', 'paths', 'info'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/openapi#openapi',
+  description:
+    'REQUIRED. This string MUST be the semantic version number of the OpenAPI Specification version that the OpenAPI document uses. The openapi field SHOULD be used by tooling specifications and clients to interpret the OpenAPI document. This is not related to the API info.version string.',
 };
 
 const Tag: NodeType = {
   properties: {
     name: {
       type: 'string',
-      description: `The name of the tag.`,
+      description: 'REQUIRED. The name of the tag.',
     },
     description: {
       type: 'string',
-      description: `A short description for the tag. CommonMark syntax MAY be used for rich text representation.`,
+      description: 'A description for the tag.',
     },
     externalDocs: 'ExternalDocs',
     'x-traitTag': { type: 'boolean' },
@@ -54,27 +57,35 @@ const ExternalDocs: NodeType = {
     description: {
       type: 'string',
       description:
-        'A description of the target documentation. CommonMark syntax MAY be used for rich text representation.',
+        'A description of the target documentation. Used as the link anchor text in Redocly. If not provided, the url is used as the link anchor text.',
     },
     url: {
       type: 'string',
-      description:
-        'REQUIRED. The URL for the target documentation. This MUST be in the format of a URL.',
+      description: 'REQUIRED. The URL for the target documentation.',
     },
   },
   required: ['url'],
   extensionsPrefix: 'x-',
   description: 'Additional external documentation for this operation.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/external-docs',
 };
 
 const Server: NodeType = {
   properties: {
-    url: { type: 'string' },
-    description: { type: 'string' },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the OpenAPI document is being served. Variable substitutions are made when a variable is named in { curly braces }.',
+    },
+    description: {
+      type: 'string',
+      description: 'An optional string describing the host designated by the URL.',
+    },
     variables: 'ServerVariablesMap',
   },
   required: ['url'],
   extensionsPrefix: 'x-',
+  description: 'A server object to be used by the target operation.',
 };
 
 const ServerVariable: NodeType = {
@@ -82,31 +93,62 @@ const ServerVariable: NodeType = {
     enum: {
       type: 'array',
       items: { type: 'string' },
+      description:
+        'An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty. If defined, the array MUST contain the default value.',
     },
-    default: { type: 'string' },
-    description: { type: 'string' },
+    default: {
+      type: 'string',
+      description: `REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied. Note this behavior is different than the Schema Object's treatment of default values, because in those cases parameter values are optional. If the enum is defined, the value MUST exist in the enum's values.`,
+    },
+    description: {
+      type: 'string',
+      description: 'An optional description for the server variable.',
+    },
   },
   required: ['default'],
   extensionsPrefix: 'x-',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/server-variables#server-variables',
+  description:
+    'Server variables are used when you need to make a substitution into the server URL such as when the subdomain is unique per tenant.',
 };
 
 const SecurityRequirement: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/security',
+  description:
+    'A declaration of which security mechanisms can be used across the API. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. Individual operations can override this definition. To make security optional, an empty security requirement ({}) can be included in the array.',
 };
 
 const Info: NodeType = {
   properties: {
-    title: { type: 'string' },
-    version: { type: 'string' },
-    description: { type: 'string' },
-    termsOfService: { type: 'string' },
+    title: {
+      type: 'string',
+      description: 'REQUIRED. The title of the API.',
+    },
+    version: {
+      type: 'string',
+      description:
+        'REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version).',
+    },
+    description: {
+      type: 'string',
+      description: 'RECOMMENDED. A description of the API (Markdown may be used).',
+    },
+    termsOfService: {
+      type: 'string',
+      description: 'A URL to the Terms of Service for the API.',
+    },
     contact: 'Contact',
     license: 'License',
     'x-logo': 'Logo',
   },
   required: ['title', 'version'],
   extensionsPrefix: 'x-',
+  description:
+    'REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/info#info',
 };
 
 const Logo: NodeType = {
@@ -116,32 +158,57 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
+  documentationLink:
+    'https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-logo#x-logo',
+  description:
+    'A commonly used specification extension containing the information about the API logo.',
 };
 
 const Contact: NodeType = {
   properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
-    email: { type: 'string' },
+    name: {
+      type: 'string',
+      description: 'The identifying name of the contact person or organization.',
+    },
+    url: {
+      type: 'string',
+      description: 'The URL pointing to the contact information.',
+    },
+    email: {
+      type: 'string',
+      description: 'The email address of the contact person or organization.',
+    },
   },
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/contact',
+  description: 'The contact information for the exposed API.',
 };
 
 const License: NodeType = {
   properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The license name used for the API.',
+    },
+    url: {
+      type: 'string',
+      description: 'The URL pointing to the contact information.',
+    },
   },
   required: ['name'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/license#license',
+  description: 'The license information for the exposed API.',
 };
 
 const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
-  description: 'The available paths and operations for the API.',
-  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/paths',
+  description:
+    'The Paths Object is a map of a paths to the path item object. A path starts with a /.',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/paths#paths-object',
 };
 
 const WebhooksMap: NodeType = {
@@ -166,7 +233,7 @@ const PathItem: NodeType = {
     description: {
       type: 'string',
       description:
-        'An optional, string description, intended to apply to all operations in this path. CommonMark syntax MAY be used for rich text representation.',
+        'An optional, string description, intended to apply to all operations in this path.',
     },
 
     get: 'Operation',
@@ -198,8 +265,7 @@ const Parameter: NodeType = {
     },
     description: {
       type: 'string',
-      description:
-        'A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.',
+      description: 'A brief description of the parameter. This could contain examples of use.',
     },
     required: {
       type: 'boolean',
@@ -250,7 +316,6 @@ const Operation: NodeType = {
       items: { type: 'string' },
       description:
         'A list of tags for API documentation control. Tags can be used for logical grouping of operations by resources or any other qualifier.',
-      documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/operation',
     },
     summary: {
       type: 'string',
@@ -260,8 +325,7 @@ const Operation: NodeType = {
     },
     description: {
       type: 'string',
-      description:
-        'A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation.',
+      description: 'A verbose explanation of the operation behavior.',
       documentationLink:
         'https://redocly.com/learn/openapi/openapi-visual-reference/operation#description',
     },
@@ -300,14 +364,21 @@ const XCodeSample: NodeType = {
 
 const RequestBody: NodeType = {
   properties: {
-    description: { type: 'string' },
-    required: { type: 'boolean' },
+    description: {
+      type: 'string',
+      description: 'A brief description of the request body. This could contain examples of use.',
+    },
+    required: {
+      type: 'boolean',
+      description: 'Determines if the request body is required in the request. Defaults to false.',
+    },
     content: 'MediaTypesMap',
   },
   required: ['content'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/request-body',
   description:
-    'The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the HTTP 1.1 specification [RFC7231] Section 4.3.1 has explicitly defined semantics for request bodies. In other cases where the HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined semantics and SHOULD be avoided if possible.',
+    'The request body is defined inside of operations (including paths and webhooks). The request body can also be defined inside of the named requestBodies object in components.',
 };
 
 const MediaTypesMap: NodeType = {
@@ -323,6 +394,8 @@ const MediaType: NodeType = {
     encoding: 'EncodingMap',
   },
   extensionsPrefix: 'x-',
+  description: 'The Media Type Object is one of the important building blocks of OpenAPI.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/media-type',
 };
 
 const Example: NodeType = {
@@ -333,6 +406,9 @@ const Example: NodeType = {
     externalValue: { type: 'string' },
   },
   extensionsPrefix: 'x-',
+  description:
+    'Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/example',
 };
 
 const Encoding: NodeType = {
@@ -461,6 +537,8 @@ const Schema: NodeType = {
     'x-explicitMappingOnly': { type: 'boolean' },
   },
   extensionsPrefix: 'x-',
+  description: 'The schema defining the content of the request, response, or parameter.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/schemas',
 };
 
 const Xml: NodeType = {
@@ -626,15 +704,21 @@ export const Oas3Types = {
   Root,
   Tag,
   TagList: listOf('Tag', {
-    description: `A list of tags used by the document with additional metadata.`,
+    documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/tags',
+    description: `A list of tags used by the document with additional metadata. The order of the tags can be used to reflect on their order by the parsing tools. Not all tags that are used by the Operation Object must be declared. The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique.`,
   }),
   TagGroups: listOf('TagGroup'),
   TagGroup,
   ExternalDocs,
   Server,
-  ServerList: listOf('Server'),
+  ServerList: listOf('Server', {
+    description: 'A list of servers available to the API.',
+    documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/servers#servers',
+  }),
   ServerVariable,
-  ServerVariablesMap: mapOf('ServerVariable'),
+  ServerVariablesMap: mapOf('ServerVariable', {
+    description: `A map between a variable name and its value. The value is used for substitution in the server's URL template.`,
+  }),
   SecurityRequirement,
   SecurityRequirementList: listOf('SecurityRequirement'),
   Info,

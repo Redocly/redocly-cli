@@ -60,11 +60,15 @@ export function listOf(
   };
 }
 
-export function mapOf(typeName: string) {
+export function mapOf(
+  typeName: string,
+  opts: { description?: string; documentationLink?: string } = {}
+) {
   return {
     name: `${typeName}Map`,
     properties: {},
     additionalProperties: () => typeName,
+    ...opts,
   };
 }
 
