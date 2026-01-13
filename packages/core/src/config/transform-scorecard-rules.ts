@@ -1,18 +1,15 @@
 import { entityNodeTypes } from '../types/entity-types.js';
 
-import type {
-  Assertion,
-  AssertionDefinition,
-  RawAssertion,
-} from '../rules/common/assertions/index.js';
+import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { Plugin, RuleConfig } from './types.js';
 
-export type AssertionRule = {
-  type: 'entityRule' | 'apiRule' | 'otherRule';
-  assertion: Assertion;
-};
+export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
-export type AssertionConfig = Record<string, AssertionRule>;
+export type CategorizedAssertions = {
+  entityRules: Assertion[];
+  apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }>;
+  otherRules: Record<string, unknown>;
+};
 
 export function transformScorecardRulesToAssertions(
   rules: RuleConfig,
@@ -21,42 +18,95 @@ export function transformScorecardRulesToAssertions(
   const assertionConfig: AssertionConfig = {};
 
   for (const [ruleKey, ruleValue] of Object.entries(rules)) {
-    if (isEntityRule(ruleValue)) {
-      const entityRule = ruleValue as RawAssertion;
+    if (isAssertionRule(ruleValue)) {
+      const rawAssertion = ruleValue as RawAssertion;
 
-      if (entityRule.severity === 'off') {
+      if (rawAssertion.severity === 'off') {
         continue;
       }
 
-      const assertion = returnAssertion('entityRule', ruleKey, entityRule);
-
-      assertionConfig[ruleKey] = assertion;
-    } else if (ruleKey.startsWith('rule/') && typeof ruleValue === 'object' && ruleValue !== null) {
-      const rawAssertion = ruleValue as RawAssertion;
-
-      const assertion = returnAssertion('apiRule', ruleKey, rawAssertion);
-
-      assertionConfig[ruleKey] = assertion;
+      assertionConfig[ruleKey] = buildAssertion(ruleKey, rawAssertion);
+    } else {
+      assertionConfig[ruleKey] = ruleValue;
     }
   }
 
   return assertionConfig;
 }
 
-function isEntityRule(ruleValue: AssertionDefinition): boolean {
+export function categorizeAssertions(assertionConfig: AssertionConfig): CategorizedAssertions {
+  const entityRules: Assertion[] = [];
+  const apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }> = [];
+  const otherRules: Record<string, unknown> = {};
+
+  for (const [ruleKey, ruleValue] of Object.entries(assertionConfig)) {
+    if (isAssertion(ruleValue)) {
+      if (isEntityAssertion(ruleValue)) {
+        entityRules.push(ruleValue);
+      } else if (isApiAssertion(ruleKey, ruleValue)) {
+        apiRules.push(ruleValue);
+      } else {
+        otherRules[ruleKey] = ruleValue;
+      }
+    } else {
+      apiRules.push({ ruleId: ruleKey, config: ruleValue });
+    }
+  }
+
+  return { entityRules, apiRules, otherRules };
+}
+
+export function apiRulesToConfig(
+  apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }>
+): Record<string, Assertion | RuleConfig> {
+  return Object.fromEntries(
+    apiRules.map((rule) => {
+      if ('assertionId' in rule) {
+        return [rule.assertionId, rule];
+      } else {
+        return [rule.ruleId, rule.config];
+      }
+    })
+  );
+}
+
+function isAssertion(value: unknown): value is Assertion {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'assertionId' in value &&
+    'subject' in value &&
+    'assertions' in value
+  );
+}
+
+function isAssertionRule(ruleValue: unknown): boolean {
   return (
     typeof ruleValue === 'object' &&
     ruleValue !== null &&
     'assertions' in ruleValue &&
-    entityNodeTypes.hasOwnProperty(ruleValue.subject.type)
+    'subject' in ruleValue
   );
 }
 
-function returnAssertion(type: string, ruleKey: string, rawAssertion: RawAssertion): AssertionRule {
-  return {
-    type: type as 'entityRule' | 'apiRule' | 'otherRule',
-    assertion: buildAssertion(ruleKey, rawAssertion),
-  };
+function isEntityAssertion(assertion: Assertion): boolean {
+  return (
+    typeof assertion === 'object' &&
+    assertion !== null &&
+    'subject' in assertion &&
+    typeof assertion.subject === 'object' &&
+    'type' in assertion.subject &&
+    entityNodeTypes.hasOwnProperty(assertion.subject.type)
+  );
+}
+
+function isApiAssertion(ruleKey: string, assertion: Assertion): boolean {
+  return (
+    ruleKey.startsWith('rule/') &&
+    typeof assertion === 'object' &&
+    assertion !== null &&
+    !isEntityAssertion(assertion)
+  );
 }
 
 function buildAssertion(ruleKey: string, rawAssertion: RawAssertion): Assertion {
