@@ -17,13 +17,23 @@ function enhanceEntityNodeType(nodeType: NodeType): NodeType {
     return nodeType;
   }
 
+  // Don't override metadata and relations if they're already properly defined from the JSON schema
+  // Only add them if they don't exist
+  const enhancedProperties = {
+    ...nodeType.properties,
+  };
+
+  // Only add generic EntityMetadata/EntityRelations if not already specifically defined
+  if (!('metadata' in nodeType.properties)) {
+    enhancedProperties.metadata = 'EntityMetadata';
+  }
+  if (!('relations' in nodeType.properties)) {
+    enhancedProperties.relations = 'EntityRelations';
+  }
+
   return {
     ...nodeType,
-    properties: {
-      ...nodeType.properties,
-      ...('metadata' in nodeType.properties && { metadata: 'EntityMetadata' }),
-      ...('relations' in nodeType.properties && { relations: 'EntityRelations' }),
-    },
+    properties: enhancedProperties,
   };
 }
 
