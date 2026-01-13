@@ -6,7 +6,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType } from './index.js';
 
 export const ENTITY_DISCRIMINATOR_NAME = 'type';
-export const TYPES_OF_ENTITY = ['api-description', 'api-operation'];
+export const TYPES_OF_ENTITY = ['api-description', 'api-operation', 'data-schema'];
 
 /**
  * Enhances an entity NodeType by overriding metadata and relations properties

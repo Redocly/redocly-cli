@@ -60,15 +60,7 @@ export type CatalogApiOperationMetadata = {
 } & Record<string, unknown>;
 
 export type CatalogDataSchemaMetadata = {
-  specType:
-    | 'jsonschema'
-    | 'openapi'
-    | 'asyncapi'
-    | 'avro'
-    | 'zod'
-    | 'graphql'
-    | 'protobuf'
-    | 'arazzo';
+  specType: 'openapi' | 'asyncapi' | 'arazzo';
   schema?: string;
   sdl?: string;
 } & Record<string, unknown>;
