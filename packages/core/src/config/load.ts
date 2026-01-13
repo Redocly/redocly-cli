@@ -17,9 +17,7 @@ async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
-  if (!configPath) return undefined;
-
-  const configDir = getDir(configPath);
+  const configDir = configPath ? getDir(configPath) : process.cwd();
   const ignorePath = resolvePath(configDir, IGNORE_FILE);
 
   if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
