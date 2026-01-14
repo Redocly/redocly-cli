@@ -33,9 +33,12 @@ import type {
 import type { CollectFn } from './utils/types.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore FIXME: remove this once we remove `theme` from the schema
-delete rootRedoclyConfigSchema.properties.theme;
+// FIXME: remove this once we remove `theme` from the schema
+const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
+const redoclyConfigSchemaWithoutTheme = {
+  ...rootRedoclyConfigSchema,
+  properties: propertiesWithoutTheme,
+};
 
 export async function lint(opts: {
   ref: string;
@@ -150,7 +153,7 @@ export async function lintConfig(opts: {
   };
 
   const types = normalizeTypes(
-    opts.externalConfigTypes || createConfigTypes(rootRedoclyConfigSchema, config)
+    opts.externalConfigTypes || createConfigTypes(redoclyConfigSchemaWithoutTheme, config)
   );
 
   const rules: (RuleInstanceConfig & {

@@ -476,9 +476,14 @@ const CoreConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionAssertions,
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore FIXME: remove this once we remove `theme` from the schema
-delete rootRedoclyConfigSchema.properties.theme;
+// FIXME: remove this once we remove `theme` from the schema
+const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
+const redoclyConfigSchemaWithoutTheme = {
+  ...rootRedoclyConfigSchema,
+  properties: propertiesWithoutTheme,
+};
 
-export const ConfigTypes: Record<string, NodeType> = createConfigTypes(rootRedoclyConfigSchema);
+export const ConfigTypes: Record<string, NodeType> = createConfigTypes(
+  redoclyConfigSchemaWithoutTheme
+);
 export const NormalizedConfigTypes = normalizeTypes(ConfigTypes);
