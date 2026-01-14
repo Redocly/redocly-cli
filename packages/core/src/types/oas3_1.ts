@@ -12,52 +12,49 @@ const Root: NodeType = {
     paths: 'Paths',
     webhooks: 'WebhooksMap',
     components: 'Components',
-    jsonSchemaDialect: { type: 'string' },
+    jsonSchemaDialect: {
+      type: 'string',
+      description:
+        'The default value for the $schema keyword within Schema Objects contained within this OAS document. This MUST be in the form of a URI.',
+    },
   },
   required: ['openapi', 'info'],
   requiredOneOf: ['paths', 'components', 'webhooks'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/openapi#openapi',
+  description:
+    'REQUIRED. This string MUST be the semantic version number of the OpenAPI Specification version that the OpenAPI document uses. The openapi field SHOULD be used by tooling specifications and clients to interpret the OpenAPI document. This is not related to the API info.version string.',
 };
 
 const License: NodeType = {
+  ...Oas3Types.License,
   properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
-    identifier: { type: 'string' },
+    ...Oas3Types.License.properties,
+    identifier: {
+      type: 'string',
+      description:
+        'An [SPDX-Licenses] expression for the API. The identifier field is mutually exclusive of the url field.',
+    },
   },
-  required: ['name'],
-  extensionsPrefix: 'x-',
 };
 
 const Info: NodeType = {
+  ...Oas3Types.Info,
   properties: {
-    title: { type: 'string' },
-    version: { type: 'string' },
-    description: { type: 'string' },
-    termsOfService: { type: 'string' },
-    summary: { type: 'string' },
-    contact: 'Contact',
-    license: 'License',
-    'x-logo': 'Logo',
+    ...Oas3Types.Info.properties,
+    summary: {
+      type: 'string',
+      description: 'A short summary of the API. This field MAY be used by tooling as required.',
+    },
   },
-  required: ['title', 'version'],
-  extensionsPrefix: 'x-',
 };
 
 const Components: NodeType = {
+  ...Oas3Types.Components,
   properties: {
-    parameters: 'NamedParameters',
-    schemas: 'NamedSchemas',
-    responses: 'NamedResponses',
-    examples: 'NamedExamples',
-    requestBodies: 'NamedRequestBodies',
-    headers: 'NamedHeaders',
-    securitySchemes: 'NamedSecuritySchemes',
-    links: 'NamedLinks',
-    callbacks: 'NamedCallbacks',
+    ...Oas3Types.Components.properties,
     pathItems: 'NamedPathItems',
   },
-  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -65,17 +62,29 @@ const Operation: NodeType = {
     tags: {
       type: 'array',
       items: { type: 'string' },
+      description:
+        'A list of tags for API documentation control. Tags can be used for logical grouping of operations by resources or any other qualifier.',
     },
     summary: {
       type: 'string',
-      description: `Optional short summary of what the operation does.`,
+      description: 'A short summary of what the operation does.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#summary',
     },
     description: {
       type: 'string',
-      description: `Optional description of the operation and its behavior. Supports Markdown formatting. Redocly tools support using $ref in this field to reuse or include content from other sources.`,
+      description: 'A verbose explanation of the operation behavior.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#description',
     },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
+    operationId: {
+      type: 'string',
+      description:
+        'The operationId is path segment or path fragment in deep links to a specific operation.',
+      documentationLink:
+        'https://redocly.com/learn/openapi/openapi-visual-reference/operation#operationid',
+    },
     parameters: 'ParameterList',
     security: 'SecurityRequirementList',
     servers: 'ServerList',

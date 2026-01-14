@@ -13,7 +13,10 @@ const Root: NodeType = {
   properties: {
     asyncapi: null, // TODO: validate semver format and supported version
     info: 'Info',
-    id: { type: 'string' },
+    id: {
+      type: 'string',
+      description: 'Identifier of the application the AsyncAPI document is defining.',
+    },
     servers: 'ServerMap',
     channels: 'ChannelMap',
     components: 'Components',
@@ -22,17 +25,29 @@ const Root: NodeType = {
     defaultContentType: { type: 'string' },
   },
   required: ['asyncapi', 'channels', 'info'],
+  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.0.0',
 };
 
 const Channel: NodeType = {
   properties: {
-    description: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'An optional description of this channel item. CommonMark syntax can be used for rich text representation.',
+    },
     subscribe: 'Operation',
     publish: 'Operation',
     parameters: 'ParametersMap',
     bindings: 'ChannelBindings',
-    servers: { type: 'array', items: { type: 'string' } },
+    servers: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'The servers on which this channel is available, specified as an optional unordered list of names (string keys) of Server Objects defined in the Servers Object (a map).',
+    },
   },
+  description: 'Describes the operations available on a single channel.',
+  documentationLink: 'https://v2.asyncapi.com/docs/concepts/channel',
 };
 
 const ChannelMap: NodeType = {
@@ -67,28 +82,52 @@ const ChannelBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  documentationLink:
+    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#channelBindingsObject',
+  description: 'Map describing protocol-specific definitions for a channel.',
 };
 
 export const Tag: NodeType = {
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
+    name: { type: 'string', description: 'REQUIRED. The name of the tag.' },
+    description: {
+      type: 'string',
+      description:
+        'A short description for the tag. CommonMark syntax can be used for rich text representation.',
+    },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
+  description: 'Allows adding meta data to a single tag.',
+  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#tagObject',
 };
 
 export const ExternalDocs: NodeType = {
   properties: {
-    description: { type: 'string' },
-    url: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'A short description of the target documentation. CommonMark syntax can be used for rich text representation.',
+    },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. The URL for the target documentation. This MUST be in the form of an absolute URL.',
+    },
   },
   required: ['url'],
+  documentationLink:
+    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#externalDocumentationObject',
+  description: 'Allows referencing an external resource for extended documentation.',
 };
 
 const SecurityRequirement: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
+  documentationLink:
+    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#securityRequirementObject',
+  description:
+    'Lists the required security schemes to execute this operation. The name used for each property MUST correspond to a security scheme declared in the Security Schemes under the Components Object.',
 };
 
 const ServerBindings: NodeType = {
@@ -118,20 +157,42 @@ const ServerBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  documentationLink:
+    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverBindingsObject',
+  description: 'Map describing protocol-specific definitions for a server.',
 };
 
 const Server: NodeType = {
   properties: {
-    url: { type: 'string' },
-    protocol: { type: 'string' },
-    protocolVersion: { type: 'string' },
-    description: { type: 'string' },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the AsyncAPI document is being served. Variable substitutions will be made when a variable is named in {braces}.',
+    },
+    protocol: {
+      type: 'string',
+      description:
+        'REQUIRED. The protocol this URL supports for connection. Supported protocol include, but are not limited to: amqp, amqps, http, https, ibmmq, jms, kafka, kafka-secure, anypointmq, mqtt, secure-mqtt, solace, stomp, stomps, ws, wss, mercure, googlepubsub, pulsar.',
+    },
+    protocolVersion: {
+      type: 'string',
+      description:
+        'The version of the protocol used for connection. For instance: AMQP 0.9.1, HTTP 2.0, Kafka 1.0.0, etc.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.',
+    },
     variables: 'ServerVariablesMap',
     security: 'SecurityRequirementList',
     bindings: 'ServerBindings',
     tags: 'TagList',
   },
   required: ['url', 'protocol'],
+  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverObject',
+  description:
+    'An object representing a message broker, a server or any other kind of computer program capable of sending and/or receiving data. This object is used to capture details such as URIs, protocols and security configuration. Variable substitution can be used so that some details, for example usernames and passwords, can be injected by code generation tools.',
 };
 
 export const ServerMap: NodeType = {
@@ -146,15 +207,29 @@ export const ServerVariable: NodeType = {
     enum: {
       type: 'array',
       items: { type: 'string' },
+      description:
+        'An enumeration of string values to be used if the substitution options are from a limited set.',
     },
-    default: { type: 'string' },
-    description: { type: 'string' },
+    default: {
+      type: 'string',
+      description:
+        'The default value to use for substitution, and to send, if an alternate value is not supplied.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.',
+    },
     examples: {
       type: 'array',
       items: { type: 'string' },
+      description: 'An array of examples of the server variable.',
     },
   },
   required: [],
+  documentationLink:
+    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverVariableObject',
+  description: 'An object representing a Server Variable for server URL template substitution.',
 };
 
 const Info: NodeType = {
