@@ -10,6 +10,7 @@ import {
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
 import { isAbsoluteUrlOrFileUrl, getDir, resolvePath } from '../ref-utils.js';
+import { isBrowser } from '../env.js';
 
 import type { RawUniversalConfig } from './types.js';
 
@@ -17,8 +18,8 @@ async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
-  const configDir = configPath ? getDir(configPath) : process.cwd();
-  const ignorePath = resolvePath(configDir, IGNORE_FILE);
+  const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
+  const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
 
   if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
@@ -30,12 +31,18 @@ async function loadIgnoreFile(
     return undefined;
   }
 
+  const resolvedConfigDir =
+    configDir ||
+    (ignoreDocument.source?.absoluteRef ? getDir(ignoreDocument.source.absoluteRef) : '');
+
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
 
   for (const fileName of Object.keys(ignore)) {
     const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
       ? fileName
-      : resolvePath(configDir, fileName);
+      : resolvedConfigDir
+      ? resolvePath(resolvedConfigDir, fileName)
+      : fileName;
 
     ignore[resolvedFileName] = ignore[fileName];
 
