@@ -476,6 +476,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionAssertions,
 };
 
+// FIXME: remove this once we remove `theme` from the schema
 const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
 const redoclyConfigSchemaWithoutTheme = {
   ...rootRedoclyConfigSchema,

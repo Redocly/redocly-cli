@@ -33,6 +33,7 @@ import type {
 import type { CollectFn } from './utils/types.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
+// FIXME: remove this once we remove `theme` from the schema
 const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;
 const redoclyConfigSchemaWithoutTheme = {
   ...rootRedoclyConfigSchema,
