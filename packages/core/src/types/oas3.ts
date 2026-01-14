@@ -46,10 +46,21 @@ const Tag: NodeType = {
 
 const TagGroup: NodeType = {
   properties: {
-    name: { type: 'string' },
-    tags: { type: 'array', items: { type: 'string' } },
+    name: {
+      type: 'string',
+      description:
+        'The display name for the tag, used in the navigation bar and as a section heading.',
+    },
+    tags: {
+      type: 'array',
+      description: 'List of tags to include in this group.',
+      items: { type: 'string' },
+    },
   },
   extensionsPrefix: 'x-',
+  description: 'The x-tagGroups extension is used at the top level of an OpenAPI description.',
+  documentationLink:
+    'https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-tag-groups#taggroup-object',
 };
 
 const ExternalDocs: NodeType = {
@@ -116,7 +127,8 @@ const ServerVariable: NodeType = {
 const SecurityRequirement: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
-  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/security',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/security#security-requirement-object',
   description:
     'A declaration of which security mechanisms can be used across the API. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. Individual operations can override this definition. To make security optional, an empty security requirement ({}) can be included in the array.',
 };
@@ -214,6 +226,7 @@ const Paths: NodeType = {
 const WebhooksMap: NodeType = {
   properties: {},
   additionalProperties: () => 'PathItem',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/webhooks#types',
 };
 
 const PathItem: NodeType = {
@@ -360,6 +373,10 @@ const XCodeSample: NodeType = {
     label: { type: 'string' },
     source: { type: 'string' },
   },
+  documentationLink:
+    'https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-code-samples',
+  description:
+    'Code samples are snippets of code shown alongside API operations in reference documentation, giving users a quick way to start to interact with an API from their own code. The x-codeSamples addition to OpenAPI allows you to add or override any existing code samples for a particular language or endpoint.',
 };
 
 const RequestBody: NodeType = {
@@ -384,12 +401,17 @@ const RequestBody: NodeType = {
 const MediaTypesMap: NodeType = {
   properties: {},
   additionalProperties: 'MediaType',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/media-type#types',
 };
 
 const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
-    example: { isExample: true },
+    example: {
+      isExample: true,
+      description:
+        'Example of the media type. The example object SHOULD be in the correct format as specified by the media type. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains an example, the example value SHALL override the example provided by the schema.',
+    },
     examples: 'ExamplesMap',
     encoding: 'EncodingMap',
   },
@@ -400,10 +422,18 @@ const MediaType: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: { resolvable: false },
+    value: {
+      resolvable: false,
+      description:
+        'Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON or YAML, use a string value to contain the example, escaping where necessary.',
+    },
     summary: { type: 'string' },
-    description: { type: 'string' },
-    externalValue: { type: 'string' },
+    description: { type: 'string', description: 'Long description for the example.' },
+    externalValue: {
+      type: 'string',
+      description:
+        'A URL that points to the literal example. This provides the capability to reference examples that cannot easily be included in JSON or YAML documents. The value field and externalValue field are mutually exclusive.',
+    },
   },
   extensionsPrefix: 'x-',
   description:
@@ -413,40 +443,75 @@ const Example: NodeType = {
 
 const Encoding: NodeType = {
   properties: {
-    contentType: { type: 'string' },
+    contentType: {
+      type: 'string',
+      description: `The Content-Type for encoding a specific property. Default value depends on the property type: for string with format being binary – application/octet-stream; for other primitive types – text/plain; for object - application/json; for array – the default is defined based on the inner type. The value can be a specific media type (e.g. application/json), a wildcard media type (e.g. image/*), or a comma-separated list of the two types.`,
+    },
     headers: 'HeadersMap',
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
+      description:
+        'Describes how a specific property value will be serialized depending on its type. See Parameter Object for details on the style property. The behavior follows the same values as query parameters, including default values. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded.',
     },
-    explode: { type: 'boolean' },
-    allowReserved: { type: 'boolean' },
+    explode: {
+      type: 'boolean',
+      description:
+        'When this is true, property values of type array or object generate separate parameters for each value of the array, or key-value-pair of the map. For other types of properties this property has no effect. When style is form, the default value is true. For all other styles, the default value is false. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded.',
+    },
+    allowReserved: {
+      type: 'boolean',
+      description: `Determines whether the parameter value SHOULD allow reserved characters, as defined by [RFC3986] Section 2.2 :/?#[]@!$&'()*+,;= to be included without percent-encoding. The default value is false. This property SHALL be ignored if the request body media type is not application/x-www-form-urlencoded.`,
+    },
   },
   extensionsPrefix: 'x-',
+  description: 'A single encoding definition applied to a single schema property.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/encoding#types',
 };
 
 const EnumDescriptions: NodeType = {
   properties: {},
   additionalProperties: { type: 'string' },
+  description:
+    'The enum (short for "enumeration") fields in OpenAPI allow you to restrict the value of a field to a list of allowed values. These values need to be short and machine-readable, but that can make them harder for humans to parse and work with.',
+  documentationLink:
+    'https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-enum-descriptions',
 };
 
 const Header: NodeType = {
   properties: {
-    description: { type: 'string' },
-    required: { type: 'boolean' },
+    description: {
+      type: 'string',
+      description:
+        'A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation.',
+    },
+    required: {
+      type: 'boolean',
+      description: 'Determines whether this parameter is mandatory. Its default value is false.',
+    },
     deprecated: { type: 'boolean' },
-    allowEmptyValue: { type: 'boolean' },
+    allowEmptyValue: {
+      type: 'boolean',
+      description:
+        'Specifies that a parameter is deprecated and SHOULD be transitioned out of usage. Default value is false.',
+    },
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
     explode: { type: 'boolean' },
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
-    example: { isExample: true },
+    example: {
+      isExample: true,
+      description: `Example of the header's potential value. The example SHOULD match the specified schema and encoding properties if present. The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema that contains an example, the example value SHALL override the example provided by the schema. To represent examples of media types that cannot naturally be represented in JSON or YAML, a string value can contain the example with escaping where necessary.`,
+    },
     examples: 'ExamplesMap',
     content: 'MediaTypesMap',
   },
   requiredOneOf: ['schema', 'content'],
   extensionsPrefix: 'x-',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/header#header-object',
+  description: 'The header object is used to describe a response header in the headers map.',
 };
 
 const Responses: NodeType = {
@@ -454,6 +519,7 @@ const Responses: NodeType = {
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
   description: 'The list of possible responses as they are returned from executing this operation.',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/named-responses',
 };
 
 const Response: NodeType = {
@@ -462,22 +528,41 @@ const Response: NodeType = {
     headers: 'HeadersMap',
     content: 'MediaTypesMap',
     links: 'LinksMap',
-    'x-summary': { type: 'string' },
+    'x-summary': {
+      type: 'string',
+      documentationLink:
+        'https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-summary#openapi-extension-x-summary',
+      description:
+        'Use x-summary to add a short custom text to describe the response in the API documentation.',
+    },
   },
   required: ['description'],
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/response',
+  description: 'The response object describes a single response in the Responses Map.',
 };
 
 const Link: NodeType = {
   properties: {
-    operationRef: { type: 'string' },
-    operationId: { type: 'string' },
+    operationRef: {
+      type: 'string',
+      description:
+        'A relative or absolute reference to an OAS operation. This field is mutually exclusive of the operationId field, and MUST point to an Operation Object. Relative operationRef values MAY be used to locate an existing Operation Object in the OpenAPI definition.',
+    },
+    operationId: {
+      type: 'string',
+      description:
+        'The name of an existing, resolvable OAS operation, as defined with a unique operationId. This field is mutually exclusive of the operationRef field.',
+    },
     parameters: null, // TODO: figure out how to describe/validate this
     requestBody: null, // TODO: figure out how to describe/validate this
-    description: { type: 'string' },
+    description: { type: 'string', description: 'A description of the link.' },
     server: 'Server',
   },
   extensionsPrefix: 'x-',
+  documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/links',
+  description:
+    'The Link object represents a possible design-time link for a response. The presence of a link does not guarantee the caller’s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.',
 };
 
 // draft-00
@@ -485,7 +570,10 @@ const Schema: NodeType = {
   properties: {
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
-    title: { type: 'string' },
+    title: {
+      type: 'string',
+      description: 'Value MUST be a string. Multiple types via an array are not supported.',
+    },
     multipleOf: { type: 'number', minimum: 0 },
     maximum: { type: 'number' },
     minimum: { type: 'number' },
@@ -493,7 +581,11 @@ const Schema: NodeType = {
     exclusiveMinimum: { type: 'boolean' },
     maxLength: { type: 'integer', minimum: 0 },
     minLength: { type: 'integer', minimum: 0 },
-    pattern: { type: 'string' },
+    pattern: {
+      type: 'string',
+      description:
+        '(This string SHOULD be a valid regular expression, according to the Ecma-262 Edition 5.1 regular expression dialect)',
+    },
     maxItems: { type: 'integer', minimum: 0 },
     minItems: { type: 'integer', minimum: 0 },
     uniqueItems: { type: 'boolean' },
@@ -503,10 +595,20 @@ const Schema: NodeType = {
     enum: { type: 'array' },
     type: {
       enum: ['object', 'array', 'string', 'number', 'integer', 'boolean'],
+      description: 'Value MUST be a string. Multiple types via an array are not supported.',
     },
-    allOf: listOf('Schema'),
-    anyOf: listOf('Schema'),
-    oneOf: listOf('Schema'),
+    allOf: listOf('Schema', {
+      description:
+        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
+    }),
+    anyOf: listOf('Schema', {
+      description:
+        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
+    }),
+    oneOf: listOf('Schema', {
+      description:
+        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
+    }),
     not: 'Schema',
     properties: 'SchemaProperties',
     items: (value: any) => {
@@ -523,8 +625,14 @@ const Schema: NodeType = {
         return 'Schema';
       }
     },
-    description: { type: 'string' },
-    format: { type: 'string' },
+    description: {
+      type: 'string',
+      description: 'CommonMark syntax MAY be used for rich text representation.',
+    },
+    format: {
+      type: 'string',
+      description: `See Data Type Formats for further details. While relying on JSON Schema's defined formats, the OAS offers a few additional predefined formats.`,
+    },
     default: null,
     nullable: { type: 'boolean' },
     readOnly: { type: 'boolean' },
@@ -550,6 +658,8 @@ const Xml: NodeType = {
     wrapped: { type: 'boolean' },
   },
   extensionsPrefix: 'x-',
+  description:
+    'This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property.',
 };
 
 const SchemaProperties: NodeType = {
@@ -566,15 +676,25 @@ const DiscriminatorMapping: NodeType = {
       return { type: 'string' };
     }
   },
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/discriminator#types',
 };
 
 const Discriminator: NodeType = {
   properties: {
-    propertyName: { type: 'string' },
+    propertyName: {
+      type: 'string',
+      description:
+        'REQUIRED. The name of the property in the payload that will hold the discriminator value.',
+    },
     mapping: 'DiscriminatorMapping',
   },
   required: ['propertyName'],
   extensionsPrefix: 'x-',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/discriminator#discriminator-object',
+  description:
+    'When request bodies or response payloads may be one of a number of different schemas, a discriminator object can be used to aid in serialization, deserialization, and validation. The discriminator is a specific object in a schema which is used to inform the consumer of the document of an alternative schema based on the value associated with it.',
 };
 
 const Components: NodeType = {
@@ -590,6 +710,8 @@ const Components: NodeType = {
     callbacks: 'NamedCallbacks',
   },
   extensionsPrefix: 'x-',
+  documentationLink:
+    'https://redocly.com/learn/openapi/openapi-visual-reference/components#components',
 };
 
 const ImplicitFlow: NodeType = {
@@ -600,6 +722,7 @@ const ImplicitFlow: NodeType = {
   },
   required: ['authorizationUrl', 'scopes'],
   extensionsPrefix: 'x-',
+  description: 'Configuration for the OAuth Implicit flow.',
 };
 
 const PasswordFlow: NodeType = {
@@ -610,6 +733,7 @@ const PasswordFlow: NodeType = {
   },
   required: ['tokenUrl', 'scopes'],
   extensionsPrefix: 'x-',
+  description: 'Object Configuration for the OAuth Resource Owner Password flow.',
 };
 
 const ClientCredentials: NodeType = {
@@ -620,6 +744,8 @@ const ClientCredentials: NodeType = {
   },
   required: ['tokenUrl', 'scopes'],
   extensionsPrefix: 'x-',
+  description:
+    'Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0.',
 };
 
 const AuthorizationCode: NodeType = {
@@ -638,6 +764,8 @@ const AuthorizationCode: NodeType = {
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
   extensionsPrefix: 'x-',
+  description:
+    'Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.',
 };
 
 const OAuth2Flows: NodeType = {
@@ -648,18 +776,45 @@ const OAuth2Flows: NodeType = {
     authorizationCode: 'AuthorizationCode',
   },
   extensionsPrefix: 'x-',
+  description: 'Configuration details for a supported OAuth Flow.',
 };
 
 const SecurityScheme: NodeType = {
   properties: {
-    type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect'] },
-    description: { type: 'string' },
-    name: { type: 'string' },
-    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
-    scheme: { type: 'string' },
-    bearerFormat: { type: 'string' },
+    type: {
+      enum: ['apiKey', 'http', 'oauth2', 'openIdConnect'],
+      description:
+        'REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "oauth2", "openIdConnect".',
+    },
+    description: {
+      type: 'string',
+      description: 'A short description for security scheme.',
+    },
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The name of the header, query or cookie parameter to be used.',
+    },
+    in: {
+      type: 'string',
+      enum: ['query', 'header', 'cookie'],
+      description:
+        'REQUIRED. The location of the API key. Valid values are "query", "header" or "cookie".',
+    },
+    scheme: {
+      type: 'string',
+      description: 'A short description for security scheme.',
+    },
+    bearerFormat: {
+      type: 'string',
+      description:
+        'A hint to the client to identify how the bearer token is formatted. Bearer tokens are usually generated by an authorization server, so this information is primarily for documentation purposes.',
+    },
     flows: 'OAuth2Flows',
-    openIdConnectUrl: { type: 'string' },
+    openIdConnectUrl: {
+      type: 'string',
+      description:
+        'REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the form of a URL.',
+    },
     'x-defaultClientId': { type: 'string' },
   },
   required(value) {
@@ -698,6 +853,10 @@ const XUsePkce: NodeType = {
     disableManualConfiguration: { type: 'boolean' },
     hideClientSecretInput: { type: 'boolean' },
   },
+  description:
+    'The x-usePkce allows you to enable Proof Key for Code Exchange (PKCE) for the Oauth2 or OpenID Connect authorization code flow in the Replay.',
+  documentationLink:
+    'https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-use-pkce#openapi-extension-x-usepkce',
 };
 
 export const Oas3Types = {
@@ -732,7 +891,10 @@ export const Oas3Types = {
       'A list of parameters that are applicable for this operation. If a parameter is already defined at the Path Item, the new definition will override it but can never remove it. The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of a name and location. The list can use the Reference Object to link to parameters that are defined at the OpenAPI Object’s components/parameters.',
   }),
   Operation,
-  Callback: mapOf('PathItem'),
+  Callback: mapOf('PathItem', {
+    description:
+      'https://redocly.com/learn/openapi/openapi-visual-reference/callbacks#callback-object',
+  }),
   CallbacksMap: mapOf('Callback'),
   RequestBody,
   MediaTypesMap,
