@@ -8,9 +8,53 @@ import {
   type Document,
   type ResolvedRefMap,
 } from '../resolve.js';
-import { CONFIG_FILE_NAME } from './constants.js';
+import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
+import { isAbsoluteUrlOrFileUrl, getDir, resolvePath } from '../ref-utils.js';
+import { isBrowser } from '../env.js';
 
 import type { RawUniversalConfig } from './types.js';
+
+async function loadIgnoreFile(
+  configPath: string | undefined,
+  resolver: BaseResolver
+): Promise<Record<string, Record<string, Set<string>>> | undefined> {
+  const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
+  const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
+  if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+    return undefined;
+  }
+
+  const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
+
+  if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
+    return undefined;
+  }
+
+  const resolvedConfigDir =
+    configDir ||
+    (ignoreDocument.source?.absoluteRef ? getDir(ignoreDocument.source.absoluteRef) : '');
+
+  const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
+  for (const fileName of Object.keys(ignore)) {
+    const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
+      ? fileName
+      : resolvedConfigDir
+      ? resolvePath(resolvedConfigDir, fileName)
+      : fileName;
+
+    ignore[resolvedFileName] = ignore[fileName];
+
+    for (const ruleId of Object.keys(ignore[fileName])) {
+      ignore[fileName][ruleId] = new Set(ignore[fileName][ruleId]);
+    }
+
+    if (resolvedFileName !== fileName) {
+      delete ignore[fileName];
+    }
+  }
+
+  return ignore;
+}
 
 export async function loadConfig(
   options: {
@@ -38,11 +82,14 @@ export async function loadConfig(
     externalRefResolver,
   });
 
+  const ignore = await loadIgnoreFile(configPath, resolver);
+
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
     plugins,
+    ignore,
   });
 
   return config;
@@ -74,16 +121,22 @@ export async function createConfig(
     rawConfigDocument.parsed = config;
   }
 
+  const resolver = externalRefResolver ?? new BaseResolver();
+
   const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
     externalRefResolver,
   });
+
+  const ignore = await loadIgnoreFile(configPath, resolver);
+
   return new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap,
     plugins,
+    ignore,
   });
 }
 

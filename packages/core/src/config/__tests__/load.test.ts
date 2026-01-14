@@ -1344,3 +1344,34 @@ function verifyOasRules(
     }
   });
 }
+
+describe('loadIgnoreFile', () => {
+  const ignoreFileDir = path.join(__dirname, './fixtures/ignore-file');
+  const ignoreFileConfig = path.join(ignoreFileDir, 'redocly.yaml');
+  const expectedIgnoreKey = path.join(ignoreFileDir, 'api.yaml');
+
+  it('should ignore only rules specified in ignore file', async () => {
+    const config = await loadConfig({ configPath: ignoreFileConfig });
+
+    expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
+    expect(config.ignore[expectedIgnoreKey]['operation-operationId']).toBeInstanceOf(Set);
+    expect(config.ignore[expectedIgnoreKey]['operation-summary']).toBeUndefined();
+  });
+
+  it('should return empty object when ignore file does not exist', async () => {
+    const configPath = path.join(__dirname, './fixtures/load-redocly.yaml');
+    const config = await loadConfig({ configPath });
+
+    expect(config.ignore).toEqual({});
+  });
+
+  it('should load ignore file in browser environment (without fs.existsSync)', async () => {
+    const existsSyncSpy = vi.spyOn(fs, 'existsSync').mockImplementation(undefined as any);
+
+    const config = await loadConfig({ configPath: ignoreFileConfig });
+
+    expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
+
+    existsSyncSpy.mockRestore();
+  });
+});

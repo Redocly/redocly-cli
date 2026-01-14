@@ -55,6 +55,9 @@ export {
   unescapePointerFragment,
   isRef,
   isAbsoluteUrl,
+  isAbsoluteUrlOrFileUrl,
+  getDir,
+  resolvePath,
   escapePointerFragment,
   type Location,
 } from './ref-utils.js';
