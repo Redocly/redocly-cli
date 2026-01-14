@@ -1,12 +1,12 @@
 import { entityNodeTypes } from '../types/entity-types.js';
 
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
-import type { Plugin, RuleConfig } from './types.js';
+import type { Plugin, RuleConfig } from '../config/types.js';
 import type { Document } from '../resolve.js';
 
-export type AssertionConfig = Record<string, Assertion | RuleConfig>;
+type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
-export type CategorizedAssertions = {
+type CategorizedAssertions = {
   entityRules: Assertion[];
   apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }>;
   otherRules: Record<string, unknown>;
@@ -80,6 +80,33 @@ export function apiRulesToConfig(
   );
 }
 
+export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
+  const dataSchema = JSON.parse(schema);
+
+  if (!hasComponents(document.parsed)) {
+    return null;
+  }
+
+  const components = document.parsed.components as Record<string, unknown>;
+  const schemas =
+    'schemas' in components ? (components.schemas as Record<string, unknown>) : undefined;
+  if (!schemas) {
+    throw new Error('No schemas found in document components');
+  }
+
+  if (typeof schemas === 'object') {
+    for (const [key, value] of Object.entries(schemas)) {
+      if (key === schemaKey) {
+        if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
+          return value;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 function isAssertion(value: unknown): value is Assertion {
   return (
     typeof value === 'object' &&
@@ -130,44 +157,11 @@ function buildAssertion(ruleKey: string, rawAssertion: RawAssertion): Assertion 
   };
 }
 
-type ApiDefinitionWithComponents = {
-  components?: {
-    schemas?: Record<string, unknown>;
-  };
-  info?: unknown;
-  [key: string]: unknown;
-};
-
-function hasComponents(parsed: unknown): parsed is ApiDefinitionWithComponents {
+function hasComponents(parsed: unknown): parsed is { [key: string]: unknown } {
   return (
     typeof parsed === 'object' &&
     parsed !== null &&
     'components' in parsed &&
     typeof (parsed as Record<string, unknown>).components === 'object'
   );
-}
-
-export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
-  const dataSchema = JSON.parse(schema);
-
-  if (!hasComponents(document.parsed)) {
-    return null;
-  }
-
-  const schemas = document.parsed.components?.schemas;
-  if (!schemas) {
-    throw new Error('No schemas found in document components');
-  }
-
-  if (typeof schemas === 'object') {
-    for (const [key, value] of Object.entries(schemas)) {
-      if (key === schemaKey) {
-        if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
-          return value;
-        }
-      }
-    }
-  }
-
-  return null;
 }

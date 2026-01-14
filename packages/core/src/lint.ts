@@ -15,20 +15,20 @@ import { createConfigTypes } from './types/redocly-yaml.js';
 import {
   createEntityTypes,
   ENTITY_DISCRIMINATOR_NAME,
-  TYPES_OF_ENTITY,
+  API_TYPES_OF_ENTITY,
 } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import {
-  createConfig,
-  transformScorecardRulesToAssertions,
-  categorizeAssertions,
-  apiRulesToConfig,
-  findDataSchemaInDocument,
-} from './config/index.js';
+import { createConfig } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { Assertions } from './rules/common/assertions/index.js';
+import {
+  apiRulesToConfig,
+  categorizeAssertions,
+  findDataSchemaInDocument,
+  transformScorecardRulesToAssertions,
+} from './utils/scorecards.js';
 
 import type { CatalogEntity } from './typings/catalog-entity.js';
 import type { Assertion } from './rules/common/assertions/index.js';
@@ -345,7 +345,7 @@ export async function lintEntityByScorecardLevel(
     assertionConfig: entityRules,
   });
 
-  if (TYPES_OF_ENTITY.includes(entity.type)) {
+  if (API_TYPES_OF_ENTITY.includes(entity.type)) {
     if (apiRules.length === 0) {
       return entityProblems;
     }
