@@ -19,15 +19,13 @@ async function loadIgnoreFile(
   resolver: BaseResolver
 ): Promise<Record<string, Record<string, Set<string>>> | undefined> {
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
-  console.log('####configDir', configDir);
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
-  console.log('####ignorePath', ignorePath);
   if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
   }
 
   const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
-  console.log('####ignoreDocument', ignoreDocument);
+
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
     return undefined;
   }
@@ -35,20 +33,15 @@ async function loadIgnoreFile(
   const resolvedConfigDir =
     configDir ||
     (ignoreDocument.source?.absoluteRef ? getDir(ignoreDocument.source.absoluteRef) : '');
-  console.log('####resolvedConfigDir', resolvedConfigDir);
+
   const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
-  console.log('####ignore', ignore);
   for (const fileName of Object.keys(ignore)) {
     const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
       ? fileName
       : resolvedConfigDir
       ? resolvePath(resolvedConfigDir, fileName)
       : fileName;
-    console.log('####resolvedFileName', {
-      resolvedFileName,
-      fileName,
-      resolvedConfigDir,
-    });
+
     ignore[resolvedFileName] = ignore[fileName];
 
     for (const ruleId of Object.keys(ignore[fileName])) {
@@ -137,7 +130,7 @@ export async function createConfig(
   });
 
   const ignore = await loadIgnoreFile(configPath, resolver);
-  console.log('####ignore', ignore);
+
   return new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
