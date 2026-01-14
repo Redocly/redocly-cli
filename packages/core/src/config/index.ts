@@ -5,4 +5,3 @@ export * from './builtIn.js';
 export * from './load.js';
 export * from './utils.js';
 export * from './config-resolvers.js';
-export * from './transform-scorecard-rules.js';
