@@ -121,15 +121,13 @@ export async function createConfig(
     rawConfigDocument.parsed = config;
   }
 
-  const resolver = externalRefResolver ?? new BaseResolver();
-
   const { resolvedConfig, resolvedRefMap, plugins } = await resolveConfig({
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
     externalRefResolver,
   });
 
-  const ignore = await loadIgnoreFile(configPath, resolver);
+  const ignore = await loadIgnoreFile(configPath, externalRefResolver ?? new BaseResolver());
 
   return new Config(resolvedConfig, {
     configPath,
