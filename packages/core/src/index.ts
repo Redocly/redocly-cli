@@ -26,6 +26,7 @@ export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/
 export { Stats } from './rules/other/stats.js';
 export {
   loadConfig,
+  loadIgnoreFile,
   createConfig,
   findConfig,
   resolvePlugins,
