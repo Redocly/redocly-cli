@@ -18,21 +18,33 @@ export async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
 ): Promise<{ content: Record<string, Record<string, string[]>>; path: string } | undefined> {
+  console.log('[loadIgnoreFile] start', { configPath, isBrowser });
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
+  console.log('[loadIgnoreFile] configDir:', configDir);
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
+  console.log('[loadIgnoreFile] ignorePath:', ignorePath);
+
   if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+    console.log('[loadIgnoreFile] ignore file does not exist, returning undefined');
     return undefined;
   }
 
+  console.log('[loadIgnoreFile] resolving ignore document...');
   const ignoreDocument = await resolver.resolveDocument(null, ignorePath, true);
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
+    console.log('[loadIgnoreFile] ignore document is error or not parsed:', {
+      isError: ignoreDocument instanceof Error,
+      hasParsed: !!(ignoreDocument instanceof Error ? false : ignoreDocument.parsed),
+    });
     return undefined;
   }
 
   const resolvedIgnorePath =
     configDir ||
     (ignoreDocument.source?.absoluteRef ? getDir(ignoreDocument.source.absoluteRef) : '');
+  console.log('[loadIgnoreFile] resolvedIgnorePath:', resolvedIgnorePath);
+  console.log('[loadIgnoreFile] ignore content:', ignoreDocument.parsed);
 
   return {
     content: (ignoreDocument.parsed || {}) as Record<string, Record<string, string[]>>,
@@ -68,6 +80,10 @@ export async function loadConfig(
 
   const ignoreResult = await loadIgnoreFile(configPath, resolver);
 
+  console.log('[loadConfig] load Config with', {
+    ignoreResult,
+  });
+
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
@@ -98,6 +114,15 @@ export async function createConfig(
   config?: string | RawUniversalConfig,
   { configPath, externalRefResolver, rawIgnore, ignorePath }: CreateConfigOptions = {}
 ): Promise<Config> {
+  console.log('[createConfig] start', {
+    hasConfig: !!config,
+    configType: typeof config,
+    configPath,
+    hasRawIgnore: !!rawIgnore,
+    ignorePath,
+    rawIgnore,
+  });
+
   const rawConfigSource = typeof config === 'string' ? config : '';
   const rawConfigDocument = makeDocumentFromString<RawUniversalConfig>(
     rawConfigSource,
@@ -112,6 +137,12 @@ export async function createConfig(
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
     externalRefResolver,
+  });
+
+  console.log('[createConfig] creating Config with', {
+    hasRawIgnore: !!rawIgnore,
+    ignorePath,
+    rawIgnoreKeys: rawIgnore ? Object.keys(rawIgnore) : [],
   });
 
   return new Config(resolvedConfig, {
