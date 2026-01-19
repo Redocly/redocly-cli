@@ -152,20 +152,18 @@ export class Config {
     ignore: Record<string, Record<string, string[]>>,
     ignorePath?: string
   ): Record<string, Record<string, Set<string>>> {
-    const adapted: Record<string, Record<string, Set<string>>> = {};
-
+    const adapted = Object.create(null) as Record<string, Record<string, Set<string>>>;
     const configDir = ignorePath || (this.configPath ? path.dirname(this.configPath) : undefined);
 
     for (const fileName of Object.keys(ignore)) {
       const fileIgnore = ignore[fileName];
-
       const resolvedFileName = isAbsoluteUrl(fileName)
         ? fileName
         : configDir
         ? path.resolve(configDir, fileName)
         : fileName;
 
-      adapted[resolvedFileName] = {};
+      adapted[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
 
       for (const ruleId of Object.keys(fileIgnore)) {
         adapted[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
