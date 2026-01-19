@@ -5,7 +5,7 @@ import { slash } from '../utils/slash.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { specVersions } from '../detect-spec.js';
 import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
+import { isAbsoluteUrl, isAbsoluteUrlOrFileUrl, resolvePath } from '../ref-utils.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
@@ -145,22 +145,25 @@ export class Config {
     };
 
     this.ignore =
-      opts.ignore ?? (opts.rawIgnore ? this.resolveIgnore(opts.rawIgnore, opts.ignorePath) : {});
+      opts.ignore ??
+      (opts.rawIgnore && opts.ignorePath
+        ? this.resolveIgnore(opts.rawIgnore, opts.ignorePath)
+        : {});
   }
 
   private resolveIgnore(
     ignore: Record<string, Record<string, string[]>>,
-    ignorePath?: string
+    ignorePath: string
   ): Record<string, Record<string, Set<string>>> {
     const adapted = Object.create(null) as Record<string, Record<string, Set<string>>>;
-    const configDir = ignorePath || (this.configPath ? path.dirname(this.configPath) : undefined);
 
     for (const fileName of Object.keys(ignore)) {
       const fileIgnore = ignore[fileName];
-      const resolvedFileName = isAbsoluteUrl(fileName)
+
+      const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
         ? fileName
-        : configDir
-        ? path.resolve(configDir, fileName)
+        : ignorePath
+        ? resolvePath(ignorePath, fileName)
         : fileName;
 
       adapted[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
