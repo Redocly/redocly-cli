@@ -14,10 +14,10 @@ import { isBrowser } from '../env.js';
 
 import type { RawUniversalConfig } from './types.js';
 
-async function loadIgnoreFile(
+export async function loadIgnoreFile(
   configPath: string | undefined,
   resolver: BaseResolver
-): Promise<Record<string, Record<string, Set<string>>> | undefined> {
+): Promise<{ content: Record<string, Record<string, string[]>>; path: string } | undefined> {
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
   if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
@@ -30,30 +30,14 @@ async function loadIgnoreFile(
     return undefined;
   }
 
-  const resolvedConfigDir =
+  const resolvedIgnorePath =
     configDir ||
     (ignoreDocument.source?.absoluteRef ? getDir(ignoreDocument.source.absoluteRef) : '');
 
-  const ignore = (ignoreDocument.parsed || {}) as Record<string, Record<string, Set<string>>>;
-  for (const fileName of Object.keys(ignore)) {
-    const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
-      ? fileName
-      : resolvedConfigDir
-      ? resolvePath(resolvedConfigDir, fileName)
-      : fileName;
-
-    ignore[resolvedFileName] = ignore[fileName];
-
-    for (const ruleId of Object.keys(ignore[fileName])) {
-      ignore[fileName][ruleId] = new Set(ignore[fileName][ruleId]);
-    }
-
-    if (resolvedFileName !== fileName) {
-      delete ignore[fileName];
-    }
-  }
-
-  return ignore;
+  return {
+    content: (ignoreDocument.parsed || {}) as Record<string, Record<string, string[]>>,
+    path: resolvedIgnorePath,
+  };
 }
 
 export async function loadConfig(
@@ -82,14 +66,15 @@ export async function loadConfig(
     externalRefResolver,
   });
 
-  const ignore = await loadIgnoreFile(configPath, resolver);
+  const ignoreResult = await loadIgnoreFile(configPath, resolver);
 
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
     plugins,
-    ignore,
+    rawIgnore: ignoreResult?.content,
+    ignorePath: ignoreResult?.path,
   });
 
   return config;
@@ -105,11 +90,13 @@ type CreateConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
   resolvedRefMap?: ResolvedRefMap;
+  rawIgnore?: Record<string, Record<string, string[]>>;
+  ignorePath?: string;
 };
 
 export async function createConfig(
   config?: string | RawUniversalConfig,
-  { configPath, externalRefResolver }: CreateConfigOptions = {}
+  { configPath, externalRefResolver, rawIgnore, ignorePath }: CreateConfigOptions = {}
 ): Promise<Config> {
   const rawConfigSource = typeof config === 'string' ? config : '';
   const rawConfigDocument = makeDocumentFromString<RawUniversalConfig>(
@@ -127,14 +114,13 @@ export async function createConfig(
     externalRefResolver,
   });
 
-  const ignore = await loadIgnoreFile(configPath, externalRefResolver ?? new BaseResolver());
-
   return new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap,
     plugins,
-    ignore,
+    rawIgnore,
+    ignorePath,
   });
 }
 

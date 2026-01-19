@@ -59,6 +59,8 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
+      rawIgnore?: Record<string, Record<string, string[]>>;
+      ignorePath?: string;
       ignore?: Record<string, Record<string, Set<string>>>;
     } = {}
   ) {
@@ -142,7 +144,35 @@ export class Config {
       },
     };
 
-    this.ignore = opts.ignore || {};
+    this.ignore =
+      opts.ignore ?? (opts.rawIgnore ? this.resolveIgnore(opts.rawIgnore, opts.ignorePath) : {});
+  }
+
+  private resolveIgnore(
+    ignore: Record<string, Record<string, string[]>>,
+    ignorePath?: string
+  ): Record<string, Record<string, Set<string>>> {
+    const adapted: Record<string, Record<string, Set<string>>> = {};
+
+    const configDir = ignorePath || (this.configPath ? path.dirname(this.configPath) : undefined);
+
+    for (const fileName of Object.keys(ignore)) {
+      const fileIgnore = ignore[fileName];
+
+      const resolvedFileName = isAbsoluteUrl(fileName)
+        ? fileName
+        : configDir
+        ? path.resolve(configDir, fileName)
+        : fileName;
+
+      adapted[resolvedFileName] = {};
+
+      for (const ruleId of Object.keys(fileIgnore)) {
+        adapted[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
+      }
+    }
+
+    return adapted;
   }
 
   forAlias(alias?: string) {
