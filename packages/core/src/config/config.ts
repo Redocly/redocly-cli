@@ -144,55 +144,35 @@ export class Config {
       },
     };
 
-    console.log('[Config constructor] ignore options:', {
-      hasIgnore: !!opts.ignore,
-      hasRawIgnore: !!opts.rawIgnore,
-      ignorePath: opts.ignorePath,
-      rawIgnoreKeys: opts.rawIgnore ? Object.keys(opts.rawIgnore) : [],
-    });
-
     this.ignore =
       opts.ignore ??
       (opts.rawIgnore && opts.ignorePath
         ? this.resolveIgnore(opts.rawIgnore, opts.ignorePath)
         : {});
-
-    console.log('[Config constructor] final ignore keys:', Object.keys(this.ignore));
   }
 
   private resolveIgnore(
     ignore: Record<string, Record<string, string[]>>,
     ignorePath: string
   ): Record<string, Record<string, Set<string>>> {
-    console.log('[resolveIgnore] start', { ignorePath, ignoreKeys: Object.keys(ignore) });
     const adapted = Object.create(null) as Record<string, Record<string, Set<string>>>;
 
     for (const fileName of Object.keys(ignore)) {
       const fileIgnore = ignore[fileName];
-      console.log('[resolveIgnore] processing file:', fileName);
 
       const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
         ? fileName
         : ignorePath
         ? resolvePath(ignorePath, fileName)
         : fileName;
-      console.log('[resolveIgnore] resolvedFileName:', resolvedFileName);
 
       adapted[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
 
       for (const ruleId of Object.keys(fileIgnore)) {
         adapted[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
-        console.log(
-          '[resolveIgnore] added rule:',
-          ruleId,
-          'with',
-          fileIgnore[ruleId].length,
-          'items'
-        );
       }
     }
 
-    console.log('[resolveIgnore] result keys:', Object.keys(adapted));
     return adapted;
   }
 
