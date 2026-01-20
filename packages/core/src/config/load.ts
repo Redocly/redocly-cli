@@ -9,7 +9,7 @@ import {
   type ResolvedRefMap,
 } from '../resolve.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
-import { isAbsoluteUrlOrFileUrl, getDir, resolvePath } from '../ref-utils.js';
+import { isAbsoluteUrl, getDir, resolvePath } from '../ref-utils.js';
 import { isBrowser } from '../env.js';
 
 import type { RawUniversalConfig } from './types.js';
@@ -20,7 +20,7 @@ export async function loadIgnoreFile(
 ): Promise<{ content: Record<string, Record<string, string[]>>; path: string } | undefined> {
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
-  if (fs?.existsSync && !isAbsoluteUrlOrFileUrl(ignorePath) && !fs.existsSync(ignorePath)) {
+  if (fs?.existsSync && !isAbsoluteUrl(ignorePath) && !fs.existsSync(ignorePath)) {
     return undefined;
   }
 
@@ -66,15 +66,14 @@ export async function loadConfig(
     externalRefResolver,
   });
 
-  const ignoreResult = await loadIgnoreFile(configPath, resolver);
+  const ignoreFile = await loadIgnoreFile(configPath, resolver);
 
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
     plugins,
-    rawIgnore: ignoreResult?.content,
-    ignorePath: ignoreResult?.path,
+    ignoreFile,
   });
 
   return config;
@@ -90,13 +89,12 @@ type CreateConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
   resolvedRefMap?: ResolvedRefMap;
-  rawIgnore?: Record<string, Record<string, string[]>>;
-  ignorePath?: string;
+  ignoreFile?: { content: Record<string, Record<string, string[]>>; path: string };
 };
 
 export async function createConfig(
   config?: string | RawUniversalConfig,
-  { configPath, externalRefResolver, rawIgnore, ignorePath }: CreateConfigOptions = {}
+  { configPath, externalRefResolver, ignoreFile }: CreateConfigOptions = {}
 ): Promise<Config> {
   const rawConfigSource = typeof config === 'string' ? config : '';
   const rawConfigDocument = makeDocumentFromString<RawUniversalConfig>(
@@ -119,8 +117,7 @@ export async function createConfig(
     document: rawConfigDocument,
     resolvedRefMap,
     plugins,
-    rawIgnore,
-    ignorePath,
+    ignoreFile,
   });
 }
 

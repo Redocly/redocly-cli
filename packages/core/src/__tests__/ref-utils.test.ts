@@ -5,7 +5,7 @@ import {
   parseRef,
   refBaseName,
   unescapePointerFragment,
-  isAbsoluteUrlOrFileUrl,
+  isAbsoluteUrl,
   getDir,
   resolvePath,
 } from '../ref-utils.js';
@@ -187,17 +187,17 @@ describe('ref-utils', () => {
     });
   });
 
-  describe('isAbsoluteUrlOrFileUrl', () => {
+  describe('isAbsoluteUrl', () => {
     it('should return true for http://, https://, and file:// URLs', () => {
-      expect(isAbsoluteUrlOrFileUrl('http://example.com/api.yaml')).toBe(true);
-      expect(isAbsoluteUrlOrFileUrl('https://example.com/api.yaml')).toBe(true);
-      expect(isAbsoluteUrlOrFileUrl('file:///Users/test/api.yaml')).toBe(true);
+      expect(isAbsoluteUrl('http://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrl('https://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrl('file:///Users/test/api.yaml')).toBe(true);
     });
 
     it('should return false for relative and absolute file paths', () => {
-      expect(isAbsoluteUrlOrFileUrl('./api.yaml')).toBe(false);
-      expect(isAbsoluteUrlOrFileUrl('../api.yaml')).toBe(false);
-      expect(isAbsoluteUrlOrFileUrl('/Users/test/api.yaml')).toBe(false);
+      expect(isAbsoluteUrl('./api.yaml')).toBe(false);
+      expect(isAbsoluteUrl('../api.yaml')).toBe(false);
+      expect(isAbsoluteUrl('/Users/test/api.yaml')).toBe(false);
     });
   });
 

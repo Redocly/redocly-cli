@@ -56,7 +56,6 @@ export {
   unescapePointerFragment,
   isRef,
   isAbsoluteUrl,
-  isAbsoluteUrlOrFileUrl,
   getDir,
   resolvePath,
   escapePointerFragment,

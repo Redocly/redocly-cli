@@ -83,11 +83,7 @@ export function refBaseName(ref: string) {
 }
 
 export function isAbsoluteUrl(ref: string) {
-  return ref.startsWith('http://') || ref.startsWith('https://');
-}
-
-export function isAbsoluteUrlOrFileUrl(ref: string) {
-  return isAbsoluteUrl(ref) || ref.startsWith('file://');
+  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
 }
 
 export function getDir(filePath: string): string {
@@ -95,13 +91,13 @@ export function getDir(filePath: string): string {
     return filePath;
   }
 
-  return isAbsoluteUrlOrFileUrl(filePath)
+  return isAbsoluteUrl(filePath)
     ? filePath.substring(0, filePath.lastIndexOf('/'))
     : path.dirname(filePath);
 }
 
 export function resolvePath(base: string, relative: string): string {
-  if (isAbsoluteUrlOrFileUrl(base)) {
+  if (isAbsoluteUrl(base)) {
     return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
   }
   return path.resolve(base, relative);

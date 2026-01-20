@@ -5,7 +5,7 @@ import { slash } from '../utils/slash.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { specVersions } from '../detect-spec.js';
 import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl, isAbsoluteUrlOrFileUrl, resolvePath } from '../ref-utils.js';
+import { isAbsoluteUrl, resolvePath } from '../ref-utils.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
@@ -59,8 +59,7 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      rawIgnore?: Record<string, Record<string, string[]>>;
-      ignorePath?: string;
+      ignoreFile?: { content: Record<string, Record<string, string[]>>; path: string };
       ignore?: Record<string, Record<string, Set<string>>>;
     } = {}
   ) {
@@ -144,36 +143,35 @@ export class Config {
       },
     };
 
-    this.ignore =
-      opts.ignore ??
-      (opts.rawIgnore && opts.ignorePath
-        ? this.resolveIgnore(opts.rawIgnore, opts.ignorePath)
-        : {});
+    this.ignore = opts.ignore ?? (opts.ignoreFile ? this.resolveIgnore(opts.ignoreFile) : {});
   }
 
-  private resolveIgnore(
-    ignore: Record<string, Record<string, string[]>>,
-    ignorePath: string
-  ): Record<string, Record<string, Set<string>>> {
-    const adapted = Object.create(null) as Record<string, Record<string, Set<string>>>;
+  private resolveIgnore({
+    content,
+    path,
+  }: {
+    content: Record<string, Record<string, string[]>>;
+    path: string;
+  }): Record<string, Record<string, Set<string>>> {
+    const ignore = Object.create(null) as Record<string, Record<string, Set<string>>>;
 
-    for (const fileName of Object.keys(ignore)) {
-      const fileIgnore = ignore[fileName];
+    for (const fileName of Object.keys(content)) {
+      const fileIgnore = content[fileName];
 
-      const resolvedFileName = isAbsoluteUrlOrFileUrl(fileName)
+      const resolvedFileName = isAbsoluteUrl(fileName)
         ? fileName
-        : ignorePath
-        ? resolvePath(ignorePath, fileName)
+        : path
+        ? resolvePath(path, fileName)
         : fileName;
 
-      adapted[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
+      ignore[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
 
       for (const ruleId of Object.keys(fileIgnore)) {
-        adapted[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
+        ignore[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
       }
     }
 
-    return adapted;
+    return ignore;
   }
 
   forAlias(alias?: string) {

@@ -1724,8 +1724,7 @@ describe('lint', () => {
         },
         {
           configPath: configFilePath,
-          rawIgnore: ignoreResult?.content,
-          ignorePath: ignoreResult?.path,
+          ignoreFile: ignoreResult,
         }
       ),
     });
