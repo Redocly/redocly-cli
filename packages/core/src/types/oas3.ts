@@ -146,6 +146,7 @@ const PathItem: NodeType = {
     head: 'Operation',
     patch: 'Operation',
     trace: 'Operation',
+    'x-query': 'Operation',
   },
   extensionsPrefix: 'x-',
 };
