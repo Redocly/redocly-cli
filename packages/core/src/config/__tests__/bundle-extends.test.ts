@@ -18,7 +18,7 @@ describe('bundleExtends', () => {
 
   const dummyPlugins: Plugin[] = [];
 
-  it('should report an error for extends entry that is not a string (e.g., number)', () => {
+  it('should silently skip extends entry that is not a string (e.g., number)', () => {
     const ctx = makeCtx();
     const node = {
       extends: [42],
@@ -26,12 +26,8 @@ describe('bundleExtends', () => {
 
     const result = bundleExtends({ node, ctx, plugins: dummyPlugins });
 
-    // Should report error for non-string value
-    expect(ctx.report).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining('Invalid "extends" entry'),
-      })
-    );
+    // Bundling is best-effort; validation happens in lintConfig via ConfigNoUnresolvedRefs
+    expect(ctx.report).not.toHaveBeenCalled();
     // The invalid entry should be filtered out
     expect(result.extends).toBeUndefined();
   });

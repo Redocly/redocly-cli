@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: test.yaml
+    extends:
+      - minimal
+      - ./api-config-missing.yaml
+  secondary:
+    root: test2.yaml
+    extends:
+      - ./another-missing.yaml

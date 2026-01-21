@@ -1,0 +1,6 @@
+extends:
+  - ./first-missing.yaml
+  - ./second-missing.yaml
+  - ./third-missing.yaml
+rules:
+  operation-2xx-response: error

@@ -12,9 +12,9 @@ import { createEntityTypes, ENTITY_DISCRIMINATOR_NAME } from './types/entity-yam
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
+import { ConfigNoUnresolvedRefs } from './rules/config/config-no-unresolved-refs.js';
 import { type Config } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-import { ConfigNoUnresolvedRefs } from './rules/config/config-no-unresolved-refs.js';
 
 import type { Document } from './resolve.js';
 import type { ProblemSeverity, WalkContext } from './walk.js';

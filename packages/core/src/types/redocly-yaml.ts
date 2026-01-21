@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
 import { listOf, mapOf } from './index.js';
 import { specVersions, getTypes } from '../oas-types.js';
@@ -5,9 +6,10 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 import { normalizeTypes } from '../types/index.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from './index.js';
+import type { NodeType, PropType } from './index.js';
 import type { Config, RawGovernanceConfig } from '../config/index.js';
 
 const builtInOAS2Rules = [
@@ -213,23 +215,7 @@ const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,
   NodeType['properties'][string]
 > = {
-  // extends: {
-  //   name: 'ConfigGovernanceList',
-  //   properties: {},
-  //   items: (node) => {
-  //     if (typeof node !== 'string') {
-  //       return undefined;
-  //     }
-  //     if (!isAbsoluteUrl(node) && !path.extname(node)) {
-  //       return { type: 'string' };
-  //     }
-  //     return {
-  //       ...ConfigGovernance,
-  //       directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
-  //     } as PropType;
-  //   },
-  // } as PropType,
-  extends: { type: 'array', items: { type: 'string' } },
+  extends: 'ConfigGovernanceList',
   plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',
@@ -266,6 +252,32 @@ const configGovernanceProperties: Record<
 
 const ConfigGovernance: NodeType = {
   properties: configGovernanceProperties,
+};
+
+const ConfigGovernanceList: NodeType = {
+  properties: {},
+  items: (node: unknown): PropType => {
+    if (typeof node !== 'string') {
+      // Non-strings should be validated by struct as type errors
+      return { type: 'string' };
+    }
+
+    // Empty strings are just skipped
+    if (!node.trim()) {
+      return { type: 'string' };
+    }
+
+    // Named presets (no extension, not a URL) are plain strings
+    if (!isAbsoluteUrl(node) && !path.extname(node)) {
+      return { type: 'string' };
+    }
+
+    // File/URL extends should be resolved as config references
+    return {
+      ...ConfigGovernance,
+      directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
+    } as PropType;
+  },
 };
 
 const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
@@ -469,6 +481,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
   ConfigApis,
   ConfigGovernance,
+  ConfigGovernanceList,
   ConfigHTTP,
   AssertDefinition,
   ObjectRule,

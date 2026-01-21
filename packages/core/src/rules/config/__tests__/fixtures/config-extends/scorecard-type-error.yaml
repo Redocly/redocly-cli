@@ -1,0 +1,7 @@
+scorecard:
+  levels:
+    - name: Bronze
+      extends:
+        - 42
+        - true
+        - minimal
