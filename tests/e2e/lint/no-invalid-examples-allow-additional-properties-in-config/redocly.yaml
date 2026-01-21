@@ -1,6 +1,3 @@
-extends:
-  - recommended
-
 apis:
   test:
     root: ./openapi.yaml

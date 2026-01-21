@@ -1,95 +1,48 @@
 openapi: 3.1.0
 info:
-  title: Test API
+  title: Test api
   version: 1.0.0
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  description: |
-    Test API for Bug Report
 servers:
   - url: https://test.com/v1
 
 paths:
-  /test1:
+  /test:
     get:
-      summary: Test Request
-      operationId: getTest1
+      summary: Minimal endpoint to trigger "no-invalid-*-examples" errors
+      operationId: test
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            $ref: '#/components/schemas/ExampleObject'
+          example:
+            prop: 'ok'
+            extraParam: not-allowed
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  testArray:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        id:
-                          type: integer
-              examples:
-                scenario1:
-                  value:
-                    testArray:
-                      - name: John
-                        id: 1
-                      - name: James
-                        id: 2
-                      - name: Joe
-                        id: 3
-                      - names: Jill
-                        id: 4
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: string
+                $ref: '#/components/schemas/ExampleObject'
+              example:
+                prop: 'ok'
+                extraBody: 'not-allowed'
 components:
   schemas:
-    testSchema:
+    ExampleObject:
       type: object
       properties:
-        testArray:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              id:
-                type: integer
-      examples:
-        - testArray:
-            - name: John
-              id: 1
-            - names: James
-              id: 2
-  parameters:
-    testParam:
-      name: testParam
-      in: query
-      description: Test parameter
-      required: false
-      schema:
-        type: object
-        properties:
-          testField:
-            type: array
-            items:
-              type: object
-              properties:
-                name:
-                  type: string
-      examples:
-        parametersExample:
-          value:
-            testField:
-              - name: John
-              - name: James
-              - names: Joe
+        prop:
+          type: string
+    SchemaExample:
+      type: object
+      properties:
+        prop1:
+          type: string
+      example:
+        prop1: 123
+        extraSchema: allowed
