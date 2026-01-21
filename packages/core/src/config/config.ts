@@ -158,11 +158,7 @@ export class Config {
     for (const fileName of Object.keys(content)) {
       const fileIgnore = content[fileName];
 
-      const resolvedFileName = isAbsoluteUrl(fileName)
-        ? fileName
-        : dir
-        ? resolvePath(dir, fileName)
-        : fileName;
+      const resolvedFileName = isAbsoluteUrl(fileName) ? fileName : resolvePath(dir, fileName);
 
       ignore[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
 
