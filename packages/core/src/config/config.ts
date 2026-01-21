@@ -59,7 +59,7 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      ignoreFile?: { content: Record<string, Record<string, string[]>>; path: string };
+      ignoreFile?: { content: Record<string, Record<string, string[]>>; dir: string };
       ignore?: Record<string, Record<string, Set<string>>>;
     } = {}
   ) {
@@ -148,10 +148,10 @@ export class Config {
 
   private resolveIgnore({
     content,
-    path,
+    dir,
   }: {
     content: Record<string, Record<string, string[]>>;
-    path: string;
+    dir: string;
   }): Record<string, Record<string, Set<string>>> {
     const ignore = Object.create(null) as Record<string, Record<string, Set<string>>>;
 
@@ -160,8 +160,8 @@ export class Config {
 
       const resolvedFileName = isAbsoluteUrl(fileName)
         ? fileName
-        : path
-        ? resolvePath(path, fileName)
+        : dir
+        ? resolvePath(dir, fileName)
         : fileName;
 
       ignore[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
