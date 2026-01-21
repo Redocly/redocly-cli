@@ -31,6 +31,8 @@ import type {
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
+  IgnoreFile,
+  ResolvedIgnore,
 } from './types.js';
 
 export class Config {
@@ -42,7 +44,7 @@ export class Config {
   _alias?: string;
 
   plugins: Plugin[];
-  ignore: Record<string, Record<string, Set<string>>> = {};
+  ignore: ResolvedIgnore = {};
   doNotResolveExamples: boolean;
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
@@ -59,8 +61,8 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      ignoreFile?: { content: Record<string, Record<string, string[]>>; dir: string };
-      ignore?: Record<string, Record<string, Set<string>>>;
+      ignoreFile?: IgnoreFile;
+      ignore?: ResolvedIgnore;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -146,21 +148,15 @@ export class Config {
     this.ignore = opts.ignore ?? (opts.ignoreFile ? this.resolveIgnore(opts.ignoreFile) : {});
   }
 
-  private resolveIgnore({
-    content,
-    dir,
-  }: {
-    content: Record<string, Record<string, string[]>>;
-    dir: string;
-  }): Record<string, Record<string, Set<string>>> {
-    const ignore = Object.create(null) as Record<string, Record<string, Set<string>>>;
+  private resolveIgnore({ content, dir }: IgnoreFile): ResolvedIgnore {
+    const ignore: ResolvedIgnore = Object.create(null);
 
     for (const fileName of Object.keys(content)) {
       const fileIgnore = content[fileName];
 
       const resolvedFileName = isAbsoluteUrl(fileName) ? fileName : resolvePath(dir, fileName);
 
-      ignore[resolvedFileName] = Object.create(null) as Record<string, Set<string>>;
+      ignore[resolvedFileName] = Object.create(null);
 
       for (const ruleId of Object.keys(fileIgnore)) {
         ignore[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
