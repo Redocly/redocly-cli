@@ -10,7 +10,8 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
         const allowAdditionalProperties = isDefined(opts.allowAdditionalProperties)
           ? opts.allowAdditionalProperties
-          : true;
+          : false;
+
         if (isDefined(parameter.example)) {
           validateExample(
             parameter.example,

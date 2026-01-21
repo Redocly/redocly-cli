@@ -17,7 +17,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
         const { location, resolve } = ctx;
         const allowAdditionalProperties = isDefined(opts.allowAdditionalProperties)
           ? opts.allowAdditionalProperties
-          : true;
+          : false;
 
         if (isDefined(mediaType.example)) {
           resolveAndValidateExample(mediaType.example, location.child('example'));

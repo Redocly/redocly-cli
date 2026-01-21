@@ -8,7 +8,6 @@ rules:
     allowAdditionalProperties: true
   no-invalid-parameter-examples:
     severity: error
-    allowAdditionalProperties: false
   no-invalid-media-type-examples:
     severity: error
     allowAdditionalProperties: false

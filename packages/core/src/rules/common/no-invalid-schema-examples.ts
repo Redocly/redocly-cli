@@ -12,7 +12,7 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
         const examples = (schema as Oas3_1Schema).examples;
         const allowAdditionalProperties = isDefined(opts.allowAdditionalProperties)
           ? opts.allowAdditionalProperties
-          : true;
+          : false;
 
         if (examples) {
           for (const example of examples) {
