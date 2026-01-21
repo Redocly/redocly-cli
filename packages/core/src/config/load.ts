@@ -29,15 +29,10 @@ export async function loadIgnoreFile(
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
     return undefined;
   }
-  console.log('###resolvedIgnoreDir', {
-    configDir,
-    getDir: getDir(ignoreDocument.source.absoluteRef),
-  });
-  const resolvedIgnoreDir = configDir || getDir(ignoreDocument.source.absoluteRef);
 
   return {
     content: (ignoreDocument.parsed || {}) as Record<string, Record<string, string[]>>,
-    dir: resolvedIgnoreDir,
+    dir: configDir,
   };
 }
 
