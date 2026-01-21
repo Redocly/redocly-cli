@@ -375,6 +375,45 @@ describe('E2E', () => {
       const result = getCommandOutput(args, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
+
+    test('root endpoint correctly split', async () => {
+      const testPath = join(__dirname, `split/root-endpoint`);
+
+      const args = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('root endpoint split and bundle again to the content', async () => {
+      const testPath = join(__dirname, `split/root-endpoint`);
+
+      let args = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
+      spawnSync('node', args, {
+        cwd: testPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          NO_COLOR: 'TRUE',
+        },
+      });
+
+      args = getParams(indexEntryPoint, [
+        'bundle',
+        'output/openapi.yaml',
+        '-o=output/bundled.yaml',
+      ]);
+      getCommandOutput(args, { testPath });
+
+      const expected = readFileSync(join(testPath, 'openapi.yaml'), 'utf8');
+      const actual = readFileSync(join(testPath, 'output/bundled.yaml'), 'utf8');
+
+      // Clean up output folder after splitting so the produced files do not interfere with other tests
+      spawnSync('rm', ['-rf', 'output'], {
+        cwd: testPath,
+      });
+
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('join', () => {

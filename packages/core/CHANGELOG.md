@@ -1,5 +1,65 @@
 # @redocly/openapi-core
 
+## 2.14.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.2.
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+
+## 2.14.4
+
+## 2.14.3
+
+## 2.14.2
+
+### Patch Changes
+
+- Improved overall performance by skipping unnecessary JSON pointer escaping and unescaping.
+
+## 2.14.1
+
+### Patch Changes
+
+- Fixed an issue where JSON Pointers containing special characters (like `%`) were not properly URI-encoded.
+  When these pointers were used as URI identifiers, they caused validation errors with properties containing percent signs or other special characters.
+
+## 2.14.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.1.
+
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+## 2.12.7
+
+## 2.12.6
+
+### Patch Changes
+
+- Fixed `path-params-defined` rule to correctly skip parameters defined through `$ref`.
+
+## 2.12.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.0.
+
+## 2.12.4
+
+### Patch Changes
+
+- Fixed false positive reports for path parameters in callback operations reported by the `path-parameters-defined` rule.
+
+## 2.12.3
+
+## 2.12.2
+
 ## 2.12.1
 
 ### Patch Changes

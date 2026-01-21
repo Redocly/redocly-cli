@@ -20,6 +20,7 @@ import type {
   Async3RuleSet,
   Arazzo1RuleSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
   SpecVersion,
   SpecMajorVersion,
 } from '../oas-types.js';
@@ -95,6 +96,7 @@ export class Config {
       async3: group({ ...resolvedConfig.rules, ...resolvedConfig.async3Rules }),
       arazzo1: group({ ...resolvedConfig.rules, ...resolvedConfig.arazzo1Rules }),
       overlay1: group({ ...resolvedConfig.rules, ...resolvedConfig.overlay1Rules }),
+      openrpc1: group({ ...resolvedConfig.rules, ...resolvedConfig.openrpc1Rules }),
     };
 
     this.preprocessors = {
@@ -127,6 +129,10 @@ export class Config {
         ...resolvedConfig.preprocessors,
         ...resolvedConfig.overlay1Preprocessors,
       },
+      openrpc1: {
+        ...resolvedConfig.preprocessors,
+        ...resolvedConfig.openrpc1Preprocessors,
+      },
     };
 
     this.decorators = {
@@ -140,6 +146,10 @@ export class Config {
       overlay1: {
         ...resolvedConfig.decorators,
         ...resolvedConfig.overlay1Decorators,
+      },
+      openrpc1: {
+        ...resolvedConfig.decorators,
+        ...resolvedConfig.openrpc1Decorators,
       },
     };
 
@@ -266,6 +276,10 @@ export class Config {
           case 'overlay1':
             if (!plugin.typeExtension.overlay1) continue;
             extendedTypes = plugin.typeExtension.overlay1(extendedTypes, version);
+            break;
+          case 'openrpc1':
+            if (!plugin.typeExtension.openrpc1) continue;
+            extendedTypes = plugin.typeExtension.openrpc1(extendedTypes, version);
             break;
           default:
             throw new Error('Not implemented');
@@ -400,6 +414,17 @@ export class Config {
           (p) => p.decorators?.overlay1 && overlay1Rules.push(p.decorators.overlay1)
         );
         return overlay1Rules;
+      case 'openrpc1':
+        // eslint-disable-next-line no-case-declarations
+        const openrpc1Rules: OpenRpc1RuleSet[] = [];
+        this.plugins.forEach(
+          (p) => p.preprocessors?.openrpc1 && openrpc1Rules.push(p.preprocessors.openrpc1)
+        );
+        this.plugins.forEach((p) => p.rules?.openrpc1 && openrpc1Rules.push(p.rules.openrpc1));
+        this.plugins.forEach(
+          (p) => p.decorators?.openrpc1 && openrpc1Rules.push(p.decorators.openrpc1)
+        );
+        return openrpc1Rules;
     }
   }
 

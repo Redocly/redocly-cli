@@ -1,5 +1,97 @@
 # @redocly/cli
 
+## 2.14.5
+
+### Patch Changes
+
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+- Updated @redocly/openapi-core to v2.14.5.
+
+## 2.14.4
+
+### Patch Changes
+
+- Corrected an issue where `Respect` did not properly JSON-encode request bodies for custom content-types containing numbers.
+- Updated @redocly/respect-core to v2.14.4.
+
+## 2.14.3
+
+### Patch Changes
+
+- Fixed the `split` command to properly handle root-level paths.
+  Previously, the root path `/` was converted to an empty string as a filename, leading to incorrect file structure and broken links.
+  Now, it correctly maps to the specified path separator.
+- Updated @redocly/openapi-core to v2.14.3.
+
+## 2.14.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.2.
+
+## 2.14.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.1.
+
+## 2.14.0
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.14.0.
+
+## 2.13.0
+
+### Minor Changes
+
+- Implemented basic support for OpenRPC specification.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.13.0.
+
+## 2.12.7
+
+### Patch Changes
+
+- Added `scorecard-classic` command to evaluate API descriptions against project scorecard configurations.
+- Updated @redocly/openapi-core to v2.12.7.
+
+## 2.12.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.6.
+
+## 2.12.5
+
+### Patch Changes
+
+- Updated React dependency to avoid vulnerable React version (19.0.0) affected by CVE-2025-55182.
+- Updated @redocly/openapi-core to v2.12.5.
+
+## 2.12.4
+
+### Patch Changes
+
+- Fixed a compatibility issue with `HTTP_PROXY` environment variable for the `push` command.
+- Updated @redocly/openapi-core to v2.12.4.
+
+## 2.12.3
+
+### Patch Changes
+
+- Updated telemetry implementation to use standardized OpenTelemetry format.
+- Updated @redocly/openapi-core to v2.12.3.
+
+## 2.12.2
+
+### Patch Changes
+
+- Fixed an issue where credentials reated by Redocly CLI `login` command were deleted by Redocly VS Code extension when opening VS Code.
+- Updated @redocly/openapi-core to v2.12.2.
+
 ## 2.12.1
 
 ### Patch Changes

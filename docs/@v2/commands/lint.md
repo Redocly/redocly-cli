@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, or Arazzo descriptions.
+Redocly CLI can identify and report on problems found in OpenAPI, AsyncAPI, Arazzo, or Open-RPC descriptions.
 This helps you avoid bugs and make API or Arazzo descriptions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules.
@@ -50,7 +50,7 @@ The `lint` command behaves differently depending on how you pass the API(s) to i
 redocly lint openapi/openapi.yaml
 ```
 
-In this case, `lint` validates the API or Arazzo description(s) passed to the command.
+In this case, `lint` validates the API, Arazzo, or Open-RPC description(s) passed to the command.
 If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used.
 If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
 
@@ -432,3 +432,10 @@ The `lint` command also validates [The Arazzo](https://spec.openapis.org/arazzo/
 You can pass the Arazzo description file to the `lint` command as shown below:
 
 `redocly lint arazzo.yaml`
+
+### Lint Open-RPC description file
+
+The `lint` command also validates [Open-RPC](https://spec.open-rpc.org/) description files.
+You can pass the Open-RPC description file to the `lint` command as shown below:
+
+`redocly lint open-rpc.json`

@@ -30,10 +30,12 @@ import { version } from './utils/package.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
+import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
 import type { EjectArgv } from './commands/eject.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
@@ -604,7 +606,7 @@ yargs(hideBin(process.argv))
         })
         .check((argv: any) => {
           if (argv.theme && !argv.theme?.openapi)
-            throw Error('Invalid option: theme.openapi not set.');
+            throw new Error('Invalid option: theme.openapi not set.');
           return true;
         }),
     async (argv) => {
@@ -794,6 +796,39 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
+    }
+  )
+  .command(
+    'scorecard-classic [api]',
+    'Run quality scorecards with multiple rule levels to validate and maintain API description standards.',
+    (yargs) => {
+      return yargs.positional('api', { type: 'string' }).option({
+        config: {
+          describe: 'Path to the config file.',
+          type: 'string',
+        },
+        'project-url': {
+          describe: 'URL to the project scorecard configuration.',
+          type: 'string',
+        },
+        format: {
+          description: 'Use a specific output format.',
+          choices: ['stylish', 'json'],
+          default: 'stylish',
+        },
+        'target-level': {
+          describe: 'Target level for the scorecard.',
+          type: 'string',
+        },
+        verbose: {
+          alias: 'v',
+          describe: 'Apply verbose mode.',
+          type: 'boolean',
+        },
+      });
+    },
+    async (argv) => {
+      commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
     }
   )
   .completion('completion', 'Generate autocomplete script for `redocly` command.')

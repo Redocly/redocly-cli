@@ -121,11 +121,15 @@ export function printExecutionTime(commandName: string, startedAt: number, api: 
 }
 
 export function pathToFilename(path: string, pathSeparator: string) {
+  if (path === '/') {
+    return pathSeparator;
+  }
+
   return path
-    .replace(/~1/g, '/')
-    .replace(/~0/g, '~')
+    .replaceAll('~1', '/')
+    .replaceAll('~0', '~')
     .replace(/^\//, '')
-    .replace(/\//g, pathSeparator);
+    .replaceAll('/', pathSeparator);
 }
 
 export function escapeLanguageName(lang: string) {

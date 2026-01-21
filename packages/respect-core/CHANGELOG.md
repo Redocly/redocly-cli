@@ -1,5 +1,90 @@
 # @redocly/respect-core
 
+## 2.14.5
+
+### Patch Changes
+
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+- Updated @redocly/openapi-core to v2.14.5.
+
+## 2.14.4
+
+### Patch Changes
+
+- Corrected an issue where `Respect` did not properly JSON-encode request bodies for custom content-types containing numbers.
+- Updated @redocly/openapi-core to v2.14.4.
+
+## 2.14.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.3.
+
+## 2.14.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.2.
+
+## 2.14.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.1.
+
+## 2.14.0
+
+### Minor Changes
+
+- Enabled tree shaking to eliminate dead code in the `@redocly/respect-core` package.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.0.
+
+## 2.13.0
+
+### Patch Changes
+
+- Fixed Respect's handling of runtime expressions with hyphenated keys in JSON pointers.
+- Updated @redocly/openapi-core to v2.13.0.
+
+## 2.12.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.7.
+
+## 2.12.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.6.
+
+## 2.12.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.5.
+
+## 2.12.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.4.
+
+## 2.12.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.3.
+
+## 2.12.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.12.2.
+
 ## 2.12.1
 
 ### Patch Changes

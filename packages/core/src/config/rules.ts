@@ -7,6 +7,7 @@ import type {
   Oas2RuleSet,
   Oas3RuleSet,
   Overlay1RuleSet,
+  OpenRpc1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
 import type { Config } from './config.js';
@@ -26,6 +27,7 @@ export function initRules(
     | Async3RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
+    | OpenRpc1RuleSet
   )[],
   config: Config,
   type: 'rules' | 'preprocessors' | 'decorators',
