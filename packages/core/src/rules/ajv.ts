@@ -12,7 +12,7 @@ export function releaseAjvInstance() {
   ajvInstance = null;
 }
 
-function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
+function getAjv(resolve: ResolveFn) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -24,7 +24,6 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: true,
-      defaultUnevaluatedProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, $id: string) {
         const decodedBase = decodeURI(base.split('#')[0]);
         const resolvedRef = resolve({ $ref }, decodedBase);
@@ -48,10 +47,11 @@ function getAjvValidator(
   resolve: ResolveFn,
   allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
-  const ajv = getAjv(resolve, allowAdditionalProperties);
+  const ajv = getAjv(resolve);
   const $id = encodeURI(loc.absolutePointer);
 
   if (!ajv.getSchema($id)) {
+    ajv.setDefaultUnevaluatedProperties(allowAdditionalProperties);
     ajv.addSchema({ $id, ...schema }, $id);
   }
 
