@@ -11,13 +11,10 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
   return {
     MediaType: {
       skip(mediaType) {
-        return !isDefined(mediaType.schema);
+        return mediaType.schema === undefined;
       },
       leave(mediaType, ctx: UserContext) {
         const { location, resolve } = ctx;
-        const allowAdditionalProperties = isDefined(opts.allowAdditionalProperties)
-          ? opts.allowAdditionalProperties
-          : false;
 
         if (isDefined(mediaType.example)) {
           resolveAndValidateExample(mediaType.example, location.child('example'));
@@ -50,7 +47,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             mediaType.schema!,
             location,
             ctx,
-            allowAdditionalProperties
+            !!opts.allowAdditionalProperties
           );
         }
       },
