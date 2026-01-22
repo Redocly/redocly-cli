@@ -84,4 +84,58 @@ describe('no-invalid-schema-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report on invalid examples with additional properties', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            Car:
+              type: object
+              properties:
+                color:
+                  type: string
+              examples:
+                - color: "blue"
+                  extraProperty: "not allowed"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-invalid-schema-examples': {
+            severity: 'error',
+            allowAdditionalProperties: false,
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/schemas/Car",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/components/schemas/Car/examples/0/extraProperty",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must NOT have unevaluated properties \`extraProperty\`.",
+          "ruleId": "no-invalid-schema-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

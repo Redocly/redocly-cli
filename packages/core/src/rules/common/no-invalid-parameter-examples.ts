@@ -1,4 +1,5 @@
 import { validateExample } from '../utils.js';
+import { isDefined } from '../../utils/is-defined.js';
 
 import type { UserContext } from '../../walk.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
@@ -7,7 +8,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
-        if (parameter.example !== undefined) {
+        if (isDefined(parameter.example)) {
           validateExample(
             parameter.example,
             parameter.schema!,
@@ -25,7 +26,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
                 parameter.schema!,
                 ctx.location.child(['examples', key]),
                 ctx,
-                true
+                !!opts.allowAdditionalProperties
               );
             }
           }
