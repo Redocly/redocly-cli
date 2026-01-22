@@ -14,7 +14,7 @@ import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import {
   createEntityTypes,
-  ENTITY_DISCRIMINATOR_NAME,
+  ENTITY_DISCRIMINATOR_PROPERTY_NAME,
   API_TYPES_OF_ENTITY,
 } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
@@ -25,6 +25,7 @@ import { isPlainObject } from './utils/is-plain-object.js';
 import { Assertions } from './rules/common/assertions/index.js';
 import {
   apiRulesToConfig,
+  buildAssertionWithNormalizedTypes,
   categorizeAssertions,
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
@@ -231,7 +232,8 @@ export async function lintEntityFile(opts: {
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
-  assertionConfig?: Assertion[];
+  assertionConfig?: Assertion[] | Record<string, any>;
+  plugins?: Plugin[];
 }) {
   const {
     document,
@@ -239,7 +241,7 @@ export async function lintEntityFile(opts: {
     entityDefaultSchema,
     severity,
     externalRefResolver = new BaseResolver(),
-    assertionConfig = {},
+    assertionConfig = [],
   } = opts;
   const ctx: WalkContext = {
     problems: [],
@@ -247,20 +249,36 @@ export async function lintEntityFile(opts: {
     visitorsData: {},
   };
 
-  const entityTypes = createEntityTypes(entitySchema, entityDefaultSchema);
+  const { entityTypes, discriminatorFunc } = createEntityTypes(entitySchema, entityDefaultSchema);
+
   const types = normalizeTypes(entityTypes);
 
-  let rootType = types.EntityFileDefault;
+  let rootType = types.Entity;
   if (Array.isArray(document.parsed)) {
     rootType = types.EntityFileArray;
   } else if (isPlainObject(document.parsed)) {
-    const typeValue = document.parsed[ENTITY_DISCRIMINATOR_NAME];
-    if (typeof typeValue === 'string' && types[typeValue]) {
-      rootType = types[typeValue];
+    const discriminatedPropertyValue = document.parsed[
+      ENTITY_DISCRIMINATOR_PROPERTY_NAME
+    ] as string;
+    const discriminatedTypeName = discriminatorFunc?.(document.parsed, discriminatedPropertyValue);
+    if (
+      discriminatedTypeName &&
+      typeof discriminatedTypeName === 'string' &&
+      types[discriminatedTypeName as string]
+    ) {
+      rootType = types[discriminatedTypeName as string];
     }
   }
 
-  // Helper to flatten rule visitors (handles both single visitor and array of visitors)
+  const assertionConfigWithNormalizedTypes = assertionConfig.map((assertion: Assertion) =>
+    buildAssertionWithNormalizedTypes(
+      (document.parsed as { type: string }).type,
+      assertion.assertionId,
+      assertion,
+      types
+    )
+  );
+
   const flattenRuleVisitors = (
     ruleId: string,
     severity: ProblemSeverity,
@@ -283,27 +301,32 @@ export async function lintEntityFile(opts: {
   };
 
   const rules: (RuleInstanceConfig & {
-    visitor: NestedVisitObject<unknown, BaseVisitor>;
+    visitor: NestedVisitObject<unknown, BaseVisitor | BaseVisitor[]>;
   })[] = [
-    ...flattenRuleVisitors('entity struct', severity || 'error', Struct({ severity: 'error' })),
-    ...flattenRuleVisitors(
-      'entity no-unresolved-refs',
-      severity || 'error',
-      NoUnresolvedRefs({ severity: 'error' })
-    ),
-    ...flattenRuleVisitors(
-      'entity key-valid',
-      severity || 'error',
-      EntityKeyValid({ severity: 'error' })
-    ),
+    {
+      severity: severity || 'error',
+      ruleId: 'entity struct',
+      visitor: Struct({ severity: 'error' }),
+    },
+    {
+      severity: severity || 'error',
+      ruleId: 'entity no-unresolved-refs',
+      visitor: NoUnresolvedRefs({ severity: 'error' }),
+    },
+    {
+      severity: severity || 'error',
+      ruleId: 'entity key-valid',
+      visitor: EntityKeyValid({ severity: 'error' }),
+    },
     ...flattenRuleVisitors(
       'entity assertions',
       severity || 'error',
-      Assertions(assertionConfig) as BaseVisitor | BaseVisitor[]
+      Assertions(assertionConfigWithNormalizedTypes)
     ),
   ];
 
   const normalizedVisitors = normalizeVisitors(rules, types);
+
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType,
@@ -324,8 +347,7 @@ export async function lintEntityFile(opts: {
 export async function lintEntityByScorecardLevel(
   entity: CatalogEntity,
   config: NonNullable<ScorecardConfig['levels']>[number],
-  document?: Document,
-  plugins?: Plugin[]
+  document?: Document
 ): Promise<NormalizedProblem[] | void> {
   if (!config.rules) {
     throw new Error('Scorecard level rules are not defined.');
@@ -334,7 +356,7 @@ export async function lintEntityByScorecardLevel(
   const externalRefResolver = new BaseResolver();
   const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity.yaml');
 
-  const assertionConfig = transformScorecardRulesToAssertions(config.rules, plugins);
+  const assertionConfig = transformScorecardRulesToAssertions(config.rules);
   const { entityRules, apiRules } = categorizeAssertions(assertionConfig);
 
   const entityProblems = await lintEntityFile({

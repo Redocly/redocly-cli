@@ -97,6 +97,10 @@ function transformJSONSchemaToNodeType(
       if (!discriminatedPropertyName) {
         throw new Error(`Unexpected discriminator without a propertyName in ${propertyName}.`);
       }
+
+      // Map discriminator values to their actual type names
+      const discriminatorMapping: Record<string, string> = {};
+
       const oneOfs = schema.oneOf.map((option, i) => {
         if (typeof option === 'boolean') {
           throw new Error(
@@ -109,15 +113,27 @@ function transformJSONSchemaToNodeType(
             `Unexpected property '${discriminatedProperty}' schema in ${propertyName} at position ${i} in oneOf.`
           );
         }
-        const name = discriminatedProperty.const as string;
-        return transformJSONSchemaToNodeType(name, option, ctx);
+        const discriminatorValue = discriminatedProperty.const as string;
+        const actualTypeName = transformJSONSchemaToNodeType(discriminatorValue, option, ctx);
+
+        // Store mapping from discriminator value to actual type name
+        if (typeof actualTypeName === 'string') {
+          discriminatorMapping[discriminatorValue] = actualTypeName;
+        }
+
+        return actualTypeName;
       });
 
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
-          const discriminatedTypeName = value[discriminatedPropertyName];
-          if (typeof discriminatedTypeName === 'string' && ctx[discriminatedTypeName]) {
-            return discriminatedTypeName;
+          const discriminatorValue = value[discriminatedPropertyName];
+          if (typeof discriminatorValue === 'string') {
+            const actualTypeName = discriminatorMapping[discriminatorValue];
+
+            if (actualTypeName && ctx[actualTypeName]) {
+              return actualTypeName;
+            }
+            return undefined;
           }
         }
         return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
@@ -156,15 +172,19 @@ function extractNodeToContext(
     );
   }
 
+  // Use nodeTypeName from schema if provided, otherwise use propertyName
+  const nodeTypeName =
+    (schema as JSONSchema & { nodeTypeName?: string })['nodeTypeName'] || propertyName;
+
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
-    properties[name] = transformJSONSchemaToNodeType(propertyName + '.' + name, property, ctx);
+    properties[name] = transformJSONSchemaToNodeType(nodeTypeName + '.' + name, property, ctx);
   }
 
   let additionalProperties;
   if (isPlainObject(schema.additionalProperties)) {
     additionalProperties = transformJSONSchemaToNodeType(
-      propertyName + '_additionalProperties',
+      nodeTypeName + '_additionalProperties',
       schema.additionalProperties,
       ctx
     );
@@ -180,7 +200,7 @@ function extractNodeToContext(
       isPlainObject(schema.items.additionalProperties) ||
       schema.items.oneOf) // exclude scalar array types
   ) {
-    items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
+    items = transformJSONSchemaToNodeType(nodeTypeName + '_items', schema.items, ctx);
   }
 
   let required = schema.required as NodeType['required'];
@@ -203,15 +223,26 @@ function extractNodeToContext(
     };
   }
 
-  ctx[propertyName] = { properties, additionalProperties, items, required };
-  return propertyName;
+  ctx[nodeTypeName] = { properties, additionalProperties, items, required };
+  return nodeTypeName;
 }
 
 export function getNodeTypesFromJSONSchema(
   schemaName: string,
   entrySchema: JSONSchema
-): Record<string, NodeType> {
+): {
+  ctx: Record<string, NodeType>;
+  discriminatorFunc?: ResolveTypeFn;
+} {
   const ctx: Record<string, NodeType> = {};
-  transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
-  return ctx;
+  const returnValue = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
+  if (returnValue && typeof returnValue === 'function') {
+    return {
+      ctx,
+      discriminatorFunc: returnValue,
+    };
+  }
+  return {
+    ctx,
+  };
 }
