@@ -14,7 +14,7 @@ export function ConfigNoUnresolvedRefs() {
     const exts = (node as any).extends;
     if (!Array.isArray(exts)) return;
 
-    exts.forEach((item, index) => {
+    for (const [index, item] of exts.entries()) {
       const itemLocation = ctx.location.child(['extends', index]);
 
       // Report validation errors for non-string entries
@@ -25,10 +25,10 @@ export function ConfigNoUnresolvedRefs() {
             location: itemLocation,
           });
         }
-        return;
+        continue;
       }
 
-      if (!item.trim()) return;
+      if (!item.trim()) continue;
 
       // Named presets (no extension, not a URL): validate that the preset exists.
       if (!isAbsoluteUrl(item) && !path.extname(item)) {
@@ -36,15 +36,15 @@ export function ConfigNoUnresolvedRefs() {
         // This will report a problem via ctx.report if the preset is invalid,
         // without throwing (because we pass ctx + location).
         resolvePreset(item, plugins as any, ctx, itemLocation);
-        return;
+        continue;
       }
 
       // File/URL references: validate they can be resolved
       const resolved = ctx.resolve({ $ref: item });
-      if (resolved.node !== undefined && resolved.location) return;
+      if (resolved.node !== undefined && resolved.location) continue;
 
       reportUnresolvedRef(resolved as any, ctx.report, itemLocation);
-    });
+    }
   }
 
   // Check if the current location is inside an extends array
