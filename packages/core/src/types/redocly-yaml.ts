@@ -452,7 +452,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     return Object.keys(types);
   });
   // Create types based on external schemas
-  const nodeTypes = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
+  const { ctx: nodeTypes } = getNodeTypesFromJSONSchema('rootRedoclyConfigSchema', extraSchemas);
 
   return {
     ...CoreConfigTypes,

@@ -1,7 +1,8 @@
 import { entityNodeTypes } from '../types/entity-types.js';
 
+import type { NormalizedNodeType } from '../types/index.js';
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
-import type { Plugin, RuleConfig } from '../config/types.js';
+import type { RuleConfig } from '../config/types.js';
 import type { Document } from '../resolve.js';
 
 type AssertionConfig = Record<string, Assertion | RuleConfig>;
@@ -12,10 +13,27 @@ type CategorizedAssertions = {
   otherRules: Record<string, unknown>;
 };
 
-export function transformScorecardRulesToAssertions(
-  rules: RuleConfig,
-  _plugins?: Plugin[]
-): AssertionConfig {
+function transformEntityTypeName(
+  subjectType: string,
+  entityType: string,
+  availableTypes?: Record<string, NormalizedNodeType>
+): string {
+  if (!subjectType.startsWith('Entity')) {
+    return subjectType;
+  }
+
+  const capitalizedEntityType = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+
+  const specificType = capitalizedEntityType + subjectType;
+
+  if (availableTypes && availableTypes[specificType]) {
+    return specificType;
+  }
+
+  return subjectType;
+}
+
+export function transformScorecardRulesToAssertions(rules: RuleConfig): AssertionConfig {
   const assertionConfig: AssertionConfig = {};
 
   for (const [ruleKey, ruleValue] of Object.entries(rules)) {
@@ -35,7 +53,10 @@ export function transformScorecardRulesToAssertions(
       //   }
       // }
 
-      assertionConfig[ruleKey] = buildAssertion(ruleKey, rawAssertion);
+      assertionConfig[ruleKey] = {
+        assertionId: ruleKey,
+        ...rawAssertion,
+      };
     } else {
       assertionConfig[ruleKey] = ruleValue;
     }
@@ -146,12 +167,34 @@ function isApiAssertion(ruleKey: string, assertion: Assertion): boolean {
   );
 }
 
-function buildAssertion(ruleKey: string, rawAssertion: RawAssertion): Assertion {
+export function buildAssertionWithNormalizedTypes(
+  entityType: string,
+  ruleKey: string,
+  rawAssertion: RawAssertion,
+  availableTypes?: Record<string, NormalizedNodeType>
+): Assertion {
+  const transformedSubjectType = transformEntityTypeName(
+    rawAssertion.subject.type,
+    entityType,
+    availableTypes
+  );
+
+  const transformedWhere = rawAssertion.where?.map((whereClause) => ({
+    ...whereClause,
+    subject: {
+      ...whereClause.subject,
+      type: transformEntityTypeName(whereClause.subject.type, entityType, availableTypes),
+    },
+  }));
+
   return {
     assertionId: ruleKey,
-    subject: rawAssertion.subject,
+    subject: {
+      ...rawAssertion.subject,
+      type: transformedSubjectType,
+    },
     assertions: rawAssertion.assertions,
-    ...(rawAssertion.where && { where: rawAssertion.where }),
+    ...(transformedWhere && { where: transformedWhere }),
     ...(rawAssertion.message && { message: rawAssertion.message }),
     ...(rawAssertion.severity && { severity: rawAssertion.severity }),
   };
