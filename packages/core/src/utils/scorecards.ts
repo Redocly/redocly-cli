@@ -69,10 +69,8 @@ export function categorizeAssertions(assertionConfig: AssertionConfig): Categori
       const assertion = ruleValue as Assertion;
       if (isEntityAssertion(assertion)) {
         entityRules.push(assertion);
-      } else if (isApiAssertion(ruleKey, assertion)) {
-        apiRules.push(assertion);
       } else {
-        otherRules[ruleKey] = ruleValue;
+        apiRules.push(assertion);
       }
     } else {
       apiRules.push({ ruleId: ruleKey, config: ruleValue });
@@ -134,15 +132,6 @@ function isAssertionRule(ruleKey: string, ruleValue: unknown): ruleValue is RawA
 function isEntityAssertion(assertion: Assertion): boolean {
   return Object.values(NODE_TYPE_NAMES).some(
     (entityTypeName) => assertion.subject.type === entityTypeName
-  );
-}
-
-function isApiAssertion(ruleKey: string, assertion: Assertion): boolean {
-  return (
-    ruleKey.startsWith('rule/') &&
-    typeof assertion === 'object' &&
-    assertion !== null &&
-    !isEntityAssertion(assertion)
   );
 }
 
