@@ -1,3 +1,0 @@
-api.yaml:
-  operation-operationId:
-    - '#/paths/~1pets/get/operationId'
