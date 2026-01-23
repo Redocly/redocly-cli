@@ -307,10 +307,7 @@ export function formatProblems(
     const { start } = problem.location[0];
     return `| ${severityName} | line ${`${start.line}:${start.col}`} | [${
       problem.ruleId
-    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message.replaceAll(
-      '\n',
-      '<br>'
-    )} |`;
+    }](https://redocly.com/docs/cli/rules/${problem.ruleId}/) | ${problem.message} |`;
   }
 
   function formatCheckstyle(problem: OnlyLineColProblem) {
