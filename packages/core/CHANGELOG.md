@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.14.9
+
+### Patch Changes
+
+- Revert: fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
 ## 2.14.8
 
 ### Patch Changes
