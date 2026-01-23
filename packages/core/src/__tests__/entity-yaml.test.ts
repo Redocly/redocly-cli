@@ -4,21 +4,21 @@ import { NormalizedNodeType, normalizeTypes, ResolveTypeFn } from '../types/inde
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 describe('entity-yaml', () => {
   it('should create entity types with discriminator', () => {
-    const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+    const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
 
-    expect(entityTypes).toHaveProperty('user');
-    expect(entityTypes).toHaveProperty('api-operation');
-    expect(entityTypes).toHaveProperty('data-schema');
-    expect(entityTypes).toHaveProperty('api-description');
-    expect(entityTypes).toHaveProperty('service');
-    expect(entityTypes).toHaveProperty('domain');
-    expect(entityTypes).toHaveProperty('team');
-    expect(entityTypes).toHaveProperty('EntityFileDefault');
+    expect(entityTypes).toHaveProperty('UserEntity');
+    expect(entityTypes).toHaveProperty('ApiOperationEntity');
+    expect(entityTypes).toHaveProperty('DataSchemaEntity');
+    expect(entityTypes).toHaveProperty('ApiDescriptionEntity');
+    expect(entityTypes).toHaveProperty('ServiceEntity');
+    expect(entityTypes).toHaveProperty('DomainEntity');
+    expect(entityTypes).toHaveProperty('TeamEntity');
+    expect(entityTypes).toHaveProperty('Entity');
     expect(entityTypes).toHaveProperty('EntityFileArray');
   });
 
   it('should resolve entity type to default for array items', () => {
-    const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+    const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
     const normalizedTypes = normalizeTypes(entityTypes);
 
     const entityFileArrayNode = normalizedTypes['EntityFileArray'];
@@ -30,11 +30,11 @@ describe('entity-yaml', () => {
     ) as NormalizedNodeType;
 
     expect(resolvedType).toBeTruthy();
-    expect(resolvedType.name).toBe('EntityFileDefault');
+    expect(resolvedType.name).toBe('UserEntity'); // Falls back to first type when discriminator fails
   });
 
   it('should resolve entity type based on discriminator for array items', () => {
-    const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+    const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
     const normalizedTypes = normalizeTypes(entityTypes);
 
     const entityFileArrayNode = normalizedTypes['EntityFileArray'];
@@ -50,22 +50,61 @@ describe('entity-yaml', () => {
     ) as NormalizedNodeType;
 
     expect(resolvedType).toBeTruthy();
-    expect(resolvedType.name).toBe('user');
+    expect(resolvedType.name).toBe('UserEntity');
     expect(resolvedType.properties).toHaveProperty('metadata');
   });
 
   it('should have correct required fields for entity types', () => {
-    const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+    const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
     const normalizedTypes = normalizeTypes(entityTypes);
 
-    const userNode = normalizedTypes['user'];
+    const userNode = normalizedTypes['UserEntity'];
     expect(userNode.required).toContain('key');
     expect(userNode.required).toContain('title');
     expect(userNode.required).toContain('type');
 
-    const defaultNode = normalizedTypes['EntityFileDefault'];
+    const defaultNode = normalizedTypes['Entity'];
     expect(defaultNode.required).toContain('type');
     expect(defaultNode.required).toContain('key');
     expect(defaultNode.required).toContain('title');
+  });
+
+  it('should correctly discriminate between different entity types in an array', async () => {
+    const { lintEntityFile } = await import('../lint.js');
+    const { makeDocumentFromString, BaseResolver } = await import('../resolve.js');
+
+    const entities = `- type: user
+  key: john-doe
+  title: John Doe
+  metadata:
+    name: John
+
+- type: service
+  key: payment-service
+  metadata:
+    owner: john-doe`;
+
+    const externalRefResolver = new BaseResolver();
+
+    const entityProblems = await lintEntityFile({
+      document: makeDocumentFromString(entities, 'entities.yaml'),
+      entitySchema: entityFileSchema,
+      entityDefaultSchema: entityFileDefaultSchema,
+      externalRefResolver,
+    });
+
+    expect(entityProblems.length).toBeGreaterThan(0);
+
+    const userError = entityProblems.find(
+      (p) => p.message.includes('email') && p.location[0].pointer === '#/0/metadata'
+    );
+    expect(userError).toBeDefined();
+    expect(userError?.ruleId).toBe('entity struct');
+
+    const serviceError = entityProblems.find(
+      (p) => p.message.includes('title') && p.location[0].pointer === '#/1'
+    );
+    expect(serviceError).toBeDefined();
+    expect(serviceError?.ruleId).toBe('entity struct');
   });
 });
