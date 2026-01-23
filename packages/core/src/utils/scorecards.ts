@@ -1,11 +1,10 @@
-import { entityNodeTypes } from '../types/entity-types.js';
+import { NODE_TYPE_NAMES } from '@redocly/config';
 
-import type { NormalizedNodeType } from '../types/index.js';
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { RuleConfig } from '../config/types.js';
 import type { Document } from '../resolve.js';
 
-type AssertionConfig = Record<string, Assertion | RuleConfig>;
+export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
 type CategorizedAssertions = {
   entityRules: Assertion[];
@@ -13,34 +12,30 @@ type CategorizedAssertions = {
   otherRules: Record<string, unknown>;
 };
 
-function transformEntityTypeName(
-  subjectType: string,
-  entityType: string,
-  availableTypes?: Record<string, NormalizedNodeType>
-): string {
-  if (!subjectType.startsWith('Entity')) {
-    return subjectType;
-  }
-
-  const capitalizedEntityType = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+function transformEntityTypeName(subjectType: string, entityType: string): string {
+  const capitalizedEntityType = entityType
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
 
   const specificType = capitalizedEntityType + subjectType;
 
-  if (availableTypes && availableTypes[specificType]) {
+  if ((Object.values(NODE_TYPE_NAMES) as string[]).includes(specificType)) {
     return specificType;
   }
 
   return subjectType;
 }
 
-export function transformScorecardRulesToAssertions(rules: RuleConfig): AssertionConfig {
+export function transformScorecardRulesToAssertions(
+  entityType: string,
+  rules: RuleConfig
+): AssertionConfig {
   const assertionConfig: AssertionConfig = {};
 
   for (const [ruleKey, ruleValue] of Object.entries(rules)) {
-    if (isAssertionRule(ruleValue)) {
-      const rawAssertion = ruleValue as RawAssertion;
-
-      if (rawAssertion.severity === 'off') {
+    if (isAssertionRule(ruleKey, ruleValue)) {
+      if (ruleValue.severity === 'off') {
         continue;
       }
 
@@ -54,8 +49,7 @@ export function transformScorecardRulesToAssertions(rules: RuleConfig): Assertio
       // }
 
       assertionConfig[ruleKey] = {
-        assertionId: ruleKey,
-        ...rawAssertion,
+        ...buildAssertionWithNormalizedTypes(entityType, ruleKey, ruleValue),
       };
     } else {
       assertionConfig[ruleKey] = ruleValue;
@@ -71,11 +65,12 @@ export function categorizeAssertions(assertionConfig: AssertionConfig): Categori
   const otherRules: Record<string, unknown> = {};
 
   for (const [ruleKey, ruleValue] of Object.entries(assertionConfig)) {
-    if (isAssertion(ruleValue)) {
-      if (isEntityAssertion(ruleValue)) {
-        entityRules.push(ruleValue);
-      } else if (isApiAssertion(ruleKey, ruleValue)) {
-        apiRules.push(ruleValue);
+    if (isAssertionRule(ruleKey, ruleValue)) {
+      const assertion = ruleValue as Assertion;
+      if (isEntityAssertion(assertion)) {
+        entityRules.push(assertion);
+      } else if (isApiAssertion(ruleKey, assertion)) {
+        apiRules.push(assertion);
       } else {
         otherRules[ruleKey] = ruleValue;
       }
@@ -99,6 +94,10 @@ export function apiRulesToConfig(
       }
     })
   );
+}
+
+export function assertionsArrayToRecord(assertions: Assertion[]): Record<string, Assertion> {
+  return Object.fromEntries(assertions.map((assertion) => [assertion.assertionId, assertion]));
 }
 
 export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
@@ -128,33 +127,13 @@ export function findDataSchemaInDocument(schemaKey: string, schema: string, docu
   return null;
 }
 
-function isAssertion(value: unknown): value is Assertion {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'assertionId' in value &&
-    'subject' in value &&
-    'assertions' in value
-  );
-}
-
-function isAssertionRule(ruleValue: unknown): boolean {
-  return (
-    typeof ruleValue === 'object' &&
-    ruleValue !== null &&
-    'assertions' in ruleValue &&
-    'subject' in ruleValue
-  );
+function isAssertionRule(ruleKey: string, ruleValue: unknown): ruleValue is RawAssertion {
+  return ruleKey.startsWith('rule/') && typeof ruleValue === 'object' && ruleValue !== null;
 }
 
 function isEntityAssertion(assertion: Assertion): boolean {
-  return (
-    typeof assertion === 'object' &&
-    assertion !== null &&
-    'subject' in assertion &&
-    typeof assertion.subject === 'object' &&
-    'type' in assertion.subject &&
-    entityNodeTypes.hasOwnProperty(assertion.subject.type)
+  return Object.values(NODE_TYPE_NAMES).some(
+    (entityTypeName) => assertion.subject.type === entityTypeName
   );
 }
 
@@ -167,23 +146,18 @@ function isApiAssertion(ruleKey: string, assertion: Assertion): boolean {
   );
 }
 
-export function buildAssertionWithNormalizedTypes(
+function buildAssertionWithNormalizedTypes(
   entityType: string,
   ruleKey: string,
-  rawAssertion: RawAssertion,
-  availableTypes?: Record<string, NormalizedNodeType>
+  rawAssertion: RawAssertion
 ): Assertion {
-  const transformedSubjectType = transformEntityTypeName(
-    rawAssertion.subject.type,
-    entityType,
-    availableTypes
-  );
+  const transformedSubjectType = transformEntityTypeName(rawAssertion.subject.type, entityType);
 
   const transformedWhere = rawAssertion.where?.map((whereClause) => ({
     ...whereClause,
     subject: {
       ...whereClause.subject,
-      type: transformEntityTypeName(whereClause.subject.type, entityType, availableTypes),
+      type: transformEntityTypeName(whereClause.subject.type, entityType),
     },
   }));
 

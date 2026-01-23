@@ -25,13 +25,13 @@ import { isPlainObject } from './utils/is-plain-object.js';
 import { Assertions } from './rules/common/assertions/index.js';
 import {
   apiRulesToConfig,
-  buildAssertionWithNormalizedTypes,
+  assertionsArrayToRecord,
   categorizeAssertions,
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
 } from './utils/scorecards.js';
 
-import type { CatalogEntity } from './typings/catalog-entity.js';
+import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
 import type { Assertion } from './rules/common/assertions/index.js';
 import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
 import type { NodeType } from './types/index.js';
@@ -49,9 +49,7 @@ import type {
 } from './visitors.js';
 import type { CollectFn } from './utils/types.js';
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { ScorecardConfig } from '@redocly/config';
 import type { Config } from './config/index.js';
-import type { Plugin } from './config/types.js';
 import type { Document } from './resolve.js';
 
 // FIXME: remove this once we remove `theme` from the schema
@@ -232,8 +230,7 @@ export async function lintEntityFile(opts: {
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
-  assertionConfig?: Assertion[] | Record<string, any>;
-  plugins?: Plugin[];
+  assertionConfig?: Assertion[];
 }) {
   const {
     document,
@@ -269,15 +266,6 @@ export async function lintEntityFile(opts: {
       rootType = types[discriminatedTypeName as string];
     }
   }
-
-  const assertionConfigWithNormalizedTypes = assertionConfig.map((assertion: Assertion) =>
-    buildAssertionWithNormalizedTypes(
-      (document.parsed as { type: string }).type,
-      assertion.assertionId,
-      assertion,
-      types
-    )
-  );
 
   const flattenRuleVisitors = (
     ruleId: string,
@@ -321,7 +309,7 @@ export async function lintEntityFile(opts: {
     ...flattenRuleVisitors(
       'entity assertions',
       severity || 'error',
-      Assertions(assertionConfigWithNormalizedTypes)
+      Assertions(assertionsArrayToRecord(assertionConfig))
     ),
   ];
 
@@ -345,7 +333,7 @@ export async function lintEntityFile(opts: {
 }
 
 export async function lintEntityByScorecardLevel(
-  entity: CatalogEntity,
+  entity: EntityFileSchema | EntityBaseFileSchema,
   config: NonNullable<ScorecardConfig['levels']>[number],
   document?: Document
 ): Promise<NormalizedProblem[] | void> {
@@ -356,7 +344,12 @@ export async function lintEntityByScorecardLevel(
   const externalRefResolver = new BaseResolver();
   const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity.yaml');
 
-  const assertionConfig = transformScorecardRulesToAssertions(config.rules);
+  const assertionConfig = transformScorecardRulesToAssertions(
+    (entityDocument.parsed as Record<string, unknown>)[
+      ENTITY_DISCRIMINATOR_PROPERTY_NAME
+    ] as string,
+    config.rules
+  );
   const { entityRules, apiRules } = categorizeAssertions(assertionConfig);
 
   const entityProblems = await lintEntityFile({
@@ -376,7 +369,7 @@ export async function lintEntityByScorecardLevel(
       throw new Error('Document is required to lint API rules.');
     }
 
-    if (entity.type === 'data-schema' && entity.metadata.schema) {
+    if (entity.type === 'data-schema' && entity.metadata?.schema) {
       apiRules.map((rule) => {
         if ('subject' in rule && rule.subject.type !== 'Schema') {
           throw new Error('API rules must target the Schema subject.');
@@ -396,7 +389,15 @@ export async function lintEntityByScorecardLevel(
         throw new Error('API rules must target the Schema subject.');
       }
 
-      const schema = findDataSchemaInDocument(entity.title, entity.metadata.schema, document);
+      if (!(entity.metadata && 'schema' in entity.metadata)) {
+        throw new Error('Entity metadata.schema is required to lint data-schema API rules.');
+      }
+
+      const schema = findDataSchemaInDocument(
+        entity.title,
+        entity.metadata.schema as string,
+        document
+      );
 
       if (!schema) {
         throw new Error('Failed to find the data schema in the document.');
@@ -408,7 +409,7 @@ export async function lintEntityByScorecardLevel(
         config: await createConfig({
           rules: apiRulesToConfig(apiRules),
         }),
-        specType: entity.metadata.specType,
+        specType: entity.metadata.specType as string,
         sourceDocument: document,
         externalRefResolver,
       });

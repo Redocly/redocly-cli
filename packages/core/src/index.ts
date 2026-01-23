@@ -22,7 +22,6 @@ export { Overlay1Types } from './types/overlay.js';
 export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { createEntityTypes } from './types/entity-yaml.js';
-export { entityNodeTypes } from './types/entity-types.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
 export { Stats } from './rules/other/stats.js';
 export {
