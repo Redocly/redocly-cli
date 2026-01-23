@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.14.8 (2026-01-23)
+
+### Patch Changes
+
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+- Updated @redocly/openapi-core to v2.14.8.
+
 ## 2.14.7 (2026-01-22)
 
 ### Patch Changes
