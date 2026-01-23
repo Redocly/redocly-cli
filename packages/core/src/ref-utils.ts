@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import { isTruthy } from './utils/is-truthy.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
@@ -83,24 +82,7 @@ export function refBaseName(ref: string) {
 }
 
 export function isAbsoluteUrl(ref: string) {
-  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
-}
-
-export function getDir(filePath: string): string {
-  if (!path.extname(filePath)) {
-    return filePath;
-  }
-
-  return isAbsoluteUrl(filePath)
-    ? filePath.substring(0, filePath.lastIndexOf('/'))
-    : path.dirname(filePath);
-}
-
-export function resolvePath(base: string, relative: string): string {
-  if (isAbsoluteUrl(base)) {
-    return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
-  }
-  return path.resolve(base, relative);
+  return ref.startsWith('http://') || ref.startsWith('https://');
 }
 
 export function isMappingRef(mapping: string) {
