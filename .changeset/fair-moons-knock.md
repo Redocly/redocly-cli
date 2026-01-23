@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Added bundling and dereference handling for `x-query` operations in OpenAPI 3.0 and 3.1.
+Allowed `x-query` operations names in OpenAPI 3.0 and 3.1 similar to `query` in OpenAPI 3.2.
