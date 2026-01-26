@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { outdent } from 'outdent';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
-import { createConfig, loadConfig, loadIgnoreFile } from '../config/load.js';
+import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { detectSpec } from '../detect-spec.js';
 import {
@@ -1713,7 +1713,7 @@ describe('lint', () => {
 
     const configFilePath = path.join(__dirname, 'fixtures');
     const resolver = new BaseResolver();
-    const ignoreResult = await loadIgnoreFile(configFilePath, resolver);
+    const ignore = await loadIgnoreConfig(configFilePath, resolver);
 
     const result = await lintDocument({
       externalRefResolver: resolver,
@@ -1724,7 +1724,7 @@ describe('lint', () => {
         },
         {
           configPath: configFilePath,
-          ignoreFile: ignoreResult,
+          ignore,
         }
       ),
     });

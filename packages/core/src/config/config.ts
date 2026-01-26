@@ -5,7 +5,7 @@ import { slash } from '../utils/slash.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { specVersions } from '../detect-spec.js';
 import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl, resolvePath } from '../ref-utils.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
@@ -31,7 +31,6 @@ import type {
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
-  IgnoreFile,
   ResolvedIgnore,
 } from './types.js';
 
@@ -61,7 +60,6 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      ignoreFile?: IgnoreFile;
       ignore?: ResolvedIgnore;
     } = {}
   ) {
@@ -145,7 +143,7 @@ export class Config {
       },
     };
 
-    this.ignore = opts.ignore ?? (opts.ignoreFile ? this.resolveIgnore(opts.ignoreFile) : {});
+    this.ignore = opts.ignore ?? {};
   }
 
   forAlias(alias?: string) {
@@ -166,24 +164,6 @@ export class Config {
         ignore: this.ignore,
       }
     );
-  }
-
-  private resolveIgnore({ content, dir }: IgnoreFile): ResolvedIgnore {
-    const ignore: ResolvedIgnore = Object.create(null);
-
-    for (const fileName of Object.keys(content)) {
-      const fileIgnore = content[fileName];
-
-      const resolvedFileName = isAbsoluteUrl(fileName) ? fileName : resolvePath(dir, fileName);
-
-      ignore[resolvedFileName] = Object.create(null);
-
-      for (const ruleId of Object.keys(fileIgnore)) {
-        ignore[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
-      }
-    }
-
-    return ignore;
   }
 
   saveIgnore() {

@@ -1,4 +1,4 @@
-import { loadConfig, findConfig, createConfig, loadIgnoreFile } from '../load.js';
+import { loadConfig, findConfig, createConfig } from '../load.js';
 import { type Config } from '../config.js';
 import { lintConfig } from '../../lint.js';
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
@@ -1345,7 +1345,7 @@ function verifyOasRules(
   });
 }
 
-describe('loadIgnoreFile', () => {
+describe('loadIgnoreConfig', () => {
   const ignoreFileDir = path.join(__dirname, './fixtures/ignore-file');
   const ignoreFileConfig = path.join(ignoreFileDir, 'redocly.yaml');
   const expectedIgnoreKey = path.join(ignoreFileDir, 'api.yaml');
