@@ -157,7 +157,7 @@ export class Config {
       },
     };
 
-    this.resolveIgnore(getIgnoreFilePath(opts.configPath));
+    // this.resolveIgnore(getIgnoreFilePath(opts.configPath));
 
     // NEW LOGIC: via loadIgnoreFile
     const newIgnorePath = opts.ignoreFile
