@@ -12,10 +12,12 @@ import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
 import { isAbsoluteUrl, getDir, resolvePath } from '../ref-utils.js';
 import { isBrowser } from '../env.js';
 
-import type { RawUniversalConfig, IgnoreFile, ResolvedIgnore } from './types.js';
+import type { RawUniversalConfig, IgnoreConfig } from './types.js';
 
-function resolveIgnore({ content, dir }: IgnoreFile): ResolvedIgnore {
-  const ignore: ResolvedIgnore = Object.create(null);
+type IgnoreFileContent = Record<string, Record<string, string[]>>;
+
+function resolveIgnore(content: IgnoreFileContent, dir: string): IgnoreConfig {
+  const ignore: IgnoreConfig = Object.create(null);
 
   for (const fileName of Object.keys(content)) {
     const fileIgnore = content[fileName];
@@ -35,7 +37,7 @@ function resolveIgnore({ content, dir }: IgnoreFile): ResolvedIgnore {
 export async function loadIgnoreConfig(
   configPath: string | undefined,
   resolver: BaseResolver
-): Promise<ResolvedIgnore | undefined> {
+): Promise<IgnoreConfig | undefined> {
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
 
@@ -43,22 +45,13 @@ export async function loadIgnoreConfig(
     return undefined;
   }
 
-  const ignoreDocument = await resolver.resolveDocument<IgnoreFile['content']>(
-    null,
-    ignorePath,
-    true
-  );
+  const ignoreDocument = await resolver.resolveDocument<IgnoreFileContent>(null, ignorePath, true);
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
     return undefined;
   }
 
-  const ignoreFile: IgnoreFile = {
-    content: ignoreDocument.parsed || {},
-    dir: configDir,
-  };
-
-  return resolveIgnore(ignoreFile);
+  return resolveIgnore(ignoreDocument.parsed || {}, configDir);
 }
 
 export async function loadConfig(
@@ -110,7 +103,7 @@ type CreateConfigOptions = {
   configPath?: string;
   externalRefResolver?: BaseResolver;
   resolvedRefMap?: ResolvedRefMap;
-  ignore?: ResolvedIgnore;
+  ignore?: IgnoreConfig;
 };
 
 export async function createConfig(

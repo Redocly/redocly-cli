@@ -31,7 +31,7 @@ import type {
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
-  ResolvedIgnore,
+  IgnoreConfig,
 } from './types.js';
 
 export class Config {
@@ -43,7 +43,7 @@ export class Config {
   _alias?: string;
 
   plugins: Plugin[];
-  ignore: ResolvedIgnore = {};
+  ignore: IgnoreConfig = {};
   doNotResolveExamples: boolean;
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
@@ -60,7 +60,7 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
-      ignore?: ResolvedIgnore;
+      ignore?: IgnoreConfig;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;

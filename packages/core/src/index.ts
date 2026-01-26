@@ -39,8 +39,7 @@ export {
   type Plugin,
   type RuleConfig,
   type RuleSeverity,
-  type IgnoreFile,
-  type ResolvedIgnore,
+  type IgnoreConfig,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
