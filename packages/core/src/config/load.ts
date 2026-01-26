@@ -21,16 +21,7 @@ export async function loadIgnoreFile(
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
 
-  console.log('###loadIgnoreFile CHECKING', {
-    configPath,
-    configDir,
-    ignorePath,
-  });
-
   if (fs?.existsSync && !isAbsoluteUrl(ignorePath) && !fs.existsSync(ignorePath)) {
-    console.log('###loadIgnoreFile FILE NOT EXISTS', {
-      ignorePath,
-    });
     return undefined;
   }
 
@@ -41,17 +32,8 @@ export async function loadIgnoreFile(
   );
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
-    console.log('###loadIgnoreFile ERROR', {
-      ignoreDocument,
-    });
     return undefined;
   }
-
-  console.log('###loadIgnoreFile', {
-    configPath,
-    configDir,
-    ignorePath,
-  });
 
   const ignoreFile: IgnoreFile = {
     content: ignoreDocument.parsed || {},
