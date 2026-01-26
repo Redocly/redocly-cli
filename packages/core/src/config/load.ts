@@ -37,18 +37,18 @@ function resolveIgnore(content: IgnoreFileContent, dir: string): IgnoreConfig {
 export async function loadIgnoreConfig(
   configPath: string | undefined,
   resolver: BaseResolver
-): Promise<IgnoreConfig | undefined> {
+): Promise<IgnoreConfig> {
   const configDir = configPath ? getDir(configPath) : isBrowser ? '' : process.cwd();
   const ignorePath = configDir ? resolvePath(configDir, IGNORE_FILE) : IGNORE_FILE;
 
   if (fs?.existsSync && !isAbsoluteUrl(ignorePath) && !fs.existsSync(ignorePath)) {
-    return undefined;
+    return {};
   }
 
   const ignoreDocument = await resolver.resolveDocument<IgnoreFileContent>(null, ignorePath, true);
 
   if (ignoreDocument instanceof Error || !ignoreDocument.parsed) {
-    return undefined;
+    return {};
   }
 
   return resolveIgnore(ignoreDocument.parsed || {}, configDir);
