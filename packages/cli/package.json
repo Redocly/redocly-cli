@@ -47,7 +47,6 @@
     "abort-controller": "^3.0.0",
     "ajv": "npm:@redocly/ajv@8.17.1",
     "ajv-formats": "^3.0.1",
-    "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "cookie": "^0.7.2",
     "dotenv": "16.4.7",
