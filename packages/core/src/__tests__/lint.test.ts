@@ -1,6 +1,12 @@
 import * as path from 'node:path';
 import { outdent } from 'outdent';
-import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
+import {
+  lintFromString,
+  lintConfig,
+  lintDocument,
+  lint,
+  lintEntityByScorecardLevel,
+} from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
@@ -15,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { lintEntityFile } from '../lint.js';
 import { makeDocumentFromString } from '../resolve.js';
+import type { NormalizedProblem } from '../walk.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -2331,6 +2338,413 @@ describe('lint', () => {
       const hasTypeError = problems.some((p) => p.message.includes('type'));
 
       expect(hasTypeError).toBe(true);
+    });
+  });
+
+  describe('lintEntityByScorecardLevel', () => {
+    it('should lint entity with EntityMetadata property assertions', async () => {
+      const entity = {
+        type: 'user',
+        key: 'john-doe',
+        title: 'John Doe',
+        metadata: {
+          name: '@@john', // Invalid: contains special characters
+          email: 'john@example.com',
+        },
+      };
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_name_pattern': {
+            subject: {
+              type: 'EntityMetadata',
+              property: 'name',
+            },
+            severity: 'error',
+            message: 'Name must match the pattern',
+            assertions: {
+              pattern: '^[a-z]+$',
+              defined: true,
+            },
+          },
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+
+      expect(problems.length).toBeGreaterThan(0);
+      expect(
+        problems.some((p: NormalizedProblem) => p.message.includes('Name must match the pattern'))
+      ).toBe(true);
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_name_pattern')).toBe(
+        true
+      );
+    });
+
+    it('should pass validation when metadata property matches pattern', async () => {
+      const entity = {
+        type: 'user',
+        key: 'john-doe',
+        title: 'John Doe',
+        metadata: {
+          name: 'john',
+          email: 'john@example.com',
+        },
+      };
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_name_pattern': {
+            subject: {
+              type: 'EntityMetadata',
+              property: 'name',
+            },
+            severity: 'error',
+            message: 'Name must match the pattern',
+            assertions: {
+              pattern: '^[a-z]+$',
+              defined: true,
+            },
+          },
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+
+      expect(problems.length).toBe(0);
+    });
+
+    it('should throw error when rules are not defined', async () => {
+      const entity = {
+        type: 'user',
+        key: 'john-doe',
+        title: 'John Doe',
+        metadata: {
+          email: 'john@example.com',
+        },
+      };
+
+      const scorecardLevel = {
+        name: 'Basic',
+      };
+
+      await expect(lintEntityByScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
+        'Scorecard level rules are not defined.'
+      );
+    });
+
+    it('should validate Entity property assertions', async () => {
+      const entity = {
+        type: 'user',
+        key: 'john-doe',
+        title: 'John Doe',
+        metadata: {
+          email: 'john@example.com',
+        },
+        // Missing 'foo' property
+      };
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_foo_property': {
+            subject: {
+              type: 'Entity',
+              property: 'foo',
+            },
+            severity: 'error',
+            message: 'FOO is required',
+            assertions: {
+              defined: true,
+              nonEmpty: true,
+            },
+          },
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+
+      expect(problems.length).toBeGreaterThan(0);
+      expect(problems.some((p: NormalizedProblem) => p.message.includes('FOO is required'))).toBe(
+        true
+      );
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_foo_property')).toBe(
+        true
+      );
+    });
+
+    it('should lint API rules for api-description entity type', async () => {
+      const entity = {
+        type: 'api-description',
+        key: 'my-api',
+        title: 'My API',
+        metadata: {
+          specType: 'openapi',
+          descriptionFile: 'openapi.yaml',
+        },
+      };
+
+      const documentYaml = outdent`
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+          # Missing license
+        servers:
+          - url: http://example.com
+        paths: {}
+      `;
+
+      const document = makeDocumentFromString(documentYaml, 'openapi.yaml');
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'info-license': 'error',
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'info-license')).toBe(true);
+    });
+
+    it('should throw error when schema is not found in document for data-schema entity', async () => {
+      const entity = {
+        type: 'data-schema',
+        key: 'user-schema',
+        title: 'User',
+        metadata: {
+          specType: 'openapi',
+          schema: JSON.stringify({
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              age: { type: 'number' },
+            },
+          }),
+        },
+      };
+
+      const documentYaml = outdent`
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+        paths: {}
+        components:
+          schemas:
+            User:
+              type: object
+              properties:
+                name:
+                  type: string
+                # Missing age property - schema doesn't match entity
+      `;
+
+      const document = makeDocumentFromString(documentYaml, 'openapi.yaml');
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_items_in_schema': {
+            subject: {
+              type: 'Schema',
+            },
+            assertions: {
+              required: ['items'],
+            },
+          },
+        },
+      };
+
+      await expect(lintEntityByScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
+        'Failed to find the data schema in the document.'
+      );
+    });
+
+    it('should lint data-schema entity with Schema assertions', async () => {
+      const entity = {
+        type: 'data-schema',
+        key: 'user-schema',
+        title: 'User',
+        metadata: {
+          specType: 'openapi',
+          schema: JSON.stringify({
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+            // Missing 'items' property
+          }),
+        },
+      };
+
+      const documentYaml = outdent`
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+        paths: {}
+        components:
+          schemas:
+            User:
+              type: object
+              properties:
+                name:
+                  type: string
+      `;
+
+      const document = makeDocumentFromString(documentYaml, 'openapi.yaml');
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_items_in_schema': {
+            subject: {
+              type: 'Schema',
+            },
+            assertions: {
+              required: ['items'],
+            },
+          },
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_items_in_schema')).toBe(
+        true
+      );
+    });
+
+    it('should throw error for non-Schema custom API rules on data-schema entity', async () => {
+      const entity = {
+        type: 'data-schema',
+        key: 'user-schema',
+        title: 'User',
+        metadata: {
+          specType: 'openapi',
+          schema: JSON.stringify({
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          }),
+        },
+      };
+
+      const documentYaml = outdent`
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+        paths: {}
+        components:
+          schemas:
+            User:
+              type: object
+              properties:
+                name:
+                  type: string
+      `;
+
+      const document = makeDocumentFromString(documentYaml, 'openapi.yaml');
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_items_in_schema': {
+            subject: {
+              type: 'PathItem', // Invalid: should be Schema
+            },
+            assertions: {
+              required: ['items'],
+            },
+          },
+        },
+      };
+
+      await expect(lintEntityByScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
+        'API rules must target the Schema subject.'
+      );
+    });
+
+    it('should throw error when API rules are provided for non-API entity type', async () => {
+      const entity = {
+        type: 'user',
+        key: 'john-doe',
+        title: 'John Doe',
+        metadata: {
+          email: 'john@example.com',
+        },
+      };
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'info-license': 'error',
+        },
+      };
+
+      await expect(lintEntityByScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
+        'API rules are not supported for this entity type.'
+      );
+    });
+
+    it('should handle mixed entity and API rules for api-description', async () => {
+      const entity = {
+        type: 'api-description',
+        key: 'my-api',
+        title: 'My API',
+        metadata: {
+          name: '123invalid', // Invalid pattern
+          specType: 'openapi',
+          descriptionFile: 'openapi.yaml',
+        },
+      };
+
+      const documentYaml = outdent`
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+          # Missing license
+        servers:
+          - url: http://example.com
+        paths: {}
+      `;
+
+      const document = makeDocumentFromString(documentYaml, 'openapi.yaml');
+
+      const scorecardLevel = {
+        name: 'Basic',
+        rules: {
+          'rule/has_name_pattern': {
+            subject: {
+              type: 'EntityMetadata',
+              property: 'name',
+            },
+            severity: 'error',
+            message: 'Name must match the pattern',
+            assertions: {
+              pattern: '^[a-z]+$',
+              defined: true,
+            },
+          },
+          'info-license': 'error',
+        },
+      };
+
+      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+
+      expect(problems.length).toBeGreaterThan(0);
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_name_pattern')).toBe(
+        true
+      );
+      expect(problems.some((p: NormalizedProblem) => p.ruleId === 'info-license')).toBe(true);
     });
   });
 });
