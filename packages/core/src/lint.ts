@@ -324,7 +324,7 @@ export async function lintEntityByScorecardLevel(
   entity: EntityFileSchema | EntityBaseFileSchema,
   config: NonNullable<ScorecardConfig['levels']>[number],
   document?: Document
-): Promise<NormalizedProblem[] | void> {
+): Promise<NormalizedProblem[]> {
   if (!config.rules) {
     throw new Error('Scorecard level rules are not defined.');
   }
