@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Removes unusued `chokidar` dependency.
+Removed unused `chokidar` dependency.
