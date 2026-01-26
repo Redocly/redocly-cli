@@ -7,9 +7,8 @@ import type { Document } from '../resolve.js';
 export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
 type CategorizedAssertions = {
-  entityRules: Assertion[];
-  apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }>;
-  otherRules: Record<string, unknown>;
+  entityRules: Record<string, Assertion>;
+  apiRules: Record<string, Assertion | RuleConfig>;
 };
 
 function transformEntityTypeName(subjectType: string, entityType: string): string {
@@ -39,15 +38,6 @@ export function transformScorecardRulesToAssertions(
         continue;
       }
 
-      //TODO: uncomment once plugins with decorators are supported in scorecards
-      // if (plugins) {
-      //   registerCustomAssertions(plugins, rawAssertion);
-      //   // We may have custom assertion inside where block
-      //   for (const context of rawAssertion.where || []) {
-      //     registerCustomAssertions(plugins, context);
-      //   }
-      // }
-
       assertionConfig[ruleKey] = {
         ...buildAssertionWithNormalizedTypes(entityType, ruleKey, ruleValue),
       };
@@ -60,42 +50,22 @@ export function transformScorecardRulesToAssertions(
 }
 
 export function categorizeAssertions(assertionConfig: AssertionConfig): CategorizedAssertions {
-  const entityRules: Assertion[] = [];
-  const apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }> = [];
-  const otherRules: Record<string, unknown> = {};
-
+  const entityRules: Record<string, Assertion> = {};
+  const apiRules: Record<string, Assertion | RuleConfig> = {};
   for (const [ruleKey, ruleValue] of Object.entries(assertionConfig)) {
     if (isAssertionRule(ruleKey, ruleValue)) {
       const assertion = ruleValue as Assertion;
       if (isEntityAssertion(assertion)) {
-        entityRules.push(assertion);
+        entityRules[ruleKey] = assertion;
       } else {
-        apiRules.push(assertion);
+        apiRules[ruleKey] = assertion;
       }
     } else {
-      apiRules.push({ ruleId: ruleKey, config: ruleValue });
+      apiRules[ruleKey] = ruleValue;
     }
   }
 
-  return { entityRules, apiRules, otherRules };
-}
-
-export function apiRulesToConfig(
-  apiRules: Array<Assertion | { ruleId: string; config: RuleConfig }>
-): Record<string, Assertion | RuleConfig> {
-  return Object.fromEntries(
-    apiRules.map((rule) => {
-      if ('assertionId' in rule) {
-        return [rule.assertionId, rule];
-      } else {
-        return [rule.ruleId, rule.config];
-      }
-    })
-  );
-}
-
-export function assertionsArrayToRecord(assertions: Assertion[]): Record<string, Assertion> {
-  return Object.fromEntries(assertions.map((assertion) => [assertion.assertionId, assertion]));
+  return { entityRules, apiRules };
 }
 
 export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
