@@ -24,8 +24,6 @@ import { createConfig } from './config/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { Assertions } from './rules/common/assertions/index.js';
 import {
-  apiRulesToConfig,
-  assertionsArrayToRecord,
   categorizeAssertions,
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
@@ -230,7 +228,7 @@ export async function lintEntityFile(opts: {
   entityDefaultSchema: JSONSchema;
   severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
-  assertionConfig?: Assertion[];
+  assertionConfig?: Record<string, Assertion>;
 }) {
   const {
     document,
@@ -238,7 +236,7 @@ export async function lintEntityFile(opts: {
     entityDefaultSchema,
     severity,
     externalRefResolver = new BaseResolver(),
-    assertionConfig = [],
+    assertionConfig = {},
   } = opts;
   const ctx: WalkContext = {
     problems: [],
@@ -267,26 +265,20 @@ export async function lintEntityFile(opts: {
     }
   }
 
-  const flattenRuleVisitors = (
-    ruleId: string,
-    severity: ProblemSeverity,
-    visitors: BaseVisitor | BaseVisitor[]
-  ): (RuleInstanceConfig & { visitor: NestedVisitObject<unknown, BaseVisitor> })[] => {
-    if (Array.isArray(visitors)) {
-      return visitors.map((visitor) => ({
-        severity,
-        ruleId,
+  const assertionVisitors = Assertions(assertionConfig);
+  const flattenedAssertions = Array.isArray(assertionVisitors)
+    ? assertionVisitors.map((visitor) => ({
+        severity: severity || 'error',
+        ruleId: 'entity assertions',
         visitor: visitor as NestedVisitObject<unknown, BaseVisitor>,
-      }));
-    }
-    return [
-      {
-        severity,
-        ruleId,
-        visitor: visitors as NestedVisitObject<unknown, BaseVisitor>,
-      },
-    ];
-  };
+      }))
+    : [
+        {
+          severity: severity || 'error',
+          ruleId: 'entity assertions',
+          visitor: assertionVisitors as NestedVisitObject<unknown, BaseVisitor>,
+        },
+      ];
 
   const rules: (RuleInstanceConfig & {
     visitor: NestedVisitObject<unknown, BaseVisitor | BaseVisitor[]>;
@@ -306,11 +298,7 @@ export async function lintEntityFile(opts: {
       ruleId: 'entity key-valid',
       visitor: EntityKeyValid({ severity: 'error' }),
     },
-    ...flattenRuleVisitors(
-      'entity assertions',
-      severity || 'error',
-      Assertions(assertionsArrayToRecord(assertionConfig))
-    ),
+    ...flattenedAssertions,
   ];
 
   const normalizedVisitors = normalizeVisitors(rules, types);
@@ -361,7 +349,7 @@ export async function lintEntityByScorecardLevel(
   });
 
   if (API_TYPES_OF_ENTITY.includes(entity.type)) {
-    if (apiRules.length === 0) {
+    if (Object.keys(apiRules).length === 0) {
       return entityProblems;
     }
 
@@ -370,28 +358,11 @@ export async function lintEntityByScorecardLevel(
     }
 
     if (entity.type === 'data-schema' && entity.metadata?.schema) {
-      apiRules.map((rule) => {
-        if ('subject' in rule && rule.subject.type !== 'Schema') {
+      Object.values(apiRules).forEach((rule) => {
+        if (typeof rule === 'object' && rule.subject.type !== 'Schema') {
           throw new Error('API rules must target the Schema subject.');
         }
       });
-
-      if (
-        apiRules.some(
-          (rule) =>
-            'config' in rule &&
-            typeof rule.config === 'object' &&
-            rule.config !== null &&
-            'subject' in rule.config &&
-            rule.config.subject.type !== 'Schema'
-        )
-      ) {
-        throw new Error('API rules must target the Schema subject.');
-      }
-
-      if (!(entity.metadata && 'schema' in entity.metadata)) {
-        throw new Error('Entity metadata.schema is required to lint data-schema API rules.');
-      }
 
       const schema = findDataSchemaInDocument(
         entity.title,
@@ -407,7 +378,7 @@ export async function lintEntityByScorecardLevel(
         schema,
         schemaKey: entity.title,
         config: await createConfig({
-          rules: apiRulesToConfig(apiRules),
+          rules: apiRules,
         }),
         specType: entity.metadata.specType as string,
         sourceDocument: document,
@@ -421,12 +392,12 @@ export async function lintEntityByScorecardLevel(
       document,
       externalRefResolver,
       config: await createConfig({
-        rules: apiRulesToConfig(apiRules),
+        rules: apiRules,
       }),
     });
 
     return [...entityProblems, ...apiProblems];
-  } else if (apiRules.length !== 0) {
+  } else if (Object.keys(apiRules).length !== 0) {
     throw new Error('API rules are not supported for this entity type.');
   }
 
