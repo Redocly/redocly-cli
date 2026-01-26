@@ -1,4 +1,5 @@
 import { NODE_TYPE_NAMES } from '@redocly/config';
+import { dequal } from './dequal.js';
 
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { RuleConfig } from '../config/types.js';
@@ -6,7 +7,7 @@ import type { Document } from '../resolve.js';
 
 export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
-type CategorizedAssertions = {
+type AssertionsByTarget = {
   entityRules: Record<string, Assertion>;
   apiRules: Record<string, Assertion | RuleConfig>;
 };
@@ -49,7 +50,7 @@ export function transformScorecardRulesToAssertions(
   return assertionConfig;
 }
 
-export function categorizeAssertions(assertionConfig: AssertionConfig): CategorizedAssertions {
+export function categorizeAssertions(assertionConfig: AssertionConfig): AssertionsByTarget {
   const entityRules: Record<string, Assertion> = {};
   const apiRules: Record<string, Assertion | RuleConfig> = {};
   for (const [ruleKey, ruleValue] of Object.entries(assertionConfig)) {
@@ -68,9 +69,11 @@ export function categorizeAssertions(assertionConfig: AssertionConfig): Categori
   return { entityRules, apiRules };
 }
 
-export function findDataSchemaInDocument(schemaKey: string, schema: string, document: Document) {
-  const dataSchema = JSON.parse(schema);
-
+export function findDataSchemaInDocument(
+  schemaKey: string,
+  schemaJson: string,
+  document: Document
+): unknown {
   if (!hasComponents(document.parsed)) {
     return null;
   }
@@ -78,18 +81,20 @@ export function findDataSchemaInDocument(schemaKey: string, schema: string, docu
   const components = document.parsed.components as Record<string, unknown>;
   const schemas =
     'schemas' in components ? (components.schemas as Record<string, unknown>) : undefined;
-  if (!schemas) {
-    throw new Error('No schemas found in document components');
+
+  if (!schemas || !(schemaKey in schemas)) {
+    return null;
   }
 
-  if (typeof schemas === 'object') {
-    for (const [key, value] of Object.entries(schemas)) {
-      if (key === schemaKey) {
-        if (JSON.stringify(value) === JSON.stringify(dataSchema)) {
-          return value;
-        }
-      }
+  const foundSchema = schemas[schemaKey];
+
+  try {
+    const expectedSchema = JSON.parse(schemaJson);
+    if (dequal(foundSchema, expectedSchema)) {
+      return foundSchema;
     }
+  } catch {
+    return null;
   }
 
   return null;

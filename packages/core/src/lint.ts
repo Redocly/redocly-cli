@@ -15,7 +15,7 @@ import { createConfigTypes } from './types/redocly-yaml.js';
 import {
   createEntityTypes,
   ENTITY_DISCRIMINATOR_PROPERTY_NAME,
-  API_TYPES_OF_ENTITY,
+  ENTITY_TYPES_WITH_API_SUPPORT,
 } from './types/entity-yaml.js';
 import { Struct } from './rules/common/struct.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
@@ -244,7 +244,10 @@ export async function lintEntityFile(opts: {
     visitorsData: {},
   };
 
-  const { entityTypes, discriminatorFunc } = createEntityTypes(entitySchema, entityDefaultSchema);
+  const { entityTypes, discriminatorResolver } = createEntityTypes(
+    entitySchema,
+    entityDefaultSchema
+  );
 
   const types = normalizeTypes(entityTypes);
 
@@ -255,7 +258,10 @@ export async function lintEntityFile(opts: {
     const discriminatedPropertyValue = document.parsed[
       ENTITY_DISCRIMINATOR_PROPERTY_NAME
     ] as string;
-    const discriminatedTypeName = discriminatorFunc?.(document.parsed, discriminatedPropertyValue);
+    const discriminatedTypeName = discriminatorResolver?.(
+      document.parsed,
+      discriminatedPropertyValue
+    );
     if (
       discriminatedTypeName &&
       typeof discriminatedTypeName === 'string' &&
@@ -320,13 +326,13 @@ export async function lintEntityFile(opts: {
   return ctx.problems;
 }
 
-export async function lintEntityByScorecardLevel(
+export async function lintEntityWithScorecardLevel(
   entity: EntityFileSchema | EntityBaseFileSchema,
-  config: NonNullable<ScorecardConfig['levels']>[number],
+  scorecardLevel: NonNullable<ScorecardConfig['levels']>[number],
   document?: Document
 ): Promise<NormalizedProblem[]> {
-  if (!config.rules) {
-    throw new Error('Scorecard level rules are not defined.');
+  if (!scorecardLevel.rules) {
+    throw new Error(`Scorecard level "${scorecardLevel.name}" has no rules defined.`);
   }
 
   const externalRefResolver = new BaseResolver();
@@ -336,7 +342,7 @@ export async function lintEntityByScorecardLevel(
     (entityDocument.parsed as Record<string, unknown>)[
       ENTITY_DISCRIMINATOR_PROPERTY_NAME
     ] as string,
-    config.rules
+    scorecardLevel.rules
   );
   const { entityRules, apiRules } = categorizeAssertions(assertionConfig);
 
@@ -348,19 +354,23 @@ export async function lintEntityByScorecardLevel(
     assertionConfig: entityRules,
   });
 
-  if (API_TYPES_OF_ENTITY.includes(entity.type)) {
+  if (ENTITY_TYPES_WITH_API_SUPPORT.includes(entity.type)) {
     if (Object.keys(apiRules).length === 0) {
       return entityProblems;
     }
 
     if (!document) {
-      throw new Error('Document is required to lint API rules.');
+      throw new Error(
+        `Document is required for entity type "${entity.type}". Provide the source API document to lint API rules.`
+      );
     }
 
     if (entity.type === 'data-schema' && entity.metadata?.schema) {
       Object.values(apiRules).forEach((rule) => {
         if (typeof rule === 'object' && rule.subject.type !== 'Schema') {
-          throw new Error('API rules must target the Schema subject.');
+          throw new Error(
+            `API rules for "data-schema" entity must target Schema subject, but found "${rule.subject.type}".`
+          );
         }
       });
 
@@ -371,7 +381,9 @@ export async function lintEntityByScorecardLevel(
       );
 
       if (!schema) {
-        throw new Error('Failed to find the data schema in the document.');
+        throw new Error(
+          `Schema "${entity.title}" not found in the document. Ensure the schema exists in components.schemas.`
+        );
       }
 
       const schemaProblems = await lintSchema({
@@ -398,7 +410,11 @@ export async function lintEntityByScorecardLevel(
 
     return [...entityProblems, ...apiProblems];
   } else if (Object.keys(apiRules).length !== 0) {
-    throw new Error('API rules are not supported for this entity type.');
+    throw new Error(
+      `API rules are not supported for entity type "${
+        entity.type
+      }". Only ${ENTITY_TYPES_WITH_API_SUPPORT.join(', ')} support API rules.`
+    );
   }
 
   return entityProblems;

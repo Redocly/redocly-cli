@@ -5,7 +5,7 @@ import {
   lintConfig,
   lintDocument,
   lint,
-  lintEntityByScorecardLevel,
+  lintEntityWithScorecardLevel,
 } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
 import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
@@ -2341,7 +2341,7 @@ describe('lint', () => {
     });
   });
 
-  describe('lintEntityByScorecardLevel', () => {
+  describe('lintEntityWithScorecardLevel', () => {
     it('should lint entity with EntityMetadata property assertions', async () => {
       const entity = {
         type: 'user',
@@ -2371,7 +2371,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel);
 
       expect(problems.length).toBeGreaterThan(0);
       expect(
@@ -2411,7 +2411,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel);
 
       expect(problems.length).toBe(0);
     });
@@ -2430,8 +2430,8 @@ describe('lint', () => {
         name: 'Basic',
       };
 
-      await expect(lintEntityByScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
-        'Scorecard level rules are not defined.'
+      await expect(lintEntityWithScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
+        'Scorecard level "Basic" has no rules defined.'
       );
     });
 
@@ -2464,7 +2464,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel);
 
       expect(problems.length).toBeGreaterThan(0);
       expect(problems.some((p: NormalizedProblem) => p.message.includes('FOO is required'))).toBe(
@@ -2506,7 +2506,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel, document);
 
       expect(problems.some((p: NormalizedProblem) => p.ruleId === 'info-license')).toBe(true);
     });
@@ -2560,8 +2560,8 @@ describe('lint', () => {
         },
       };
 
-      await expect(lintEntityByScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
-        'Failed to find the data schema in the document.'
+      await expect(lintEntityWithScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
+        'Schema "User" not found in the document.'
       );
     });
 
@@ -2613,7 +2613,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel, document);
 
       expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_items_in_schema')).toBe(
         true
@@ -2667,8 +2667,8 @@ describe('lint', () => {
         },
       };
 
-      await expect(lintEntityByScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
-        'API rules must target the Schema subject.'
+      await expect(lintEntityWithScorecardLevel(entity, scorecardLevel, document)).rejects.toThrow(
+        'API rules for "data-schema" entity must target Schema subject'
       );
     });
 
@@ -2689,8 +2689,8 @@ describe('lint', () => {
         },
       };
 
-      await expect(lintEntityByScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
-        'API rules are not supported for this entity type.'
+      await expect(lintEntityWithScorecardLevel(entity, scorecardLevel)).rejects.toThrow(
+        'API rules are not supported for entity type "user"'
       );
     });
 
@@ -2738,7 +2738,7 @@ describe('lint', () => {
         },
       };
 
-      const problems = await lintEntityByScorecardLevel(entity, scorecardLevel, document);
+      const problems = await lintEntityWithScorecardLevel(entity, scorecardLevel, document);
 
       expect(problems.length).toBeGreaterThan(0);
       expect(problems.some((p: NormalizedProblem) => p.ruleId === 'rule/has_name_pattern')).toBe(
