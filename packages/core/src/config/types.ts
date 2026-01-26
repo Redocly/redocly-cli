@@ -263,3 +263,6 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     apis?: Record<string, ResolvedApiConfig>;
     plugins?: string[];
   };
+
+export type ResolvedIgnore = Record<string, Record<string, Set<string>>>;
+export type IgnoreFile = { content: Record<string, Record<string, string[]>>; dir: string };

@@ -26,6 +26,7 @@ export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/
 export { Stats } from './rules/other/stats.js';
 export {
   loadConfig,
+  loadIgnoreFile,
   createConfig,
   findConfig,
   resolvePlugins,
@@ -38,6 +39,8 @@ export {
   type Plugin,
   type RuleConfig,
   type RuleSeverity,
+  type IgnoreFile,
+  type ResolvedIgnore,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
@@ -55,6 +58,8 @@ export {
   unescapePointerFragment,
   isRef,
   isAbsoluteUrl,
+  getDir,
+  resolvePath,
   escapePointerFragment,
   type Location,
 } from './ref-utils.js';

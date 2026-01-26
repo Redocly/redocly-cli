@@ -7,7 +7,7 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import { specVersions } from '../detect-spec.js';
 import { isBrowser } from '../env.js';
 import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
+import { isAbsoluteUrl, resolvePath } from '../ref-utils.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
@@ -33,6 +33,8 @@ import type {
   ResolvedConfig,
   RuleConfig,
   RuleSettings,
+  IgnoreFile,
+  ResolvedIgnore,
 } from './types.js';
 
 function getIgnoreFilePath(configPath?: string): string | undefined {
@@ -54,7 +56,7 @@ export class Config {
   _alias?: string;
 
   plugins: Plugin[];
-  ignore: Record<string, Record<string, Set<string>>> = {};
+  ignore: ResolvedIgnore = {};
   doNotResolveExamples: boolean;
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
@@ -71,6 +73,8 @@ export class Config {
       resolvedRefMap?: ResolvedRefMap;
       alias?: string;
       plugins?: Plugin[];
+      ignoreFile?: IgnoreFile;
+      ignore?: ResolvedIgnore;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -154,6 +158,27 @@ export class Config {
     };
 
     this.resolveIgnore(getIgnoreFilePath(opts.configPath));
+
+    // NEW LOGIC: via loadIgnoreFile
+    const newIgnorePath = opts.ignoreFile
+      ? opts.ignoreFile.dir
+        ? resolvePath(opts.ignoreFile.dir, IGNORE_FILE)
+        : IGNORE_FILE
+      : undefined;
+    const newIgnore =
+      opts.ignore ?? (opts.ignoreFile ? this.resolveIgnoreFromIgnoreFile(opts.ignoreFile) : {});
+    // Compare results
+    console.log('[Config.constructor] ===== IGNORE FILE PATHS COMPARISON =====');
+    console.log('[Config.constructor] NEW logic path:', newIgnorePath);
+    console.log('[Config.constructor] OLD logic path:', getIgnoreFilePath(opts.configPath));
+    console.log('[Config.constructor] ===========================================');
+
+    console.log('[Config.constructor] ===== PARSED IGNORE FILES COMPARISON =====');
+    console.log('[Config.constructor] NEW logic parsed ignore:');
+    console.dir(newIgnore, { depth: null });
+    console.log('[Config.constructor] OLD logic parsed ignore:');
+    console.dir(this.ignore, { depth: null });
+    console.log('[Config.constructor] ===========================================');
   }
 
   forAlias(alias?: string) {
@@ -171,10 +196,31 @@ export class Config {
         resolvedRefMap: this.resolvedRefMap,
         alias,
         plugins: this.plugins,
+        ignore: this.ignore,
       }
     );
   }
 
+  // NEW LOGIC: resolve ignore from IgnoreFile (works in browser)
+  private resolveIgnoreFromIgnoreFile({ content, dir }: IgnoreFile): ResolvedIgnore {
+    const ignore: ResolvedIgnore = Object.create(null);
+
+    for (const fileName of Object.keys(content)) {
+      const fileIgnore = content[fileName];
+
+      const resolvedFileName = isAbsoluteUrl(fileName) ? fileName : resolvePath(dir, fileName);
+
+      ignore[resolvedFileName] = Object.create(null);
+
+      for (const ruleId of Object.keys(fileIgnore)) {
+        ignore[resolvedFileName][ruleId] = new Set(fileIgnore[ruleId]);
+      }
+    }
+
+    return ignore;
+  }
+
+  // OLD LOGIC: resolve ignore from file path (original method)
   resolveIgnore(ignoreFile?: string) {
     if (!ignoreFile || !doesYamlFileExist(ignoreFile)) return;
 
