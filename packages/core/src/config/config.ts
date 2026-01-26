@@ -167,6 +167,9 @@ export class Config {
       : undefined;
     const newIgnore =
       opts.ignore ?? (opts.ignoreFile ? this.resolveIgnoreFromIgnoreFile(opts.ignoreFile) : {});
+
+    this.ignore = newIgnore;
+
     // Compare results
     console.log('[Config.constructor] ===== IGNORE FILE PATHS COMPARISON =====');
     console.log('[Config.constructor] NEW logic path:', newIgnorePath);
