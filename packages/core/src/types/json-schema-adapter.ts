@@ -232,14 +232,14 @@ export function getNodeTypesFromJSONSchema(
   entrySchema: JSONSchema
 ): {
   ctx: Record<string, NodeType>;
-  discriminatorFunc?: ResolveTypeFn;
+  discriminatorResolver?: ResolveTypeFn;
 } {
   const ctx: Record<string, NodeType> = {};
-  const returnValue = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
-  if (returnValue && typeof returnValue === 'function') {
+  const discriminatorResolver = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
+  if (discriminatorResolver && typeof discriminatorResolver === 'function') {
     return {
       ctx,
-      discriminatorFunc: returnValue,
+      discriminatorResolver,
     };
   }
   return {

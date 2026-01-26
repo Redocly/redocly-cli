@@ -4,26 +4,26 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType, ResolveTypeFn } from './index.js';
 
 export const ENTITY_DISCRIMINATOR_PROPERTY_NAME = 'type';
-export const API_TYPES_OF_ENTITY = ['api-description', 'api-operation', 'data-schema'];
+export const ENTITY_TYPES_WITH_API_SUPPORT = ['api-description', 'api-operation', 'data-schema'];
 
 export function createEntityTypes(
   entitySchema: JSONSchema,
   entityDefaultSchema: JSONSchema
 ): {
   entityTypes: Record<string, NodeType>;
-  discriminatorFunc?: ResolveTypeFn;
+  discriminatorResolver?: ResolveTypeFn;
 } {
   const { ctx: defaultNodeTypes } = getNodeTypesFromJSONSchema(
     'EntityFileDefault',
     entityDefaultSchema
   );
 
-  const { ctx: namedNodeTypes, discriminatorFunc: namedDiscriminatorFunc } =
+  const { ctx: namedNodeTypes, discriminatorResolver: namedDiscriminatorResolver } =
     getNodeTypesFromJSONSchema('EntityFile', entitySchema);
 
   const arrayNodeType = {
     properties: {},
-    items: namedDiscriminatorFunc,
+    items: namedDiscriminatorResolver,
   };
 
   return {
@@ -32,6 +32,6 @@ export function createEntityTypes(
       ...namedNodeTypes,
       EntityFileArray: arrayNodeType,
     },
-    discriminatorFunc: namedDiscriminatorFunc,
+    discriminatorResolver: namedDiscriminatorResolver,
   };
 }
