@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.15.0 (2026-01-27)
+
+### Patch Changes
+
+- Removed unused `chokidar` dependency.
+- Updated @redocly/openapi-core to v2.15.0.
+
 ## 2.14.9 (2026-01-23)
 
 ### Patch Changes
