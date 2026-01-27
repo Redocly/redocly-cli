@@ -161,6 +161,23 @@ describe('getServerUrl', () => {
     expect(result).toEqual({ url: 'http:/localhost:3000/test' });
   });
 
+  it('should resolve runtime expression in "x-operation" url', () => {
+    const ctx = {
+      $steps: {
+        test: { outputs: { upload_url: 'http://localhost:3000/test' } },
+      },
+      options: {
+        logger,
+      },
+    } as unknown as TestContext;
+    const result = getServerUrl({
+      ctx,
+      descriptionName: '',
+      xOperation: { url: '$steps.test.outputs.upload_url', method: 'get' },
+    });
+    expect(result).toEqual({ url: 'http://localhost:3000/test' });
+  });
+
   it('should return x-serverUrl when available when descriptionName is not provided and there is only one sourceDescription', () => {
     const ctx: TestContext = {
       sourceDescriptions: [
