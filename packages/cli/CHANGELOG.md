@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.15.0
+
+### Patch Changes
+
+- Removed unused `chokidar` dependency.
+- Updated @redocly/openapi-core to v2.15.0.
+
 ## 2.14.9
 
 ### Patch Changes

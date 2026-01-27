@@ -1,5 +1,15 @@
 # @redocly/respect-core
 
+## 2.15.0
+
+### Minor Changes
+
+- Added support for runtime expressions in the `url` property of the Respect `x-operation` extension.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.15.0.
+
 ## 2.14.9
 
 ### Patch Changes
