@@ -137,13 +137,17 @@ export function validateExample(
   allowAdditionalProperties: boolean
 ) {
   try {
+    const child = location.child('schema');
+    const oasContext = inferOasContextFromPointer(child.pointer);
+
     const { valid, errors } = validateJsonSchema(
       example,
       schema,
       location.child('schema'),
       dataLoc.pointer,
       resolve,
-      allowAdditionalProperties
+      allowAdditionalProperties,
+      oasContext
     );
     if (!valid) {
       for (const error of errors) {
@@ -217,4 +221,19 @@ export function validateResponseCodes(
 
 export function getTagName(tag: Oas2Tag | Oas3Tag | Oas3_2Tag, ignoreCase: boolean): string {
   return ignoreCase ? tag.name.toLowerCase() : tag.name;
+}
+
+export function inferOasContextFromPointer(pointer: string) {
+  if (pointer.includes('/requestBody/')) {
+    return { oas: { mode: 'request', location: 'requestBody' } };
+  }
+  if (pointer.includes('/responses/')) {
+    return { oas: { mode: 'response', location: 'responseBody' } };
+  }
+
+  if (pointer.includes('/parameters/')) {
+    return { oas: { mode: 'request' } };
+  }
+
+  return undefined;
 }

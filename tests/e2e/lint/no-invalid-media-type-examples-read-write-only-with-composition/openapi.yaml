@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: read write only with composition
+  version: 1.0.0
+
+paths:
+  /test:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Req'
+            examples:
+              valid_password_branch: # ✅
+                summary: anyOf branch A (password required in request)
+                value:
+                  name: Doe
+                  password: p
+
+              req_valid_readOnly_required_but_skipped: # ❌ ????
+                summary: anyOf branch B (id is readOnly+required in schema, but must be skipped in request)
+                value:
+                  name: Doe
+
+              req_invalid_readOnly_present: # ✅
+                summary: readOnly field present in request
+                value:
+                  id: x
+                  name: Doe
+                  password: p
+
+              req_invalid_missing_password: # ❌ ????
+                summary: missing writeOnly required in request (branch A)
+                value:
+                  name: Doe
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Res'
+              examples:
+                res_valid_ok: # ✅
+                  summary: oneOf OK variant (no details)
+                  value:
+                    id: x
+                    name: Doe
+
+                res_valid_detailed_password_required_but_skipped:
+                  summary: oneOf Detailed variant (password is writeOnly+required in schema, but must be skipped in response)
+                  value:
+                    id: x
+                    name: Doe
+                    details: d
+
+                res_invalid_writeOnly_present:
+                  summary: writeOnly field present in response
+                  value:
+                    id: x
+                    name: Doe
+                    details: d
+                    password: p
+
+                res_invalid_missing_id:
+                  summary: invalid response (id required in response)
+                  value:
+                    name: Doe
+                    details: d
+
+components:
+  schemas:
+    Req:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+
+      anyOf:
+        # Branch A: request must contain password
+        - required: [name, password]
+
+        # Branch B: schema requires readOnly id, but in request-context it must be skipped
+        - required: [name, id]
+
+    Res:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        details:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+
+      oneOf:
+        # OK variant: must NOT contain details (so it doesn't overlap with detailed)
+        - required: [id]
+          not:
+            required: [details]
+
+        # Detailed variant: password is writeOnly+required in schema,
+        # but in response-context it must be skipped
+        - required: [id, details, password]
