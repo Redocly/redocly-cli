@@ -17,7 +17,6 @@ const Root: NodeType = {
   },
   required: ['overlay', 'info', 'actions'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/overlay/v1.0.0.html#overlay-object',
   description: 'This is the root object of the Overlay.',
 };
 
@@ -34,7 +33,6 @@ const Info: NodeType = {
   },
   required: ['title', 'version'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/overlay/v1.0.0.html#info-object',
   description:
     'The object provides metadata about the Overlay. The metadata MAY be used by the clients if needed.',
 };
@@ -60,7 +58,6 @@ const Action: NodeType = {
   },
   required: ['target'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/overlay/v1.0.0.html#action-object',
   description:
     'This object represents one or more changes to be applied to the target document at the location defined by the target JSONPath expression',
 };

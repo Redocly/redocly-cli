@@ -28,14 +28,11 @@ const Root: NodeType = {
       enum: ['3.0.0'],
       description:
         'REQUIRED. Specifies the AsyncAPI Specification version being used. It can be used by tooling Specifications and clients to interpret the version. The structure shall be major.minor.patch, where patch versions must be compatible with the existing major.minor tooling. Typically patch versions will be introduced to address errors in the documentation, and tooling should typically be compatible with the corresponding major.minor (1.0.*). Patch versions will correspond to patches of this document.',
-      documentationLink:
-        'https://www.asyncapi.com/docs/reference/specification/v3.0.0#A2SVersionString',
     },
     info: 'Info',
     id: {
       type: 'string',
       description: 'Identifier of the application the AsyncAPI document is defining.',
-      documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#A2SIdString',
     },
     servers: 'ServerMap',
     channels: 'NamedChannels',
@@ -44,12 +41,9 @@ const Root: NodeType = {
     defaultContentType: {
       type: 'string',
       description: `Default content type to use when encoding/decoding a message's payload.`,
-      documentationLink:
-        'https://www.asyncapi.com/docs/reference/specification/v3.0.0#defaultContentTypeString',
     },
   },
   required: ['asyncapi', 'info'],
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#A2SObject',
   description:
     'This is the root document object for the API specification. It combines resource listing and API declaration together into one document.',
 };
@@ -81,7 +75,6 @@ const Channel: NodeType = {
     externalDocs: 'ExternalDocs',
   },
   description: 'Describes a shared communication channel.',
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#channelObject',
 };
 
 const Server: NodeType = {
@@ -117,7 +110,6 @@ const Server: NodeType = {
     tags: 'TagList',
   },
   required: ['host', 'protocol'],
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#serverObject',
   description:
     'An object representing a message broker, a server or any other kind of computer program capable of sending and/or receiving data. This object is used to capture details such as URIs, protocols and security configuration. Variable substitution can be used so that some details, for example usernames and passwords, can be injected by code generation tools.',
 };
@@ -151,7 +143,6 @@ const Info: NodeType = {
   required: ['title', 'version'],
   description:
     'The object provides metadata about the API. The metadata can be used by the clients if needed.',
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#infoObject',
 };
 
 const Parameter: NodeType = {
@@ -182,7 +173,6 @@ const Parameter: NodeType = {
       description: 'A runtime expression that specifies the location of the parameter value.',
     },
   },
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#parameterObject',
   description: 'Describes a parameter included in a channel address.',
 };
 
@@ -232,7 +222,6 @@ const Message: NodeType = {
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#messageObject',
   description: 'Describes a message received on a given channel and operation.',
 };
 
@@ -258,8 +247,6 @@ const OperationTrait: NodeType = {
     bindings: 'OperationBindings',
   },
   required: [],
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#operationTraitObject',
   description:
     'Describes a trait that MAY be applied to an Operation Object. This object MAY contain any property from the Operation Object, except the action, channel, messages and traits ones.',
 };
@@ -307,8 +294,6 @@ const MessageTrait: NodeType = {
     examples: 'MessageExampleList',
   },
   additionalProperties: {},
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#messageTraitObject',
   description:
     'Describes a trait that MAY be applied to a Message Object. This object MAY contain any property from the Message Object, except payload and traits.',
 };
@@ -345,7 +330,6 @@ const Operation: NodeType = {
     reply: 'OperationReply',
   },
   required: ['action', 'channel'],
-  documentationLink: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#operationObject',
   description: 'https://www.asyncapi.com/docs/reference/specification/v3.0.0#operationObject',
 };
 
@@ -355,8 +339,6 @@ const OperationReply: NodeType = {
     messages: 'MessageList',
     address: 'OperationReplyAddress',
   },
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#operationReplyObject',
   description:
     'Describes the reply part that MAY be applied to an Operation Object. If an operation implements the request/reply pattern, the reply object represents the response message.',
 };
@@ -375,8 +357,6 @@ const OperationReplyAddress: NodeType = {
     },
   },
   required: ['location'],
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#operationReplyAddressObject',
   description: 'An object that specifies where an operation has to send the reply.',
 };
 
@@ -402,8 +382,6 @@ const Components: NodeType = {
     operationBindings: 'OperationBindings',
     messageBindings: 'MessageBindings',
   },
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#componentsObject',
   description:
     'Holds a set of reusable objects for different aspects of the AsyncAPI specification. All objects defined within the components object will have no effect on the API unless they are explicitly referenced from properties outside the components object.',
 };
@@ -540,8 +518,6 @@ const SecurityScheme: NodeType = {
     }
   },
   extensionsPrefix: 'x-',
-  documentationLink:
-    'https://www.asyncapi.com/docs/reference/specification/v3.0.0#securitySchemeObject',
   description: 'Defines a security scheme that can be used by the operations.',
 };
 
