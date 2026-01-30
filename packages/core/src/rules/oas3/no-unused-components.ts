@@ -15,7 +15,16 @@ export const NoUnusedComponents: Oas3Rule = () => {
   return {
     ref(ref, { type, resolve, key, location }) {
       if (
-        ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(type.name)
+        [
+          'Schema',
+          'Header',
+          'Parameter',
+          'Response',
+          'Example',
+          'RequestBody',
+          'MediaType',
+          'MediaTypesMap',
+        ].includes(type.name)
       ) {
         const resolvedRef = resolve(ref);
         if (!resolvedRef.location) return;
@@ -68,6 +77,11 @@ export const NoUnusedComponents: Oas3Rule = () => {
     },
     NamedHeaders: {
       Header(_header, { location, key }) {
+        registerComponent(location, key.toString());
+      },
+    },
+    NamedMediaTypes: {
+      MediaTypesMap(_mediaTypesMap, { location, key }) {
         registerComponent(location, key.toString());
       },
     },

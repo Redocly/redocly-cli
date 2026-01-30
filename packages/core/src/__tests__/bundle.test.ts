@@ -144,6 +144,60 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should bundle mediaTypes refs correctly (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    $ref: '#/components/mediaTypes/JsonPets'
+        components:
+          mediaTypes:
+            JsonPets:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/Pet'
+                examples:
+                  example1:
+                    value:
+                      id: 1
+                      name: John
+          schemas:
+            Pet:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+        `,
+      'test.yaml'
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    const parsed = res.parsed as any;
+
+    expect(problems).toHaveLength(0);
+    expect(parsed.components?.mediaTypes).toBeDefined();
+    expect(parsed.components?.mediaTypes?.JsonPets).toBeDefined();
+    expect(parsed.paths?.['/pets']?.get?.responses?.['200']?.content).toEqual({
+      $ref: '#/components/mediaTypes/JsonPets',
+    });
+  });
+
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
