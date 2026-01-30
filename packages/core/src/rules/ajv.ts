@@ -2,8 +2,8 @@ import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
 import { escapePointerFragment } from '../ref-utils.js';
 
+import type { ErrorObject, ValidateFunction } from '@redocly/ajv/dist/2020.js';
 import type { Location } from '../ref-utils.js';
-import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
 import type { ResolveFn } from '../walk.js';
 
 let ajvInstance: Ajv | null = null;
@@ -24,6 +24,7 @@ function getAjv(resolve: ResolveFn) {
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: true,
+      passContext: true,
       loadSchemaSync(base: string, $ref: string, $id: string) {
         const decodedBase = decodeURI(base.split('#')[0]);
         const resolvedRef = resolve({ $ref }, decodedBase);
@@ -64,18 +65,21 @@ export function validateJsonSchema(
   schemaLoc: Location,
   instancePath: string,
   resolve: ResolveFn,
-  allowAdditionalProperties: boolean
+  allowAdditionalProperties: boolean,
+  ctx: unknown
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
-  const valid = validate(data, {
+  const dataCxt = {
     instancePath,
     parentData: { fake: {} },
     parentDataProperty: 'fake',
     rootData: {},
     dynamicAnchors: {},
-  });
+  };
+
+  const valid = ctx ? validate.call(ctx, data, dataCxt) : validate(data, dataCxt);
 
   return {
     valid: !!valid,
