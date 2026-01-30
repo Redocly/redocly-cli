@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { bundleOas, createEmptyRedoclyConfig } from '../bundle/bundle-oas.js';
 import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils.js';
 import { BaseResolver } from '../resolve.js';
+import { logger } from '../logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,13 +52,14 @@ describe('bundle-oas', () => {
   });
 
   it('should bundle external refs and warn for conflicting names', async () => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
     const { bundle: res, problems } = await bundleOas({
       config: await createEmptyRedoclyConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
-    expect(problems).toHaveLength(1);
-    expect(problems[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
+    expect(problems).toHaveLength(0);
+    expect(logger.warn).toHaveBeenCalledWith(
+      `\nTwo schemas are referenced with the same name but different content. Renamed param-b to param-b-2.\n\n`
     );
     expect(res.parsed).toMatchSnapshot();
   });

@@ -3,6 +3,7 @@ import { makeRefId } from '../utils/make-ref-id.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { dequal } from '../utils/dequal.js';
+import { logger } from '../logger.js';
 
 import type { OasRef } from '../typings/openapi';
 import type { Location } from '../ref-utils.js';
@@ -289,11 +290,9 @@ export function makeBundleVisitor(
     }
 
     if (!componentsGroup[name]) {
-      ctx.report({
-        message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
-        location: ctx.location,
-        forceSeverity: 'warn',
-      });
+      logger.warn(
+        `\nTwo schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.\n\n`
+      );
     }
 
     return name;
