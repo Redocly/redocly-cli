@@ -1,4 +1,5 @@
 import { isEmptyObject } from '../../utils/is-empty-object.js';
+import { hasComponent } from '../../utils/oas-has-component.js';
 
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Decorator } from '../../visitors.js';
@@ -8,23 +9,25 @@ import type {
   Oas3_2Definition,
   Oas3Components,
   Oas3_1Components,
+  Oas3_2Components,
 } from '../../typings/openapi.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
+type AnyOas3Component = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
     {
       usedIn: Location[];
-      componentType?: keyof (Oas3Components | Oas3_1Components);
+      componentType?: AnyOas3Component;
       name: string;
     }
   >();
 
   function registerComponent(
     location: Location,
-    componentType: keyof (Oas3Components | Oas3_1Components),
+    componentType: AnyOas3Component,
     name: string
   ): void {
     components.set(location.absolutePointer, {
@@ -48,7 +51,12 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
           )
       );
 
-      if (!used && componentType && root.components) {
+      if (
+        !used &&
+        componentType &&
+        root.components &&
+        hasComponent(root.components, componentType)
+      ) {
         removedPaths.push(path);
         const componentChild = root.components[componentType];
         delete componentChild![name];
@@ -68,9 +76,16 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     ref: {
       leave(ref, { location, type, resolve, key }) {
         if (
-          ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(
-            type.name
-          )
+          [
+            'Schema',
+            'Header',
+            'Parameter',
+            'Response',
+            'Example',
+            'RequestBody',
+            'MediaType',
+            'MediaTypesMap',
+          ].includes(type.name)
         ) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
@@ -134,6 +149,11 @@ export const RemoveUnusedComponents: Oas3Decorator = () => {
     NamedHeaders: {
       Header(_header, { location, key }) {
         registerComponent(location, 'headers', key.toString());
+      },
+    },
+    NamedMediaTypes: {
+      MediaTypesMap(_mediaTypesMap, { location, key }) {
+        registerComponent(location, 'mediaTypes', key.toString());
       },
     },
   };

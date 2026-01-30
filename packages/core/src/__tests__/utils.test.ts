@@ -10,6 +10,8 @@ import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
 import { validateMimeType, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
+import { hasComponent } from '../utils/oas-has-component.js';
+import type { Oas3_2Components } from '../typings/openapi.js';
 
 vi.mock('node:fs');
 vi.mock('node:path');
@@ -230,6 +232,42 @@ describe('utils', () => {
 
     it('should return false if the id is not a custom rule id', () => {
       expect(isCustomRuleId('rule')).toBe(false);
+    });
+  });
+
+  describe('hasComponent', () => {
+    it('returns true for OAS 3.2-only component (mediaTypes)', () => {
+      const components = {
+        mediaTypes: {
+          JsonPayload: {
+            'application/json': {
+              schema: { type: 'string' },
+            },
+          },
+        },
+      } as Oas3_2Components;
+
+      expect(hasComponent(components, 'mediaTypes')).toBe(true);
+    });
+
+    it('returns false for OAS 3.1 components when querying OAS 3.2-only key', () => {
+      const components = {
+        schemas: {
+          Foo: { type: 'string' },
+        },
+      };
+
+      expect(hasComponent(components, 'mediaTypes')).toBe(false);
+    });
+
+    it('returns true for common component across all OAS versions', () => {
+      const components = {
+        schemas: {
+          Foo: { type: 'string' },
+        },
+      };
+
+      expect(hasComponent(components, 'schemas')).toBe(true);
     });
   });
 });
