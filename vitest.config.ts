@@ -23,7 +23,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
         ],
         thresholds: {
           lines: 78,
-          functions: 81,
+          functions: 82,
           statements: 78,
           branches: 70,
         },
