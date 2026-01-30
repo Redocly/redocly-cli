@@ -1,0 +1,4 @@
+extends:
+  - minimal
+rules:
+  operation-2xx-response: error

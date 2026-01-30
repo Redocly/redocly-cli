@@ -1,0 +1,5 @@
+apis:
+  petstore:
+    root: test.yaml
+    extends:
+      - ./api-missing-file.yaml

@@ -1,0 +1,4 @@
+extends:
+  - non-existent-preset
+rules:
+  operation-2xx-response: error

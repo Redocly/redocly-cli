@@ -169,16 +169,19 @@ export class Config {
   saveIgnore() {
     const dir = this.configPath ? path.dirname(this.configPath) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
-    const mapped: Record<string, any> = {};
+    const mapped: Record<string, Record<string, string[]>> = {};
     for (const absFileName of Object.keys(this.ignore)) {
       const mappedDefinitionName = isAbsoluteUrl(absFileName)
         ? absFileName
         : slash(path.relative(dir, absFileName));
-      const ignoredRules = (mapped[mappedDefinitionName] = this.ignore[absFileName]);
+      const sourceRules = this.ignore[absFileName];
+      const ignoredRules: Record<string, string[]> = {};
 
-      for (const ruleId of Object.keys(ignoredRules)) {
-        ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
+      for (const ruleId of Object.keys(sourceRules)) {
+        ignoredRules[ruleId] = Array.from(sourceRules[ruleId]);
       }
+
+      mapped[mappedDefinitionName] = ignoredRules;
     }
     fs.writeFileSync(ignoreFile, IGNORE_BANNER + stringifyYaml(mapped));
   }

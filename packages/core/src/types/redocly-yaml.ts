@@ -215,20 +215,7 @@ const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,
   NodeType['properties'][string]
 > = {
-  extends: {
-    name: 'ConfigGovernanceList',
-    properties: {},
-    items: (node) => {
-      // check if it's preset name
-      if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
-        return { type: 'string' };
-      }
-      return {
-        ...ConfigGovernance,
-        directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
-      } as PropType;
-    },
-  } as PropType,
+  extends: 'ConfigGovernanceList',
   plugins: { type: 'array', items: { type: 'string' } },
 
   rules: 'Rules',
@@ -265,6 +252,32 @@ const configGovernanceProperties: Record<
 
 const ConfigGovernance: NodeType = {
   properties: configGovernanceProperties,
+};
+
+const ConfigGovernanceList: NodeType = {
+  properties: {},
+  items: (node: unknown): PropType => {
+    if (typeof node !== 'string') {
+      // Non-strings should be validated by struct as type errors
+      return { type: 'string' };
+    }
+
+    // Empty strings are just skipped
+    if (!node.trim()) {
+      return { type: 'string' };
+    }
+
+    // Named presets (no extension, not a URL) are plain strings
+    if (!isAbsoluteUrl(node) && !path.extname(node)) {
+      return { type: 'string' };
+    }
+
+    // File/URL extends should be resolved as config references
+    return {
+      ...ConfigGovernance,
+      directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
+    } as PropType;
+  },
 };
 
 const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
@@ -468,6 +481,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
   ConfigApis,
   ConfigGovernance,
+  ConfigGovernanceList,
   ConfigHTTP,
   AssertDefinition,
   ObjectRule,
