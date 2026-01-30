@@ -53,7 +53,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.17.2",
-    "@redocly/config": "^0.41.2",
+    "@redocly/config": "^0.41.3",
     "ajv": "npm:@redocly/ajv@8.17.2",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
