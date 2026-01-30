@@ -22,7 +22,6 @@ const Root: NodeType = {
   },
   required: ['openrpc', 'info', 'methods'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#openrpc-object',
   description:
     'This is the root object of the OpenRPC document. The contents of this object represent a whole OpenRPC document. How this object is constructed or stored is outside the scope of the OpenRPC Specification.',
 };
@@ -54,7 +53,6 @@ const Info: NodeType = {
   extensionsPrefix: 'x-',
   description:
     'REQUIRED. Provides metadata about the API. The metadata MAY be used by tooling as required.',
-  documentationLink: 'https://spec.open-rpc.org/#info-object',
 };
 
 const Contact: NodeType = {
@@ -74,7 +72,6 @@ const Contact: NodeType = {
     },
   },
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#contact-object',
   description: 'Contact information for the exposed API.',
 };
 
@@ -91,7 +88,6 @@ const License: NodeType = {
   },
   required: ['name'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#license-object',
   description: 'License information for the exposed API.',
 };
 
@@ -119,7 +115,6 @@ const Server: NodeType = {
   },
   required: ['url'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#server-object',
   description: 'An object representing a Server.',
 };
 
@@ -143,7 +138,6 @@ const ServerVariable: NodeType = {
   },
   required: ['default'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#server-variable-object',
   description: 'An object representing a Server Variable for server URL template substitution.',
 };
 
@@ -180,7 +174,6 @@ const Method: NodeType = {
   },
   required: ['name', 'params'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#method-object',
   description:
     'Describes the interface for the given method name. The method name is used as the method field of the JSON-RPC body. It therefore MUST be unique.',
 };
@@ -213,7 +206,6 @@ const ContentDescriptor: NodeType = {
   },
   required: ['name', 'schema'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#content-descriptor-object',
   description:
     'Content Descriptors are objects that do just as they suggest - describe content. They are reusable ways of describing either parameters or result. They MUST have a schema.',
 };
@@ -236,7 +228,6 @@ const ExamplePairing: NodeType = {
     result: 'Example',
   },
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#example-pairing-object',
   description:
     'The Example Pairing object consists of a set of example params and result. The result is what you can expect from the JSON-RPC service given the exact params.',
 };
@@ -268,7 +259,6 @@ const Example: NodeType = {
     },
   },
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#example-object',
   description:
     'The Example object is an object that defines an example that is intended to match the schema of a given Content Descriptor.',
 };
@@ -302,7 +292,6 @@ const Link: NodeType = {
   },
   required: ['name'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#link-object',
   description:
     'The Link object represents a possible design-time link for a result. The presence of a link does not guarantee the caller’s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between results and other methods.',
 };
@@ -327,7 +316,6 @@ const ErrorObject: NodeType = {
   },
   required: ['code', 'message'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#error-object',
   description: 'Defines an application level error.',
 };
 
@@ -342,7 +330,6 @@ const Components: NodeType = {
     tags: 'NamedTags',
   },
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#components-object',
   description:
     'Holds a set of reusable objects for different aspects of the OpenRPC. All objects defined within the components object will have no effect on the API unless they are explicitly referenced from properties outside the components object.',
 };
@@ -366,7 +353,6 @@ const Tag: NodeType = {
   },
   required: ['name'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#tag-object',
   description:
     'Adds metadata to a single tag that is used by the Method Object. It is not mandatory to have a Tag Object per tag defined in the Method Object instances.',
 };
@@ -386,7 +372,6 @@ const ExternalDocs: NodeType = {
   },
   required: ['url'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.open-rpc.org/#external-documentation-object',
   description: 'Allows referencing an external resource for extended documentation.',
 };
 

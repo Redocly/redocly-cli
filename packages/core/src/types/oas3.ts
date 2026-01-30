@@ -41,7 +41,6 @@ const Tag: NodeType = {
   required: ['name'],
   extensionsPrefix: 'x-',
   description: `The Tag Object represents a tag used by the OAS. It is not mandatory to have a tag object per tag used by the OAS but each tag object can contain additional metadata.`,
-  documentationLink: `https://spec.openapis.org/oas/v3.1.0#tag-object`,
 };
 
 const TagGroup: NodeType = {

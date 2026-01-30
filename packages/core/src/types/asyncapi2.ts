@@ -25,7 +25,6 @@ const Root: NodeType = {
     defaultContentType: { type: 'string' },
   },
   required: ['asyncapi', 'channels', 'info'],
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.0.0',
 };
 
 const Channel: NodeType = {
@@ -47,7 +46,6 @@ const Channel: NodeType = {
     },
   },
   description: 'Describes the operations available on a single channel.',
-  documentationLink: 'https://v2.asyncapi.com/docs/concepts/channel',
 };
 
 const ChannelMap: NodeType = {
@@ -82,8 +80,6 @@ const ChannelBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#channelBindingsObject',
   description: 'Map describing protocol-specific definitions for a channel.',
 };
 
@@ -99,7 +95,6 @@ export const Tag: NodeType = {
   },
   required: ['name'],
   description: 'Allows adding meta data to a single tag.',
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#tagObject',
 };
 
 export const ExternalDocs: NodeType = {
@@ -116,16 +111,12 @@ export const ExternalDocs: NodeType = {
     },
   },
   required: ['url'],
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#externalDocumentationObject',
   description: 'Allows referencing an external resource for extended documentation.',
 };
 
 const SecurityRequirement: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#securityRequirementObject',
   description:
     'Lists the required security schemes to execute this operation. The name used for each property MUST correspond to a security scheme declared in the Security Schemes under the Components Object.',
 };
@@ -157,8 +148,6 @@ const ServerBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverBindingsObject',
   description: 'Map describing protocol-specific definitions for a server.',
 };
 
@@ -190,7 +179,6 @@ const Server: NodeType = {
     tags: 'TagList',
   },
   required: ['url', 'protocol'],
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverObject',
   description:
     'An object representing a message broker, a server or any other kind of computer program capable of sending and/or receiving data. This object is used to capture details such as URIs, protocols and security configuration. Variable substitution can be used so that some details, for example usernames and passwords, can be injected by code generation tools.',
 };
@@ -227,8 +215,6 @@ export const ServerVariable: NodeType = {
     },
   },
   required: [],
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#serverVariableObject',
   description: 'An object representing a Server Variable for server URL template substitution.',
 };
 
@@ -257,7 +243,6 @@ const Info: NodeType = {
     license: 'License',
   },
   required: ['title', 'version'],
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#infoObject',
   description:
     'The object provides metadata about the API. The metadata can be used by the clients if needed.',
 };
@@ -279,7 +264,6 @@ export const Contact: NodeType = {
         'The email address of the contact person/organization. MUST be in the format of an email address.',
     },
   },
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#contactObject',
   description: 'Contact information for the exposed API.',
 };
 
@@ -296,7 +280,6 @@ export const License: NodeType = {
     },
   },
   required: ['name'],
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#licenseObject',
   description: 'License information for the exposed API.',
 };
 
@@ -314,7 +297,6 @@ const Parameter: NodeType = {
         'A runtime expression that specifies the location of the parameter value. Even when a definition for the target field exists, it MUST NOT be used to validate this parameter but, instead, the schema property MUST be used.',
     },
   },
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#parameterObject',
   description: 'Describes a parameter included in a channel name.',
 };
 
@@ -332,8 +314,6 @@ export const CorrelationId: NodeType = {
     },
   },
   required: ['location'],
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#correlationIdObject',
   description:
     'An object that specifies an identifier at design time that can used for message tracing and correlation.',
 };
@@ -382,7 +362,6 @@ const Message: NodeType = {
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#messageObject',
   description: 'Describes a message received on a given channel and operation.',
 };
 
@@ -413,8 +392,6 @@ const MessageBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#messageBindingsObject',
   description: 'Map describing protocol-specific definitions for a message.',
 };
 
@@ -445,8 +422,6 @@ const OperationBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#operationBindingsObject',
   description: 'Map describing protocol-specific definitions for an operation.',
 };
 
@@ -473,8 +448,6 @@ const OperationTrait: NodeType = {
     bindings: 'OperationBindings',
   },
   required: [],
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#operationTraitObject',
   description:
     'Describes a trait that MAY be applied to an Operation Object. This object MAY contain any property from the Operation Object, except message and traits.',
 };
@@ -522,8 +495,6 @@ const MessageTrait: NodeType = {
     examples: 'MessageExampleList',
   },
   additionalProperties: {},
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#messageTraitObject',
   description:
     'Describes a trait that MAY be applied to a Message Object. This object MAY contain any property from the Message Object, except payload and traits.',
 };
@@ -553,7 +524,6 @@ const Operation: NodeType = {
     message: 'Message',
   },
   required: [],
-  documentationLink: 'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#operationObject',
   description:
     'Describes a publish or a subscribe operation. This provides a place to document how and why messages are sent and received.',
 };
@@ -577,8 +547,6 @@ export const MessageExample: NodeType = {
       description: `The value of this field MUST validate against the Message Object's headers field.`,
     },
   },
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#messageExampleObject',
   description:
     'Message Example Object represents an example of a Message Object and MUST contain either headers and/or payload fields.',
 };
@@ -736,8 +704,6 @@ const SecurityScheme: NodeType = {
     }
   },
   extensionsPrefix: 'x-',
-  documentationLink:
-    'https://v2.asyncapi.com/docs/reference/specification/v2.6.0#securitySchemeObject',
   description: 'Defines a security scheme that can be used by the operations.',
 };
 
@@ -747,14 +713,12 @@ const SecurityScheme: NodeType = {
 const HttpChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an HTTP channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/http/README.md#channel',
 };
 ChannelBindings.properties.http = HttpChannelBinding;
 
 const HttpServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an HTTP server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/http#server',
 };
 ServerBindings.properties.http = HttpServerBinding;
 
@@ -764,7 +728,6 @@ const HttpMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an HTTP message, i.e., a request or a response.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/http/README.md#message',
 };
 MessageBindings.properties.http = HttpMessageBinding;
 
@@ -779,7 +742,6 @@ const HttpOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an HTTP operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/http/README.md#operation',
 };
 OperationBindings.properties.http = HttpOperationBinding;
 
@@ -792,31 +754,24 @@ const WsChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a WebSockets channel.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/websockets/README.md#channel',
 };
 ChannelBindings.properties.ws = WsChannelBinding;
 
 const WsServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a WebSockets server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/websockets#server',
 };
 ServerBindings.properties.ws = WsServerBinding;
 
 const WsMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a WebSockets message.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/websockets/README.md#message',
 };
 MessageBindings.properties.ws = WsMessageBinding;
 
 const WsOperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a WebSockets operation.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/websockets/README.md#operation',
 };
 OperationBindings.properties.ws = WsOperationBinding;
 
@@ -839,14 +794,12 @@ const KafkaChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a Kafka channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/kafka/README.md#channel',
 };
 ChannelBindings.properties.kafka = KafkaChannelBinding;
 
 const KafkaServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Kafka server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/kafka#server',
 };
 ServerBindings.properties.kafka = KafkaServerBinding;
 
@@ -859,7 +812,6 @@ const KafkaMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a Kafka message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/kafka/README.md#message',
 };
 MessageBindings.properties.kafka = KafkaMessageBinding;
 
@@ -870,7 +822,6 @@ const KafkaOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a Kafka operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/kafka/README.md#operation',
 };
 OperationBindings.properties.kafka = KafkaOperationBinding;
 
@@ -882,15 +833,12 @@ const AnypointmqChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an Anypoint MQ channel.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/anypointmq/README.md#channel',
 };
 ChannelBindings.properties.anypointmq = AnypointmqChannelBinding;
 
 const AnypointmqServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an Anypoint MQ server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/anypointmq#server',
 };
 ServerBindings.properties.anypointmq = AnypointmqServerBinding;
 
@@ -900,16 +848,12 @@ const AnypointmqMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an Anypoint MQ message.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/anypointmq/README.md#message',
 };
 MessageBindings.properties.anypointmq = AnypointmqMessageBinding;
 
 const AnypointmqOperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an Anypoint MQ operation.',
-  documentationLink:
-    'https://github.com/asyncapi/bindings/blob/master/anypointmq/README.md#operation',
 };
 OperationBindings.properties.anypointmq = AnypointmqOperationBinding;
 
@@ -917,14 +861,12 @@ OperationBindings.properties.anypointmq = AnypointmqOperationBinding;
 const AmqpChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an AMQP 0-9-1 channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp/README.md#channel',
 };
 ChannelBindings.properties.amqp = AmqpChannelBinding;
 
 const AmqpServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an AMQP 0-9-1 server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/amqp#server',
 };
 ServerBindings.properties.amqp = AmqpServerBinding;
 
@@ -935,7 +877,6 @@ const AmqpMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an AMQP 0-9-1 message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp/README.md#message',
 };
 MessageBindings.properties.amqp = AmqpMessageBinding;
 
@@ -955,7 +896,6 @@ const AmqpOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an AMQP 0-9-1 operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp/README.md#operation',
 };
 OperationBindings.properties.amqp = AmqpOperationBinding;
 
@@ -963,28 +903,24 @@ OperationBindings.properties.amqp = AmqpOperationBinding;
 const Amqp1ChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an AMQP 1.0 channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp1/README.md#channel',
 };
 ChannelBindings.properties.amqp1 = Amqp1ChannelBinding;
 
 const Amqp1ServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an AMQP 1.0 server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/amqp1#server',
 };
 ServerBindings.properties.amqp1 = Amqp1ServerBinding;
 
 const Amqp1MessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Binding	Protocol-specific information for an AMQP 1.0 message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp1/README.md#message',
 };
 MessageBindings.properties.amqp1 = Amqp1MessageBinding;
 
 const Amqp1OperationBinding: NodeType = {
   properties: {}, // empty object,
   description: 'Protocol-specific information for an AMQP 1.0 operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/amqp1/README.md#operation',
 };
 OperationBindings.properties.amqp1 = Amqp1OperationBinding;
 
@@ -996,7 +932,6 @@ const MqttChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an MQTT channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/mqtt/README.md#channel',
 };
 ChannelBindings.properties.mqtt = MqttChannelBinding;
 
@@ -1017,7 +952,6 @@ const MqttServerBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an MQTT server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mqtt#server',
 };
 ServerBindings.properties.mqtt = MqttServerBinding;
 
@@ -1026,7 +960,6 @@ const MqttMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an MQTT message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/mqtt/README.md#message',
 };
 MessageBindings.properties.mqtt = MqttMessageBinding;
 
@@ -1037,7 +970,6 @@ const MqttOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for an MQTT operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/mqtt/README.md#operation',
 };
 OperationBindings.properties.mqtt = MqttOperationBinding;
 
@@ -1045,28 +977,24 @@ OperationBindings.properties.mqtt = MqttOperationBinding;
 const Mqtt5ChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an MQTT 5 channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mqtt5#channel',
 };
 ChannelBindings.properties.mqtt5 = Mqtt5ChannelBinding;
 
 const Mqtt5ServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an MQTT 5 server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mqtt5#server',
 };
 ServerBindings.properties.mqtt5 = Mqtt5ServerBinding;
 
 const Mqtt5MessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an MQTT 5 message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/mqtt5/README.md#message',
 };
 MessageBindings.properties.mqtt5 = Mqtt5MessageBinding;
 
 const Mqtt5OperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for an MQTT 5 operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/mqtt5/README.md#operation',
 };
 OperationBindings.properties.mqtt5 = Mqtt5OperationBinding;
 
@@ -1074,21 +1002,18 @@ OperationBindings.properties.mqtt5 = Mqtt5OperationBinding;
 const NatsChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a NATS channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/nats/README.md#channel',
 };
 ChannelBindings.properties.nats = NatsChannelBinding;
 
 const NatsServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a NATS server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/nats#server',
 };
 ServerBindings.properties.nats = NatsServerBinding;
 
 const NatsMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a NATS message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/nats/README.md#message',
 };
 MessageBindings.properties.nats = NatsMessageBinding;
 
@@ -1098,7 +1023,6 @@ const NatsOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a NATS operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/nats/README.md#operation',
 };
 OperationBindings.properties.nats = NatsOperationBinding;
 
@@ -1110,14 +1034,12 @@ const JmsChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a JMS channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/jms/README.md#channel',
 };
 ChannelBindings.properties.jms = JmsChannelBinding;
 
 const JmsServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a JMS server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/jms#server',
 };
 ServerBindings.properties.jms = JmsServerBinding;
 
@@ -1127,7 +1049,6 @@ const JmsMessageBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a JMS message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/jms/README.md#message',
 };
 MessageBindings.properties.jms = JmsMessageBinding;
 
@@ -1137,7 +1058,6 @@ const JmsOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
   description: 'Protocol-specific information for a JMS operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/jms/README.md#operation',
 };
 OperationBindings.properties.jms = JmsOperationBinding;
 
@@ -1147,7 +1067,6 @@ OperationBindings.properties.jms = JmsOperationBinding;
 const SolaceChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Solace channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/solace#channel',
 };
 ChannelBindings.properties.solace = SolaceChannelBinding;
 
@@ -1157,14 +1076,12 @@ const SolaceServerBinding: NodeType = {
     msgVpn: { type: 'string' },
   },
   description: 'Protocol-specific information for a Solace message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/solace#message',
 };
 ServerBindings.properties.solace = SolaceServerBinding;
 
 const SolaceMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Solace message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/solace#message',
 };
 MessageBindings.properties.solace = SolaceMessageBinding;
 
@@ -1186,7 +1103,6 @@ const SolaceOperationBinding: NodeType = {
     destinations: listOf('SolaceDestination'),
   },
   description: 'Protocol-specific information for a Solace operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/solace#operation',
 };
 OperationBindings.properties.solace = SolaceOperationBinding;
 
@@ -1196,28 +1112,24 @@ OperationBindings.properties.solace = SolaceOperationBinding;
 const StompChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a STOMP channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/stomp/README.md#channel',
 };
 ChannelBindings.properties.stomp = StompChannelBinding;
 
 const StompServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a STOMP server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/stomp#server',
 };
 ServerBindings.properties.stomp = StompServerBinding;
 
 const StompMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a STOMP message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/stomp/README.md#message',
 };
 MessageBindings.properties.stomp = StompMessageBinding;
 
 const StompOperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a STOMP operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/blob/master/stomp/README.md#operation',
 };
 OperationBindings.properties.stomp = StompOperationBinding;
 
@@ -1225,28 +1137,24 @@ OperationBindings.properties.stomp = StompOperationBinding;
 const RedisChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Redis channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/redis#channel',
 };
 ChannelBindings.properties.redis = RedisChannelBinding;
 
 const RedisServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Redis server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/redis#server',
 };
 ServerBindings.properties.redis = RedisServerBinding;
 
 const RedisMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Redis message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/redis#message',
 };
 MessageBindings.properties.redis = RedisMessageBinding;
 
 const RedisOperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Redis operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/redis#operation',
 };
 OperationBindings.properties.redis = RedisOperationBinding;
 
@@ -1254,28 +1162,24 @@ OperationBindings.properties.redis = RedisOperationBinding;
 const MercureChannelBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Mercure channel.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mercure#channel',
 };
 ChannelBindings.properties.mercure = MercureChannelBinding;
 
 const MercureServerBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Mercure server.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mercure#server',
 };
 ServerBindings.properties.mercure = MercureServerBinding;
 
 const MercureMessageBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Mercure message.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mercure#message',
 };
 MessageBindings.properties.mercure = MercureMessageBinding;
 
 const MercureOperationBinding: NodeType = {
   properties: {}, // empty object
   description: 'Protocol-specific information for a Mercure operation.',
-  documentationLink: 'https://github.com/asyncapi/bindings/tree/master/mercure#operation',
 };
 OperationBindings.properties.mercure = MercureOperationBinding;
 

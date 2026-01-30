@@ -12,7 +12,6 @@ const Root: NodeType = {
         'This string MUST be in the form of a URI reference as defined by [RFC3986] Section 4.1. The $self field provides the self-assigned URI of this document, which also serves as its base URI in accordance with [RFC3986] Section 5.1.1. Implementations MUST support identifying the targets of API description URIs using the URI defined by this field when it is present. See Establishing the Base URI for the base URI behavior when $self is absent or relative, and see Appendix F for examples of using $self to resolve references.',
     },
   },
-  documentationLink: 'https://spec.openapis.org/oas/v3.2.0.html#security-scheme-object',
 };
 
 const Tag: NodeType = {
@@ -34,7 +33,6 @@ const Tag: NodeType = {
       description: 'A short summary of the tag, used for display purposes.',
     },
   },
-  documentationLink: 'https://spec.openapis.org/oas/v3.2.0.html#tag-object',
   description:
     'Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.',
 };
@@ -48,7 +46,6 @@ const Server: NodeType = {
       description: 'An optional unique string to refer to the host designated by the URL.',
     },
   },
-  documentationLink: 'https://spec.openapis.org/oas/v3.2.0.html#server-object',
   description: 'An object representing a Server.',
 };
 
@@ -157,7 +154,6 @@ const SecurityScheme: NodeType = {
         ];
     }
   },
-  documentationLink: 'https://spec.openapis.org/oas/v3.2.0.html#security-scheme-object',
   description: 'Defines a security scheme that can be used by the operations.',
 };
 
@@ -304,7 +300,6 @@ const Xml: NodeType = {
     }, // Deprecated in OAS 3.2: Use nodeType: "element" instead
   },
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/oas/v3.2.0.html#xml-object',
   description:
     'A metadata object that allows for more fine-tuned XML model definitions. When using a Schema Object with XML, if no XML Object is present, the behavior is determined by the XML Object’s default field values.',
 };

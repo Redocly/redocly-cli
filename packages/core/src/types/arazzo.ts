@@ -63,7 +63,6 @@ const Info: NodeType = {
   extensionsPrefix: 'x-',
   description:
     'The object provides metadata about API workflows defined in this Arazzo document. The metadata MAY be used by the clients if needed.',
-  documentationLink: `https://spec.openapis.org/arazzo/latest.html#info-object`,
 };
 const SourceDescriptions: NodeType = {
   properties: {},
@@ -97,7 +96,6 @@ const OpenAPISourceDescription: NodeType = {
   extensionsPrefix: 'x-',
   description:
     'Describes a source description (such as an OpenAPI description) that will be referenced by one or more workflows described within an Arazzo Description.',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#source-description-object',
 };
 const ArazzoSourceDescription: NodeType = {
   properties: {
@@ -120,7 +118,6 @@ const ArazzoSourceDescription: NodeType = {
   extensionsPrefix: 'x-',
   description:
     'Describes a source description (such as an OpenAPI description) that will be referenced by one or more workflows described within an Arazzo Description.',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#source-description-object',
 };
 const ReusableObject: NodeType = {
   properties: {
@@ -132,7 +129,6 @@ const ReusableObject: NodeType = {
   },
   required: ['reference'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#reusable-object',
   description:
     'A simple object to allow referencing of objects contained within the Components Object. It can be used from locations within steps or workflows in the Arazzo Description. Note - Input Objects MUST use standard JSON Schema referencing via the $ref keyword while all non JSON Schema objects use this object and its expression based referencing mechanism.',
 };
@@ -152,7 +148,6 @@ const Parameter: NodeType = {
   },
   required: ['name', 'value'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#parameter-object',
   description:
     'Describes a single step parameter. A unique parameter is defined by the combination of a name and in fields.',
 };
@@ -197,7 +192,6 @@ const Workflow: NodeType = {
   },
   required: ['workflowId', 'steps'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#workflow-object',
   description:
     'Describes the steps to be taken across one or more APIs to achieve an objective. The workflow object MAY define inputs needed in order to execute workflow steps, where the defined steps represent a call to an API operation or another workflow, and a set of outputs.',
 };
@@ -244,7 +238,6 @@ const Step: NodeType = {
   required: ['stepId'],
   requiredOneOf: ['x-operation', 'operationId', 'operationPath', 'workflowId'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#step-object',
   description:
     'Describes a single workflow step which MAY be a call to an API operation (OpenAPI Operation Object) or another Workflow Object.',
 };
@@ -270,7 +263,6 @@ const RequestBody: NodeType = {
   },
   required: ['payload'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#request-body-object',
   description:
     'A single request body describing the Content-Type and request body content to be passed by a step to an operation.',
 };
@@ -285,7 +277,6 @@ const Replacement: NodeType = {
   },
   required: ['target', 'value'],
   extensionsPrefix: 'x-',
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#payload-replacement-object',
   description:
     'Describes a location within a payload (e.g., a request body) and a value to set within the location.',
 };
@@ -301,7 +292,6 @@ const ExtendedSecurity: NodeType = {
   },
   required: ['values'],
   requiredOneOf: ['schemeName', 'scheme'],
-  documentationLink: 'https://redocly.com/docs/respect/extensions/x-security#x-security-extension',
   description:
     'Use the x-security extension to define authorization flows based on OpenAPI security schemes. Respect automatically constructs appropriate authorization headers, queries, or cookies based on your parameters.',
 };
@@ -340,7 +330,6 @@ const ExtendedOperation: NodeType = {
     },
   },
   required: ['url', 'method'],
-  documentationLink: 'https://redocly.com/docs/respect/extensions/x-operation',
   description:
     'x-operation enables you to specify a URL and HTTP method for an operation that is not described in the Arazzo sourceDescriptions section. The primary application of the x-operation extension is to facilitate calls to third-party APIs or other endpoints that are needed in a sequence of API calls.',
 };
@@ -372,7 +361,6 @@ const CriterionObject: NodeType = {
     },
   },
   required: ['condition'],
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#criterion-object',
   description:
     'An object used to specify the context, conditions, and condition types that can be used to prove or satisfy assertions specified in Step Object successCriteria, Success Action Object criteria, and Failure Action Object criteria.',
 };
@@ -415,7 +403,6 @@ const SuccessActionObject: NodeType = {
     }),
   },
   required: ['type', 'name'],
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#success-action-object',
   description:
     'A single success action which describes an action to take upon success of a workflow step.',
 };
@@ -469,7 +456,6 @@ const FailureActionObject: NodeType = {
     }),
   },
   required: ['type', 'name'],
-  documentationLink: 'https://spec.openapis.org/arazzo/latest.html#failure-action-object',
   description:
     'A single failure action which describes an action to take upon failure of a workflow step.',
 };
