@@ -1,35 +1,37 @@
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType } from './index.js';
+import type { NodeType, ResolveTypeFn } from './index.js';
 
-export const ENTITY_DISCRIMINATOR_NAME = 'type';
+export const ENTITY_DISCRIMINATOR_PROPERTY_NAME = 'type';
+export const ENTITY_TYPES_WITH_API_SUPPORT = ['api-description', 'api-operation', 'data-schema'];
 
 export function createEntityTypes(
   entitySchema: JSONSchema,
   entityDefaultSchema: JSONSchema
-): Record<string, NodeType> {
-  const defaultNodeTypes = getNodeTypesFromJSONSchema('EntityFileDefault', entityDefaultSchema);
+): {
+  entityTypes: Record<string, NodeType>;
+  discriminatorResolver?: ResolveTypeFn;
+} {
+  const { ctx: defaultNodeTypes } = getNodeTypesFromJSONSchema(
+    'EntityFileDefault',
+    entityDefaultSchema
+  );
 
-  const namedNodeTypes = getNodeTypesFromJSONSchema('EntityFile', entitySchema);
+  const { ctx: namedNodeTypes, discriminatorResolver: namedDiscriminatorResolver } =
+    getNodeTypesFromJSONSchema('EntityFile', entitySchema);
 
   const arrayNodeType = {
     properties: {},
-    items: (value: unknown) => {
-      if (isPlainObject(value)) {
-        const typeValue = value[ENTITY_DISCRIMINATOR_NAME];
-        if (typeof typeValue === 'string' && namedNodeTypes[typeValue]) {
-          return typeValue;
-        }
-      }
-      return 'EntityFileDefault';
-    },
+    items: namedDiscriminatorResolver,
   };
 
   return {
-    ...defaultNodeTypes,
-    ...namedNodeTypes,
-    EntityFileArray: arrayNodeType,
+    entityTypes: {
+      ...defaultNodeTypes,
+      ...namedNodeTypes,
+      EntityFileArray: arrayNodeType,
+    },
+    discriminatorResolver: namedDiscriminatorResolver,
   };
 }

@@ -12,7 +12,7 @@ import { outdent } from 'outdent';
 
 function lintEntityKey(source: string): WalkContext['problems'] {
   const document = makeDocumentFromString(source, '/test.yaml');
-  const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+  const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
   const types = normalizeTypes(entityTypes);
 
   const ctx: WalkContext = {
@@ -33,7 +33,7 @@ function lintEntityKey(source: string): WalkContext['problems'] {
 
   walkDocument({
     document,
-    rootType: types.EntityFileDefault,
+    rootType: types.Entity,
     normalizedVisitors,
     resolvedRefMap: new Map(),
     ctx,
