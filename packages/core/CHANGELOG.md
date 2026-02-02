@@ -1,5 +1,14 @@
 # @redocly/openapi-core
 
+## 2.15.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.4.
+- Added `description` and `documentationLink` properties to NodeTypes.
+  Renamed Redocly configuration types to better reflect their purpose and relations.
+- Updated @redocly/config to v0.41.3.
+
 ## 2.15.0
 
 ### Patch Changes
