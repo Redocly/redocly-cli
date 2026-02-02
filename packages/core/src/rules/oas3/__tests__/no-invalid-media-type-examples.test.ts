@@ -734,4 +734,63 @@ describe('no-invalid-media-type-examples', () => {
       ]
     `);
   });
+
+  it('should report additional properties by default for example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example:
+                        color: "red"
+                        model: "sedan"
+                        extraProperty: "allowed by default"
+                      schema:
+                        type: object
+                        properties:
+                          color:
+                            type: string
+                          model:
+                            type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-invalid-media-type-examples': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/example/extraProperty",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: must NOT have unevaluated properties \`extraProperty\`.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

@@ -249,7 +249,7 @@ export type RawUniversalApiConfig = ApiConfig &
 
 export type ResolvedApiConfig = ApiConfig & Required<ResolvedGovernanceConfig>;
 
-export type RawUniversalConfig = Omit<Partial<RedoclyConfig>, 'apis' | 'plugins'> &
+export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApiConfig>;
@@ -263,3 +263,5 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     apis?: Record<string, ResolvedApiConfig>;
     plugins?: string[];
   };
+
+export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

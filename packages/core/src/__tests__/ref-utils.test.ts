@@ -5,6 +5,9 @@ import {
   parseRef,
   refBaseName,
   unescapePointerFragment,
+  isAbsoluteUrl,
+  getDir,
+  resolvePath,
 } from '../ref-utils.js';
 import { lintDocument } from '../lint.js';
 import { createConfig } from '../config/index.js';
@@ -181,6 +184,52 @@ describe('ref-utils', () => {
 
     it('should unescape a pointer correctly', () => {
       expect(unescapePointerFragment('scope~1complex~0name')).toStrictEqual('scope/complex~name');
+    });
+  });
+
+  describe('isAbsoluteUrl', () => {
+    it('should return true for http://, https://, and file:// URLs', () => {
+      expect(isAbsoluteUrl('http://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrl('https://example.com/api.yaml')).toBe(true);
+      expect(isAbsoluteUrl('file:///Users/test/api.yaml')).toBe(true);
+    });
+
+    it('should return false for relative and absolute file paths', () => {
+      expect(isAbsoluteUrl('./api.yaml')).toBe(false);
+      expect(isAbsoluteUrl('../api.yaml')).toBe(false);
+      expect(isAbsoluteUrl('/Users/test/api.yaml')).toBe(false);
+    });
+  });
+
+  describe('getDir', () => {
+    it('should return directory for file paths and URLs', () => {
+      expect(getDir('/Users/test/config/redocly.yaml')).toBe('/Users/test/config');
+      expect(getDir('http://example.com/config/redocly.yaml')).toBe('http://example.com/config');
+      expect(getDir('https://example.com/config/redocly.yaml')).toBe('https://example.com/config');
+      expect(getDir('file:///Users/test/config/redocly.yaml')).toBe('file:///Users/test/config');
+    });
+
+    it('should return path as-is if no extension (directory)', () => {
+      expect(getDir('/Users/test/config')).toBe('/Users/test/config');
+      expect(getDir('file:///Users/test/config')).toBe('file:///Users/test/config');
+    });
+  });
+
+  describe('resolvePath', () => {
+    it('should resolve paths for URLs', () => {
+      expect(resolvePath('http://example.com/config', 'file.yaml')).toBe(
+        'http://example.com/config/file.yaml'
+      );
+      expect(resolvePath('https://example.com/config/', 'file.yaml')).toBe(
+        'https://example.com/config/file.yaml'
+      );
+      expect(resolvePath('file:///Users/test/config', 'file.yaml')).toBe(
+        'file:///Users/test/config/file.yaml'
+      );
+    });
+
+    it('should resolve relative paths for file system paths', () => {
+      expect(resolvePath('/Users/test/config', 'file.yaml')).toMatch(/file\.yaml$/);
     });
   });
 });

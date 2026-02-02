@@ -13,7 +13,10 @@ const Root: NodeType = {
   properties: {
     asyncapi: null, // TODO: validate semver format and supported version
     info: 'Info',
-    id: { type: 'string' },
+    id: {
+      type: 'string',
+      description: 'Identifier of the application the AsyncAPI document is defining.',
+    },
     servers: 'ServerMap',
     channels: 'ChannelMap',
     components: 'Components',
@@ -26,13 +29,23 @@ const Root: NodeType = {
 
 const Channel: NodeType = {
   properties: {
-    description: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'An optional description of this channel item. CommonMark syntax can be used for rich text representation.',
+    },
     subscribe: 'Operation',
     publish: 'Operation',
     parameters: 'ParametersMap',
     bindings: 'ChannelBindings',
-    servers: { type: 'array', items: { type: 'string' } },
+    servers: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'The servers on which this channel is available, specified as an optional unordered list of names (string keys) of Server Objects defined in the Servers Object (a map).',
+    },
   },
+  description: 'Describes the operations available on a single channel.',
 };
 
 const ChannelMap: NodeType = {
@@ -67,28 +80,45 @@ const ChannelBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  description: 'Map describing protocol-specific definitions for a channel.',
 };
 
 export const Tag: NodeType = {
   properties: {
-    name: { type: 'string' },
-    description: { type: 'string' },
+    name: { type: 'string', description: 'REQUIRED. The name of the tag.' },
+    description: {
+      type: 'string',
+      description:
+        'A short description for the tag. CommonMark syntax can be used for rich text representation.',
+    },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
+  description: 'Allows adding meta data to a single tag.',
 };
 
 export const ExternalDocs: NodeType = {
   properties: {
-    description: { type: 'string' },
-    url: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'A short description of the target documentation. CommonMark syntax can be used for rich text representation.',
+    },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. The URL for the target documentation. This MUST be in the form of an absolute URL.',
+    },
   },
   required: ['url'],
+  description: 'Allows referencing an external resource for extended documentation.',
 };
 
 const SecurityRequirement: NodeType = {
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
+  description:
+    'Lists the required security schemes to execute this operation. The name used for each property MUST correspond to a security scheme declared in the Security Schemes under the Components Object.',
 };
 
 const ServerBindings: NodeType = {
@@ -118,20 +148,39 @@ const ServerBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  description: 'Map describing protocol-specific definitions for a server.',
 };
 
 const Server: NodeType = {
   properties: {
-    url: { type: 'string' },
-    protocol: { type: 'string' },
-    protocolVersion: { type: 'string' },
-    description: { type: 'string' },
+    url: {
+      type: 'string',
+      description:
+        'REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that the host location is relative to the location where the AsyncAPI document is being served. Variable substitutions will be made when a variable is named in {braces}.',
+    },
+    protocol: {
+      type: 'string',
+      description:
+        'REQUIRED. The protocol this URL supports for connection. Supported protocol include, but are not limited to: amqp, amqps, http, https, ibmmq, jms, kafka, kafka-secure, anypointmq, mqtt, secure-mqtt, solace, stomp, stomps, ws, wss, mercure, googlepubsub, pulsar.',
+    },
+    protocolVersion: {
+      type: 'string',
+      description:
+        'The version of the protocol used for connection. For instance: AMQP 0.9.1, HTTP 2.0, Kafka 1.0.0, etc.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.',
+    },
     variables: 'ServerVariablesMap',
     security: 'SecurityRequirementList',
     bindings: 'ServerBindings',
     tags: 'TagList',
   },
   required: ['url', 'protocol'],
+  description:
+    'An object representing a message broker, a server or any other kind of computer program capable of sending and/or receiving data. This object is used to capture details such as URIs, protocols and security configuration. Variable substitution can be used so that some details, for example usernames and passwords, can be injected by code generation tools.',
 };
 
 export const ServerMap: NodeType = {
@@ -146,74 +195,166 @@ export const ServerVariable: NodeType = {
     enum: {
       type: 'array',
       items: { type: 'string' },
+      description:
+        'An enumeration of string values to be used if the substitution options are from a limited set.',
     },
-    default: { type: 'string' },
-    description: { type: 'string' },
+    default: {
+      type: 'string',
+      description:
+        'The default value to use for substitution, and to send, if an alternate value is not supplied.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.',
+    },
     examples: {
       type: 'array',
       items: { type: 'string' },
+      description: 'An array of examples of the server variable.',
     },
   },
   required: [],
+  description: 'An object representing a Server Variable for server URL template substitution.',
 };
 
 const Info: NodeType = {
   properties: {
-    title: { type: 'string' },
-    version: { type: 'string' },
-    description: { type: 'string' },
-    termsOfService: { type: 'string' },
+    title: {
+      type: 'string',
+      description: 'REQUIRED. The title of the application.',
+    },
+    version: {
+      type: 'string',
+      description:
+        'REQUIRED Provides the version of the application API (not to be confused with the specification version).',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A short description of the application. CommonMark syntax can be used for rich text representation.',
+    },
+    termsOfService: {
+      type: 'string',
+      description:
+        'A URL to the Terms of Service for the API. This MUST be in the form of an absolute URL.',
+    },
     contact: 'Contact',
     license: 'License',
   },
   required: ['title', 'version'],
+  description:
+    'The object provides metadata about the API. The metadata can be used by the clients if needed.',
 };
 
 export const Contact: NodeType = {
   properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
-    email: { type: 'string' },
+    name: {
+      type: 'string',
+      description: 'The identifying name of the contact person/organization.',
+    },
+    url: {
+      type: 'string',
+      description:
+        'The URL pointing to the contact information. This MUST be in the form of an absolute URL.',
+    },
+    email: {
+      type: 'string',
+      description:
+        'The email address of the contact person/organization. MUST be in the format of an email address.',
+    },
   },
+  description: 'Contact information for the exposed API.',
 };
 
 export const License: NodeType = {
   properties: {
-    name: { type: 'string' },
-    url: { type: 'string' },
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The license name used for the API.',
+    },
+    url: {
+      type: 'string',
+      description:
+        'A URL to the license used for the API. This MUST be in the form of an absolute URL.',
+    },
   },
   required: ['name'],
+  description: 'License information for the exposed API.',
 };
 
 const Parameter: NodeType = {
   properties: {
-    description: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the parameter. CommonMark syntax can be used for rich text representation.',
+    },
     schema: 'Schema',
-    location: { type: 'string' },
+    location: {
+      type: 'string',
+      description:
+        'A runtime expression that specifies the location of the parameter value. Even when a definition for the target field exists, it MUST NOT be used to validate this parameter but, instead, the schema property MUST be used.',
+    },
   },
+  description: 'Describes a parameter included in a channel name.',
 };
 
 export const CorrelationId: NodeType = {
   properties: {
-    description: { type: 'string' },
-    location: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'An optional description of the identifier. CommonMark syntax can be used for rich text representation.',
+    },
+    location: {
+      type: 'string',
+      description:
+        'REQUIRED. A runtime expression that specifies the location of the correlation ID.',
+    },
   },
   required: ['location'],
+  description:
+    'An object that specifies an identifier at design time that can used for message tracing and correlation.',
 };
 
 const Message: NodeType = {
   properties: {
-    messageId: { type: 'string' },
+    messageId: {
+      type: 'string',
+      description:
+        'Unique string used to identify the message. The id MUST be unique among all messages described in the API. The messageId value is case-sensitive. Tools and libraries MAY use the messageId to uniquely identify a message, therefore, it is RECOMMENDED to follow common programming naming conventions.',
+    },
     headers: 'Schema',
     payload: 'Schema', // TODO: strictly this does not cover all cases
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' }, // TODO: support official list of schema formats and custom values
-    contentType: { type: 'string' },
-    name: { type: 'string' },
-    title: { type: 'string' },
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    schemaFormat: {
+      type: 'string',
+      description:
+        'A string containing the name of the schema format used to define the message payload. If omitted, implementations should parse the payload as a Schema object. When the payload is defined using a $ref to a remote file, it is RECOMMENDED the schema format includes the file encoding type to allow implementations to parse the file correctly.',
+    }, // TODO: support official list of schema formats and custom values
+    contentType: {
+      type: 'string',
+      description: `The content type to use when encoding/decoding a message's payload. The value MUST be a specific media type (e.g. application/json). When omitted, the value MUST be the one specified on the defaultContentType field.`,
+    },
+    name: {
+      type: 'string',
+      description: 'A machine-friendly name for the message.',
+    },
+    title: {
+      type: 'string',
+      description: 'A human-friendly title for the message.',
+    },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the message is about.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
+    },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
@@ -221,6 +362,7 @@ const Message: NodeType = {
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
+  description: 'Describes a message received on a given channel and operation.',
 };
 
 const MessageBindings: NodeType = {
@@ -250,6 +392,7 @@ const MessageBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  description: 'Map describing protocol-specific definitions for a message.',
 };
 
 const OperationBindings: NodeType = {
@@ -279,49 +422,101 @@ const OperationBindings: NodeType = {
     ];
   },
   additionalProperties: { type: 'object' },
+  description: 'Map describing protocol-specific definitions for an operation.',
 };
 
 const OperationTrait: NodeType = {
   properties: {
     tags: 'TagList',
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the operation is about.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the operation. CommonMark syntax can be used for rich text representation.',
+    },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
+    operationId: {
+      type: 'string',
+      description:
+        'Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an operation, therefore, it is RECOMMENDED to follow common programming naming conventions.',
+    },
     security: 'SecurityRequirementList',
 
     bindings: 'OperationBindings',
   },
   required: [],
+  description:
+    'Describes a trait that MAY be applied to an Operation Object. This object MAY contain any property from the Operation Object, except message and traits.',
 };
 
 const MessageTrait: NodeType = {
   properties: {
-    messageId: { type: 'string' },
+    messageId: {
+      type: 'string',
+      description:
+        'Unique string used to identify the message. The id MUST be unique among all messages described in the API. The messageId value is case-sensitive. Tools and libraries MAY use the messageId to uniquely identify a message, therefore, it is RECOMMENDED to follow common programming naming conventions.',
+    },
     headers: 'Schema',
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' },
-    contentType: { type: 'string' },
-    name: { type: 'string' },
-    title: { type: 'string' },
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    schemaFormat: {
+      type: 'string',
+      description:
+        'A string containing the name of the schema format/language used to define the message payload. If omitted, implementations should parse the payload as a Schema object.',
+    },
+    contentType: {
+      type: 'string',
+      description: `The content type to use when encoding/decoding a message's payload. The value MUST be a specific media type (e.g. application/json). When omitted, the value MUST be the one specified on the defaultContentType field.`,
+    },
+    name: {
+      type: 'string',
+      description:
+        'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
+    },
+    title: {
+      type: 'string',
+      description: 'A human-friendly title for the message.',
+    },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the message is about.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the message. CommonMark syntax can be used for rich text representation.',
+    },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
     examples: 'MessageExampleList',
   },
   additionalProperties: {},
+  description:
+    'Describes a trait that MAY be applied to a Message Object. This object MAY contain any property from the Message Object, except payload and traits.',
 };
 
 const Operation: NodeType = {
   properties: {
     tags: 'TagList',
-    summary: { type: 'string' },
-    description: { type: 'string' },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the operation is about.',
+    },
+    description: {
+      type: 'string',
+      description:
+        'A verbose explanation of the operation. CommonMark syntax can be used for rich text representation.',
+    },
     externalDocs: 'ExternalDocs',
-    operationId: { type: 'string' },
+    operationId: {
+      type: 'string',
+      description:
+        'Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an operation, therefore, it is RECOMMENDED to follow common programming naming conventions.',
+    },
     security: 'SecurityRequirementList',
 
     bindings: 'OperationBindings',
@@ -329,15 +524,31 @@ const Operation: NodeType = {
     message: 'Message',
   },
   required: [],
+  description:
+    'Describes a publish or a subscribe operation. This provides a place to document how and why messages are sent and received.',
 };
 
 export const MessageExample: NodeType = {
   properties: {
-    payload: { isExample: true },
-    summary: { type: 'string' },
-    name: { type: 'string' },
-    headers: { type: 'object' },
+    payload: {
+      isExample: true,
+      description: `The value of this field MUST validate against the Message Object's payload field.`,
+    },
+    summary: {
+      type: 'string',
+      description: 'A short summary of what the example is about.',
+    },
+    name: {
+      type: 'string',
+      description: 'A machine-friendly name.',
+    },
+    headers: {
+      type: 'object',
+      description: `The value of this field MUST validate against the Message Object's headers field.`,
+    },
   },
+  description:
+    'Message Example Object represents an example of a Message Object and MUST contain either headers and/or payload fields.',
 };
 
 const Components: NodeType = {
@@ -366,6 +577,7 @@ const ImplicitFlow: NodeType = {
     authorizationUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'scopes'],
+  description: 'Configuration for the OAuth Implicit flow.',
 };
 
 const PasswordFlow: NodeType = {
@@ -375,6 +587,7 @@ const PasswordFlow: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
+  description: 'Configuration for the OAuth Password flow.',
 };
 
 const ClientCredentials: NodeType = {
@@ -384,6 +597,7 @@ const ClientCredentials: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
+  description: 'Configuration for the OAuth Client Credentials flow.',
 };
 
 const AuthorizationCode: NodeType = {
@@ -394,6 +608,7 @@ const AuthorizationCode: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
+  description: 'Configuration for the OAuth Authorization Code flow.',
 };
 
 export const SecuritySchemeFlows: NodeType = {
@@ -424,13 +639,37 @@ const SecurityScheme: NodeType = {
         'gssapi',
       ],
     },
-    description: { type: 'string' },
-    name: { type: 'string' },
-    in: { type: 'string', enum: ['query', 'header', 'cookie', 'user', 'password'] },
-    scheme: { type: 'string' },
-    bearerFormat: { type: 'string' },
+    description: {
+      type: 'string',
+      description:
+        'A short description for security scheme. CommonMark syntax MAY be used for rich text representation.',
+    },
+    name: {
+      type: 'string',
+      description: 'REQUIRED. The name of the header, query or cookie parameter to be used.',
+    },
+    in: {
+      type: 'string',
+      enum: ['query', 'header', 'cookie', 'user', 'password'],
+      description:
+        'REQUIRED. The location of the API key. Valid values are "user" and "password" for apiKey and "query", "header" or "cookie" for httpApiKey.',
+    },
+    scheme: {
+      type: 'string',
+      description:
+        'REQUIRED. The name of the HTTP Authorization scheme to be used in the Authorization header as defined in RFC7235.',
+    },
+    bearerFormat: {
+      type: 'string',
+      description:
+        'A hint to the client to identify how the bearer token is formatted. Bearer tokens are usually generated by an authorization server, so this information is primarily for documentation purposes.',
+    },
     flows: 'SecuritySchemeFlows',
-    openIdConnectUrl: { type: 'string' },
+    openIdConnectUrl: {
+      type: 'string',
+      description:
+        'REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the form of an absolute URL.',
+    },
   },
   required(value) {
     switch (value?.type) {
@@ -465,6 +704,7 @@ const SecurityScheme: NodeType = {
     }
   },
   extensionsPrefix: 'x-',
+  description: 'Defines a security scheme that can be used by the operations.',
 };
 
 // --- Per-protocol node types
@@ -472,11 +712,13 @@ const SecurityScheme: NodeType = {
 // http
 const HttpChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an HTTP channel.',
 };
 ChannelBindings.properties.http = HttpChannelBinding;
 
 const HttpServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an HTTP server.',
 };
 ServerBindings.properties.http = HttpServerBinding;
 
@@ -485,6 +727,7 @@ const HttpMessageBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an HTTP message, i.e., a request or a response.',
 };
 MessageBindings.properties.http = HttpMessageBinding;
 
@@ -498,6 +741,7 @@ const HttpOperationBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an HTTP operation.',
 };
 OperationBindings.properties.http = HttpOperationBinding;
 
@@ -509,21 +753,25 @@ const WsChannelBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a WebSockets channel.',
 };
 ChannelBindings.properties.ws = WsChannelBinding;
 
 const WsServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a WebSockets server.',
 };
 ServerBindings.properties.ws = WsServerBinding;
 
 const WsMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a WebSockets message.',
 };
 MessageBindings.properties.ws = WsMessageBinding;
 
 const WsOperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a WebSockets operation.',
 };
 OperationBindings.properties.ws = WsOperationBinding;
 
@@ -545,11 +793,13 @@ const KafkaChannelBinding: NodeType = {
     topicConfiguration: 'KafkaTopicConfiguration',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a Kafka channel.',
 };
 ChannelBindings.properties.kafka = KafkaChannelBinding;
 
 const KafkaServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Kafka server.',
 };
 ServerBindings.properties.kafka = KafkaServerBinding;
 
@@ -561,6 +811,7 @@ const KafkaMessageBinding: NodeType = {
     schemaLookupStrategy: { type: 'string' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a Kafka message.',
 };
 MessageBindings.properties.kafka = KafkaMessageBinding;
 
@@ -570,6 +821,7 @@ const KafkaOperationBinding: NodeType = {
     clientId: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a Kafka operation.',
 };
 OperationBindings.properties.kafka = KafkaOperationBinding;
 
@@ -580,11 +832,13 @@ const AnypointmqChannelBinding: NodeType = {
     destinationType: { type: 'string' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an Anypoint MQ channel.',
 };
 ChannelBindings.properties.anypointmq = AnypointmqChannelBinding;
 
 const AnypointmqServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an Anypoint MQ server.',
 };
 ServerBindings.properties.anypointmq = AnypointmqServerBinding;
 
@@ -593,22 +847,26 @@ const AnypointmqMessageBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an Anypoint MQ message.',
 };
 MessageBindings.properties.anypointmq = AnypointmqMessageBinding;
 
 const AnypointmqOperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an Anypoint MQ operation.',
 };
 OperationBindings.properties.anypointmq = AnypointmqOperationBinding;
 
 // amqp
 const AmqpChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an AMQP 0-9-1 channel.',
 };
 ChannelBindings.properties.amqp = AmqpChannelBinding;
 
 const AmqpServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an AMQP 0-9-1 server.',
 };
 ServerBindings.properties.amqp = AmqpServerBinding;
 
@@ -618,6 +876,7 @@ const AmqpMessageBinding: NodeType = {
     messageType: { type: 'string' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an AMQP 0-9-1 message.',
 };
 MessageBindings.properties.amqp = AmqpMessageBinding;
 
@@ -636,27 +895,32 @@ const AmqpOperationBinding: NodeType = {
     ack: { type: 'boolean' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an AMQP 0-9-1 operation.',
 };
 OperationBindings.properties.amqp = AmqpOperationBinding;
 
 // amqp1
 const Amqp1ChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an AMQP 1.0 channel.',
 };
 ChannelBindings.properties.amqp1 = Amqp1ChannelBinding;
 
 const Amqp1ServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an AMQP 1.0 server.',
 };
 ServerBindings.properties.amqp1 = Amqp1ServerBinding;
 
 const Amqp1MessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Binding	Protocol-specific information for an AMQP 1.0 message.',
 };
 MessageBindings.properties.amqp1 = Amqp1MessageBinding;
 
 const Amqp1OperationBinding: NodeType = {
-  properties: {}, // empty object
+  properties: {}, // empty object,
+  description: 'Protocol-specific information for an AMQP 1.0 operation.',
 };
 OperationBindings.properties.amqp1 = Amqp1OperationBinding;
 
@@ -667,6 +931,7 @@ const MqttChannelBinding: NodeType = {
     retain: { type: 'boolean' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an MQTT channel.',
 };
 ChannelBindings.properties.mqtt = MqttChannelBinding;
 
@@ -686,6 +951,7 @@ const MqttServerBinding: NodeType = {
     keepAlive: { type: 'integer' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an MQTT server.',
 };
 ServerBindings.properties.mqtt = MqttServerBinding;
 
@@ -693,6 +959,7 @@ const MqttMessageBinding: NodeType = {
   properties: {
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an MQTT message.',
 };
 MessageBindings.properties.mqtt = MqttMessageBinding;
 
@@ -702,43 +969,51 @@ const MqttOperationBinding: NodeType = {
     retain: { type: 'boolean' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for an MQTT operation.',
 };
 OperationBindings.properties.mqtt = MqttOperationBinding;
 
 // mqtt5
 const Mqtt5ChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an MQTT 5 channel.',
 };
 ChannelBindings.properties.mqtt5 = Mqtt5ChannelBinding;
 
 const Mqtt5ServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an MQTT 5 server.',
 };
 ServerBindings.properties.mqtt5 = Mqtt5ServerBinding;
 
 const Mqtt5MessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an MQTT 5 message.',
 };
 MessageBindings.properties.mqtt5 = Mqtt5MessageBinding;
 
 const Mqtt5OperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for an MQTT 5 operation.',
 };
 OperationBindings.properties.mqtt5 = Mqtt5OperationBinding;
 
 // nats
 const NatsChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a NATS channel.',
 };
 ChannelBindings.properties.nats = NatsChannelBinding;
 
 const NatsServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a NATS server.',
 };
 ServerBindings.properties.nats = NatsServerBinding;
 
 const NatsMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a NATS message.',
 };
 MessageBindings.properties.nats = NatsMessageBinding;
 
@@ -747,6 +1022,7 @@ const NatsOperationBinding: NodeType = {
     queue: { type: 'string' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a NATS operation.',
 };
 OperationBindings.properties.nats = NatsOperationBinding;
 
@@ -757,11 +1033,13 @@ const JmsChannelBinding: NodeType = {
     destinationType: { type: 'string' },
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a JMS channel.',
 };
 ChannelBindings.properties.jms = JmsChannelBinding;
 
 const JmsServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a JMS server.',
 };
 ServerBindings.properties.jms = JmsServerBinding;
 
@@ -770,6 +1048,7 @@ const JmsMessageBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a JMS message.',
 };
 MessageBindings.properties.jms = JmsMessageBinding;
 
@@ -778,6 +1057,7 @@ const JmsOperationBinding: NodeType = {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
   },
+  description: 'Protocol-specific information for a JMS operation.',
 };
 OperationBindings.properties.jms = JmsOperationBinding;
 
@@ -786,6 +1066,7 @@ OperationBindings.properties.jms = JmsOperationBinding;
 // solace
 const SolaceChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Solace channel.',
 };
 ChannelBindings.properties.solace = SolaceChannelBinding;
 
@@ -794,11 +1075,13 @@ const SolaceServerBinding: NodeType = {
     bindingVersion: { type: 'string' },
     msgVpn: { type: 'string' },
   },
+  description: 'Protocol-specific information for a Solace message.',
 };
 ServerBindings.properties.solace = SolaceServerBinding;
 
 const SolaceMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Solace message.',
 };
 MessageBindings.properties.solace = SolaceMessageBinding;
 
@@ -819,6 +1102,7 @@ const SolaceOperationBinding: NodeType = {
     bindingVersion: { type: 'string' },
     destinations: listOf('SolaceDestination'),
   },
+  description: 'Protocol-specific information for a Solace operation.',
 };
 OperationBindings.properties.solace = SolaceOperationBinding;
 
@@ -827,63 +1111,75 @@ OperationBindings.properties.solace = SolaceOperationBinding;
 // stomp
 const StompChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a STOMP channel.',
 };
 ChannelBindings.properties.stomp = StompChannelBinding;
 
 const StompServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a STOMP server.',
 };
 ServerBindings.properties.stomp = StompServerBinding;
 
 const StompMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a STOMP message.',
 };
 MessageBindings.properties.stomp = StompMessageBinding;
 
 const StompOperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a STOMP operation.',
 };
 OperationBindings.properties.stomp = StompOperationBinding;
 
 // redis
 const RedisChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Redis channel.',
 };
 ChannelBindings.properties.redis = RedisChannelBinding;
 
 const RedisServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Redis server.',
 };
 ServerBindings.properties.redis = RedisServerBinding;
 
 const RedisMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Redis message.',
 };
 MessageBindings.properties.redis = RedisMessageBinding;
 
 const RedisOperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Redis operation.',
 };
 OperationBindings.properties.redis = RedisOperationBinding;
 
 // mercure
 const MercureChannelBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Mercure channel.',
 };
 ChannelBindings.properties.mercure = MercureChannelBinding;
 
 const MercureServerBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Mercure server.',
 };
 ServerBindings.properties.mercure = MercureServerBinding;
 
 const MercureMessageBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Mercure message.',
 };
 MessageBindings.properties.mercure = MercureMessageBinding;
 
 const MercureOperationBinding: NodeType = {
   properties: {}, // empty object
+  description: 'Protocol-specific information for a Mercure operation.',
 };
 OperationBindings.properties.mercure = MercureOperationBinding;
 

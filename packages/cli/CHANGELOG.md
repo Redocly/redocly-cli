@@ -1,5 +1,43 @@
 # @redocly/cli
 
+## 2.15.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.15.1.
+
+## 2.15.0
+
+### Patch Changes
+
+- Removed unused `chokidar` dependency.
+- Updated @redocly/openapi-core to v2.15.0.
+
+## 2.14.9
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.9.
+
+## 2.14.8
+
+### Patch Changes
+
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+- Updated @redocly/openapi-core to v2.14.8.
+
+## 2.14.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.7.
+
+## 2.14.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.6.
+
 ## 2.14.5
 
 ### Patch Changes

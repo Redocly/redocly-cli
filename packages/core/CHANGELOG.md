@@ -1,5 +1,45 @@
 # @redocly/openapi-core
 
+## 2.15.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.4.
+- Added `description` and `documentationLink` properties to NodeTypes.
+  Renamed Redocly configuration types to better reflect their purpose and relations.
+- Updated @redocly/config to v0.41.3.
+
+## 2.15.0
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.9
+
+### Patch Changes
+
+- Revert: fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.8
+
+### Patch Changes
+
+- Allowed `x-query` operations names in OpenAPI 3.0 and 3.1 similar to `query` in OpenAPI 3.2.
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+
+## 2.14.7
+
+### Patch Changes
+
+- Fixed an issue where the `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` would not trigger warnings when an example defined in a schema.
+
+## 2.14.6
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
 ## 2.14.5
 
 ### Patch Changes
