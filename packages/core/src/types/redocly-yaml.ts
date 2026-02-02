@@ -216,7 +216,7 @@ const configGovernanceProperties: Record<
   NodeType['properties'][string]
 > = {
   extends: {
-    name: 'ConfigGovernanceList',
+    name: 'ConfigRoot.extends',
     properties: {},
     items: (node) => {
       // check if it's preset name
@@ -228,6 +228,9 @@ const configGovernanceProperties: Record<
         directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
       } as PropType;
     },
+    description:
+      'The extends configuration entry allows your project configuration to extend an existing configuration set.',
+    documentationLink: 'https://redocly.com/docs/cli/configuration/reference/extends#extends',
   } as PropType,
   plugins: { type: 'array', items: { type: 'string' } },
 
@@ -309,18 +312,21 @@ const ConfigHTTP: NodeType = {
 
 const Rules: NodeType = {
   properties: {},
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
+  description:
+    'The rules configuration blocks configure linting rules and their severity. Configure built-in rules included by default, configurable rules you add yourself, and rules from plugins.',
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
-        return 'Assert';
+        return 'ConfigurableRule';
       }
     } else if (builtInRules.includes(key as BuiltInRuleId) || isCustomRuleId(key)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
-        return 'ObjectRule';
+        return 'BuiltinRule';
       }
     } else if (key === 'metadata-schema' || key === 'custom-fields-schema') {
       return 'Schema';
@@ -330,7 +336,7 @@ const Rules: NodeType = {
   },
 };
 
-const ObjectRule: NodeType = {
+const BuiltinRule: NodeType = {
   properties: {
     severity: { enum: ['error', 'warn', 'off'] },
   },
@@ -351,21 +357,51 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
     properties: {
       type: {
         enum: [...new Set(['any', ...nodeNames, 'SpecExtension'])],
+        description: 'REQUIRED. Locates the OpenAPI node type that the lint command evaluates.',
       },
       property: (value: unknown) => {
         if (Array.isArray(value)) {
-          return { type: 'array', items: { type: 'string' } };
+          return {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+            documentationLink:
+              'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
+          };
         } else if (value === null) {
           return null;
         } else {
-          return { type: 'string' };
+          return {
+            type: 'string',
+            description:
+              'Property name corresponding to the OpenAPI node type. If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type.',
+            documentationLink:
+              'https://redocly.com/docs/cli/rules/configurable-rules#property-example',
+          };
         }
       },
-      filterInParentKeys: { type: 'array', items: { type: 'string' } },
-      filterOutParentKeys: { type: 'array', items: { type: 'string' } },
-      matchParentKeys: { type: 'string' },
+      filterInParentKeys: {
+        type: 'array',
+        items: { type: 'string' },
+        description: `The name of the subject's parent key that locates where assertions run. An example value given the subject Operation could be filterInParentKeys: [get, put] means that only GET and PUT operations are evaluated for the assertions.`,
+        documentationLink:
+          'https://redocly.com/docs/cli/rules/configurable-rules#mutuallyrequired-example',
+      },
+      filterOutParentKeys: {
+        type: 'array',
+        items: { type: 'string' },
+        description: `The name of the subject's parent key that excludes where assertions run. An example value given the subject Operation could be filterOutParentKeys: [delete] means that all operations except DELETE operations are evaluated for the assertions.`,
+      },
+      matchParentKeys: {
+        type: 'string',
+        description: `Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject Operation could be matchParentKeys: /^p/ means that POST, PUT, and PATCH operations are evaluated for the assertions.`,
+      },
     },
     required: ['type'],
+    documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
+    description:
+      'REQUIRED. Narrows the subject further by specifying its type, and optionally property, filterParentKeys, etc.',
   };
 }
 
@@ -379,11 +415,25 @@ function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeTy
   };
 }
 
-const AssertionDefinitionAssertions: NodeType = {
+const Assertions: NodeType = {
   properties: {
-    enum: { type: 'array', items: { type: 'string' } },
-    pattern: { type: 'string' },
-    notPattern: { type: 'string' },
+    enum: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#enum-example',
+    },
+    pattern: {
+      type: 'string',
+      description: 'Asserts a value matches a regex pattern.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#pattern-example',
+    },
+    notPattern: {
+      type: 'string',
+      description: `Asserts a value doesn't match a regex pattern.`,
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#notpattern-example',
+    },
     casing: {
       enum: [
         'camelCase',
@@ -394,27 +444,99 @@ const AssertionDefinitionAssertions: NodeType = {
         'COBOL-CASE',
         'flatcase',
       ],
+      description:
+        'Asserts a casing style. Supported styles are: camelCase, kebab-case, snake_case, PascalCase, MACRO_CASE, COBOL-CASE, flatcase.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#casing-example',
     },
-    mutuallyExclusive: { type: 'array', items: { type: 'string' } },
-    mutuallyRequired: { type: 'array', items: { type: 'string' } },
-    required: { type: 'array', items: { type: 'string' } },
-    requireAny: { type: 'array', items: { type: 'string' } },
-    disallowed: { type: 'array', items: { type: 'string' } },
-    defined: { type: 'boolean' },
-    nonEmpty: { type: 'boolean' },
-    minLength: { type: 'integer' },
-    maxLength: { type: 'integer' },
+    mutuallyExclusive: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts that listed properties (key names only) are mutually exclusive.',
+      documentationLink:
+        'https://redocly.com/docs/cli/rules/configurable-rules#mutuallyexclusive-example',
+    },
+    mutuallyRequired: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts that listed properties (key names only) are mutually required.',
+      documentationLink:
+        'https://redocly.com/docs/cli/rules/configurable-rules#mutuallyrequired-example',
+    },
+    required: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts all listed values are defined.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#required-example',
+    },
+    requireAny: {
+      type: 'array',
+      items: { type: 'string' },
+      description:
+        'Asserts that at least one of the listed properties (key names only) is defined. ',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#requireany-example',
+    },
+    disallowed: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Asserts all listed values are not defined.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#disallowed-example',
+    },
+    defined: {
+      type: 'boolean',
+      description: 'Asserts a property is defined.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#defined-example',
+    },
+    nonEmpty: {
+      type: 'boolean',
+      description: 'Asserts a property is not empty.',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#nonempty-example',
+    },
+    minLength: {
+      type: 'integer',
+      description: 'Asserts a minimum length (inclusive) of a string or list (array).',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#minlength-example',
+    },
+    maxLength: {
+      type: 'integer',
+      description: 'Asserts a maximum length (inclusive) of a string or list (array).',
+      documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#maxlength-example',
+    },
     ref: (value: string | boolean) =>
-      typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+      typeof value === 'string'
+        ? {
+            type: 'string',
+            description: `Asserts a reference object presence in object's property. A boolean value of true means the property has a $ref defined. A boolean value of false means the property has not defined a $ref (it has an in-place value). A string value means that the $ref is defined and the unresolved value must match the pattern (for example, '/paths/.*.yaml$/').`,
+            documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#ref-example',
+          }
+        : {
+            type: 'boolean',
+            description: `Asserts a reference object presence in object's property. A boolean value of true means the property has a $ref defined. A boolean value of false means the property has not defined a $ref (it has an in-place value). A string value means that the $ref is defined and the unresolved value must match the pattern (for example, '/paths/.*.yaml$/').`,
+            documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#ref-example',
+          },
     const: (value: string | boolean | number) => {
       if (typeof value === 'string') {
-        return { type: 'string' };
+        return {
+          type: 'string',
+          description:
+            'Asserts equality of a value. The behavior is the same as the enum assertion with exactly one value.',
+          documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#const-example',
+        };
       }
       if (typeof value === 'number') {
-        return { type: 'number' };
+        return {
+          type: 'number',
+          description:
+            'Asserts equality of a value. The behavior is the same as the enum assertion with exactly one value.',
+          documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#const-example',
+        };
       }
       if (typeof value === 'boolean') {
-        return { type: 'boolean' };
+        return {
+          type: 'boolean',
+          description:
+            'Asserts equality of a value. The behavior is the same as the enum assertion with exactly one value.',
+          documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#const-example',
+        };
       } else {
         return;
       }
@@ -424,26 +546,35 @@ const AssertionDefinitionAssertions: NodeType = {
     if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertion-object',
+  description: 'A minimum of one assertion property is required to be defined.',
 };
 
-const AssertDefinition: NodeType = {
+const Where: NodeType = {
   properties: {
-    subject: 'AssertionDefinitionSubject',
-    assertions: 'AssertionDefinitionAssertions',
+    subject: 'Subject',
+    assertions: 'Assertions',
   },
   required: ['subject', 'assertions'],
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#where-object',
+  description:
+    'The where object is part of a where list which must be defined in order from the root node. Each node can only be used in one where object for each assertion. Each subsequent node must be a descendant of the previous one. Rules that use multiple where objects must target each one on a different node. However, the same node could be used in the last where object and in the root subject object. Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.',
 };
 
-const Assert: NodeType = {
+const ConfigurableRule: NodeType = {
   properties: {
-    subject: 'AssertionDefinitionSubject',
-    assertions: 'AssertionDefinitionAssertions',
-    where: listOf('AssertDefinition'),
+    subject: 'Subject',
+    assertions: 'Assertions',
+    where: listOf('Where'),
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
     severity: { enum: ['error', 'warn', 'off'] },
   },
   required: ['subject', 'assertions'],
+  documentationLink:
+    'https://redocly.com/docs/cli/rules/configurable-rules#configurable-rule-object',
+  description:
+    'Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a rule/ prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions.',
 };
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
@@ -458,22 +589,22 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ...CoreConfigTypes,
     ConfigRoot: createConfigRoot(nodeTypes), // This is the REAL config root type
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
-    AssertionDefinitionSubject: createAssertionDefinitionSubject(nodeNames),
+    Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
     'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
   };
 }
 
 const CoreConfigTypes: Record<string, NodeType> = {
-  Assert,
+  ConfigurableRule,
   ConfigApis,
   ConfigGovernance,
   ConfigHTTP,
-  AssertDefinition,
-  ObjectRule,
+  Where,
+  BuiltinRule,
   Schema,
   Rules,
-  AssertionDefinitionAssertions,
+  Assertions,
 };
 
 // FIXME: remove this once we remove `theme` from the schema
