@@ -1,4 +1,4 @@
-import * as picomatch from 'picomatch';
+import picomatch from 'picomatch';
 import { env } from '../env.js';
 
 import type { HttpResolveConfig } from '../config';
