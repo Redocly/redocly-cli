@@ -1,4 +1,10 @@
-import { fieldNonEmpty, matchesJsonSchemaType, missingRequiredField, oasTypeOf } from '../utils.js';
+import {
+  fieldNonEmpty,
+  inferOasContextFromPointer,
+  matchesJsonSchemaType,
+  missingRequiredField,
+  oasTypeOf,
+} from '../utils.js';
 
 describe('field-non-empty', () => {
   it('should match expected message', () => {
@@ -118,5 +124,26 @@ describe('oas-type-of', () => {
     const car = { type: 'Fiat', model: '500', color: 'white' };
     const results = oasTypeOf(car);
     expect(results).toBe('object');
+  });
+});
+
+describe('infer-oas-context-from-pointer', () => {
+  it('should infer requestBody context', () => {
+    const result = inferOasContextFromPointer(
+      '#/paths/~1users/post/requestBody/content/application~1json/schema'
+    );
+    expect(result).toEqual({ oas: { mode: 'request', location: 'requestBody' } });
+  });
+
+  it('should infer responseBody context', () => {
+    const result = inferOasContextFromPointer(
+      '#/paths/~1users/get/responses/200/content/application~1json/schema'
+    );
+    expect(result).toEqual({ oas: { mode: 'response', location: 'responseBody' } });
+  });
+
+  it('should infer request context for parameters', () => {
+    const result = inferOasContextFromPointer('#/paths/~1users/get/parameters/0/schema');
+    expect(result).toEqual({ oas: { mode: 'request' } });
   });
 });
