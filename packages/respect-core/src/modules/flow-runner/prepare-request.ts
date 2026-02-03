@@ -132,8 +132,8 @@ export async function prepareRequest(
   const ctxWithInputs = {
     ...ctx,
     $inputs: {
-      ...(ctx.$inputs || {}),
-      ...(ctx.$workflows[workflowName]?.inputs || {}),
+      ...ctx.$inputs,
+      ...ctx.$workflows[workflowName]?.inputs,
     },
   };
 
