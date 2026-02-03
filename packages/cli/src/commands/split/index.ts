@@ -356,7 +356,6 @@ function iterateComponents(
     componentTypes.forEach(iterateAndGatherComponentsFiles);
     componentTypes.forEach(iterateComponentTypes);
 
-    // eslint-disable-next-line no-inner-declarations
     function iterateAndGatherComponentsFiles(
       componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>
     ) {
@@ -367,7 +366,6 @@ function iterateComponents(
       }
     }
 
-    // eslint-disable-next-line no-inner-declarations
     function iterateComponentTypes(componentType: Oas3ComponentName<Oas3Schema | Oas3_1Schema>) {
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
