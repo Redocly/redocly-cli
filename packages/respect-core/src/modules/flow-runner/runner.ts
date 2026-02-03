@@ -203,8 +203,8 @@ export async function runWorkflow({
       ctx: {
         ...ctx,
         $inputs: {
-          ...(ctx.$inputs || {}),
-          ...(ctx.$workflows[workflowId]?.inputs || {}),
+          ...ctx.$inputs,
+          ...ctx.$workflows[workflowId]?.inputs,
         },
       },
       workflowId,

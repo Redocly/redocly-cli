@@ -1,5 +1,3 @@
-import { outdent } from 'outdent';
-
 import { formatProblems, getTotals } from '../format/format.js';
 import { LocationObject, NormalizedProblem } from '../walk.js';
 import { Source } from '../resolve.js';
