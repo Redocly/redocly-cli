@@ -197,11 +197,21 @@ class RemotesApi {
     formData.append('commit[author][name]', payload.commit.author.name);
     formData.append('commit[author][email]', payload.commit.author.email);
     formData.append('commit[branchName]', payload.commit.branchName);
-    payload.commit.url && formData.append('commit[url]', payload.commit.url);
-    payload.commit.namespace && formData.append('commit[namespaceId]', payload.commit.namespace);
-    payload.commit.sha && formData.append('commit[sha]', payload.commit.sha);
-    payload.commit.repository && formData.append('commit[repositoryId]', payload.commit.repository);
-    payload.commit.createdAt && formData.append('commit[createdAt]', payload.commit.createdAt);
+    if (payload.commit.url) {
+      formData.append('commit[url]', payload.commit.url);
+    }
+    if (payload.commit.namespace) {
+      formData.append('commit[namespaceId]', payload.commit.namespace);
+    }
+    if (payload.commit.sha) {
+      formData.append('commit[sha]', payload.commit.sha);
+    }
+    if (payload.commit.repository) {
+      formData.append('commit[repositoryId]', payload.commit.repository);
+    }
+    if (payload.commit.createdAt) {
+      formData.append('commit[createdAt]', payload.commit.createdAt);
+    }
 
     for (const file of files) {
       const blob = Buffer.isBuffer(file.stream)
@@ -210,7 +220,9 @@ class RemotesApi {
       formData.append(`files[${file.path}]`, blob, file.path);
     }
 
-    payload.isMainBranch && formData.append('isMainBranch', 'true');
+    if (payload.isMainBranch) {
+      formData.append('isMainBranch', 'true');
+    }
     try {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,

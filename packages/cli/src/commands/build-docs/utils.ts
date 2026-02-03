@@ -81,7 +81,7 @@ export async function getPageHTML(
     redocHTML: `
       <div id="redoc">${html || ''}</div>
       <script>
-      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};` || ''}
+      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};`}
 
       var container = document.getElementById('redoc');
       Redoc.${'hydrate(__redoc_state, container)'};

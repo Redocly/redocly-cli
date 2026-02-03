@@ -232,7 +232,7 @@ export type RawResolveConfig = {
 
 export type HttpResolveConfig = {
   headers: ResolveHeader[];
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   customFetch?: Function;
 };
 

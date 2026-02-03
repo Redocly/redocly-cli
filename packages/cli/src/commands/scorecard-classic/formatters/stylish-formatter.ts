@@ -57,8 +57,9 @@ export function printScorecardResults(
     )
   );
 
-  targetLevelAchieved &&
+  if (targetLevelAchieved) {
     logger.output(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));
+  }
 
   for (const [level, levelProblems] of Object.entries(problemsByLevel)) {
     const severityCounts = levelProblems.reduce((acc, p) => {

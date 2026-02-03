@@ -130,7 +130,7 @@ export async function handlePush({
         version,
       });
     }
-    verbose &&
+    if (verbose) {
       printExecutionTime(
         commandName,
         startedAt,
@@ -139,6 +139,7 @@ export async function handlePush({
           filesToUpload.length
         )} uploaded to organization ${organization}, project ${projectId}. Push ID: ${id}.`
       );
+    }
 
     client.reportSunsetWarnings();
 
