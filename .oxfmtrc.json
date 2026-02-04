@@ -15,7 +15,6 @@
     "snapshot*.txt",
     ".changeset/pre.json",
     "*.html",
-    "*.yaml",
     "*.hbs",
     "*.toml",
     "*.md"
