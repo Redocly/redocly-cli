@@ -22,7 +22,6 @@ export const NoUnusedComponents: Oas3Rule = () => {
           'Response',
           'Example',
           'RequestBody',
-          'MediaType',
           'MediaTypesMap',
         ].includes(type.name)
       ) {

@@ -35,7 +35,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
         case 'Callback':
           return 'callbacks';
         case 'MediaTypesMap':
-        case 'MediaType':
           return 'mediaTypes';
         default:
           return null;
