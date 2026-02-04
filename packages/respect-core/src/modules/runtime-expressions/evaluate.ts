@@ -191,14 +191,12 @@ function normalizeValue(value: unknown) {
 }
 
 // Normalize an object by replacing hyphens with underscores in keys
-function normalizeObject(
-  obj: Record<string, any> | Array<unknown>
-): Record<string, any> | Array<unknown> {
+function normalizeObject(obj: Record<string, unknown>): Record<string, unknown> {
   return Object.keys(obj).reduce((acc, key) => {
     const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
-    acc[normalizedKey] = normalizeValue(obj[key as keyof typeof obj]);
+    acc[normalizedKey] = normalizeValue(obj[key]);
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, unknown>);
 }
 
 function convertNumericIndices(expression: string): string {
