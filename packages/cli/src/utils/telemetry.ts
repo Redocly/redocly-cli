@@ -217,22 +217,21 @@ function collectSensitiveValues(
   keysToClean: string[],
   values: string[] = []
 ): string[] {
-  if (typeof obj !== 'object' || obj === null) {
-    return values;
-  }
-
   if (Array.isArray(obj)) {
     obj.forEach((item) => collectSensitiveValues(item, keysToClean, values));
     return values;
   }
 
-  for (const [key, value] of Object.entries(obj)) {
-    if (keysToClean.includes(key) && typeof value === 'string') {
-      values.push(value);
-    } else if (isPlainObject(value)) {
-      collectSensitiveValues(value, keysToClean, values);
+  if (isPlainObject(obj)) {
+    for (const [key, value] of Object.entries(obj)) {
+      if (keysToClean.includes(key) && typeof value === 'string') {
+        values.push(value);
+      } else if (isPlainObject(value) || Array.isArray(value)) {
+        collectSensitiveValues(value, keysToClean, values);
+      }
     }
   }
+
   return values;
 }
 
