@@ -13,11 +13,16 @@
     "tests/performance/api-definitions/",
     "LICENSE.md",
     "snapshot*.txt",
-    ".changeset/pre.json"
+    ".changeset/pre.json",
+    "*.html",
+    "*.yaml",
+    "*.hbs",
+    "*.toml",
+    "*.md"
   ],
   "experimentalSortImports": {
-    "groups": [["builtin", "external", "parent", "sibling", "index", "object"], ["type"]],
-    "newlinesBetween": true
+    "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
+    "newlinesBetween": false
   },
   "trailingComma": "es5"
 }
