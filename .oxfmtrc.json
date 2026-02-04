@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "singleQuote": true,
+  "embeddedLanguageFormatting": "off",
+  "experimentalSortPackageJson": false,
+  "ignorePatterns": [
+    "coverage/",
+    "lib/",
+    "output/",
+    "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
+    "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
+    "tests/performance/api-definitions/",
+    "LICENSE.md",
+    "snapshot*.txt",
+    ".changeset/pre.json"
+  ],
+  "experimentalSortImports": {
+    "groups": [["builtin", "external", "parent", "sibling", "index", "object"], ["type"]],
+    "newlinesBetween": true
+  }
+}

@@ -66,6 +66,8 @@
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
     "outdent": "^0.7.1",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
     "pegjs": "0.11.0-master.b7b87ea",
     "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
