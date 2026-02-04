@@ -15,6 +15,7 @@
     "snapshot*.txt",
     ".changeset/pre.json",
     "*.html",
+    "tests/e2e/**/*.yaml",
     "*.hbs",
     "*.toml"
   ],
