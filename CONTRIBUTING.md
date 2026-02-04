@@ -37,7 +37,7 @@ Before submitting a pull request, please make sure the following is done:
 1. Run `npm install` in the repository root.
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
-1. Format your code with prettier (`npm run prettier`).
+1. Format your code (`npm run format`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
    if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
    Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
@@ -65,7 +65,7 @@ To compile the code, run `npm run compile`.
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
 Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
-Format your code with `npm run prettier` before committing.
+Format your code with `npm run format` before committing.
 
 Please check the [Tests section](#tests) for the test commands reference.
 
@@ -156,7 +156,7 @@ The configuration is in `.vale.ini` in the root of the project.
 
 We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
 
-> Note that prettier also runs and reformats Markdown files. Use `npm run prettier` from the root of the project.
+> Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
 
 ### Markdown link checking
 
