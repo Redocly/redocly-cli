@@ -101,7 +101,7 @@ export async function prepareRequest(
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
   const parameters = joinParameters(
     // order is important here, the last one wins
-    isPlainObject(requestBody)
+    isPlainObject(requestBody) || Array.isArray(requestBody)
       ? [{ in: 'header', name: 'content-type', value: 'application/json' }]
       : [],
     serverUrl?.parameters || [],
@@ -186,7 +186,7 @@ export async function prepareRequest(
     logger: ctx.options.logger,
   });
 
-  if (replacements && isPlainObject(evaluatedBody)) {
+  if (replacements && (isPlainObject(evaluatedBody) || Array.isArray(evaluatedBody))) {
     handlePayloadReplacements({
       payload: evaluatedBody,
       replacements,
@@ -197,7 +197,7 @@ export async function prepareRequest(
 
   if (contentType && openapiOperation?.requestBody) {
     const requestBodySchema = getRequestBodySchema(contentType, openapiOperation);
-    if (isPlainObject(requestBody)) {
+    if (isPlainObject(requestBody) || Array.isArray(requestBody)) {
       collectSecretValues(ctx, requestBodySchema, requestBody);
     }
   }

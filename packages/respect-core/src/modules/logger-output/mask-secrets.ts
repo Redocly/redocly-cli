@@ -42,7 +42,7 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
     for (const key in current) {
       if (typeof current[key] === 'string') {
         current[key] = maskIfContainsSecret(current[key]);
-      } else if (isPlainObject(current[key])) {
+      } else if (isPlainObject(current[key]) || Array.isArray(current[key])) {
         // Skip special objects that should not be modified
         if (
           !(current[key] instanceof File) &&
@@ -76,15 +76,11 @@ export function findPotentiallySecretObjectFields(
 ): string[] {
   const foundTokens: string[] = [];
 
-  if (!obj || typeof obj !== 'object') {
+  if (!isPlainObject(obj) && !Array.isArray(obj)) {
     return foundTokens;
   }
 
-  const searchInObject = (currentObj: any) => {
-    if (!currentObj || typeof currentObj !== 'object') {
-      return;
-    }
-
+  const searchInObject = (currentObj: unknown) => {
     if (Array.isArray(currentObj)) {
       for (const item of currentObj) {
         searchInObject(item);
@@ -92,28 +88,30 @@ export function findPotentiallySecretObjectFields(
       return;
     }
 
-    for (const key in currentObj) {
-      const value = currentObj[key];
+    if (isPlainObject(currentObj)) {
+      for (const key in currentObj) {
+        const value = currentObj[key];
 
-      // Check if the key matches any of the token keys (case-insensitive)
-      if (tokenKeys.some((tokenKey) => tokenKey.toLowerCase() === key.toLowerCase())) {
-        if (typeof value === 'string' && value.trim()) {
-          foundTokens.push(value);
-        }
-      }
-
-      if (typeof value === 'string' && value.trim()) {
-        for (const tokenKey of tokenKeys) {
-          const match = value.match(new RegExp(`${tokenKey}=([^;\\s]+)`, 'i'));
-          const [, secretValue] = match || [];
-          if (secretValue) {
-            foundTokens.push(secretValue);
+        // Check if the key matches any of the token keys (case-insensitive)
+        if (tokenKeys.some((tokenKey) => tokenKey.toLowerCase() === key.toLowerCase())) {
+          if (typeof value === 'string' && value.trim()) {
+            foundTokens.push(value);
           }
         }
-      }
 
-      if (isPlainObject(value)) {
-        searchInObject(value);
+        if (typeof value === 'string' && value.trim()) {
+          for (const tokenKey of tokenKeys) {
+            const match = value.match(new RegExp(`${tokenKey}=([^;\\s]+)`, 'i'));
+            const [, secretValue] = match || [];
+            if (secretValue) {
+              foundTokens.push(secretValue);
+            }
+          }
+        }
+
+        if (isPlainObject(value) || Array.isArray(value)) {
+          searchInObject(value);
+        }
       }
     }
   };

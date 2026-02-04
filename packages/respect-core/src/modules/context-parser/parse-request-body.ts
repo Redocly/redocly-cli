@@ -85,7 +85,8 @@ export async function parseRequestBody(
       | string
       | number
       | boolean
-      | Record<string, any>
+      | Record<string, unknown>
+      | Array<unknown>
       | BodyInit
       | FormData
       | URLSearchParams
