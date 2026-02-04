@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { deepCopy } from '../../utils/deep-copy.js';
 
 export const POTENTIALLY_SECRET_FIELDS = [
@@ -41,7 +42,7 @@ export function maskSecrets<T extends { [x: string]: any } | string>(
     for (const key in current) {
       if (typeof current[key] === 'string') {
         current[key] = maskIfContainsSecret(current[key]);
-      } else if (typeof current[key] === 'object' && current[key] !== null) {
+      } else if (isPlainObject(current[key])) {
         // Skip special objects that should not be modified
         if (
           !(current[key] instanceof File) &&
@@ -111,7 +112,7 @@ export function findPotentiallySecretObjectFields(
         }
       }
 
-      if (value && typeof value === 'object') {
+      if (isPlainObject(value)) {
         searchInObject(value);
       }
     }

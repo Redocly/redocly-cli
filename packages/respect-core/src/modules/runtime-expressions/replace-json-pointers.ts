@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import JsonPointerLib from 'json-pointer';
 
 export function replaceJSONPointers(expression: string, context: any): string {
@@ -53,7 +54,7 @@ function resolvePointer(sourceContext: any, pointer: string, fallbackMatch: stri
       if (typeof value === 'string') {
         return JSON.stringify(value); // Safely quote the strings
       }
-      if (Array.isArray(value) || typeof value === 'object') {
+      if (Array.isArray(value) || isPlainObject(value)) {
         return JSON.stringify(value);
       }
       return value !== undefined ? value : fallbackMatch;

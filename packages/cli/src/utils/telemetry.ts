@@ -229,7 +229,7 @@ function collectSensitiveValues(
   for (const [key, value] of Object.entries(obj)) {
     if (keysToClean.includes(key) && typeof value === 'string') {
       values.push(value);
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (isPlainObject(value)) {
       collectSensitiveValues(value, keysToClean, values);
     }
   }

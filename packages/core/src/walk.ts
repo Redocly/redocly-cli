@@ -4,6 +4,7 @@ import { YamlParseError } from './errors/yaml-parse-error.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { pushStack, popStack } from './utils/stack.js';
 import { getOwn } from './utils/get-own.js';
+import { isPlainObject } from './utils/is-plain-object.js';
 
 import type { SpecVersion } from './oas-types.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
@@ -293,7 +294,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
             }
           }
-        } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
+        } else if (isPlainObject(resolvedNode)) {
           // visit in order from type-tree first
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {

@@ -180,11 +180,11 @@ function normalizeContext(context: RuntimeExpressionContext): Record<string, any
 }
 
 // Normalize values recursively, handling objects and primitives
-function normalizeValue(value: any): any {
+function normalizeValue(value: unknown) {
   if (Array.isArray(value)) {
     // If the value is an array, return it as-is without modifying
     return value;
-  } else if (typeof value === 'object' && value !== null) {
+  } else if (isPlainObject(value)) {
     return normalizeObject(value);
   }
   return value;
