@@ -266,7 +266,7 @@ async function handleDependsOn({
         value: workflowId,
         ctx,
         logger: ctx.options.logger,
-      });
+      }) as Workflow;
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);

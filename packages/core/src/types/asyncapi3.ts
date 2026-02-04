@@ -1,4 +1,4 @@
-import { listOf, mapOf } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import {
   AsyncApi2Bindings,
   CorrelationId,
@@ -18,8 +18,7 @@ import {
   Schema,
   SchemaProperties,
 } from './json-schema-draft7.shared.js';
-
-import type { NodeType } from './index.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 
 const Root: NodeType = {
   properties: {
@@ -254,7 +253,7 @@ const OperationTrait: NodeType = {
 const MessageTrait: NodeType = {
   properties: {
     headers: (value: unknown) => {
-      if (typeof value === 'function' || (typeof value === 'object' && !!value)) {
+      if (typeof value === 'function' || isPlainObject(value)) {
         return {
           properties: {
             schema: 'Schema',

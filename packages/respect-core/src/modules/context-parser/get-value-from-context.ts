@@ -1,7 +1,6 @@
 import { red } from 'colorette';
-
-import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types.js';
-import type { LoggerInterface } from '@redocly/openapi-core';
+import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
+import { type RuntimeExpressionContext, type TestContext, type Workflow } from '../../types.js';
 
 export interface ParsedParameters {
   queryParams: Record<string, string>;
@@ -18,24 +17,27 @@ export function getValueFromContext({
   ctx,
   logger,
 }: {
-  value: any;
+  value: unknown;
   ctx: TestContext | RuntimeExpressionContext;
   logger: LoggerInterface;
-}): any {
+}): unknown {
   if (!value) return value;
 
-  if (typeof value === 'object') {
+  if (isPlainObject(value)) {
+    const resolvedValue = {} as Record<string, unknown>;
     for (const key in value) {
-      value[key] = getValueFromContext({ value: value[key], ctx, logger });
+      resolvedValue[key] = getValueFromContext({ value: value[key], ctx, logger });
     }
+    return resolvedValue;
+  } else if (Array.isArray(value)) {
+    return value.map((item) => getValueFromContext({ value: item, ctx, logger }));
+  }
+
+  if (typeof value !== 'string') {
     return value;
   }
 
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return value;
-  }
-
-  if (value.toString().startsWith('$faker.')) {
+  if (value.startsWith('$faker.')) {
     return getFakeData({ pointer: value.slice(1), ctx, logger });
   }
 

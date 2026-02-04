@@ -1,4 +1,5 @@
 import * as path from 'node:path';
+import { isPlainObject } from '@redocly/openapi-core';
 import { type TestContext, type RequestBody } from '../../types.js';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =
@@ -44,7 +45,7 @@ const appendObjectToFormData = (
           formData.append(formKey, i.toString());
         }
       });
-    } else if (typeof item === 'object' && item !== null) {
+    } else if (isPlainObject(item)) {
       appendObjectToFormData(promises, formData, item, workflowFilePath, ctx, formKey);
     } else if (typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean') {
       formData.append(formKey, item.toString());
@@ -58,7 +59,7 @@ const getRequestBodyMultipartFormData = async (
   workflowFilePath: string,
   ctx: TestContext
 ) => {
-  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+  if (isPlainObject(payload)) {
     const promises: Promise<void>[] = [];
     appendObjectToFormData(promises, formData, payload, workflowFilePath, ctx);
     await Promise.all(promises);
@@ -84,7 +85,8 @@ export async function parseRequestBody(
       | string
       | number
       | boolean
-      | Record<string, any>
+      | Record<string, unknown>
+      | Array<unknown>
       | BodyInit
       | FormData
       | URLSearchParams

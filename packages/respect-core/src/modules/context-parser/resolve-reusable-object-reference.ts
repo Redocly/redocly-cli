@@ -1,3 +1,4 @@
+import { isPlainObject } from '@redocly/openapi-core';
 import { getValueFromContext } from './get-value-from-context.js';
 
 import type {
@@ -33,7 +34,7 @@ export function resolveReusableObjectReference<T extends ReusableObject>(
 
   const component = getValueFromContext({ value: reference, ctx, logger: ctx.options.logger });
 
-  if ('value' in component && valueOverride) {
+  if (isPlainObject(component) && 'value' in component && valueOverride) {
     return {
       ...component,
       value: valueOverride,

@@ -258,7 +258,7 @@ export const asserts: Asserts = {
   ) => {
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
-    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && !property) {
+    if (Array.isArray(value) && value.length > 0 && isPlainObject(value[0]) && !property) {
       return [
         {
           message: `Please define a property to sort objects by`,
