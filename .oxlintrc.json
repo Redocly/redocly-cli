@@ -11,6 +11,7 @@
     "**/__tests__/**",
     "packages/*/lib/**",
     "*.js",
+    "*.cjs",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js"
   ],
   "rules": {
@@ -76,9 +77,7 @@
   },
   "overrides": [
     {
-      "files": [
-        "**/*.ts"
-      ],
+      "files": ["**/*.ts"],
       "rules": {
         "@typescript-eslint/ban-ts-comment": "error",
         "no-array-constructor": "error",
@@ -901,10 +900,7 @@
         "es2026": true,
         "commonjs": true
       },
-      "plugins": [
-        "typescript",
-        "import"
-      ]
+      "plugins": ["typescript", "import"]
     }
   ]
 }
