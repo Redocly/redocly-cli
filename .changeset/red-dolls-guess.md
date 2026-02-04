@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Fixed example validation for readOnly/writeOnly properties.
+Fixed validation of examples where combining `required` with `readOnly` or `writeOnly` properties would incorrectly generate warnings.
