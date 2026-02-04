@@ -1,5 +1,5 @@
-import type { Oas3Rule } from '../../visitors.js';
 import type { Oas3_2Tag } from '../../typings/openapi.js';
+import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const SpecNoInvalidTagParents: Oas3Rule = () => {

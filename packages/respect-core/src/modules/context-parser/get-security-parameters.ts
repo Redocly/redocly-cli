@@ -1,3 +1,5 @@
+import type { TestContext } from '../../types';
+import type { ParameterWithIn } from './parse-parameters';
 import type {
   ApiKeyAuth,
   BasicAuth,
@@ -6,8 +8,6 @@ import type {
   OpenIDAuth,
   ResolvedSecurity,
 } from '@redocly/openapi-core';
-import type { TestContext } from '../../types';
-import type { ParameterWithIn } from './parse-parameters';
 
 export function getSecurityParameter(
   security: ResolvedSecurity,

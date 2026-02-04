@@ -1,16 +1,17 @@
 import { logger } from '@redocly/openapi-core';
-import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
+
 import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
+import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
 import { version } from '../../utils/package.js';
 
-import type { ReadStream } from 'node:fs';
-import type { Readable } from 'node:stream';
 import type {
   ListRemotesResponse,
   ProjectSourceResponse,
   PushResponse,
   UpsertRemoteResponse,
 } from './types.js';
+import type { ReadStream } from 'node:fs';
+import type { Readable } from 'node:stream';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
@@ -20,7 +21,10 @@ export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 
 export class ReuniteApiError extends Error {
-  constructor(message: string, public status: number) {
+  constructor(
+    message: string,
+    public status: number
+  ) {
     super(message);
   }
 }

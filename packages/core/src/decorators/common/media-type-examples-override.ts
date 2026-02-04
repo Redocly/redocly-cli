@@ -1,8 +1,8 @@
-import { resolveRelativePath, yamlAndJsonSyncReader } from '../../utils/yaml-fs-helper.js';
 import { isRef } from '../../ref-utils.js';
+import { resolveRelativePath, yamlAndJsonSyncReader } from '../../utils/yaml-fs-helper.js';
 
-import type { Oas3Decorator } from '../../visitors.js';
 import type { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi.js';
+import type { Oas3Decorator } from '../../visitors.js';
 import type { NonUndefined, ResolveFn, UserContext } from '../../walk.js';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {

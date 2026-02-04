@@ -1,8 +1,8 @@
 import { logger } from '../../logger.js';
 
+import type { ExtendedSecurity } from '../../typings/arazzo.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 const REQUIRED_VALUES_BY_AUTH_TYPE = {
   apiKey: ['apiKey'],

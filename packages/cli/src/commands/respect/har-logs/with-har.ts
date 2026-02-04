@@ -8,12 +8,14 @@
 // - migrated to be used with undici
 
 import { URL } from 'url';
+
 import { Client, type fetch } from 'undici';
+
 import { addHeaders } from './helpers/add-headers.js';
-import { getDuration } from './helpers/get-duration.js';
-import { buildRequestCookies } from './helpers/build-request-cookies.js';
 import { buildHeaders } from './helpers/build-headers.js';
+import { buildRequestCookies } from './helpers/build-request-cookies.js';
 import { buildResponseCookies } from './helpers/build-response-cookies.js';
+import { getDuration } from './helpers/get-duration.js';
 
 const HAR_HEADER_NAME = 'x-har-request-id';
 const harEntryMap = new Map<string, any>();

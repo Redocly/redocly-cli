@@ -1,9 +1,9 @@
 import { logger } from '@redocly/openapi-core';
 
-import type { TestContext } from '../../../types.js';
-
-import { createFaker } from '../../faker.js';
 import { getValueFromContext, resolvePath } from '../../context-parser/index.js';
+import { createFaker } from '../../faker.js';
+
+import type { TestContext } from '../../../types.js';
 
 describe('getValueFromContext', () => {
   beforeEach(() => {

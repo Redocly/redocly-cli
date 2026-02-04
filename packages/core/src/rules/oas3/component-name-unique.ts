@@ -1,6 +1,4 @@
 import type { Location } from '../../ref-utils.js';
-import type { Problem, UserContext } from '../../walk.js';
-import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -12,6 +10,8 @@ import type {
   Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi.js';
+import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
+import type { Problem, UserContext } from '../../walk.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 

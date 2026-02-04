@@ -1,6 +1,7 @@
-import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/index.js';
-import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import { createConfig } from '@redocly/openapi-core';
+
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
+import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/index.js';
 
 vi.mock('../../../flow-runner/context/create-test-context.js');
 

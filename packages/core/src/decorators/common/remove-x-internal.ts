@@ -1,7 +1,7 @@
-import { isEmptyArray } from '../../utils/is-empty-array.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
-import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { isRef } from '../../ref-utils.js';
+import { isEmptyArray } from '../../utils/is-empty-array.js';
+import { isEmptyObject } from '../../utils/is-empty-object.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

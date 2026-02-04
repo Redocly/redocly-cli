@@ -3,30 +3,26 @@ import {
   type ExtendedSecurity,
   type Oas3SecurityScheme,
 } from '@redocly/openapi-core';
-import {
-  getOperationFromDescriptionBySource,
-  getRequestBodySchema,
-  getRequestDataFromOpenApi,
-} from '../description-parser/index.js';
+
 import {
   parseRequestBody,
   resolveReusableComponentItem,
   isParameterWithIn,
   handlePayloadReplacements,
 } from '../context-parser/index.js';
-import { getServerUrl } from './get-server-url.js';
-import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
-import { type ParameterWithIn } from '../context-parser/index.js';
 import {
-  type TestContext,
-  type Step,
-  type Parameter,
-  type PublicStep,
-  type OperationMethod,
-} from '../../types.js';
-import { type OperationDetails } from '../description-parser/index.js';
+  getOperationFromDescriptionBySource,
+  getRequestBodySchema,
+  getRequestDataFromOpenApi,
+} from '../description-parser/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
+import { getServerUrl } from './get-server-url.js';
+import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
+
+import type { TestContext, Step, Parameter, PublicStep, OperationMethod } from '../../types.js';
+import type { ParameterWithIn } from '../context-parser/index.js';
+import type { OperationDetails } from '../description-parser/index.js';
 
 export type RequestData = {
   serverUrl?: {
@@ -225,11 +221,14 @@ export async function prepareRequest(
 function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   const parametersWithNames = parameters.flat().filter((param) => 'name' in param);
 
-  const parameterMap = parametersWithNames.reduce((map, param) => {
-    const key = `${param.name}:${param.in}`;
-    map[key] = param;
-    return map;
-  }, {} as { [key: string]: ParameterWithIn });
+  const parameterMap = parametersWithNames.reduce(
+    (map, param) => {
+      const key = `${param.name}:${param.in}`;
+      map[key] = param;
+      return map;
+    },
+    {} as { [key: string]: ParameterWithIn }
+  );
 
   return Object.values(parameterMap);
 }
@@ -238,12 +237,15 @@ function groupParametersValuesByName(
   parameters: ParameterWithIn[],
   inValue: 'header' | 'query' | 'path' | 'cookie'
 ): Record<string, string | number | boolean> {
-  return parameters.reduce((acc, param) => {
-    if (param.in === inValue && 'name' in param) {
-      acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
-    }
-    return acc;
-  }, {} as Record<string, string | number | boolean>);
+  return parameters.reduce(
+    (acc, param) => {
+      if (param.in === inValue && 'name' in param) {
+        acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
+      }
+      return acc;
+    },
+    {} as Record<string, string | number | boolean>
+  );
 }
 
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {

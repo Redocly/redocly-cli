@@ -1,4 +1,5 @@
 import { logger } from '@redocly/openapi-core';
+
 import {
   normalizeHeaders,
   isJsonContentType,

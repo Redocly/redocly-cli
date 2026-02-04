@@ -1,5 +1,6 @@
 import AbortController from 'abort-controller';
 import { Agent, ProxyAgent } from 'undici';
+
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';
 import * as proxyAgent from '../utils/proxy-agent.js';
 
@@ -15,7 +16,7 @@ const mockFetch = vi.fn(() =>
     redirected: false,
     type: 'default',
     url: '',
-    clone: () => ({} as Response),
+    clone: () => ({}) as Response,
     body: null,
     bodyUsed: false,
     arrayBuffer: async () => new ArrayBuffer(0),

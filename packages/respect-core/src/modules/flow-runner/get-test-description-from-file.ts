@@ -1,4 +1,5 @@
-import { bold, red } from 'colorette';
+import * as path from 'node:path';
+
 import {
   getTotals,
   formatProblems,
@@ -10,9 +11,10 @@ import {
   type LoggerInterface,
   type NormalizedProblem,
 } from '@redocly/openapi-core';
-import * as path from 'node:path';
-import { printConfigLintTotals } from '../logger-output/helpers.js';
+import { bold, red } from 'colorette';
+
 import { isTestFile } from '../../utils/file.js';
+import { printConfigLintTotals } from '../logger-output/helpers.js';
 
 type BundleArazzoOptions = {
   filePath: string;

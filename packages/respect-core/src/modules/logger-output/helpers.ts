@@ -1,8 +1,10 @@
 import { isBrowser, pluralize } from '@redocly/openapi-core';
 import { red, yellow, bold, blue } from 'colorette';
-import { type LoggerInterface, type Totals } from '@redocly/openapi-core';
-import { type Check, type VerboseLog, type Step } from '../../types.js';
+
 import { displayChecks } from './display-checks.js';
+
+import type { Check, VerboseLog, Step } from '../../types.js';
+import type { LoggerInterface, Totals } from '@redocly/openapi-core';
 
 export const RESET_ESCAPE_CODE = !isBrowser && process.env.NO_COLOR ? '' : '\x1B[0m';
 

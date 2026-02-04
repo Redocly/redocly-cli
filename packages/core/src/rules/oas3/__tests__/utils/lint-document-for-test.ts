@@ -1,7 +1,7 @@
-import { BaseResolver, Document } from '../../../../resolve.js';
 import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
-import { lintDocument } from '../../../../lint.js';
 import { createConfig, RuleConfig } from '../../../../config/index.js';
+import { lintDocument } from '../../../../lint.js';
+import { BaseResolver, Document } from '../../../../resolve.js';
 
 export async function lintDocumentForTest(
   rules: Record<string, RuleConfig>,

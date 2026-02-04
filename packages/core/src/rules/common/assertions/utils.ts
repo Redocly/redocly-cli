@@ -1,21 +1,21 @@
-import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
 import { colorize } from '../../../logger.js';
 import { isRef, isAbsoluteUrl } from '../../../ref-utils.js';
+import { isString } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { keysOf } from '../../../utils/keys-of.js';
-import { isString } from '../../../utils/is-string.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
+import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
 
-import type { UserContext } from '../../../walk.js';
-import type { Asserts } from './asserts.js';
 import type { AssertionContext, AssertResult } from '../../../config/index.js';
-import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 import type {
   Oas2Visitor,
   Oas3Visitor,
   SkipFunctionContext,
   VisitFunction,
 } from '../../../visitors.js';
+import type { UserContext } from '../../../walk.js';
+import type { Asserts } from './asserts.js';
+import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 
 export type AssertToApply = {
   name: keyof Asserts;
@@ -264,7 +264,7 @@ function getProblemsLocation(problems: AssertResult[]) {
 
 function getProblemsMessage(problems: AssertResult[]) {
   return problems.length === 1
-    ? problems[0].message ?? ''
+    ? (problems[0].message ?? '')
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 

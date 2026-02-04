@@ -1,6 +1,8 @@
 import { logger } from '@redocly/openapi-core';
-import { type RuntimeExpressionContext } from '../../../types.js';
+
 import { handlePayloadReplacements } from '../../context-parser/index.js';
+
+import type { RuntimeExpressionContext } from '../../../types.js';
 
 describe('handlePayloadReplacements', () => {
   it('should replace the value using JSON Pointer', () => {

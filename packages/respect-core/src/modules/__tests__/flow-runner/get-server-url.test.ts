@@ -1,8 +1,9 @@
 import { logger } from '@redocly/openapi-core';
-import type { ExtendedOperation, TestContext } from '../../../types.js';
-import type { OperationDetails } from '../../description-parser/index.js';
 
 import { getServerUrl, GetServerUrlInput } from '../../flow-runner/index.js';
+
+import type { ExtendedOperation, TestContext } from '../../../types.js';
+import type { OperationDetails } from '../../description-parser/index.js';
 
 describe('getServerUrl', () => {
   it('should return first server url from servers', () => {

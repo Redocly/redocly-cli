@@ -1,4 +1,5 @@
 import { red, gray, underline, blue, yellow } from 'colorette';
+
 import { CHECKS } from '../checks/index.js';
 import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from './helpers.js';
 

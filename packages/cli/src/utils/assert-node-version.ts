@@ -1,6 +1,8 @@
 import * as process from 'node:process';
-import * as semver from 'semver';
+
 import { logger } from '@redocly/openapi-core';
+import * as semver from 'semver';
+
 import { engines } from './package.js';
 
 try {

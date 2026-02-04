@@ -1,4 +1,5 @@
 import { isPlainObject } from '@redocly/openapi-core';
+
 import {
   type CriteriaObject,
   type RegexpSuccessCriteria,

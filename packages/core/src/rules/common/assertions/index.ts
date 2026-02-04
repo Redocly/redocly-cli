@@ -1,8 +1,8 @@
-import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
-import { isString } from '../../../utils/is-string.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
+import { isString } from '../../../utils/is-string.js';
+import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
 
-import type { asserts, AssertionFn } from './asserts.js';
+import type { RuleSeverity } from '../../../config/index.js';
 import type {
   Arazzo1Visitor,
   Async2Visitor,
@@ -11,7 +11,7 @@ import type {
   Oas3Visitor,
   Overlay1Visitor,
 } from '../../../visitors.js';
-import type { RuleSeverity } from '../../../config/index.js';
+import type { asserts, AssertionFn } from './asserts.js';
 
 export type AssertionLocators = {
   filterInParentKeys?: (string | number)[];

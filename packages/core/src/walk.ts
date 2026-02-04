@@ -1,13 +1,15 @@
+import { YamlParseError } from './errors/yaml-parse-error.js';
 import { Location, isRef } from './ref-utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
-import { YamlParseError } from './errors/yaml-parse-error.js';
-import { makeRefId } from './utils/make-ref-id.js';
-import { pushStack, popStack } from './utils/stack.js';
 import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+import { makeRefId } from './utils/make-ref-id.js';
+import { pushStack, popStack } from './utils/stack.js';
 
+import type { Config, RuleSeverity } from './config/index.js';
 import type { SpecVersion } from './oas-types.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import type { NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import type {
   VisitorLevelContext,
@@ -18,8 +20,6 @@ import type {
   NormalizeVisitor,
   VisitorNode,
 } from './visitors.js';
-import type { NormalizedNodeType } from './types/index.js';
-import type { Config, RuleSeverity } from './config/index.js';
 
 export type NonUndefined =
   | string
@@ -157,8 +157,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
-        ? new Location(error.source, '')
-        : undefined;
+          ? new Location(error.source, '')
+          : undefined;
 
       return { location: newLocation, node, error };
     };

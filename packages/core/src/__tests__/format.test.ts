@@ -1,6 +1,6 @@
 import { formatProblems, getTotals } from '../format/format.js';
-import { LocationObject, NormalizedProblem } from '../walk.js';
 import { Source } from '../resolve.js';
+import { LocationObject, NormalizedProblem } from '../walk.js';
 
 describe('format', () => {
   function replaceColors(log: string) {

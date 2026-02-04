@@ -22,7 +22,7 @@
   ],
   "experimentalSortImports": {
     "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
-    "newlinesBetween": false
+    "newlinesBetween": true
   },
   "trailingComma": "es5"
 }

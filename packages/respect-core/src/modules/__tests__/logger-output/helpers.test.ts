@@ -1,5 +1,4 @@
 import { logger, type Totals } from '@redocly/openapi-core';
-import type { VerboseLog } from '../../../types.js';
 
 import {
   printWorkflowSeparatorLine,
@@ -13,6 +12,8 @@ import {
   removeExtraIndentation,
   printStepDetails,
 } from '../../logger-output/helpers.js';
+
+import type { VerboseLog } from '../../../types.js';
 
 describe('cliOutputs', () => {
   describe('removeExtraIndentation', () => {

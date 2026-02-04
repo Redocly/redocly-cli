@@ -1,11 +1,13 @@
+import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
+import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
-import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
-import crypto from 'node:crypto';
-import { Buffer } from 'node:buffer';
+
 import { logger } from '@redocly/openapi-core';
-import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
+
 import { isValidReuniteUrl } from '../reunite/api/domains.js';
+import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
 const CRYPTO_ALGORITHM = 'aes-256-cbc';

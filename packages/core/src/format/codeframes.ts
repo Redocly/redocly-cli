@@ -1,6 +1,7 @@
 import * as yamlAst from 'yaml-ast-parser';
-import { parsePointer } from '../ref-utils.js';
+
 import { colorize, colorOptions } from '../logger.js';
+import { parsePointer } from '../ref-utils.js';
 
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
 

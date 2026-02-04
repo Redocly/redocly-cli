@@ -1,8 +1,8 @@
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 
 import type { Location } from '../../ref-utils.js';
-import type { Oas2Decorator } from '../../visitors.js';
 import type { Oas2Components, Oas2Definition } from '../../typings/swagger.js';
+import type { Oas2Decorator } from '../../visitors.js';
 
 export const RemoveUnusedComponents: Oas2Decorator = () => {
   const components = new Map<

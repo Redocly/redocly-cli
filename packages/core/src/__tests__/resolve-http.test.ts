@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
 
-import { resolveDocument, BaseResolver } from '../resolve.js';
 import { parseYamlToDocument } from '../../__tests__/utils.js';
-import { Oas3Types } from '../types/oas3.js';
+import { resolveDocument, BaseResolver } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
+import { Oas3Types } from '../types/oas3.js';
 
 describe('Resolve http-headers', () => {
   it('should use matching http-headers', async () => {

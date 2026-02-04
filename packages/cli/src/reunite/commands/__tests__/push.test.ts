@@ -1,10 +1,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { handlePush } from '../push.js';
-import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
-import { MockInstance } from 'vitest';
+
 import { slash } from '@redocly/openapi-core';
+import { MockInstance } from 'vitest';
+
 import { version } from '../../../utils/package.js';
+import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
+import { handlePush } from '../push.js';
 
 const remotes = {
   push: vi.fn(),
@@ -189,7 +191,7 @@ describe('handlePush()', () => {
           isDirectory() {
             return filePath === 'test-folder' || filePath === 'test-folder/app';
           },
-        } as any)
+        }) as any
     );
 
     fsReaddirSyncSpy.mockImplementation((dirPath): any => {

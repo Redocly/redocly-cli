@@ -1,4 +1,5 @@
 import fs from 'fs';
+
 import slackifyMarkdown from 'slackify-markdown';
 
 const generatedLogsCli = fs.readFileSync('./packages/cli/CHANGELOG.md').toString();

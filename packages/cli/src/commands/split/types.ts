@@ -18,7 +18,7 @@ export const PATHS = 'paths';
 export const WEBHOOKS = 'webhooks';
 export const xWEBHOOKS = 'x-webhooks';
 
-export type Oas3Method = typeof OPENAPI3_METHOD_NAMES[number];
+export type Oas3Method = (typeof OPENAPI3_METHOD_NAMES)[number];
 export const OPENAPI3_METHOD_NAMES = [
   'get',
   'put',
@@ -31,7 +31,7 @@ export const OPENAPI3_METHOD_NAMES = [
   'query',
 ] as const;
 
-export type Oas3Component = typeof OPENAPI3_COMPONENT_NAMES[number];
+export type Oas3Component = (typeof OPENAPI3_COMPONENT_NAMES)[number];
 export const OPENAPI3_COMPONENT_NAMES = [
   'schemas',
   'responses',

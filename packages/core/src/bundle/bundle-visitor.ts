@@ -1,16 +1,17 @@
 import { isAbsoluteUrl, replaceRef, isExternalValue, isRef, refBaseName } from '../ref-utils.js';
-import { makeRefId } from '../utils/make-ref-id.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
-import { isTruthy } from '../utils/is-truthy.js';
 import { dequal } from '../utils/dequal.js';
-import { type RuleSeverity } from '../config/types.js';
-import { type OasRef } from '../typings/openapi';
-import { type Location } from '../ref-utils.js';
-import { type Document } from '../resolve.js';
-import { type ResolvedRefMap } from '../resolve';
-import { type SpecMajorVersion } from '../oas-types';
-import { type Oas3Visitor, type Oas2Visitor } from '../visitors';
-import { type UserContext, type ResolveResult } from '../walk';
+import { isTruthy } from '../utils/is-truthy.js';
+import { makeRefId } from '../utils/make-ref-id.js';
+
+import type { SpecMajorVersion } from '../oas-types';
+import type { Location } from '../ref-utils.js';
+import type { ResolvedRefMap } from '../resolve';
+import type { Document } from '../resolve.js';
+import type { OasRef } from '../typings/openapi';
+import type { Oas3Visitor, Oas2Visitor } from '../visitors';
+import type { UserContext, ResolveResult } from '../walk';
+import type{ RuleSeverity } from '../config/types.js';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {

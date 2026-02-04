@@ -1,10 +1,26 @@
 import { SpecExtension } from './types/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
-import type { Stack } from './utils/stack.js';
-import type { NormalizedNodeType } from './types/index.js';
-import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 import type { Location } from './ref-utils.js';
+import type { NormalizedNodeType } from './types/index.js';
+import type {
+  ArazzoDefinition,
+  ArazzoSourceDescription,
+  CriteriaObject,
+  ExtendedOperation,
+  InfoObject,
+  OnFailureObject,
+  OnSuccessObject,
+  OpenAPISourceDescription,
+  Parameter,
+  Replacement,
+  RequestBody,
+  SourceDescription,
+  Step,
+  Workflow,
+} from './typings/arazzo.js';
+import type { Async2Definition } from './typings/asyncapi.js';
+import type { Async3Definition } from './typings/asyncapi3.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -40,42 +56,6 @@ import type {
   Oas3Callback,
 } from './typings/openapi.js';
 import type {
-  Oas2Definition,
-  Oas2Tag,
-  Oas2ExternalDocs,
-  Oas2SecurityRequirement,
-  Oas2Info,
-  Oas2Contact,
-  Oas2License,
-  Oas2PathItem,
-  Oas2Operation,
-  Oas2Header,
-  Oas2Response,
-  Oas2Schema,
-  Oas2Xml,
-  Oas2Parameter,
-  Oas2SecurityScheme,
-} from './typings/swagger.js';
-import type { Async2Definition } from './typings/asyncapi.js';
-import type { Async3Definition } from './typings/asyncapi3.js';
-import type {
-  ArazzoDefinition,
-  ArazzoSourceDescription,
-  CriteriaObject,
-  ExtendedOperation,
-  InfoObject,
-  OnFailureObject,
-  OnSuccessObject,
-  OpenAPISourceDescription,
-  Parameter,
-  Replacement,
-  RequestBody,
-  SourceDescription,
-  Step,
-  Workflow,
-} from './typings/arazzo.js';
-import type { Overlay1Definition } from './typings/overlay.js';
-import type {
   OpenRpc1Definition,
   OpenRpc1Info,
   OpenRpc1Server,
@@ -92,6 +72,26 @@ import type {
   OpenRpc1Contact,
   OpenRpc1License,
 } from './typings/openrpc.js';
+import type { Overlay1Definition } from './typings/overlay.js';
+import type {
+  Oas2Definition,
+  Oas2Tag,
+  Oas2ExternalDocs,
+  Oas2SecurityRequirement,
+  Oas2Info,
+  Oas2Contact,
+  Oas2License,
+  Oas2PathItem,
+  Oas2Operation,
+  Oas2Header,
+  Oas2Response,
+  Oas2Schema,
+  Oas2Xml,
+  Oas2Parameter,
+  Oas2SecurityScheme,
+} from './typings/swagger.js';
+import type { Stack } from './utils/stack.js';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk.js';
 
 export type SkipFunctionContext = Pick<
   UserContext,
