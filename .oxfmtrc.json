@@ -16,8 +16,7 @@
     ".changeset/pre.json",
     "*.html",
     "*.hbs",
-    "*.toml",
-    "*.md"
+    "*.toml"
   ],
   "experimentalSortImports": {
     "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],

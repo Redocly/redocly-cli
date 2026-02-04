@@ -84,13 +84,11 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    ```
 
 2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
-
    - `logger.info()` for general information
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
 3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
-
    - Command output that needs to be parsed
    - Interactive outputs (like login/logout responses)
    - Data that needs to be piped to other commands
@@ -319,19 +317,14 @@ What should be verified when changes applied to the `respect-core` package:
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
-
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
-
     - **`packages/cli/src`**: contains CLI package source code.
-
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
   - **`packages/core`**: contains Redocly CLI core functionality like rules, decorators, etc.
-
     - **`packages/core/__tests__`**: contains unit tests.
     - **`packages/cli/core`**: contains core package source code.
-
       - **`packages/core/src/__tests__`**: contains unit tests.
       - **`packages/core/src/config`**: contains the base configuration options.
       - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.
