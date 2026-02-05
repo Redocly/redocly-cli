@@ -13,21 +13,21 @@ import type {
 } from '../../typings/openapi.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
-type AnyOas3ComponentKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
+type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
     {
       usedIn: Location[];
-      componentType?: AnyOas3ComponentKey;
+      componentType?: AnyOas3ComponentsKey;
       name: string;
     }
   >();
 
   function registerComponent(
     location: Location,
-    componentType: AnyOas3ComponentKey,
+    componentType: AnyOas3ComponentsKey,
     name: string
   ): void {
     components.set(location.absolutePointer, {
