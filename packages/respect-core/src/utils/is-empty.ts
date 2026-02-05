@@ -1,4 +1,6 @@
-export function isEmpty(value: any) {
+import { isPlainObject } from '@redocly/openapi-core';
+
+export function isEmpty(value: unknown) {
   if (value === null || value === undefined) {
     return true;
   }
@@ -7,7 +9,7 @@ export function isEmpty(value: any) {
     return false;
   }
 
-  if (typeof value === 'object') {
+  if (isPlainObject(value)) {
     return Object.keys(value).length === 0;
   }
 

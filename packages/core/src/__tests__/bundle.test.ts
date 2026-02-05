@@ -67,6 +67,22 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should bundle external refs under x-query operation (no dereference)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-x-query.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(
+      parsed.paths['/pet']['x-query'].responses['200'].content['application/json'].schema
+    ).toMatchObject({
+      $ref: '#/components/schemas/schema-a',
+    });
+    expect(parsed.components.schemas['schema-a']).toEqual({ type: 'string' });
+  });
+
   it('should bundle external refs and warn for conflicting names', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
@@ -90,6 +106,22 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should dereference external refs under x-query operation when dereference is enabled', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-x-query.yaml'),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+    expect(
+      parsed.paths['/pet']['x-query'].responses['200'].content['application/json'].schema
+    ).toEqual({
+      type: 'string',
+    });
   });
 
   it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {

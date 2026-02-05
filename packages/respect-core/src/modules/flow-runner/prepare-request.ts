@@ -1,4 +1,9 @@
 import {
+  isPlainObject,
+  type ExtendedSecurity,
+  type Oas3SecurityScheme,
+} from '@redocly/openapi-core';
+import {
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
   getRequestDataFromOpenApi,
@@ -13,12 +18,15 @@ import { getServerUrl } from './get-server-url.js';
 import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
-
-import type { ExtendedSecurity } from '@redocly/openapi-core';
-import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
-import type { ParameterWithIn } from '../context-parser/index.js';
-import type { TestContext, Step, Parameter, PublicStep, OperationMethod } from '../../types.js';
-import type { OperationDetails } from '../description-parser/index.js';
+import { type ParameterWithIn } from '../context-parser/index.js';
+import {
+  type TestContext,
+  type Step,
+  type Parameter,
+  type PublicStep,
+  type OperationMethod,
+} from '../../types.js';
+import { type OperationDetails } from '../description-parser/index.js';
 
 export type RequestData = {
   serverUrl?: {
@@ -93,7 +101,7 @@ export async function prepareRequest(
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
   const parameters = joinParameters(
     // order is important here, the last one wins
-    typeof requestBody === 'object'
+    isPlainObject(requestBody) || Array.isArray(requestBody)
       ? [{ in: 'header', name: 'content-type', value: 'application/json' }]
       : [],
     serverUrl?.parameters || [],
@@ -132,8 +140,8 @@ export async function prepareRequest(
   const ctxWithInputs = {
     ...ctx,
     $inputs: {
-      ...(ctx.$inputs || {}),
-      ...(ctx.$workflows[workflowName]?.inputs || {}),
+      ...ctx.$inputs,
+      ...ctx.$workflows[workflowName]?.inputs,
     },
   };
 
@@ -178,7 +186,7 @@ export async function prepareRequest(
     logger: ctx.options.logger,
   });
 
-  if (replacements && typeof evaluatedBody === 'object') {
+  if (replacements && (isPlainObject(evaluatedBody) || Array.isArray(evaluatedBody))) {
     handlePayloadReplacements({
       payload: evaluatedBody,
       replacements,
@@ -189,7 +197,7 @@ export async function prepareRequest(
 
   if (contentType && openapiOperation?.requestBody) {
     const requestBodySchema = getRequestBodySchema(contentType, openapiOperation);
-    if (typeof requestBody === 'object') {
+    if (isPlainObject(requestBody) || Array.isArray(requestBody)) {
       collectSecretValues(ctx, requestBodySchema, requestBody);
     }
   }

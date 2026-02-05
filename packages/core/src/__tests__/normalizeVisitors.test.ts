@@ -26,7 +26,7 @@ describe('Normalize visitors', () => {
     const visitors = ruleset.flatMap((ruleset) =>
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
-        severity: 'error' as 'error',
+        severity: 'error',
         visitor: ruleset[ruleId]({}),
       }))
     );
@@ -73,7 +73,7 @@ describe('Normalize visitors', () => {
     const visitors = ruleset.flatMap((ruleset) =>
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
-        severity: 'error' as 'error',
+        severity: 'error',
         visitor: ruleset[ruleId]({}),
       }))
     );
@@ -114,7 +114,7 @@ describe('Normalize visitors', () => {
     const visitors = ruleset.flatMap((ruleset) =>
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
-        severity: 'error' as 'error',
+        severity: 'error',
         visitor: ruleset[ruleId]({}),
       }))
     );
@@ -152,7 +152,7 @@ describe('Normalize visitors', () => {
     const visitors = ruleset.flatMap((ruleset) =>
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
-        severity: 'error' as 'error',
+        severity: 'error',
         visitor: ruleset[ruleId]({}),
       }))
     );

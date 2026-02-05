@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 /**
  * Support the three possible header formats we'd get from a request or
  * response:
@@ -20,7 +22,7 @@ export function buildHeaders(headers: any): any[] {
     for (const [name, value] of headers.entries()) {
       list.push({ name, value });
     }
-  } else if (typeof headers === 'object') {
+  } else if (isPlainObject(headers)) {
     for (const [name, value] of Object.entries(headers)) {
       list.push({ name, value: value as string });
     }

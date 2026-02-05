@@ -26,6 +26,7 @@ export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/
 export { Stats } from './rules/other/stats.js';
 export {
   loadConfig,
+  loadIgnoreConfig,
   createConfig,
   findConfig,
   resolvePlugins,
@@ -38,6 +39,7 @@ export {
   type Plugin,
   type RuleConfig,
   type RuleSeverity,
+  type IgnoreConfig,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
@@ -52,10 +54,12 @@ export {
 export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
-  unescapePointer,
+  unescapePointerFragment,
   isRef,
   isAbsoluteUrl,
-  escapePointer,
+  getDir,
+  resolvePath,
+  escapePointerFragment,
   type Location,
 } from './ref-utils.js';
 export { detectSpec } from './detect-spec.js';

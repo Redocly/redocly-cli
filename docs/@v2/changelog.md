@@ -7,6 +7,85 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.15.1 (2026-02-02)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.15.1.
+
+## 2.15.0 (2026-01-27)
+
+### Patch Changes
+
+- Removed unused `chokidar` dependency.
+- Updated @redocly/openapi-core to v2.15.0.
+
+## 2.14.9 (2026-01-23)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.9.
+
+## 2.14.8 (2026-01-23)
+
+### Patch Changes
+
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+- Updated @redocly/openapi-core to v2.14.8.
+
+## 2.14.7 (2026-01-22)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.7.
+
+## 2.14.6 (2026-01-21)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.6.
+
+## 2.14.5 (2026-01-12)
+
+### Patch Changes
+
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+- Updated @redocly/openapi-core to v2.14.5.
+
+## 2.14.4 (2026-01-08)
+
+### Patch Changes
+
+- Corrected an issue where `Respect` did not properly JSON-encode request bodies for custom content-types containing numbers.
+- Updated @redocly/respect-core to v2.14.4.
+
+## 2.14.3 (2026-01-02)
+
+### Patch Changes
+
+- Fixed the `split` command to properly handle root-level paths.
+  Previously, the root path `/` was converted to an empty string as a filename, leading to incorrect file structure and broken links.
+  Now, it correctly maps to the specified path separator.
+- Updated @redocly/openapi-core to v2.14.3.
+
+## 2.14.2 (2025-12-30)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.2.
+
+## 2.14.1 (2025-12-24)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.14.1.
+
+## 2.14.0 (2025-12-19)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.14.0.
+
 ## 2.13.0 (2025-12-17)
 
 ### Minor Changes

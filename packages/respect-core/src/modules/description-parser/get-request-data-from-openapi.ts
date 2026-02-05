@@ -11,7 +11,7 @@ import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from './get-operation-from-description.js';
 
 export interface OpenApiRequestData {
-  requestBody?: Record<string, unknown>;
+  requestBody?: unknown;
   contentType?: string;
   parameters: ParameterWithIn[];
   contentTypeParameters: ParameterWithIn[];

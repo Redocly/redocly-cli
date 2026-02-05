@@ -1,5 +1,75 @@
 # @redocly/openapi-core
 
+## 2.15.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.4.
+- Added `description` and `documentationLink` properties to NodeTypes.
+  Renamed Redocly configuration types to better reflect their purpose and relations.
+- Updated @redocly/config to v0.41.3.
+
+## 2.15.0
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.9
+
+### Patch Changes
+
+- Revert: fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.8
+
+### Patch Changes
+
+- Allowed `x-query` operations names in OpenAPI 3.0 and 3.1 similar to `query` in OpenAPI 3.2.
+- Fixed an issue where multi-line lint error messages could break Markdown formatting.
+
+## 2.14.7
+
+### Patch Changes
+
+- Fixed an issue where the `no-invalid-media-type-examples`, `no-invalid-parameter-examples`, and `no-invalid-schema-examples` would not trigger warnings when an example defined in a schema.
+
+## 2.14.6
+
+### Patch Changes
+
+- Fixed an issue where `.redocly.lint-ignore.yaml` was not loaded in browser environments.
+
+## 2.14.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.2.
+- Added an `ajv` npm alias dependency to satisfy peer dependency requirements and prevent installation warnings.
+
+## 2.14.4
+
+## 2.14.3
+
+## 2.14.2
+
+### Patch Changes
+
+- Improved overall performance by skipping unnecessary JSON pointer escaping and unescaping.
+
+## 2.14.1
+
+### Patch Changes
+
+- Fixed an issue where JSON Pointers containing special characters (like `%`) were not properly URI-encoded.
+  When these pointers were used as URI identifiers, they caused validation errors with properties containing percent signs or other special characters.
+
+## 2.14.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.41.1.
+
 ## 2.13.0
 
 ### Minor Changes

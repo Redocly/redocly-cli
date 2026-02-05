@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import { isTruthy } from './utils/is-truthy.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 
@@ -26,7 +27,7 @@ export class Location {
       this.source,
       joinPointer(
         this.pointer,
-        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/')
+        (Array.isArray(components) ? components : [components]).map(escapePointerFragment).join('/')
       )
     );
   }
@@ -40,13 +41,22 @@ export class Location {
   }
 }
 
-export function unescapePointer(fragment: string): string {
-  return decodeURIComponent(fragment.replace(/~1/g, '/').replace(/~0/g, '~'));
+export function unescapePointerFragment(fragment: string): string {
+  const unescaped =
+    fragment.indexOf('~') === -1 ? fragment : fragment.replaceAll('~1', '/').replaceAll('~0', '~');
+
+  try {
+    return decodeURIComponent(unescaped);
+  } catch (e) {
+    return unescaped;
+  }
 }
 
-export function escapePointer<T extends string | number>(fragment: T): T {
+export function escapePointerFragment<T extends string | number>(fragment: T): T {
   if (typeof fragment === 'number') return fragment;
-  return (fragment as string).replace(/~/g, '~0').replace(/\//g, '~1') as T;
+  if (fragment.indexOf('/') === -1 && fragment.indexOf('~') === -1) return fragment;
+
+  return fragment.replaceAll('~', '~0').replaceAll('/', '~1') as T;
 }
 
 export function parseRef(ref: string): { uri: string | null; pointer: string[] } {
@@ -58,7 +68,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
 }
 
 export function parsePointer(pointer: string) {
-  return pointer.split('/').map(unescapePointer).filter(isTruthy);
+  return pointer.split('/').map(unescapePointerFragment).filter(isTruthy);
 }
 
 export function pointerBaseName(pointer: string) {
@@ -73,7 +83,24 @@ export function refBaseName(ref: string) {
 }
 
 export function isAbsoluteUrl(ref: string) {
-  return ref.startsWith('http://') || ref.startsWith('https://');
+  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
+}
+
+export function getDir(filePath: string): string {
+  if (!path.extname(filePath)) {
+    return filePath;
+  }
+
+  return isAbsoluteUrl(filePath)
+    ? filePath.substring(0, filePath.lastIndexOf('/'))
+    : path.dirname(filePath);
+}
+
+export function resolvePath(base: string, relative: string): string {
+  if (isAbsoluteUrl(base)) {
+    return new URL(relative, base.endsWith('/') ? base : `${base}/`).href;
+  }
+  return path.resolve(base, relative);
 }
 
 export function isMappingRef(mapping: string) {

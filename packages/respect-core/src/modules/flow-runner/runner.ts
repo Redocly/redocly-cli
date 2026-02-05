@@ -203,8 +203,8 @@ export async function runWorkflow({
       ctx: {
         ...ctx,
         $inputs: {
-          ...(ctx.$inputs || {}),
-          ...(ctx.$workflows[workflowId]?.inputs || {}),
+          ...ctx.$inputs,
+          ...ctx.$workflows[workflowId]?.inputs,
         },
       },
       workflowId,
@@ -266,7 +266,7 @@ async function handleDependsOn({
         value: workflowId,
         ctx,
         logger: ctx.options.logger,
-      });
+      }) as Workflow;
       const workflowCtx = await resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config);
 
       printRequiredWorkflowSeparator(workflow.workflowId, ctx.options.logger);

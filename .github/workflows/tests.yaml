@@ -35,25 +35,6 @@ jobs:
       - name: E2E Tests
         run: npm run e2e
 
-  cli-package-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Prepare CLI and Core packages
-        run: npm run pack:prepare
-      - name: Install CLI Package
-        run: npm install -g redocly-cli.tgz
-      - name: Redocly version
-        run: redocly --version
-      - name: Definition test
-        run: redocly lint resources/rebilly.yaml --format=stylish
-
   code-style-check:
     runs-on: ubuntu-latest
     steps:

@@ -9,7 +9,7 @@ export function handlePayloadReplacements({
   expressionContext,
   logger,
 }: {
-  payload: object;
+  payload: Record<string, unknown> | Array<unknown>;
   replacements: Replacement[];
   expressionContext: RuntimeExpressionContext;
   logger: LoggerInterface;

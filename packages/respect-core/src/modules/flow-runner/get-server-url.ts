@@ -1,5 +1,6 @@
 import { getValueFromContext } from '../context-parser/index.js';
 import { formatCliInputs } from './inputs/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/evaluate.js';
 
 import type { ExtendedOperation, TestContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/index.js';
@@ -31,7 +32,13 @@ export function getServerUrl({
   xOperation,
 }: GetServerUrlInput): { url: string } | undefined {
   if (!descriptionName && xOperation?.url) {
-    return { url: xOperation?.url };
+    const resolvedUrl = evaluateRuntimeExpressionPayload({
+      payload: xOperation?.url,
+      context: ctx,
+      logger: ctx.options.logger,
+    });
+
+    return { url: resolvedUrl };
   }
 
   // Handle server overrides from command line `server` option
@@ -67,7 +74,7 @@ export function getServerUrl({
       value: `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
       ctx,
       logger: ctx.options.logger,
-    });
+    }) as ServerObject;
 
     return resolveOpenApiServerUrlWithVariables(serverObject);
   }

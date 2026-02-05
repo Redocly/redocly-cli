@@ -29,6 +29,7 @@ import type {
   RuntimeExpressionContext,
   ResolvedParameter,
   ExecutedStepsCount,
+  Workflow,
 } from '../../types.js';
 import type { ParameterWithoutIn } from '../context-parser/index.js';
 
@@ -64,7 +65,9 @@ export async function runStep({
   if (targetWorkflowRef) {
     const targetWorkflow =
       ctx.workflows.find((w) => w.workflowId === targetWorkflowRef) ||
-      getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger });
+      (getValueFromContext({ value: targetWorkflowRef, ctx, logger: ctx.options.logger }) as
+        | Workflow
+        | undefined);
 
     if (!targetWorkflow) {
       const failedCall: Check = {
@@ -84,7 +87,7 @@ export async function runStep({
       ctx.options.config
     );
 
-    if (resolvedParameters && resolvedParameters.length) {
+    if (resolvedParameters && resolvedParameters.length > 0) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
       const workflowInputParameters = resolvedParameters
         .filter(isParameterWithoutIn)
@@ -92,8 +95,8 @@ export async function runStep({
           const ctxWithInputs = {
             ...ctx,
             $inputs: {
-              ...(ctx.$inputs || {}),
-              ...(workflowId ? ctx.$workflows[workflowId]?.inputs || {} : {}),
+              ...ctx.$inputs,
+              ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
             },
           };
           // Ensure parameter is of type ParameterWithoutIn
@@ -300,11 +303,21 @@ export async function runStep({
 
       if (matchesCriteria) {
         const targetWorkflow = action.workflowId
-          ? getValueFromContext({ value: action.workflowId, ctx, logger: ctx.options.logger })
+          ? (getValueFromContext({
+              value: action.workflowId,
+              ctx,
+              logger: ctx.options.logger,
+            }) as Workflow)
           : undefined;
-        const targetCtx = action.workflowId
-          ? await resolveWorkflowContext(action.workflowId, targetWorkflow, ctx, ctx.options.config)
-          : { ...ctx, executedSteps: [] };
+        const targetCtx =
+          action.workflowId && targetWorkflow
+            ? await resolveWorkflowContext(
+                action.workflowId,
+                targetWorkflow,
+                ctx,
+                ctx.options.config
+              )
+            : { ...ctx, executedSteps: [] };
 
         const targetStep = action.stepId ? action.stepId : undefined;
 
@@ -316,7 +329,9 @@ export async function runStep({
             return { retriesLeft: 0, shouldEnd: false };
           }
 
-          retryAfter && (await delay(retryAfter));
+          if (retryAfter) {
+            await delay(retryAfter);
+          }
 
           if (targetWorkflow || targetStep) {
             printActionsSeparator({

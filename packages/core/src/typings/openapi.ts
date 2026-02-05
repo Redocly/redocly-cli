@@ -306,6 +306,7 @@ export interface Oas3_1Components extends Oas3ComponentsBase<Oas3_1Schema> {
   pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3_1Schema>> };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Oas3Components extends Oas3ComponentsBase<Oas3Schema> {}
 
 export type Oas3ComponentName<T extends Oas3Schema | Oas3_1Schema = Oas3Schema | Oas3_1Schema> =

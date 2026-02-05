@@ -1,5 +1,3 @@
-import { outdent } from 'outdent';
-
 import { formatProblems, getTotals } from '../format/format.js';
 import { LocationObject, NormalizedProblem } from '../walk.js';
 import { Source } from '../resolve.js';
@@ -137,6 +135,44 @@ describe('format', () => {
       | Severity | Location | Problem | Message |
       |---|---|---|---|
       | error | line 1:2 | [struct](https://redocly.com/docs/cli/rules/struct/) | message |
+
+      Validation failed
+      Errors: 1
+
+      "
+    `);
+  });
+
+  it('should replace newlines with <br> in markdown messages', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'multiline-rule',
+        severity: 'error',
+        message:
+          "multiline-rule filed because the Response  didn't meet the assertions: \n- Response does not describe header Deprecation\n- Response does not describe header Sunset",
+        location: [
+          {
+            source: { absoluteRef: 'openapi.yaml' } as Source,
+            start: { line: 10, col: 5 },
+            end: { line: 10, col: 15 },
+          } as LocationObject,
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'markdown',
+      version: '2.0.0',
+      totals: getTotals(problems),
+    });
+
+    expect(output).toMatchInlineSnapshot(`
+      "## Lint: openapi.yaml
+
+      | Severity | Location | Problem | Message |
+      |---|---|---|---|
+      | error | line 10:5 | [multiline-rule](https://redocly.com/docs/cli/rules/multiline-rule/) | multiline-rule filed because the Response  didn't meet the assertions: <br>- Response does not describe header Deprecation<br>- Response does not describe header Sunset |
 
       Validation failed
       Errors: 1

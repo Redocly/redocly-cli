@@ -1,6 +1,6 @@
 import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
-import { escapePointer } from '../ref-utils.js';
+import { escapePointerFragment } from '../ref-utils.js';
 
 import type { Location } from '../ref-utils.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';
@@ -12,7 +12,7 @@ export function releaseAjvInstance() {
   ajvInstance = null;
 }
 
-function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
+function getAjv(resolve: ResolveFn) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -24,11 +24,15 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: true,
-      defaultUnevaluatedProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, $id: string) {
-        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
+        const decodedBase = decodeURI(base.split('#')[0]);
+        const resolvedRef = resolve({ $ref }, decodedBase);
         if (!resolvedRef || !resolvedRef.location) return false;
-        return { $id: resolvedRef.location.source.absoluteRef + '#' + $id, ...resolvedRef.node };
+
+        return {
+          $id: encodeURI(resolvedRef.location.source.absoluteRef) + '#' + $id,
+          ...resolvedRef.node,
+        };
       },
       logger: false,
     });
@@ -43,13 +47,15 @@ function getAjvValidator(
   resolve: ResolveFn,
   allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
-  const ajv = getAjv(resolve, allowAdditionalProperties);
+  const ajv = getAjv(resolve);
+  const $id = encodeURI(loc.absolutePointer);
 
-  if (!ajv.getSchema(loc.absolutePointer)) {
-    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+  if (!ajv.getSchema($id)) {
+    ajv.setDefaultUnevaluatedProperties(allowAdditionalProperties);
+    ajv.addSchema({ $id, ...schema }, $id);
   }
 
-  return ajv.getSchema(loc.absolutePointer);
+  return ajv.getSchema($id);
 }
 
 export function validateJsonSchema(
@@ -95,7 +101,7 @@ export function validateJsonSchema(
     if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
       const property = error.params.additionalProperty || error.params.unevaluatedProperty;
       message = `${message} \`${property}\``;
-      error.instancePath += '/' + escapePointer(property);
+      error.instancePath += '/' + escapePointerFragment(property);
     }
 
     return {

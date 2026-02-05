@@ -36,10 +36,11 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
       Operation: {
         leave(operation: any) {
           statsAccumulator.webhooks.total++;
-          operation.tags &&
-            operation.tags.forEach((tag: string) => {
+          if (operation.tags) {
+            for (const tag of operation.tags) {
               statsAccumulator.tags.items!.add(tag);
-            });
+            }
+          }
         },
       },
     },
@@ -51,10 +52,11 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
         Operation: {
           leave(operation: any) {
             statsAccumulator.operations.total++;
-            operation.tags &&
-              operation.tags.forEach((tag: string) => {
+            if (operation.tags) {
+              for (const tag of operation.tags) {
                 statsAccumulator.tags.items!.add(tag);
-              });
+              }
+            }
           },
         },
         Parameter: {
