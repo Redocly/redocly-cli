@@ -793,4 +793,39 @@ describe('no-invalid-media-type-examples', () => {
       ]
     `);
   });
+
+  it('should not crash when examples in not an object', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      examples: Wrong multiple example
+                    application+nested/json:
+                      schema:
+                        type: string
+                      examples: 
+                        test: Wrong nested example
+
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'no-invalid-media-type-examples': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
