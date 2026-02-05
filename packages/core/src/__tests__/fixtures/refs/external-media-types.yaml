@@ -1,0 +1,20 @@
+openapi: 3.2.0
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      responses:
+        '200':
+          description: OK
+          content:
+            $ref: ./media-types.yaml#/components/mediaTypes/JsonPets
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string

@@ -198,6 +198,45 @@ describe('bundle', () => {
     });
   });
 
+  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    const parsed = res.parsed as any;
+
+    expect(parsed.components?.mediaTypes).toBeDefined();
+    expect(parsed.components?.mediaTypes?.JsonPets).toBeDefined();
+    expect(parsed.components?.mediaTypes?.JsonPets).toEqual({
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+            },
+            name: {
+              type: 'string',
+            },
+          },
+        },
+        examples: {
+          example1: {
+            value: {
+              id: 1,
+              name: 'John',
+            },
+          },
+        },
+      },
+    });
+    expect(parsed.paths?.['/pets']?.get?.responses?.['200']?.content).toEqual({
+      $ref: '#/components/mediaTypes/JsonPets',
+    });
+  });
+
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
