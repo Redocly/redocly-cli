@@ -94,15 +94,15 @@ describe('no-invalid-media-type-examples', () => {
                 content:
                   application/json:
                     example:
-                      read-only: "should be forbidden in request"
-                      write-only: "allowed in request"
+                      readOnlyProp: "should be forbidden in request"
+                      writeOnlyProp: "allowed in request"
                     schema:
                       type: object
                       properties:
-                        read-only:
+                        readOnlyProp:
                           type: string
                           readOnly: true
-                        write-only:
+                        writeOnlyProp:
                           type: string
                           writeOnly: true
       `,
@@ -124,12 +124,12 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/post/requestBody/content/application~1json/example/read-only",
+              "pointer": "#/paths/~1pet/post/requestBody/content/application~1json/example/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example value must conform to the schema: \`read-only\` property must NOT be present in request context.",
+          "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
           "suggest": [],
@@ -151,15 +151,15 @@ describe('no-invalid-media-type-examples', () => {
                   content:
                     application/json:
                       example:
-                        read-only: "should be forbidden in request"
-                        write-only: "allowed in request"
+                        readOnlyProp: "should be forbidden in request"
+                        writeOnlyProp: "allowed in request"
                       schema:
                         type: object
                         properties:
-                          read-only:
+                          readOnlyProp:
                             type: string
                             readOnly: true
-                          write-only:
+                          writeOnlyProp:
                             type: string
                             writeOnly: true
               responses:
@@ -184,12 +184,12 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json/example/read-only",
+              "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json/example/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example value must conform to the schema: \`read-only\` property must NOT be present in request context.",
+          "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
           "suggest": [],
@@ -212,17 +212,17 @@ describe('no-invalid-media-type-examples', () => {
                       schema:
                         type: object
                         properties:
-                          read-only:
+                          readOnlyProp:
                             type: string
                             readOnly: true
-                          write-only:
+                          writeOnlyProp:
                             type: string
                             writeOnly: true
                       examples:
                         first:
                           value:
-                            read-only: "allowed in response"
-                            write-only: "should be forbidden in response"
+                            readOnlyProp: "allowed in response"
+                            writeOnlyProp: "should be forbidden in response"
       `,
       'foobar.yaml'
     );
@@ -242,12 +242,12 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/value/write-only",
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/value/writeOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example value must conform to the schema: \`write-only\` property must NOT be present in response context.",
+          "message": "Example value must conform to the schema: \`writeOnlyProp\` property must NOT be present in response context.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
           "suggest": [],
