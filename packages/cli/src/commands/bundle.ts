@@ -111,6 +111,7 @@ export async function handleBundle({
         format: 'codeframe',
         totals: fileTotals,
         version,
+        command: 'bundle',
       });
 
       if (argv.metafile) {
@@ -131,7 +132,7 @@ export async function handleBundle({
             )} with errors ${green(elapsed)}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
-          logger.info(
+          logger.error(
             `❌ Errors encountered while bundling ${blue(
               formatPath(path)
             )}: bundle not created (use --force to ignore errors).\n`
