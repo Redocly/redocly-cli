@@ -2,7 +2,11 @@ import addFormats from 'ajv-formats';
 import Ajv from '@redocly/ajv/dist/2020.js';
 import { escapePointerFragment } from '../ref-utils.js';
 
-import type { ErrorObject, ValidateFunction } from '@redocly/ajv/dist/2020.js';
+import type {
+  ErrorObject,
+  ValidateFunction,
+  Context as AjvContext,
+} from '@redocly/ajv/dist/2020.js';
 import type { Location } from '../ref-utils.js';
 import type { ResolveFn } from '../walk.js';
 
@@ -66,7 +70,7 @@ export function validateJsonSchema(
   instancePath: string,
   resolve: ResolveFn,
   allowAdditionalProperties: boolean,
-  ctx: unknown
+  ajvContext: AjvContext
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
@@ -78,8 +82,7 @@ export function validateJsonSchema(
     rootData: {},
     dynamicAnchors: {},
   };
-
-  const valid = ctx ? validate.call(ctx, data, dataCxt) : validate(data, dataCxt);
+  const valid = validate.call(ajvContext, data, dataCxt);
 
   return {
     valid: !!valid,

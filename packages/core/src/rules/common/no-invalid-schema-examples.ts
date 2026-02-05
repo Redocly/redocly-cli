@@ -5,6 +5,8 @@ import type { UserContext } from '../../walk.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 
+const context = {};
+
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
   return {
     Schema: {
@@ -18,7 +20,8 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
               schema,
               ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
-              !!opts.allowAdditionalProperties
+              !!opts.allowAdditionalProperties,
+              context
             );
           }
         }
@@ -38,7 +41,8 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             schema,
             ctx.location.child('example'),
             ctx,
-            !!opts.allowAdditionalProperties
+            !!opts.allowAdditionalProperties,
+            context
           );
         }
       },
