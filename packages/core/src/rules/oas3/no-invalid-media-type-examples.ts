@@ -1,6 +1,7 @@
 import { isRef } from '../../ref-utils.js';
 import { validateExample } from '../utils.js';
 import { isDefined } from '../../utils/is-defined.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 
 import type { Oas3Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
@@ -18,7 +19,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
 
         if (isDefined(mediaType.example)) {
           resolveAndValidateExample(mediaType.example, location.child('example'));
-        } else if (mediaType.examples) {
+        } else if (isPlainObject(mediaType.examples)) {
           for (const exampleName of Object.keys(mediaType.examples)) {
             resolveAndValidateExample(
               mediaType.examples[exampleName],

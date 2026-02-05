@@ -1,5 +1,6 @@
 import { validateExample } from '../utils.js';
 import { isDefined } from '../../utils/is-defined.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 
 import type { UserContext } from '../../walk.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
@@ -18,9 +19,9 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
           );
         }
 
-        if (parameter.examples) {
+        if (isPlainObject(parameter.examples)) {
           for (const [key, example] of Object.entries(parameter.examples)) {
-            if ('value' in example) {
+            if (isPlainObject(example) && 'value' in example) {
               validateExample(
                 example.value,
                 parameter.schema!,

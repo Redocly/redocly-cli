@@ -138,4 +138,36 @@ describe('no-invalid-schema-examples', () => {
       ]
     `);
   });
+
+  it('should not crash when examples in not an array', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          foo:
+                            type: string
+                            examples: Wrong multiple example
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'no-invalid-schema-examples': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });

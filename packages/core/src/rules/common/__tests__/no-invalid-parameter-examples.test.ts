@@ -111,4 +111,38 @@ describe('no-invalid-parameter-examples', () => {
       ]
     `);
   });
+
+  it('should not crash when examples in not an object', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              parameters:
+                - name: foo
+                  in: query
+                  schema:
+                    type: string
+                  examples: Wrong multiple example
+                - name: bar
+                  in: query
+                  schema:
+                    type: string
+                  examples: 
+                    test: Wrong nested example
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'no-invalid-parameter-examples': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
