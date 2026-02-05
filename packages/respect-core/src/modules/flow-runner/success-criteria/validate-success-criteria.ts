@@ -1,7 +1,8 @@
-import type {
-  CriteriaObject,
-  RegexpSuccessCriteria,
-  JsonPathSuccessCriteria,
+import { isPlainObject } from '@redocly/openapi-core';
+import {
+  type CriteriaObject,
+  type RegexpSuccessCriteria,
+  type JsonPathSuccessCriteria,
 } from '../../../types.js';
 
 export function isRegexpSuccessCriteria(
@@ -15,9 +16,7 @@ export function isJSONPathSuccessCriteria(
 ): criteria is JsonPathSuccessCriteria {
   const typeValue = (criteria as JsonPathSuccessCriteria)?.type;
 
-  return (
-    typeValue === 'jsonpath' || (typeof typeValue === 'object' && typeValue?.type === 'jsonpath')
-  );
+  return typeValue === 'jsonpath' || (isPlainObject(typeValue) && typeValue.type === 'jsonpath');
 }
 
 export const ALLOWED_EXPRESSION_KEYS = [

@@ -41,7 +41,7 @@ export function matchesJsonSchemaType(value: unknown, type: string, nullable: bo
     case 'array':
       return Array.isArray(value);
     case 'object':
-      return typeof value === 'object' && value !== null && !Array.isArray(value);
+      return isPlainObject(value);
     case 'null':
       return value === null;
     case 'integer':

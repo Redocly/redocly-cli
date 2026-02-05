@@ -155,7 +155,7 @@ export function deepCloneMapWithJSON<K, V>(originalMap: Map<K, V>): Map<K, V> {
 }
 
 export function isDeprecatedPluginFormat(plugin: ImportedPlugin | undefined): plugin is Plugin {
-  return plugin !== undefined && typeof plugin === 'object' && 'id' in plugin;
+  return isPlainObject(plugin) && 'id' in plugin;
 }
 
 export function isCommonJsPlugin(plugin: ImportedPlugin | undefined): plugin is PluginCreator {

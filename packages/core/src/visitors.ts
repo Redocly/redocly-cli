@@ -518,7 +518,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
         addWeakFromStack(ruleConf, stack);
         continue;
       }
-      if (typeof type === 'object' && type !== null && type.name) {
+      if (isPlainObject(type) && type.name !== undefined) {
         possibleChildren.add(type);
       }
     }

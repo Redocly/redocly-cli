@@ -1,3 +1,5 @@
+import { isPlainObject } from '@redocly/openapi-core';
+
 export function formatCliInputs(input: string | string[] | undefined): Record<string, string> {
   if (!input) {
     return {};
@@ -17,8 +19,8 @@ function parseParam(param: string): Record<string, string> {
   try {
     const parsedObject = JSON.parse(param);
 
-    if (typeof parsedObject === 'object' && parsedObject !== null) {
-      return parsedObject;
+    if (isPlainObject(parsedObject)) {
+      return parsedObject as Record<string, string>;
     }
   } catch {
     // do nothing

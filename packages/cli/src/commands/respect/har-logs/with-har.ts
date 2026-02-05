@@ -220,7 +220,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     });
     responseCopy.harEntry = entry;
 
-    if (har && typeof har === 'object') {
+    if (Array.isArray(har?.log?.entries)) {
       har.log.entries.push(...parents, entry);
     }
 

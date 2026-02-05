@@ -1,4 +1,5 @@
 import { bgRed, inverse } from 'colorette';
+import { isPlainObject } from '@redocly/openapi-core';
 import {
   type OperationMethod,
   type VerboseLog,
@@ -20,8 +21,7 @@ import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
 import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
-
-import type { RequestData } from '../modules/flow-runner/index.js';
+import { type RequestData } from '../modules/flow-runner/index.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -162,7 +162,7 @@ export class ApiFetcher implements IFetcher {
       }
     }
 
-    if (typeof requestBody === 'object' && !headers['content-type']) {
+    if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';
     }
 

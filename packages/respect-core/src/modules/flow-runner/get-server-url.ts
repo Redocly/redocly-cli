@@ -74,7 +74,7 @@ export function getServerUrl({
       value: `$sourceDescriptions.${descriptionName}.servers.${serverIndexInDescription}`,
       ctx,
       logger: ctx.options.logger,
-    });
+    }) as ServerObject;
 
     return resolveOpenApiServerUrlWithVariables(serverObject);
   }

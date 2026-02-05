@@ -205,7 +205,7 @@ export type RuntimeExpressionContext = {
 };
 
 export type RunWorkflowInput = {
-  workflowInput: Workflow | string;
+  workflowInput: Workflow | string | undefined;
   ctx: TestContext;
   fromStepId?: string;
   parentStepId?: string;
