@@ -5,7 +5,7 @@ import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
 
-const context = { apiContext: 'request' as const };
+const context = { oas: { mode: 'request' as const, location: 'requestBody' as const } };
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
   return {
