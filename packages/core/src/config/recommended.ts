@@ -268,6 +268,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'sourceDescriptions-not-empty': 'error',
     'step-onFailure-unique': 'warn',
     'step-onSuccess-unique': 'warn',
+    'step-outputs-defined': 'warn',
     'stepId-unique': 'error',
     'workflow-dependsOn': 'error',
     'workflowId-unique': 'error',

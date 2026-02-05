@@ -21,6 +21,7 @@ import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoXSecurityBothSchemeAndSchemeName } from '../respect/no-x-security-both-scheme-and-scheme-name.js';
 import { XSecuritySchemeNameReference } from '../respect/x-security-scheme-name-reference.js';
+import { StepOutputsDefined } from './step-outputs-defined.js';
 
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { Arazzo1RuleSet } from '../../oas-types.js';
@@ -49,6 +50,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Arazzo1Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Arazzo1Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Arazzo1Rule,
+  'step-outputs-defined': StepOutputsDefined,
 };
 
 export const preprocessors = {};

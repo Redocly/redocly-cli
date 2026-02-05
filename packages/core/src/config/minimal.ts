@@ -268,6 +268,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'sourceDescriptions-not-empty': 'off',
     'step-onFailure-unique': 'off',
     'step-onSuccess-unique': 'off',
+    'step-outputs-defined': 'off',
     'stepId-unique': 'error',
     'workflow-dependsOn': 'off',
     'workflowId-unique': 'error',

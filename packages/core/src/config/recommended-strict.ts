@@ -268,6 +268,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'sourceDescriptions-not-empty': 'error',
     'step-onFailure-unique': 'error',
     'step-onSuccess-unique': 'error',
+    'step-outputs-defined': 'error',
     'stepId-unique': 'error',
     'workflow-dependsOn': 'error',
     'workflowId-unique': 'error',
