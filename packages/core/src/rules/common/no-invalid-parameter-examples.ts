@@ -5,6 +5,8 @@ import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
 
+const context = { apiContext: 'request' as const };
+
 export const NoInvalidParameterExamples: any = (opts: any) => {
   return {
     Parameter: {
@@ -15,7 +17,8 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
             parameter.schema!,
             ctx.location.child('example'),
             ctx,
-            !!opts.allowAdditionalProperties
+            !!opts.allowAdditionalProperties,
+            context
           );
         }
 
@@ -27,7 +30,8 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
                 parameter.schema!,
                 ctx.location.child(['examples', key]),
                 ctx,
-                !!opts.allowAdditionalProperties
+                !!opts.allowAdditionalProperties,
+                context
               );
             }
           }

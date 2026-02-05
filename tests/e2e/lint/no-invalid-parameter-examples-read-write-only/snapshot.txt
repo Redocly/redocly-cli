@@ -1,6 +1,6 @@
 [1] openapi.yaml:25:15 at #/paths/~1test/get/parameters/0/examples/invalid_readOnly_present/id
 
-Example value must conform to the schema: `id` property must NOT be present in request (undefined).
+Example value must conform to the schema: `id` property must NOT be present in request context.
 
 23 |
 24 | invalid_readOnly_present:
