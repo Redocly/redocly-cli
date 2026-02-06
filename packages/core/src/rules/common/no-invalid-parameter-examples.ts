@@ -5,34 +5,30 @@ import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { UserContext } from '../../walk.js';
 import type { Oas3Parameter } from '../../typings/openapi.js';
 
-const context = { oas: { mode: 'request' as const, location: 'requestBody' as const } };
+const context = { apiContext: 'request' as const };
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
         if (isDefined(parameter.example)) {
-          validateExample(
-            parameter.example,
-            parameter.schema!,
-            ctx.location.child('example'),
+          validateExample(parameter.example, parameter.schema!, {
+            dataLoc: ctx.location.child('example'),
             ctx,
-            !!opts.allowAdditionalProperties,
-            context
-          );
+            allowAdditionalProperties: !!opts.allowAdditionalProperties,
+            ajvContext: context,
+          });
         }
 
         if (isPlainObject(parameter.examples)) {
           for (const [key, example] of Object.entries(parameter.examples)) {
             if (isPlainObject(example) && 'value' in example) {
-              validateExample(
-                example.value,
-                parameter.schema!,
-                ctx.location.child(['examples', key]),
+              validateExample(example.value, parameter.schema!, {
+                dataLoc: ctx.location.child(['examples', key]),
                 ctx,
-                !!opts.allowAdditionalProperties,
-                context
-              );
+                allowAdditionalProperties: !!opts.allowAdditionalProperties,
+                ajvContext: context,
+              });
             }
           }
         }
