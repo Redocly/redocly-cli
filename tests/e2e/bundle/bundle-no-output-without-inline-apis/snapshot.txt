@@ -26,7 +26,7 @@ Options:
   -k, --keep-url-references           Keep absolute url references.    [boolean]
       --lint-config                   Severity level for config file linting.
                              [choices: "warn", "error", "off"] [default: "warn"]
-      --component-renaming-conflicts  Whether to show warnings or fail on renami
+      --component-renaming-conflicts-severity  Whether to show warnings or fail on renami
                                       ng conflicts (defaults to warn).
                                                [choices: "warn", "error", "off"]
 

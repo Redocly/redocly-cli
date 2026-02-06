@@ -451,7 +451,7 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-          'component-renaming-conflicts': {
+          'component-renaming-conflicts-severity': {
             description:
               'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,

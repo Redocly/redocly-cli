@@ -35,7 +35,7 @@ export type BundleArgv = {
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
-  'component-renaming-conflicts'?: RuleSeverity;
+  'component-renaming-conflicts-severity'?: RuleSeverity;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
@@ -74,7 +74,7 @@ export async function handleBundle({
         dereference: argv.dereferenced,
         removeUnusedComponents: argv['remove-unused-components'],
         keepUrlRefs: argv['keep-url-references'],
-        componentRenamingConflicts: argv['component-renaming-conflicts'],
+        componentRenamingConflicts: argv['component-renaming-conflicts-severity'],
         collectSpecData,
       });
 
