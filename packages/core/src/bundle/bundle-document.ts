@@ -9,6 +9,7 @@ import { normalizeVisitors } from '../visitors.js';
 import { walkDocument } from '../walk.js';
 
 import type { Config } from '../config/config.js';
+import type { RuleSeverity } from '../config/types.js';
 import type { Document, BaseResolver } from '../resolve.js';
 import type { NormalizedNodeType, NodeType } from '../types/index.js';
 import type { WalkContext, NormalizedProblem } from '../walk.js';
