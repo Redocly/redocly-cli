@@ -167,6 +167,114 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should bundle mediaTypes refs correctly (OAS 3.2)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /test:
+            get:
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    $ref: '#/components/mediaTypes/Test'
+        components:
+          mediaTypes:
+            Test:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/User'
+                examples:
+                  example1:
+                    value:
+                      id: 1
+                      name: John
+          schemas:
+            User:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+        `,
+      'test.yaml'
+    );
+
+    const { bundle: res, problems } = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      types: Oas3Types,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/Test'
+      components:
+        mediaTypes:
+          Test:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
+        schemas:
+          User:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    `);
+  });
+
+  it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-media-types.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/testMediaType'
+      components:
+        mediaTypes:
+          testMediaType:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              examples:
+                Test:
+                  value:
+                    id: 1
+    `);
+  });
+
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),

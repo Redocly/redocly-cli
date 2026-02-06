@@ -249,6 +249,13 @@ const Discriminator: NodeType = {
   },
 };
 
+const Components: NodeType = {
+  properties: {
+    ...Oas3_1Types.Components.properties,
+    mediaTypes: 'NamedMediaTypes',
+  },
+};
+
 const Example: NodeType = {
   ...Oas3_1Types.Example,
   properties: {
@@ -329,4 +336,6 @@ export const Oas3_2Types = {
   Example,
   Xml,
   Schema,
+  Components,
+  NamedMediaTypes: mapOf('MediaTypesMap'),
 } as const;
