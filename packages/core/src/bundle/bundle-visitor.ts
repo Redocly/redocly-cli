@@ -3,14 +3,14 @@ import { makeRefId } from '../utils/make-ref-id.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { dequal } from '../utils/dequal.js';
-
-import type { OasRef } from '../typings/openapi';
-import type { Location } from '../ref-utils.js';
-import type { Document } from '../resolve.js';
-import type { ResolvedRefMap } from '../resolve';
-import type { SpecMajorVersion } from '../oas-types';
-import type { Oas3Visitor, Oas2Visitor } from '../visitors';
-import type { UserContext, ResolveResult } from '../walk';
+import { type RuleSeverity } from '../config/types.js';
+import { type OasRef } from '../typings/openapi';
+import { type Location } from '../ref-utils.js';
+import { type Document } from '../resolve.js';
+import { type ResolvedRefMap } from '../resolve';
+import { type SpecMajorVersion } from '../oas-types';
+import { type Oas3Visitor, type Oas2Visitor } from '../visitors';
+import { type UserContext, type ResolveResult } from '../walk';
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -101,13 +101,21 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
   }
 }
 
-export function makeBundleVisitor(
-  version: SpecMajorVersion,
-  dereference: boolean,
-  rootDocument: Document,
-  resolvedRefMap: ResolvedRefMap,
-  keepUrlRefs: boolean
-) {
+export function makeBundleVisitor({
+  version,
+  dereference,
+  rootDocument,
+  resolvedRefMap,
+  keepUrlRefs,
+  componentRenamingConflicts = 'warn',
+}: {
+  version: SpecMajorVersion;
+  dereference: boolean;
+  rootDocument: Document;
+  resolvedRefMap: ResolvedRefMap;
+  keepUrlRefs: boolean;
+  componentRenamingConflicts?: RuleSeverity;
+}) {
   let components: Record<string, Record<string, any>>;
   let rootLocation: Location;
 
@@ -292,7 +300,7 @@ export function makeBundleVisitor(
       ctx.report({
         message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
         location: ctx.location,
-        forceSeverity: 'warn',
+        forceSeverity: componentRenamingConflicts,
       });
     }
 

@@ -8,6 +8,7 @@ import {
   logger,
   type Oas2Definition,
   type Oas3Definition,
+  type RuleSeverity,
 } from '@redocly/openapi-core';
 import {
   dumpBundle,
@@ -21,9 +22,8 @@ import {
   formatPath,
 } from '../utils/miscellaneous.js';
 import { AbortFlowError } from '../utils/error.js';
-
-import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
-import type { CommandArgs } from '../wrapper.js';
+import { type OutputExtension, type Totals, type VerifyConfigOptions } from '../types.js';
+import { type CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
   apis?: string[];
@@ -35,6 +35,7 @@ export type BundleArgv = {
   metafile?: string;
   'remove-unused-components'?: boolean;
   'keep-url-references'?: boolean;
+  'component-renaming-conflicts-severity'?: RuleSeverity;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
 } & VerifyConfigOptions;
@@ -73,6 +74,7 @@ export async function handleBundle({
         dereference: argv.dereferenced,
         removeUnusedComponents: argv['remove-unused-components'],
         keepUrlRefs: argv['keep-url-references'],
+        componentRenamingConflicts: argv['component-renaming-conflicts-severity'],
         collectSpecData,
       });
 
