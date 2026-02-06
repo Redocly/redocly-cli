@@ -5,7 +5,7 @@ import { bundleDocument } from '../../../bundle/bundle-document.js';
 import { bundle } from '../../../bundle/bundle.js';
 import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
-import { Oas3Types } from '../../../index.js';
+import { Oas3Types, Oas3_2Types } from '../../../index.js';
 
 describe('oas3 remove-unused-components', () => {
   it('should remove unused components', async () => {
@@ -329,5 +329,81 @@ describe('oas3 remove-unused-components', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].ruleId).toEqual('bundler');
     expect(problems[0].message).toEqual("Can't resolve $ref");
+  });
+
+  it('should remove unused mediaTypes and keep used mediaTypes with schema', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.2.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    $ref: '#/components/mediaTypes/JsonPets'
+        components:
+          mediaTypes:
+            JsonPets:
+              'application/json':
+                schema:
+                  $ref: '#/components/schemas/Pet'
+            UnusedMediaType:
+              'application/json':
+                schema:
+                  type: string
+          schemas:
+            Pet:
+              type: object
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({}),
+      removeUnusedComponents: true,
+      types: Oas3_2Types,
+    });
+
+    expect(results.bundle.parsed).toEqual({
+      openapi: '3.2.0',
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List all pets',
+            operationId: 'listPets',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  $ref: '#/components/mediaTypes/JsonPets',
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        mediaTypes: {
+          JsonPets: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Pet',
+              },
+            },
+          },
+        },
+        schemas: {
+          Pet: {
+            type: 'object',
+          },
+        },
+      },
+    });
   });
 });

@@ -306,6 +306,10 @@ export interface Oas3_1Components extends Oas3ComponentsBase<Oas3_1Schema> {
   pathItems?: { [name: string]: Referenced<Oas3PathItem<Oas3_1Schema>> };
 }
 
+export interface Oas3_2Components extends Oas3_1Components {
+  mediaTypes?: { [name: string]: Referenced<Oas3MediaType<Oas3_1Schema>> };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Oas3Components extends Oas3ComponentsBase<Oas3Schema> {}
 
