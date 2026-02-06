@@ -87,6 +87,7 @@ export function formatProblems(
     color?: boolean;
     totals: Totals;
     version?: string;
+    command?: 'bundle' | 'lint' | 'join' | 'check-config';
   }
 ) {
   const {
@@ -96,6 +97,7 @@ export function formatProblems(
     color = colorOptions.enabled,
     totals = getTotals(problems),
     version = '2.0',
+    command,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified
@@ -117,7 +119,11 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        logger.output(`${formatCodeframe(problem, i)}\n`);
+        if (command === 'bundle') {
+          logger.info(`${formatCodeframe(problem, i)}\n`);
+        } else {
+          logger.output(`${formatCodeframe(problem, i)}\n`);
+        }
       }
       break;
     case 'stylish': {

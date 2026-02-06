@@ -103,6 +103,7 @@ export async function handleLint({
           maxProblems: argv['max-problems'],
           totals: fileTotals,
           version,
+          command: 'lint',
         });
       }
 
@@ -153,6 +154,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,
+    command: 'check-config',
   });
 
   printConfigLintTotals(fileTotals, command);
