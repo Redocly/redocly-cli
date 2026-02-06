@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.16.0 (2026-02-06)
+
+### Minor Changes
+
+- Added a new `--component-renaming-conflicts-severity` option for the `bundle` command to control how naming conflicts are reported when bundling API descriptions with external references.
+
+### Patch Changes
+
+- Redirected bundling problems (such as lint errors and warnings) to `stderr` instead of `stdout` to avoid interfering with the bundled output.
+- Updated @redocly/openapi-core to v2.16.0.
+
 ## 2.15.2 (2026-02-05)
 
 ### Patch Changes
