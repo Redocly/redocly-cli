@@ -250,6 +250,92 @@ describe('oas3 filter-in', () => {
 
     `);
   });
+
+  it('should support applyTo option to limit filtering to specific node types', async () => {
+    // Using applyTo: PathItem prevents filtering schema properties that happen
+    // to have the same name as the filter property (e.g., a schema with a "tags"
+    // property definition should not be filtered when filtering operations by tags).
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /events:
+            get:
+              tags:
+                - App
+              summary: List events
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Event'
+          /users:
+            get:
+              tags:
+                - Public
+              summary: List users
+        components:
+          schemas:
+            Event:
+              type: object
+              properties:
+                id:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Event tags
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'tags',
+            value: 'App',
+            applyTo: 'PathItem',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    // The Event schema should retain its 'tags' property (schema definition)
+    // Only the /users path should be filtered out (wrong operation tag)
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /events:
+          get:
+            tags:
+              - App
+            summary: List events
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Event'
+      components:
+        schemas:
+          Event:
+            type: object
+            properties:
+              id:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+                description: Event tags
+
+    `);
+  });
 });
 
 describe('oas2 filter-in', () => {
