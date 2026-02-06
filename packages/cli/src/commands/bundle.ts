@@ -24,9 +24,9 @@ import {
   sortTopLevelKeysForOas,
   formatPath,
 } from '../utils/miscellaneous.js';
-import type{  OutputExtension,  Totals,  VerifyConfigOptions } from '../types.js';
-import type{  CommandArgs } from '../wrapper.js';
 
+import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
   apis?: string[];

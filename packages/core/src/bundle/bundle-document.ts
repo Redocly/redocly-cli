@@ -1,7 +1,7 @@
+import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
 import { initRules } from '../config/rules.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from '../decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from '../decorators/oas3/remove-unused-components.js';
-import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
 import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
 import { resolveDocument } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';

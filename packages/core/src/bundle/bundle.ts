@@ -4,11 +4,12 @@ import { detectSpec } from '../detect-spec.js';
 import { getTypes } from '../oas-types.js';
 import { BaseResolver, makeDocumentFromString } from '../resolve.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
 import { walkDocument } from '../walk.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
+import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
+
 import type { Plugin, ResolvedConfig } from '../config/types.js';
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from '../config/visitors.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import type { CollectFn } from '../utils/types.js';
 import type { WalkContext, NormalizedProblem } from '../walk.js';

@@ -8,10 +8,11 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
 import { isTruthy } from '../utils/is-truthy.js';
+import { hasComponent } from '../utils/oas-has-component.js';
 import { slash } from '../utils/slash.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
 import { validateMimeType, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
-import { hasComponent } from '../utils/oas-has-component.js';
+
 import type { Oas3_2Components } from '../typings/openapi.js';
 
 vi.mock('node:fs');
