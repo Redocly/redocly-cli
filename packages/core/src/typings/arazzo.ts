@@ -121,7 +121,7 @@ export interface RequestBody {
   replacements?: Replacement[];
 }
 
-export interface CriteriaObject {
+export interface CriterionObject {
   condition: string;
   context?: string;
   type?:
@@ -144,7 +144,7 @@ export interface OnSuccessObject {
   type: 'goto' | 'end';
   stepId?: string;
   workflowId?: string;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
 }
 
 export interface OnFailureObject {
@@ -154,7 +154,7 @@ export interface OnFailureObject {
   stepId?: string;
   retryAfter?: number;
   retryLimit?: number;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
 }
 
 export interface Step {
@@ -164,7 +164,7 @@ export interface Step {
   operationPath?: string;
   workflowId?: string;
   parameters?: Parameter[];
-  successCriteria?: CriteriaObject[];
+  successCriteria?: CriterionObject[];
   onSuccess?: OnSuccessObject[];
   onFailure?: OnFailureObject[];
   outputs?: {
