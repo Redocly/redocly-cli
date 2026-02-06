@@ -451,6 +451,11 @@ yargs(hideBin(process.argv))
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
+          'component-renaming-conflicts': {
+            description:
+              'Whether to show warnings or fail on renaming conflicts (defaults to warn).',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          },
         })
         .check((argv) => {
           if (argv.output && (!argv.apis || argv.apis.length === 0)) {

@@ -7,11 +7,11 @@ import { initRules } from '../config/rules.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from '../decorators/oas2/remove-unused-components.js';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from '../decorators/oas3/remove-unused-components.js';
 import { makeBundleVisitor } from '../bundle/bundle-visitor.js';
-
-import type { Config } from '../config/config.js';
-import type { NormalizedNodeType, NodeType } from '../types/index.js';
-import type { WalkContext, NormalizedProblem } from '../walk.js';
-import type { Document, BaseResolver } from '../resolve.js';
+import { type Config } from '../config/config.js';
+import { type RuleSeverity } from '../config/types.js';
+import { type NormalizedNodeType, type NodeType } from '../types/index.js';
+import { type WalkContext, type NormalizedProblem } from '../walk.js';
+import { type Document, type BaseResolver } from '../resolve.js';
 
 export type CoreBundleOptions = {
   externalRefResolver?: BaseResolver;
@@ -20,6 +20,7 @@ export type CoreBundleOptions = {
   base?: string | null;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  componentRenamingConflicts?: RuleSeverity;
 };
 
 type BundleContext = WalkContext;
@@ -41,6 +42,7 @@ export async function bundleDocument(opts: {
   dereference?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  componentRenamingConflicts?: RuleSeverity;
 }): Promise<BundleResult> {
   const {
     document,
@@ -50,6 +52,7 @@ export async function bundleDocument(opts: {
     dereference = false,
     removeUnusedComponents = false,
     keepUrlRefs = false,
+    componentRenamingConflicts,
   } = opts;
   const specVersion = detectSpec(document.parsed);
   const specMajorVersion = getMajorSpecVersion(specVersion);
@@ -105,13 +108,14 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(
-          specMajorVersion,
+        visitor: makeBundleVisitor({
+          version: specMajorVersion,
           dereference,
-          document,
+          rootDocument: document,
           resolvedRefMap,
-          keepUrlRefs
-        ),
+          keepUrlRefs,
+          componentRenamingConflicts,
+        }),
       },
       ...decorators,
     ],
