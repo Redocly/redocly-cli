@@ -18,17 +18,17 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
     (context: AjvContext['apiContext']) => (mediaType: Oas3MediaType, ctx: UserContext) => {
       const { location, resolve } = ctx;
 
-    if (isDefined(mediaType.example)) {
-      resolveAndValidateExample(mediaType.example, location.child('example'));
-    } else if (isPlainObject(mediaType.examples)) {
-      for (const exampleName of Object.keys(mediaType.examples)) {
-        resolveAndValidateExample(
-          mediaType.examples[exampleName],
-          location.child(['examples', exampleName, 'value']),
-          true
-        );
+      if (isDefined(mediaType.example)) {
+        resolveAndValidateExample(mediaType.example, location.child('example'));
+      } else if (isPlainObject(mediaType.examples)) {
+        for (const exampleName of Object.keys(mediaType.examples)) {
+          resolveAndValidateExample(
+            mediaType.examples[exampleName],
+            location.child(['examples', exampleName, 'value']),
+            true
+          );
+        }
       }
-    }
 
       function resolveAndValidateExample(
         example: Oas3Example | any,
@@ -44,14 +44,12 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
         if (isMultiple && typeof example?.value === 'undefined') {
           return;
         }
-        validateExample(
-          isMultiple ? example.value : example,
-          mediaType.schema!,
-          location,
+        validateExample(isMultiple ? example.value : example, mediaType.schema!, {
+          dataLoc: location,
           ctx,
-          !!opts.allowAdditionalProperties,
-          { apiContext: context }
-        );
+          allowAdditionalProperties: !!opts.allowAdditionalProperties,
+          ajvContext: { apiContext: context },
+        });
       }
     };
 

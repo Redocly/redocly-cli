@@ -66,12 +66,16 @@ function getAjvValidator(
 export function validateJsonSchema(
   data: any,
   schema: any,
-  schemaLoc: Location,
-  instancePath: string,
-  resolve: ResolveFn,
-  allowAdditionalProperties: boolean,
-  ajvContext: AjvContext
+  options: {
+    schemaLoc: Location;
+    instancePath: string;
+    resolve: ResolveFn;
+    allowAdditionalProperties: boolean;
+    ajvContext: AjvContext;
+  }
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
+  const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext } = options;
+
   const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
