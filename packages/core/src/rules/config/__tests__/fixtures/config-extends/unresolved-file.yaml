@@ -1,0 +1,4 @@
+extends:
+  - ./non-existent-file.yaml
+rules:
+  operation-2xx-response: error

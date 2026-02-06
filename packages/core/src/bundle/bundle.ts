@@ -44,7 +44,7 @@ export function bundleConfig(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
   plugins: Plugin[]
-): ResolvedConfig {
+): { config: ResolvedConfig; problems: NormalizedProblem[] } {
   const visitorsData: ConfigBundlerVisitorData = { plugins };
   const ctx: BundleContext = {
     problems: [],
@@ -63,7 +63,7 @@ export function bundleConfig(
     ctx,
   });
 
-  return document.parsed ?? {};
+  return { config: document.parsed ?? {}, problems: ctx.problems };
 }
 
 export async function bundle(
