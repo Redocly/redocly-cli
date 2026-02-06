@@ -5,6 +5,8 @@ import type { UserContext } from '../../walk.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
 
+const context = {};
+
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
   return {
     Schema: {
@@ -13,13 +15,12 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
 
         if (Array.isArray(examples)) {
           for (const example of examples) {
-            validateExample(
-              example,
-              schema,
-              ctx.location.child(['examples', examples.indexOf(example)]),
+            validateExample(example, schema, {
+              dataLoc: ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
-              !!opts.allowAdditionalProperties
-            );
+              allowAdditionalProperties: !!opts.allowAdditionalProperties,
+              ajvContext: context,
+            });
           }
         }
 
@@ -33,13 +34,12 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             return;
           }
 
-          validateExample(
-            schema.example,
-            schema,
-            ctx.location.child('example'),
+          validateExample(schema.example, schema, {
+            dataLoc: ctx.location.child('example'),
             ctx,
-            !!opts.allowAdditionalProperties
-          );
+            allowAdditionalProperties: !!opts.allowAdditionalProperties,
+            ajvContext: context,
+          });
         }
       },
     },

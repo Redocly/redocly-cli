@@ -3,6 +3,7 @@ import { Location } from '../ref-utils.js';
 import { validateJsonSchema } from './ajv.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 
+import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import type {
   Oas3Schema,
   Oas3Tag,
@@ -132,19 +133,23 @@ export function getSuggest(given: string, variants: string[]): string[] {
 export function validateExample(
   example: any,
   schema: Referenced<Oas3Schema | Oas3_1Schema>,
-  dataLoc: Location,
-  { resolve, location, report }: UserContext,
-  allowAdditionalProperties: boolean
+  options: {
+    dataLoc: Location;
+    ctx: UserContext;
+    allowAdditionalProperties: boolean;
+    ajvContext: AjvContext;
+  }
 ) {
+  const { dataLoc, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { resolve, location, report } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(
-      example,
-      schema,
-      location.child('schema'),
-      dataLoc.pointer,
+    const { valid, errors } = validateJsonSchema(example, schema, {
+      schemaLoc: location.child('schema'),
+      instancePath: dataLoc.pointer,
       resolve,
-      allowAdditionalProperties
-    );
+      allowAdditionalProperties,
+      ajvContext,
+    });
     if (!valid) {
       for (const error of errors) {
         report({

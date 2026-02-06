@@ -50,6 +50,37 @@ describe('no-invalid-schema-examples', () => {
     `);
   });
 
+  it('should not report on readOnly/writeOnly properties in schema example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Car:
+              type: object
+              properties:
+                readOnlyProp:
+                  type: string
+                  readOnly: true
+                writeOnlyProp:
+                  type: string
+                  writeOnly: true
+              example:
+                readOnlyProp: "allowed without oas context"
+                writeOnlyProp: "allowed without oas context"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should not report on nullable example for OAS3', async () => {
     const document = parseYamlToDocument(
       outdent`
