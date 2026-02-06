@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Redirected bundling problems (such as lint errors and warnings) to stderr instead of stdout to avoid interfering with the bundled output.
+- Redirected bundling problems (such as lint errors and warnings) to `stderr` instead of `stdout` to avoid interfering with the bundled output.
 - Updated @redocly/openapi-core to v2.16.0.
 
 ## 2.15.2
