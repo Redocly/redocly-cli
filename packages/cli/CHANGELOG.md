@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 2.17.0
+
+### Minor Changes
+
+- Added support for Media Types in the Components model.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.17.0.
+
 ## 2.16.0
 
 ### Minor Changes
