@@ -139,10 +139,10 @@ To learn more about preprocessors, rules, and decorators, refer to the [custom p
 ### Configure component renaming conflicts
 
 When bundling API descriptions that contain external references, you may encounter situations where different schemas use the same name but have different contents.
-By default, Redocly CLI will warn you about these naming conflicts and automatically rename the duplicates (for example, renaming `Schema` to `Schema-2`).
+By default, Redocly CLI warns you about these naming conflicts and automatically renames the duplicates (for example, renaming `Schema` to `Schema-2`).
 
 You can adjust how the CLI handles these naming conflicts with the `--component-renaming-conflicts` option:
 
+- `off`: No warnings or errors are shown.
 - `warn` (default): Shows a warning and renames conflicting components automatically.
-- `off`: No warnings or errors will be shown.
-- `error`: Treats conflicts as errors; the bundling process will fail if a naming conflict is detected.
+- `error`: Treats conflicts as errors; the bundling process fails if a naming conflict is detected.
