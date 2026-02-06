@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.15.2
+
+### Patch Changes
+
+- Fixed an issue where improperly structured OpenAPI examples caused the linter to fail.
+
 ## 2.15.1
 
 ### Patch Changes

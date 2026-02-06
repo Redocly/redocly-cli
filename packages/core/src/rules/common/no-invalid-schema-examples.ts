@@ -11,7 +11,7 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
       leave(schema: Oas3_1Schema | Oas3Schema, ctx: UserContext) {
         const examples = (schema as Oas3_1Schema).examples;
 
-        if (examples) {
+        if (Array.isArray(examples)) {
           for (const example of examples) {
             validateExample(
               example,
