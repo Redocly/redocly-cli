@@ -149,28 +149,26 @@ describe('bundle', () => {
       outdent`
         openapi: "3.2.0"
         paths:
-          /pets:
+          /test:
             get:
-              summary: List all pets
-              operationId: listPets
               responses:
                 '200':
                   description: OK
                   content:
-                    $ref: '#/components/mediaTypes/JsonPets'
+                    $ref: '#/components/mediaTypes/Test'
         components:
           mediaTypes:
-            JsonPets:
+            Test:
               'application/json':
                 schema:
-                  $ref: '#/components/schemas/Pet'
+                  $ref: '#/components/schemas/User'
                 examples:
                   example1:
                     value:
                       id: 1
                       name: John
           schemas:
-            Pet:
+            User:
               type: object
               properties:
                 id:
@@ -188,14 +186,37 @@ describe('bundle', () => {
       types: Oas3Types,
     });
 
-    const parsed = res.parsed as any;
-
     expect(problems).toHaveLength(0);
-    expect(parsed.components?.mediaTypes).toBeDefined();
-    expect(parsed.components?.mediaTypes?.JsonPets).toBeDefined();
-    expect(parsed.paths?.['/pets']?.get?.responses?.['200']?.content).toEqual({
-      $ref: '#/components/mediaTypes/JsonPets',
-    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/Test'
+      components:
+        mediaTypes:
+          Test:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example1:
+                  value:
+                    id: 1
+                    name: John
+        schemas:
+          User:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    `);
   });
 
   it('should bundle external mediaTypes refs correctly (OAS 3.2)', async () => {
@@ -205,36 +226,30 @@ describe('bundle', () => {
     });
 
     expect(problems).toHaveLength(0);
-    const parsed = res.parsed as any;
-
-    expect(parsed.components?.mediaTypes).toBeDefined();
-    expect(parsed.components?.mediaTypes?.JsonPets).toBeDefined();
-    expect(parsed.components?.mediaTypes?.JsonPets).toEqual({
-      'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'integer',
-            },
-            name: {
-              type: 'string',
-            },
-          },
-        },
-        examples: {
-          example1: {
-            value: {
-              id: 1,
-              name: 'John',
-            },
-          },
-        },
-      },
-    });
-    expect(parsed.paths?.['/pets']?.get?.responses?.['200']?.content).toEqual({
-      $ref: '#/components/mediaTypes/JsonPets',
-    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  $ref: '#/components/mediaTypes/testMediaType'
+      components:
+        mediaTypes:
+          testMediaType:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              examples:
+                Test:
+                  value:
+                    id: 1
+    `);
   });
 
   it('should pull hosted schema', async () => {
