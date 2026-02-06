@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.15.2 (2026-02-05)
+
+### Patch Changes
+
+- Fixed an issue where improperly structured OpenAPI examples caused the linter to fail.
+- Updated @redocly/openapi-core to v2.15.2.
+
 ## 2.15.1 (2026-02-02)
 
 ### Patch Changes
