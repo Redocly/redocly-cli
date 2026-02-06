@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- Redirected bundling problems (such as lint errors and warnings) to stderr instead of stdout to avoid interfering with the bundled output.
+- Redirected bundling problems (such as lint errors and warnings) to `stderr` instead of `stdout` to avoid interfering with the bundled output.
 
 ## 2.15.2
 
