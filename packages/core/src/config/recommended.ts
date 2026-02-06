@@ -260,6 +260,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-schema-type-mismatch': 'error',
     'no-x-security-both-scheme-and-scheme-name': 'off',
     'no-x-security-scheme-name-without-openapi': 'off',
+    'outputs-defined': 'warn',
     'parameters-unique': 'error',
     'requestBody-replacements-unique': 'warn',
     'respect-supported-versions': 'off',

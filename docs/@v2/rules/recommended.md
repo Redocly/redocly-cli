@@ -23,6 +23,7 @@ Errors:
 - [operation-operationId-url-safe](./oas/operation-operationId-url-safe.md)
 - [operation-parameters-unique](./oas/operation-parameters-unique.md)
 - [operation-summary](./oas/operation-summary.md)
+- [outputs-defined](./arazzo/outputs-defined.md)
 - [parameters-unique](./arazzo/parameters-unique.md)
 - [path-declaration-must-exist](./oas/path-declaration-must-exist.md)
 - [path-not-include-query](./oas/path-not-include-query.md)

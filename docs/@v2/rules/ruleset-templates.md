@@ -380,6 +380,7 @@ rules:
   no-enum-type-mismatch: error
   no-required-schema-properties-undefined: warn
   no-schema-type-mismatch: error
+  outputs-defined: error
   parameters-unique: error
   requestBody-replacements-unique: warn
   sourceDescription-name-unique: error

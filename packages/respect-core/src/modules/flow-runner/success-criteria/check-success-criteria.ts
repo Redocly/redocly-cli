@@ -13,7 +13,7 @@ import type {
   Check,
   RegexpSuccessCriteria,
   Step,
-  CriteriaObject,
+  CriterionObject,
 } from '../../../types.js';
 
 export function checkCriteria({
@@ -24,7 +24,7 @@ export function checkCriteria({
 }: {
   workflowId?: string;
   step: Step;
-  criteria?: CriteriaObject[];
+  criteria?: CriterionObject[];
   ctx: TestContext;
 }): Check[] {
   validateSuccessCriteria(criteriaList);
@@ -48,7 +48,7 @@ export function checkCriteria({
     step,
   });
 
-  criteriaList.forEach((criteria: CriteriaObject) => {
+  criteriaList.forEach((criteria: CriterionObject) => {
     const { condition } = criteria;
 
     try {
