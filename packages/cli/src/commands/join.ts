@@ -147,6 +147,7 @@ export async function handleJoin({
       formatProblems(problems, {
         totals: fileTotals,
         version: packageVersion,
+        command: 'join',
       });
       exitWithError(
         `❌ Errors encountered while bundling ${blue(

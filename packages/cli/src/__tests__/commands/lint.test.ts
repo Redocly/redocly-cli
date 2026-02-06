@@ -160,6 +160,7 @@ describe('handleLint', () => {
         maxProblems: 2,
         totals: { errors: 0 },
         version: '2.0.0',
+        command: 'lint',
       });
       expect(getExecutionTime).toHaveBeenCalledWith(42);
     });

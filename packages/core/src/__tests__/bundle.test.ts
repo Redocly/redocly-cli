@@ -89,10 +89,33 @@ describe('bundle', () => {
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('warn');
     expect(problems[0].message).toEqual(
       `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
     );
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should bundle external refs and do not show warnings for conflicting names', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'off',
+    });
+    expect(problems).toHaveLength(0);
+  });
+
+  it('should bundle external refs and show errors for conflicting names', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
+      componentRenamingConflicts: 'error',
+    });
+    expect(problems).toHaveLength(1);
+    expect(problems[0].severity).toBe('error');
+    expect(problems[0].message).toEqual(
+      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
+    );
   });
 
   it('should dereferenced correctly when used with dereference', async () => {

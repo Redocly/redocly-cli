@@ -66,6 +66,7 @@ export async function bundleArazzo(options: BundleArazzoOptions) {
       formatProblems(lintProblems, {
         totals: fileTotals,
         version,
+        command: 'bundle',
       });
 
       printConfigLintTotals(fileTotals, options.logger);
