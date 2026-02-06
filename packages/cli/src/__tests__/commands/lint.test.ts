@@ -1,4 +1,5 @@
-import { handleLint, LintArgv } from '../../commands/lint.js';
+import { performance } from 'perf_hooks';
+
 import {
   createConfig,
   lint,
@@ -9,6 +10,11 @@ import {
   type NormalizedProblem,
   loadConfig,
 } from '@redocly/openapi-core';
+import { blue } from 'colorette';
+import { Arguments } from 'yargs';
+
+import { handleLint, LintArgv } from '../../commands/lint.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   getExecutionTime,
@@ -17,13 +23,10 @@ import {
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
-import { configFixture } from '../fixtures/config.js';
-import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper.js';
-import { Arguments } from 'yargs';
-import { blue } from 'colorette';
-import { type MockInstance } from 'vitest';
+import { configFixture } from '../fixtures/config.js';
+
+import type { MockInstance } from 'vitest';
 
 const argvMock = {
   apis: ['openapi.yaml'],
@@ -51,7 +54,7 @@ describe('handleLint', () => {
       return {
         ...actual,
         lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0 } as Totals)),
+        getTotals: vi.fn(() => ({ errors: 0 }) as Totals),
         doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
         logger: {
           info: vi.fn(),

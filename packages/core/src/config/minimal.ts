@@ -1,4 +1,4 @@
-import { type RawGovernanceConfig } from './types.js';
+import type { RawGovernanceConfig } from './types.js';
 
 const minimal: RawGovernanceConfig<'built-in'> = {
   rules: {

@@ -1,6 +1,6 @@
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { Oas2Operation } from '../../typings/swagger.js';
 import type { Oas3Operation } from '../../typings/openapi.js';
+import type { Oas2Operation } from '../../typings/swagger.js';
+import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const OperationIdUnique: Oas3Rule | Oas2Rule = () => {

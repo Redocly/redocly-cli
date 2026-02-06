@@ -37,7 +37,7 @@ Before submitting a pull request, please make sure the following is done:
 1. Run `npm install` in the repository root.
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
-1. Format your code with prettier (`npm run prettier`).
+1. Format your code (`npm run format`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
    if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
    Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
@@ -65,7 +65,7 @@ To compile the code, run `npm run compile`.
 To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
 Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
-Format your code with `npm run prettier` before committing.
+Format your code with `npm run format` before committing.
 
 Please check the [Tests section](#tests) for the test commands reference.
 
@@ -84,13 +84,11 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
    ```
 
 2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
-
    - `logger.info()` for general information
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
 3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
-
    - Command output that needs to be parsed
    - Interactive outputs (like login/logout responses)
    - Data that needs to be piped to other commands
@@ -158,7 +156,7 @@ The configuration is in `.vale.ini` in the root of the project.
 
 We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
 
-> Note that prettier also runs and reformats Markdown files. Use `npm run prettier` from the root of the project.
+> Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
 
 ### Markdown link checking
 
@@ -319,19 +317,14 @@ What should be verified when changes applied to the `respect-core` package:
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
-
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
-
     - **`packages/cli/src`**: contains CLI package source code.
-
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
   - **`packages/core`**: contains Redocly CLI core functionality like rules, decorators, etc.
-
     - **`packages/core/__tests__`**: contains unit tests.
     - **`packages/cli/core`**: contains core package source code.
-
       - **`packages/core/src/__tests__`**: contains unit tests.
       - **`packages/core/src/config`**: contains the base configuration options.
       - **`packages/core/src/decorators`**: contains the built-in [decorators](../docs/resources/built-in-decorators.md) code.

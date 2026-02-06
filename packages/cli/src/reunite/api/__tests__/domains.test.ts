@@ -1,4 +1,5 @@
 import { type Config, createConfig } from '@redocly/openapi-core';
+
 import { getDomain, isValidReuniteUrl } from '../domains.js';
 import { getReuniteUrl } from '../domains.js';
 

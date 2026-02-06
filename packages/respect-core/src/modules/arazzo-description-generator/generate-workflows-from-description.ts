@@ -1,16 +1,17 @@
 import { sortMethods } from '../../utils/sort.js';
 import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs.js';
 import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters.js';
-import {
-  type Oas3SecurityScheme,
-  type Oas3SecurityRequirement,
-  type Oas3PathItem,
-  type Oas3_1Schema,
-  type Oas3Operation,
-  type ArazzoDefinition,
-  type ExtendedOperation,
+
+import type { OperationMethod, Workflow, Step } from '../../types.js';
+import type {
+  Oas3SecurityScheme,
+  Oas3SecurityRequirement,
+  Oas3PathItem,
+  Oas3_1Schema,
+  Oas3Operation,
+  ArazzoDefinition,
+  ExtendedOperation,
 } from '@redocly/openapi-core';
-import { type OperationMethod, type Workflow, type Step } from '../../types.js';
 
 type HttpMethod = Lowercase<ExtendedOperation['method']>;
 

@@ -1,10 +1,10 @@
-import type { TestContext } from '../../../types.js';
-
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import {
   callAPIAndAnalyzeResults,
   DEFAULT_SEVERITY_CONFIGURATION,
 } from '../../flow-runner/index.js';
-import { ApiFetcher } from '../../../utils/api-fetcher.js';
+
+import type { TestContext } from '../../../types.js';
 
 describe('callAPIAndAnalyzeResults', () => {
   const mockFetch = vi.fn();

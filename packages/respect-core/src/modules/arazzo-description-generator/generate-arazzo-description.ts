@@ -1,9 +1,11 @@
 import * as path from 'node:path';
+
 import { bundleOpenApi } from '../description-parser/index.js';
-import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
 import { generateSecurityInputsArazzoComponents } from './generate-inputs-arazzo-components.js';
-import { type TestDescription } from '../../types.js';
-import { type GenerateArazzoOptions } from '../../generate.js';
+import { generateWorkflowsFromDescription } from './generate-workflows-from-description.js';
+
+import type { GenerateArazzoOptions } from '../../generate.js';
+import type { TestDescription } from '../../types.js';
 
 export const infoSubstitute = {
   title: '[REPLACE WITH API title]',

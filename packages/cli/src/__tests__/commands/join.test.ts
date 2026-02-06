@@ -1,4 +1,3 @@
-import { yellow } from 'colorette';
 import {
   bundleDocument,
   detectSpec,
@@ -7,14 +6,16 @@ import {
   type Document,
   BaseResolver,
 } from '@redocly/openapi-core';
+import { yellow } from 'colorette';
+
 import { handleJoin } from '../../commands/join.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import {
   firstDocument,
@@ -45,9 +46,8 @@ describe('handleJoin', () => {
     vi.mocked(yellow).mockImplementation((text) => text as string);
 
     vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
-        '@redocly/openapi-core'
-      );
+      const actual =
+        await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
       return {
         ...actual,
         bundleDocument: vi.fn(),

@@ -1,4 +1,5 @@
 import { outdent } from 'outdent';
+
 import { validateDoc } from './utils.js';
 
 describe('OpenAPI Schema', () => {

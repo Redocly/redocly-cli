@@ -2,7 +2,7 @@ import type { Oas3Components, Oas3_1Components, Oas3_2Components } from '../typi
 
 export function hasComponent<
   C extends Oas3Components | Oas3_1Components | Oas3_2Components,
-  K extends PropertyKey
+  K extends PropertyKey,
 >(components: C, key: K): key is K & keyof C {
   return key in components;
 }

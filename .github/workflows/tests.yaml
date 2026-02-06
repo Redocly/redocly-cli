@@ -45,5 +45,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - run: npm run eslint
-      - run: npm run prettier:check
+      - name: Lint
+        run: npm run lint
+      - name: Check formatting
+        run: npm run check

@@ -10,8 +10,8 @@ import type {
   OpenRpc1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
-import type { Config } from './config.js';
 import type { ProblemSeverity } from '../walk.js';
+import type { Config } from './config.js';
 
 type InitializedRule = {
   severity: ProblemSeverity;
@@ -42,8 +42,8 @@ export function initRules(
           type === 'rules'
             ? config.getRuleSettings(ruleId, oasVersion)
             : type === 'preprocessors'
-            ? config.getPreprocessorSettings(ruleId, oasVersion)
-            : config.getDecoratorSettings(ruleId, oasVersion);
+              ? config.getPreprocessorSettings(ruleId, oasVersion)
+              : config.getDecoratorSettings(ruleId, oasVersion);
 
         if (ruleSettings.severity === 'off') {
           return undefined;

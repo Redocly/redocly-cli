@@ -1,11 +1,13 @@
-import { outdent } from 'outdent';
-import * as path from 'node:path';
-import { resolveDocument, BaseResolver, Document } from '../resolve.js';
-import { parseYamlToDocument } from '../../__tests__/utils.js';
-import { Oas3Types } from '../types/oas3.js';
-import { normalizeTypes } from '../types/index.js';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { outdent } from 'outdent';
+
+import { parseYamlToDocument } from '../../__tests__/utils.js';
+import { resolveDocument, BaseResolver, Document } from '../resolve.js';
+import { normalizeTypes } from '../types/index.js';
+import { Oas3Types } from '../types/oas3.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -424,7 +426,7 @@ describe('collect refs', () => {
       const actual = await vi.importActual('node:fs');
       return { ...actual };
     });
-    vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
+    vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true }) as any);
 
     const resolvedRefs = await resolveDocument({
       rootDocument,

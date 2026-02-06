@@ -1,5 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
+import { YamlParseError } from './errors/yaml-parse-error.js';
+import { parseYaml } from './js-yaml/index.js';
 import {
   isRef,
   joinPointer,
@@ -11,21 +14,23 @@ import {
 } from './ref-utils.js';
 import { isNamedType, SpecExtension } from './types/index.js';
 import { getOwn } from './utils/get-own.js';
-import { readFileFromUrl } from './utils/read-file-from-url.js';
-import { parseYaml } from './js-yaml/index.js';
-import { nextTick } from './utils/next-tick.js';
-import { YamlParseError } from './errors/yaml-parse-error.js';
 import { makeRefId } from './utils/make-ref-id.js';
+import { nextTick } from './utils/next-tick.js';
+import { readFileFromUrl } from './utils/read-file-from-url.js';
 
-import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
-import type { NormalizedNodeType } from './types/index.js';
 import type { ResolveConfig } from './config/types.js';
+import type { NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
+import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
 export class Source {
-  constructor(public absoluteRef: string, public body: string, public mimeType?: string) {}
+  constructor(
+    public absoluteRef: string,
+    public body: string,
+    public mimeType?: string
+  ) {}
 
   private _ast: YAMLNode | undefined;
   private _lines: string[] | undefined;

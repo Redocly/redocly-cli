@@ -1,7 +1,8 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
+
+import { getFakeData, parseJson } from '../context-parser/index.js';
 import { lintExpression } from './lint.js';
 import { replaceJSONPointers } from './replace-json-pointers.js';
-import { getFakeData, parseJson } from '../context-parser/index.js';
 
 import type { RuntimeExpressionContext } from '../../types.js';
 
@@ -50,10 +51,13 @@ export function evaluateRuntimeExpressionPayload({
       ? evaluateRuntimeExpression(payload, context, logger)
       : evaluateExpressionsInString(payload, context, logger);
   } else if (isPlainObject(payload)) {
-    return Object.entries(payload).reduce((acc, [key, value]) => {
-      acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context, logger });
-      return acc;
-    }, {} as Record<string, any>);
+    return Object.entries(payload).reduce(
+      (acc, [key, value]) => {
+        acc[key] = evaluateRuntimeExpressionPayload({ payload: value, context, logger });
+        return acc;
+      },
+      {} as Record<string, any>
+    );
   } else if (Array.isArray(payload)) {
     return payload.map((item) =>
       evaluateRuntimeExpressionPayload({ payload: item, context, logger })
@@ -73,10 +77,13 @@ export function evaluateRuntimeExpression(
   if (typeof expression === 'string') {
     return evaluateExpressionString(expression, context, logger);
   } else if (isPlainObject(expression)) {
-    return Object.entries(expression).reduce((acc, [key, value]) => {
-      acc[key] = value && evaluateRuntimeExpression(value, context, logger);
-      return acc;
-    }, {} as Record<string, any>);
+    return Object.entries(expression).reduce(
+      (acc, [key, value]) => {
+        acc[key] = value && evaluateRuntimeExpression(value, context, logger);
+        return acc;
+      },
+      {} as Record<string, any>
+    );
   } else if (Array.isArray(expression)) {
     return expression.map((exp) => evaluateRuntimeExpression(exp, context, logger));
   } else {
@@ -192,11 +199,14 @@ function normalizeValue(value: unknown) {
 
 // Normalize an object by replacing hyphens with underscores in keys
 function normalizeObject(obj: Record<string, unknown>): Record<string, unknown> {
-  return Object.keys(obj).reduce((acc, key) => {
-    const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
-    acc[normalizedKey] = normalizeValue(obj[key]);
-    return acc;
-  }, {} as Record<string, unknown>);
+  return Object.keys(obj).reduce(
+    (acc, key) => {
+      const normalizedKey = key.replace(/-/g, '_'); // Convert hyphens to underscores
+      acc[normalizedKey] = normalizeValue(obj[key]);
+      return acc;
+    },
+    {} as Record<string, unknown>
+  );
 }
 
 function convertNumericIndices(expression: string): string {

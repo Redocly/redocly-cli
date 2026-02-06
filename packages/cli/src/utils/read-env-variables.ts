@@ -1,6 +1,7 @@
-import * as dotenv from 'dotenv';
-import * as path from 'node:path';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+import * as dotenv from 'dotenv';
 
 export function readEnvVariables(executionFilePath?: string) {
   if (executionFilePath) {

@@ -1,10 +1,11 @@
 import * as path from 'node:path';
-import { isTruthy } from './utils/is-truthy.js';
-import { isPlainObject } from './utils/is-plain-object.js';
 
-import type { ResolveResult, UserContext } from './walk.js';
+import { isPlainObject } from './utils/is-plain-object.js';
+import { isTruthy } from './utils/is-truthy.js';
+
 import type { Source } from './resolve.js';
 import type { OasRef } from './typings/openapi.js';
+import type { ResolveResult, UserContext } from './walk.js';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';
@@ -20,7 +21,10 @@ export function isExternalValue(node: unknown) {
 }
 
 export class Location {
-  constructor(public source: Source, public pointer: string) {}
+  constructor(
+    public source: Source,
+    public pointer: string
+  ) {}
 
   child(components: (string | number)[] | string | number) {
     return new Location(

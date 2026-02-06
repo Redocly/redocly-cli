@@ -1,12 +1,14 @@
+import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as process from 'node:process';
-import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
-import { compare } from 'semver';
+
 import { logger } from '@redocly/openapi-core';
-import fetch from './fetch-with-timeout.js';
-import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import { cyan, green, yellow } from 'colorette';
+import { compare } from 'semver';
+
+import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
+import fetch from './fetch-with-timeout.js';
 import { cleanColors } from './miscellaneous.js';
 import { version, name } from './package.js';
 

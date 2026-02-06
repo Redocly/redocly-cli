@@ -1,8 +1,9 @@
+import { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+
+import { OperationDetails } from '../../description-parser/get-operation-from-description.js';
 import { resolveSecurityScheme } from '../../flow-runner/resolve-security-scheme.js';
 
 import type { TestContext, ExtendedSecurity } from '../../../types.js';
-import { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
-import { OperationDetails } from '../../description-parser/get-operation-from-description.js';
 
 describe('resolveSecurityScheme', () => {
   const ctx = {

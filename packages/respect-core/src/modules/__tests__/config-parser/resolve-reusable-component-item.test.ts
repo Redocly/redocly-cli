@@ -1,7 +1,8 @@
 import { logger } from '@redocly/openapi-core';
-import { type TestContext } from '../../../types.js';
 
 import { resolveReusableComponentItem } from '../../context-parser/index.js';
+
+import type { TestContext } from '../../../types.js';
 
 describe('resolveReusableComponentItem', () => {
   it('should return parameter if not reference', () => {

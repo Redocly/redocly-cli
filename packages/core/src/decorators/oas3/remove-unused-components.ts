@@ -2,7 +2,6 @@ import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { hasComponent } from '../../utils/oas-has-component.js';
 
 import type { Location } from '../../ref-utils.js';
-import type { Oas3Decorator } from '../../visitors.js';
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -11,6 +10,7 @@ import type {
   Oas3_1Components,
   Oas3_2Components,
 } from '../../typings/openapi.js';
+import type { Oas3Decorator } from '../../visitors.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyOas3ComponentsKey = keyof Oas3Components | keyof Oas3_1Components | keyof Oas3_2Components;

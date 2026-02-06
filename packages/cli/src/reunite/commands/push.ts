@@ -1,17 +1,19 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+
 import { slash, pluralize, logger } from '@redocly/openapi-core';
 import { green } from 'colorette';
-import { printExecutionTime } from '../../utils/miscellaneous.js';
-import { exitWithError } from '../../utils/error.js';
-import { handlePushStatus } from './push-status.js';
-import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
-import { handleReuniteError } from './utils.js';
-import { version } from '../../utils/package.js';
 
-import type { OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgs } from '../../wrapper.js';
+import { exitWithError } from '../../utils/error.js';
+import { printExecutionTime } from '../../utils/miscellaneous.js';
+import { version } from '../../utils/package.js';
+import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
+import { handlePushStatus } from './push-status.js';
+import { handleReuniteError } from './utils.js';
+
 import type { VerifyConfigOptions } from '../../types.js';
+import type { CommandArgs } from '../../wrapper.js';
+import type { OutputFormat } from '@redocly/openapi-core';
 
 export type PushArgv = {
   files: string[];

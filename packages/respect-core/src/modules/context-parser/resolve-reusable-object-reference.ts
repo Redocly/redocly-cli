@@ -1,4 +1,5 @@
 import { isPlainObject } from '@redocly/openapi-core';
+
 import { getValueFromContext } from './get-value-from-context.js';
 
 import type {
@@ -13,10 +14,10 @@ type ComponentType<T extends ReusableObject> =
   T['reference'] extends `$components.successActions${string}`
     ? OnSuccessObject
     : T['reference'] extends `$components.failureActions${string}`
-    ? OnFailureObject
-    : T['reference'] extends `$components.parameters${string}`
-    ? Parameter
-    : never;
+      ? OnFailureObject
+      : T['reference'] extends `$components.parameters${string}`
+        ? Parameter
+        : never;
 
 const VALID_COMPONENTS = ['parameters', 'failureActions', 'successActions'];
 

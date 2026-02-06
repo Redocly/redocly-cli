@@ -1,4 +1,4 @@
-import { type ArazzoDefinition, type Oas3SecurityScheme } from '@redocly/openapi-core';
+import type { ArazzoDefinition, Oas3SecurityScheme } from '@redocly/openapi-core';
 
 export function generateSecurityInputsArazzoComponents(
   securitySchemes: Record<string, Oas3SecurityScheme>

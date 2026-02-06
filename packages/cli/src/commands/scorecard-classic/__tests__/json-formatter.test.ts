@@ -1,5 +1,7 @@
-import { printScorecardResultsAsJson } from '../formatters/json-formatter.js';
 import * as openapiCore from '@redocly/openapi-core';
+
+import { printScorecardResultsAsJson } from '../formatters/json-formatter.js';
+
 import type { ScorecardProblem } from '../types.js';
 
 const createMockSource = (absoluteRef: string) => ({

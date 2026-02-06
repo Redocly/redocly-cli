@@ -1,6 +1,6 @@
 import * as path from 'node:path';
-import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'node:perf_hooks';
+
 import {
   BaseResolver,
   formatProblems,
@@ -16,6 +16,9 @@ import {
   isEmptyObject,
   getTypes,
 } from '@redocly/openapi-core';
+import { red, blue, yellow, green } from 'colorette';
+
+import { exitWithError } from '../utils/error.js';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -23,10 +26,11 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { exitWithError } from '../utils/error.js';
-import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from './split/types.js';
 import { crawl, startsWithComponents } from './split/index.js';
+import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from './split/types.js';
 
+import type { VerifyConfigOptions } from '../types.js';
+import type { CommandArgs } from '../wrapper.js';
 import type {
   Document,
   Referenced,
@@ -42,8 +46,6 @@ import type {
   Oas3_2Tag,
   SpecVersion,
 } from '@redocly/openapi-core';
-import type { CommandArgs } from '../wrapper.js';
-import type { VerifyConfigOptions } from '../types.js';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';

@@ -1,16 +1,18 @@
 import path from 'node:path';
+
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf, mapOf } from './index.js';
+
 import { specVersions, getTypes } from '../oas-types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
+import { listOf, mapOf } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
-import { normalizeTypes } from '../types/index.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
 
-import type { JSONSchema } from 'json-schema-to-ts';
-import type { NodeType, PropType } from './index.js';
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import type { NodeType, PropType } from './index.js';
+import type { JSONSchema } from 'json-schema-to-ts';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -57,7 +59,7 @@ const builtInOAS2Rules = [
   'no-duplicated-tag-names',
 ] as const;
 
-export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
+export type BuiltInOAS2RuleId = (typeof builtInOAS2Rules)[number];
 
 const builtInOAS3Rules = [
   'info-contact',
@@ -121,7 +123,7 @@ const builtInOAS3Rules = [
   'spec-example-values',
 ] as const;
 
-export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
+export type BuiltInOAS3RuleId = (typeof builtInOAS3Rules)[number];
 
 const builtInAsync2Rules = [
   'info-contact',
@@ -151,9 +153,9 @@ const builtInAsync3Rules = [
   'no-schema-type-mismatch',
 ] as const;
 
-export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
+export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
-export type BuiltInAsync3RuleId = typeof builtInAsync3Rules[number];
+export type BuiltInAsync3RuleId = (typeof builtInAsync3Rules)[number];
 
 const builtInArazzo1Rules = [
   'sourceDescription-type',
@@ -178,11 +180,11 @@ const builtInArazzo1Rules = [
   'x-security-scheme-name-reference',
 ] as const;
 
-export type BuiltInArazzo1RuleId = typeof builtInArazzo1Rules[number];
+export type BuiltInArazzo1RuleId = (typeof builtInArazzo1Rules)[number];
 
 const builtInOverlay1Rules = ['info-contact'] as const;
 
-export type BuiltInOverlay1RuleId = typeof builtInOverlay1Rules[number];
+export type BuiltInOverlay1RuleId = (typeof builtInOverlay1Rules)[number];
 
 const builtInOpenRpc1Rules = [
   'info-contact',
@@ -192,11 +194,11 @@ const builtInOpenRpc1Rules = [
   'spec-no-required-params-after-optional',
 ] as const;
 
-export type BuiltInOpenRpc1RuleId = typeof builtInOpenRpc1Rules[number];
+export type BuiltInOpenRpc1RuleId = (typeof builtInOpenRpc1Rules)[number];
 
 const builtInCommonRules = ['struct', 'no-unresolved-refs'] as const;
 
-export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
+export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
 const builtInRules = [
   ...builtInOAS2Rules,
@@ -209,7 +211,7 @@ const builtInRules = [
   ...builtInCommonRules,
 ] as const;
 
-type BuiltInRuleId = typeof builtInRules[number];
+type BuiltInRuleId = (typeof builtInRules)[number];
 
 const configGovernanceProperties: Record<
   keyof RawGovernanceConfig,

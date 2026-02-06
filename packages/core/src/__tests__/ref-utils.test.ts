@@ -1,5 +1,8 @@
 import outdent from 'outdent';
+
 import { parseYamlToDocument } from '../../__tests__/utils.js';
+import { createConfig } from '../config/index.js';
+import { lintDocument } from '../lint.js';
 import {
   escapePointerFragment,
   parseRef,
@@ -9,8 +12,6 @@ import {
   getDir,
   resolvePath,
 } from '../ref-utils.js';
-import { lintDocument } from '../lint.js';
-import { createConfig } from '../config/index.js';
 import { BaseResolver } from '../resolve.js';
 
 describe('ref-utils', () => {

@@ -1,9 +1,9 @@
-import { validateExample } from '../utils.js';
 import { isDefined } from '../../utils/is-defined.js';
+import { validateExample } from '../utils.js';
 
-import type { UserContext } from '../../walk.js';
 import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
 
 export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
   return {

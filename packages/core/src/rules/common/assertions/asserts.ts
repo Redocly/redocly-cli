@@ -1,8 +1,8 @@
+import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
+import { isOrdered } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
-import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
-import { isOrdered } from '../../../utils/is-ordered.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
 
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
@@ -81,8 +81,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -104,8 +104,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
