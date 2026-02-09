@@ -10,7 +10,18 @@ import { NoXSecurityBothSchemeAndSchemeName } from '../respect/no-x-security-bot
 import { NoXSecuritySchemeNameWithoutOpenAPI } from '../respect/no-x-security-scheme-name-without-openapi.js';
 import { RespectSupportedVersions } from '../respect/respect-supported-versions.js';
 import { XSecuritySchemeNameReference } from '../respect/x-security-scheme-name-reference.js';
+import { XSecuritySchemaRequiredValues } from '../respect/x-security-scheme-required-values.js';
+import { CriteriaUnique } from './criteria-unique.js';
 import { OutputsDefined } from './outputs-defined.js';
+import { ParametersUnique } from './parameters-unique.js';
+import { RequestBodyReplacementsUnique } from './requestBody-replacements-unique.js';
+import { SourceDescriptionsNameUnique } from './sourceDescriptions-name-unique.js';
+import { SourceDescriptionsNotEmpty } from './sourceDescriptions-not-empty.js';
+import { StepOnFailureUnique } from './step-onFailure-unique.js';
+import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
+import { StepIdUnique } from './stepId-unique.js';
+import { WorkflowDependsOn } from './workflow-dependsOn.js';
+import { WorkflowIdUnique } from './workflowId-unique.js';
 
 import type { Arazzo1RuleSet } from '../../oas-types.js';
 import type { Arazzo1Rule } from '../../visitors.js';

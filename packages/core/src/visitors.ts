@@ -6,7 +6,7 @@ import type { NormalizedNodeType } from './types/index.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
-  CriteriaObject,
+  CriterionObject,
   ExtendedOperation,
   InfoObject,
   OnFailureObject,
