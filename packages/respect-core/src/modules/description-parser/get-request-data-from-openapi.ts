@@ -1,12 +1,10 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
-
 import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
 } from '../arazzo-description-generator/index.js';
 import { isParameterWithIn } from '../context-parser/index.js';
 import { extractFirstExample } from './extract-first-example.js';
-
 import type { Parameter } from '../../types.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from './get-operation-from-description.js';

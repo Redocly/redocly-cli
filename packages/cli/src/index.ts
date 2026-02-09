@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 import * as path from 'node:path';
-
 import { logger } from '@redocly/openapi-core';
-
 import './utils/assert-node-version.js';
 import * as dotenv from 'dotenv';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
 import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
 import { handleBundle } from './commands/bundle.js';
@@ -34,7 +31,6 @@ import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-versi
 import { validateMountPath } from './utils/validate-mount-path.js';
 import { validatePositiveNumber } from './utils/validate-positive-number.js';
 import { commandWrapper } from './wrapper.js';
-
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';

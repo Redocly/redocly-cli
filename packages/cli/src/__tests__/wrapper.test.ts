@@ -1,7 +1,5 @@
 import * as process from 'node:process';
-
 import { type Config, detectSpec } from '@redocly/openapi-core';
-
 import { handleLint } from '../commands/lint.js';
 import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
 import { sendTelemetry } from '../utils/telemetry.js';

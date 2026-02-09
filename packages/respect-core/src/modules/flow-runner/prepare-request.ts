@@ -3,7 +3,6 @@ import {
   type ExtendedSecurity,
   type Oas3SecurityScheme,
 } from '@redocly/openapi-core';
-
 import {
   parseRequestBody,
   resolveReusableComponentItem,
@@ -19,7 +18,6 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
 import { getServerUrl } from './get-server-url.js';
 import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
-
 import type { TestContext, Step, Parameter, PublicStep, OperationMethod } from '../../types.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from '../description-parser/index.js';

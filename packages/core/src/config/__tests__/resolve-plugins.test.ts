@@ -1,5 +1,4 @@
 import * as path from 'path';
-
 import { loadConfig } from '../load.js';
 
 describe('resolving a plugin', () => {

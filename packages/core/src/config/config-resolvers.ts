@@ -2,7 +2,6 @@ import * as fs from 'node:fs';
 import module from 'node:module';
 import * as path from 'node:path';
 import * as url from 'node:url';
-
 import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
@@ -24,7 +23,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-
 import type { Document, ResolvedRefMap } from '../resolve.js';
 import type {
   Plugin,

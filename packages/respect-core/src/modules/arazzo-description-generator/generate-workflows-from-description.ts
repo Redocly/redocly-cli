@@ -1,7 +1,6 @@
 import { sortMethods } from '../../utils/sort.js';
 import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs.js';
 import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters.js';
-
 import type { OperationMethod, Workflow, Step } from '../../types.js';
 import type {
   Oas3SecurityScheme,

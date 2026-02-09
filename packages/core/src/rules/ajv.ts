@@ -1,8 +1,6 @@
 import Ajv from '@redocly/ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
-
 import { escapePointerFragment } from '../ref-utils.js';
-
 import type { Location } from '../ref-utils.js';
 import type { ResolveFn } from '../walk.js';
 import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020.js';

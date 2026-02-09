@@ -1,13 +1,10 @@
 import * as path from 'node:path';
 import * as process from 'node:process';
-
 import * as openapiCore from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
-
 import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { iteratePathItems, handleSplit } from '../index.js';
-
 import type { ComponentsFiles } from '../types.js';
 
 describe('split', () => {

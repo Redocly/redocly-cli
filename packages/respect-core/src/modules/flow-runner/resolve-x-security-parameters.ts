@@ -2,7 +2,6 @@ import { getSecurityParameter } from '../context-parser/get-security-parameters.
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { resolveSecurityScheme } from './resolve-security-scheme.js';
 import { validateXSecurityParameters } from './validate-x-security-parameters.js';
-
 import type { Step, RuntimeExpressionContext, TestContext } from '../../types.js';
 import type { ParameterWithIn } from '../context-parser/index.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';

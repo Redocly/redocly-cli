@@ -1,13 +1,10 @@
 import * as path from 'node:path';
-
 import { yellow, inverse, bold, green, red, blue, gray } from 'colorette';
 import { outdent } from 'outdent';
-
 import { getExecutionTime } from '../../utils/time.js';
 import { resolveRunningWorkflows } from '../flow-runner/index.js';
 import { calculateTotals } from './calculate-tests-passed.js';
 import { indent } from './helpers.js';
-
 import type { ResultsOfTests, RunOptions, WorkflowExecutionResult } from '../../types.js';
 
 export function displaySummary({

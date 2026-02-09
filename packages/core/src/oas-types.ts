@@ -7,7 +7,6 @@ import { Oas3_1Types } from './types/oas3_1.js';
 import { Oas3_2Types } from './types/oas3_2.js';
 import { OpenRpcTypes } from './types/openrpc.js';
 import { Overlay1Types } from './types/overlay.js';
-
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,

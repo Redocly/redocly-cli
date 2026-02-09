@@ -1,5 +1,4 @@
 import { performance } from 'perf_hooks';
-
 import {
   createConfig,
   lint,
@@ -12,7 +11,6 @@ import {
 } from '@redocly/openapi-core';
 import { blue } from 'colorette';
 import { Arguments } from 'yargs';
-
 import { handleLint, LintArgv } from '../../commands/lint.js';
 import { exitWithError } from '../../utils/error.js';
 import {
@@ -25,7 +23,6 @@ import {
 } from '../../utils/miscellaneous.js';
 import { commandWrapper } from '../../wrapper.js';
 import { configFixture } from '../fixtures/config.js';
-
 import type { MockInstance } from 'vitest';
 
 const argvMock = {

@@ -8,9 +8,7 @@
 // - migrated to be used with undici
 
 import { URL } from 'url';
-
 import { Client, type fetch } from 'undici';
-
 import { addHeaders } from './helpers/add-headers.js';
 import { buildHeaders } from './helpers/build-headers.js';
 import { buildRequestCookies } from './helpers/build-request-cookies.js';

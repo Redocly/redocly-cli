@@ -1,5 +1,4 @@
 import { getTagName } from '../utils.js';
-
 import type { Async2Rule, Async3Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 

@@ -1,11 +1,9 @@
 import { createConfig, logger } from '@redocly/openapi-core';
-
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createRuntimeExpressionCtx,
   createTestContext,
 } from '../../../flow-runner/context/index.js';
-
 import type { Step, AppOptions, TestDescription } from '../../../../types.js';
 
 const testDescription = {

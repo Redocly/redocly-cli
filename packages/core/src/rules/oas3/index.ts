@@ -59,7 +59,6 @@ import { SpecDiscriminatorDefaultMapping } from './spec-discriminator-defaultMap
 import { SpecExampleValues } from './spec-example-values.js';
 import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
 import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
-
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
 

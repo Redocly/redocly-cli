@@ -2,7 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync, statSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

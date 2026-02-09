@@ -1,7 +1,6 @@
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 import { outdent } from 'outdent';
 import { describe, it, expect } from 'vitest';
-
 import { SpecVersion } from '../../../oas-types.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { createEntityTypes } from '../../../types/entity-yaml.js';
@@ -9,7 +8,6 @@ import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';
 import { EntityKeyValid } from '../entity-key-valid.js';
-
 import type { WalkContext } from '../../../walk.js';
 
 function lintEntityKey(source: string): WalkContext['problems'] {

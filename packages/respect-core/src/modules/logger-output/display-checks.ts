@@ -1,11 +1,9 @@
 import { isBrowser } from '@redocly/openapi-core';
 import { blue, yellow, green, gray, red } from 'colorette';
 import { outdent } from 'outdent';
-
 import { isJSON } from '../../utils/is-json.js';
 import { combineUrl } from '../../utils/url.js';
 import { indent, RESET_ESCAPE_CODE } from './helpers.js';
-
 import type { Check, VerboseLog } from '../../types.js';
 import type { LoggerInterface, RuleSeverity } from '@redocly/openapi-core';
 

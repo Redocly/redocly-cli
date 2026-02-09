@@ -22,7 +22,6 @@ import { StepOnSuccessUnique } from './step-onSuccess-unique.js';
 import { StepIdUnique } from './stepId-unique.js';
 import { WorkflowDependsOn } from './workflow-dependsOn.js';
 import { WorkflowIdUnique } from './workflowId-unique.js';
-
 import type { Arazzo1RuleSet } from '../../oas-types.js';
 import type { Arazzo1Rule } from '../../visitors.js';
 

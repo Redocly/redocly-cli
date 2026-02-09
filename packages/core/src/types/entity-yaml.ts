@@ -1,6 +1,5 @@
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
-
 import type { NodeType } from './index.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 

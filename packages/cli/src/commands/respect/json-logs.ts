@@ -1,5 +1,4 @@
 import { calculateTotals, conditionallyMaskSecrets } from '@redocly/respect-core';
-
 import type {
   TestContext,
   JsonLogs,

@@ -1,6 +1,5 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import {
   rootRedoclyConfigSchema,
   entityFileDefaultSchema,
@@ -8,7 +7,6 @@ import {
 } from '@redocly/config';
 import { outdent } from 'outdent';
 import { describe, it, expect } from 'vitest';
-
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
 import { detectSpec } from '../detect-spec.js';

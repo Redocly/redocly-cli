@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { performance } from 'perf_hooks';
-
 import {
   parseYaml,
   slash,
@@ -13,7 +12,6 @@ import {
   isPlainObject,
 } from '@redocly/openapi-core';
 import { red, blue, green } from 'colorette';
-
 import { exitWithError } from '../../utils/error.js';
 import {
   printExecutionTime,
@@ -25,7 +23,6 @@ import {
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
 import { COMPONENTS, OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './types.js';
-
 import type { VerifyConfigOptions } from '../../types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './types.js';

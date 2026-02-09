@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
 import { isBrowser } from '../env.js';
 import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
 import { getMatchingStatusCodeRange } from '../utils/get-matching-status-code-range.js';
@@ -12,7 +11,6 @@ import { hasComponent } from '../utils/oas-has-component.js';
 import { slash } from '../utils/slash.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
 import { validateMimeType, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
-
 import type { Oas3_2Components } from '../typings/openapi.js';
 
 vi.mock('node:fs');

@@ -1,5 +1,4 @@
 import * as colorette from 'colorette';
-
 import { isBrowser } from './env.js';
 import { identity } from './utils/identity.js';
 

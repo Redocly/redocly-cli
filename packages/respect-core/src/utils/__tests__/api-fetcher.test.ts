@@ -1,12 +1,10 @@
 import { logger } from '@redocly/openapi-core';
-
 import {
   normalizeHeaders,
   isJsonContentType,
   isXmlContentType,
   ApiFetcher,
 } from '../api-fetcher.js';
-
 import type { OperationMethod } from '../../types.js';
 
 describe('normalizeHeaders', () => {

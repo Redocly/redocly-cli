@@ -1,8 +1,6 @@
 import * as yamlAst from 'yaml-ast-parser';
-
 import { colorize, colorOptions } from '../logger.js';
 import { parsePointer } from '../ref-utils.js';
-
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };

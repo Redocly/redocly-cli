@@ -1,9 +1,7 @@
 import { logger } from '@redocly/openapi-core';
-
 import { cleanColors } from '../../../../utils/clean-colors.js';
 import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
 import { CHECKS, checkSchema, statusCodeDiff } from '../../../flow-runner/index.js';
-
 import type { StepCallContext, TestContext } from '../../../../types.js';
 
 describe('checkSchema', () => {

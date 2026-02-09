@@ -1,5 +1,4 @@
 import { Agent, ProxyAgent } from 'undici';
-
 import { getProxyUrl } from './proxy-agent.js';
 
 export type FetchWithTimeoutOptions = RequestInit & {

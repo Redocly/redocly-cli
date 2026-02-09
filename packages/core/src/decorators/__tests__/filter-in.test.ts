@@ -1,5 +1,4 @@
 import { outdent } from 'outdent';
-
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { bundleDocument } from '../../bundle/bundle-document.js';
 import { createConfig } from '../../config/index.js';

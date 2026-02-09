@@ -1,8 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
 import * as dotenv from 'dotenv';
-
 import { readEnvVariables } from '../../utils/read-env-variables.js';
 
 vi.mock('dotenv');

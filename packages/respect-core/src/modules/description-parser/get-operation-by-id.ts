@@ -1,5 +1,4 @@
 import { red } from 'colorette';
-
 import type { OperationDetails } from './get-operation-from-description.js';
 
 // TODO: create a type: ExtendedOpenAPIOperation = OpenAPIOperation & { pathParameters: Parameter[], path, ... }

@@ -1,11 +1,9 @@
 import { logger } from '@redocly/openapi-core';
-
 import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
   evaluateRuntimeExpression,
 } from '../../runtime-expressions/index.js';
-
 import type { RuntimeExpressionContext } from '../../../types.js';
 
 const faker = createFaker();

@@ -4,7 +4,6 @@ import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.j
 import { createRuntimeExpressionCtx } from './context/index.js';
 import { checkSchema } from './schema/index.js';
 import { checkCriteria } from './success-criteria/index.js';
-
 import type { TestContext, Step } from '../../types.js';
 import type { RequestData } from './prepare-request.js';
 

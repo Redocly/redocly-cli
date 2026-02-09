@@ -5,7 +5,6 @@ import { isTruthy } from '../../../utils/is-truthy.js';
 import { keysOf } from '../../../utils/keys-of.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
 import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
-
 import type { AssertionContext, AssertResult } from '../../../config/index.js';
 import type {
   Oas2Visitor,

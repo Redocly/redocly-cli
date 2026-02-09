@@ -1,5 +1,4 @@
 import { createConfig } from '@redocly/openapi-core';
-
 import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import { resolveWorkflowContext, createTestContext } from '../../../flow-runner/index.js';
 

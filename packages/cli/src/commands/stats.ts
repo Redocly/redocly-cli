@@ -1,5 +1,4 @@
 import { performance } from 'perf_hooks';
-
 import {
   normalizeTypes,
   BaseResolver,
@@ -13,9 +12,7 @@ import {
   logger,
 } from '@redocly/openapi-core';
 import * as colors from 'colorette';
-
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
-
 import type { VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';

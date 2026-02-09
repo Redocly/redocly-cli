@@ -1,6 +1,5 @@
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { prepareRequest } from '../../flow-runner/index.js';
-
 import type { TestContext, Step } from '../../../types.js';
 
 describe('prepareRequest', () => {

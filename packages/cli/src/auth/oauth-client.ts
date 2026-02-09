@@ -3,9 +3,7 @@ import crypto from 'node:crypto';
 import { mkdirSync, existsSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
-
 import { logger } from '@redocly/openapi-core';
-
 import { isValidReuniteUrl } from '../reunite/api/domains.js';
 import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 

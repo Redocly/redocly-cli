@@ -1,6 +1,5 @@
 import { isEmptyObject } from '../../utils/is-empty-object.js';
 import { hasComponent } from '../../utils/oas-has-component.js';
-
 import type { Location } from '../../ref-utils.js';
 import type {
   Oas3Definition,

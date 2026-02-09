@@ -1,6 +1,5 @@
 import { logger } from '@redocly/openapi-core';
 import * as Sampler from 'openapi-sampler';
-
 import { generateTestDataFromJsonSchema } from '../../arazzo-description-generator/index.js';
 
 vi.mock('openapi-sampler');

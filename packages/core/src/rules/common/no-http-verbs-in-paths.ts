@@ -1,6 +1,5 @@
 import { isPathParameter } from '../../utils/is-path-parameter.js';
 import { splitCamelCaseIntoWords } from '../../utils/split-camel-case-into-words.js';
-
 import type { Oas3PathItem } from '../../typings/openapi.js';
 import type { Oas2PathItem } from '../../typings/swagger.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';

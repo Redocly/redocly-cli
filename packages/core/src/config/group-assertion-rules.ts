@@ -1,6 +1,5 @@
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-
 import type { RawAssertion, AssertionDefinition, Assertion } from '../rules/common/assertions';
 import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
 import type { RawGovernanceConfig, RuleConfig, Plugin } from './types';

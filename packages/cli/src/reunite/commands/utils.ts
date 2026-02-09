@@ -1,5 +1,4 @@
 import { pause } from '@redocly/openapi-core';
-
 import { exitWithError } from '../../utils/error.js';
 import { ReuniteApiError } from '../api/index.js';
 import { DeploymentError } from '../utils.js';

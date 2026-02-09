@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
 import { validateMountPath } from '../validate-mount-path.js';
 
 describe('validateMountPath', () => {

@@ -1,5 +1,4 @@
 import { pause } from '@redocly/openapi-core';
-
 import { Timer } from '../../timeout-timer/timer.js';
 
 describe('Timer', () => {

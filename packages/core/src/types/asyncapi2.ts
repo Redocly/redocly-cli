@@ -6,7 +6,6 @@ import {
   Schema,
   SchemaProperties,
 } from './json-schema-draft7.shared.js';
-
 import type { NodeType } from './index.js';
 
 const Root: NodeType = {

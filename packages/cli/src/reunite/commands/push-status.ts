@@ -1,12 +1,10 @@
 import { logger } from '@redocly/openapi-core';
 import * as colors from 'colorette';
-
 import { printExecutionTime, capitalize } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
 import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
 import { DeploymentError } from '../utils.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
-
 import type { VerifyConfigOptions } from '../../types.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type {

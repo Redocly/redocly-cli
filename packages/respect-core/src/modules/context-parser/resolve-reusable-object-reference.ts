@@ -1,7 +1,5 @@
 import { isPlainObject } from '@redocly/openapi-core';
-
 import { getValueFromContext } from './get-value-from-context.js';
-
 import type {
   ReusableObject,
   TestContext,

@@ -7,7 +7,6 @@ import {
   BaseResolver,
 } from '@redocly/openapi-core';
 import { yellow } from 'colorette';
-
 import { handleJoin } from '../../commands/join.js';
 import { exitWithError } from '../../utils/error.js';
 import {

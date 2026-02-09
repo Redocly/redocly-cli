@@ -1,7 +1,5 @@
 import * as path from 'node:path';
-
 import { isPlainObject } from '@redocly/openapi-core';
-
 import type { TestContext, RequestBody } from '../../types.js';
 
 const KNOWN_BINARY_CONTENT_TYPES_REGEX =

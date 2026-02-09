@@ -1,13 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
 import { BaseResolver } from '../../resolve.js';
 import { Config } from '../config.js';
 import { loadConfig, findConfig, createConfig } from '../load.js';
-
 import type { RuleConfig, RawUniversalConfig } from './../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

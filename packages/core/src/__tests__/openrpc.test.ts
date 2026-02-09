@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest';
-
 import { createConfig } from '../config/index.js';
 import { detectSpec } from '../detect-spec.js';
 import { lintFromString } from '../lint.js';

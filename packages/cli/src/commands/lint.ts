@@ -1,5 +1,4 @@
 import { performance } from 'perf_hooks';
-
 import {
   formatProblems,
   getTotals,
@@ -10,7 +9,6 @@ import {
   logger,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
-
 import { AbortFlowError, exitWithError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
@@ -23,7 +21,6 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
-
 import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';

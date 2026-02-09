@@ -1,5 +1,4 @@
 import { createConfig } from '@redocly/openapi-core';
-
 import { generateArazzoDescription } from '../../arazzo-description-generator/index.js';
 import {
   bundleOpenApi,
@@ -7,7 +6,6 @@ import {
   getRequestDataFromOpenApi,
   type OpenApiRequestData,
 } from '../../description-parser/index.js';
-
 import type { ParameterWithIn } from '../../context-parser/index.js';
 
 vi.mock('../../description-parser/index.js');

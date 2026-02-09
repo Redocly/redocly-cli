@@ -2,7 +2,6 @@ import { Assertions } from '../common/assertions/index.js';
 import { InfoContact } from '../common/info-contact.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { Struct } from '../common/struct.js';
-
 import type { Overlay1RuleSet } from '../../oas-types.js';
 import type { Overlay1Rule } from '../../visitors.js';
 

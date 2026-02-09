@@ -1,5 +1,4 @@
 import { rootRedoclyConfigSchema } from '@redocly/config';
-
 import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { getTypes, type SpecVersion } from './oas-types.js';
@@ -14,7 +13,6 @@ import { createConfigTypes } from './types/redocly-yaml.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { normalizeVisitors } from './visitors.js';
 import { walkDocument } from './walk.js';
-
 import type { Config } from './config/index.js';
 import type { Document } from './resolve.js';
 import type { NodeType } from './types/index.js';

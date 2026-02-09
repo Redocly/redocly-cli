@@ -1,5 +1,4 @@
 import { isPlainObject } from '@redocly/openapi-core';
-
 import { deepCopy } from '../../utils/deep-copy.js';
 
 export const POTENTIALLY_SECRET_FIELDS = [

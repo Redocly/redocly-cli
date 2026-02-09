@@ -1,9 +1,7 @@
 import { writeFileSync } from 'node:fs';
-
 import * as openapiCore from '@redocly/openapi-core';
 import { generate } from '@redocly/respect-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-
 import { GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/generate-arazzo.js';
 
 vi.mock('@redocly/respect-core', async () => {

@@ -1,5 +1,4 @@
 import { readFileAsStringSync, resolveRelativePath } from '../../utils/yaml-fs-helper.js';
-
 import type { Oas3Operation } from '../../typings/openapi.js';
 import type { Oas2Operation } from '../../typings/swagger.js';
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';

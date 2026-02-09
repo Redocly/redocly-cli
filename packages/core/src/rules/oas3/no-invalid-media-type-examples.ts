@@ -2,7 +2,6 @@ import { isRef } from '../../ref-utils.js';
 import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import { validateExample } from '../utils.js';
-
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Example } from '../../typings/openapi.js';
 import type { Oas3Rule } from '../../visitors.js';

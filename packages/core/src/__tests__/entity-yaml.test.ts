@@ -1,6 +1,5 @@
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 import { describe, it, expect } from 'vitest';
-
 import { createEntityTypes } from '../types/entity-yaml.js';
 import { NormalizedNodeType, normalizeTypes, ResolveTypeFn } from '../types/index.js';
 describe('entity-yaml', () => {

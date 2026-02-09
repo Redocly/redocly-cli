@@ -1,7 +1,5 @@
 import * as process from 'node:process';
-
 import { Spinner } from '../utils/spinner.js';
-
 import type { MockInstance } from 'vitest';
 
 describe('Spinner', () => {

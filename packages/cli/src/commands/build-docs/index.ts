@@ -2,14 +2,11 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
 import { default as redoc } from 'redoc';
-
 import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
-
 import type { CommandArgs } from '../../wrapper.js';
 import type { BuildDocsArgv } from './types.js';
 

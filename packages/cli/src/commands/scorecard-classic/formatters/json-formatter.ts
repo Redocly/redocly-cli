@@ -1,5 +1,4 @@
 import { logger, getLineColLocation } from '@redocly/openapi-core';
-
 import type { ScorecardProblem } from '../types.js';
 
 type ScorecardLevel = {

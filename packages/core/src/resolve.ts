@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import { parseYaml } from './js-yaml/index.js';
 import {
@@ -17,7 +16,6 @@ import { getOwn } from './utils/get-own.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { nextTick } from './utils/next-tick.js';
 import { readFileFromUrl } from './utils/read-file-from-url.js';
-
 import type { ResolveConfig } from './config/types.js';
 import type { NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';

@@ -5,7 +5,6 @@ import { normalizeVisitors } from '../visitors.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath } from './config-resolvers.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
-
 import type { OasRef } from '../typings/openapi.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import type { PluginResolveInfo } from './config-resolvers.js';

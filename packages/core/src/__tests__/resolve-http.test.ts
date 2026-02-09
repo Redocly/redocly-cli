@@ -1,5 +1,4 @@
 import { outdent } from 'outdent';
-
 import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { resolveDocument, BaseResolver } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';

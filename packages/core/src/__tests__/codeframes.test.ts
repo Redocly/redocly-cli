@@ -1,5 +1,4 @@
 import { outdent } from 'outdent';
-
 import { getLineColLocation, getCodeframe } from '../format/codeframes.js';
 import { Source } from '../resolve.js';
 import { LocationObject } from '../walk.js';

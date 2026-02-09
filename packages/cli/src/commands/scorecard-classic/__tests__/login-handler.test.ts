@@ -1,6 +1,5 @@
 import { logger } from '@redocly/openapi-core';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
 import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
 import * as errorUtils from '../../../utils/error.js';
 import { handleLoginAndFetchToken } from '../auth/login-handler.js';

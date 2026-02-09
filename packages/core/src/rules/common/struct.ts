@@ -3,7 +3,6 @@ import { isNamedType, SpecExtension } from '../../types/index.js';
 import { getOwn } from '../../utils/get-own.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
-
 import type {
   Oas3Rule,
   Oas2Rule,

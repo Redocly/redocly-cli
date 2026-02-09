@@ -1,5 +1,4 @@
 import { isDefined } from '../utils/is-defined.js';
-
 import type {
   Arazzo1RuleSet,
   Async2RuleSet,

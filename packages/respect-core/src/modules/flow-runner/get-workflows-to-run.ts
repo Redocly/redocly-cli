@@ -1,5 +1,4 @@
 import { red, yellow } from 'colorette';
-
 import type { Workflow } from '../../types.js';
 import type { LoggerInterface } from '@redocly/openapi-core';
 

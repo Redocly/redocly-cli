@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
-
 import { getSecurityParameter } from '../../context-parser/get-security-parameters';
-
 import type { TestContext } from '../../../types';
 
 describe('getSecurityParameter', () => {

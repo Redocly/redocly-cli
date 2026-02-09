@@ -5,7 +5,6 @@ import {
   getOperationFromDescription,
   DescriptionSource,
 } from '../../description-parser/index.js';
-
 import type { TestContext } from '../../../types.js';
 
 describe('getOperationFromDescriptionBySource', () => {

@@ -1,5 +1,4 @@
 import { YamlParseError } from '../../errors/yaml-parse-error.js';
-
 import type { Location } from '../../ref-utils.js';
 import type {
   Oas2Rule,

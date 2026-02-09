@@ -1,12 +1,9 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-
 import { logger } from '@redocly/openapi-core';
-
 import { getPlatformSpawnArgs } from '../../utils/platform.js';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants.js';
-
 import type { CommandArgs } from '../../wrapper.js';
 import type { PreviewProjectArgv, Product } from './types.js';
 

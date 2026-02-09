@@ -2,7 +2,6 @@ import { isRef } from '../../../ref-utils.js';
 import { isEmptyArray } from '../../../utils/is-empty-array.js';
 import { isEmptyObject } from '../../../utils/is-empty-object.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
-
 import type { UserContext } from '../../../walk.js';
 
 export function filter(node: any, ctx: UserContext, criteria: (item: any) => boolean) {

@@ -1,7 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-
 import { resolveReusableObjectReference } from '../../context-parser/resolve-reusable-object-reference.js';
-
 import type { TestContext } from '../../../types';
 
 describe('resolveReusableObjectReference', () => {

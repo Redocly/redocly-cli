@@ -1,14 +1,11 @@
 import * as fs from 'node:fs';
-
 import { createConfig } from '@redocly/openapi-core';
 import { renderToString } from 'react-dom/server';
 import { createStore, loadAndBundleSpec } from 'redoc';
-
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { BuildDocsArgv } from '../../commands/build-docs/types.js';
 import { getPageHTML } from '../../commands/build-docs/utils.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
-
 import type { OpenAPISpec } from 'redoc/typings/types';
 
 const config = {

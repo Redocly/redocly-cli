@@ -6,7 +6,6 @@ import { Struct } from '../common/struct.js';
 import { NoUnusedComponents } from './no-unused-components.js';
 import { NoDuplicatedMethodParams } from './spec-no-duplicated-method-params.js';
 import { NoRequiredParamsAfterOptional } from './spec-no-required-params-after-optional.js';
-
 import type { OpenRpc1RuleSet } from '../../oas-types.js';
 import type { OpenRpc1Rule } from '../../visitors.js';
 

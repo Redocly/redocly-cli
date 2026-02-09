@@ -1,5 +1,4 @@
 import * as path from 'path';
-
 import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src/index.js';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {

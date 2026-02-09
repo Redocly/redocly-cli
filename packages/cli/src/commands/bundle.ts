@@ -1,6 +1,5 @@
 import { writeFileSync } from 'fs';
 import { performance } from 'perf_hooks';
-
 import {
   formatProblems,
   getTotals,
@@ -11,7 +10,6 @@ import {
   type RuleSeverity,
 } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
-
 import { AbortFlowError } from '../utils/error.js';
 import {
   dumpBundle,
@@ -24,7 +22,6 @@ import {
   sortTopLevelKeysForOas,
   formatPath,
 } from '../utils/miscellaneous.js';
-
 import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
 

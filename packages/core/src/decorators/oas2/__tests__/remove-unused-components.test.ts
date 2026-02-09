@@ -1,7 +1,5 @@
 import * as path from 'node:path';
-
 import { outdent } from 'outdent';
-
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { bundleDocument } from '../../../bundle/bundle-document.js';
 import { bundle } from '../../../bundle/bundle.js';

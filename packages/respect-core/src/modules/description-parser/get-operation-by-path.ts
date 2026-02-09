@@ -1,6 +1,5 @@
 import { red } from 'colorette';
 import JsonPointerLib from 'json-pointer';
-
 import type { SourceDescription } from '../../types.js';
 import type { OperationDetails } from './get-operation-from-description.js';
 

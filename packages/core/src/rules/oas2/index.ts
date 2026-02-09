@@ -42,7 +42,6 @@ import { BooleanParameterPrefixes } from './boolean-parameter-prefixes.js';
 import { RequestMimeType } from './request-mime-type.js';
 import { ResponseContainsProperty } from './response-contains-property.js';
 import { ResponseMimeType } from './response-mime-type.js';
-
 import type { Oas2RuleSet } from '../../oas-types.js';
 import type { Oas2Rule } from '../../visitors.js';
 

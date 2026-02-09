@@ -1,6 +1,5 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
 import { red } from 'colorette';
-
 import type { RuntimeExpressionContext, TestContext, Workflow } from '../../types.js';
 
 export interface ParsedParameters {

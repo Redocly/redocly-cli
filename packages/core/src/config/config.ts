@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
 import { specVersions } from '../detect-spec.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -9,7 +8,6 @@ import { slash } from '../utils/slash.js';
 import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import { groupAssertionRules } from './group-assertion-rules.js';
-
 import type {
   Oas2RuleSet,
   Oas3RuleSet,

@@ -1,7 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-
 import { resolveReusableComponentItem } from '../../context-parser/index.js';
-
 import type { TestContext } from '../../../types.js';
 
 describe('resolveReusableComponentItem', () => {

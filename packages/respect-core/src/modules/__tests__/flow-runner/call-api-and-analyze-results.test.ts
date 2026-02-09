@@ -3,7 +3,6 @@ import {
   callAPIAndAnalyzeResults,
   DEFAULT_SEVERITY_CONFIGURATION,
 } from '../../flow-runner/index.js';
-
 import type { TestContext } from '../../../types.js';
 
 describe('callAPIAndAnalyzeResults', () => {

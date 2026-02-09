@@ -7,7 +7,6 @@ import { Oas3Types } from '../types/oas3.js';
 import { Oas3_1Types } from '../types/oas3_1.js';
 import { Oas3_2Types } from '../types/oas3_2.js';
 import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
-
 import type { Document } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
 

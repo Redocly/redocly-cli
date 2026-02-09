@@ -32,7 +32,6 @@ import minimal from './minimal.js';
 import recommendedStrict from './recommended-strict.js';
 import recommended from './recommended.js';
 import spec from './spec.js';
-
 import type { Plugin, RawGovernanceConfig } from './types.js';
 
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {

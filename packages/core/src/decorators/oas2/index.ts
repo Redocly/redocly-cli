@@ -6,7 +6,6 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { RemoveXInternal } from '../common/remove-x-internal.js';
 import { TagDescriptionOverride } from '../common/tag-description-override.js';
 import { RemoveUnusedComponents } from './remove-unused-components.js';
-
 import type { Oas2Decorator } from '../../visitors.js';
 
 export const decorators = {

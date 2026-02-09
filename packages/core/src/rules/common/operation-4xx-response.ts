@@ -1,5 +1,4 @@
 import { validateResponseCodes } from '../utils.js';
-
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 

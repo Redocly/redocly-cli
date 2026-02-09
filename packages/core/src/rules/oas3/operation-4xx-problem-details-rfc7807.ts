@@ -1,5 +1,4 @@
 import { validateDefinedAndNonEmpty } from '../utils.js';
-
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 

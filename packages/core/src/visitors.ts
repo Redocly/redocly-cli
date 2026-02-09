@@ -1,6 +1,5 @@
 import { SpecExtension } from './types/index.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-
 import type { Location } from './ref-utils.js';
 import type { NormalizedNodeType } from './types/index.js';
 import type {

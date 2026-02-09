@@ -1,6 +1,5 @@
 import { bgRed } from 'colorette';
 import * as Sampler from 'openapi-sampler';
-
 import type { LoggerInterface } from '@redocly/openapi-core';
 
 export function generateTestDataFromJsonSchema(schema: any, logger: LoggerInterface) {

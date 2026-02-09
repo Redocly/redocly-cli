@@ -7,7 +7,6 @@ import {
   isRegexpSuccessCriteria,
   isJSONPathSuccessCriteria,
 } from './validate-success-criteria.js';
-
 import type {
   TestContext,
   Check,

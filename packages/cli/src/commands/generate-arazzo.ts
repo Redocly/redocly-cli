@@ -1,8 +1,6 @@
 import { writeFileSync } from 'node:fs';
-
 import { HandledError, logger, stringifyYaml } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
-
 import type { CommandArgs } from '../wrapper.js';
 
 export type GenerateArazzoCommandArgv = {

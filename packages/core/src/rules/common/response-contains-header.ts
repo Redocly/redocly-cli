@@ -1,5 +1,4 @@
 import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
-
 import type { Oas3Response } from '../../typings/openapi.js';
 import type { Oas2Response } from '../../typings/swagger.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';

@@ -1,5 +1,4 @@
 import { createConfig, logger } from '@redocly/openapi-core';
-
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
 import {
@@ -13,7 +12,6 @@ import {
 } from '../../flow-runner/index.js';
 import { displayChecks } from '../../logger-output/index.js';
 import { Timer } from '../../timeout-timer/timer.js';
-
 import type {
   Step,
   TestContext,

@@ -4,7 +4,6 @@ import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
-
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
 import type { Location } from '../../../ref-utils.js';
 import type { OrderOptions, OrderDirection } from '../../../utils/is-ordered.js';

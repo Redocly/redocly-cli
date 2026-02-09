@@ -12,7 +12,6 @@ import { TagDescription } from '../common/tag-description.js';
 import { TagsAlphabetical } from '../common/tags-alphabetical.js';
 import { ChannelsKebabCase } from './channels-kebab-case.js';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash.js';
-
 import type { Async2RuleSet } from '../../oas-types.js';
 import type { Async2Rule } from '../../visitors.js';
 

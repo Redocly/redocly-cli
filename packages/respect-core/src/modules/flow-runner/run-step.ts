@@ -1,5 +1,4 @@
 import { blue, white, bold, red } from 'colorette';
-
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
@@ -19,7 +18,6 @@ import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
-
 import type {
   Check,
   Step,

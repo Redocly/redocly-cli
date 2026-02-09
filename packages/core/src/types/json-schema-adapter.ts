@@ -1,9 +1,7 @@
 // For internal usage only
 
 import Ajv from '@redocly/ajv/dist/2020.js';
-
 import { isPlainObject } from '../utils/is-plain-object.js';
-
 import type { Oas3Schema } from '../typings/openapi.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 import type { JSONSchema } from 'json-schema-to-ts';

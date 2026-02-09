@@ -1,9 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
 import { slash } from '@redocly/openapi-core';
 import { MockInstance } from 'vitest';
-
 import { version } from '../../../utils/package.js';
 import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
 import { handlePush } from '../push.js';

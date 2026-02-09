@@ -3,7 +3,6 @@ import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { dequal } from '../utils/dequal.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { makeRefId } from '../utils/make-ref-id.js';
-
 import type { RuleSeverity } from '../config/types.js';
 import type { SpecMajorVersion } from '../oas-types';
 import type { Location } from '../ref-utils.js';

@@ -1,7 +1,5 @@
 import { basename, dirname, resolve } from 'node:path';
-
 import { blue } from 'colorette';
-
 import { ApiFetcher } from '../../utils/api-fetcher.js';
 import { CHECKS } from '../checks/index.js';
 import { getValueFromContext } from '../context-parser/index.js';
@@ -17,7 +15,6 @@ import { bundleArazzo } from './get-test-description-from-file.js';
 import { getWorkflowsToRun } from './get-workflows-to-run.js';
 import { resolveRunningWorkflows } from './resolve-running-workflows.js';
 import { runStep } from './run-step.js';
-
 import type {
   TestDescription,
   AppOptions,

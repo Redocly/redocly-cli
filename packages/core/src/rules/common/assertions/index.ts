@@ -1,7 +1,6 @@
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString } from '../../../utils/is-string.js';
 import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
-
 import type { RuleSeverity } from '../../../config/index.js';
 import type {
   Arazzo1Visitor,

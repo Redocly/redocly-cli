@@ -6,7 +6,6 @@ import { BaseResolver, makeDocumentFromString } from '../resolve.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { walkDocument } from '../walk.js';
 import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
-
 import type { Plugin, ResolvedConfig } from '../config/types.js';
 import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from '../config/visitors.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';

@@ -5,7 +5,6 @@ import { getOwn } from './utils/get-own.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 import { makeRefId } from './utils/make-ref-id.js';
 import { pushStack, popStack } from './utils/stack.js';
-
 import type { Config, RuleSeverity } from './config/index.js';
 import type { SpecVersion } from './oas-types.js';
 import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';

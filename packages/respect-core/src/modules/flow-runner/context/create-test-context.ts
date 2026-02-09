@@ -1,5 +1,4 @@
 import { dirname, resolve } from 'node:path';
-
 import { getNestedValue } from '../../../utils/get-nested-value.js';
 import { infoSubstitute } from '../../arazzo-description-generator/index.js';
 import { resolveSeverityConfiguration } from '../../checks/index.js';
@@ -8,7 +7,6 @@ import { createFaker } from '../../faker.js';
 import { bundleArazzo } from '../get-test-description-from-file.js';
 import { formatCliInputs } from '../inputs/index.js';
 import { getPublicWorkflows } from './set-public-workflows.js';
-
 import type { TestDescription, AppOptions, TestContext, InputSchema } from '../../../types.js';
 import type { ApiFetcher } from '../../../utils/api-fetcher.js';
 

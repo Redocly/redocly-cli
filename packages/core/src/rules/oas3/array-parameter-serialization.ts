@@ -1,5 +1,4 @@
 import { isRef } from '../../ref-utils.js';
-
 import type { Oas3_1Schema, Oas3Parameter } from '../../typings/openapi.js';
 import type { Oas3Rule, Oas3Visitor } from '../../visitors.js';
 

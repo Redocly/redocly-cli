@@ -1,9 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { outdent } from 'outdent';
-
 import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { resolveDocument, BaseResolver, Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';

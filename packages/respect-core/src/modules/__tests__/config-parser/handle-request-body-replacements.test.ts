@@ -1,7 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-
 import { handlePayloadReplacements } from '../../context-parser/index.js';
-
 import type { RuntimeExpressionContext } from '../../../types.js';
 
 describe('handlePayloadReplacements', () => {

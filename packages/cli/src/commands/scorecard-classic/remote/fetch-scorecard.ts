@@ -1,7 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-
 import { exitWithError } from '../../../utils/error.js';
-
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
 export type FetchRemoteScorecardAndPluginsParams = {

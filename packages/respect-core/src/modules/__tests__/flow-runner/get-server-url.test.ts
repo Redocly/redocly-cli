@@ -1,7 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-
 import { getServerUrl, GetServerUrlInput } from '../../flow-runner/index.js';
-
 import type { ExtendedOperation, TestContext } from '../../../types.js';
 import type { OperationDetails } from '../../description-parser/index.js';
 

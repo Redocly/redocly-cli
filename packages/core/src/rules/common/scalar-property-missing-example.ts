@@ -1,5 +1,4 @@
 import { getOwn } from '../../utils/get-own.js';
-
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';

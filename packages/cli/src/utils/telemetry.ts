@@ -4,15 +4,12 @@ import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-
 import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
 import { ulid } from 'ulid';
-
 import { getReuniteUrl } from '../reunite/api/index.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
-
 import type { CommandArgv } from '../types.js';
 import type { ExitCode } from './miscellaneous.js';
 import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';

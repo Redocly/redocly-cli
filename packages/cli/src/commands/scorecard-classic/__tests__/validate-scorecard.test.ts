@@ -1,5 +1,4 @@
 import * as openapiCore from '@redocly/openapi-core';
-
 import { evaluatePluginsFromCode } from '../validation/plugin-evaluator.js';
 import { validateScorecard } from '../validation/validate-scorecard.js';
 
