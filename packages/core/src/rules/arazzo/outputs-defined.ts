@@ -124,7 +124,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     Parameters: {
       enter(parameters, ctx: UserContext) {
-        if (!parameters) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(parameters, ctx);
         });
@@ -133,7 +132,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     RequestBody: {
       enter(requestBody, ctx: UserContext) {
-        if (!requestBody) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(requestBody, ctx);
         });
@@ -142,7 +140,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     CriterionObject: {
       enter(criteria, ctx: UserContext) {
-        if (!criteria.condition) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(criteria.condition, ctx);
         });
@@ -151,7 +148,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     Outputs: {
       enter(outputs, ctx: UserContext) {
-        if (!outputs) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(outputs, ctx);
         });
@@ -160,7 +156,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     ExtendedSecurity: {
       enter(extendedSecurity, ctx: UserContext) {
-        if (!extendedSecurity) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(extendedSecurity, ctx);
         });
@@ -169,7 +164,6 @@ export const OutputsDefined: Arazzo1Rule = () => {
 
     ExtendedOperation: {
       enter(extendedOperation, ctx: UserContext) {
-        if (!extendedOperation) return;
         deferredValidationTasks.push(() => {
           checkRuntimeExpressions(extendedOperation, ctx);
         });
