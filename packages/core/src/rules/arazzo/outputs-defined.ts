@@ -84,18 +84,25 @@ export const OutputsDefined: Arazzo1Rule = () => {
     }
   }
 
-  function checkRuntimeExpressions(
-    value: unknown,
-    report: UserContext['report'],
-    location: UserContext['location'],
-    path: string[] = []
-  ) {
+  function checkRuntimeExpressions(value: unknown, ctx: UserContext, path: string[] = []) {
     if (typeof value === 'string') {
-      matchWorkflowOutput({ value, report, location, path, definedWorkflowOutputs });
-      matchStepOutput({ value, report, location, path, definedStepOutputs });
+      matchWorkflowOutput({
+        value,
+        report: ctx.report,
+        location: ctx.location,
+        path,
+        definedWorkflowOutputs,
+      });
+      matchStepOutput({
+        value,
+        report: ctx.report,
+        location: ctx.location,
+        path,
+        definedStepOutputs,
+      });
     } else if (isPlainObject(value) || Array.isArray(value)) {
       for (const [key, val] of Object.entries(value)) {
-        checkRuntimeExpressions(val, report, location, [...path, key]);
+        checkRuntimeExpressions(val, ctx, [...path, key]);
       }
     }
   }
@@ -116,55 +123,55 @@ export const OutputsDefined: Arazzo1Rule = () => {
     },
 
     Parameters: {
-      enter(parameters, { report, location }: UserContext) {
+      enter(parameters, ctx: UserContext) {
         if (!parameters) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(parameters, report, location);
+          checkRuntimeExpressions(parameters, ctx);
         });
       },
     },
 
     RequestBody: {
-      enter(requestBody, { report, location }: UserContext) {
+      enter(requestBody, ctx: UserContext) {
         if (!requestBody) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(requestBody, report, location);
+          checkRuntimeExpressions(requestBody, ctx);
         });
       },
     },
 
     CriterionObject: {
-      enter(criteria, { report, location }: UserContext) {
+      enter(criteria, ctx: UserContext) {
         if (!criteria.condition) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(criteria.condition, report, location);
+          checkRuntimeExpressions(criteria.condition, ctx);
         });
       },
     },
 
     Outputs: {
-      enter(outputs, { report, location }: UserContext) {
+      enter(outputs, ctx: UserContext) {
         if (!outputs) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(outputs, report, location);
+          checkRuntimeExpressions(outputs, ctx);
         });
       },
     },
 
     ExtendedSecurity: {
-      enter(extendedSecurity, { report, location }: UserContext) {
+      enter(extendedSecurity, ctx: UserContext) {
         if (!extendedSecurity) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(extendedSecurity, report, location);
+          checkRuntimeExpressions(extendedSecurity, ctx);
         });
       },
     },
 
     ExtendedOperation: {
-      enter(extendedOperation, { report, location }: UserContext) {
+      enter(extendedOperation, ctx: UserContext) {
         if (!extendedOperation) return;
         deferredValidationTasks.push(() => {
-          checkRuntimeExpressions(extendedOperation, report, location);
+          checkRuntimeExpressions(extendedOperation, ctx);
         });
       },
     },
