@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.17.0
+
+### Minor Changes
+
+- Added support for Media Types in the Components model.
+- Added new `outputs-defined` Arazzo rule, ensuring outputs are defined before use.
+
 ## 2.16.0
 
 ### Minor Changes

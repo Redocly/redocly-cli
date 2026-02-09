@@ -164,6 +164,7 @@ const builtInArazzo1Rules = [
   'sourceDescription-name-unique',
   'sourceDescriptions-not-empty',
   'workflow-dependsOn',
+  'outputs-defined',
   'parameters-unique',
   'step-onSuccess-unique',
   'step-onFailure-unique',
