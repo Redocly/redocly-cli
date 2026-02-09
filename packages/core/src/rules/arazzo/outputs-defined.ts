@@ -93,7 +93,7 @@ export const OutputsDefined: Arazzo1Rule = () => {
     if (typeof value === 'string') {
       matchWorkflowOutput({ value, report, location, path, definedWorkflowOutputs });
       matchStepOutput({ value, report, location, path, definedStepOutputs });
-    } else if (isPlainObject(value)) {
+    } else if (isPlainObject(value) || Array.isArray(value)) {
       for (const [key, val] of Object.entries(value)) {
         checkRuntimeExpressions(val, report, location, [...path, key]);
       }
