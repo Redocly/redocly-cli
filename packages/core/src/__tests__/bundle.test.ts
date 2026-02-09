@@ -275,6 +275,32 @@ describe('bundle', () => {
     `);
   });
 
+  it('should accept parameter in: querystring (OAS 3.2)', async () => {
+    const document = outdent`
+      openapi: 3.2.0
+      paths:
+        /test:
+          get:
+            parameters:
+              - name: filters
+                in: querystring
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+                      properties:
+                        filters:
+                          type: string
+    `;
+
+    const { problems } = await bundleFromString({
+      source: document,
+      config: await createConfig({}),
+    });
+
+    expect(problems).toHaveLength(0);
+  });
+
   it('should pull hosted schema', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
