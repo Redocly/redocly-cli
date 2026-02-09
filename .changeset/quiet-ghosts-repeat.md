@@ -3,4 +3,4 @@
 "@redocly/openapi-core": minor
 ---
 
-Add new `outputs-defined` rule to the Arazzo spec ruleset, ensuring outputs are defined before use.
+Added new `outputs-defined` Arazzo rule, ensuring outputs are defined before use.
