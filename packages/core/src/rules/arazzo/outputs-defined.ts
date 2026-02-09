@@ -1,3 +1,5 @@
+import { isPlainObject } from '../../utils/is-plain-object.js';
+
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
@@ -91,7 +93,7 @@ export const OutputsDefined: Arazzo1Rule = () => {
     if (typeof value === 'string') {
       matchWorkflowOutput({ value, report, location, path, definedWorkflowOutputs });
       matchStepOutput({ value, report, location, path, definedStepOutputs });
-    } else if (typeof value === 'object' && value !== null) {
+    } else if (isPlainObject(value)) {
       for (const [key, val] of Object.entries(value)) {
         checkRuntimeExpressions(val, report, location, [...path, key]);
       }
