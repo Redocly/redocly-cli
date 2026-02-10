@@ -28,6 +28,7 @@ import {
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
 } from './utils/scorecards.js';
+import { isEmptyObject } from './utils/is-empty-object.js';
 
 import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
 import type { Assertion } from './rules/common/assertions/index.js';
@@ -355,7 +356,7 @@ export async function lintEntityWithScorecardLevel(
   });
 
   if (ENTITY_TYPES_WITH_API_SUPPORT.includes(entity.type)) {
-    if (Object.keys(apiRules).length === 0) {
+    if (!isEmptyObject(apiRules)) {
       return entityProblems;
     }
 

@@ -1,5 +1,6 @@
 import { NODE_TYPE_NAMES } from '@redocly/config';
 import { dequal } from './dequal.js';
+import { isPlainObject } from './is-plain-object.js';
 
 import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { RuleConfig } from '../config/types.js';
@@ -101,7 +102,7 @@ export function findDataSchemaInDocument(
 }
 
 function isAssertionRule(ruleKey: string, ruleValue: unknown): ruleValue is RawAssertion {
-  return ruleKey.startsWith('rule/') && typeof ruleValue === 'object' && ruleValue !== null;
+  return ruleKey.startsWith('rule/') && isPlainObject(ruleValue);
 }
 
 function isEntityAssertion(assertion: Assertion): boolean {
@@ -140,8 +141,7 @@ function buildAssertionWithNormalizedTypes(
 
 function hasComponents(parsed: unknown): parsed is { [key: string]: unknown } {
   return (
-    typeof parsed === 'object' &&
-    parsed !== null &&
+    isPlainObject(parsed) &&
     'components' in parsed &&
     typeof (parsed as Record<string, unknown>).components === 'object'
   );

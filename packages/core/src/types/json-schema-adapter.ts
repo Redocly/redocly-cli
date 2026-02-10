@@ -126,9 +126,9 @@ function transformJSONSchemaToNodeType(
 
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
-          const discriminatorValue = value[discriminatedPropertyName];
-          if (typeof discriminatorValue === 'string') {
-            const actualTypeName = discriminatorMapping[discriminatorValue];
+          const discriminatedTypeName = value[discriminatedPropertyName];
+          if (typeof discriminatedTypeName === 'string') {
+            const actualTypeName = discriminatorMapping[discriminatedTypeName];
 
             if (actualTypeName && ctx[actualTypeName]) {
               return actualTypeName;
@@ -174,7 +174,7 @@ function extractNodeToContext(
 
   // Use nodeTypeName from schema if provided, otherwise use propertyName
   const nodeTypeName =
-    (schema as JSONSchema & { nodeTypeName?: string })['nodeTypeName'] || propertyName;
+    (schema as JSONSchema & { nodeTypeName?: string })['nodeTypeName'] ?? propertyName;
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
@@ -236,13 +236,9 @@ export function getNodeTypesFromJSONSchema(
 } {
   const ctx: Record<string, NodeType> = {};
   const discriminatorResolver = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
-  if (discriminatorResolver && typeof discriminatorResolver === 'function') {
-    return {
-      ctx,
-      discriminatorResolver,
-    };
-  }
   return {
     ctx,
+    discriminatorResolver:
+      typeof discriminatorResolver === 'function' ? discriminatorResolver : undefined,
   };
 }
