@@ -61,7 +61,7 @@ import type { Async3Definition } from './typings/asyncapi3.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
-  CriteriaObject,
+  CriterionObject,
   ExtendedOperation,
   InfoObject,
   OnFailureObject,
@@ -277,7 +277,7 @@ type ArazzoFlatVisitor = {
   ExtendedOperation?: VisitFunctionOrObject<ExtendedOperation>;
   Replacement?: VisitFunctionOrObject<Replacement>;
   RequestBody?: VisitFunctionOrObject<RequestBody>;
-  CriteriaObject?: VisitFunctionOrObject<CriteriaObject>;
+  CriterionObject?: VisitFunctionOrObject<CriterionObject>;
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
   Step?: VisitFunctionOrObject<Step>;

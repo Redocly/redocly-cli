@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.17.0 (2026-02-09)
+
+### Minor Changes
+
+- Added support for Media Types in the Components model.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.17.0.
+
 ## 2.16.0 (2026-02-06)
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @redocly/respect-core
 
+## 2.17.0
+
+### Minor Changes
+
+- Added new `outputs-defined` Arazzo rule, ensuring outputs are defined before use.
+
+### Patch Changes
+
+- Respect can now send a null payload when an example is described in the OpenAPI schema.
+- Updated @redocly/openapi-core to v2.17.0.
+
 ## 2.16.0
 
 ### Patch Changes
