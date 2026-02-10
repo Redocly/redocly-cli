@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createEntityTypes } from '../types/entity-yaml.js';
 import { NormalizedNodeType, normalizeTypes, ResolveTypeFn } from '../types/index.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
+import { outdent } from 'outdent';
 describe('entity-yaml', () => {
   it('should create entity types with discriminator', () => {
     const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
@@ -73,16 +74,18 @@ describe('entity-yaml', () => {
     const { lintEntityFile } = await import('../lint.js');
     const { makeDocumentFromString, BaseResolver } = await import('../resolve.js');
 
-    const entities = `- type: user
-  key: john-doe
-  title: John Doe
-  metadata:
-    name: John
+    const entities = outdent`
+    - type: user
+      key: john-doe
+      title: John Doe
+      metadata:
+        name: John
 
-- type: service
-  key: payment-service
-  metadata:
-    owner: john-doe`;
+    - type: service
+      key: payment-service
+      metadata:
+        owner: john-doe
+    `;
 
     const externalRefResolver = new BaseResolver();
 
