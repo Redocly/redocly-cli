@@ -1,4 +1,5 @@
 import { getTagName } from '../utils.js';
+
 import type { Oas3Definition, Oas3_1Definition, Oas3_2Definition } from '../../typings/openapi.js';
 import type { Oas2Definition } from '../../typings/swagger.js';
 import type { Oas2Rule, Oas3Rule } from '../../visitors.js';
