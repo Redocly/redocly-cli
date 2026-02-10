@@ -1,6 +1,7 @@
 import { red, gray, underline, blue, yellow } from 'colorette';
 import { CHECKS } from '../checks/index.js';
 import { indent, removeExtraIndentation, RESET_ESCAPE_CODE } from './helpers.js';
+
 import type { Step, WorkflowExecutionResult } from '../../types.js';
 import type { LoggerInterface } from '@redocly/openapi-core';
 

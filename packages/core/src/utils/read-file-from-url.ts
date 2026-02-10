@@ -1,5 +1,6 @@
 import picomatch from 'picomatch';
 import { env } from '../env.js';
+
 import type { HttpResolveConfig } from '../config';
 
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {

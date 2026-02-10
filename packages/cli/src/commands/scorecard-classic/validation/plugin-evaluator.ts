@@ -1,4 +1,5 @@
 import { logger, pluralize } from '@redocly/openapi-core';
+
 import type { Plugin } from '@redocly/openapi-core';
 
 type PluginFunction = () => Plugin;

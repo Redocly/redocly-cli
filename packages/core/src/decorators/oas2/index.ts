@@ -6,6 +6,7 @@ import { RemoveXInternal } from '../common/remove-x-internal.js';
 import { FilterIn } from '../common/filters/filter-in.js';
 import { FilterOut } from '../common/filters/filter-out.js';
 import { RemoveUnusedComponents } from './remove-unused-components.js';
+
 import type { Oas2Decorator } from '../../visitors.js';
 
 export const decorators = {

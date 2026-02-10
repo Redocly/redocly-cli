@@ -1,4 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
+
 import type { ViteUserConfig } from 'vitest/config';
 
 const configExtension: { [key: string]: ViteUserConfig } = {

@@ -2,17 +2,17 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [],
   "categories": {
-    "correctness": "off"
+    "correctness": "off",
   },
   "env": {
-    "builtin": true
+    "builtin": true,
   },
   "ignorePatterns": [
     "**/__tests__/**",
     "packages/*/lib/**",
     "*.js",
     "*.cjs",
-    "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js"
+    "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
   ],
   "rules": {
     "constructor-super": "error",
@@ -73,7 +73,7 @@
     "no-with": "error",
     "require-yield": "error",
     "use-isnan": "error",
-    "valid-typeof": "error"
+    "valid-typeof": "error",
   },
   "overrides": [
     {
@@ -99,8 +99,8 @@
           {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_",
-            "caughtErrors": "none"
-          }
+            "caughtErrors": "none",
+          },
         ],
         "@typescript-eslint/no-wrapper-object-types": "error",
         "@typescript-eslint/prefer-as-const": "error",
@@ -113,17 +113,17 @@
         "@typescript-eslint/consistent-type-imports": [
           "error",
           {
-            "prefer": "type-imports"
-          }
+            "prefer": "type-imports",
+          },
         ],
         "import/no-duplicates": "error",
-        "no-empty-function": "off"
+        "no-empty-function": "off",
       },
       "env": {
         "es2026": true,
-        "commonjs": true
+        "commonjs": true,
       },
-      "plugins": ["typescript", "import"]
-    }
-  ]
+      "plugins": ["typescript", "import"],
+    },
+  ],
 }

@@ -5,6 +5,7 @@ import {
   isXmlContentType,
   ApiFetcher,
 } from '../api-fetcher.js';
+
 import type { OperationMethod } from '../../types.js';
 
 describe('normalizeHeaders', () => {

@@ -1,5 +1,6 @@
 import { VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
+
 import type { SpecMajorVersion, SpecVersion } from './oas-types';
 
 export const specVersions = [

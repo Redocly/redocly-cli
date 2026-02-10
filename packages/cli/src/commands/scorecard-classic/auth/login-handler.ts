@@ -2,6 +2,7 @@ import { logger } from '@redocly/openapi-core';
 import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
 import { getReuniteUrl } from '../../../reunite/api/index.js';
 import { exitWithError } from '../../../utils/error.js';
+
 import type { Config } from '@redocly/openapi-core';
 
 export async function handleLoginAndFetchToken(

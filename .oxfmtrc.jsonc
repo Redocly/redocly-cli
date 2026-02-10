@@ -18,11 +18,11 @@
     "tests/e2e/**/*.yaml",
     "tests/smoke/**/*.yaml",
     "*.hbs",
-    "*.toml"
+    "*.toml",
   ],
   // "experimentalSortImports": {
   //   "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
   //   "newlinesBetween": false,
   // },
-  "trailingComma": "es5"
+  "trailingComma": "es5",
 }

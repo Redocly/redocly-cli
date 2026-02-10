@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Arazzo outputs-defined', () => {
   it('should report on undefined outputs in parameters', async () => {

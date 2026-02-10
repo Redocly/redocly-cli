@@ -1,5 +1,6 @@
 import pluralize from 'pluralize';
 import { isPathParameter } from '../../utils/is-path-parameter.js';
+
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 

@@ -1,4 +1,5 @@
 import { getMatchingStatusCodeRange } from '../../utils/get-matching-status-code-range.js';
+
 import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
