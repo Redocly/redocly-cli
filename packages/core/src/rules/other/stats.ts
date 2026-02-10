@@ -66,6 +66,58 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
         },
       },
     },
+    // AsyncAPI 2.x support
+    ChannelMap: {
+      Channel: {
+        leave() {
+          statsAccumulator.pathItems.total++;
+        },
+        Operation: {
+          leave(operation: any) {
+            statsAccumulator.operations.total++;
+            if (operation.tags) {
+              for (const tag of operation.tags) {
+                statsAccumulator.tags.items!.add(tag);
+              }
+            }
+          },
+        },
+        Parameter: {
+          leave(parameter: any) {
+            if (parameter.name) {
+              statsAccumulator.parameters.items!.add(parameter.name);
+            }
+          },
+        },
+      },
+    },
+    // AsyncAPI 3.x support
+    NamedChannels: {
+      Channel: {
+        leave() {
+          statsAccumulator.pathItems.total++;
+        },
+        Parameter: {
+          leave(parameter: any) {
+            if (parameter.name) {
+              statsAccumulator.parameters.items!.add(parameter.name);
+            }
+          },
+        },
+      },
+    },
+    NamedOperations: {
+      Operation: {
+        leave(operation: any) {
+          statsAccumulator.operations.total++;
+          if (operation.tags) {
+            for (const tag of operation.tags) {
+              statsAccumulator.tags.items!.add(tag);
+            }
+          }
+        },
+      },
+    },
     NamedSchemas: {
       Schema: {
         leave() {

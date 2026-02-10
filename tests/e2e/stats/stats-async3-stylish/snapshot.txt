@@ -1,0 +1,15 @@
+🚗 References: 2 
+📦 External Documents: 0 
+📈 Schemas: 0 
+👉 Parameters: 0 
+🔗 Links: 0 
+🔀 Path Items: 1 
+🎣 Webhooks: 0 
+👷 Operations: 1 
+🔖 Tags: 0 
+
+Document: asyncapi3.yaml stats:
+
+
+asyncapi3.yaml: stats processed in <test>ms
+

@@ -1,0 +1,15 @@
+🚗 References: 18 
+📦 External Documents: 12 
+📈 Schemas: 17 
+👉 Parameters: 0 
+🔗 Links: 0 
+🔀 Path Items: 4 
+🎣 Webhooks: 0 
+👷 Operations: 4 
+🔖 Tags: 11 
+
+Document: async.yaml stats:
+
+
+async.yaml: stats processed in <test>ms
+

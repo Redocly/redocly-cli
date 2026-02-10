@@ -1,0 +1,43 @@
+{
+  "refs": {
+    "metric": "🚗 References",
+    "total": 18
+  },
+  "externalDocs": {
+    "metric": "📦 External Documents",
+    "total": 12
+  },
+  "schemas": {
+    "metric": "📈 Schemas",
+    "total": 17
+  },
+  "parameters": {
+    "metric": "👉 Parameters",
+    "total": 0
+  },
+  "links": {
+    "metric": "🔗 Links",
+    "total": 0
+  },
+  "pathItems": {
+    "metric": "🔀 Path Items",
+    "total": 4
+  },
+  "webhooks": {
+    "metric": "🎣 Webhooks",
+    "total": 0
+  },
+  "operations": {
+    "metric": "👷 Operations",
+    "total": 4
+  },
+  "tags": {
+    "metric": "🔖 Tags",
+    "total": 11
+  }
+}
+Document: async.yaml stats:
+
+
+async.yaml: stats processed in <test>ms
+
