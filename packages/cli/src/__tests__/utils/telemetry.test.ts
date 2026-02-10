@@ -1,12 +1,13 @@
-import { existsSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ANONYMOUS_ID_CACHE_FILE } from '../../utils/constants.js';
+import { existsSync, unlinkSync } from 'node:fs';
 import {
   collectXSecurityAuthTypes,
   cacheAnonymousId,
   getCachedAnonymousId,
 } from '../../utils/telemetry.js';
+import { ANONYMOUS_ID_CACHE_FILE } from '../../utils/constants.js';
+
 import type { ArazzoDefinition } from '@redocly/openapi-core';
 
 describe('collectXSecurityAuthTypes', () => {

@@ -1,8 +1,8 @@
-import { logger } from '@redocly/openapi-core';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
-import * as errorUtils from '../../../utils/error.js';
 import { handleLoginAndFetchToken } from '../auth/login-handler.js';
+import * as errorUtils from '../../../utils/error.js';
+import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
+import { logger } from '@redocly/openapi-core';
 
 vi.mock('../../../auth/oauth-client.js');
 vi.mock('../../../reunite/api/index.js', () => ({

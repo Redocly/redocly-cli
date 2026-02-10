@@ -1,11 +1,11 @@
+import { green, red, gray, yellow } from 'colorette';
 import * as path from 'node:path';
 import {
   RESET_ESCAPE_CODE,
   calculateTotals,
   type WorkflowExecutionResult,
 } from '@redocly/respect-core';
-import { green, red, gray, yellow } from 'colorette';
-import type { LoggerInterface } from '@redocly/openapi-core';
+import { type LoggerInterface } from '@redocly/openapi-core';
 
 export function displayFilesSummaryTable(
   filesResult: {

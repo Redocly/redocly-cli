@@ -1,23 +1,24 @@
 import { blue, white, bold, red } from 'colorette';
+import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { checkCriteria } from './success-criteria/index.js';
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
-import {
-  getValueFromContext,
-  isParameterWithoutIn,
-  resolveReusableComponentItem,
-} from '../context-parser/index.js';
+import { runWorkflow, resolveWorkflowContext } from './runner.js';
+import { prepareRequest, type RequestData } from './prepare-request.js';
 import {
   printChildWorkflowSeparator,
   printStepDetails,
   printActionsSeparator,
   printUnknownStep,
 } from '../logger-output/helpers.js';
+import {
+  getValueFromContext,
+  isParameterWithoutIn,
+  resolveReusableComponentItem,
+} from '../context-parser/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { Timer } from '../timeout-timer/timer.js';
-import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
-import { prepareRequest, type RequestData } from './prepare-request.js';
-import { runWorkflow, resolveWorkflowContext } from './runner.js';
-import { checkCriteria } from './success-criteria/index.js';
+
 import type {
   Check,
   Step,

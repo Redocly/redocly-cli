@@ -1,5 +1,6 @@
-import { writeFileSync } from 'fs';
 import { performance } from 'perf_hooks';
+import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
 import {
   formatProblems,
   getTotals,
@@ -9,8 +10,6 @@ import {
   type Oas3Definition,
   type RuleSeverity,
 } from '@redocly/openapi-core';
-import { blue, gray, green, yellow } from 'colorette';
-import { AbortFlowError } from '../utils/error.js';
 import {
   dumpBundle,
   getExecutionTime,
@@ -22,8 +21,9 @@ import {
   sortTopLevelKeysForOas,
   formatPath,
 } from '../utils/miscellaneous.js';
-import type { OutputExtension, Totals, VerifyConfigOptions } from '../types.js';
-import type { CommandArgs } from '../wrapper.js';
+import { AbortFlowError } from '../utils/error.js';
+import { type OutputExtension, type Totals, type VerifyConfigOptions } from '../types.js';
+import { type CommandArgs } from '../wrapper.js';
 
 export type BundleArgv = {
   apis?: string[];

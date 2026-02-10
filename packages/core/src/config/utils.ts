@@ -1,5 +1,7 @@
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+
+import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -9,7 +11,6 @@ import type {
   Overlay1RuleSet,
   OpenRpc1RuleSet,
 } from '../oas-types.js';
-import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {

@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import {
   makeDocumentFromString,
   lint,
@@ -7,8 +6,9 @@ import {
   createConfig,
   logger,
 } from '@redocly/openapi-core';
+import * as fs from 'node:fs';
+import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
-import type { Step, TestContext } from '../../../../types.js';
 
 vi.mock('@redocly/openapi-core', async () => {
   const originalModule =

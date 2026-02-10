@@ -1,9 +1,10 @@
 import * as path from 'node:path';
-import { isPlainObject } from './utils/is-plain-object.js';
 import { isTruthy } from './utils/is-truthy.js';
+import { isPlainObject } from './utils/is-plain-object.js';
+
+import type { ResolveResult, UserContext } from './walk.js';
 import type { Source } from './resolve.js';
 import type { OasRef } from './typings/openapi.js';
-import type { ResolveResult, UserContext } from './walk.js';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';

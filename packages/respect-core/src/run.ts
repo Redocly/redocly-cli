@@ -1,8 +1,13 @@
+import {
+  type Config,
+  type CollectFn,
+  type LoggerInterface,
+  type BaseResolver,
+} from '@redocly/openapi-core';
 import { runTestFile } from './modules/flow-runner/index.js';
 import { displayErrors, displaySummary, calculateTotals } from './modules/logger-output/index.js';
 import { Timer } from './modules/timeout-timer/timer.js';
-import type { ExecutedStepsCount, RunFileResult, RunOptions } from './types.js';
-import type { Config, CollectFn, LoggerInterface, BaseResolver } from '@redocly/openapi-core';
+import { type ExecutedStepsCount, type RunFileResult, type RunOptions } from './types.js';
 
 export type RespectOptions = {
   files: string[];

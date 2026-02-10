@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { createConfig } from '../../../config/load.js';
 import { lintDocument } from '../../../lint.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/load.js';
 
 describe('Arazzo x-security-scheme-required-values', () => {
   it('should report when required values are missing for Basic Auth x-security schema', async () => {

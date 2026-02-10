@@ -1,7 +1,8 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
-import { getFakeData, parseJson } from '../context-parser/index.js';
 import { lintExpression } from './lint.js';
 import { replaceJSONPointers } from './replace-json-pointers.js';
+import { getFakeData, parseJson } from '../context-parser/index.js';
+
 import type { RuntimeExpressionContext } from '../../types.js';
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.

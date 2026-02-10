@@ -1,5 +1,5 @@
-import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
 import { RuleConfig, createConfig } from '../../../../config/index.js';
+import { parseYamlToDocument } from '../../../../../__tests__/utils.js';
 import { lintDocument } from '../../../../lint.js';
 import { BaseResolver } from '../../../../resolve.js';
 

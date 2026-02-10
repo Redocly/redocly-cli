@@ -1,5 +1,5 @@
-import type { Oas3Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
+import { type Oas3Rule } from '../../visitors.js';
+import { type UserContext } from '../../walk.js';
 
 export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
   let componentsSchemaNames: string[];

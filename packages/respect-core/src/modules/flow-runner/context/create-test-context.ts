@@ -1,14 +1,19 @@
 import { dirname, resolve } from 'node:path';
-import { getNestedValue } from '../../../utils/get-nested-value.js';
-import { infoSubstitute } from '../../arazzo-description-generator/index.js';
-import { resolveSeverityConfiguration } from '../../checks/index.js';
+import {
+  type TestDescription,
+  type AppOptions,
+  type TestContext,
+  type InputSchema,
+} from '../../../types.js';
+import { type ApiFetcher } from '../../../utils/api-fetcher.js';
 import { bundleOpenApi } from '../../description-parser/index.js';
 import { createFaker } from '../../faker.js';
-import { bundleArazzo } from '../get-test-description-from-file.js';
+import { infoSubstitute } from '../../arazzo-description-generator/index.js';
 import { formatCliInputs } from '../inputs/index.js';
+import { bundleArazzo } from '../get-test-description-from-file.js';
+import { getNestedValue } from '../../../utils/get-nested-value.js';
 import { getPublicWorkflows } from './set-public-workflows.js';
-import type { TestDescription, AppOptions, TestContext, InputSchema } from '../../../types.js';
-import type { ApiFetcher } from '../../../utils/api-fetcher.js';
+import { resolveSeverityConfiguration } from '../../checks/index.js';
 
 const faker = createFaker();
 

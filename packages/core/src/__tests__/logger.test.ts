@@ -1,5 +1,6 @@
-import * as colorette from 'colorette';
 import { MockInstance } from 'vitest';
+
+import * as colorette from 'colorette';
 import { logger, colorize } from '../logger.js';
 
 describe('Logger in nodejs', () => {

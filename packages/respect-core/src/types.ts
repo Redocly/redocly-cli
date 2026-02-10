@@ -1,3 +1,4 @@
+import type { FromSchema } from 'json-schema-to-ts';
 import type {
   parameter,
   operationMethod,
@@ -14,10 +15,10 @@ import type {
   extendedOperation,
   extendedSecurity,
 } from './arazzo-schema.js';
-import type { OperationDetails } from './modules/description-parser/index.js';
 import type { Faker } from './modules/faker.js';
-import type { RespectOptions } from './run.js';
+import type { OperationDetails } from './modules/description-parser/index.js';
 import type { ApiFetcher } from './utils/api-fetcher.js';
+import type { RespectOptions } from './run.js';
 import type {
   Config,
   CollectFn,
@@ -25,7 +26,6 @@ import type {
   LoggerInterface,
   BaseResolver,
 } from '@redocly/openapi-core';
-import type { FromSchema } from 'json-schema-to-ts';
 
 export type OperationMethod = FromSchema<typeof operationMethod>;
 export type ResponseContext = {

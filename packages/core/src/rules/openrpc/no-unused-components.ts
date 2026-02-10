@@ -1,5 +1,5 @@
-import type { Location } from '../../ref-utils.js';
 import type { OpenRpc1Rule } from '../../visitors.js';
+import type { Location } from '../../ref-utils.js';
 
 export const NoUnusedComponents: OpenRpc1Rule = () => {
   const components = new Map<string, { used: boolean; location: Location; name: string }>();

@@ -5,14 +5,15 @@ import {
   logger,
   HandledError,
 } from '@redocly/openapi-core';
-import { AbortFlowError, exitWithError } from './utils/error.js';
-import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
+import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
 import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
-import type { CommandArgv } from './types.js';
-import type { ExitCode } from './utils/miscellaneous.js';
-import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
+import { AbortFlowError, exitWithError } from './utils/error.js';
+
 import type { Arguments } from 'yargs';
+import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
+import type { ExitCode } from './utils/miscellaneous.js';
+import type { CommandArgv } from './types.js';
 
 export type CommandArgs<T extends CommandArgv> = {
   argv: T;

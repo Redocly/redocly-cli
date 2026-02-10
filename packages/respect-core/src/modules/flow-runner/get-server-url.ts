@@ -1,6 +1,7 @@
 import { getValueFromContext } from '../context-parser/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/evaluate.js';
 import { formatCliInputs } from './inputs/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/evaluate.js';
+
 import type { ExtendedOperation, TestContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/index.js';
 

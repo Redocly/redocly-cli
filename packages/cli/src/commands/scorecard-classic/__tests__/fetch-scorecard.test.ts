@@ -1,5 +1,5 @@
-import * as errorUtils from '../../../utils/error.js';
 import { fetchRemoteScorecardAndPlugins } from '../remote/fetch-scorecard.js';
+import * as errorUtils from '../../../utils/error.js';
 
 describe('fetchRemoteScorecardAndPlugins', () => {
   const mockFetch = vi.fn();

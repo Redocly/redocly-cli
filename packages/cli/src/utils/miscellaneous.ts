@@ -1,9 +1,11 @@
-import * as fs from 'node:fs';
 import { basename, dirname, extname, join, resolve, relative } from 'node:path';
-import * as process from 'node:process';
+import { blue, gray, green, red, yellow } from 'colorette';
+import { performance } from 'perf_hooks';
+import { hasMagic, glob } from 'glob';
+import * as fs from 'node:fs';
 import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
-import { performance } from 'perf_hooks';
+import * as process from 'node:process';
 import {
   ResolveError,
   YamlParseError,
@@ -19,13 +21,12 @@ import {
   logger,
   HandledError,
 } from '@redocly/openapi-core';
-import { blue, gray, green, red, yellow } from 'colorette';
-import { hasMagic, glob } from 'glob';
-import { handleLintConfig } from '../commands/lint.js';
 import { outputExtensions } from '../types.js';
 import { exitWithError } from './error.js';
-import type { Totals, Entrypoint, OutputExtension, CommandArgv } from '../types.js';
+import { handleLintConfig } from '../commands/lint.js';
+
 import type { Config, Oas3Definition, Oas2Definition, Exact } from '@redocly/openapi-core';
+import type { Totals, Entrypoint, OutputExtension, CommandArgv } from '../types.js';
 
 export type ExitCode = 0 | 1 | 2;
 

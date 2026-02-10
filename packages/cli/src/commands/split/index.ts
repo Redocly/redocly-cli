@@ -1,6 +1,5 @@
+import { red, blue, green } from 'colorette';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { performance } from 'perf_hooks';
 import {
   parseYaml,
   slash,
@@ -11,8 +10,8 @@ import {
   isEmptyObject,
   isPlainObject,
 } from '@redocly/openapi-core';
-import { red, blue, green } from 'colorette';
-import { exitWithError } from '../../utils/error.js';
+import * as path from 'node:path';
+import { performance } from 'perf_hooks';
 import {
   printExecutionTime,
   pathToFilename,
@@ -22,10 +21,9 @@ import {
   writeToFileByExtension,
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
+import { exitWithError } from '../../utils/error.js';
 import { COMPONENTS, OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './types.js';
-import type { VerifyConfigOptions } from '../../types.js';
-import type { CommandArgs } from '../../wrapper.js';
-import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './types.js';
+
 import type {
   Oas3Definition,
   Oas3_1Definition,
@@ -40,6 +38,9 @@ import type {
   OasRef,
   Referenced,
 } from '@redocly/openapi-core';
+import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
+import type { VerifyConfigOptions } from '../../types.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 

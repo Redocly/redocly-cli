@@ -1,11 +1,11 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
-import { parseYamlToDocument } from '../../__tests__/utils.js';
+import * as path from 'node:path';
 import { resolveDocument, BaseResolver, Document } from '../resolve.js';
-import { normalizeTypes } from '../types/index.js';
+import { parseYamlToDocument } from '../../__tests__/utils.js';
 import { Oas3Types } from '../types/oas3.js';
+import { normalizeTypes } from '../types/index.js';
+import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

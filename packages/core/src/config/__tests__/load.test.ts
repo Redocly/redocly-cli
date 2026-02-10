@@ -1,12 +1,12 @@
+import { loadConfig, findConfig, createConfig } from '../load.js';
+import { type Config } from '../config.js';
+import { lintConfig } from '../../lint.js';
+import { replaceSourceWithRef } from '../../../__tests__/utils.js';
+import { type RuleConfig, type RawUniversalConfig } from './../types.js';
+import { BaseResolver } from '../../resolve.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { replaceSourceWithRef } from '../../../__tests__/utils.js';
-import { lintConfig } from '../../lint.js';
-import { BaseResolver } from '../../resolve.js';
-import { Config } from '../config.js';
-import { loadConfig, findConfig, createConfig } from '../load.js';
-import type { RuleConfig, RawUniversalConfig } from './../types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -133,7 +133,6 @@ describe('loadConfig', () => {
               "no-schema-type-mismatch": "warn",
               "no-x-security-both-scheme-and-scheme-name": "off",
               "no-x-security-scheme-name-without-openapi": "off",
-              "outputs-defined": "off",
               "parameters-unique": "off",
               "requestBody-replacements-unique": "off",
               "respect-supported-versions": "off",
@@ -451,7 +450,6 @@ describe('loadConfig', () => {
               "no-schema-type-mismatch": "error",
               "no-x-security-both-scheme-and-scheme-name": "off",
               "no-x-security-scheme-name-without-openapi": "off",
-              "outputs-defined": "warn",
               "parameters-unique": "error",
               "requestBody-replacements-unique": "warn",
               "respect-supported-versions": "off",
@@ -774,7 +772,6 @@ describe('loadConfig', () => {
               "no-schema-type-mismatch": "warn",
               "no-x-security-both-scheme-and-scheme-name": "off",
               "no-x-security-scheme-name-without-openapi": "off",
-              "outputs-defined": "off",
               "parameters-unique": "off",
               "requestBody-replacements-unique": "off",
               "respect-supported-versions": "off",

@@ -1,6 +1,6 @@
+import { type SpecVersion } from '../../oas-types.js';
 import { Config } from '../config.js';
 import { createConfig } from '../index.js';
-import type { SpecVersion } from '../../oas-types.js';
 
 // Create the config and clean up not needed props for consistency
 const testConfig: Config = await createConfig(

@@ -1,17 +1,17 @@
+import { type JsonLogs } from '@redocly/respect-core';
+import { HandledError, logger } from '@redocly/openapi-core';
+import { type CommandArgs } from '../../wrapper';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, basename } from 'node:path';
-import { HandledError, logger } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
-import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
-import { readEnvVariables } from '../../utils/read-env-variables.js';
-import { withConnectionClient } from './connection-client.js';
-import { displayFilesSummaryTable } from './display-files-summary-table.js';
-import { createHarLog } from './har-logs/har-logs.js';
-import { withHar } from './har-logs/index.js';
 import { composeJsonLogsFiles } from './json-logs.js';
+import { displayFilesSummaryTable } from './display-files-summary-table.js';
+import { readEnvVariables } from '../../utils/read-env-variables.js';
 import { resolveMtlsCertificates } from './mtls/resolve-mtls-certificates.js';
-import type { CommandArgs } from '../../wrapper';
-import type { JsonLogs } from '@redocly/respect-core';
+import { withConnectionClient } from './connection-client.js';
+import { withHar } from './har-logs/index.js';
+import { createHarLog } from './har-logs/har-logs.js';
+import { jsonStringifyWithArrayBuffer } from '../../utils/json-stringify-with-array-buffer.js';
 
 export type MtlsConfig = {
   [domain: string]: {

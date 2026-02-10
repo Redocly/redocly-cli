@@ -1,20 +1,3 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as process from 'node:process';
-import { fileURLToPath } from 'node:url';
-import {
-  type Totals,
-  ResolveError,
-  YamlParseError,
-  HandledError,
-  type Config,
-  type RawUniversalApiConfig,
-  type ResolvedApiConfig,
-} from '@redocly/openapi-core';
-import * as openapiCore from '@redocly/openapi-core';
-import { blue, red, yellow } from 'colorette';
-import * as glob from 'glob';
-import * as errorHandling from '../utils/error.js';
 import {
   getFallbackApisOrExit,
   pathToFilename,
@@ -28,9 +11,26 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
 } from '../utils/miscellaneous.js';
-import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
 import { cleanArgs } from '../utils/telemetry.js';
-import type { ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import * as errorHandling from '../utils/error.js';
+import { sanitizeLocale, sanitizePath, getPlatformSpawnArgs } from '../utils/platform.js';
+import {
+  type Totals,
+  ResolveError,
+  YamlParseError,
+  HandledError,
+  type Config,
+  type RawUniversalApiConfig,
+  type ResolvedApiConfig,
+} from '@redocly/openapi-core';
+import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import * as glob from 'glob';
+import * as openapiCore from '@redocly/openapi-core';
+import { blue, red, yellow } from 'colorette';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

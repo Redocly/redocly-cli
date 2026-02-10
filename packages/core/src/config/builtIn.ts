@@ -1,14 +1,10 @@
-import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
-import { decorators as async2Decorators } from '../decorators/async2/index.js';
-import { decorators as async3Decorators } from '../decorators/async3/index.js';
-import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
-import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
-import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
-import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
-import {
-  rules as arazzo1Rules,
-  preprocessors as arazzoPreprocessors,
-} from '../rules/arazzo/index.js';
+import recommended from './recommended.js';
+import recommendedStrict from './recommended-strict.js';
+import all from './all.js';
+import minimal from './minimal.js';
+import spec from './spec.js';
+import { rules as oas3Rules, preprocessors as oas3Preprocessors } from '../rules/oas3/index.js';
+import { rules as oas2Rules, preprocessors as oas2Preprocessors } from '../rules/oas2/index.js';
 import {
   rules as async2Rules,
   preprocessors as async2Preprocessors,
@@ -17,22 +13,26 @@ import {
   rules as async3Rules,
   preprocessors as async3Preprocessors,
 } from '../rules/async3/index.js';
-import { rules as oas2Rules, preprocessors as oas2Preprocessors } from '../rules/oas2/index.js';
-import { rules as oas3Rules, preprocessors as oas3Preprocessors } from '../rules/oas3/index.js';
 import {
-  rules as openrpc1Rules,
-  preprocessors as openrpc1Preprocessors,
-} from '../rules/openrpc/index.js';
+  rules as arazzo1Rules,
+  preprocessors as arazzoPreprocessors,
+} from '../rules/arazzo/index.js';
 import {
   rules as overlay1Rules,
   preprocessors as overlay1Preprocessors,
 } from '../rules/overlay1/index.js';
-import all from './all.js';
-import minimal from './minimal.js';
-import recommendedStrict from './recommended-strict.js';
-import recommended from './recommended.js';
-import spec from './spec.js';
-import type { Plugin, RawGovernanceConfig } from './types.js';
+import {
+  rules as openrpc1Rules,
+  preprocessors as openrpc1Preprocessors,
+} from '../rules/openrpc/index.js';
+import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
+import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
+import { decorators as async2Decorators } from '../decorators/async2/index.js';
+import { decorators as async3Decorators } from '../decorators/async3/index.js';
+import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
+import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
+import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
+import { type Plugin, type RawGovernanceConfig } from './types.js';
 
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
   recommended,

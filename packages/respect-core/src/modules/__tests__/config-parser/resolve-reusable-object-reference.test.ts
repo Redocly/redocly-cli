@@ -1,6 +1,6 @@
 import { logger } from '@redocly/openapi-core';
+import { type TestContext } from '../../../types';
 import { resolveReusableObjectReference } from '../../context-parser/resolve-reusable-object-reference.js';
-import type { TestContext } from '../../../types';
 
 describe('resolveReusableObjectReference', () => {
   it('should throw an error if the reference is invalid', () => {

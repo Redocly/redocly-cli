@@ -1,7 +1,7 @@
-import type { Oas3Paths } from '../../typings/openapi.js';
-import type { Oas2Paths } from '../../typings/swagger.js';
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import type { Oas3Paths } from '../../typings/openapi.js';
+import type { Oas2Paths } from '../../typings/swagger.js';
 
 export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
   return {

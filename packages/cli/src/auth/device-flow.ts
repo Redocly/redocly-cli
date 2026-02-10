@@ -1,6 +1,6 @@
+import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
 import { logger } from '@redocly/openapi-core';
-import { blue, green } from 'colorette';
 import { ReuniteApiClient } from '../reunite/api/api-client.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 

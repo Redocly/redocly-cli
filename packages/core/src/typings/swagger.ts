@@ -1,5 +1,5 @@
-import type { Referenced } from './openapi.js';
 import type { Schema } from 'js-yaml';
+import type { Referenced } from './openapi.js';
 
 export interface Oas2Definition {
   swagger: '2.0';

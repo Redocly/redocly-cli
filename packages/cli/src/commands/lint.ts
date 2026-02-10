@@ -1,3 +1,4 @@
+import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import {
   formatProblems,
@@ -8,9 +9,6 @@ import {
   ConfigValidationError,
   logger,
 } from '@redocly/openapi-core';
-import { blue, gray } from 'colorette';
-import { AbortFlowError, exitWithError } from '../utils/error.js';
-import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
   formatPath,
@@ -21,10 +19,13 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
+import { AbortFlowError, exitWithError } from '../utils/error.js';
+import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
+
+import type { Arguments } from 'yargs';
+import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
 import type { CommandArgs } from '../wrapper.js';
-import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
-import type { Arguments } from 'yargs';
 
 export type LintArgv = {
   apis?: string[];

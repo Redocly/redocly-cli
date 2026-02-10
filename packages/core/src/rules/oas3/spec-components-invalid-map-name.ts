@@ -1,6 +1,6 @@
-import type { Location } from '../../ref-utils.js';
 import type { Oas3Rule } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
+import type { Location } from '../../ref-utils.js';
 
 export const SpecComponentsInvalidMapName: Oas3Rule = () => {
   const KEYS_REGEX = '^[a-zA-Z0-9\\.\\-_]+$';

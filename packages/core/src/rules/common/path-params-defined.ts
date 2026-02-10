@@ -1,8 +1,8 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
-import type { Oas3Parameter } from '../../typings/openapi.js';
-import type { Oas2Parameter } from '../../typings/swagger.js';
-import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
-import type { UserContext } from '../../walk.js';
+import { type Oas3Rule, type Oas2Rule } from '../../visitors.js';
+import { type Oas2Parameter } from '../../typings/swagger.js';
+import { type Oas3Parameter } from '../../typings/openapi.js';
+import { type UserContext } from '../../walk.js';
 
 const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
 const MAX_DEPTH = 2; // Only first callback level is supported

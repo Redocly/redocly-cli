@@ -1,14 +1,15 @@
-import { BaseResolver, logger } from '@redocly/openapi-core';
-import { blue, bold, cyan, gray, green, white } from 'colorette';
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { BaseResolver, logger } from '@redocly/openapi-core';
+import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
-import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
+import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
-import type { CommandArgs } from '../../wrapper.js';
+import { blue, bold, cyan, gray, green, white } from 'colorette';
+
 import type { ScorecardClassicArgv } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 import type { Document } from '@redocly/openapi-core';
 
 export async function handleScorecardClassic({

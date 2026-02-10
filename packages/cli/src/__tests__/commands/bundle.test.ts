@@ -17,8 +17,8 @@ import {
 } from '../../utils/miscellaneous.js';
 import { commandWrapper } from '../../wrapper.js';
 import { configFixture } from '../fixtures/config.js';
-import type { MockInstance } from 'vitest';
-import type { Arguments } from 'yargs';
+import { type MockInstance } from 'vitest';
+import { type Arguments } from 'yargs';
 
 describe('bundle', () => {
   let processExitMock: MockInstance;

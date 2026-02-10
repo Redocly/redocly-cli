@@ -1,12 +1,13 @@
-import { Arazzo1Types } from './types/arazzo.js';
-import { AsyncApi2Types } from './types/asyncapi2.js';
-import { AsyncApi3Types } from './types/asyncapi3.js';
 import { Oas2Types } from './types/oas2.js';
 import { Oas3Types } from './types/oas3.js';
 import { Oas3_1Types } from './types/oas3_1.js';
 import { Oas3_2Types } from './types/oas3_2.js';
-import { OpenRpcTypes } from './types/openrpc.js';
+import { AsyncApi2Types } from './types/asyncapi2.js';
+import { AsyncApi3Types } from './types/asyncapi3.js';
+import { Arazzo1Types } from './types/arazzo.js';
 import { Overlay1Types } from './types/overlay.js';
+import { OpenRpcTypes } from './types/openrpc.js';
+
 import type {
   BuiltInAsync2RuleId,
   BuiltInAsync3RuleId,

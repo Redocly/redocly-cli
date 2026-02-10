@@ -1,3 +1,6 @@
+import type { ApiConfig, RedoclyConfig } from '@redocly/config';
+import type { Location } from '../ref-utils.js';
+import type { ProblemSeverity, UserContext } from '../walk.js';
 import type {
   Oas3PreprocessorsSet,
   SpecMajorVersion,
@@ -24,8 +27,9 @@ import type {
   OpenRpc1PreprocessorsSet,
   OpenRpc1DecoratorsSet,
 } from '../oas-types.js';
-import type { Location } from '../ref-utils.js';
 import type { NodeType } from '../types/index.js';
+import type { SkipFunctionContext } from '../visitors.js';
+import type { JSONSchema } from 'json-schema-to-ts';
 import type {
   BuiltInOAS2RuleId,
   BuiltInOAS3RuleId,
@@ -36,10 +40,6 @@ import type {
   BuiltInOpenRpc1RuleId,
   BuiltInCommonRuleId,
 } from '../types/redocly-yaml.js';
-import type { SkipFunctionContext } from '../visitors.js';
-import type { ProblemSeverity, UserContext } from '../walk.js';
-import type { ApiConfig, RedoclyConfig } from '@redocly/config';
-import type { JSONSchema } from 'json-schema-to-ts';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 

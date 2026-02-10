@@ -1,7 +1,8 @@
 import { getOwn } from '../../utils/get-own.js';
-import type { ExtendedSecurity } from '../../typings/arazzo.js';
+
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import type { ExtendedSecurity } from '../../typings/arazzo.js';
 
 export const NoXSecurityBothSchemeAndSchemeName: Arazzo1Rule = () => {
   function validate(

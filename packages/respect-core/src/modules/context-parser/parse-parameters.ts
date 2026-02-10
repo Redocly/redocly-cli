@@ -1,5 +1,5 @@
 import { isPlainObject } from '@redocly/openapi-core';
-import type { AdditionalParameterProperties } from '../../types.js';
+import { type AdditionalParameterProperties } from '../../types.js';
 
 export type ParameterWithIn = {
   in: 'header' | 'query' | 'path' | 'cookie';

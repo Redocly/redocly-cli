@@ -1,4 +1,4 @@
-import type { Config } from '@redocly/openapi-core';
+import { type Config } from '@redocly/openapi-core';
 
 export const configFixture: Config = {
   resolve: {

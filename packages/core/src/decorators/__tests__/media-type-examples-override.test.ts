@@ -1,9 +1,9 @@
-import { outdent } from 'outdent';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { outdent } from 'outdent';
 import { bundleDocument } from '../../bundle/bundle-document.js';
+import { BaseResolver } from '../../resolve.js';
 import { createConfig } from '../../config/index.js';
 import { Oas3Types } from '../../index.js';
-import { BaseResolver } from '../../resolve.js';
 
 describe('oas3 media-type-examples-override', () => {
   expect.addSnapshotSerializer(yamlSerializer);

@@ -1,10 +1,15 @@
 import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 import { blue, dim, red, yellow, green } from 'colorette';
+import {
+  type Check,
+  type DescriptionChecks,
+  type StepCallContext,
+  type TestContext,
+} from '../../../types.js';
+import { CHECKS } from '../../checks/index.js';
 import { printErrors as printAjvErrors } from '../../../utils/ajv-errors.js';
 import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in-schema.js';
-import { CHECKS } from '../../checks/index.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
-import type { Check, DescriptionChecks, StepCallContext, TestContext } from '../../../types.js';
 
 const ajvStrict = new Ajv({
   schemaId: '$id',

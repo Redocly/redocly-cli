@@ -1,15 +1,16 @@
 import { logger } from '@redocly/openapi-core';
-import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
+import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
 import { version } from '../../utils/package.js';
+
+import type { ReadStream } from 'node:fs';
+import type { Readable } from 'node:stream';
 import type {
   ListRemotesResponse,
   ProjectSourceResponse,
   PushResponse,
   UpsertRemoteResponse,
 } from './types.js';
-import type { ReadStream } from 'node:fs';
-import type { Readable } from 'node:stream';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;

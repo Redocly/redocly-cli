@@ -1,6 +1,7 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
-import type { CatalogEntityRule } from '../../visitors.js';
+
 import type { UserContext } from '../../walk.js';
+import type { CatalogEntityRule } from '../../visitors.js';
 
 const validKeyPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MIN_KEY_LENGTH = 2;

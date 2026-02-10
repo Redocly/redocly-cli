@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
 import { BaseResolver } from '../../../resolve.js';
+import { createConfig } from '../../../config/index.js';
 
 describe('Oas3 oas3-no-example-value-and-externalValue', () => {
   it('oas3-no-example-value-and-externalValue: should report on example object with both value and external value', async () => {

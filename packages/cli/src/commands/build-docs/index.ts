@@ -1,14 +1,15 @@
-import { writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { default as redoc } from 'redoc';
 import { performance } from 'node:perf_hooks';
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import { default as redoc } from 'redoc';
-import { exitWithError } from '../../utils/error.js';
-import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
-import type { CommandArgs } from '../../wrapper.js';
+import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import { exitWithError } from '../../utils/error.js';
+
 import type { BuildDocsArgv } from './types.js';
+import type { CommandArgs } from '../../wrapper.js';
 
 const packageJson = createRequire(import.meta.url ?? __dirname)('../../../package.json');
 

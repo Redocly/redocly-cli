@@ -1,6 +1,6 @@
+import { validateScorecard } from '../validation/validate-scorecard.js';
 import * as openapiCore from '@redocly/openapi-core';
 import { evaluatePluginsFromCode } from '../validation/plugin-evaluator.js';
-import { validateScorecard } from '../validation/validate-scorecard.js';
 
 vi.mock('../validation/plugin-evaluator.js', () => ({
   evaluatePluginsFromCode: vi.fn(),

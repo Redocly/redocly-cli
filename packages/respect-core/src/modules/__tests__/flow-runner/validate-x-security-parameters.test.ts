@@ -1,5 +1,5 @@
-import { validateXSecurityParameters } from '../../flow-runner/validate-x-security-parameters.js';
 import type { Oas3SecurityScheme, ApiKeyAuth, BasicAuth, BearerAuth } from '@redocly/openapi-core';
+import { validateXSecurityParameters } from '../../flow-runner/validate-x-security-parameters.js';
 
 describe('validateXSecurityParameters', () => {
   it('should validate apiKey scheme', () => {

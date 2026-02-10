@@ -9,8 +9,8 @@ import type {
   OpenRpc1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
-import type { ProblemSeverity } from '../walk.js';
 import type { Config } from './config.js';
+import type { ProblemSeverity } from '../walk.js';
 
 type InitializedRule = {
   severity: ProblemSeverity;

@@ -1,18 +1,18 @@
-import type { LoginArgv, LogoutArgv } from './commands/auth.js';
-import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import type { BundleArgv } from './commands/bundle.js';
-import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
-import type { JoinArgv } from './commands/join.js';
-import type { LintArgv } from './commands/lint.js';
-import type { PreviewProjectArgv } from './commands/preview-project/types.js';
-import type { RespectArgv } from './commands/respect/index.js';
-import type { SplitArgv } from './commands/split/index.js';
-import type { StatsArgv } from './commands/stats.js';
-import type { TranslationsArgv } from './commands/translations.js';
-import type { PushStatusArgv } from './reunite/commands/push-status.js';
-import type { PushArgv } from './reunite/commands/push.js';
 import type { RuleSeverity } from '@redocly/openapi-core';
+import type { RespectArgv } from './commands/respect/index.js';
+import type { LintArgv } from './commands/lint.js';
+import type { BundleArgv } from './commands/bundle.js';
+import type { JoinArgv } from './commands/join.js';
+import type { LoginArgv, LogoutArgv } from './commands/auth.js';
+import type { StatsArgv } from './commands/stats.js';
+import type { SplitArgv } from './commands/split/index.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import type { PushArgv } from './reunite/commands/push.js';
+import type { PushStatusArgv } from './reunite/commands/push-status.js';
+import type { PreviewProjectArgv } from './commands/preview-project/types.js';
+import type { TranslationsArgv } from './commands/translations.js';
+import type { EjectArgv } from './commands/eject.js';
 
 export type Totals = {
   errors: number;

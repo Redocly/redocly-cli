@@ -1,5 +1,5 @@
+import { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 import { isPlainObject } from '@redocly/openapi-core';
-import type { JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 
 export function removeWriteOnlyProperties<T>(schema: JSONSchemaType<T>): JSONSchemaType<T> {
   const schemaCopy = JSON.parse(JSON.stringify(schema));

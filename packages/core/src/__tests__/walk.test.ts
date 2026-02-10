@@ -1,12 +1,12 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import outdent from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
-import { createConfig } from '../config/index.js';
+import path from 'node:path';
 import { lintDocument } from '../lint.js';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
 import { BaseResolver, type Document } from '../resolve.js';
 import { listOf } from '../types/index.js';
-import type { Oas2RuleSet, Oas3RuleSet } from '../oas-types.js';
+import { type Oas2RuleSet, type Oas3RuleSet } from '../oas-types.js';
+import { createConfig } from '../config/index.js';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

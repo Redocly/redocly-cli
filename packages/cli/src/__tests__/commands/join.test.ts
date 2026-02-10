@@ -1,3 +1,4 @@
+import { yellow } from 'colorette';
 import {
   bundleDocument,
   detectSpec,
@@ -6,15 +7,14 @@ import {
   type Document,
   BaseResolver,
 } from '@redocly/openapi-core';
-import { yellow } from 'colorette';
 import { handleJoin } from '../../commands/join.js';
-import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
   getFallbackApisOrExit,
   sortTopLevelKeysForOas,
   writeToFileByExtension,
 } from '../../utils/miscellaneous.js';
+import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import {
   firstDocument,

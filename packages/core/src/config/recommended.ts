@@ -1,4 +1,4 @@
-import type { RawGovernanceConfig } from './types.js';
+import { type RawGovernanceConfig } from './types.js';
 
 const recommended: RawGovernanceConfig<'built-in'> = {
   rules: {

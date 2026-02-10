@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
+import { lintFromString } from '../lint.js';
 import { createConfig } from '../config/index.js';
 import { detectSpec } from '../detect-spec.js';
-import { lintFromString } from '../lint.js';
 
 describe('Open-RPC support', () => {
   const openRpcDocument = JSON.stringify({

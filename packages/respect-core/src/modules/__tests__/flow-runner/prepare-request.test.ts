@@ -1,6 +1,7 @@
-import { ApiFetcher } from '../../../utils/api-fetcher.js';
-import { prepareRequest } from '../../flow-runner/index.js';
 import type { TestContext, Step } from '../../../types.js';
+
+import { prepareRequest } from '../../flow-runner/index.js';
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 describe('prepareRequest', () => {
   const apiClient = new ApiFetcher({});
@@ -1664,49 +1665,5 @@ describe('prepareRequest', () => {
         name: 'token-from-workflow',
       },
     ]);
-  });
-
-  it('should handle null request body', async () => {
-    const workflowName = 'create-item-workflow';
-    const step = {
-      stepId: 'create-item-step',
-      'x-operation': {
-        url: 'http://localhost:3000/items',
-        method: 'post',
-      },
-      requestBody: {
-        payload: null,
-      },
-      checks: [],
-    } as unknown as Step;
-
-    const localCtx = {
-      apiClient,
-      $env: {},
-      $faker: {},
-      $descriptions: {},
-      workflows: [
-        {
-          workflowId: 'create-item-workflow',
-          steps: [step],
-        },
-      ],
-      $workflows: {
-        'create-item-workflow': {
-          steps: {},
-        },
-      },
-      $steps: {},
-      options: {
-        filePath: 'test.yaml',
-        metadata: {},
-      },
-      'x-serverUrl': '',
-      $outputs: {},
-    } as unknown as TestContext;
-
-    const { requestBody } = await prepareRequest(localCtx, step, workflowName);
-
-    expect(requestBody).toBeNull();
   });
 });

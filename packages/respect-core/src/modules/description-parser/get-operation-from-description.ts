@@ -1,6 +1,7 @@
+import { type OperationMethod, type TestContext } from '../../types.js';
 import { getOperationById } from './get-operation-by-id.js';
 import { getOperationByPath } from './get-operation-by-path.js';
-import type { OperationMethod, TestContext } from '../../types.js';
+
 import type { Oas3Operation, Oas3Responses } from '@redocly/openapi-core';
 
 export type DescriptionSource = {

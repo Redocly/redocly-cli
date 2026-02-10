@@ -1,4 +1,4 @@
-import { isPlainObject } from '../utils/is-plain-object.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import {
   AsyncApi2Bindings,
   CorrelationId,
@@ -11,7 +11,6 @@ import {
   License,
   MessageExample,
 } from './asyncapi2.js';
-import { listOf, mapOf, type NodeType } from './index.js';
 import {
   Dependencies,
   Discriminator,
@@ -19,6 +18,7 @@ import {
   Schema,
   SchemaProperties,
 } from './json-schema-draft7.shared.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 
 const Root: NodeType = {
   properties: {

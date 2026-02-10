@@ -1,7 +1,9 @@
 import { logger } from '@redocly/openapi-core';
-import { CHECKS, DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/index.js';
-import { checkCriteria } from '../../../flow-runner/success-criteria/check-success-criteria.js';
+
 import type { TestContext, Step, RegexpSuccessCriteria } from '../../../../types.js';
+
+import { checkCriteria } from '../../../flow-runner/success-criteria/check-success-criteria.js';
+import { CHECKS, DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/index.js';
 
 describe('checkSuccessCriteria', () => {
   const stepMock: Step = {
