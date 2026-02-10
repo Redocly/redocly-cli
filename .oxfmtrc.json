@@ -20,9 +20,9 @@
     "*.hbs",
     "*.toml"
   ],
-  "experimentalSortImports": {
-    "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
-    "newlinesBetween": false
-  },
+  // "experimentalSortImports": {
+  //   "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
+  //   "newlinesBetween": false,
+  // },
   "trailingComma": "es5"
 }
