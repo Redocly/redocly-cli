@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { makeDocumentFromString } from '../../../resolve.js';
-import { createEntityTypes } from '../../../types/entity-yaml.js';
+import { createEntityTypes } from '../../../types/entity.js';
 import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';

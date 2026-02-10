@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createEntityTypes } from '../types/entity-yaml.js';
+import { createEntityTypes } from '../types/entity.js';
 import { NormalizedNodeType, normalizeTypes, ResolveTypeFn } from '../types/index.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 import { outdent } from 'outdent';
@@ -71,7 +71,7 @@ describe('entity-yaml', () => {
   });
 
   it('should correctly discriminate between different entity types in an array', async () => {
-    const { lintEntityFile } = await import('../lint.js');
+    const { lintEntityFile } = await import('../lint-entity.js');
     const { makeDocumentFromString, BaseResolver } = await import('../resolve.js');
 
     const entities = outdent`
