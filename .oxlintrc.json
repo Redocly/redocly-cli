@@ -10,8 +10,15 @@
   },
   "ignorePatterns": ["**/__tests__/**", "packages/*/lib/**", "*.js", "*.cjs"],
   "rules": {
-    "no-array-constructor": "error",
-    "no-unused-vars": [
+    "eslint/no-case-declarations": "error",
+    "eslint/no-empty": "error",
+    "eslint/no-redeclare": "error",
+    "eslint/no-regex-spaces": "error",
+    "eslint/no-unexpected-multiline": "error",
+    "eslint/no-unreachable": "error",
+    "eslint/no-array-constructor": "error",
+
+    "eslint/no-unused-vars": [
       "error",
       {
         "argsIgnorePattern": "^_",
@@ -19,7 +26,18 @@
         "caughtErrors": "none"
       }
     ],
+
     "typescript/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-unsafe-function-type": "error",
+
+    "typescript/no-explicit-any": "warn",
+
     "import/no-duplicates": "error"
   }
 }
