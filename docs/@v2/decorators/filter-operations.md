@@ -5,7 +5,7 @@ All other operations are removed from the API description.
 
 ## API design principles
 
-This decorator is useful when you want to publish only a subset of your operations based on a specific criteria.
+This decorator is useful when you want to publish only a subset of your operations based on specific criteria.
 
 ## Configuration
 
@@ -16,13 +16,21 @@ This decorator is useful when you want to publish only a subset of your operatio
 
 ### How matching works
 
-- **Single values**: If the operation's property is a single value, it must match one of the values in the array.
-- **Array properties**: If the operation's property is an array (like `tags`), the operation is kept if any item in the property array matches any value in the `values` array.
-  The filter only applies to first-level operation properties that are either primitive types or arrays of primitives.
+If the operation's property is a single value, it must match one of the values in the array.
+If the operation's property is an array (like `tags`), the operation is kept if any item in the property array matches any value in the `values` array.
+The filter only applies to first-level operation properties that are either primitive types or arrays of primitives.
+If there is no such property, the entire operation is removed from the resulting API description.
 
 {% admonition type="info" name="Note" %}
 To remove additional remnants from components, use the `--remove-unused-components` CLI argument or the corresponding decorator.
 {% /admonition %}
+
+### Difference from filter-in
+
+While both decorators filter API content, they work at different levels.
+**filter-operations** specifically targets operations (HTTP methods like GET, POST, etc.) within paths, while **filter-in** works on any element throughout the API description (paths, parameters, schemas, responses, etc.).
+**filter-in** is a more general-purpose filtering tool, but it might affect other document nodes unintentionally (e.g., when filtering by `tags`, you can also affect schemas with the property `tags`).
+Also, unlike **filter-operations**, **filter-in** keeps the node if it lacks the property being filtered.
 
 ## Examples
 
@@ -60,7 +68,7 @@ Apply the decorator using the `bundle` command:
 redocly bundle openapi.yaml -o public-api.yaml
 ```
 
-The resulting API description will only contain the `/users` GET operation, as it's the only one with `x-public: true`.
+The resulting API description only contains the `/users` GET operation, as it's the only one with `x-public: true`.
 The POST operation on `/users` (where `x-public: false`) and the `/admin` GET operation (which lacks the property) are removed.
 
 ### Filter by tags
@@ -92,7 +100,7 @@ decorators:
     values: [public]
 ```
 
-The result will include both GET operations (on `/users` and `/products`) because they both have `public` in their tags array.
+The result includes both GET operations (on `/users` and `/products`) because they both have `public` in their tags array.
 The POST operation on `/users` is removed because its tags array doesn't contain `public`.
 
 ### Filter by operationId
