@@ -19,10 +19,7 @@
         "caughtErrors": "none"
       }
     ],
-    "typescript/consistent-type-imports": [
-      "error",
-      { "prefer": "type-imports" }
-    ],
+    "typescript/consistent-type-imports": ["error", { "prefer": "type-imports" }],
     "import/no-duplicates": "error"
   }
 }
