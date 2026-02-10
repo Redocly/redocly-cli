@@ -410,7 +410,7 @@ export async function lintEntityWithScorecardLevel(
     });
 
     return [...entityProblems, ...apiProblems];
-  } else if (isEmptyObject(apiRules)) {
+  } else if (!isEmptyObject(apiRules)) {
     throw new Error(
       `API rules are not supported for entity type "${
         entity.type
