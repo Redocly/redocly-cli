@@ -356,7 +356,7 @@ export async function lintEntityWithScorecardLevel(
   });
 
   if (ENTITY_TYPES_WITH_API_SUPPORT.includes(entity.type)) {
-    if (!isEmptyObject(apiRules)) {
+    if (Object.keys(apiRules).length === 0) {
       return entityProblems;
     }
 
@@ -410,7 +410,7 @@ export async function lintEntityWithScorecardLevel(
     });
 
     return [...entityProblems, ...apiProblems];
-  } else if (Object.keys(apiRules).length !== 0) {
+  } else if (isEmptyObject(apiRules)) {
     throw new Error(
       `API rules are not supported for entity type "${
         entity.type
