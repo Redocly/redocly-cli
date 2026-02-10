@@ -48,4 +48,4 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Check formatting
-        run: npm run check
+        run: npm run format:check

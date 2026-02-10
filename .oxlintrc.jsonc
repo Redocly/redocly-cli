@@ -121,7 +121,6 @@
       },
       "env": {
         "es2026": true,
-        "commonjs": true,
       },
       "plugins": ["typescript", "import"],
     },

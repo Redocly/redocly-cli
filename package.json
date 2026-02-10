@@ -15,7 +15,7 @@
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
     "format": "oxfmt",
-    "check": "oxfmt --check",
+    "format:check": "oxfmt --check",
     "lint": "oxlint ./packages",
     "lint:fix": "oxlint  --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
@@ -71,10 +71,10 @@
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "oxfmt"
+      "lint"
     ],
     "packages/**/*.ts": [
-      "oxlint --fix"
+      "lint:fix"
     ]
   }
 }

@@ -97,7 +97,10 @@ export async function prepareRequest(
     replacements,
   } = await parseRequestBody(step['requestBody'], ctx);
 
-  const requestBody = stepRequestBodyPayload || requestDataFromOpenAPI?.requestBody;
+  const requestBody =
+    stepRequestBodyPayload !== undefined
+      ? stepRequestBodyPayload
+      : requestDataFromOpenAPI?.requestBody;
   const contentType = stepRequestBodyContentType || requestDataFromOpenAPI?.contentType;
   const parameters = joinParameters(
     // order is important here, the last one wins
