@@ -1,4 +1,5 @@
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 
 import type { JSONSchema } from 'json-schema-to-ts';
 import type { NodeType, ResolveTypeFn } from './index.js';
@@ -23,7 +24,20 @@ export function createEntityTypes(
 
   const arrayNodeType = {
     properties: {},
-    items: namedDiscriminatorResolver,
+    items: (value: unknown) => {
+      if (isPlainObject(value)) {
+        const typeValue = value[ENTITY_DISCRIMINATOR_PROPERTY_NAME] as string | undefined;
+
+        if (!typeValue) return 'Entity';
+
+        const resolvedType = namedDiscriminatorResolver?.(value, typeValue);
+
+        if (resolvedType && typeof resolvedType === 'string') {
+          return resolvedType;
+        }
+      }
+      return 'Entity';
+    },
   };
 
   return {

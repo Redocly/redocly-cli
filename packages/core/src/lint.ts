@@ -256,19 +256,24 @@ export async function lintEntityFile(opts: {
   if (Array.isArray(document.parsed)) {
     rootType = types.EntityFileArray;
   } else if (isPlainObject(document.parsed)) {
-    const discriminatedPropertyValue = document.parsed[
-      ENTITY_DISCRIMINATOR_PROPERTY_NAME
-    ] as string;
-    const discriminatedTypeName = discriminatorResolver?.(
-      document.parsed,
-      discriminatedPropertyValue
-    );
-    if (
-      discriminatedTypeName &&
-      typeof discriminatedTypeName === 'string' &&
-      types[discriminatedTypeName as string]
-    ) {
-      rootType = types[discriminatedTypeName as string];
+    const discriminatedPropertyValue = document.parsed[ENTITY_DISCRIMINATOR_PROPERTY_NAME] as
+      | string
+      | undefined;
+
+    if (!discriminatedPropertyValue) {
+      rootType = types.Entity;
+    } else {
+      const discriminatedTypeName = discriminatorResolver?.(
+        document.parsed,
+        discriminatedPropertyValue
+      );
+      if (
+        discriminatedTypeName &&
+        typeof discriminatedTypeName === 'string' &&
+        types[discriminatedTypeName as string]
+      ) {
+        rootType = types[discriminatedTypeName as string];
+      }
     }
   }
 
@@ -338,11 +343,12 @@ export async function lintEntityWithScorecardLevel(
 
   const externalRefResolver = new BaseResolver();
   const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity.yaml');
+  const discriminatorValue = (entityDocument.parsed as Record<string, unknown>)[
+    ENTITY_DISCRIMINATOR_PROPERTY_NAME
+  ] as string | undefined;
 
   const assertionConfig = transformScorecardRulesToAssertions(
-    (entityDocument.parsed as Record<string, unknown>)[
-      ENTITY_DISCRIMINATOR_PROPERTY_NAME
-    ] as string,
+    discriminatorValue || 'unknown',
     scorecardLevel.rules
   );
   const { entityRules, apiRules } = categorizeAssertions(assertionConfig);

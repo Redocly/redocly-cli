@@ -31,7 +31,7 @@ describe('entity-yaml', () => {
     ) as NormalizedNodeType;
 
     expect(resolvedType).toBeTruthy();
-    expect(resolvedType.name).toBe('UserEntity'); // Falls back to first type when discriminator fails
+    expect(resolvedType.name).toBe('Entity');
   });
 
   it('should resolve entity type based on discriminator for array items', () => {
