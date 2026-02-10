@@ -19,7 +19,7 @@ export const decorators = {
   'remove-x-internal': RemoveXInternal as Oas3Decorator,
   'filter-in': FilterIn as Oas3Decorator,
   'filter-out': FilterOut as Oas3Decorator,
-  'filter-operations': FilterOperations,
+  'filter-operations': FilterOperations as Oas3Decorator,
   'media-type-examples-override': MediaTypeExamplesOverride as Oas3Decorator,
   'remove-unused-components': RemoveUnusedComponents, // always the last one
 };
