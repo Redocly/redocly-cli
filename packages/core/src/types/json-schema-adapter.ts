@@ -98,6 +98,9 @@ function transformJSONSchemaToNodeType(
         throw new Error(`Unexpected discriminator without a propertyName in ${propertyName}.`);
       }
 
+      // Map discriminator values to their actual type names
+      const discriminatorMapping: Record<string, string> = {};
+
       const oneOfs = schema.oneOf.map((option, i) => {
         if (typeof option === 'boolean') {
           throw new Error(
@@ -111,15 +114,27 @@ function transformJSONSchemaToNodeType(
           );
         }
 
-        const name = discriminatedProperty.const as string;
-        return transformJSONSchemaToNodeType(name, option, ctx);
+        const discriminatorValue = discriminatedProperty.const as string;
+        const actualTypeName = transformJSONSchemaToNodeType(discriminatorValue, option, ctx);
+
+        // Store mapping from discriminator value to actual type name
+        if (typeof actualTypeName === 'string') {
+          discriminatorMapping[discriminatorValue] = actualTypeName;
+        }
+
+        return actualTypeName;
       });
 
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
           const discriminatedTypeName = value[discriminatedPropertyName];
-          if (typeof discriminatedTypeName === 'string' && ctx[discriminatedTypeName]) {
-            return ctx[discriminatedTypeName];
+          if (typeof discriminatedTypeName === 'string') {
+            const actualTypeName = discriminatorMapping[discriminatedTypeName];
+
+            if (actualTypeName && ctx[actualTypeName]) {
+              return actualTypeName;
+            }
+            return undefined;
           }
         }
         return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);

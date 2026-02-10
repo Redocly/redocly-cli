@@ -19,8 +19,6 @@ export function createEntityTypes(
     entityDefaultSchema
   );
 
-  console.log('entitySchema', entitySchema);
-
   const { ctx: namedNodeTypes, discriminatorResolver: namedDiscriminatorResolver } =
     getNodeTypesFromJSONSchema('EntityFile', entitySchema);
 
