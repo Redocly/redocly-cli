@@ -184,16 +184,11 @@ function extractNodeToContext(
 
   let additionalProperties;
   if (isPlainObject(schema.additionalProperties)) {
-    const additionalPropertiesNodeTypeName = (
-      schema.additionalProperties as JSONSchema & { nodeTypeName?: string }
-    )['nodeTypeName'];
-    additionalProperties = additionalPropertiesNodeTypeName
-      ? extractNodeToContext(additionalPropertiesNodeTypeName, schema.additionalProperties, ctx)
-      : transformJSONSchemaToNodeType(
-          nodeTypeName + '_additionalProperties',
-          schema.additionalProperties,
-          ctx
-        );
+    additionalProperties = transformJSONSchemaToNodeType(
+      propertyName + '_additionalProperties',
+      schema.additionalProperties,
+      ctx
+    );
   }
   if (schema.additionalProperties === true) {
     additionalProperties = {};
@@ -206,12 +201,7 @@ function extractNodeToContext(
       isPlainObject(schema.items.additionalProperties) ||
       schema.items.oneOf) // exclude scalar array types
   ) {
-    const itemsNodeTypeName = (schema.items as JSONSchema & { nodeTypeName?: string })[
-      'nodeTypeName'
-    ];
-    items = itemsNodeTypeName
-      ? extractNodeToContext(itemsNodeTypeName, schema.items, ctx)
-      : transformJSONSchemaToNodeType(nodeTypeName + '_items', schema.items, ctx);
+    items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
   }
 
   let required = schema.required as NodeType['required'];
