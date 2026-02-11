@@ -71,10 +71,10 @@
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "lint"
+      "npm run lint"
     ],
     "packages/**/*.ts": [
-      "lint:fix"
+      "npm run lint:fix"
     ]
   }
 }
