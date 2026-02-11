@@ -134,7 +134,6 @@ function transformJSONSchemaToNodeType(
             if (actualTypeName && ctx[actualTypeName]) {
               return actualTypeName;
             }
-            return undefined;
           }
         }
         return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
