@@ -424,7 +424,7 @@ describe('collect refs', () => {
       const actual = await vi.importActual('node:fs');
       return { ...actual };
     });
-    vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
+    vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true }) as any);
 
     const resolvedRefs = await resolveDocument({
       rootDocument,

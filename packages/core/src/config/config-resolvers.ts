@@ -226,8 +226,8 @@ export async function resolvePlugins(
         const pluginModule = isDeprecatedPluginFormat(requiredPlugin)
           ? requiredPlugin
           : isCommonJsPlugin(requiredPlugin)
-          ? await requiredPlugin(pluginCreatorOptions)
-          : await requiredPlugin?.default?.(pluginCreatorOptions);
+            ? await requiredPlugin(pluginCreatorOptions)
+            : await requiredPlugin?.default?.(pluginCreatorOptions);
 
         const pluginInstances = Array.isArray(pluginModule) ? pluginModule : [pluginModule];
 

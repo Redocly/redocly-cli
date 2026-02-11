@@ -5,9 +5,8 @@ import * as openapiCore from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
 
 vi.mock('@redocly/respect-core', async () => {
-  const actual = await vi.importActual<typeof import('@redocly/respect-core')>(
-    '@redocly/respect-core'
-  );
+  const actual =
+    await vi.importActual<typeof import('@redocly/respect-core')>('@redocly/respect-core');
   return {
     ...actual,
     generate: vi.fn(),

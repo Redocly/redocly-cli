@@ -189,7 +189,7 @@ describe('handlePush()', () => {
           isDirectory() {
             return filePath === 'test-folder' || filePath === 'test-folder/app';
           },
-        } as any)
+        }) as any
     );
 
     fsReaddirSyncSpy.mockImplementation((dirPath): any => {

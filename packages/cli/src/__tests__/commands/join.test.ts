@@ -45,9 +45,8 @@ describe('handleJoin', () => {
     vi.mocked(yellow).mockImplementation((text) => text as string);
 
     vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual<typeof import('@redocly/openapi-core')>(
-        '@redocly/openapi-core'
-      );
+      const actual =
+        await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
       return {
         ...actual,
         bundleDocument: vi.fn(),

@@ -15,7 +15,7 @@ const mockFetch = vi.fn(() =>
     redirected: false,
     type: 'default',
     url: '',
-    clone: () => ({} as Response),
+    clone: () => ({}) as Response,
     body: null,
     bodyUsed: false,
     arrayBuffer: async () => new ArrayBuffer(0),

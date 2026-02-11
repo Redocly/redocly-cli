@@ -63,10 +63,10 @@ export function withConnectionClient(perDomainCerts?: MtlsPerDomainCerts) {
       typeof input === 'string'
         ? input
         : input instanceof URL
-        ? input.toString()
-        : 'url' in input
-        ? input.url
-        : undefined;
+          ? input.toString()
+          : 'url' in input
+            ? input.url
+            : undefined;
 
     if (!url) {
       throw new Error('Invalid input URL');

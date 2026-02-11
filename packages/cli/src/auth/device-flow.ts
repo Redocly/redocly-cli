@@ -52,8 +52,8 @@ export class RedoclyOAuthDeviceFlow {
         process.platform === 'win32'
           ? `start ${url}`
           : process.platform === 'darwin'
-          ? `open ${url}`
-          : `xdg-open ${url}`;
+            ? `open ${url}`
+            : `xdg-open ${url}`;
 
       childProcess.execSync(cmd);
     } catch {

@@ -25,7 +25,7 @@ export type Entrypoint = {
   output?: string;
 };
 export const outputExtensions = ['json', 'yaml', 'yml'] as const;
-export type OutputExtension = typeof outputExtensions[number];
+export type OutputExtension = (typeof outputExtensions)[number];
 export type CommandArgv =
   | StatsArgv
   | SplitArgv

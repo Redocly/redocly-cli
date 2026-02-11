@@ -74,8 +74,8 @@ export async function getPageHTML(
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
-    : path.join(__internalDirname, './template.hbs');
+      ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
+      : path.join(__internalDirname, './template.hbs');
   const template = handlebars.compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
