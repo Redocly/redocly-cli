@@ -1,9 +1,0 @@
-coverage/
-lib/
-output/
-packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml
-packages/respect-core/src/modules/runtime-expressions/abnf-parser.js
-tests/performance/api-definitions/
-LICENSE.md
-snapshot*.txt
-.changeset/pre.json

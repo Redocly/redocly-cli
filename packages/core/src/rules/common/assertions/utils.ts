@@ -264,7 +264,7 @@ function getProblemsLocation(problems: AssertResult[]) {
 
 function getProblemsMessage(problems: AssertResult[]) {
   return problems.length === 1
-    ? problems[0].message ?? ''
+    ? (problems[0].message ?? '')
     : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 

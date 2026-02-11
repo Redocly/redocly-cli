@@ -40,7 +40,7 @@ export function getEntrypoints(folderPath: string) {
 }
 
 function cleanUpVersion(str: string): string {
-  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
+  return str.replace(/"version":\s(".*")*/g, '"version": "<version>"');
 }
 
 // Vitest serializer does not modify strings, so we need to do it manually

@@ -142,7 +142,6 @@ This can be done in two ways:
 
    Inspect the file at `dist/internal.yaml`.
    Confirm the following:
-
    - The `postStars` operation is **not** removed.
    - The `hasPlanets` property is **not** removed.
 

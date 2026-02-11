@@ -20,7 +20,10 @@ export function isExternalValue(node: unknown) {
 }
 
 export class Location {
-  constructor(public source: Source, public pointer: string) {}
+  constructor(
+    public source: Source,
+    public pointer: string
+  ) {}
 
   child(components: (string | number)[] | string | number) {
     return new Location(

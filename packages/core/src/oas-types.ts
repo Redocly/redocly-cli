@@ -46,7 +46,7 @@ export const specVersions = [
   'overlay1',
   'openrpc1',
 ] as const;
-export type SpecVersion = typeof specVersions[number];
+export type SpecVersion = (typeof specVersions)[number];
 
 export type SpecMajorVersion =
   | 'oas2'

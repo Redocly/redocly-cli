@@ -29,7 +29,7 @@ export function prefixRules<
     | Async2RuleSet
     | Arazzo1RuleSet
     | Overlay1RuleSet
-    | OpenRpc1RuleSet
+    | OpenRpc1RuleSet,
 >(rules: T, prefix: string) {
   if (!prefix) return rules;
 

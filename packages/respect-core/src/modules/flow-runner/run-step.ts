@@ -89,9 +89,8 @@ export async function runStep({
 
     if (resolvedParameters && resolvedParameters.length > 0) {
       // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters
-        .filter(isParameterWithoutIn)
-        .reduce((acc, parameter: ParameterWithoutIn) => {
+      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
+        (acc, parameter: ParameterWithoutIn) => {
           const ctxWithInputs = {
             ...ctx,
             $inputs: {
@@ -106,7 +105,9 @@ export async function runStep({
             logger: ctx.options.logger,
           });
           return acc;
-        }, {} as Record<string, any>);
+        },
+        {} as Record<string, any>
+      );
 
       // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
       workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {

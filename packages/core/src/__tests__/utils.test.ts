@@ -143,7 +143,7 @@ describe('utils', () => {
       const report = vi.fn();
       validateMimeType(
         { type: 'consumes', value: { consumes: ['application/json'] } },
-        { report, location: { child: () => ({ key: () => ({} as any) }) } } as any,
+        { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
         ['application/json']
       );
       expect(report).not.toHaveBeenCalled();
@@ -153,7 +153,7 @@ describe('utils', () => {
       const report = vi.fn();
       validateMimeType(
         { type: 'consumes', value: { consumes: ['text/plain'] } },
-        { report, location: { child: () => ({ key: () => ({} as any) }) } } as any,
+        { report, location: { child: () => ({ key: () => ({}) as any }) } } as any,
         ['application/json']
       );
       expect(report).toHaveBeenCalledWith({
@@ -166,7 +166,7 @@ describe('utils', () => {
       expect(() =>
         validateMimeType(
           { type: 'consumes', value: { consumes: ['application/json'] } },
-          { report: () => {}, location: { child: () => ({ key: () => ({} as any) }) } } as any,
+          { report: () => {}, location: { child: () => ({ key: () => ({}) as any }) } } as any,
           // @ts-expect-error
           undefined
         )
@@ -184,7 +184,7 @@ describe('utils', () => {
         },
         {
           report,
-          location: { child: () => ({ child: () => ({ key: () => ({} as any) }) }) },
+          location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
         } as any,
         ['application/json']
       );
@@ -197,7 +197,7 @@ describe('utils', () => {
         { type: 'consumes', value: { content: { 'text/plain': { schema: { type: 'string' } } } } },
         {
           report,
-          location: { child: () => ({ child: () => ({ key: () => ({} as any) }) }) },
+          location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
         } as any,
         ['application/json']
       );
@@ -216,7 +216,7 @@ describe('utils', () => {
           },
           {
             report: () => {},
-            location: { child: () => ({ child: () => ({ key: () => ({} as any) }) }) },
+            location: { child: () => ({ child: () => ({ key: () => ({}) as any }) }) },
           } as any,
           // @ts-expect-error
           undefined

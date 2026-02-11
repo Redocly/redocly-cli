@@ -416,8 +416,8 @@ export class ApiFetcher implements IFetcher {
       ? responseBody instanceof ArrayBuffer
         ? responseBody
         : isJsonContentType(responseContentType)
-        ? JSON.parse(responseBody)
-        : responseBody
+          ? JSON.parse(responseBody)
+          : responseBody
       : {};
     const responseSchema = getResponseSchema({
       statusCode: fetchResult.status,

@@ -157,8 +157,8 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
-        ? new Location(error.source, '')
-        : undefined;
+          ? new Location(error.source, '')
+          : undefined;
 
       return { location: newLocation, node, error };
     };

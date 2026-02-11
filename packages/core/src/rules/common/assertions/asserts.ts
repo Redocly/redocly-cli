@@ -81,8 +81,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -104,8 +104,8 @@ export const asserts: Asserts = {
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
-              ? baseLocation.child(_val).key()
-              : baseLocation.key(),
+                ? baseLocation.child(_val).key()
+                : baseLocation.key(),
           }
       )
       .filter(isTruthy);

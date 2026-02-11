@@ -455,7 +455,6 @@
 
 - Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
   Use this extension to:
-
   - Define security schemes at the step level using either predefined schemes or inline definitions
   - Pass values of secrets (passwords, tokens, API keys)
   - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect
@@ -619,7 +618,6 @@
 
 - Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
   Use this extension to:
-
   - Define security schemes at the step level using either predefined schemes or inline definitions
   - Pass values of secrets (passwords, tokens, API keys)
   - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect

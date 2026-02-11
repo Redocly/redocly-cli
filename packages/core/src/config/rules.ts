@@ -42,8 +42,8 @@ export function initRules(
           type === 'rules'
             ? config.getRuleSettings(ruleId, oasVersion)
             : type === 'preprocessors'
-            ? config.getPreprocessorSettings(ruleId, oasVersion)
-            : config.getDecoratorSettings(ruleId, oasVersion);
+              ? config.getPreprocessorSettings(ruleId, oasVersion)
+              : config.getDecoratorSettings(ruleId, oasVersion);
 
         if (ruleSettings.severity === 'off') {
           return undefined;

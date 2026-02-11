@@ -11,9 +11,8 @@ import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
 
 vi.mock('@redocly/openapi-core', async () => {
-  const originalModule = await vi.importActual<typeof import('@redocly/openapi-core')>(
-    '@redocly/openapi-core'
-  );
+  const originalModule =
+    await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
 
   return {
     ...originalModule, // Preserve other exports

@@ -14,9 +14,10 @@
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
-    "prettier": "npx prettier --write \"**/*.{ts,js,yaml,yml,json,md}\"",
-    "prettier:check": "npx prettier --check \"**/*.{ts,js,yaml,yml,json,md}\"",
-    "eslint": "eslint packages/**",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint ./packages",
+    "lint:fix": "oxlint  --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run build-docs:copy-assets",
@@ -53,19 +54,16 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@types/node": "^22.15.3",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.54.0",
     "@vitest/coverage-istanbul": "^3.0.9",
-    "eslint": "^9.39.2",
-    "eslint-plugin-import": "^2.29.1",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
     "lint-staged": "^15.4.3",
     "outdent": "^0.7.1",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
     "pegjs": "0.11.0-master.b7b87ea",
-    "prettier": "^2.1.2",
     "slackify-markdown": "^4.3.1",
     "tsx": "^4.19.3",
     "typescript": "5.9.3",
@@ -73,10 +71,10 @@
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "prettier --write"
+      "npm run lint"
     ],
     "packages/**/*.ts": [
-      "eslint --fix"
+      "npm run lint:fix"
     ]
   }
 }

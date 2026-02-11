@@ -228,11 +228,14 @@ export async function prepareRequest(
 function joinParameters(...parameters: ParameterWithIn[][]): ParameterWithIn[] {
   const parametersWithNames = parameters.flat().filter((param) => 'name' in param);
 
-  const parameterMap = parametersWithNames.reduce((map, param) => {
-    const key = `${param.name}:${param.in}`;
-    map[key] = param;
-    return map;
-  }, {} as { [key: string]: ParameterWithIn });
+  const parameterMap = parametersWithNames.reduce(
+    (map, param) => {
+      const key = `${param.name}:${param.in}`;
+      map[key] = param;
+      return map;
+    },
+    {} as { [key: string]: ParameterWithIn }
+  );
 
   return Object.values(parameterMap);
 }
@@ -241,12 +244,15 @@ function groupParametersValuesByName(
   parameters: ParameterWithIn[],
   inValue: 'header' | 'query' | 'path' | 'cookie'
 ): Record<string, string | number | boolean> {
-  return parameters.reduce((acc, param) => {
-    if (param.in === inValue && 'name' in param) {
-      acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
-    }
-    return acc;
-  }, {} as Record<string, string | number | boolean>);
+  return parameters.reduce(
+    (acc, param) => {
+      if (param.in === inValue && 'name' in param) {
+        acc[param.in === 'header' ? param.name.toLowerCase() : param.name] = param.value;
+      }
+      return acc;
+    },
+    {} as Record<string, string | number | boolean>
+  );
 }
 
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {

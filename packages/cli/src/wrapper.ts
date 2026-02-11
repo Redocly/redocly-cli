@@ -44,14 +44,14 @@ export function commandWrapper<T extends CommandArgv>(
       specKeyword = document?.openapi
         ? 'openapi'
         : document?.swagger
-        ? 'swagger'
-        : document?.asyncapi
-        ? 'asyncapi'
-        : document?.arazzo
-        ? 'arazzo'
-        : document?.overlay
-        ? 'overlay'
-        : undefined;
+          ? 'swagger'
+          : document?.asyncapi
+            ? 'asyncapi'
+            : document?.arazzo
+              ? 'arazzo'
+              : document?.overlay
+                ? 'overlay'
+                : undefined;
       if (specKeyword) {
         specFullVersion = document[specKeyword] as string;
       } else {
