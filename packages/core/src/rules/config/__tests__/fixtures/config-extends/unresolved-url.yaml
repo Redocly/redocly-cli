@@ -1,0 +1,4 @@
+extends:
+  - https://example.com/non-existent-config.yaml
+rules:
+  operation-2xx-response: error

@@ -1,0 +1,6 @@
+extends:
+  - minimal
+  - ./valid-file.yaml
+  - ./missing-file.yaml
+rules:
+  operation-2xx-response: error

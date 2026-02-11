@@ -1,0 +1,5 @@
+scorecard:
+  levels:
+    - name: bronze
+      extends:
+        - ./scorecard-missing.yaml

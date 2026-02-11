@@ -271,6 +271,32 @@ const ConfigGovernance: NodeType = {
   properties: configGovernanceProperties,
 };
 
+const ConfigGovernanceList: NodeType = {
+  properties: {},
+  items: (node: unknown): PropType => {
+    if (typeof node !== 'string') {
+      // Non-strings should be validated by struct as type errors
+      return { type: 'string' };
+    }
+
+    // Empty strings are just skipped
+    if (!node.trim()) {
+      return { type: 'string' };
+    }
+
+    // Named presets (no extension, not a URL) are plain strings
+    if (!isAbsoluteUrl(node) && !path.extname(node)) {
+      return { type: 'string' };
+    }
+
+    // File/URL extends should be resolved as config references
+    return {
+      ...ConfigGovernance,
+      directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
+    } as PropType;
+  },
+};
+
 const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
   ...nodeTypes.rootRedoclyConfigSchema,
   properties: {
@@ -600,6 +626,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigurableRule,
   ConfigApis,
   ConfigGovernance,
+  ConfigGovernanceList,
   ConfigHTTP,
   Where,
   BuiltinRule,

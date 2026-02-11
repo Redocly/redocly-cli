@@ -85,7 +85,7 @@ export async function loadConfig(
   const config = new Config(resolvedConfig, {
     configPath,
     document: rawConfigDocument,
-    resolvedRefMap: resolvedRefMap,
+    resolvedRefMap,
     plugins,
     ignore,
   });
