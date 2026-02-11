@@ -184,11 +184,16 @@ function extractNodeToContext(
 
   let additionalProperties;
   if (isPlainObject(schema.additionalProperties)) {
-    additionalProperties = transformJSONSchemaToNodeType(
-      nodeTypeName + '_additionalProperties',
-      schema.additionalProperties,
-      ctx
-    );
+    const additionalPropertiesNodeTypeName = (
+      schema.additionalProperties as JSONSchema & { nodeTypeName?: string }
+    )['nodeTypeName'];
+    additionalProperties = additionalPropertiesNodeTypeName
+      ? extractNodeToContext(additionalPropertiesNodeTypeName, schema.additionalProperties, ctx)
+      : transformJSONSchemaToNodeType(
+          nodeTypeName + '_additionalProperties',
+          schema.additionalProperties,
+          ctx
+        );
   }
   if (schema.additionalProperties === true) {
     additionalProperties = {};
@@ -201,7 +206,12 @@ function extractNodeToContext(
       isPlainObject(schema.items.additionalProperties) ||
       schema.items.oneOf) // exclude scalar array types
   ) {
-    items = transformJSONSchemaToNodeType(nodeTypeName + '_items', schema.items, ctx);
+    const itemsNodeTypeName = (schema.items as JSONSchema & { nodeTypeName?: string })[
+      'nodeTypeName'
+    ];
+    items = itemsNodeTypeName
+      ? extractNodeToContext(itemsNodeTypeName, schema.items, ctx)
+      : transformJSONSchemaToNodeType(nodeTypeName + '_items', schema.items, ctx);
   }
 
   let required = schema.required as NodeType['required'];
@@ -236,6 +246,7 @@ export function getNodeTypesFromJSONSchema(
   discriminatorResolver?: ResolveTypeFn;
 } {
   const ctx: Record<string, NodeType> = {};
+  //TODO: fix this function to return discriminator resolvers in all NodeTypes that are returned in ctx. Currently it only only returns one discriminatorResolver for all types.
   const discriminatorResolver = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
   return {
     ctx,

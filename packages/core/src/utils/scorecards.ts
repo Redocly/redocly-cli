@@ -75,7 +75,7 @@ export function findDataSchemaInDocument(
   schemaJson: string,
   document: Document
 ): unknown {
-  if (!hasComponents(document.parsed)) {
+  if (!isPlainObject(document.parsed) || !isPlainObject(document.parsed.components)) {
     return null;
   }
 
@@ -137,12 +137,4 @@ function buildAssertionWithNormalizedTypes(
     ...(rawAssertion.message && { message: rawAssertion.message }),
     ...(rawAssertion.severity && { severity: rawAssertion.severity }),
   };
-}
-
-function hasComponents(parsed: unknown): parsed is { [key: string]: unknown } {
-  return (
-    isPlainObject(parsed) &&
-    'components' in parsed &&
-    typeof (parsed as Record<string, unknown>).components === 'object'
-  );
 }
