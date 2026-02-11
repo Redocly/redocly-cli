@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { makeDocumentFromString } from '../../../resolve.js';
-import { createEntityTypes } from '../../../types/entity-yaml.js';
+import { createEntityTypes } from '../../../types/entity.js';
 import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';
@@ -12,7 +12,7 @@ import { outdent } from 'outdent';
 
 function lintEntityKey(source: string): WalkContext['problems'] {
   const document = makeDocumentFromString(source, '/test.yaml');
-  const entityTypes = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
+  const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);
   const types = normalizeTypes(entityTypes);
 
   const ctx: WalkContext = {
@@ -33,7 +33,7 @@ function lintEntityKey(source: string): WalkContext['problems'] {
 
   walkDocument({
     document,
-    rootType: types.EntityFileDefault,
+    rootType: types.Entity,
     normalizedVisitors,
     resolvedRefMap: new Map(),
     ctx,
