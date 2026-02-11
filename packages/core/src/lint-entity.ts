@@ -150,6 +150,7 @@ export async function lintEntityWithScorecardLevel(
   }
 
   const externalRefResolver = new BaseResolver();
+  //Create a document from the entity object
   const entityDocument = makeDocumentFromString(JSON.stringify(entity, null, 2), 'entity');
   const discriminatorValue = (entityDocument.parsed as Record<string, unknown>)[
     ENTITY_DISCRIMINATOR_PROPERTY_NAME
