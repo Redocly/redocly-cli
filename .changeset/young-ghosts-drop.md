@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added `spec-no-mixed-query-and-querystring-parameters` rule to validate `query` and `querystring` parameter usage in OpenAPI 3.2.
+Added `spec-querystring-parameters` rule (OpenAPI 3.2): enforces that `query` and `querystring` are not mixed in the same operation/path parameter set, and that at most one `querystring` parameter is declared per operation or path.

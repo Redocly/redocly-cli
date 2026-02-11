@@ -59,7 +59,7 @@ import { SpecNoInvalidTagParents } from './spec-no-invalid-tag-parents.js';
 import { SpecNoInvalidEncodingCombinations } from './spec-no-invalid-encoding-combinations.js';
 import { SpecDiscriminatorDefaultMapping } from './spec-discriminator-defaultMapping.js';
 import { SpecExampleValues } from './spec-example-values.js';
-import { SpecNoMixedQueryAndQuerystringParameters } from './spec-no-mixed-query-and-querystring-parameters.js';
+import { SpecQuerystringParameters } from './spec-querystring-parameters.js';
 
 import type { Oas3RuleSet } from '../../oas-types.js';
 import type { Oas3Rule } from '../../visitors.js';
@@ -127,7 +127,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-no-invalid-encoding-combinations': SpecNoInvalidEncodingCombinations,
   'spec-discriminator-defaultMapping': SpecDiscriminatorDefaultMapping,
   'spec-example-values': SpecExampleValues,
-  'spec-no-mixed-query-and-querystring-parameters': SpecNoMixedQueryAndQuerystringParameters,
+  'spec-querystring-parameters': SpecQuerystringParameters,
 };
 
 export const preprocessors = {};

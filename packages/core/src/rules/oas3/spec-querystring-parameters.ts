@@ -1,10 +1,9 @@
 import type { Oas3Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
-import type { Oas3Parameter } from '../../typings/openapi.js';
+import type { Oas3Parameter, Referenced } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-export const SpecNoMixedQueryAndQuerystringParameters: Oas3Rule = () => {
-  let isOas3_2 = false;
+export const SpecQuerystringParameters: Oas3Rule = () => {
   let pathQueryLocation: Location | undefined;
   let pathQueryStringLocation: Location | undefined;
 
@@ -12,8 +11,6 @@ export const SpecNoMixedQueryAndQuerystringParameters: Oas3Rule = () => {
   let operationQueryStringLocation: Location | undefined;
 
   function checkParameter(parameter: Oas3Parameter, parameterLocation: Location, ctx: UserContext) {
-    if (!isOas3_2) return;
-
     if (parameter.in === 'query') {
       if (operationQueryStringLocation) {
         ctx.report({
@@ -38,29 +35,49 @@ export const SpecNoMixedQueryAndQuerystringParameters: Oas3Rule = () => {
     }
   }
 
+  function checkQuerystringParameters(
+    parameters: ReadonlyArray<Referenced<Oas3Parameter>>,
+    ctx: UserContext
+  ) {
+    const parametersLocation = ctx.location.child('parameters');
+    const querystringParameters = parameters.filter(
+      (p) => !('$ref' in p) && p.in === 'querystring'
+    );
+    if (querystringParameters.length > 1) {
+      ctx.report({
+        message: `Parameters with \`in: querystring\` should be defined only once per path/operation parameter set (OpenAPI 3.2).`,
+        location: parametersLocation,
+      });
+    }
+  }
+
   return {
     PathItem: {
-      enter(_pathItem, ctx: UserContext) {
-        isOas3_2 = ctx.specVersion === 'oas3_2';
+      enter(pathItem, ctx: UserContext) {
         pathQueryLocation = undefined;
         pathQueryStringLocation = undefined;
         operationQueryLocation = undefined;
         operationQueryStringLocation = undefined;
+
+        checkQuerystringParameters(pathItem.parameters || [], ctx);
       },
       Parameter(parameter: Oas3Parameter, ctx: UserContext) {
         operationQueryLocation = pathQueryLocation;
         operationQueryStringLocation = pathQueryStringLocation;
 
         const parameterLocation = ctx.parentLocations.PathItem.child(['parameters', ctx.key]);
+
         checkParameter(parameter, parameterLocation, ctx);
 
         pathQueryLocation = operationQueryLocation;
         pathQueryStringLocation = operationQueryStringLocation;
       },
       Operation: {
-        enter() {
+        enter(operation, ctx: UserContext) {
           operationQueryLocation = pathQueryLocation;
           operationQueryStringLocation = pathQueryStringLocation;
+
+          checkQuerystringParameters(operation.parameters || [], ctx);
         },
         Parameter(parameter: Oas3Parameter, ctx: UserContext) {
           const parameterLocation = ctx.parentLocations.Operation.child(['parameters', ctx.key]);
