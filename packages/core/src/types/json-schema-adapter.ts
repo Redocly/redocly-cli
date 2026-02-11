@@ -125,6 +125,7 @@ function transformJSONSchemaToNodeType(
         return actualTypeName;
       });
 
+      //TODO: investigate why this function doesn't invoke inside the current function scope
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
           const discriminatedTypeName = value[discriminatedPropertyName];
