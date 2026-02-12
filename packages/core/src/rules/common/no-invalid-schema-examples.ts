@@ -13,13 +13,11 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
 
         if (Array.isArray(examples)) {
           for (const example of examples) {
-            validateExample(
-              example,
-              schema,
-              ctx.location.child(['examples', examples.indexOf(example)]),
+            validateExample(example, schema, {
+              location: ctx.location.child(['examples', examples.indexOf(example)]),
               ctx,
-              !!opts.allowAdditionalProperties
-            );
+              allowAdditionalProperties: !!opts.allowAdditionalProperties,
+            });
           }
         }
 
@@ -33,13 +31,11 @@ export const NoInvalidSchemaExamples: Oas3Rule | Oas2Rule = (opts: any) => {
             return;
           }
 
-          validateExample(
-            schema.example,
-            schema,
-            ctx.location.child('example'),
+          validateExample(schema.example, schema, {
+            location: ctx.location.child('example'),
             ctx,
-            !!opts.allowAdditionalProperties
-          );
+            allowAdditionalProperties: !!opts.allowAdditionalProperties,
+          });
         }
       },
     },
