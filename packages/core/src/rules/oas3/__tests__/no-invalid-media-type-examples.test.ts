@@ -93,9 +93,13 @@ describe('no-invalid-media-type-examples', () => {
               requestBody:
                 content:
                   application/json:
-                    example:
-                      readOnlyProp: "should be forbidden in request"
-                      writeOnlyProp: "allowed in request"
+                    examples:
+                      invalid:
+                        value:
+                          readOnlyProp: "propValue"
+                      valid:
+                        value:
+                          writeOnlyProp: "propValue"
                     schema:
                       type: object
                       properties:
@@ -124,7 +128,7 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/post/requestBody/content/application~1json/example/readOnlyProp",
+              "pointer": "#/paths/~1pet/post/requestBody/content/application~1json/examples/invalid/value/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -150,9 +154,13 @@ describe('no-invalid-media-type-examples', () => {
                   in: query
                   content:
                     application/json:
-                      example:
-                        readOnlyProp: "should be forbidden in request"
-                        writeOnlyProp: "allowed in request"
+                      examples:
+                        invalid:
+                          value:
+                            readOnlyProp: "propValue"
+                        valid:
+                          value:
+                            writeOnlyProp: "propValue"
                       schema:
                         type: object
                         properties:
@@ -184,7 +192,7 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json/example/readOnlyProp",
+              "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json/examples/invalid/value/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
