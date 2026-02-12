@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 2.18.0
+
+### Minor Changes
+
+- Added `lintEntityWithScorecardLevel` function to validate entity files against scorecard level configurations and `lintSchema` function to lint individual schemas from API description files.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.43.0.
+
 ## 2.17.0
 
 ### Minor Changes
@@ -360,6 +370,7 @@
 
 - Added `x-security` extension for Respect that enables secure handling of authentication in Arazzo workflows.
   Use this extension to:
+
   - Define security schemes at the step level using either predefined schemes or inline definitions
   - Pass values of secrets (passwords, tokens, API keys)
   - Support multiple authentication types including API Key (query, header, or cookie), Basic Authentication, Bearer Token, Digest Authentication, OAuth2, and OpenID Connect
