@@ -52,9 +52,9 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/ajv": "^8.17.3",
+    "@redocly/ajv": "file:./redocly-ajv-8.17.4.tgz",
     "@redocly/config": "^0.43.0",
-    "ajv": "npm:@redocly/ajv@8.17.3",
+    "ajv": "file:./redocly-ajv-8.17.4.tgz",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
