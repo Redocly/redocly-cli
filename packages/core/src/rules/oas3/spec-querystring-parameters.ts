@@ -3,85 +3,90 @@ import type { Location } from '../../ref-utils.js';
 import type { Oas3Parameter, Referenced } from '../../typings/openapi.js';
 import type { UserContext } from '../../walk.js';
 
-export const SpecQuerystringParameters: Oas3Rule = () => {
-  let pathQueryLocation: Location | undefined;
-  let pathQueryStringLocation: Location | undefined;
+type QueryState = {
+  queryLocation?: Location;
+  querystringLocation?: Location;
+};
 
-  let operationQueryLocation: Location | undefined;
-  let operationQueryStringLocation: Location | undefined;
+function countQuerystring(parameters: ReadonlyArray<Referenced<Oas3Parameter>>): number {
+  return parameters.filter((p) => !('$ref' in p) && p.in === 'querystring').length;
+}
 
-  function checkParameter(parameter: Oas3Parameter, parameterLocation: Location, ctx: UserContext) {
-    if (parameter.in === 'query') {
-      if (operationQueryStringLocation) {
-        ctx.report({
-          message:
-            'Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set (OpenAPI 3.2).',
-          location: parameterLocation,
-        });
-      }
-      operationQueryLocation ??= parameterLocation;
-      return;
-    }
+const QUERYSTRING_ONCE_MESSAGE =
+  'Parameters with `in: querystring` should be defined only once per path/operation parameter set (OpenAPI 3.2).';
 
-    if (parameter.in === 'querystring') {
-      if (operationQueryLocation) {
-        ctx.report({
-          message:
-            'Parameters with `in: querystring` cannot be used together with `in: query` in the same operation/path parameter set (OpenAPI 3.2).',
-          location: parameterLocation,
-        });
-      }
-      operationQueryStringLocation ??= parameterLocation;
-    }
+function reportIfMultipleQuerystring(querystringCount: number, ctx: UserContext) {
+  const parametersLocation = ctx.location.child('parameters');
+  if (querystringCount > 1) {
+    ctx.report({ message: QUERYSTRING_ONCE_MESSAGE, location: parametersLocation });
   }
+}
 
-  function checkQuerystringParameters(
-    parameters: ReadonlyArray<Referenced<Oas3Parameter>>,
-    ctx: UserContext
-  ) {
-    const parametersLocation = ctx.location.child('parameters');
-    const querystringParameters = parameters.filter(
-      (p) => !('$ref' in p) && p.in === 'querystring'
-    );
-    if (querystringParameters.length > 1) {
+function checkMixedUsage(
+  parameter: Oas3Parameter,
+  parameterLocation: Location,
+  state: QueryState,
+  ctx: UserContext
+) {
+  if (parameter.in === 'query') {
+    if (state.querystringLocation) {
       ctx.report({
-        message: `Parameters with \`in: querystring\` should be defined only once per path/operation parameter set (OpenAPI 3.2).`,
-        location: parametersLocation,
+        message:
+          'Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set (OpenAPI 3.2).',
+        location: parameterLocation,
       });
     }
+    state.queryLocation ??= parameterLocation;
+    return;
   }
+
+  if (parameter.in === 'querystring') {
+    if (state.queryLocation) {
+      ctx.report({
+        message:
+          'Parameters with `in: querystring` cannot be used together with `in: query` in the same operation/path parameter set (OpenAPI 3.2).',
+        location: parameterLocation,
+      });
+    }
+    state.querystringLocation ??= parameterLocation;
+  }
+}
+
+export const SpecQuerystringParameters: Oas3Rule = () => {
+  let pathState: QueryState = {};
+  let operationState: QueryState = {};
+  let pathQuerystringCount = 0;
 
   return {
     PathItem: {
       enter(pathItem, ctx: UserContext) {
-        pathQueryLocation = undefined;
-        pathQueryStringLocation = undefined;
-        operationQueryLocation = undefined;
-        operationQueryStringLocation = undefined;
+        pathState = {};
+        operationState = {};
+        pathQuerystringCount = 0;
 
-        checkQuerystringParameters(pathItem.parameters || [], ctx);
+        reportIfMultipleQuerystring(countQuerystring(pathItem.parameters || []), ctx);
       },
+
       Parameter(parameter: Oas3Parameter, ctx: UserContext) {
-        operationQueryLocation = pathQueryLocation;
-        operationQueryStringLocation = pathQueryStringLocation;
-
-        const parameterLocation = ctx.parentLocations.PathItem.child(['parameters', ctx.key]);
-
-        checkParameter(parameter, parameterLocation, ctx);
-
-        pathQueryLocation = operationQueryLocation;
-        pathQueryStringLocation = operationQueryStringLocation;
+        const location = ctx.parentLocations.PathItem.child(['parameters', ctx.key]);
+        checkMixedUsage(parameter, location, pathState, ctx);
+        if (parameter.in === 'querystring') {
+          pathQuerystringCount += 1;
+        }
       },
+
       Operation: {
         enter(operation, ctx: UserContext) {
-          operationQueryLocation = pathQueryLocation;
-          operationQueryStringLocation = pathQueryStringLocation;
+          operationState = { ...pathState };
 
-          checkQuerystringParameters(operation.parameters || [], ctx);
+          const totalQuerystring =
+            pathQuerystringCount + countQuerystring(operation.parameters || []);
+          reportIfMultipleQuerystring(totalQuerystring, ctx);
         },
+
         Parameter(parameter: Oas3Parameter, ctx: UserContext) {
           const parameterLocation = ctx.parentLocations.Operation.child(['parameters', ctx.key]);
-          checkParameter(parameter, parameterLocation, ctx);
+          checkMixedUsage(parameter, parameterLocation, operationState, ctx);
         },
       },
     },
