@@ -71,7 +71,7 @@ export function validateJsonSchema(
     instancePath: string;
     resolve: ResolveFn;
     allowAdditionalProperties: boolean;
-    ajvContext: AjvContext;
+    ajvContext?: AjvContext;
   }
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext } = options;
@@ -86,7 +86,7 @@ export function validateJsonSchema(
     rootData: {},
     dynamicAnchors: {},
   };
-  const valid = validate.call(ajvContext, data, dataCxt);
+  const valid = validate.call(ajvContext ?? {}, data, dataCxt);
 
   return {
     valid: !!valid,

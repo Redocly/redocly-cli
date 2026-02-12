@@ -134,18 +134,18 @@ export function validateExample(
   example: any,
   schema: Referenced<Oas3Schema | Oas3_1Schema>,
   options: {
-    dataLoc: Location;
+    location: Location;
     ctx: UserContext;
     allowAdditionalProperties: boolean;
-    ajvContext: AjvContext;
+    ajvContext?: AjvContext;
   }
 ) {
-  const { dataLoc, ctx, allowAdditionalProperties, ajvContext } = options;
-  const { resolve, location, report } = ctx;
+  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { resolve, location: parentLocation, report } = ctx;
   try {
     const { valid, errors } = validateJsonSchema(example, schema, {
-      schemaLoc: location.child('schema'),
-      instancePath: dataLoc.pointer,
+      schemaLoc: parentLocation.child('schema'),
+      instancePath: location.pointer,
       resolve,
       allowAdditionalProperties,
       ajvContext,
@@ -155,11 +155,11 @@ export function validateExample(
         report({
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
-            ...new Location(dataLoc.source, error.instancePath),
+            ...new Location(location.source, error.instancePath),
             reportOnKey:
               error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
           },
-          from: location,
+          from: parentLocation,
           suggest: error.suggest,
         });
       }
@@ -171,8 +171,8 @@ export function validateExample(
 
     report({
       message: `Example validation errored: ${e.message}.`,
-      location: location.child('schema'),
-      from: location,
+      location: parentLocation.child('schema'),
+      from: parentLocation,
     });
   }
 }

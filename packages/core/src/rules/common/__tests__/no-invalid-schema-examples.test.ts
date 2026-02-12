@@ -65,9 +65,11 @@ describe('no-invalid-schema-examples', () => {
                 writeOnlyProp:
                   type: string
                   writeOnly: true
-              example:
-                readOnlyProp: "allowed without oas context"
-                writeOnlyProp: "allowed without oas context"
+              examples:
+                valid:
+                  value:
+                    readOnlyProp: "propValue"
+                    writeOnlyProp: "propValue"
       `,
       'foobar.yaml'
     );

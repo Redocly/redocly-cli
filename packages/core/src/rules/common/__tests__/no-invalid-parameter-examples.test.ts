@@ -165,9 +165,13 @@ describe('no-invalid-parameter-examples', () => {
                       writeOnlyProp:
                         type: string
                         writeOnly: true
-                  example:
-                    readOnlyProp: "should be forbidden in request"
-                    writeOnlyProp: "allowed in request"
+                  examples:
+                    valid:
+                      value:
+                        writeOnlyProp: "propValue"
+                    invalid:
+                      value:
+                        readOnlyProp: "propValue"
       `,
       'foobar.yaml'
     );
@@ -187,7 +191,7 @@ describe('no-invalid-parameter-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1users/get/parameters/0/example/readOnlyProp",
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/readOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },

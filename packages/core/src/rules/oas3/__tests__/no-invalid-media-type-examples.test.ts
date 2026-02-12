@@ -219,9 +219,11 @@ describe('no-invalid-media-type-examples', () => {
                             type: string
                             writeOnly: true
                       examples:
-                        first:
+                        valid:
                           value:
-                            readOnlyProp: "allowed in response"
+                            readOnlyProp: "propValue"
+                        invalid:
+                          value:
                             writeOnlyProp: "should be forbidden in response"
       `,
       'foobar.yaml'
@@ -242,7 +244,7 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": [
             {
-              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/first/value/writeOnlyProp",
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/invalid/value/writeOnlyProp",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
