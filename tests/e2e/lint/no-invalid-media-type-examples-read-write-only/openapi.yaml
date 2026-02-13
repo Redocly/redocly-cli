@@ -1,0 +1,62 @@
+openapi: 3.2.0
+info:
+  title: read write only
+  version: 1.0.0
+
+paths:
+  /test:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entity'
+            examples:
+              valid:
+                value:
+                  name: Doe
+                  password: testPassword
+              invalid_readOnly_in_request:
+                value:
+                  id: testId
+                  name: Doe
+                  password: testPassword
+              invalid_missing_writeOnly_required:
+                value:
+                  name: Doe
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+              examples:
+                valid:
+                  value:
+                    id: testId
+                    name: Doe
+                invalid_writeOnly_in_response:
+                  value:
+                    id: testId
+                    name: Doe
+                    password: testPassword
+                invalid_missing_readOnly_required:
+                  value:
+                    name: Doe
+
+components:
+  schemas:
+    Entity:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required: [id, name, password]

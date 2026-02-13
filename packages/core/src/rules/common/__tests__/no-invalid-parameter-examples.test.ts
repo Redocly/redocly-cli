@@ -145,4 +145,63 @@ describe('no-invalid-parameter-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report readOnly property in parameter example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /users:
+            get:
+              parameters:
+                - name: filter
+                  in: query
+                  schema:
+                    type: object
+                    properties:
+                      readOnlyProp:
+                        type: string
+                        readOnly: true
+                      writeOnlyProp:
+                        type: string
+                        writeOnly: true
+                  examples:
+                    valid:
+                      value:
+                        writeOnlyProp: "propValue"
+                    invalid:
+                      value:
+                        readOnlyProp: "propValue"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-parameter-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1users/get/parameters/0",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users/get/parameters/0/examples/invalid/readOnlyProp",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
+          "ruleId": "no-invalid-parameter-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

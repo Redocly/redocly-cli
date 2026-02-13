@@ -3,6 +3,7 @@ import { Location } from '../ref-utils.js';
 import { validateJsonSchema } from './ajv.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 
+import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 import type {
   Oas3Schema,
   Oas3Tag,
@@ -132,29 +133,33 @@ export function getSuggest(given: string, variants: string[]): string[] {
 export function validateExample(
   example: any,
   schema: Referenced<Oas3Schema | Oas3_1Schema>,
-  dataLoc: Location,
-  { resolve, location, report }: UserContext,
-  allowAdditionalProperties: boolean
+  options: {
+    location: Location;
+    ctx: UserContext;
+    allowAdditionalProperties: boolean;
+    ajvContext?: AjvContext;
+  }
 ) {
+  const { location, ctx, allowAdditionalProperties, ajvContext } = options;
+  const { resolve, location: parentLocation, report } = ctx;
   try {
-    const { valid, errors } = validateJsonSchema(
-      example,
-      schema,
-      location.child('schema'),
-      dataLoc.pointer,
+    const { valid, errors } = validateJsonSchema(example, schema, {
+      schemaLoc: parentLocation.child('schema'),
+      instancePath: location.pointer,
       resolve,
-      allowAdditionalProperties
-    );
+      allowAdditionalProperties,
+      ajvContext,
+    });
     if (!valid) {
       for (const error of errors) {
         report({
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
-            ...new Location(dataLoc.source, error.instancePath),
+            ...new Location(location.source, error.instancePath),
             reportOnKey:
               error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
           },
-          from: location,
+          from: parentLocation,
           suggest: error.suggest,
         });
       }
@@ -166,8 +171,8 @@ export function validateExample(
 
     report({
       message: `Example validation errored: ${e.message}.`,
-      location: location.child('schema'),
-      from: location,
+      location: parentLocation.child('schema'),
+      from: parentLocation,
     });
   }
 }

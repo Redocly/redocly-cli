@@ -83,6 +83,189 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
+  it('should report readOnly property in requestBody example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            post:
+              requestBody:
+                content:
+                  application/json:
+                    examples:
+                      invalid:
+                        value:
+                          readOnlyProp: "propValue"
+                      valid:
+                        value:
+                          writeOnlyProp: "propValue"
+                    schema:
+                      type: object
+                      properties:
+                        readOnlyProp:
+                          type: string
+                          readOnly: true
+                        writeOnlyProp:
+                          type: string
+                          writeOnly: true
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/post/requestBody/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/post/requestBody/content/application~1json/examples/invalid/value/readOnlyProp",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report readOnly property in parameter content example', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              parameters:
+                - name: filter
+                  in: query
+                  content:
+                    application/json:
+                      examples:
+                        invalid:
+                          value:
+                            readOnlyProp: "propValue"
+                        valid:
+                          value:
+                            writeOnlyProp: "propValue"
+                      schema:
+                        type: object
+                        properties:
+                          readOnlyProp:
+                            type: string
+                            readOnly: true
+                          writeOnlyProp:
+                            type: string
+                            writeOnly: true
+              responses:
+                '204':
+                  description: No content
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/parameters/0/content/application~1json/examples/invalid/value/readOnlyProp",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`readOnlyProp\` property must NOT be present in request context.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report writeOnly property in response examples', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          readOnlyProp:
+                            type: string
+                            readOnly: true
+                          writeOnlyProp:
+                            type: string
+                            writeOnly: true
+                      examples:
+                        valid:
+                          value:
+                            readOnlyProp: "propValue"
+                        invalid:
+                          value:
+                            writeOnlyProp: "should be forbidden in response"
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/invalid/value/writeOnlyProp",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Example value must conform to the schema: \`writeOnlyProp\` property must NOT be present in response context.",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report on invalid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
