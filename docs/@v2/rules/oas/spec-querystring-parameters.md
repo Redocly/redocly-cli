@@ -15,10 +15,14 @@ Enforce valid use of parameters with `in: querystring` (OpenAPI 3.2).
 
 ## API design principles
 
-OpenAPI 3.2 introduces the `querystring` parameter location for representing the full query string as a single schema (e.g. `application/x-www-form-urlencoded`). This rule ensures:
+OpenAPI 3.2 introduces the `querystring` parameter location for representing the full query string as a single schema (e.g. `application/x-www-form-urlencoded`). 
 
-1. **At most one querystring parameter** — Parameters with `in: querystring` may be defined only once per path/operation parameter set.
-2. **No mixing with query** — Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set.
+This rule ensures that:
+
+- There is at most one `querystring` parameter.
+  Parameters with `in: querystring` may be defined only once per path/operation parameter set.
+- No mixing `querystring` with `query`.
+  Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set.
 
 ## Configuration
 
