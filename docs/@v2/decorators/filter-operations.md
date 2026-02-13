@@ -21,7 +21,7 @@ If the operation's property is an array (like `tags`), the operation is kept if 
 The filter only applies to first-level operation properties that are either primitive types or arrays of primitives.
 If there is no such property, the entire operation is removed from the resulting API description.
 
-{% admonition type="info" name="Note" %}
+{% admonition type="info" %}
 To remove additional remnants from components, use the `--remove-unused-components` CLI argument or the corresponding decorator.
 {% /admonition %}
 
