@@ -12,13 +12,14 @@ function countQuerystring(parameters: ReadonlyArray<Referenced<Oas3Parameter>>):
   return parameters.filter((p) => !('$ref' in p) && p.in === 'querystring').length;
 }
 
-const QUERYSTRING_ONCE_MESSAGE =
-  'Parameters with `in: querystring` should be defined only once per path/operation parameter set (OpenAPI 3.2).';
-
 function reportIfMultipleQuerystring(querystringCount: number, ctx: UserContext) {
   const parametersLocation = ctx.location.child('parameters');
   if (querystringCount > 1) {
-    ctx.report({ message: QUERYSTRING_ONCE_MESSAGE, location: parametersLocation });
+    ctx.report({
+      message:
+        'Parameters with `in: querystring` should be defined only once per path/operation parameter set.',
+      location: parametersLocation,
+    });
   }
 }
 
@@ -32,7 +33,7 @@ function checkMixedUsage(
     if (state.querystringLocation) {
       ctx.report({
         message:
-          'Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set (OpenAPI 3.2).',
+          'Parameters with `in: query` cannot be used together with `in: querystring` in the same operation/path parameter set.',
         location: parameterLocation,
       });
     }
@@ -44,7 +45,7 @@ function checkMixedUsage(
     if (state.queryLocation) {
       ctx.report({
         message:
-          'Parameters with `in: querystring` cannot be used together with `in: query` in the same operation/path parameter set (OpenAPI 3.2).',
+          'Parameters with `in: querystring` cannot be used together with `in: query` in the same operation/path parameter set.',
         location: parameterLocation,
       });
     }
@@ -68,8 +69,7 @@ export const SpecQuerystringParameters: Oas3Rule = () => {
       },
 
       Parameter(parameter: Oas3Parameter, ctx: UserContext) {
-        const location = ctx.parentLocations.PathItem.child(['parameters', ctx.key]);
-        checkMixedUsage(parameter, location, pathState, ctx);
+        checkMixedUsage(parameter, ctx.location, pathState, ctx);
         if (parameter.in === 'querystring') {
           pathQuerystringCount += 1;
         }
@@ -85,8 +85,7 @@ export const SpecQuerystringParameters: Oas3Rule = () => {
         },
 
         Parameter(parameter: Oas3Parameter, ctx: UserContext) {
-          const parameterLocation = ctx.parentLocations.Operation.child(['parameters', ctx.key]);
-          checkMixedUsage(parameter, parameterLocation, operationState, ctx);
+          checkMixedUsage(parameter, ctx.location, operationState, ctx);
         },
       },
     },
