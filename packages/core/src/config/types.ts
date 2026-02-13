@@ -69,6 +69,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
+      | 'spec-querystring-parameters'
     >,
     RuleConfig,
     T
@@ -80,6 +81,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'
+      | 'spec-querystring-parameters'
     >,
     RuleConfig,
     T

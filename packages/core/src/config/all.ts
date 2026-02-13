@@ -118,7 +118,6 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
     'spec-example-values': 'error',
-    'spec-querystring-parameters': 'error',
   },
   oas3_1Rules: {
     'array-parameter-serialization': 'error',
@@ -182,7 +181,6 @@ const all: RawGovernanceConfig<'built-in'> = {
     'tags-alphabetical': 'error',
     'no-duplicated-tag-names': 'error',
     'spec-example-values': 'error',
-    'spec-querystring-parameters': 'error',
   },
   oas3_2Rules: {
     'array-parameter-serialization': 'error',
