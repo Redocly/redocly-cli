@@ -50,7 +50,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v22.12.0+ and NPM v10.9.2+ are required.
+[Node.js](http://nodejs.org) at v22.12.0+ and NPM v11+ are required.
 
 After forking the repo, run:
 
@@ -80,15 +80,17 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
 1. Use the built-in logger from `@redocly/openapi-core` package:
 
    ```typescript
-   import { logger } from '@redocly/openapi-core';
+   import { logger } from "@redocly/openapi-core";
    ```
 
 2. All informational messages, warnings, and errors should be written to `stderr` using the appropriate logger methods:
+
    - `logger.info()` for general information
    - `logger.warn()` for warnings
    - `logger.error()` for errors
 
 3. Only write to `stdout` when the output is meant to be consumed by other applications or tools (like when piping to `jq` or other CLI tools). This includes:
+
    - Command output that needs to be parsed
    - Interactive outputs (like login/logout responses)
    - Data that needs to be piped to other commands
@@ -253,8 +255,8 @@ Note that the snapshot does not always match the command output because of the w
 Here's how the output is processed in tests:
 
 ```typescript
-const out = result.stdout ? result.stdout.toString() : '';
-const err = result.stderr ? result.stderr.toString() : '';
+const out = result.stdout ? result.stdout.toString() : "";
+const err = result.stderr ? result.stderr.toString() : "";
 return `${out}\n${err}`;
 ```
 
@@ -317,12 +319,15 @@ What should be verified when changes applied to the `respect-core` package:
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
 - **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
+
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [here](../packages/cli/README.md).
+
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/__tests__`**: contains unit tests.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
 
   - **`packages/core`**: contains Redocly CLI core functionality like rules, decorators, etc.
+
     - **`packages/core/__tests__`**: contains unit tests.
     - **`packages/cli/core`**: contains core package source code.
       - **`packages/core/src/__tests__`**: contains unit tests.
