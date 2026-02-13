@@ -1,7 +1,7 @@
 apis:
-  main:
+  oas3.0:
     root: ./openapi-oas30-draft4.yaml
-  second:
+  oas3.2:
     root: ./openapi-oas32-2020.yaml
 
 rules:

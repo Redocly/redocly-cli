@@ -32,6 +32,12 @@ paths:
                     name: test
                     requiredField: value
                     age: 10
+                exclusiveMaxInvalid:
+                  summary: exclusiveMaximum boolean boundary
+                  value:
+                    name: test
+                    requiredField: value
+                    score: 20
                 maxBoundaryValid:
                   summary: maxItems boundary valid
                   value:
@@ -61,6 +67,10 @@ components:
           type: number
           minimum: 10
           exclusiveMinimum: true
+        score:
+          type: number
+          maximum: 20
+          exclusiveMaximum: true
         tags:
           type: array
           items:

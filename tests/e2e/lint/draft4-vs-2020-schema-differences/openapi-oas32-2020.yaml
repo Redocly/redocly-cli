@@ -28,6 +28,18 @@ paths:
                     name: test
                     requiredField: value
                     age: 25
+                exclusiveMinInvalid:
+                  summary: exclusiveMinimum numeric boundary
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 10
+                exclusiveMaxInvalid:
+                  summary: exclusiveMaximum numeric boundary
+                  value:
+                    name: test
+                    requiredField: value
+                    score: 20
                 unevaluatedPropsInvalid:
                   summary: unevaluatedProperties invalid
                   value:
@@ -64,6 +76,10 @@ components:
           type: [string, 'null']
         age:
           type: number
+          exclusiveMinimum: 10
+        score:
+          type: number
+          exclusiveMaximum: 20
         tags:
           type: array
           prefixItems:
