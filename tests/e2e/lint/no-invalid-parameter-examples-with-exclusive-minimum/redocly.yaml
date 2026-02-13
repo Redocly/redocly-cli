@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi-oas30-draft4.yaml
+  second:
+    root: ./openapi-oas32-2020.yaml
+
+rules:
+  no-invalid-parameter-examples: error

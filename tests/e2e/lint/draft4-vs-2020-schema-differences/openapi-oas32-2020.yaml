@@ -1,0 +1,83 @@
+openapi: 3.2.0
+info:
+  title: OAS 3.2 / JSON Schema 2020-12 features.
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Schema diff cases
+      operationId: getTest
+      responses:
+        '200':
+          description: OAS 3.2 schema examples
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestSchema'
+              examples:
+                nullableValid:
+                  summary: union type nullable valid
+                  value:
+                    name: test
+                    requiredField: value
+                    optionalField: null
+                    age: 25
+                dependentRequiredValid:
+                  summary: dependentRequired valid
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 25
+                unevaluatedPropsInvalid:
+                  summary: unevaluatedProperties invalid
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 25
+                    forbiddenField: not allowed
+                prefixItemsInvalid:
+                  summary: prefixItems invalid
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 25
+                    tags: [first, 123, third]
+                itemsRemainingInvalid:
+                  summary: items false invalid
+                  value:
+                    name: test
+                    requiredField: value
+                    age: 25
+                    tagsStrict: [first, second, third, fourth]
+
+components:
+  schemas:
+    TestSchema:
+      type: object
+      required: [name, requiredField]
+      properties:
+        name:
+          type: string
+        requiredField:
+          type: string
+        optionalField:
+          type: [string, 'null']
+        age:
+          type: number
+        tags:
+          type: array
+          prefixItems:
+            - type: string
+            - type: string
+          items:
+            type: string
+        tagsStrict:
+          type: array
+          prefixItems:
+            - type: string
+            - type: string
+          items: false
+      dependentRequired:
+        name:
+          - age
+      unevaluatedProperties: false
