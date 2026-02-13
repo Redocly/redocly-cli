@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.18.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to v8.17.4.
+- Fixed validation of examples where combining `required` with `readOnly` or `writeOnly` properties would incorrectly generate warnings.
+
 ## 2.18.0
 
 ### Minor Changes
