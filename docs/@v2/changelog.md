@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.18.1 (2026-02-13)
+
+### Patch Changes
+
+- Fixed validation of examples where combining `required` with `readOnly` or `writeOnly` properties would incorrectly generate warnings.
+- Updated @redocly/respect-core to v2.18.1.
+
 ## 2.18.0 (2026-02-11)
 
 ### Patch Changes
