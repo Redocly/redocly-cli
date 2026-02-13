@@ -52,7 +52,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
         const decodedBase = decodeURI(base.split('#')[0]);
         const resolvedRef = resolve({ $ref }, decodedBase);
         if (!resolvedRef || !resolvedRef.location) return false;
-  
+
         return {
           [schemaIdKey]: encodeURI(resolvedRef.location.source.absoluteRef) + '#' + $id,
           ...resolvedRef.node,
@@ -81,10 +81,13 @@ function getAjvValidator(
 
   if (!ajv.getSchema($id)) {
     ajv.setDefaultUnevaluatedProperties(allowAdditionalProperties);
-    ajv.addSchema({ 
-      [schemaIdKey]: $id, 
-      ...schema 
-    }, $id);
+    ajv.addSchema(
+      {
+        [schemaIdKey]: $id,
+        ...schema,
+      },
+      $id
+    );
   }
 
   return ajv.getSchema($id);
@@ -99,10 +102,11 @@ export function validateJsonSchema(
     resolve: ResolveFn;
     allowAdditionalProperties: boolean;
     ajvContext?: AjvContext;
-    specVersion: SpecVersion
+    specVersion: SpecVersion;
   }
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
-  const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext, specVersion } = options;
+  const { schemaLoc, instancePath, resolve, allowAdditionalProperties, ajvContext, specVersion } =
+    options;
 
   const dialect = getDialectBySpecVersion(specVersion);
   const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties, dialect);

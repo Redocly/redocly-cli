@@ -4,7 +4,7 @@ const { mockAjv2020Constructor, mockAjvDraft4Constructor, mockAddFormats } = vi.
   const mockAjv2020Constructor = vi.fn();
   const mockAjvDraft4Constructor = vi.fn();
   const mockAddFormats = vi.fn();
-  
+
   return { mockAjv2020Constructor, mockAjvDraft4Constructor, mockAddFormats };
 });
 
@@ -45,7 +45,7 @@ describe('ajv configuration', () => {
       mockAjvDraft4Constructor.mockReturnValue(mockAjvInstance);
 
       const schema = { type: 'integer' };
-    
+
       validateJsonSchema(10, schema, {
         schemaLoc: baseLocation,
         instancePath: '/example',

@@ -149,7 +149,7 @@ export function validateExample(
       resolve,
       allowAdditionalProperties,
       ajvContext,
-      specVersion
+      specVersion,
     });
     if (!valid) {
       for (const error of errors) {
