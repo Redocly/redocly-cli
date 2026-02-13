@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.18.1
+
+### Patch Changes
+
+- Fixed validation of examples where combining `required` with `readOnly` or `writeOnly` properties would incorrectly generate warnings.
+- Updated @redocly/respect-core to v2.18.1.
+
 ## 2.18.0
 
 ### Patch Changes
