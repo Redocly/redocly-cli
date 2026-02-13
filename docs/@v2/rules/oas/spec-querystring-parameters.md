@@ -22,8 +22,8 @@ OpenAPI 3.2 introduces the `querystring` parameter location for representing the
 
 ## Configuration
 
-| Option   | Type   | Description                                                                              |
-| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| Option   | Type   | Description                                                                                       |
+| -------- | ------ | ------------------------------------------------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default `off` (3.0/3.1), `error` in `recommended` (3.2). |
 
 An example configuration:
