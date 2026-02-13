@@ -37,6 +37,7 @@ The rules list is split into sections.
 - [security-defined](./oas/security-defined.md): Security rules must be defined, either globally or per-operation
 - [struct](./common/struct.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./oas/spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
+- [spec-querystring-parameters](./oas/spec-querystring-parameters.md): Enforce valid use of `in: querystring` (OpenAPI 3.2): at most one per path/operation, and not mixed with `in: query`
 - [spec-strict-refs](./oas/spec-strict-refs.md): Restricts the usage of the `$ref` keyword
 
 ### Info
