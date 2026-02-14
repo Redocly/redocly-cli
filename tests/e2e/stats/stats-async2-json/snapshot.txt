@@ -21,6 +21,10 @@
   },
   "pathItems": {
     "metric": "🔀 Path Items",
+    "total": 0
+  },
+  "channels": {
+    "metric": "📡 Channels",
     "total": 4
   },
   "webhooks": {

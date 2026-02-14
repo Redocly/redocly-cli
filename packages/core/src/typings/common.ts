@@ -11,6 +11,7 @@ export type StatsName =
   | 'tags'
   | 'externalDocs'
   | 'pathItems'
+  | 'channels'
   | 'links'
   | 'schemas'
   | 'webhooks'
