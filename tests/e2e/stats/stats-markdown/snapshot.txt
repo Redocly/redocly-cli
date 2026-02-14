@@ -6,6 +6,7 @@
 | 👉 Parameters | 6 |
 | 🔗 Links | 0 |
 | 🔀 Path Items | 5 |
+| 📡 Channels | 0 |
 | 🎣 Webhooks | 0 |
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
