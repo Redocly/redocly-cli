@@ -141,7 +141,7 @@ export function validateExample(
   }
 ) {
   const { location, ctx, allowAdditionalProperties, ajvContext } = options;
-  const { resolve, location: parentLocation, report } = ctx;
+  const { resolve, location: parentLocation, report, specVersion } = ctx;
   try {
     const { valid, errors } = validateJsonSchema(example, schema, {
       schemaLoc: parentLocation.child('schema'),
@@ -149,6 +149,7 @@ export function validateExample(
       resolve,
       allowAdditionalProperties,
       ajvContext,
+      specVersion,
     });
     if (!valid) {
       for (const error of errors) {
