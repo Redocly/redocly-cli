@@ -4,7 +4,7 @@ slug: /docs/cli/rules/oas/spec-querystring-parameters
 
 # spec-querystring-parameters
 
-Enforce valid use of parameters with `in: querystring` (OpenAPI 3.2).
+Enforces valid use of querystring parameters.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -15,7 +15,7 @@ Enforce valid use of parameters with `in: querystring` (OpenAPI 3.2).
 
 ## API design principles
 
-OpenAPI 3.2 introduces the `querystring` parameter location for representing the full query string as a single schema (e.g. `application/x-www-form-urlencoded`). 
+OpenAPI 3.2 introduces the `querystring` parameter location for representing the full query string as a single schema (e.g. `application/x-www-form-urlencoded`).
 
 This rule ensures that:
 
@@ -26,9 +26,9 @@ This rule ensures that:
 
 ## Configuration
 
-| Option   | Type   | Description                                                                                       |
-| -------- | ------ | ------------------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (3.0/3.1), `error` in `recommended` (3.2). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -50,65 +50,80 @@ Example of **incorrect** use (mixing `query` and `querystring`):
 
 ```yaml
 paths:
-  /search:
+  /events:
     get:
+      summary: List events
       parameters:
-        - name: q
+        - name: timezone
           in: query
           schema:
             type: string
-        - name: advancedQuery
-          in: querystring
-          content:
-            application/x-www-form-urlencoded:
-              schema:
-                type: object
-```
-
-Example of **incorrect** use (multiple `querystring` parameters):
-
-```yaml
-paths:
-  /search:
-    get:
-      parameters:
-        - name: qs1
-          in: querystring
-          content:
-            application/x-www-form-urlencoded:
-              schema:
-                type: object
-        - name: qs2
-          in: querystring
-          content:
-            application/x-www-form-urlencoded:
-              schema:
-                type: object
-```
-
-Example of **correct** use (single `querystring` parameter, no `query`):
-
-```yaml
-paths:
-  /search:
-    get:
-      parameters:
-        - name: filter
+            default: UTC
+        - name: criteria
           in: querystring
           content:
             application/x-www-form-urlencoded:
               schema:
                 type: object
                 properties:
-                  q: { type: string }
-                  page: { type: integer }
+                  startDate: { type: string, format: date }
+                  endDate: { type: string, format: date }
+                  status: { type: string, enum: [scheduled, cancelled, completed] }
+```
+
+Example of **incorrect** use (multiple `querystring` parameters):
+
+```yaml
+paths:
+  /events:
+    get:
+      summary: List events
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  startDate: { type: string, format: date }
+                  status: { type: string }
+        - name: pagination
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  limit: { type: integer }
+                  offset: { type: integer }
+```
+
+Example of **correct** use (single `querystring` parameter, no `query`):
+
+```yaml
+paths:
+  /events:
+    get:
+      summary: List events
+      parameters:
+        - name: params
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  startDate: { type: string, format: date }
+                  endDate: { type: string, format: date }
+                  status: { type: string, enum: [scheduled, cancelled, completed] }
+                  limit: { type: integer, default: 20 }
+                  offset: { type: integer, default: 0 }
 ```
 
 ## Related rules
 
-- [path-not-include-query](./path-not-include-query.md)
 - [operation-parameters-unique](./operation-parameters-unique.md)
-- [configurable rules](../configurable-rules.md)
 
 ## Resources
 
