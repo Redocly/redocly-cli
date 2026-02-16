@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.18.2
+
+### Patch Changes
+
+- Fixed false positive errors in example validation for OpenAPI 3.0.x and OpenAPI 2.x.
+- Updated @redocly/openapi-core to v2.18.2.
+
 ## 2.18.1
 
 ### Patch Changes
