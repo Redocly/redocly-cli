@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.18.2 (2026-02-16)
+
+### Patch Changes
+
+- Fixed false positive errors in example validation for OpenAPI 3.0.x and OpenAPI 2.x.
+- Updated @redocly/openapi-core to v2.18.2.
+
 ## 2.18.1 (2026-02-13)
 
 ### Patch Changes
