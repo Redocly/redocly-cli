@@ -246,6 +246,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-discriminator-defaultMapping': 'error',
     'spec-example-values': 'error',
+    'spec-querystring-parameters': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',

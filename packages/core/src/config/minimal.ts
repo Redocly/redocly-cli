@@ -222,6 +222,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
     'spec-example-values': 'off',
     'spec-no-invalid-encoding-combinations': 'warn',
     'spec-no-invalid-tag-parents': 'warn',
+    'spec-querystring-parameters': 'error',
     'spec-strict-refs': 'off',
     'tag-description': 'warn',
     'tags-alphabetical': 'off',

@@ -110,6 +110,7 @@
             - page: rules/oas/spec-example-values.md
             - page: rules/oas/spec-discriminator-defaultMapping.md
             - page: rules/oas/spec-no-invalid-encoding-combinations.md
+            - page: rules/oas/spec-querystring-parameters.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md

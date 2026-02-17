@@ -222,6 +222,7 @@ const recommendedStrict: RawGovernanceConfig<'built-in'> = {
     'spec-example-values': 'error',
     'spec-no-invalid-encoding-combinations': 'error',
     'spec-no-invalid-tag-parents': 'error',
+    'spec-querystring-parameters': 'error',
     'spec-strict-refs': 'off',
     'tag-description': 'error',
     'tags-alphabetical': 'off',
