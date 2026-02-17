@@ -23,10 +23,6 @@
     "metric": "🔀 Path Items",
     "total": 5
   },
-  "channels": {
-    "metric": "📡 Channels",
-    "total": 0
-  },
   "webhooks": {
     "metric": "🎣 Webhooks",
     "total": 0
