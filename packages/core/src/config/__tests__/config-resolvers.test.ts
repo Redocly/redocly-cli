@@ -1,5 +1,5 @@
 import util from 'node:util';
-import { Asserts, asserts } from '../../rules/common/assertions/asserts.js';
+import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
 import { resolveConfig } from '../config-resolvers.js';
 import recommended from '../recommended.js';
 import { fileURLToPath } from 'node:url';
@@ -360,9 +360,9 @@ describe('resolveConfig', () => {
         if (section[ruleName] === 'warn') {
           section[ruleName] = 'error';
         }
-        // @ts-ignore
+        // @ts-expect-error
         if (section[ruleName]?.severity === 'warn') {
-          // @ts-ignore
+          // @ts-expect-error
           section[ruleName].severity = 'error';
         }
       }

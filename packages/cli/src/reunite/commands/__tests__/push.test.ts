@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { handlePush } from '../push.js';
 import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
-import { MockInstance } from 'vitest';
+import { type MockInstance } from 'vitest';
 import { slash } from '@redocly/openapi-core';
 import { version } from '../../../utils/package.js';
 

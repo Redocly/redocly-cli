@@ -439,7 +439,7 @@ describe('runTestFile', () => {
       })
     ).rejects.toThrow(
       expect.objectContaining({
-        // @ts-ignore
+        // @ts-expect-error
         message: expect.stringContaining('Workflow', 'not-existing-workflowId', 'not found'),
       })
     );

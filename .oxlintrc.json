@@ -8,7 +8,7 @@
     "builtin": true,
     "es2026": true
   },
-  "ignorePatterns": ["**/__tests__/**", "packages/*/lib/**", "*.js", "*.cjs"],
+  "ignorePatterns": ["packages/*/lib/**", "*.js", "*.cjs"],
   "rules": {
     "eslint/no-array-constructor": "error",
     "eslint/no-case-declarations": "error",
@@ -43,4 +43,15 @@
       "preferInline": true,
     }]
   },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**"],
+      "plugins": ["vitest"],
+      "rules": {
+        "typescript/no-explicit-any": "allow",
+        "typescript/ban-ts-comment": "allow",
+        "eslint/no-control-regex": "allow"
+      }
+    }
+  ]
 }

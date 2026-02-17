@@ -4,7 +4,7 @@ import { cleanColors } from '../../../utils/clean-colors.js';
 import {
   getOperationFromDescriptionBySource,
   getOperationFromDescription,
-  DescriptionSource,
+  type DescriptionSource,
 } from '../../description-parser/index.js';
 import { ApiFetcher } from '../../../utils/api-fetcher.js';
 

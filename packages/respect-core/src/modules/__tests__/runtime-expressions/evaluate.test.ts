@@ -436,14 +436,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
     } as unknown as RuntimeExpressionContext;
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`some string value == \"some string value\"`);
+    ).toEqual(`some string value == "some string value"`);
   });
 
   it('should evaluate runctime expressions with url comparison', () => {
     const payload = '$url == "http://example.com"';
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`http://example.com == \"http://example.com\"`);
+    ).toEqual(`http://example.com == "http://example.com"`);
   });
 
   it('should evaluate requestBody object with runtime expression values', () => {

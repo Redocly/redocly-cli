@@ -1,4 +1,4 @@
-import { MockInstance } from 'vitest';
+import { type MockInstance } from 'vitest';
 
 import * as colorette from 'colorette';
 import { logger, colorize } from '../logger.js';

@@ -336,8 +336,8 @@ describe('getFallbackApisOrExit', async () => {
     const entry = await getFallbackApisOrExit(undefined, config);
     expect(entry).toEqual([
       {
-        path: expect.stringMatching(/project\-folder\/test\.yaml$/),
-        output: expect.stringMatching(/project\-folder\/output\/test\.yaml$/),
+        path: expect.stringMatching(/project-folder\/test\.yaml$/),
+        output: expect.stringMatching(/project-folder\/output\/test\.yaml$/),
         alias: 'main',
       },
     ]);

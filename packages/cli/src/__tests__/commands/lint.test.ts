@@ -1,4 +1,4 @@
-import { handleLint, LintArgv } from '../../commands/lint.js';
+import { handleLint, type LintArgv } from '../../commands/lint.js';
 import {
   createConfig,
   lint,
@@ -21,7 +21,7 @@ import { exitWithError } from '../../utils/error.js';
 import { configFixture } from '../fixtures/config.js';
 import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper.js';
-import { Arguments } from 'yargs';
+import { type Arguments } from 'yargs';
 import { blue } from 'colorette';
 import { type MockInstance } from 'vitest';
 

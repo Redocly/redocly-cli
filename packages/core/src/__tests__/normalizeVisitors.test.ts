@@ -1,11 +1,11 @@
 import {
-  BaseVisitor,
-  NestedVisitObject,
+  type BaseVisitor,
+  type NestedVisitObject,
   normalizeVisitors,
-  RuleInstanceConfig,
-  VisitorLevelContext,
+  type RuleInstanceConfig,
+  type VisitorLevelContext,
 } from '../visitors.js';
-import { Oas3RuleSet } from '../oas-types.js';
+import { type Oas3RuleSet } from '../oas-types.js';
 import { Oas3Types } from '../types/oas3.js';
 import { normalizeTypes } from '../types/index.js';
 

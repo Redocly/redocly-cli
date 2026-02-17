@@ -1,4 +1,4 @@
-import { GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/generate-arazzo.js';
+import { type GenerateArazzoCommandArgv, handleGenerateArazzo } from '../../commands/generate-arazzo.js';
 import { generate } from '@redocly/respect-core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import * as openapiCore from '@redocly/openapi-core';

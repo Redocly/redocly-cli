@@ -124,7 +124,7 @@ describe('parseRequestBody', () => {
 
   it('should handle multipart/form-data with file', async () => {
     vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
-    // @ts-ignore
+    // @ts-expect-error
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
@@ -197,7 +197,7 @@ describe('parseRequestBody', () => {
 
   it('should handle multipart/form-data with array with file', async () => {
     vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
-    // @ts-ignore
+    // @ts-expect-error
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
@@ -224,7 +224,7 @@ describe('parseRequestBody', () => {
 
   it('should handle multipart/form-data and return error reading file', async () => {
     vi.mocked(fs.createReadStream).mockReturnValueOnce('readStream' as any);
-    // @ts-ignore
+    // @ts-expect-error
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
@@ -247,7 +247,7 @@ describe('parseRequestBody', () => {
 
   it('should handle application/octet-stream', async () => {
     vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
-    // @ts-ignore
+    // @ts-expect-error
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback();
     });
@@ -289,7 +289,7 @@ describe('parseRequestBody', () => {
 
   it('should handle application/octet-stream and return error reading file', async () => {
     vi.mocked(fs.readFileSync).mockReturnValueOnce('readStream' as any);
-    // @ts-ignore
+    // @ts-expect-error
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });

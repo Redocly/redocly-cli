@@ -7,7 +7,7 @@ import { walkDocument } from '../../../walk.js';
 import { EntityKeyValid } from '../entity-key-valid.js';
 import type { WalkContext } from '../../../walk.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
-import { SpecVersion } from '../../../oas-types.js';
+import { type SpecVersion } from '../../../oas-types.js';
 import { outdent } from 'outdent';
 
 function lintEntityKey(source: string): WalkContext['problems'] {

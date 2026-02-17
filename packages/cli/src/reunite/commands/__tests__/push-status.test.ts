@@ -1,5 +1,5 @@
 import { handlePushStatus } from '../push-status.js';
-import { PushResponse } from '../../api/types.js';
+import { type PushResponse } from '../../api/types.js';
 import { ReuniteApi } from '../../api/index.js';
 import * as errorHandling from '../../../utils/error.js';
 
