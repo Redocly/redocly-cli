@@ -71,7 +71,8 @@
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "npm run lint"
+      "npm run lint",
+      "npm run format"
     ],
     "packages/**/*.ts": [
       "npm run lint:fix"
