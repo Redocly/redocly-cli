@@ -33,15 +33,21 @@
     "typescript/no-require-imports": "error",
     "typescript/no-unnecessary-type-constraint": "error",
     "typescript/no-unsafe-function-type": "error",
-    "typescript/consistent-type-imports": ["warn", { 
-      "prefer": "type-imports",
-      "fixStyle": "inline-type-imports"
-    }],
+    "typescript/consistent-type-imports": [
+      "warn",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
 
     "import/no-cycle": ["warn"],
-    "import/no-duplicates": ["warn", {
-      "preferInline": true,
-    }]
+    "import/no-duplicates": [
+      "warn",
+      {
+        "preferInline": true
+      }
+    ]
   },
   "overrides": [
     {

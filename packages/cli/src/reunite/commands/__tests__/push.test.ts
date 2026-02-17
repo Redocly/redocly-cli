@@ -1,10 +1,11 @@
+import { slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { handlePush } from '../push.js';
-import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
 import { type MockInstance } from 'vitest';
-import { slash } from '@redocly/openapi-core';
+
 import { version } from '../../../utils/package.js';
+import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
+import { handlePush } from '../push.js';
 
 const remotes = {
   push: vi.fn(),

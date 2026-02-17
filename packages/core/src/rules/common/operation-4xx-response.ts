@@ -1,7 +1,6 @@
-import { validateResponseCodes } from '../utils.js';
-
 import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { validateResponseCodes } from '../utils.js';
 
 export const Operation4xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) => {
   return {

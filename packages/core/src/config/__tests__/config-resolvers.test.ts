@@ -1,14 +1,14 @@
+import path from 'node:path';
+import { after } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import util from 'node:util';
+
+import { Source } from '../../resolve.js';
 import { type Asserts, asserts } from '../../rules/common/assertions/asserts.js';
 import { resolveConfig } from '../config-resolvers.js';
-import recommended from '../recommended.js';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
-import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
-import { Source } from '../../resolve.js';
 import { Config } from '../config.js';
-import { after } from 'node:test';
+import recommended from '../recommended.js';
+import type { RawUniversalConfig, RawGovernanceConfig } from '../types.js';
 
 vi.mock('node:module', () => ({
   default: {

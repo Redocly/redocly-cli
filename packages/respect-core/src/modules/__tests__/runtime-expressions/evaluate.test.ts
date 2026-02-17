@@ -1,6 +1,6 @@
-import type { RuntimeExpressionContext } from '../../../types.js';
-
 import { logger } from '@redocly/openapi-core';
+
+import type { RuntimeExpressionContext } from '../../../types.js';
 import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,

@@ -1,3 +1,6 @@
+import { type Oas3RuleSet } from '../oas-types.js';
+import { normalizeTypes } from '../types/index.js';
+import { Oas3Types } from '../types/oas3.js';
 import {
   type BaseVisitor,
   type NestedVisitObject,
@@ -5,9 +8,6 @@ import {
   type RuleInstanceConfig,
   type VisitorLevelContext,
 } from '../visitors.js';
-import { type Oas3RuleSet } from '../oas-types.js';
-import { Oas3Types } from '../types/oas3.js';
-import { normalizeTypes } from '../types/index.js';
 
 describe('Normalize visitors', () => {
   it('should work correctly for single rule', () => {

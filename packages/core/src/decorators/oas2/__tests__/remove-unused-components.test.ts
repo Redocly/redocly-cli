@@ -1,11 +1,12 @@
 import * as path from 'node:path';
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument } from '../../../../__tests__/utils.js';
 import { bundleDocument } from '../../../bundle/bundle-document.js';
 import { bundle } from '../../../bundle/bundle.js';
-import { BaseResolver } from '../../../resolve.js';
 import { createConfig } from '../../../config/index.js';
 import { Oas2Types } from '../../../index.js';
+import { BaseResolver } from '../../../resolve.js';
 
 describe('oas2 remove-unused-components', () => {
   it('should remove unused components', async () => {

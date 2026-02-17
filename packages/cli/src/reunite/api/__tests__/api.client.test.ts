@@ -1,6 +1,7 @@
 import { red, yellow } from 'colorette';
-import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
+
 import { version } from '../../../utils/package.js';
+import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
 
 const originalFetch = global.fetch;
 

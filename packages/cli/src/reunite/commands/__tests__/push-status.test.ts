@@ -1,7 +1,7 @@
-import { handlePushStatus } from '../push-status.js';
-import { type PushResponse } from '../../api/types.js';
-import { ReuniteApi } from '../../api/index.js';
 import * as errorHandling from '../../../utils/error.js';
+import { ReuniteApi } from '../../api/index.js';
+import { type PushResponse } from '../../api/types.js';
+import { handlePushStatus } from '../push-status.js';
 
 vi.mock('colorette', async () => {
   const actual = await vi.importActual('colorette');

@@ -1,5 +1,3 @@
-import { performance } from 'perf_hooks';
-import * as colors from 'colorette';
 import {
   normalizeTypes,
   BaseResolver,
@@ -12,11 +10,13 @@ import {
   bundle,
   logger,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
-
 import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
-import type { CommandArgs } from '../wrapper.js';
+import * as colors from 'colorette';
+import { performance } from 'perf_hooks';
+
 import type { VerifyConfigOptions } from '../types.js';
+import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
+import type { CommandArgs } from '../wrapper.js';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },

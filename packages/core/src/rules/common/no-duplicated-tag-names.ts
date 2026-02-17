@@ -1,7 +1,6 @@
-import { getTagName } from '../utils.js';
-
 import type { Async2Rule, Async3Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
+import { getTagName } from '../utils.js';
 
 export const NoDuplicatedTagNames: Oas3Rule | Oas2Rule | Async2Rule | Async3Rule = ({
   ignoreCase = false,

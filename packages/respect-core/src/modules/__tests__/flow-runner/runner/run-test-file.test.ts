@@ -7,6 +7,7 @@ import {
   logger,
 } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
+
 import { type Step, type TestContext } from '../../../../types.js';
 import { runTestFile, runStep } from '../../../flow-runner/index.js';
 

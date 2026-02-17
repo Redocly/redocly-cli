@@ -1,16 +1,16 @@
-import path from 'node:path';
 import { rootRedoclyConfigSchema } from '@redocly/config';
-import { listOf, mapOf } from './index.js';
+import type { JSONSchema } from 'json-schema-to-ts';
+import path from 'node:path';
+
+import type { Config, RawGovernanceConfig } from '../config/index.js';
 import { specVersions, getTypes } from '../oas-types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
-import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
-import { normalizeTypes } from '../types/index.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
-
-import type { JSONSchema } from 'json-schema-to-ts';
+import { listOf, mapOf } from './index.js';
 import type { NodeType, PropType } from './index.js';
-import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 
 const builtInOAS2Rules = [
   'info-contact',

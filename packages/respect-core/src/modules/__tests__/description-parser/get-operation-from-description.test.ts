@@ -1,12 +1,11 @@
 import type { TestContext } from '../../../types.js';
-
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { cleanColors } from '../../../utils/clean-colors.js';
 import {
   getOperationFromDescriptionBySource,
   getOperationFromDescription,
   type DescriptionSource,
 } from '../../description-parser/index.js';
-import { ApiFetcher } from '../../../utils/api-fetcher.js';
 
 describe('getOperationFromDescriptionBySource', () => {
   const apiClient = new ApiFetcher({});

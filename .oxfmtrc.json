@@ -23,13 +23,13 @@
   ],
   "experimentalSortImports": {
     "groups": [
-      ["side-effect"],
+      ["side_effect"],
       ["builtin", "external"],
-      ["parent", "sibling", "index", "object"],
+      ["index", "sibling", "parent"],
       ["unknown"]
     ],
     "newlinesBetween": true,
-    "ignoreCase": true,
+    "ignoreCase": true
   },
   "trailingComma": "es5"
 }

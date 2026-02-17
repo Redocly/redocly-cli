@@ -1,14 +1,15 @@
+import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
+import { outdent } from 'outdent';
 import { describe, it, expect } from 'vitest';
+
+import { type SpecVersion } from '../../../oas-types.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { createEntityTypes } from '../../../types/entity.js';
 import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
 import { walkDocument } from '../../../walk.js';
-import { EntityKeyValid } from '../entity-key-valid.js';
 import type { WalkContext } from '../../../walk.js';
-import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
-import { type SpecVersion } from '../../../oas-types.js';
-import { outdent } from 'outdent';
+import { EntityKeyValid } from '../entity-key-valid.js';
 
 function lintEntityKey(source: string): WalkContext['problems'] {
   const document = makeDocumentFromString(source, '/test.yaml');

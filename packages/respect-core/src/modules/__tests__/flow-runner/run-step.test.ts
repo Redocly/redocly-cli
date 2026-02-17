@@ -1,3 +1,5 @@
+import { createConfig, logger } from '@redocly/openapi-core';
+
 import type {
   Step,
   TestContext,
@@ -5,7 +7,8 @@ import type {
   Check,
   WorkflowExecutionResult,
 } from '../../../types.js';
-import { createConfig, logger } from '@redocly/openapi-core';
+import { ApiFetcher } from '../../../utils/api-fetcher.js';
+import { cleanColors } from '../../../utils/clean-colors.js';
 import {
   runStep,
   callAPIAndAnalyzeResults,
@@ -15,9 +18,7 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { ApiFetcher } from '../../../utils/api-fetcher.js';
 import { displayChecks } from '../../logger-output/index.js';
-import { cleanColors } from '../../../utils/clean-colors.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
 vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({

@@ -1,14 +1,15 @@
-import { iteratePathItems, handleSplit } from '../index.js';
+import * as openapiCore from '@redocly/openapi-core';
+import { blue, green } from 'colorette';
 import * as path from 'node:path';
 import * as process from 'node:process';
-import * as openapiCore from '@redocly/openapi-core';
-import { type ComponentsFiles } from '../types.js';
-import { blue, green } from 'colorette';
-import * as utils from '../../../utils/miscellaneous.js';
+
 import { configFixture } from '../../../__tests__/fixtures/config.js';
+import * as utils from '../../../utils/miscellaneous.js';
+import { iteratePathItems, handleSplit } from '../index.js';
+import { type ComponentsFiles } from '../types.js';
+import samplesJson from './fixtures/samples.json';
 import specJson from './fixtures/spec.json';
 import webhooksJson from './fixtures/webhooks.json';
-import samplesJson from './fixtures/samples.json';
 
 describe('split', () => {
   const openapiDir = 'output/split-test';

@@ -1,5 +1,4 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
-
 import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 

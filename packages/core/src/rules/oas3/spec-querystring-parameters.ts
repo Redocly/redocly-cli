@@ -1,6 +1,6 @@
-import type { Oas3Rule } from '../../visitors.js';
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Parameter, Referenced } from '../../typings/openapi.js';
+import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 type QueryState = {

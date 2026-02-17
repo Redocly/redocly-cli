@@ -1,7 +1,7 @@
-import betterAjvErrors from 'better-ajv-errors';
-import { RESET_ESCAPE_CODE } from '../modules/logger-output/helpers.js';
-
 import type { JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import betterAjvErrors from 'better-ajv-errors';
+
+import { RESET_ESCAPE_CODE } from '../modules/logger-output/helpers.js';
 
 export function printErrors(schema: JSONSchemaType<unknown>, data: any, errors: any[]) {
   const updatedErrors = errors.map((error: any) => {
