@@ -2,10 +2,7 @@
 📦 External Documents: 0 
 📈 Schemas: 0 
 👉 Parameters: 0 
-🔗 Links: 0 
-🔀 Path Items: 0 
 📡 Channels: 1 
-🎣 Webhooks: 0 
 👷 Operations: 1 
 🔖 Tags: 0 
 

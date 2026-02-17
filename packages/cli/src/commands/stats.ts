@@ -14,7 +14,13 @@ import {
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
-import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
+import type {
+  StatsAccumulator,
+  StatsName,
+  WalkContext,
+  OutputFormat,
+  SpecVersion,
+} from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
@@ -31,35 +37,55 @@ const statsAccumulator: StatsAccumulator = {
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
 };
 
-function printStatsStylish(statsAccumulator: StatsAccumulator) {
-  for (const node in statsAccumulator) {
-    const { metric, total, color } = statsAccumulator[node as StatsName];
+// Determine which stats are relevant for a given spec version
+function isStatRelevant(stat: StatsName, specVersion: SpecVersion): boolean {
+  // AsyncAPI-specific stats
+  if (stat === 'channels') {
+    return specVersion === 'async2' || specVersion === 'async3';
+  }
 
+  // OpenAPI-specific stats
+  if (stat === 'pathItems' || stat === 'webhooks' || stat === 'links') {
+    return specVersion !== 'async2' && specVersion !== 'async3';
+  }
+
+  // Common stats (refs, externalDocs, schemas, parameters, operations, tags)
+  return true;
+}
+
+function printStatsStylish(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
+  for (const node in statsAccumulator) {
+    const statName = node as StatsName;
+    if (!isStatRelevant(statName, specVersion)) continue;
+
+    const { metric, total, color } = statsAccumulator[statName];
     logger.output(colors[color](`${metric}: ${total} \n`));
   }
 }
 
-function printStatsJson(statsAccumulator: StatsAccumulator) {
+function printStatsJson(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
   const json: any = {};
   for (const key of Object.keys(statsAccumulator)) {
+    const statName = key as StatsName;
+    if (!isStatRelevant(statName, specVersion)) continue;
+
     json[key] = {
-      metric: statsAccumulator[key as StatsName].metric,
-      total: statsAccumulator[key as StatsName].total,
+      metric: statsAccumulator[statName].metric,
+      total: statsAccumulator[statName].total,
     };
   }
 
   logger.output(JSON.stringify(json, null, 2));
 }
 
-function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
+function printStatsMarkdown(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
   let output = '| Feature  | Count  |\n| --- | --- |\n';
   for (const key of Object.keys(statsAccumulator)) {
+    const statName = key as StatsName;
+    if (!isStatRelevant(statName, specVersion)) continue;
+
     output +=
-      '| ' +
-      statsAccumulator[key as StatsName].metric +
-      ' | ' +
-      statsAccumulator[key as StatsName].total +
-      ' |\n';
+      '| ' + statsAccumulator[statName].metric + ' | ' + statsAccumulator[statName].total + ' |\n';
   }
 
   logger.output(output);
@@ -69,19 +95,20 @@ function printStats(
   statsAccumulator: StatsAccumulator,
   api: string,
   startedAt: number,
-  format: string
+  format: string,
+  specVersion: SpecVersion
 ) {
   logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
 
   switch (format) {
     case 'stylish':
-      printStatsStylish(statsAccumulator);
+      printStatsStylish(statsAccumulator, specVersion);
       break;
     case 'json':
-      printStatsJson(statsAccumulator);
+      printStatsJson(statsAccumulator, specVersion);
       break;
     case 'markdown':
-      printStatsMarkdown(statsAccumulator);
+      printStatsMarkdown(statsAccumulator, specVersion);
       break;
   }
 
@@ -134,5 +161,5 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     ctx,
   });
 
-  printStats(statsAccumulator, path, startedAt, argv.format);
+  printStats(statsAccumulator, path, startedAt, argv.format, specVersion);
 }

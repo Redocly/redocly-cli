@@ -15,21 +15,9 @@
     "metric": "👉 Parameters",
     "total": 0
   },
-  "links": {
-    "metric": "🔗 Links",
-    "total": 0
-  },
-  "pathItems": {
-    "metric": "🔀 Path Items",
-    "total": 0
-  },
   "channels": {
     "metric": "📡 Channels",
     "total": 4
-  },
-  "webhooks": {
-    "metric": "🎣 Webhooks",
-    "total": 0
   },
   "operations": {
     "metric": "👷 Operations",
