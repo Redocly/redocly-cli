@@ -4,7 +4,7 @@ slug: /docs/cli/rules/oas/spec-querystring-parameters
 
 # spec-querystring-parameters
 
-Enforces valid use of querystring parameters.
+Enforces valid use of `querystring` parameters.
 
 | OAS | Compatibility |
 | --- | ------------- |
