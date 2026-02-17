@@ -6,6 +6,9 @@ import { type ComponentsFiles } from '../types.js';
 import { blue, green } from 'colorette';
 import * as utils from '../../../utils/miscellaneous.js';
 import { configFixture } from '../../../__tests__/fixtures/config.js';
+import specJson from './fixtures/spec.json';
+import webhooksJson from './fixtures/webhooks.json';
+import samplesJson from './fixtures/samples.json';
 
 describe('split', () => {
   const openapiDir = 'output/split-test';
@@ -82,7 +85,7 @@ describe('split', () => {
   });
 
   it('should have correct path with paths', () => {
-    const openapi = require('./fixtures/spec.json');
+    const openapi = specJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
@@ -104,7 +107,7 @@ describe('split', () => {
   });
 
   it('should have correct path with webhooks', () => {
-    const openapi = require('./fixtures/webhooks.json');
+    const openapi = webhooksJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
@@ -126,7 +129,7 @@ describe('split', () => {
   });
 
   it('should have correct path with x-webhooks', () => {
-    const openapi = require('./fixtures/spec.json');
+    const openapi = specJson;
 
     vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
@@ -148,7 +151,7 @@ describe('split', () => {
   });
 
   it('should create correct folder name for code samples', async () => {
-    const openapi = require('./fixtures/samples.json');
+    const openapi = samplesJson;
 
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(

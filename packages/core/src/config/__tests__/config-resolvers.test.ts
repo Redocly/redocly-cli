@@ -506,7 +506,7 @@ describe('resolveApis', () => {
       ),
     });
     const {
-      resolvedConfig: { plugins, ...mergedGovernancePresetResolved },
+      resolvedConfig: { plugins: _plugins, ...mergedGovernancePresetResolved },
     } = mergedGovernancePreset;
     const rawConfig: RawUniversalConfig = {
       apis: {

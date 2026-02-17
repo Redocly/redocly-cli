@@ -53,7 +53,7 @@ vi.mock('@redocly/openapi-core', async () => {
   const actual = await vi.importActual('@redocly/openapi-core');
   return {
     ...actual,
-    stringifyYaml: vi.fn((data, opts) => data as string),
+    stringifyYaml: vi.fn((data, _opts) => data as string),
   };
 });
 vi.mock('../../utils/error.js', async () => {

@@ -81,7 +81,7 @@ describe('handlePushStatus()', () => {
         ReuniteApi: vi.fn(),
       };
     });
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
       this.reportSunsetWarnings = vi.fn();
     });

@@ -1,6 +1,6 @@
 import { resolveSecurityScheme } from '../../flow-runner/resolve-security-scheme.js';
 
-import type { TestContext, ExtendedSecurity } from '../../../types.js';
+import type { TestContext } from '../../../types.js';
 import { type Oas3SecurityScheme } from 'core/src/typings/openapi.js';
 import { type OperationDetails } from '../../description-parser/get-operation-from-description.js';
 

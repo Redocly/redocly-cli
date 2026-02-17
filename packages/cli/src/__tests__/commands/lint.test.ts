@@ -1,6 +1,5 @@
 import { handleLint, type LintArgv } from '../../commands/lint.js';
 import {
-  createConfig,
   lint,
   getTotals,
   formatProblems,

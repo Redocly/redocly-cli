@@ -329,6 +329,7 @@ describe('checkSchema', () => {
   });
 
   it('should catch ajvStrict.validate error', () => {
+    // oxlint-disable-next-line typescript/no-require-imports
     vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate').mockImplementationOnce(() => {
       throw new Error('ajvStrict.validate error');
     });

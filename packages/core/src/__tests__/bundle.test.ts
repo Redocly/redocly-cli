@@ -97,7 +97,7 @@ describe('bundle', () => {
   });
 
   it('should bundle external refs and do not show warnings for conflicting names', async () => {
-    const { bundle: res, problems } = await bundle({
+    const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
       componentRenamingConflicts: 'off',
@@ -106,7 +106,7 @@ describe('bundle', () => {
   });
 
   it('should bundle external refs and show errors for conflicting names', async () => {
-    const { bundle: res, problems } = await bundle({
+    const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
       componentRenamingConflicts: 'error',
@@ -494,7 +494,7 @@ describe('bundle', () => {
 describe('bundleFromString', () => {
   it('should bundle from string using bundleFromString', async () => {
     const {
-      bundle: { parsed, ...rest },
+      bundle: { parsed: _parsed, ...rest },
       problems,
     } = await bundleFromString({
       config: await createConfig(`

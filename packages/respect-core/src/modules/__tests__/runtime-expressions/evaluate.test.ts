@@ -644,7 +644,6 @@ describe('evaluateRuntimeExpression', () => {
       '$workflows.workflow1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
     const expression3 =
       '$steps.step1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
-    const expression4 = '$outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression5 =
       '$workflows.workflow1.outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression6 =
