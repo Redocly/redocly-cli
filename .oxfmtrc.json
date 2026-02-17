@@ -21,9 +21,15 @@
     "*.toml",
     "CHANGELOG.md"
   ],
-  // "experimentalSortImports": {
-  //   "groups": [["builtin"], ["external"], ["parent", "sibling", "index", "object"], ["type"]],
-  //   "newlinesBetween": false,
-  // },
+  "experimentalSortImports": {
+    "groups": [
+      ["side-effect"],
+      ["builtin", "external"],
+      ["parent", "sibling", "index", "object"],
+      ["unknown"]
+    ],
+    "newlinesBetween": true,
+    "ignoreCase": true,
+  },
   "trailingComma": "es5"
 }
