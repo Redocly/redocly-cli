@@ -89,10 +89,12 @@ function displayVerboseLogs({
     // Convert FormData to a simple object for display
     const formDataObject: Record<string, any> = {};
     for (const [key, value] of body.entries()) {
-      if (value instanceof File) {
-        formDataObject[key] = `[File: ${value.name}]`;
+      const displayValue = value instanceof File ? `[File: ${value.name}]` : value;
+      if (key in formDataObject) {
+        const existing = formDataObject[key];
+        formDataObject[key] = Array.isArray(existing) ? [...existing, displayValue] : [existing, displayValue];
       } else {
-        formDataObject[key] = value;
+        formDataObject[key] = displayValue;
       }
     }
     formattedBody = JSON.stringify(formDataObject, null, 2);
