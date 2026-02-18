@@ -92,7 +92,9 @@ function displayVerboseLogs({
       const displayValue = value instanceof File ? `[File: ${value.name}]` : value;
       if (key in formDataObject) {
         const existing = formDataObject[key];
-        formDataObject[key] = Array.isArray(existing) ? [...existing, displayValue] : [existing, displayValue];
+        formDataObject[key] = Array.isArray(existing)
+          ? [...existing, displayValue]
+          : [existing, displayValue];
       } else {
         formDataObject[key] = displayValue;
       }
