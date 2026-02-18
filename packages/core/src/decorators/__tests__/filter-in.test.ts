@@ -1,10 +1,14 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
 import { bundleDocument } from '../../bundle/bundle-document.js';
-import { createConfig } from '../../config/index.js';
-import { Oas2Types, Oas3Types } from '../../index.js';
 import { BaseResolver } from '../../resolve.js';
+import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { createConfig } from '../../config/index.js';
+import { Oas2Types, Oas3Types, bundle } from '../../index.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('oas3 filter-in', () => {
   expect.addSnapshotSerializer(yamlSerializer);
@@ -311,6 +315,318 @@ describe('oas2 filter-in', () => {
                 required: false
                 type: integer
 
+    `);
+  });
+});
+
+describe('oas3 filter-in with target: Operation', () => {
+  expect.addSnapshotSerializer(yamlSerializer);
+
+  it('should keep only operations with a matching property value', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              x-public: true
+              summary: List users (public)
+            post:
+              summary: Create user (private)
+          /admin:
+            get:
+              x-public: false
+              summary: Admin only (private)
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-public',
+            value: [true],
+            target: 'Operation',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          get:
+            x-public: true
+            summary: List users (public)
+      components: {}
+
+    `);
+  });
+
+  it('should keep operations with a matching property value AND operations without the property', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              x-public: true
+              summary: List users (public)
+            post:
+              summary: Create user (private)
+          /admin:
+            get:
+              x-public: false
+              summary: Admin only (private)
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-public',
+            value: [true],
+            target: 'Operation',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          get:
+            x-public: true
+            summary: List users (public)
+          post:
+            summary: Create user (private)
+      components: {}
+    `);
+  });
+
+  it('should keep only operations with specified operationIds', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /foo:
+            get:
+              operationId: getFoo
+            post:
+              operationId: createFoo
+          /bar:
+            get:
+              operationId: getBar
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'operationId',
+            value: ['createFoo', 'getBar'],
+            target: 'Operation',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /foo:
+          post:
+            operationId: createFoo
+        /bar:
+          get:
+            operationId: getBar
+      components: {}
+
+    `);
+  });
+
+  it('should keep operations with specified tags', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /foo:
+            get:
+              tags:
+                - public
+            post:
+              summary: Create Foo (no tags)
+          /bar:
+            get:
+              tags:
+                - private
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'tags',
+            value: ['private'],
+            target: 'Operation',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /bar:
+          get:
+            tags:
+              - private
+      components: {}
+
+    `);
+  });
+
+  it('should support matchStrategy: all with target: Operation', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /foo:
+            get:
+              tags:
+                - public
+                - v2
+            post:
+              tags:
+                - public
+          /bar:
+            get:
+              tags:
+                - private
+                - v2
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'tags',
+            value: ['public', 'v2'],
+            target: 'Operation',
+            matchStrategy: 'all',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /foo:
+          get:
+            tags:
+              - public
+              - v2
+      components: {}
+
+    `);
+  });
+
+  it('should remove operations without the specified property', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            get:
+              x-audience: Public
+              summary: Public endpoint
+            post:
+              summary: No audience set
+          /internal:
+            get:
+              summary: No audience at all
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public'],
+            target: 'Operation',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          get:
+            x-audience: Public
+            summary: Public endpoint
+      components: {}
+
+    `);
+  });
+
+  it('should filter referenced operations and remove unused components', async () => {
+    const config = await createConfig({
+      decorators: {
+        'filter-in': {
+          property: 'tags',
+          value: ['internal'],
+          target: 'Operation',
+        },
+        'remove-unused-components': 'on',
+      },
+    });
+    const { bundle: res } = await bundle({
+      config,
+      ref: path.join(__dirname, 'fixtures/filter-in/openapi.yaml'),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.2.0
+      info:
+        title: Example API
+        version: 1.0.0
+      paths:
+        /admin:
+          get:
+            operationId: adminOp
+            tags:
+              - internal
+            responses:
+              '200':
+                description: Success
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/admin-schema'
+      components:
+        schemas:
+          admin-schema:
+            type: object
     `);
   });
 });
