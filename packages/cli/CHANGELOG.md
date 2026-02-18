@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.7
+
+### Patch Changes
+
+- Fixed an issue where running CLI commands would result in "ReferenceError: React is not defined" message.
+- Updated @redocly/openapi-core to v1.34.7.
+
 ## 1.34.6
 
 ### Patch Changes
