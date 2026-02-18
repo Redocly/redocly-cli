@@ -65,7 +65,6 @@ decorators:
 ## Related decorators
 
 - [filter-in](./filter-in.md)
-- [filter-operations](./filter-operations.md)
 - [remove-x-internal](./remove-x-internal.md)
 
 ## Resources

@@ -6,7 +6,6 @@ import { InfoOverride } from '../common/info-override.js';
 import { OperationDescriptionOverride } from '../common/operation-description-override.js';
 import { RemoveXInternal } from '../common/remove-x-internal.js';
 import { TagDescriptionOverride } from '../common/tag-description-override.js';
-import { FilterOperations } from '../common/filters/filter-operations.js';
 import { RemoveUnusedComponents } from './remove-unused-components.js';
 
 export const decorators = {
@@ -17,6 +16,5 @@ export const decorators = {
   'remove-x-internal': RemoveXInternal as Oas2Decorator,
   'filter-in': FilterIn as Oas2Decorator,
   'filter-out': FilterOut as Oas2Decorator,
-  'filter-operations': FilterOperations as Oas2Decorator,
   'remove-unused-components': RemoveUnusedComponents, // always the last one
 };
