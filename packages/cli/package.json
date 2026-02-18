@@ -61,7 +61,7 @@
     "redoc": "2.5.0",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
-    "styled-components": "^6.0.7",
+    "styled-components": "6.3.9",
     "yargs": "17.0.1"
   },
   "devDependencies": {
