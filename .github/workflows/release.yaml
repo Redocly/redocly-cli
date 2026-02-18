@@ -13,6 +13,10 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write
+      pull-requests: write
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
@@ -26,6 +30,8 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Update NPM for trusted publishing
+        run: npm install -g npm@latest
       - name: Install Dependencies
         run: npm ci
 
@@ -43,7 +49,6 @@ jobs:
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   deploy:
     needs: [release]
