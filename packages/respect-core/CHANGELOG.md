@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.19.0
+
+### Patch Changes
+
+- Resolved an issue in Respect where the response list with nested object was not correctly assigned to the output.
+- Updated @redocly/openapi-core to v2.19.0.
+
 ## 2.18.2
 
 ### Patch Changes

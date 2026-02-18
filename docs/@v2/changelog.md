@@ -7,6 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.19.0 (2026-02-18)
+
+### Minor Changes
+
+- Added the `spec-querystring-parameters` rule (OpenAPI 3.2).
+  This rule enforces that `query` and `querystring` are not mixed in the same operation/path parameter set, and that at most one `querystring` parameter is declared per operation or path.
+
+### Patch Changes
+
+- Fixed an issue where running CLI commands would result in "ReferenceError: React is not defined" message.
+- Updated @redocly/respect-core to v2.19.0.
+
 ## 2.18.2 (2026-02-16)
 
 ### Patch Changes

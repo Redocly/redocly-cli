@@ -1,6 +1,6 @@
 {
   "name": "@redocly/respect-core",
-  "version": "2.18.2",
+  "version": "2.19.0",
   "description": "API testing framework core",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -40,7 +40,7 @@
     "@faker-js/faker": "^7.6.0",
     "@noble/hashes": "^1.8.0",
     "@redocly/ajv": "8.17.4",
-    "@redocly/openapi-core": "2.18.2",
+    "@redocly/openapi-core": "2.19.0",
     "ajv": "npm:@redocly/ajv@8.17.4",
     "better-ajv-errors": "^1.2.0",
     "colorette": "^2.0.20",
