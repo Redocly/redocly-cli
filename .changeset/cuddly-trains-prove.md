@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed an issue with broken `styled-components` dependency v6.3.10.
+Fixed an issue where running CLI commands would result in "ReferenceError: React is not defined" message.
