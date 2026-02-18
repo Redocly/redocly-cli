@@ -1,6 +1,6 @@
 # filter-in
 
-Preserves nodes that have specific `property` set to the specific `value` and removes others. Nodes that don't have the `property` defined are not impacted.
+Preserves nodes that have specific `property` set to the specific `value` and removes others.
 
 ## API design principles
 
@@ -8,20 +8,21 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 
 ## Configuration
 
-| Option        | Type     | Description                                                                                                                                                                                                                                                                                                |
-| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| property      | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                                                                                                                                                                      |
-| value         | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                                                                                                                                                        |
-| matchStrategy | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`.                                                                                                                                    |
-| target        | string   | Possible values: `Operation`. When set to `Operation`, filtering is applied only to operations within path items. Operations that lack the specified `property` are removed. Empty path items are cleaned up automatically. When omitted, the default behavior applies to any node in the API description. |
+| Option             | Type     | Description                                                                                                                                                             |
+| ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| property           | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                                   |
+| value              | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                     |
+| matchStrategy      | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
+| target             | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
+| noPropertyStrategy | string   | Possible values: `keep`, `remove` (default value: `keep`). Decides whether to keep nodes without the specified property when `target` is set.                           |
 
-### Default vs. target behavior
+### Explicit vs. implicit target behavior
 
-By default, `filter-in` walks every node in the API description and removes nodes where the property exists but doesn't match the specified values.
+When `target` is explicitly set, the decorator walks through all nodes of that type and keeps those where the `property` matches the specified values.
+Target nodes without the specified property are either kept (when `noPropertyStrategy` is set to `keep`) or removed (when `noPropertyStrategy` is set to `remove`).
+
+If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and keeps those where the property matches the specified values.
 Nodes without the property are left untouched.
-
-When `target` is set, filtering is scoped to it.
-Nodes without the specified property are removed (not preserved).
 
 ## Examples
 
@@ -49,6 +50,7 @@ apis:
         target: Operation
         property: operationId
         value: [createSpecialEvent, listSpecialEvents]
+        noPropertyStrategy: remove
 ```
 
 To apply the decorator, use the `bundle` command:
@@ -74,11 +76,12 @@ decorators:
     target: Operation
     property: x-audience
     value: [Public, Partner]
+    noPropertyStrategy: remove
 ```
 
 Operations without the `x-audience` property are removed, so only explicitly marked operations remain.
 
-### Filter any node (default behavior)
+### Filter any node (implicit target behavior)
 
 You can also use `filter-in` without `target` to filter on other elements, such as parameters, responses, or other OpenAPI items.
 The example `redocly.yaml` shown below includes everything from the OpenAPI description that has an `x-audience` property set to either "Public" or "Partner":
