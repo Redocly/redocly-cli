@@ -12,7 +12,7 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | property           | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                                   |
 | value              | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                     |
-| matchStrategy      | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
+| matchStrategy      | string   | Possible values: `all`, `any`. When `all`, must match all of the values supplied. When `any`, must match only one of the values supplied. Default value: `any`. |
 | target             | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
 | noPropertyStrategy | string   | Possible values: `keep`, `remove` (default value: `keep`). Decides whether to keep nodes without the specified property. Useful with `target`.                          |
 
