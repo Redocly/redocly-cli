@@ -89,10 +89,16 @@ function displayVerboseLogs({
     // Convert FormData to a simple object for display
     const formDataObject: Record<string, any> = {};
     for (const [key, value] of body.entries()) {
-      if (value instanceof File) {
-        formDataObject[key] = `[File: ${value.name}]`;
+      const displayValue = value instanceof File ? `[File: ${value.name}]` : value;
+      // FormData allows multiple values per key (e.g., for lists),
+      // so collecting all values into arrays where appropriate for correct representation.
+      if (key in formDataObject) {
+        const existing = formDataObject[key];
+        formDataObject[key] = Array.isArray(existing)
+          ? [...existing, displayValue]
+          : [existing, displayValue];
       } else {
-        formDataObject[key] = value;
+        formDataObject[key] = displayValue;
       }
     }
     formattedBody = JSON.stringify(formDataObject, null, 2);
