@@ -50,7 +50,7 @@
     "colorette": "^1.2.0",
     "cookie": "^0.7.2",
     "dotenv": "16.4.7",
-    "glob": "^11.0.1",
+    "glob": "^13.0.5",
     "handlebars": "^4.7.6",
     "https-proxy-agent": "^7.0.5",
     "mobx": "^6.0.4",
