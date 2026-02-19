@@ -630,3 +630,149 @@ describe('oas3 filter-in with target: Operation', () => {
     `);
   });
 });
+
+describe('oas3 filter-in with target: PathItem', () => {
+  expect.addSnapshotSerializer(yamlSerializer);
+
+  it('should keep only path items with a matching property value', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            x-audience: Public
+            get:
+              summary: List users
+          /admin:
+            x-audience: Internal
+            get:
+              summary: Admin panel
+          /health:
+            x-audience: Public
+            get:
+              summary: Health check
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public'],
+            target: 'PathItem',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          x-audience: Public
+          get:
+            summary: List users
+        /health:
+          x-audience: Public
+          get:
+            summary: Health check
+      components: {}
+
+    `);
+  });
+
+  it('should keep path items without the property when noPropertyStrategy is keep (default)', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            x-audience: Public
+            get:
+              summary: List users
+          /admin:
+            x-audience: Internal
+            get:
+              summary: Admin panel
+          /health:
+            get:
+              summary: Health check (no audience)
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public'],
+            target: 'PathItem',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          x-audience: Public
+          get:
+            summary: List users
+        /health:
+          get:
+            summary: Health check (no audience)
+      components: {}
+
+    `);
+  });
+
+  it('should remove path items without the property when noPropertyStrategy is remove', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /users:
+            x-audience: Public
+            get:
+              summary: List users
+          /admin:
+            x-audience: Internal
+            get:
+              summary: Admin panel
+          /health:
+            get:
+              summary: Health check (no audience)
+      `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public'],
+            target: 'PathItem',
+            noPropertyStrategy: 'remove',
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /users:
+          x-audience: Public
+          get:
+            summary: List users
+      components: {}
+
+    `);
+  });
+});
