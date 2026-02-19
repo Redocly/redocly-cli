@@ -62,7 +62,26 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
       } as Oas3Visitor;
     }
 
-    throw new Error(`The 'target' option must be 'Operation' when provided.`);
+    if (target === 'PathItem') {
+      return {
+        PathItem: {
+          enter(pathItem: Oas3PathItem<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
+            const propertyValue = (pathItem as any)[property];
+            const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
+            const shouldKeepWhenNoProperty =
+              propertyValue === undefined && noPropertyStrategy !== 'remove';
+
+            if (shouldKeepWhenNoProperty) {
+              // Do nothing, keep the path item if the property is missing and noPropertyStrategy is not set to 'remove'
+            } else if (!shouldKeep) {
+              delete ctx.parent[ctx.key];
+            }
+          },
+        },
+      } as Oas3Visitor;
+    }
+
+    throw new Error(`The 'target' option must be 'Operation' or 'PathItem' when provided.`);
   }
 
   const filterInCriteria = (item: any) =>
