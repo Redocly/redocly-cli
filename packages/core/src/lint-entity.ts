@@ -1,5 +1,10 @@
 import { entityFileDefaultSchema, entityFileSchema } from '@redocly/config';
+import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
+import type { JSONSchema } from 'json-schema-to-ts';
 
+import { createConfig } from './config/index.js';
+import type { Config } from './config/index.js';
+import { lintDocument } from './lint.js';
 import { type SpecVersion } from './oas-types.js';
 import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
 import type { Document } from './resolve.js';
