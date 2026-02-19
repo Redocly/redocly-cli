@@ -1,5 +1,19 @@
 # @redocly/respect-core
 
+## 2.19.1
+
+### Patch Changes
+
+- Fixed an issue in Respect where only the last value for repeated keys in `multipart/form-data` request bodies was shown.
+- Updated @redocly/openapi-core to v2.19.1.
+
+## 2.19.0
+
+### Patch Changes
+
+- Resolved an issue in Respect where the response list with nested object was not correctly assigned to the output.
+- Updated @redocly/openapi-core to v2.19.0.
+
 ## 2.18.2
 
 ### Patch Changes
