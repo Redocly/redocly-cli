@@ -1,4 +1,8 @@
-import { entityFileDefaultSchema, entityFileSchema } from '@redocly/config';
+// Fix issue on yarn and windows with dynamic import of @redocly/config
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { entityFileDefaultSchema, entityFileSchema } = require('@redocly/config');
+
 import { type SpecVersion } from './oas-types.js';
 import {
   createEntityTypes,
