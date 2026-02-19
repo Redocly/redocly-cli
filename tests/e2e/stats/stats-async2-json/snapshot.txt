@@ -1,0 +1,35 @@
+{
+  "refs": {
+    "metric": "🚗 References",
+    "total": 18
+  },
+  "externalDocs": {
+    "metric": "📦 External Documents",
+    "total": 12
+  },
+  "schemas": {
+    "metric": "📈 Schemas",
+    "total": 17
+  },
+  "parameters": {
+    "metric": "👉 Parameters",
+    "total": 0
+  },
+  "channels": {
+    "metric": "📡 Channels",
+    "total": 4
+  },
+  "operations": {
+    "metric": "👷 Operations",
+    "total": 4
+  },
+  "tags": {
+    "metric": "🔖 Tags",
+    "total": 11
+  }
+}
+Document: async.yaml stats:
+
+
+async.yaml: stats processed in <test>ms
+
