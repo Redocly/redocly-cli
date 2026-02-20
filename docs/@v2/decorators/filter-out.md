@@ -14,8 +14,18 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | property      | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                                   |
 | value         | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                     |
 | matchStrategy | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
+| target        | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
+
+### Explicit vs. implicit target behavior
+
+When `target` is explicitly set, the decorator walks through all nodes of that type and removes those where the `property` matches the specified values.
+
+If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and removes those where the property matches the specified values.
+Nodes without the property are left untouched.
 
 ## Examples
+
+### Remove operations by tag
 
 Using the [Museum API](https://github.com/Redocly/museum-openapi-example) (v1.0.0), use the stats command to get a summary of its contents:
 
@@ -38,6 +48,7 @@ apis:
       filter-out:
         property: tags
         value: Events
+        target: Operation
 ```
 
 To apply the decorator to the OpenAPI description, run the `bundle` command, like this:
@@ -53,6 +64,8 @@ Open the output file, `museum-filtered.yaml`, and the endpoints relating to spec
 
 This filtered OpenAPI description can be used to publish documentation or in another part of your API lifecycle where a limited part of your API is needed. Use a single source of truth in an OpenAPI description and allow the filtering to create the reduced version, rather than maintaining two API descriptions.
 
+### Filter any node (implicit target behavior)
+
 You can also use the `filter-out` decorator on arbitrary properties that appear inside any OpenAPI object. For example, the following configuration looks for a property `x-audience` and removes any elements that have this property set to "Internal". Using this approach, you can remove specific parameters, responses, or endpoints from your OpenAPI description.
 
 ```yaml
@@ -61,6 +74,11 @@ decorators:
     property: x-audience
     value: Internal
 ```
+
+In this mode, nodes without the `x-audience` property are preserved.
+This is useful when the property is applied broadly across different types of nodes in your API description.
+
+Use the filter decorators so that you can maintain one complete source of truth, then prepare restricted documents as appropriate for downstream tools such as API reference documentation.
 
 ## Related decorators
 
