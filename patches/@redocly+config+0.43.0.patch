@@ -1,8 +1,8 @@
 diff --git a/node_modules/@redocly/config/package.json b/node_modules/@redocly/config/package.json
-index 3c6422c..e43a75b 100644
+index 3c6422c..934e5e4 100644
 --- a/node_modules/@redocly/config/package.json
 +++ b/node_modules/@redocly/config/package.json
-@@ -5,6 +5,14 @@
+@@ -5,6 +5,13 @@
    "main": "./lib/index.js",
    "module": "./lib-esm/index.js",
    "types": "./lib/index.d.ts",
@@ -10,8 +10,7 @@ index 3c6422c..e43a75b 100644
 +    ".": {
 +      "import": "./lib/index.js",
 +      "require": "./lib/index.js",
-+      "types": "./lib/index.d.ts",
-+      "default": "./lib/index.js"
++      "types": "./lib/index.d.ts"
 +    }
 +  },
    "devDependencies": {
