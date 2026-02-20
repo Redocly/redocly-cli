@@ -1,7 +1,7 @@
-import { checkIfMatchByStrategy, filter } from './filter-helper.js';
-import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isRef } from '../../../ref-utils.js';
+import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { type Oas3Visitor, type Oas2Decorator, type Oas3Decorator } from '../../../visitors.js';
+import { checkIfMatchByStrategy, filter } from './filter-helper.js';
 
 const DEFAULT_STRATEGY = 'any';
 

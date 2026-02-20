@@ -2,11 +2,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { bundleDocument } from '../../bundle/bundle-document.js';
-import { BaseResolver } from '../../resolve.js';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils.js';
+import { bundleDocument } from '../../bundle/bundle-document.js';
 import { createConfig } from '../../config/index.js';
 import { Oas2Types, Oas3Types, bundle } from '../../index.js';
+import { BaseResolver } from '../../resolve.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
