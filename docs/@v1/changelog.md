@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.7
+
+### Patch Changes
+
+- Fixed an issue where running CLI commands would result in "ReferenceError: React is not defined" message.
+- Updated @redocly/openapi-core to v1.34.7.
+
+## 1.34.6
+
+### Patch Changes
+
+- Updated React dependency to avoid vulnerable React version (19.0.0) affected by CVE-2025-55182.
+- Updated @redocly/openapi-core to v1.34.6.
+
 ## 1.34.5 (2025-07-21)
 
 ### Patch Changes
