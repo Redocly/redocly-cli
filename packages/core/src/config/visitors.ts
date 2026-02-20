@@ -52,6 +52,11 @@ export const pluginsCollectorVisitor = normalizeVisitors(
             collectorHandleNode(node, ctx);
           },
         },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
+          leave(node: unknown, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
+          },
+        },
         ConfigRoot: {
           leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
@@ -99,6 +104,11 @@ export const configBundlerVisitor = normalizeVisitors(
           },
         },
         'rootRedoclyConfigSchema.scorecard.levels_items': {
+          leave(node: unknown, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
+          },
+        },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
