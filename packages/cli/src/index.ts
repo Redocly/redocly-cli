@@ -1,42 +1,42 @@
 #!/usr/bin/env node
-import * as path from 'node:path';
-import * as dotenv from 'dotenv';
 import './utils/assert-node-version.js';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import { logger } from '@redocly/openapi-core';
-import { outputExtensions } from './types.js';
-import { handleStats } from './commands/stats.js';
-import { handleSplit } from './commands/split/index.js';
-import { handleJoin } from './commands/join.js';
-import { handlePush } from './reunite/commands/push.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handleLint } from './commands/lint.js';
-import { handleBundle } from './commands/bundle.js';
+import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import * as dotenv from 'dotenv';
+import * as path from 'node:path';
+import yargs from 'yargs';
+import type { Arguments } from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
 import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
-import { commandWrapper } from './wrapper.js';
-import { previewProject } from './commands/preview-project/index.js';
-import { handleTranslations } from './commands/translations.js';
+import type { BuildDocsArgv } from './commands/build-docs/types.js';
+import { handleBundle } from './commands/bundle.js';
 import { handleEject } from './commands/eject.js';
-import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import type { EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
+import { handleJoin } from './commands/join.js';
+import { handleLint } from './commands/lint.js';
+import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
+import { previewProject } from './commands/preview-project/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
-import { version } from './utils/package.js';
-import { validatePositiveNumber } from './utils/validate-positive-number.js';
-import { validateMountPath } from './utils/validate-mount-path.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-
-import type { Arguments } from 'yargs';
-import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
-import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
-import type { EjectArgv } from './commands/eject.js';
+import { handleSplit } from './commands/split/index.js';
+import { handleStats } from './commands/stats.js';
+import { handleTranslations } from './commands/translations.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handlePush } from './reunite/commands/push.js';
+import { outputExtensions } from './types.js';
+import { version } from './utils/package.js';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
+import { validateMountPath } from './utils/validate-mount-path.js';
+import { validatePositiveNumber } from './utils/validate-positive-number.js';
+import { commandWrapper } from './wrapper.js';
 
 dotenv.config({ path: path.resolve(process.cwd(), './.env') });
 

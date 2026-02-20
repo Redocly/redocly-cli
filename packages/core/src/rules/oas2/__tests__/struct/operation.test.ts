@@ -1,4 +1,5 @@
 import { outdent } from 'outdent';
+
 import { lintDoc } from './utils.js';
 
 describe('OpenAPI Schema 2.0', () => {

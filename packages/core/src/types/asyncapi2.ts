@@ -1,4 +1,5 @@
 import { listOf, mapOf } from './index.js';
+import type { NodeType } from './index.js';
 import {
   Dependencies,
   Discriminator,
@@ -6,8 +7,6 @@ import {
   Schema,
   SchemaProperties,
 } from './json-schema-draft7.shared.js';
-
-import type { NodeType } from './index.js';
 
 const Root: NodeType = {
   properties: {

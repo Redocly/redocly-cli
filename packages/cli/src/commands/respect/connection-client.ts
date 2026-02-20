@@ -1,4 +1,5 @@
 import { Client, ProxyAgent, type RequestInfo, type RequestInit, fetch } from 'undici';
+
 import { getProxyUrl } from '../../utils/proxy-agent.js';
 
 export type MtlsCerts = {

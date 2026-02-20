@@ -1,10 +1,9 @@
 import { logger } from '@redocly/openapi-core';
 
 import type { StepCallContext, TestContext } from '../../../../types.js';
-
-import { CHECKS, checkSchema, statusCodeDiff } from '../../../flow-runner/index.js';
-import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
 import { cleanColors } from '../../../../utils/clean-colors.js';
+import { DEFAULT_SEVERITY_CONFIGURATION } from '../../../checks/severity.js';
+import { CHECKS, checkSchema, statusCodeDiff } from '../../../flow-runner/index.js';
 
 describe('checkSchema', () => {
   const stepCallCtx = {
@@ -329,6 +328,7 @@ describe('checkSchema', () => {
   });
 
   it('should catch ajvStrict.validate error', () => {
+    // oxlint-disable-next-line typescript/no-require-imports
     vi.spyOn(require('@redocly/ajv/dist/2020').prototype, 'validate').mockImplementationOnce(() => {
       throw new Error('ajvStrict.validate error');
     });

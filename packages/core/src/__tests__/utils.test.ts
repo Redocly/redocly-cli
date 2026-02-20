@@ -1,17 +1,18 @@
-import { getMatchingStatusCodeRange } from '../utils/get-matching-status-code-range.js';
-import { slash } from '../utils/slash.js';
-import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
-import { isBrowser } from '../env.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { isTruthy } from '../utils/is-truthy.js';
+
+import { isBrowser } from '../env.js';
+import type { Oas3_2Components } from '../typings/openapi.js';
+import { doesYamlFileExist } from '../utils/does-yaml-file-exist.js';
+import { getMatchingStatusCodeRange } from '../utils/get-matching-status-code-range.js';
+import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { isNotEmptyArray } from '../utils/is-not-empty-array.js';
 import { isNotEmptyObject } from '../utils/is-not-empty-object.js';
+import { isTruthy } from '../utils/is-truthy.js';
+import { hasComponent } from '../utils/oas-has-component.js';
+import { slash } from '../utils/slash.js';
 import { splitCamelCaseIntoWords } from '../utils/split-camel-case-into-words.js';
 import { validateMimeType, validateMimeTypeOAS3 } from '../utils/validate-mime-type.js';
-import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
-import { hasComponent } from '../utils/oas-has-component.js';
-import type { Oas3_2Components } from '../typings/openapi.js';
 
 vi.mock('node:fs');
 vi.mock('node:path');

@@ -2,7 +2,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { JSON_SCHEMA, types, load, dump } from 'js-yaml';
-
 import type { LoadOptions, DumpOptions } from 'js-yaml';
 
 const DEFAULT_SCHEMA_WITHOUT_TIMESTAMP = JSON_SCHEMA.extend({

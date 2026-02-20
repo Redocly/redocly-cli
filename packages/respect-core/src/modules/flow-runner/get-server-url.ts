@@ -1,9 +1,8 @@
-import { getValueFromContext } from '../context-parser/index.js';
-import { formatCliInputs } from './inputs/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/evaluate.js';
-
 import type { ExtendedOperation, TestContext } from '../../types.js';
+import { getValueFromContext } from '../context-parser/index.js';
 import type { OperationDetails } from '../description-parser/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/evaluate.js';
+import { formatCliInputs } from './inputs/index.js';
 
 export type GetServerUrlInput = {
   ctx: TestContext;

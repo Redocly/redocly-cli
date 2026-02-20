@@ -1,5 +1,5 @@
-import { listOf, mapOf, type NodeType } from './index.js';
 import { isMappingRef } from '../ref-utils.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 

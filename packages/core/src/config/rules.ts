@@ -1,5 +1,3 @@
-import { isDefined } from '../utils/is-defined.js';
-
 import type {
   Arazzo1RuleSet,
   Async2RuleSet,
@@ -10,8 +8,9 @@ import type {
   OpenRpc1RuleSet,
   SpecVersion,
 } from '../oas-types.js';
-import type { Config } from './config.js';
+import { isDefined } from '../utils/is-defined.js';
 import type { ProblemSeverity } from '../walk.js';
+import type { Config } from './config.js';
 
 type InitializedRule = {
   severity: ProblemSeverity;

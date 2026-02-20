@@ -1,35 +1,35 @@
 import { entityFileDefaultSchema, entityFileSchema } from '@redocly/config';
+import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
+import type { JSONSchema } from 'json-schema-to-ts';
+
+import { createConfig } from './config/index.js';
+import type { Config } from './config/index.js';
+import { lintDocument } from './lint.js';
 import { type SpecVersion } from './oas-types.js';
+import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
+import type { Document } from './resolve.js';
+import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
+import { Assertions } from './rules/common/assertions/index.js';
+import type { Assertion } from './rules/common/assertions/index.js';
+import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
+import { Struct } from './rules/common/struct.js';
 import {
   createEntityTypes,
   ENTITY_DISCRIMINATOR_PROPERTY_NAME,
   ENTITY_TYPES_WITH_API_SUPPORT,
 } from './types/entity.js';
-import { Struct } from './rules/common/struct.js';
-import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
-import { normalizeVisitors } from './visitors.js';
-import { walkDocument } from './walk.js';
-import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import { createConfig } from './config/index.js';
+import { normalizeTypes } from './types/index.js';
+import { isEmptyObject } from './utils/is-empty-object.js';
 import { isPlainObject } from './utils/is-plain-object.js';
-import { Assertions } from './rules/common/assertions/index.js';
 import {
   categorizeAssertions,
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
 } from './utils/scorecards.js';
-import { isEmptyObject } from './utils/is-empty-object.js';
-import { normalizeTypes } from './types/index.js';
-import { lintDocument } from './lint.js';
-
-import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
-import type { Assertion } from './rules/common/assertions/index.js';
-import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
+import { normalizeVisitors } from './visitors.js';
 import type { BaseVisitor, NestedVisitObject, RuleInstanceConfig } from './visitors.js';
-import type { JSONSchema } from 'json-schema-to-ts';
-import type { Config } from './config/index.js';
-import type { Document } from './resolve.js';
+import { walkDocument } from './walk.js';
+import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
 
 export async function lintEntityFile(opts: {
   document: Document;

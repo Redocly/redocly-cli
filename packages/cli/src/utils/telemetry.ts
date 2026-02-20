@@ -1,22 +1,22 @@
-import * as os from 'node:os';
-import * as fs from 'node:fs';
-import { execSync } from 'node:child_process';
+import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
 import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
-import { version } from './package.js';
-import { getReuniteUrl } from '../reunite/api/index.js';
-import { respondWithinMs } from './network-check.js';
+import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
+import { execSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import { existsSync, writeFileSync, readFileSync } from 'node:fs';
+import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { existsSync, writeFileSync, readFileSync } from 'node:fs';
-import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
-import { ulid } from 'ulid';
-
-import type { ExitCode } from './miscellaneous.js';
-import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
+import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
+
+import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
-import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
+import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
+import type { ExitCode } from './miscellaneous.js';
+import { respondWithinMs } from './network-check.js';
+import { version } from './package.js';
 
 const SECRET_REPLACEMENT = '***';
 

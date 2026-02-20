@@ -1,6 +1,7 @@
 import { isBrowser, pluralize } from '@redocly/openapi-core';
-import { red, yellow, bold, blue } from 'colorette';
 import { type LoggerInterface, type Totals } from '@redocly/openapi-core';
+import { red, yellow, bold, blue } from 'colorette';
+
 import { type Check, type VerboseLog, type Step } from '../../types.js';
 import { displayChecks } from './display-checks.js';
 

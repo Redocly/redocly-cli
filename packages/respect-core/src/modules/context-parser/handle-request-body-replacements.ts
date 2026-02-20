@@ -1,7 +1,8 @@
-import JsonPointerLib from 'json-pointer';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
 import { type LoggerInterface } from '@redocly/openapi-core';
+import JsonPointerLib from 'json-pointer';
+
+import { type RuntimeExpressionContext, type Replacement } from '../../types.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 
 export function handlePayloadReplacements({
   payload,

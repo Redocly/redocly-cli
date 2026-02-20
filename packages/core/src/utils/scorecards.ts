@@ -1,10 +1,10 @@
 import { NODE_TYPE_NAMES } from '@redocly/config';
-import { dequal } from './dequal.js';
-import { isPlainObject } from './is-plain-object.js';
 
-import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
 import type { RuleConfig } from '../config/types.js';
 import type { Document } from '../resolve.js';
+import type { Assertion, RawAssertion } from '../rules/common/assertions/index.js';
+import { dequal } from './dequal.js';
+import { isPlainObject } from './is-plain-object.js';
 
 export type AssertionConfig = Record<string, Assertion | RuleConfig>;
 
