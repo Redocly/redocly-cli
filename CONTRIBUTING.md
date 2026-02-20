@@ -37,7 +37,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v18.17.0+ and NPM v10.8.2+ are required.
+[Node.js](http://nodejs.org) at v18.17.0+ and `<=22` and NPM v10.8.2+ are required.
 
 After forking the repo, run:
 
@@ -270,6 +270,8 @@ After merging a PR with a changeset, the release PR is automatically created.
 
 If the pipelines are not starting, close and reopen the PR.
 Merging that PR triggers the release process under the `v1-archive` label.
+
+After each release, manually update the `docs v1` changelog on the `main` branch.
 
 ### Revert a release
 
