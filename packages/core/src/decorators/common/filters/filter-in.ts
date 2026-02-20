@@ -1,8 +1,6 @@
 import { checkIfMatchByStrategy, filter } from './filter-helper.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isRef } from '../../../ref-utils.js';
-import { type Oas3PathItem, type Oas3Schema, type Oas3_1Schema } from '../../../typings/openapi.js';
-import { type UserContext } from '../../../walk.js';
 import { type Oas3Visitor, type Oas2Decorator, type Oas3Decorator } from '../../../visitors.js';
 
 const DEFAULT_STRATEGY = 'any';
@@ -32,7 +30,7 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
 
       return {
         PathItem: {
-          enter(pathItem: Oas3PathItem<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
+          enter(pathItem, ctx) {
             for (const method of httpMethods) {
               const operation = isRef(pathItem[method])
                 ? ctx.resolve(pathItem[method]).node
@@ -65,8 +63,8 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
     if (target === 'PathItem') {
       return {
         PathItem: {
-          enter(pathItem: Oas3PathItem<Oas3Schema | Oas3_1Schema>, ctx: UserContext) {
-            const propertyValue = (pathItem as any)[property];
+          enter(pathItem, ctx) {
+            const propertyValue = (pathItem as Record<string, unknown>)[property];
             const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
             const shouldKeepWhenNoProperty =
               propertyValue === undefined && noPropertyStrategy !== 'remove';
