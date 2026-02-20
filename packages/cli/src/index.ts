@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import './utils/assert-node-version.js';
+
 import { logger } from '@redocly/openapi-core';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
