@@ -10,6 +10,7 @@
   },
   "engineStrict": true,
   "scripts": {
+    "postinstall": "patch-package",
     "test": "npm run compile && npm run typecheck && npm run unit && npm run e2e",
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
@@ -63,6 +64,7 @@
     "outdent": "^0.7.1",
     "oxfmt": "^0.28.0",
     "oxlint": "^1.43.0",
+    "patch-package": "^8.0.1",
     "pegjs": "0.11.0-master.b7b87ea",
     "slackify-markdown": "^4.3.1",
     "tsx": "^4.19.3",
