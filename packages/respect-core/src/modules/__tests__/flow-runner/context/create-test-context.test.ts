@@ -1,12 +1,12 @@
 import { createConfig, logger } from '@redocly/openapi-core';
-import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
 
-import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import {
   createTestContext,
   DEFAULT_SEVERITY_CONFIGURATION,
   collectSecretValues,
 } from '../../../../modules/flow-runner/index.js';
+import type { TestDescription, AppOptions, TestContext, Step } from '../../../../types.js';
+import { ApiFetcher } from '../../../../utils/api-fetcher.js';
 
 describe('createTestContext', () => {
   it('should create context', async () => {

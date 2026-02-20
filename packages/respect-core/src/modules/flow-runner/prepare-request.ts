@@ -3,22 +3,7 @@ import {
   type ExtendedSecurity,
   type Oas3SecurityScheme,
 } from '@redocly/openapi-core';
-import {
-  getOperationFromDescriptionBySource,
-  getRequestBodySchema,
-  getRequestDataFromOpenApi,
-} from '../description-parser/index.js';
-import {
-  parseRequestBody,
-  resolveReusableComponentItem,
-  isParameterWithIn,
-  handlePayloadReplacements,
-} from '../context-parser/index.js';
-import { getServerUrl } from './get-server-url.js';
-import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
-import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
-import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
-import { type ParameterWithIn } from '../context-parser/index.js';
+
 import {
   type TestContext,
   type Step,
@@ -26,7 +11,23 @@ import {
   type PublicStep,
   type OperationMethod,
 } from '../../types.js';
+import {
+  parseRequestBody,
+  resolveReusableComponentItem,
+  isParameterWithIn,
+  handlePayloadReplacements,
+} from '../context-parser/index.js';
+import { type ParameterWithIn } from '../context-parser/index.js';
+import {
+  getOperationFromDescriptionBySource,
+  getRequestBodySchema,
+  getRequestDataFromOpenApi,
+} from '../description-parser/index.js';
 import { type OperationDetails } from '../description-parser/index.js';
+import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
+import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
+import { getServerUrl } from './get-server-url.js';
+import { resolveXSecurityParameters } from './resolve-x-security-parameters.js';
 
 export type RequestData = {
   serverUrl?: {

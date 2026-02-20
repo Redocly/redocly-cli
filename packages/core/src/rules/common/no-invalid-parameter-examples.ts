@@ -1,9 +1,8 @@
-import { validateExample } from '../utils.js';
+import type { Oas3Parameter } from '../../typings/openapi.js';
 import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
-
 import type { UserContext } from '../../walk.js';
-import type { Oas3Parameter } from '../../typings/openapi.js';
+import { validateExample } from '../utils.js';
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
   return {

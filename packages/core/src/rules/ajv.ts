@@ -1,18 +1,18 @@
-import addFormats from 'ajv-formats';
 import Ajv2020 from '@redocly/ajv/dist/2020.js';
-import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
-import { escapePointerFragment } from '../ref-utils.js';
-
 import type {
   ErrorObject,
   ValidateFunction,
   Context as AjvContext,
   Options,
 } from '@redocly/ajv/dist/2020.js';
-import type { Location } from '../ref-utils.js';
-import type { ResolveFn } from '../walk.js';
+import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
+import addFormats from 'ajv-formats';
+
 import type { SpecVersion } from '../oas-types.js';
+import { escapePointerFragment } from '../ref-utils.js';
+import type { Location } from '../ref-utils.js';
 import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
+import type { ResolveFn } from '../walk.js';
 
 type AjvDialect = '2020' | 'draft4';
 type AnyAjv = Ajv2020 | AjvDraft4;

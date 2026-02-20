@@ -1,6 +1,6 @@
-import type { RuntimeExpressionContext } from '../../../types.js';
-
 import { logger } from '@redocly/openapi-core';
+
+import type { RuntimeExpressionContext } from '../../../types.js';
 import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
@@ -436,14 +436,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
     } as unknown as RuntimeExpressionContext;
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`some string value == \"some string value\"`);
+    ).toEqual(`some string value == "some string value"`);
   });
 
   it('should evaluate runctime expressions with url comparison', () => {
     const payload = '$url == "http://example.com"';
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`http://example.com == \"http://example.com\"`);
+    ).toEqual(`http://example.com == "http://example.com"`);
   });
 
   it('should evaluate requestBody object with runtime expression values', () => {
@@ -644,7 +644,6 @@ describe('evaluateRuntimeExpression', () => {
       '$workflows.workflow1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
     const expression3 =
       '$steps.step1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
-    const expression4 = '$outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression5 =
       '$workflows.workflow1.outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression6 =

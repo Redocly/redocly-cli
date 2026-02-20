@@ -1,6 +1,5 @@
-import { resolveReusableObjectReference } from './resolve-reusable-object-reference.js';
-
 import type { OnFailureObject, OnSuccessObject, Parameter, TestContext } from '../../types.js';
+import { resolveReusableObjectReference } from './resolve-reusable-object-reference.js';
 
 export function resolveReusableComponentItem<
   T extends OnSuccessObject | OnFailureObject | Parameter,

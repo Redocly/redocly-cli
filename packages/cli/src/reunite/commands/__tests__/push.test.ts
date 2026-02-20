@@ -1,10 +1,11 @@
+import { slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { handlePush } from '../push.js';
-import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
-import { MockInstance } from 'vitest';
-import { slash } from '@redocly/openapi-core';
+import { type MockInstance } from 'vitest';
+
 import { version } from '../../../utils/package.js';
+import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
+import { handlePush } from '../push.js';
 
 const remotes = {
   push: vi.fn(),
@@ -31,7 +32,7 @@ describe('handlePush()', () => {
         ReuniteApi: vi.fn(),
       };
     });
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any, ...args): any {
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
       this.reportSunsetWarnings = vi.fn();
     });

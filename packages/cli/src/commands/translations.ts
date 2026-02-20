@@ -1,9 +1,9 @@
-import { spawn } from 'node:child_process';
 import { logger } from '@redocly/openapi-core';
-import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/platform.js';
+import { spawn } from 'node:child_process';
 
-import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
+import { getPlatformSpawnArgs, sanitizeLocale, sanitizePath } from '../utils/platform.js';
+import type { CommandArgs } from '../wrapper.js';
 
 export type TranslationsArgv = {
   locale: string;

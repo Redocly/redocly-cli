@@ -1,12 +1,12 @@
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { version } from './package.js';
-import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
+import type { CloudEvents } from '@redocly/cli-otel';
 import { ulid } from 'ulid';
 
-import type { CloudEvents } from '@redocly/cli-otel';
+import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
+import { version } from './package.js';
 
 export class OtelServerTelemetry {
   private nodeTracerProvider: NodeTracerProvider;

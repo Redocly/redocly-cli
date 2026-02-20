@@ -1,6 +1,6 @@
 import { logger } from '@redocly/openapi-core';
-import type { VerboseLog } from '../../../types.js';
 
+import type { VerboseLog } from '../../../types.js';
 import { displayChecks } from '../../logger-output/display-checks.js';
 
 describe('displayChecks', () => {

@@ -1,8 +1,9 @@
-import { RedoclyOAuthClient } from '../oauth-client.js';
-import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
+import * as path from 'node:path';
+
+import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
+import { RedoclyOAuthClient } from '../oauth-client.js';
 
 describe('RedoclyOAuthClient', () => {
   const mockBaseUrl = 'https://test.redocly.com';

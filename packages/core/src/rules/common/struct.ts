@@ -1,10 +1,7 @@
-import { isNamedType, SpecExtension } from '../../types/index.js';
-import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 import { isRef } from '../../ref-utils.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
+import { isNamedType, SpecExtension } from '../../types/index.js';
 import { getOwn } from '../../utils/get-own.js';
-
-import type { UserContext } from '../../walk.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
 import type {
   Oas3Rule,
   Oas2Rule,
@@ -14,6 +11,8 @@ import type {
   Overlay1Rule,
   OpenRpc1Rule,
 } from '../../visitors.js';
+import type { UserContext } from '../../walk.js';
+import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils.js';
 
 export const Struct:
   | Oas3Rule

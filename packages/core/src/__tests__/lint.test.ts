@@ -1,14 +1,15 @@
+import { rootRedoclyConfigSchema } from '@redocly/config';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
+import { describe, it, expect } from 'vitest';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
+import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
+import { detectSpec } from '../detect-spec.js';
 import { lintFromString, lintConfig, lintDocument, lint } from '../lint.js';
 import { BaseResolver } from '../resolve.js';
-import { createConfig, loadConfig, loadIgnoreConfig } from '../config/load.js';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils.js';
-import { detectSpec } from '../detect-spec.js';
-import { rootRedoclyConfigSchema } from '@redocly/config';
 import { createConfigTypes } from '../types/redocly-yaml.js';
-import { fileURLToPath } from 'node:url';
-import { describe, it, expect } from 'vitest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

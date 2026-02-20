@@ -1,10 +1,10 @@
-import { logger, createConfig, lintDocument, pluralize } from '@redocly/openapi-core';
-import { evaluatePluginsFromCode } from './plugin-evaluator.js';
-import { exitWithError } from '../../../utils/error.js';
-
 import type { ScorecardConfig } from '@redocly/config';
+import { logger, createConfig, lintDocument, pluralize } from '@redocly/openapi-core';
 import type { Document, RawUniversalConfig, Plugin, BaseResolver } from '@redocly/openapi-core';
+
+import { exitWithError } from '../../../utils/error.js';
 import type { ScorecardProblem } from '../types.js';
+import { evaluatePluginsFromCode } from './plugin-evaluator.js';
 
 export type ScorecardValidationResult = {
   problems: ScorecardProblem[];

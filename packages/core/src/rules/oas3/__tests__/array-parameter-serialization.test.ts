@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
+
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
+import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
-import { createConfig } from '../../../config/index.js';
 
 describe('oas3 array-parameter-serialization', () => {
   it('should report on array parameter without style and explode', async () => {

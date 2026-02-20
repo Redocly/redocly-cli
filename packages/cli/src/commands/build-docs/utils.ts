@@ -1,15 +1,15 @@
-import { createElement } from 'react';
-import { default as redoc } from 'redoc';
-import { renderToString } from 'react-dom/server';
-import { ServerStyleSheet } from 'styled-components';
-import { default as handlebars } from 'handlebars';
-import * as path from 'node:path';
-import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import * as url from 'node:url';
-import { exitWithError } from '../../utils/error.js';
-
 import type { Config } from '@redocly/openapi-core';
+import { default as handlebars } from 'handlebars';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import * as path from 'node:path';
+import * as url from 'node:url';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { default as redoc } from 'redoc';
+import { ServerStyleSheet } from 'styled-components';
+
+import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions } from './types.js';
 
 const __internalDirname = import.meta.url

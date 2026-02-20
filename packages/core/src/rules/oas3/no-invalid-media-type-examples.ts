@@ -1,13 +1,13 @@
-import { isRef } from '../../ref-utils.js';
-import { validateExample } from '../utils.js';
-import { isDefined } from '../../utils/is-defined.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
+import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 
-import type { Oas3Rule } from '../../visitors.js';
+import { isRef } from '../../ref-utils.js';
 import type { Location } from '../../ref-utils.js';
 import type { Oas3Example, Oas3MediaType } from '../../typings/openapi.js';
+import { isDefined } from '../../utils/is-defined.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
+import type { Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
-import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
+import { validateExample } from '../utils.js';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
   const skip = (mediaType: Oas3MediaType) => {

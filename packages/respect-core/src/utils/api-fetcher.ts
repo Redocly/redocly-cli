@@ -1,5 +1,17 @@
-import { bgRed, inverse } from 'colorette';
 import { isPlainObject } from '@redocly/openapi-core';
+import { bgRed, inverse } from 'colorette';
+
+import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
+import { resolvePath } from '../modules/context-parser/index.js';
+import { getResponseSchema } from '../modules/description-parser/index.js';
+import { collectSecretValues } from '../modules/flow-runner/index.js';
+import { type RequestData } from '../modules/flow-runner/index.js';
+import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
+import {
+  getVerboseLogs,
+  conditionallyMaskSecrets,
+  findPotentiallySecretObjectFields,
+} from '../modules/logger-output/index.js';
 import {
   type OperationMethod,
   type VerboseLog,
@@ -7,21 +19,10 @@ import {
   type ResponseContext,
   type Step,
 } from '../types.js';
-import { isEmpty } from './is-empty.js';
-import { resolvePath } from '../modules/context-parser/index.js';
-import {
-  getVerboseLogs,
-  conditionallyMaskSecrets,
-  findPotentiallySecretObjectFields,
-} from '../modules/logger-output/index.js';
-import { getResponseSchema } from '../modules/description-parser/index.js';
-import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
-import { collectSecretValues } from '../modules/flow-runner/index.js';
-import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
-import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { isBinaryContentType } from './binary-content-type-checker.js';
-import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
-import { type RequestData } from '../modules/flow-runner/index.js';
+import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
+import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
+import { isEmpty } from './is-empty.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
