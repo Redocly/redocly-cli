@@ -1,8 +1,4 @@
-// Fix issue on yarn and windows with dynamic import of @redocly/config
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const { NODE_TYPE_NAMES } = require('@redocly/config');
-
+import { NODE_TYPE_NAMES } from '@redocly/config';
 import { dequal } from './dequal.js';
 import { isPlainObject } from './is-plain-object.js';
 
