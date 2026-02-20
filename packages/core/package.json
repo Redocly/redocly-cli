@@ -21,6 +21,9 @@
     "npm": ">=10"
   },
   "engineStrict": true,
+  "scripts": {
+    "postinstall": "patch-package"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -59,6 +62,7 @@
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
+    "patch-package": "^8.0.1",
     "picomatch": "^4.0.3",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
