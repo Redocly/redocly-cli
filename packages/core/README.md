@@ -1,4 +1,4 @@
-# openapi-core
+# openapi-core test fix
 
 See https://github.com/Redocly/redocly-cli
 
