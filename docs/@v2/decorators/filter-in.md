@@ -10,7 +10,7 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 
 | Option             | Type     | Description                                                                                                                                                     |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| property           | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                           |
+| property           | string   | **REQUIRED.** The property name used for evaluation. Attempts to match the values.                                                                           |
 | value              | [string] | **REQUIRED.** List of values used for the matching.                                                                                                             |
 | matchStrategy      | string   | Possible values: `all`, `any`. When `all`, must match all of the values supplied. When `any`, must match only one of the values supplied. Default value: `any`. |
 | target             | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                |
@@ -22,7 +22,7 @@ When `target` is explicitly set, the decorator walks through all nodes of that t
 Target nodes without the specified property are either kept (when `noPropertyStrategy` is set to `keep`) or removed (when `noPropertyStrategy` is set to `remove`).
 
 If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and keeps those where the property matches the specified values.
-Nodes without the property are left untouched.
+Nodes without the property are left unchanged.
 
 ## Examples
 
