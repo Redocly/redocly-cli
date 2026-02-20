@@ -54,7 +54,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@types/node": "^22.15.3",
-    "@vitest/coverage-istanbul": "^3.0.9",
+    "@vitest/coverage-istanbul": "^4.0.18",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
