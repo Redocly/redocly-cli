@@ -151,6 +151,15 @@ The below rules are being migrated to Respect:
 - [x-security-scheme-name-reference](./respect/x-security-scheme-name-reference.md): when multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must reference a source description (for example, `$sourceDescriptions.{name}.schemeName`)
 - [x-security-scheme-required-values](./respect/x-security-scheme-required-values.md) validate that `x-security` have all required `values` described according to the used `scheme`.
 
+## Overlay rules
+
+Rules for the main Overlay specification format.
+
+### Overlay
+
+- [info-contact](./overlay/info-contact.md): Contact section is defined under `info`
+- [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
+
 ## Open-RPC rules
 
 Use the rules in this section for Open-RPC specific linting.
