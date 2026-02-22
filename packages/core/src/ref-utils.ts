@@ -86,7 +86,12 @@ export function refBaseName(ref: string) {
 }
 
 export function isAbsoluteUrl(ref: string) {
-  return ref.startsWith('http://') || ref.startsWith('https://') || ref.startsWith('file://');
+  return (
+    ref.startsWith('http://') ||
+    ref.startsWith('https://') ||
+    ref.startsWith('file://') ||
+    ref.startsWith('data:')
+  );
 }
 
 export function getDir(filePath: string): string {
