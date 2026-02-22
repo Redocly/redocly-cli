@@ -195,6 +195,12 @@ describe('ref-utils', () => {
       expect(isAbsoluteUrl('file:///Users/test/api.yaml')).toBe(true);
     });
 
+    it('should return true for data: URLs', () => {
+      expect(isAbsoluteUrl('data:text/plain;base64,SGVsbG8gV29ybGQ=')).toBe(true);
+      expect(isAbsoluteUrl('data:application/json,{"test":"value"}')).toBe(true);
+      expect(isAbsoluteUrl('data:,simple%20text')).toBe(true);
+    });
+
     it('should return false for relative and absolute file paths', () => {
       expect(isAbsoluteUrl('./api.yaml')).toBe(false);
       expect(isAbsoluteUrl('../api.yaml')).toBe(false);

@@ -435,4 +435,88 @@ describe('collect refs', () => {
 
     expect(Array.from(resolvedRefs.values()).pop()!.error).toBeInstanceOf(Error);
   });
+
+  describe('data URL support', () => {
+    it('should parse base64-encoded data URLs', async () => {
+      const resolver = new BaseResolver();
+      const data = 'Hello World';
+      const base64Data = Buffer.from(data).toString('base64');
+      const dataUrl = `data:text/plain;base64,${base64Data}`;
+
+      const source = await resolver.loadExternalRef(dataUrl);
+
+      expect(source.body).toBe(data);
+      expect(source.mimeType).toBe('text/plain');
+      expect(source.absoluteRef).toBe(dataUrl);
+    });
+
+    it('should parse URL-encoded data URLs', async () => {
+      const resolver = new BaseResolver();
+      const data = '{"test": "value"}';
+      const dataUrl = `data:application/json,${encodeURIComponent(data)}`;
+
+      const source = await resolver.loadExternalRef(dataUrl);
+
+      expect(source.body).toBe(data);
+      expect(source.mimeType).toBe('application/json');
+      expect(source.absoluteRef).toBe(dataUrl);
+    });
+
+    it('should parse plain data URLs without mime type', async () => {
+      const resolver = new BaseResolver();
+      const data = 'simple text';
+      const dataUrl = `data:,${encodeURIComponent(data)}`;
+
+      const source = await resolver.loadExternalRef(dataUrl);
+
+      expect(source.body).toBe(data);
+      expect(source.absoluteRef).toBe(dataUrl);
+    });
+
+    it('should parse YAML content from base64 data URL', async () => {
+      const resolver = new BaseResolver();
+      const yaml = 'type: string\ndescription: A test schema';
+      const base64Data = Buffer.from(yaml).toString('base64');
+      const dataUrl = `data:application/yaml;base64,${base64Data}`;
+
+      const source = await resolver.loadExternalRef(dataUrl);
+
+      expect(source.body).toBe(yaml);
+      expect(source.mimeType).toBe('application/yaml');
+    });
+
+    it('should resolve refs to data URLs', async () => {
+      const schemaData = 'type: string\ndescription: A test schema';
+      const base64Data = Buffer.from(schemaData).toString('base64');
+      const dataUrl = `data:application/yaml;base64,${base64Data}`;
+
+      const rootDocument = parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              TestSchema:
+                $ref: "${dataUrl}"
+        `,
+        'test.yaml'
+      );
+
+      const resolvedRefs = await resolveDocument({
+        rootDocument,
+        externalRefResolver: new BaseResolver(),
+        rootType: normalizeTypes(Oas3Types).Root,
+      });
+
+      expect(resolvedRefs).toBeDefined();
+      expect(resolvedRefs.size).toEqual(1);
+      const resolvedRef = Array.from(resolvedRefs.values())[0];
+      expect(resolvedRef.resolved).toBe(true);
+      if (resolvedRef.resolved) {
+        expect(resolvedRef.node).toEqual({
+          type: 'string',
+          description: 'A test schema',
+        });
+      }
+    });
+  });
 });
