@@ -2,7 +2,6 @@ import type { Attributes } from '@opentelemetry/api';
 import type { CloudEvents } from '@redocly/cli-otel';
 
 type CloudEventMapperResult = CloudEvents.cloudEvents.CloudEventMapperResult;
-type CloudEventBaseAttributes = Record<string, string | number | undefined>;
 type OtelClientConfig = {
   version?: string;
   serviceName?: string;
@@ -30,7 +29,7 @@ function buildBaseAttributes(
   cloudEvent: CloudEventMapperResult,
   time: Date,
   config?: OtelClientConfig | null
-): CloudEventBaseAttributes {
+): Attributes {
   const timeStr = time instanceof Date ? time.toISOString() : new Date(time).toISOString();
   return {
     'cloudevents.event_id': cloudEvent.id,
