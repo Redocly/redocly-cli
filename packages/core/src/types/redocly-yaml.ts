@@ -594,8 +594,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
     'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
-    'rootRedoclyConfigSchema.scorecardClassic.levels_items.rules_additionalProperties':
-      createScorecardLevelsItems(nodeTypes),
+    'rootRedoclyConfigSchema.scorecardClassic.levels_items': createScorecardLevelsItems(nodeTypes),
   };
 }
 
