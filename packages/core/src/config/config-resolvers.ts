@@ -1,14 +1,29 @@
-import * as path from 'node:path';
-import * as url from 'node:url';
 import * as fs from 'node:fs';
 import module from 'node:module';
+import * as path from 'node:path';
+import * as url from 'node:url';
+
+import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
+import { isBrowser } from '../env.js';
+import { colorize, logger } from '../logger.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { isNotString } from '../utils/is-not-string.js';
-import { isString } from '../utils/is-string.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { isDefined } from '../utils/is-defined.js';
 import { resolveDocument, BaseResolver, Source } from '../resolve.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
+import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
+import { isDefined } from '../utils/is-defined.js';
+import { isNotString } from '../utils/is-not-string.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { defaultPlugin } from './builtIn.js';
+import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
+import { getResolveConfig } from './get-resolve-config.js';
+import type {
+  Plugin,
+  RawUniversalConfig,
+  ResolvedConfig,
+  RawGovernanceConfig,
+  ImportedPlugin,
+} from './types.js';
 import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
@@ -17,21 +32,6 @@ import {
   parsePresetName,
   prefixRules,
 } from './utils.js';
-import { getResolveConfig } from './get-resolve-config.js';
-import { isBrowser } from '../env.js';
-import { colorize, logger } from '../logger.js';
-import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
-import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
-
-import type {
-  Plugin,
-  RawUniversalConfig,
-  ResolvedConfig,
-  RawGovernanceConfig,
-  ImportedPlugin,
-} from './types.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
 
 // Cache instantiated plugins during a single execution
 const pluginsCache: Map<string, Plugin[]> = new Map();

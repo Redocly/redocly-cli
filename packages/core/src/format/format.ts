@@ -1,15 +1,15 @@
 import * as path from 'node:path';
-import { colorOptions, colorize, logger } from '../logger.js';
-import { getCodeframe, getLineColLocation } from './codeframes.js';
-import { env, isBrowser } from '../env.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
 
+import { env, isBrowser } from '../env.js';
+import { colorOptions, colorize, logger } from '../logger.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
 import type {
   NormalizedProblem,
   ProblemSeverity,
   LineColLocationObject,
   LocationObject,
 } from '../walk.js';
+import { getCodeframe, getLineColLocation } from './codeframes.js';
 
 export type Totals = {
   errors: number;

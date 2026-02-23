@@ -1,11 +1,12 @@
-import { outdent } from 'outdent';
-import * as path from 'node:path';
-import { resolveDocument, BaseResolver, Document } from '../resolve.js';
-import { parseYamlToDocument } from '../../__tests__/utils.js';
-import { Oas3Types } from '../types/oas3.js';
-import { normalizeTypes } from '../types/index.js';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
+
+import { parseYamlToDocument } from '../../__tests__/utils.js';
+import { resolveDocument, BaseResolver, type Document } from '../resolve.js';
+import { normalizeTypes } from '../types/index.js';
+import { Oas3Types } from '../types/oas3.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -356,7 +357,7 @@ describe('collect refs', () => {
 
     expect(rootDocument).toBeDefined();
 
-    // @ts-ignore
+    // @ts-expect-error
     Oas3Types.Info.properties.description['referenceable'] = true;
     const resolvedRefs = await resolveDocument({
       rootDocument: rootDocument as Document,

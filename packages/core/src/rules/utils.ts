@@ -1,9 +1,7 @@
-import { default as levenshtein } from 'js-levenshtein';
-import { Location } from '../ref-utils.js';
-import { validateJsonSchema } from './ajv.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-
 import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
+import { default as levenshtein } from 'js-levenshtein';
+
+import { Location } from '../ref-utils.js';
 import type {
   Oas3Schema,
   Oas3Tag,
@@ -12,7 +10,9 @@ import type {
   Referenced,
 } from '../typings/openapi.js';
 import type { Oas2Tag } from '../typings/swagger.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import type { UserContext } from '../walk.js';
+import { validateJsonSchema } from './ajv.js';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {

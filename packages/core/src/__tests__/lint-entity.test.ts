@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { outdent } from 'outdent';
 import { entityFileDefaultSchema, entityFileSchema } from '@redocly/config';
+import { outdent } from 'outdent';
+import { describe, it, expect } from 'vitest';
+
 import { lintEntityFile, lintEntityWithScorecardLevel } from '../lint-entity.js';
 import { makeDocumentFromString } from '../resolve.js';
 import type { NormalizedProblem } from '../walk.js';

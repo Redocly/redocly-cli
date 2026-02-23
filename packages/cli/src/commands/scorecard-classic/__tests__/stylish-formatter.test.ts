@@ -1,5 +1,6 @@
-import { printScorecardResults } from '../formatters/stylish-formatter.js';
 import * as openapiCore from '@redocly/openapi-core';
+
+import { printScorecardResults } from '../formatters/stylish-formatter.js';
 import type { ScorecardProblem } from '../types.js';
 
 const createMockSource = (absoluteRef: string) => ({

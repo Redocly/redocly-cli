@@ -1,4 +1,5 @@
 import type { Schema } from 'js-yaml';
+
 import type { Referenced } from './openapi.js';
 
 export interface Oas2Definition {

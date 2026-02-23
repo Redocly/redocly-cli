@@ -26,9 +26,9 @@ vi.mock('ajv-formats', () => {
   };
 });
 
-import { validateJsonSchema, releaseAjvInstance } from '../ajv.js';
 import { Location } from '../../ref-utils.js';
 import type { Source } from '../../resolve.js';
+import { validateJsonSchema, releaseAjvInstance } from '../ajv.js';
 
 describe('ajv configuration', () => {
   const resolve = () => ({ node: undefined, location: undefined });

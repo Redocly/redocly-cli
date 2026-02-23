@@ -1,9 +1,9 @@
 import { logger } from '@redocly/openapi-core';
-import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
-import { type ResponseContext } from '../../../../types.js';
 
-import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
+import { type ResponseContext } from '../../../../types.js';
 import type { Workflow, TestContext } from '../../../../types.js';
+import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
+import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
 
 describe('runWorkflow', () => {
   const fileName = 'test.yaml';

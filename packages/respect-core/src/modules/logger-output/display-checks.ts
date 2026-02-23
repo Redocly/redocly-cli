@@ -1,12 +1,12 @@
-import { blue, yellow, green, gray, red } from 'colorette';
 import { isBrowser } from '@redocly/openapi-core';
-import { outdent } from 'outdent';
-import { combineUrl } from '../../utils/url.js';
-import { isJSON } from '../../utils/is-json.js';
-import { indent, RESET_ESCAPE_CODE } from './helpers.js';
-
 import type { LoggerInterface, RuleSeverity } from '@redocly/openapi-core';
+import { blue, yellow, green, gray, red } from 'colorette';
+import { outdent } from 'outdent';
+
 import type { Check, VerboseLog } from '../../types.js';
+import { isJSON } from '../../utils/is-json.js';
+import { combineUrl } from '../../utils/url.js';
+import { indent, RESET_ESCAPE_CODE } from './helpers.js';
 
 const MAX_CRITERIA_CONDITION_DISPLAY_LENGTH = 50;
 
@@ -89,10 +89,16 @@ function displayVerboseLogs({
     // Convert FormData to a simple object for display
     const formDataObject: Record<string, any> = {};
     for (const [key, value] of body.entries()) {
-      if (value instanceof File) {
-        formDataObject[key] = `[File: ${value.name}]`;
+      const displayValue = value instanceof File ? `[File: ${value.name}]` : value;
+      // FormData allows multiple values per key (e.g., for lists),
+      // so collecting all values into arrays where appropriate for correct representation.
+      if (key in formDataObject) {
+        const existing = formDataObject[key];
+        formDataObject[key] = Array.isArray(existing)
+          ? [...existing, displayValue]
+          : [existing, displayValue];
       } else {
-        formDataObject[key] = value;
+        formDataObject[key] = displayValue;
       }
     }
     formattedBody = JSON.stringify(formDataObject, null, 2);

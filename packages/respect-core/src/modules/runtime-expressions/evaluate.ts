@@ -1,9 +1,9 @@
 import { isPlainObject, type LoggerInterface } from '@redocly/openapi-core';
-import { lintExpression } from './lint.js';
-import { replaceJSONPointers } from './replace-json-pointers.js';
-import { getFakeData, parseJson } from '../context-parser/index.js';
 
 import type { RuntimeExpressionContext } from '../../types.js';
+import { getFakeData, parseJson } from '../context-parser/index.js';
+import { lintExpression } from './lint.js';
+import { replaceJSONPointers } from './replace-json-pointers.js';
 
 // Used when evaluating expressions in a string that can contain other text, like request bodies payload, output values, etc.
 export function evaluateRuntimeExpressionPayload({
@@ -152,8 +152,17 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
   // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
   const normalizedSymbolsExpression = normalizeSymbolsExpression(modifiedJsExpression);
 
-  // Remove the curly braces surrounding the expression (if any)
-  const cleanedJsExpression = normalizedSymbolsExpression.replace(/{(.*?)}/g, '$1');
+  // Remove the curly braces surrounding the ENTIRE expression (if any), but not braces within JSON
+  let cleanedJsExpression = normalizedSymbolsExpression;
+
+  if (cleanedJsExpression.startsWith('{') && cleanedJsExpression.endsWith('}')) {
+    // A runtime expression wrapper has the form {$variable...} with no nested braces until the end
+    const potentialUnwrapped = cleanedJsExpression.slice(1, -1);
+    // Unwrap if it doesn't look like JSON (i.e., doesn't start with { or [)
+    if (!potentialUnwrapped.trim().startsWith('{') && !potentialUnwrapped.trim().startsWith('[')) {
+      cleanedJsExpression = potentialUnwrapped;
+    }
+  }
 
   // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)
   const expressionWithBrackets = convertNumericIndices(cleanedJsExpression);

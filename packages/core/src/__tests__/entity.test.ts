@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { createEntityTypes } from '../types/entity.js';
-import { NormalizedNodeType, normalizeTypes, ResolveTypeFn } from '../types/index.js';
 import { entityFileSchema, entityFileDefaultSchema } from '@redocly/config';
 import { outdent } from 'outdent';
+import { describe, it, expect } from 'vitest';
+
+import { createEntityTypes } from '../types/entity.js';
+import { type NormalizedNodeType, normalizeTypes, type ResolveTypeFn } from '../types/index.js';
 describe('entity-yaml', () => {
   it('should create entity types with discriminator', () => {
     const { entityTypes } = createEntityTypes(entityFileSchema, entityFileDefaultSchema);

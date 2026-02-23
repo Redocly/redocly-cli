@@ -1,16 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { stringifyYaml } from '../js-yaml/index.js';
-import { slash } from '../utils/slash.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { specVersions } from '../detect-spec.js';
-import { getResolveConfig } from './get-resolve-config.js';
-import { isAbsoluteUrl } from '../ref-utils.js';
-import { groupAssertionRules } from './group-assertion-rules.js';
-import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
 
-import type { Document, ResolvedRefMap } from '../resolve.js';
-import type { NormalizedProblem } from '../walk.js';
+import { specVersions } from '../detect-spec.js';
+import { stringifyYaml } from '../js-yaml/index.js';
 import type {
   Oas2RuleSet,
   Oas3RuleSet,
@@ -22,7 +14,15 @@ import type {
   SpecVersion,
   SpecMajorVersion,
 } from '../oas-types.js';
+import { isAbsoluteUrl } from '../ref-utils.js';
+import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import { slash } from '../utils/slash.js';
+import type { NormalizedProblem } from '../walk.js';
+import { IGNORE_BANNER, IGNORE_FILE } from './constants.js';
+import { getResolveConfig } from './get-resolve-config.js';
+import { groupAssertionRules } from './group-assertion-rules.js';
 import type {
   DecoratorConfig,
   Plugin,

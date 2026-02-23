@@ -1,8 +1,9 @@
+import { spawnSync } from 'node:child_process';
 import { readdirSync, statSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers.js';
 import { fileURLToPath } from 'node:url';
+
+import { getCommandOutput, getEntrypoints, getParams, cleanupOutput } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -828,12 +829,12 @@ describe('E2E', () => {
         Found nested/redocly.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: nested/redoc-static.html (9 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: nested/redoc-static.html (36 KiB) [⏱ <test>ms].
         "
       `);
 
       expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(8301);
+      expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36417);
       const output = readFileSync(join(testPath, 'nested/redoc-static.html'), 'utf8');
       await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
@@ -852,7 +853,7 @@ describe('E2E', () => {
           "
           Prerendering docs
 
-          🎉 bundled successfully in: redoc-static.html (7 KiB) [⏱ <test>ms].
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
           "
         `);
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -873,7 +874,7 @@ describe('E2E', () => {
           Found config.yaml and using 'openapi' options
           Prerendering docs
 
-          🎉 bundled successfully in: redoc-static.html (7 KiB) [⏱ <test>ms].
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
           "
         `);
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -893,7 +894,7 @@ describe('E2E', () => {
           Found config-with-alias.yaml and using 'openapi' options
           Prerendering docs
 
-          🎉 bundled successfully in: redoc-static.html (7 KiB) [⏱ <test>ms].
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
           "
         `);
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -913,7 +914,7 @@ describe('E2E', () => {
           Found config-with-alias.yaml and using 'openapi' options
           Prerendering docs
 
-          🎉 bundled successfully in: redoc-static.html (7 KiB) [⏱ <test>ms].
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
           "
         `);
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -933,7 +934,7 @@ describe('E2E', () => {
           Found config-with-apis-and-root-option.yaml and using 'openapi' options
           Prerendering docs
 
-          🎉 bundled successfully in: redoc-static.html (7 KiB) [⏱ <test>ms].
+          🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
           "
         `);
         const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');

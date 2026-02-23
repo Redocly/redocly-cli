@@ -1,20 +1,20 @@
-import * as colors from 'colorette';
 import { logger } from '@redocly/openapi-core';
+import type { OutputFormat } from '@redocly/openapi-core';
+import * as colors from 'colorette';
+
+import type { VerifyConfigOptions } from '../../types.js';
 import { printExecutionTime, capitalize } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
-import { DeploymentError } from '../utils.js';
-import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
-import { handleReuniteError, retryUntilConditionMet } from './utils.js';
-
-import type { OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../../wrapper.js';
+import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
 import type {
   DeploymentStatus,
   DeploymentStatusResponse,
   PushResponse,
   ScorecardItem,
 } from '../api/types.js';
-import type { VerifyConfigOptions } from '../../types.js';
+import { DeploymentError } from '../utils.js';
+import { handleReuniteError, retryUntilConditionMet } from './utils.js';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 

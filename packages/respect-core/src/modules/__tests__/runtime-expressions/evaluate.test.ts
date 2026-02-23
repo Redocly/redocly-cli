@@ -1,6 +1,6 @@
-import type { RuntimeExpressionContext } from '../../../types.js';
-
 import { logger } from '@redocly/openapi-core';
+
+import type { RuntimeExpressionContext } from '../../../types.js';
 import { createFaker } from '../../faker.js';
 import {
   evaluateRuntimeExpressionPayload,
@@ -96,6 +96,16 @@ const runtimeExpressionContext = {
                 'Join us as we review and classify a rare collection of 20 thingamabobs, gadgets, gizmos, whoosits, and whatsits, kindly donated by Ariel.',
               dates: ['2023-12-15', '2023-12-22'],
               price: 0,
+              items: [
+                {
+                  name: 'item1',
+                  description: 'item1 description',
+                },
+                {
+                  name: 'item2',
+                  description: 'item2 description',
+                },
+              ],
             },
             statusCode: 201,
             header: {
@@ -229,7 +239,16 @@ const runtimeExpressionContext = {
       eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs.',
       dates: ['2023-12-15', '2023-12-22'],
       price: 0,
-      items: [],
+      items: [
+        {
+          name: 'item1',
+          description: 'item1 description',
+        },
+        {
+          name: 'item2',
+          description: 'item2 description',
+        },
+      ],
       device_code: '123',
       piNumber: 3.14,
     },
@@ -394,7 +413,16 @@ describe('evaluateRuntimeExpressionPayload', () => {
       eventDescription: 'Join us as we review and classify a rare collection of 20 thingamabobs.',
       dates: ['2023-12-15', '2023-12-22'],
       price: 0,
-      items: [],
+      items: [
+        {
+          name: 'item1',
+          description: 'item1 description',
+        },
+        {
+          name: 'item2',
+          description: 'item2 description',
+        },
+      ],
       piNumber: 3.14,
     });
   });
@@ -408,14 +436,14 @@ describe('evaluateRuntimeExpressionPayload', () => {
     } as unknown as RuntimeExpressionContext;
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`some string value == \"some string value\"`);
+    ).toEqual(`some string value == "some string value"`);
   });
 
   it('should evaluate runctime expressions with url comparison', () => {
     const payload = '$url == "http://example.com"';
     expect(
       evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
-    ).toEqual(`http://example.com == \"http://example.com\"`);
+    ).toEqual(`http://example.com == "http://example.com"`);
   });
 
   it('should evaluate requestBody object with runtime expression values', () => {
@@ -616,7 +644,6 @@ describe('evaluateRuntimeExpression', () => {
       '$workflows.workflow1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
     const expression3 =
       '$steps.step1.outputs.bodyCopy#/name == "Mermaid Treasure Identification and Analysis"';
-    const expression4 = '$outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression5 =
       '$workflows.workflow1.outputs.bodyCopy.name == "Mermaid Treasure Identification and Analysis"';
     const expression6 =
@@ -638,5 +665,19 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression1, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression2, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
+  });
+
+  it('should evaluate list runtime expression value', () => {
+    const expression = '$response.body#/items';
+    expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([
+      {
+        name: 'item1',
+        description: 'item1 description',
+      },
+      {
+        name: 'item2',
+        description: 'item2 description',
+      },
+    ]);
   });
 });

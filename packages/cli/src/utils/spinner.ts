@@ -1,5 +1,5 @@
-import * as process from 'node:process';
 import { logger } from '@redocly/openapi-core';
+import * as process from 'node:process';
 
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
