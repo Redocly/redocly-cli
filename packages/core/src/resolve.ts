@@ -25,7 +25,11 @@ import { readFileFromUrl } from './utils/read-file-from-url.js';
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
 export class Source {
-  constructor(public absoluteRef: string, public body: string, public mimeType?: string) {}
+  constructor(
+    public absoluteRef: string,
+    public body: string,
+    public mimeType?: string
+  ) {}
 
   private _ast: YAMLNode | undefined;
   private _lines: string[] | undefined;
