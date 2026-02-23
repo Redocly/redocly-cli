@@ -3,17 +3,33 @@
 Hi! We're really excited that you are interested in contributing to Redocly CLI.
 Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
-- [Issue reporting guidelines](#issue-reporting-guidelines)
-- [Pull request guidelines](#pull-request-guidelines)
-- [Development setup](#development-setup)
-- [Local source code usage](#local-source-code-usage)
-- [Contribute documentation](#contribute-documentation)
-- [Built-in rules changes](#built-in-rules-changes)
-- [Arguments usage](#arguments-usage)
-- [Exit codes](#exit-codes)
-- [Tests](#tests)
-- [Project structure](#project-structure)
-- [Release flow](#release-flow)
+- [Redocly CLI Contributing Guide](#redocly-cli-contributing-guide)
+  - [Issue reporting guidelines](#issue-reporting-guidelines)
+  - [Pull request guidelines](#pull-request-guidelines)
+  - [Development setup](#development-setup)
+    - [Commonly used NPM scripts](#commonly-used-npm-scripts)
+  - [Local source code usage](#local-source-code-usage)
+    - [NPM linking](#npm-linking)
+    - [Local packing and installing](#local-packing-and-installing)
+  - [Contribute documentation](#contribute-documentation)
+    - [Prose linting](#prose-linting)
+    - [Markdown linting](#markdown-linting)
+    - [Markdown link checking](#markdown-link-checking)
+  - [Built-in rules changes](#built-in-rules-changes)
+  - [Arguments usage](#arguments-usage)
+    - [Environment variables](#environment-variables)
+    - [Command line arguments](#command-line-arguments)
+    - [Configuration file](#configuration-file)
+  - [Exit codes](#exit-codes)
+  - [Tests](#tests)
+    - [Unit tests](#unit-tests)
+    - [E2E tests](#e2e-tests)
+    - [Smoke tests](#smoke-tests)
+    - [Performance benchmark](#performance-benchmark)
+  - [Project structure](#project-structure)
+  - [Release flow](#release-flow)
+    - [Revert a release](#revert-a-release)
+    - [Snapshot release](#snapshot-release)
 
 ## Issue reporting guidelines
 
@@ -37,7 +53,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v18.17.0+ and `<=22` and NPM v10.8.2+ are required.
+[Node.js](http://nodejs.org) at v18.17.0 or later (up to v22) and NPM v10.8.2+ are required.
 
 After forking the repo, run:
 
@@ -271,7 +287,7 @@ After merging a PR with a changeset, the release PR is automatically created.
 If the pipelines are not starting, close and reopen the PR.
 Merging that PR triggers the release process under the `v1-archive` label.
 
-After each release, manually update the `docs v1` changelog on the `main` branch.
+After each `v1` release, manually update the `docs/@v1/changelog.md` on the `main` branch.
 
 ### Revert a release
 
