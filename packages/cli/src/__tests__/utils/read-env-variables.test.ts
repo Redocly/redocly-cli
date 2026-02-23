@@ -8,6 +8,10 @@ vi.mock('dotenv');
 vi.mock('node:fs');
 
 describe('readEnvVariables', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should load environment variables from the correct .env file', () => {
     const mockExecutionFilePath = '/some/folder/executionFile.js';
     const mockEnvPath = path.resolve(path.dirname(mockExecutionFilePath), '.env');

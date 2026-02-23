@@ -21,6 +21,7 @@ describe('handlePush()', () => {
   let fsReaddirSyncSpy: MockInstance;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     remotes.getDefaultBranch.mockResolvedValueOnce('test-default-branch');
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });
@@ -325,7 +326,7 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    expect(
+    await expect(
       handlePush({
         argv: {
           domain: 'test-domain',

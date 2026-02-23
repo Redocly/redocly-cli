@@ -82,6 +82,7 @@ describe('printConfigLintTotals', () => {
   const yellowColoretteMocks = vi.mocked(yellow);
 
   beforeEach(() => {
+    vi.clearAllMocks();
     yellowColoretteMocks.mockImplementation((text) => text as string);
     redColoretteMocks.mockImplementation((text) => text as string);
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);

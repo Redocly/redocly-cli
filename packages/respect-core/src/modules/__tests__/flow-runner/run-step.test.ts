@@ -45,6 +45,10 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
+beforeEach(() => {
+  vi.resetAllMocks();
+});
+
 const apiClient = new ApiFetcher({});
 const basicCTX = {
   apiClient,
@@ -1715,14 +1719,13 @@ describe('runStep', () => {
       },
     } as unknown as TestContext;
 
-    expect(
-      async () =>
-        await runStep({
-          step: stepOne,
-          ctx: context,
-          workflowId,
-          executedStepsCount: { value: 0 },
-        })
+    await expect(
+      runStep({
+        step: stepOne,
+        ctx: context,
+        workflowId,
+        executedStepsCount: { value: 0 },
+      })
     ).rejects.toThrow(
       'Cannot use both workflowId: failure-action-workflow and stepId: failure-action-step in retry action'
     );

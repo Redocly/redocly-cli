@@ -36,6 +36,7 @@ describe('handleLint', () => {
   let exitCb: any;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     vi.spyOn(process, 'once').mockImplementation((_e, cb) => {

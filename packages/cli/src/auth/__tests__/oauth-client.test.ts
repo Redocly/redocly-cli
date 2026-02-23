@@ -12,6 +12,7 @@ describe('RedoclyOAuthClient', () => {
   let client: RedoclyOAuthClient;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.mock('node:fs');
     vi.mock('../device-flow.js');
     vi.mock('node:os');
@@ -26,7 +27,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         run: vi.fn().mockResolvedValue(mockToken),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow as any;
+      });
 
       await client.login(mockBaseUrl);
 
@@ -38,7 +41,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         run: vi.fn().mockResolvedValue(null),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow as any;
+      });
 
       await expect(client.login(mockBaseUrl)).rejects.toThrow('Failed to login');
     });
@@ -66,7 +71,9 @@ describe('RedoclyOAuthClient', () => {
       const mockDeviceFlow = {
         verifyApiKey: vi.fn().mockResolvedValue(true),
       };
-      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(() => mockDeviceFlow as any);
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow as any;
+      });
 
       const result = await client.isAuthorized(mockBaseUrl, 'test-api-key');
 

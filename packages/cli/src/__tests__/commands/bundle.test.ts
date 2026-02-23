@@ -25,6 +25,7 @@ describe('bundle', () => {
   let processExitMock: MockInstance;
   let exitCb: any;
   beforeEach(async () => {
+    vi.clearAllMocks();
     processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     vi.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;

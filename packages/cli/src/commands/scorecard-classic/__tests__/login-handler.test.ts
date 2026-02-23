@@ -20,11 +20,14 @@ describe('handleLoginAndFetchToken', () => {
   let mockOAuthClient: any;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     mockOAuthClient = {
       getAccessToken: vi.fn(),
       login: vi.fn(),
     };
-    vi.mocked(RedoclyOAuthClient).mockImplementation(() => mockOAuthClient);
+    vi.mocked(RedoclyOAuthClient).mockImplementation(function () {
+      return mockOAuthClient;
+    });
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});

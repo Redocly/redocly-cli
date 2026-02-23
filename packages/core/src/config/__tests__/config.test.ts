@@ -197,6 +197,11 @@ describe('Config.extendTypes', () => {
     },
   ];
 
+  beforeEach(() => {
+    oas3.mockReset();
+    oas2.mockReset();
+  });
+
   it('should call only oas3 types extension', () => {
     const config = new Config({}, { plugins });
     config.extendTypes({}, 'oas3_0');
