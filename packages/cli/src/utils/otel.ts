@@ -33,14 +33,16 @@ export class OtelServerTelemetry {
   send(cloudEvent: CloudEvents.Messages): void {
     const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
     const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
-    const spanName = `event.${cloudEvent.data.command}`;
+    // @ts-ignore
+    const spanName = `event.${cloudEvent.data.command?.command}`;
 
     const attributes: Record<string, string | number | boolean | undefined> = {
       'cloudevents.event_id': cloudEvent.id,
       'cloudevents.event_type': cloudEvent.type,
       'cloudevents.event_source': cloudEvent.source,
       'cloudevents.event_spec_version': cloudEvent.specversion,
-      'cloudevents.productType': cloudEvent.productType,
+      'cloudevents.category': 'product',
+      'cloudevents.signal': 'log',
       'cloudevents.event_data_content_type':
         cloudEvent.datacontenttype || 'application/json; charset=utf-8',
       'cloudevents.event_time': time.toISOString(),
@@ -51,17 +53,20 @@ export class OtelServerTelemetry {
       'cloudevents.organization.id': '',
       'cloudevents.organization.slug': '',
       'cloudevents.event_origin': cloudEvent.productType,
+      'cloudevents.actor.id': cloudEvent.sourceDetails?.id ?? `ann_${ulid()}`,
+      'cloudevents.actor.object': cloudEvent.sourceDetails?.object ?? 'anonymous',
+      'cloudevents.actor.uri': cloudEvent.sourceDetails?.uri ?? '',
       'cloudevents.event_source_details.id': cloudEvent.sourceDetails?.id ?? `ann_${ulid()}`,
       'cloudevents.event_source_details.object': cloudEvent.sourceDetails?.object ?? 'anonymous',
       'cloudevents.event_source_details.uri': cloudEvent.sourceDetails?.uri ?? '',
-      'cloudevents.event_data.os_platform': cloudEvent.os_platform,
-      'cloudevents.event_data.environment': cloudEvent.environment,
+      'cloudevents.osPlatform': cloudEvent.os_platform,
+      'cloudevents.env': cloudEvent.environment,
     };
 
-    for (const [key, value] of Object.entries(cloudEvent.data)) {
+    for (const [key, value] of Object.entries(cloudEvent.data.command)) {
       const keySnakeCase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
       if (value !== undefined) {
-        attributes[`cloudevents.event_data.${keySnakeCase}`] = value;
+        attributes[`cloudevents.event_data.command.${keySnakeCase}`] = value;
       }
     }
 

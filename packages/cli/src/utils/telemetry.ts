@@ -111,9 +111,9 @@ export async function sendTelemetry({
         object: 'user',
         uri: '',
       },
-      data: eventData,
+      data: { command: eventData } as unknown as CloudEvents.CommandRanMessage['data'],
     };
-
+    // If local development, don't send telemetry and send logs to console
     const { otelTelemetry } = await import('./otel.js');
     otelTelemetry.send(cloudEvent);
   } catch (err) {
