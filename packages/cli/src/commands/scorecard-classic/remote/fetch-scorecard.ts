@@ -66,15 +66,16 @@ export async function fetchRemoteScorecardAndPlugins({
       scorecard: scorecard!,
       plugins,
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     if (verbose) {
       logger.error(`❌ Failed to fetch remote scorecard configuration.\n`);
-      logger.error(`Error details: ${error.message}\n`);
-      if (error.stack) {
+      logger.error(`Error details: ${errorMessage}\n`);
+      if (error instanceof Error && error.stack) {
         logger.error(`Stack trace:\n${error.stack}\n`);
       }
     }
-    exitWithError(error.message);
+    exitWithError(errorMessage);
   }
 }
 
@@ -166,7 +167,8 @@ async function fetchPlugins(pluginsUrl: string, verbose = false): Promise<string
     return pluginsResponse.text();
   } catch (error) {
     if (verbose) {
-      logger.error(`Error fetching plugins: ${error.message}\n`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Error fetching plugins: ${errorMessage}\n`);
     }
     return;
   }
