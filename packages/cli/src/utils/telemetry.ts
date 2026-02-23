@@ -1,6 +1,11 @@
 import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
-import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
-import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
+import {
+  isAbsoluteUrl,
+  isPlainObject,
+  type ArazzoDefinition,
+  type Config,
+  type Exact,
+} from '@redocly/openapi-core';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
@@ -67,6 +72,7 @@ export async function sendTelemetry({
     const eventData: EventPayload<EventType> = {
       id: 'cli-command-run',
       object: 'command',
+      uri: 'urn:redocly:cli',
       logged_in: logged_in ? 'yes' : 'no',
       command: `${command}`,
       ...cleanArgs(args, process.argv.slice(2)),
@@ -87,17 +93,17 @@ export async function sendTelemetry({
           : undefined,
     };
 
-    const cloudEvent: CloudEvents.CommandRanMessage = {
+    const cloudEvent: CloudEvents.cloudEvents.CloudEventMapperResult = {
       id: `evt_${ulid()}`,
       time: new Date().toISOString(),
-      type: 'command.ran',
+      type: 'com.redocly.command.ran',
       object: 'event',
       specversion: '1.0',
       datacontenttype: 'application/json',
       source: 'com.redocly.cli',
-      origin: 'cli',
-      productType: 'redocly-cli',
-      os_platform: os.platform(),
+      origin: 'redocly-cli',
+      osPlatform: os.platform(),
+      subject: 'command.ran',
       subjects: [
         {
           id: ulid(),
@@ -105,15 +111,17 @@ export async function sendTelemetry({
           uri: '',
         },
       ],
-      environment: process.env.REDOCLY_ENVIRONMENT,
-      sourceDetails: {
+      env: process.env.REDOCLY_ENVIRONMENT,
+      actor: {
         id: anonymous_id,
         object: 'user',
         uri: '',
       },
-      data: { command: eventData } as unknown as CloudEvents.CommandRanMessage['data'],
+      signal: 'log',
+      category: 'product',
+      data: eventData,
     };
-    // If local development, don't send telemetry and send logs to console
+
     const { otelTelemetry } = await import('./otel.js');
     otelTelemetry.send(cloudEvent);
   } catch (err) {
