@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.19.2 (2026-02-24)
+
+### Patch Changes
+
+- Fixed an issue where `scorecardClassic` configurations were not resolved.
+- Updated @redocly/openapi-core to v2.19.2.
+
 ## 2.19.1 (2026-02-19)
 
 ### Patch Changes
