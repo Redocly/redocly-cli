@@ -5,15 +5,25 @@ export interface StatsRow {
   items?: Set<string>;
 }
 
-export type StatsName =
+export type OASStatsName =
   | 'operations'
   | 'refs'
   | 'tags'
   | 'externalDocs'
   | 'pathItems'
-  | 'channels'
   | 'links'
   | 'schemas'
   | 'webhooks'
   | 'parameters';
-export type StatsAccumulator = Record<StatsName, StatsRow>;
+
+export type AsyncAPIStatsName =
+  | 'operations'
+  | 'refs'
+  | 'tags'
+  | 'externalDocs'
+  | 'channels'
+  | 'schemas'
+  | 'parameters';
+
+export type StatsName = OASStatsName | AsyncAPIStatsName;
+export type StatsAccumulator = Partial<Record<StatsName, StatsRow>>;

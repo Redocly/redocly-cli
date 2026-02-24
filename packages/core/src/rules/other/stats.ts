@@ -7,39 +7,51 @@ export const StatsOAS = (statsAccumulator: StatsAccumulator) => {
   return {
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.links.total = statsAccumulator.links.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        if (statsAccumulator.parameters) {
+          statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
+        }
+        if (statsAccumulator.refs) {
+          statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
+        }
+        if (statsAccumulator.links) {
+          statsAccumulator.links.total = statsAccumulator.links.items!.size;
+        }
+        if (statsAccumulator.tags) {
+          statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        }
       },
     },
     ExternalDocs: {
       leave() {
-        statsAccumulator.externalDocs.total++;
+        if (statsAccumulator.externalDocs) {
+          statsAccumulator.externalDocs.total++;
+        }
       },
     },
     ref: {
       enter(ref: OasRef) {
-        statsAccumulator.refs.items!.add(ref['$ref']);
+        statsAccumulator.refs?.items!.add(ref['$ref']);
       },
     },
     Tag: {
       leave(tag: Oas3Tag | Oas3_2Tag) {
-        statsAccumulator.tags.items!.add(tag.name);
+        statsAccumulator.tags?.items!.add(tag.name);
       },
     },
     Link: {
       leave(link: any) {
-        statsAccumulator.links.items!.add(link.operationId);
+        statsAccumulator.links?.items!.add(link.operationId);
       },
     },
     WebhooksMap: {
       Operation: {
         leave(operation: any) {
-          statsAccumulator.webhooks.total++;
+          if (statsAccumulator.webhooks) {
+            statsAccumulator.webhooks.total++;
+          }
           if (operation.tags) {
             for (const tag of operation.tags) {
-              statsAccumulator.tags.items!.add(tag);
+              statsAccumulator.tags?.items!.add(tag);
             }
           }
         },
@@ -48,21 +60,25 @@ export const StatsOAS = (statsAccumulator: StatsAccumulator) => {
     Paths: {
       PathItem: {
         leave() {
-          statsAccumulator.pathItems.total++;
+          if (statsAccumulator.pathItems) {
+            statsAccumulator.pathItems.total++;
+          }
         },
         Operation: {
           leave(operation: any) {
-            statsAccumulator.operations.total++;
+            if (statsAccumulator.operations) {
+              statsAccumulator.operations.total++;
+            }
             if (operation.tags) {
               for (const tag of operation.tags) {
-                statsAccumulator.tags.items!.add(tag);
+                statsAccumulator.tags?.items!.add(tag);
               }
             }
           },
         },
         Parameter: {
           leave(parameter: Oas2Parameter | Oas3Parameter) {
-            statsAccumulator.parameters.items!.add(parameter.name);
+            statsAccumulator.parameters?.items!.add(parameter.name);
           },
         },
       },
@@ -70,7 +86,9 @@ export const StatsOAS = (statsAccumulator: StatsAccumulator) => {
     NamedSchemas: {
       Schema: {
         leave() {
-          statsAccumulator.schemas.total++;
+          if (statsAccumulator.schemas) {
+            statsAccumulator.schemas.total++;
+          }
         },
       },
     },
@@ -82,37 +100,49 @@ export const StatsAsync2 = (statsAccumulator: StatsAccumulator) => {
   return {
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        if (statsAccumulator.parameters) {
+          statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
+        }
+        if (statsAccumulator.refs) {
+          statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
+        }
+        if (statsAccumulator.tags) {
+          statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        }
       },
     },
     ExternalDocs: {
       leave() {
-        statsAccumulator.externalDocs.total++;
+        if (statsAccumulator.externalDocs) {
+          statsAccumulator.externalDocs.total++;
+        }
       },
     },
     ref: {
       enter(ref: OasRef) {
-        statsAccumulator.refs.items!.add(ref['$ref']);
+        statsAccumulator.refs?.items!.add(ref['$ref']);
       },
     },
     Tag: {
       leave(tag: Oas3Tag | Oas3_2Tag) {
-        statsAccumulator.tags.items!.add(tag.name);
+        statsAccumulator.tags?.items!.add(tag.name);
       },
     },
     ChannelMap: {
       Channel: {
         leave() {
-          statsAccumulator.channels.total++;
+          if (statsAccumulator.channels) {
+            statsAccumulator.channels.total++;
+          }
         },
         Operation: {
           leave(operation: any) {
-            statsAccumulator.operations.total++;
+            if (statsAccumulator.operations) {
+              statsAccumulator.operations.total++;
+            }
             if (operation.tags) {
               for (const tag of operation.tags) {
-                statsAccumulator.tags.items!.add(tag);
+                statsAccumulator.tags?.items!.add(tag);
               }
             }
           },
@@ -120,7 +150,7 @@ export const StatsAsync2 = (statsAccumulator: StatsAccumulator) => {
         Parameter: {
           leave(parameter: any) {
             if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
+              statsAccumulator.parameters?.items!.add(parameter.name);
             }
           },
         },
@@ -129,7 +159,9 @@ export const StatsAsync2 = (statsAccumulator: StatsAccumulator) => {
     NamedSchemas: {
       Schema: {
         leave() {
-          statsAccumulator.schemas.total++;
+          if (statsAccumulator.schemas) {
+            statsAccumulator.schemas.total++;
+          }
         },
       },
     },
@@ -141,35 +173,45 @@ export const StatsAsync3 = (statsAccumulator: StatsAccumulator) => {
   return {
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        if (statsAccumulator.parameters) {
+          statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
+        }
+        if (statsAccumulator.refs) {
+          statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
+        }
+        if (statsAccumulator.tags) {
+          statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        }
       },
     },
     ExternalDocs: {
       leave() {
-        statsAccumulator.externalDocs.total++;
+        if (statsAccumulator.externalDocs) {
+          statsAccumulator.externalDocs.total++;
+        }
       },
     },
     ref: {
       enter(ref: OasRef) {
-        statsAccumulator.refs.items!.add(ref['$ref']);
+        statsAccumulator.refs?.items!.add(ref['$ref']);
       },
     },
     Tag: {
       leave(tag: Oas3Tag | Oas3_2Tag) {
-        statsAccumulator.tags.items!.add(tag.name);
+        statsAccumulator.tags?.items!.add(tag.name);
       },
     },
     NamedChannels: {
       Channel: {
         leave() {
-          statsAccumulator.channels.total++;
+          if (statsAccumulator.channels) {
+            statsAccumulator.channels.total++;
+          }
         },
         Parameter: {
           leave(parameter: any) {
             if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
+              statsAccumulator.parameters?.items!.add(parameter.name);
             }
           },
         },
@@ -178,10 +220,12 @@ export const StatsAsync3 = (statsAccumulator: StatsAccumulator) => {
     NamedOperations: {
       Operation: {
         leave(operation: any) {
-          statsAccumulator.operations.total++;
+          if (statsAccumulator.operations) {
+            statsAccumulator.operations.total++;
+          }
           if (operation.tags) {
             for (const tag of operation.tags) {
-              statsAccumulator.tags.items!.add(tag);
+              statsAccumulator.tags?.items!.add(tag);
             }
           }
         },
@@ -190,7 +234,9 @@ export const StatsAsync3 = (statsAccumulator: StatsAccumulator) => {
     NamedSchemas: {
       Schema: {
         leave() {
-          statsAccumulator.schemas.total++;
+          if (statsAccumulator.schemas) {
+            statsAccumulator.schemas.total++;
+          }
         },
       },
     },
