@@ -38,11 +38,6 @@ export class OtelServerTelemetry {
     const spanName = `event.${cloudEvent.type}`;
     const attributes = processCloudEventAttributes(cloudEvent, time);
 
-    if (!process.env.REDOCLY_ENVIRONMENT || process.env.REDOCLY_ENVIRONMENT == 'local') {
-      console.log(`[Telemetry] ${spanName}:`, { attributes });
-      return;
-    }
-
     const span = tracer.startSpan(spanName, {
       attributes,
       startTime: time,
