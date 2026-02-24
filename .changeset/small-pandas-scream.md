@@ -4,4 +4,4 @@
 "@redocly/cli": patch
 ---
 
-Pinned runtime deps and key tooling versions for v1 stability.
+Pinned runtime dependency and key tooling versions to improve v1 stability.
