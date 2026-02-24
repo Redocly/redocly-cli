@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.19.2
+
+### Patch Changes
+
+- Fixed an issue where `scorecardClassic` configurations were not resolved.
+
 ## 2.19.1
 
 ## 2.19.0
