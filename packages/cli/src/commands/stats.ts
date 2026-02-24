@@ -8,23 +8,20 @@ import {
   getTypes,
   normalizeVisitors,
   walkDocument,
-  Stats,
+  StatsOAS,
+  StatsAsync2,
+  StatsAsync3,
   bundle,
   logger,
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 
-import type {
-  StatsAccumulator,
-  StatsName,
-  WalkContext,
-  OutputFormat,
-  SpecVersion,
-} from '@redocly/openapi-core';
+import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
 import type { CommandArgs } from '../wrapper.js';
 import type { VerifyConfigOptions } from '../types.js';
 
-const statsAccumulator: StatsAccumulator = {
+// OpenAPI stats accumulator
+const createOASStatsAccumulator = (): StatsAccumulator => ({
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
   schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
@@ -35,39 +32,61 @@ const statsAccumulator: StatsAccumulator = {
   webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-};
+});
 
-// Determine which stats are relevant for a given spec version
-function isStatRelevant(stat: StatsName, specVersion: SpecVersion): boolean {
-  // AsyncAPI-specific stats
-  if (stat === 'channels') {
-    return specVersion === 'async2' || specVersion === 'async3';
-  }
+// AsyncAPI stats accumulator
+const createAsyncAPIStatsAccumulator = (): StatsAccumulator => ({
+  refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
+  externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
+  schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
+  parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
+  links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
+  pathItems: { metric: '🔀 Path Items', total: 0, color: 'green' },
+  channels: { metric: '📡 Channels', total: 0, color: 'green' },
+  webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
+  operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
+  tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
+});
 
-  // OpenAPI-specific stats
-  if (stat === 'pathItems' || stat === 'webhooks' || stat === 'links') {
-    return specVersion !== 'async2' && specVersion !== 'async3';
-  }
+// Stats to show for OpenAPI
+const oasStatsToShow: Set<StatsName> = new Set([
+  'refs',
+  'externalDocs',
+  'schemas',
+  'parameters',
+  'links',
+  'pathItems',
+  'webhooks',
+  'operations',
+  'tags',
+]);
 
-  // Common stats (refs, externalDocs, schemas, parameters, operations, tags)
-  return true;
-}
+// Stats to show for AsyncAPI
+const asyncStatsToShow: Set<StatsName> = new Set([
+  'refs',
+  'externalDocs',
+  'schemas',
+  'parameters',
+  'channels',
+  'operations',
+  'tags',
+]);
 
-function printStatsStylish(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
+function printStatsStylish(statsAccumulator: StatsAccumulator, statsToShow: Set<StatsName>) {
   for (const node in statsAccumulator) {
     const statName = node as StatsName;
-    if (!isStatRelevant(statName, specVersion)) continue;
+    if (!statsToShow.has(statName)) continue;
 
     const { metric, total, color } = statsAccumulator[statName];
     logger.output(colors[color](`${metric}: ${total} \n`));
   }
 }
 
-function printStatsJson(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
+function printStatsJson(statsAccumulator: StatsAccumulator, statsToShow: Set<StatsName>) {
   const json: any = {};
   for (const key of Object.keys(statsAccumulator)) {
     const statName = key as StatsName;
-    if (!isStatRelevant(statName, specVersion)) continue;
+    if (!statsToShow.has(statName)) continue;
 
     json[key] = {
       metric: statsAccumulator[statName].metric,
@@ -78,11 +97,11 @@ function printStatsJson(statsAccumulator: StatsAccumulator, specVersion: SpecVer
   logger.output(JSON.stringify(json, null, 2));
 }
 
-function printStatsMarkdown(statsAccumulator: StatsAccumulator, specVersion: SpecVersion) {
+function printStatsMarkdown(statsAccumulator: StatsAccumulator, statsToShow: Set<StatsName>) {
   let output = '| Feature  | Count  |\n| --- | --- |\n';
   for (const key of Object.keys(statsAccumulator)) {
     const statName = key as StatsName;
-    if (!isStatRelevant(statName, specVersion)) continue;
+    if (!statsToShow.has(statName)) continue;
 
     output +=
       '| ' + statsAccumulator[statName].metric + ' | ' + statsAccumulator[statName].total + ' |\n';
@@ -96,19 +115,19 @@ function printStats(
   api: string,
   startedAt: number,
   format: string,
-  specVersion: SpecVersion
+  statsToShow: Set<StatsName>
 ) {
   logger.info(`Document: ${colors.magenta(api)} stats:\n\n`);
 
   switch (format) {
     case 'stylish':
-      printStatsStylish(statsAccumulator, specVersion);
+      printStatsStylish(statsAccumulator, statsToShow);
       break;
     case 'json':
-      printStatsJson(statsAccumulator, specVersion);
+      printStatsJson(statsAccumulator, statsToShow);
       break;
     case 'markdown':
-      printStatsMarkdown(statsAccumulator, specVersion);
+      printStatsMarkdown(statsAccumulator, statsToShow);
       break;
   }
 
@@ -127,6 +146,16 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   collectSpecData?.(document.parsed);
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+
+  // Create appropriate accumulator and visitor based on spec version
+  const isAsyncAPI = specVersion === 'async2' || specVersion === 'async3';
+  const statsAccumulator = isAsyncAPI
+    ? createAsyncAPIStatsAccumulator()
+    : createOASStatsAccumulator();
+  const statsToShow = isAsyncAPI ? asyncStatsToShow : oasStatsToShow;
+
+  const statsVisitorFn =
+    specVersion === 'async2' ? StatsAsync2 : specVersion === 'async3' ? StatsAsync3 : StatsOAS;
 
   const startedAt = performance.now();
   const ctx: WalkContext = {
@@ -147,7 +176,7 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
       {
         severity: 'warn',
         ruleId: 'stats',
-        visitor: Stats(statsAccumulator, specVersion),
+        visitor: statsVisitorFn(statsAccumulator),
       },
     ],
     types
@@ -161,5 +190,5 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     ctx,
   });
 
-  printStats(statsAccumulator, path, startedAt, argv.format, specVersion);
+  printStats(statsAccumulator, path, startedAt, argv.format, statsToShow);
 }
