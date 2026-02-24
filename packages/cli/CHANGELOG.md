@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.8
+
+### Patch Changes
+
+- Pinned runtime dependency and key tooling versions to improve v1 stability.
+- Updated @redocly/respect-core to v1.34.8.
+
 ## 1.34.7
 
 ### Patch Changes

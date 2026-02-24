@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.34.8
+
+### Patch Changes
+
+- Pinned runtime dependency and key tooling versions to improve v1 stability.
+
 ## 1.34.7
 
 ## 1.34.6
