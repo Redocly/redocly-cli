@@ -45,10 +45,6 @@ vi.mock('../../timeout-timer/timer.js', async () => {
   };
 });
 
-beforeEach(() => {
-  vi.resetAllMocks();
-});
-
 const apiClient = new ApiFetcher({});
 const basicCTX = {
   apiClient,

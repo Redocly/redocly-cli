@@ -68,8 +68,6 @@ const defaultRespectOptions = {
 
 describe('runTestFile', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-
     mockExistsSync.mockImplementation((path: any) => {
       // Return true for source description files (both relative and absolute paths)
       if (path.includes('cats.yaml')) {

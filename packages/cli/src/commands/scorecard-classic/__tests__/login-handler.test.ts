@@ -20,7 +20,6 @@ describe('handleLoginAndFetchToken', () => {
   let mockOAuthClient: any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     mockOAuthClient = {
       getAccessToken: vi.fn(),
       login: vi.fn(),

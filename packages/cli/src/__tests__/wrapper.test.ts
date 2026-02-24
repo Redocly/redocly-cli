@@ -10,7 +10,6 @@ const originalFetch = global.fetch;
 
 describe('commandWrapper', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     global.fetch = vi.fn();
     vi.mock('@redocly/openapi-core', async () => {
       const actual = await vi.importActual('@redocly/openapi-core');

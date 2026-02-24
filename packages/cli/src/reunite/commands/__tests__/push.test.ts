@@ -21,7 +21,6 @@ describe('handlePush()', () => {
   let fsReaddirSyncSpy: MockInstance;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     remotes.getDefaultBranch.mockResolvedValueOnce('test-default-branch');
     remotes.upsert.mockResolvedValueOnce({ id: 'test-remote-id', mountPath: 'test-mount-path' });
     remotes.push.mockResolvedValueOnce({ branchName: 'uploaded-to-branch', id: 'test-id' });

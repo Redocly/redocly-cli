@@ -12,7 +12,6 @@ describe('RedoclyOAuthClient', () => {
   let client: RedoclyOAuthClient;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.mock('node:fs');
     vi.mock('../device-flow.js');
     vi.mock('node:os');
