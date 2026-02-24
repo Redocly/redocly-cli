@@ -4,8 +4,6 @@ import type { ViteUserConfig } from 'vitest/config';
 const configExtension: { [key: string]: ViteUserConfig } = {
   unit: defineConfig({
     test: {
-      clearMocks: true,
-      mockReset: true,
       include: ['packages/*/src/**/*.test.ts'],
       coverage: {
         enabled: true,
