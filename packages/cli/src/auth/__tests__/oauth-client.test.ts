@@ -30,8 +30,6 @@ describe('RedoclyOAuthClient', () => {
         return mockDeviceFlow;
       });
 
-      console.log(typeof RedoclyOAuthDeviceFlow);
-
       await client.login(mockBaseUrl);
 
       expect(mockDeviceFlow.run).toHaveBeenCalled();
