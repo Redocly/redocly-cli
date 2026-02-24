@@ -35,14 +35,14 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/ajv": "^8.11.2",
-    "@redocly/config": "^0.22.0",
-    "colorette": "^1.2.0",
-    "https-proxy-agent": "^7.0.5",
-    "js-levenshtein": "^1.1.6",
-    "js-yaml": "^4.1.0",
-    "minimatch": "^5.0.1",
-    "pluralize": "^8.0.0",
+    "@redocly/ajv": "8.11.2",
+    "@redocly/config": "0.22.0",
+    "colorette": "1.4.0",
+    "https-proxy-agent": "7.0.6",
+    "js-levenshtein": "1.1.6",
+    "js-yaml": "4.1.0",
+    "minimatch": "5.1.6",
+    "pluralize": "8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
   "devDependencies": {
