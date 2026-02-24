@@ -159,4 +159,9 @@ export type {
   ExtendedSecurity,
   ResolvedSecurity,
 } from './typings/arazzo.js';
-export type { StatsAccumulator, StatsName } from './typings/common.js';
+export type {
+  StatsAccumulator,
+  OASStatsAccumulator,
+  AsyncAPIStatsAccumulator,
+  StatsName,
+} from './typings/common.js';

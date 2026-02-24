@@ -1,15 +1,15 @@
 {
   "refs": {
     "metric": "🚗 References",
-    "total": 18
+    "total": 2
   },
   "externalDocs": {
     "metric": "📦 External Documents",
-    "total": 12
+    "total": 1
   },
   "schemas": {
     "metric": "📈 Schemas",
-    "total": 17
+    "total": 1
   },
   "parameters": {
     "metric": "👉 Parameters",
@@ -17,15 +17,15 @@
   },
   "channels": {
     "metric": "📡 Channels",
-    "total": 4
+    "total": 1
   },
   "operations": {
     "metric": "👷 Operations",
-    "total": 4
+    "total": 1
   },
   "tags": {
     "metric": "🔖 Tags",
-    "total": 11
+    "total": 2
   }
 }
 Document: async.yaml stats:

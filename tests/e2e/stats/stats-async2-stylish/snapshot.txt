@@ -1,10 +1,10 @@
-🚗 References: 18 
-📦 External Documents: 12 
-📈 Schemas: 17 
+🚗 References: 2 
+📦 External Documents: 1 
+📈 Schemas: 1 
 👉 Parameters: 0 
-📡 Channels: 4 
-👷 Operations: 4 
-🔖 Tags: 11 
+📡 Channels: 1 
+👷 Operations: 1 
+🔖 Tags: 2 
 
 Document: async.yaml stats:
 

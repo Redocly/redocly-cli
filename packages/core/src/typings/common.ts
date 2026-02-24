@@ -26,4 +26,6 @@ export type AsyncAPIStatsName =
   | 'parameters';
 
 export type StatsName = OASStatsName | AsyncAPIStatsName;
-export type StatsAccumulator = Partial<Record<StatsName, StatsRow>>;
+export type OASStatsAccumulator = Record<OASStatsName, StatsRow>;
+export type AsyncAPIStatsAccumulator = Record<AsyncAPIStatsName, StatsRow>;
+export type StatsAccumulator = OASStatsAccumulator | AsyncAPIStatsAccumulator;

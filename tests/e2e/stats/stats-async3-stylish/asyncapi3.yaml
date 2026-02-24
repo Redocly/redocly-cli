@@ -1,31 +1,42 @@
 asyncapi: 3.0.0
 info:
-  title: Account Service
+  title: AsyncAPI 3.x Example
   version: 1.0.0
-  description: This service is in charge of processing user signups
+  description: Minimal AsyncAPI 3.x example for stats testing
+tags:
+  - name: test-tag
+externalDocs:
+  description: External docs
+  url: https://example.com
+
 channels:
   userSignedup:
     address: user/signedup/
+    parameters:
+      userId:
+        description: User ID
     messages:
       UserSignedUp:
         $ref: '#/components/messages/UserSignedUp'
+
 operations:
   sendUserSignedup:
     action: send
+    tags:
+      - test-tag
     channel:
       $ref: '#/channels/userSignedup'
     messages:
       - $ref: '#/channels/userSignedup/messages/UserSignedUp'
+
 components:
   messages:
     UserSignedUp:
       payload:
-        type: object
-        properties:
-          displayName:
-            type: string
-            description: Name of the user
-          email:
-            type: string
-            format: email
-            description: Email of the user
+        $ref: '#/components/schemas/UserPayload'
+  schemas:
+    UserPayload:
+      type: object
+      properties:
+        email:
+          type: string
