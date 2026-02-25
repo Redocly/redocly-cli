@@ -7,6 +7,8 @@ import type { Oas3Schema } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
+type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
+
 const ajv = new Ajv({
   strictSchema: false,
   allowUnionTypes: true,
@@ -17,7 +19,10 @@ const ajv = new Ajv({
   verbose: true,
 });
 
-function findOneOf(schemaOneOf: JSONSchema[], oneOfs: (PropType | ResolveTypeFn)[]): ResolveTypeFn {
+function findOneOf(
+  schemaOneOf: ExtendedJSONSchema[],
+  oneOfs: (PropType | ResolveTypeFn)[]
+): ResolveTypeFn {
   if (oneOfs.some((option) => typeof option === 'function')) {
     throw new Error('Unexpected oneOf inside oneOf.');
   }
@@ -33,7 +38,7 @@ function findOneOf(schemaOneOf: JSONSchema[], oneOfs: (PropType | ResolveTypeFn)
 
 function transformJSONSchemaToNodeType(
   propertyName: string,
-  schema: JSONSchema,
+  schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): PropType | ResolveTypeFn {
   if (!schema || typeof schema === 'boolean') {
@@ -137,13 +142,13 @@ function transformJSONSchemaToNodeType(
             }
           }
         }
-        return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
+        return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs)(value, key);
       };
     } else {
       const oneOfs = schema.oneOf.map((option, i) =>
         transformJSONSchemaToNodeType(propertyName + '_' + i, option, ctx)
       );
-      return findOneOf(schema.oneOf as JSONSchema[], oneOfs);
+      return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs);
     }
   }
 
@@ -152,7 +157,7 @@ function transformJSONSchemaToNodeType(
 
 function extractNodeToContext(
   propertyName: string,
-  schema: JSONSchema,
+  schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): string {
   if (!schema || typeof schema === 'boolean') {
@@ -174,8 +179,7 @@ function extractNodeToContext(
   }
 
   // Use nodeTypeName from schema if provided, otherwise use propertyName
-  const nodeTypeName =
-    (schema as JSONSchema & { nodeTypeName?: string })['nodeTypeName'] ?? propertyName;
+  const nodeTypeName = schema.nodeTypeName ?? propertyName;
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
@@ -224,13 +228,20 @@ function extractNodeToContext(
     };
   }
 
-  ctx[nodeTypeName] = { properties, additionalProperties, items, required };
+  ctx[nodeTypeName] = {
+    properties,
+    additionalProperties,
+    items,
+    required,
+    description: schema.description,
+    documentationLink: schema.documentationLink,
+  };
   return nodeTypeName;
 }
 
 export function getNodeTypesFromJSONSchema(
   schemaName: string,
-  entrySchema: JSONSchema
+  entrySchema: ExtendedJSONSchema
 ): {
   ctx: Record<string, NodeType>;
   discriminatorResolver?: ResolveTypeFn;

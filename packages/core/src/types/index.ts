@@ -7,6 +7,8 @@ export type ScalarSchema = {
   resolvable?: boolean;
   directResolveAs?: string;
   minimum?: number;
+  description?: string;
+  documentationLink?: string;
 };
 
 export type NormalizedScalarSchema = {
