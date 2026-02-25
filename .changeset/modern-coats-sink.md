@@ -2,4 +2,4 @@
 "@redocly/openapi-core": major
 ---
 
-Added AsyncAPI support to the stats command.
+Added AsyncAPI support to the `stats` command.
