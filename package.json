@@ -30,9 +30,6 @@
     "build-docs:copy-assets": "cp packages/cli/src/commands/build-docs/template.hbs packages/cli/lib/commands/build-docs/template.hbs ",
     "json-server": "json-server --watch tests/e2e/respect/local-json-server/fake-db.json --port 3000 --host 0.0.0.0"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/redocly-cli.git"
