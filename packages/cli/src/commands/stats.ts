@@ -25,7 +25,6 @@ import type { VerifyConfigOptions } from '../types.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
-// OpenAPI stats accumulator
 const createOASStatsAccumulator = (): OASStatsAccumulator => ({
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
@@ -38,7 +37,6 @@ const createOASStatsAccumulator = (): OASStatsAccumulator => ({
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
 });
 
-// AsyncAPI stats accumulator
 const createAsyncAPIStatsAccumulator = (): AsyncAPIStatsAccumulator => ({
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
@@ -117,12 +115,10 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 
-  // Create spec-specific accumulators
   const statsAccumulatorOAS = createOASStatsAccumulator();
   const statsAccumulatorAsync2 = createAsyncAPIStatsAccumulator();
   const statsAccumulatorAsync3 = createAsyncAPIStatsAccumulator();
 
-  // Select appropriate visitor based on spec version
   const statsVisitor =
     specVersion === 'async2'
       ? StatsAsync2(statsAccumulatorAsync2)
