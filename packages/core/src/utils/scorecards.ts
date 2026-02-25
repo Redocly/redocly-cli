@@ -1,4 +1,4 @@
-import { NODE_TYPE_NAMES } from '@redocly/config';
+import { ENTITY_NODE_TYPE_NAMES } from '@redocly/config';
 
 import type { RuleConfig } from '../config/types.js';
 import type { Document } from '../resolve.js';
@@ -21,7 +21,7 @@ function transformEntityTypeName(subjectType: string, entityType: string): strin
 
   const specificType = capitalizedEntityType + subjectType;
 
-  if ((Object.values(NODE_TYPE_NAMES) as string[]).includes(specificType)) {
+  if ((Object.values(ENTITY_NODE_TYPE_NAMES) as string[]).includes(specificType)) {
     return specificType;
   }
 
@@ -106,7 +106,7 @@ function isAssertionRule(ruleKey: string, ruleValue: unknown): ruleValue is RawA
 }
 
 function isEntityAssertion(assertion: Assertion): boolean {
-  return Object.values(NODE_TYPE_NAMES).some(
+  return Object.values(ENTITY_NODE_TYPE_NAMES).some(
     (entityTypeName) => assertion.subject.type === entityTypeName
   );
 }

@@ -1,4 +1,4 @@
-import { rootRedoclyConfigSchema } from '@redocly/config';
+import { CONFIG_NODE_TYPE_NAMES, rootRedoclyConfigSchema } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
@@ -218,7 +218,7 @@ const configGovernanceProperties: Record<
   NodeType['properties'][string]
 > = {
   extends: {
-    name: 'ConfigRoot.extends',
+    name: 'Extends',
     properties: {},
     items: (node) => {
       // check if it's preset name
@@ -246,26 +246,26 @@ const configGovernanceProperties: Record<
   arazzo1Rules: 'Rules',
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
-  preprocessors: { type: 'object' },
-  oas2Preprocessors: { type: 'object' },
-  oas3_0Preprocessors: { type: 'object' },
-  oas3_1Preprocessors: { type: 'object' },
-  oas3_2Preprocessors: { type: 'object' },
-  async2Preprocessors: { type: 'object' },
-  async3Preprocessors: { type: 'object' },
-  arazzo1Preprocessors: { type: 'object' },
-  overlay1Preprocessors: { type: 'object' },
-  openrpc1Preprocessors: { type: 'object' },
-  decorators: { type: 'object' },
-  oas2Decorators: { type: 'object' },
-  oas3_0Decorators: { type: 'object' },
-  oas3_1Decorators: { type: 'object' },
-  oas3_2Decorators: { type: 'object' },
-  async2Decorators: { type: 'object' },
-  async3Decorators: { type: 'object' },
-  arazzo1Decorators: { type: 'object' },
-  overlay1Decorators: { type: 'object' },
-  openrpc1Decorators: { type: 'object' },
+  preprocessors: 'Preprocessors',
+  oas2Preprocessors: 'Preprocessors',
+  oas3_0Preprocessors: 'Preprocessors',
+  oas3_1Preprocessors: 'Preprocessors',
+  oas3_2Preprocessors: 'Preprocessors',
+  async2Preprocessors: 'Preprocessors',
+  async3Preprocessors: 'Preprocessors',
+  arazzo1Preprocessors: 'Preprocessors',
+  overlay1Preprocessors: 'Preprocessors',
+  openrpc1Preprocessors: 'Preprocessors',
+  decorators: 'Decorators',
+  oas2Decorators: 'Decorators',
+  oas3_0Decorators: 'Decorators',
+  oas3_1Decorators: 'Decorators',
+  oas3_2Decorators: 'Decorators',
+  async2Decorators: 'Decorators',
+  async3Decorators: 'Decorators',
+  arazzo1Decorators: 'Decorators',
+  overlay1Decorators: 'Decorators',
+  openrpc1Decorators: 'Decorators',
 };
 
 const ConfigGovernance: NodeType = {
@@ -291,6 +291,9 @@ const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
 const ConfigApis: NodeType = {
   properties: {},
   additionalProperties: 'ConfigApisProperties',
+  description:
+    'The `apis` configuration section is used when a project contains multiple API descriptions to set up different rules and settings for individual APIs. It allows defining specific configurations for each API, which must be identified by a unique name.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
 const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
@@ -314,9 +317,9 @@ const ConfigHTTP: NodeType = {
 
 const Rules: NodeType = {
   properties: {},
-  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
   description:
     'The rules configuration blocks configure linting rules and their severity. Configure built-in rules included by default, configurable rules you add yourself, and rules from plugins.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
       if (typeof value === 'string') {
@@ -344,6 +347,25 @@ const BuiltinRule: NodeType = {
   },
   additionalProperties: {},
   required: ['severity'],
+  description:
+    'Built-in rules are the default linting rules included with Redocly CLI. They enforce widely accepted API design standards and best practices. Each built-in rule has a default severity of error, but you can change the severity or turn off any built-in rule in your configuration file.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/built-in-rules',
+};
+
+const Decorators: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description:
+    'Decorators define transformations that can be applied to the API document during the bundle step.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/decorators',
+};
+
+const Preprocessors: NodeType = {
+  properties: {},
+  additionalProperties: {},
+  description:
+    'Preprocessors define transformations that can be applied to the API document before bundling.',
+  documentationLink: 'https://redocly.com/docs/cli/configuration/reference/preprocessors',
 };
 
 // TODO: add better type tree for this
@@ -401,17 +423,17 @@ function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
       },
     },
     required: ['type'],
-    documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
     description:
       'REQUIRED. Narrows the subject further by specifying its type, and optionally property, filterParentKeys, etc.',
+    documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#subject-object',
   };
 }
 
 function createScorecardLevelsItems(nodeTypes: Record<string, NodeType>): NodeType {
   return {
-    ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items'],
+    ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel],
     properties: {
-      ...nodeTypes['rootRedoclyConfigSchema.scorecard.levels_items']?.properties,
+      ...nodeTypes[CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]?.properties,
       ...configGovernanceProperties,
     },
   };
@@ -548,8 +570,8 @@ const Assertions: NodeType = {
     if (/^\w+\/\w+$/.test(key)) return {};
     return;
   },
-  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertion-object',
   description: 'A minimum of one assertion property is required to be defined.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#assertion-object',
 };
 
 const Where: NodeType = {
@@ -558,9 +580,9 @@ const Where: NodeType = {
     assertions: 'Assertions',
   },
   required: ['subject', 'assertions'],
-  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#where-object',
   description:
     'The where object is part of a where list which must be defined in order from the root node. Each node can only be used in one where object for each assertion. Each subsequent node must be a descendant of the previous one. Rules that use multiple where objects must target each one on a different node. However, the same node could be used in the last where object and in the root subject object. Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.',
+  documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#where-object',
 };
 
 const ConfigurableRule: NodeType = {
@@ -573,10 +595,10 @@ const ConfigurableRule: NodeType = {
     severity: { enum: ['error', 'warn', 'off'] },
   },
   required: ['subject', 'assertions'],
-  documentationLink:
-    'https://redocly.com/docs/cli/rules/configurable-rules#configurable-rule-object',
   description:
     'Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a rule/ prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions.',
+  documentationLink:
+    'https://redocly.com/docs/cli/rules/configurable-rules#configurable-rule-object',
 };
 
 export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
@@ -593,8 +615,7 @@ export function createConfigTypes(extraSchemas: JSONSchema, config?: Config) {
     ConfigApisProperties: createConfigApisProperties(nodeTypes),
     Subject: createAssertionDefinitionSubject(nodeNames),
     ...nodeTypes,
-    'rootRedoclyConfigSchema.scorecard.levels_items': createScorecardLevelsItems(nodeTypes),
-    'rootRedoclyConfigSchema.scorecardClassic.levels_items': createScorecardLevelsItems(nodeTypes),
+    [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: createScorecardLevelsItems(nodeTypes),
   };
 }
 
@@ -607,6 +628,8 @@ const CoreConfigTypes: Record<string, NodeType> = {
   BuiltinRule,
   Schema,
   Rules,
+  Decorators,
+  Preprocessors,
   Assertions,
 };
 
