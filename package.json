@@ -10,7 +10,7 @@
   },
   "engineStrict": true,
   "scripts": {
-    "test": "npm run compile && npm run typecheck && npm run unit && npm run e2e",
+    "test": "pnpm run compile && pnpm run typecheck && pnpm run unit && pnpm run e2e",
     "unit": "VITEST_SUITE=unit vitest run",
     "e2e": "VITEST_SUITE=e2e vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
@@ -20,10 +20,10 @@
     "lint:fix": "oxlint --fix",
     "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "compile": "tsc -b tsconfig.build.json && npm run respect:parser:generate && npm run build-docs:copy-assets",
-    "prepare": "husky && npm run compile",
+    "compile": "tsc -b tsconfig.build.json && pnpm run respect:parser:generate && pnpm run build-docs:copy-assets",
+    "prepare": "husky && pnpm run compile",
     "cli": "node --import tsx packages/cli/src/index.ts",
-    "precli": "npm run compile",
+    "precli": "pnpm run compile",
     "release": "changeset publish",
     "pack:prepare": "./scripts/local-pack.sh",
     "respect:parser:generate": "pegjs --format es --output packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.pegjs && cp packages/respect-core/lib/modules/runtime-expressions/abnf-parser.js packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
@@ -68,11 +68,11 @@
   },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
-      "npm run lint",
-      "npm run format"
+      "pnpm run lint",
+      "pnpm run format"
     ],
     "packages/**/*.ts": [
-      "npm run lint:fix"
+      "pnpm run lint:fix"
     ]
   }
 }

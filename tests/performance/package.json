@@ -6,7 +6,7 @@
   "scripts": {
     "chart": "node chart.js > benchmark_chart.md",
     "make-test": "bash make-test-command.sh",
-    "test": "echo 'Run `npm run make-test` to setup benchmark tests'"
+    "test": "echo 'Run `pnpm run make-test` to setup benchmark tests'"
   },
   "_enhancedDependencies": {
     "cli-2.0.0": "npm:@redocly/cli@2.0.0",

@@ -34,10 +34,10 @@ Before submitting your contribution though, please make sure to take a moment an
 Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
-1. Run `npm install` in the repository root.
+1. Run `pnpm install` in the repository root.
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
-1. Format your code (`npm run format`).
+1. Format your code (`pnpm run format`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
    if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
    Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
@@ -50,22 +50,22 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development setup
 
-[Node.js](http://nodejs.org) at v22.12.0+ and NPM v11+ are required.
+[Node.js](http://nodejs.org) at v22.12.0+ and [PNPM](https://pnpm.io) v10+ are required.
 
 After forking the repo, run:
 
 ```bash
-npm install # or npm i
+pnpm install # or pnpm i
 ```
 
 ### Commonly used NPM scripts
 
-To compile the code, run `npm run compile`.
+To compile the code, run `pnpm run compile`.
 
-To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint resources/museum.yaml --format=stylish`.
-Please notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
+To run a specific CLI command, use `pnpm run cli`, e.g. `pnpm run cli -- lint resources/museum.yaml --format=stylish`.
+Please notice that the extra `--` is required to pass arguments to the CLI rather than to PNPM itself.
 
-Format your code with `npm run format` before committing.
+Format your code with `pnpm run format` before committing.
 
 Please check the [Tests section](#tests) for the test commands reference.
 
@@ -102,11 +102,11 @@ When contributing to Redocly CLI, it's important to follow these logging guideli
 
 ## Local source code usage
 
-There are two options for testing local changes in other local applications: NPM linking and local packing and installing from the `redocly-cli.tgz` file.
+There are two options for testing local changes in other local applications: PNPM linking and local packing and installing from the `redocly-cli.tgz` file.
 
 ### NPM linking
 
-To test the local source code of the packages in other local applications, you can use npm linking. See the [docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
+To test the local source code of the packages in other local applications, you can use pnpm linking. See the [docs](https://pnpm.io/cli/link).
 
 ### Local packing and installing
 
@@ -114,10 +114,10 @@ To test local changes as a package, you can use the following steps:
 
 1. Optionally, bump the version of the packages ([see details](#version-updating)).
 
-1. Run `npm run pack:prepare` in the repository's root.
+1. Run `pnpm run pack:prepare` in the repository's root.
    This generates **redocly-cli.tgz**, **respect-core.tgz**, and **openapi-core.tgz** files.
 
-1. Copy those **.tgz** files to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI.
+1. Copy those **.tgz** files to a destination folder and then run `pnpm install redocly-cli.tgz` there to install Redocly CLI.
    To install `openapi-core` do the same but with **openapi-core.tgz** file.
 
 ## Contribute documentation
@@ -156,7 +156,7 @@ The configuration is in `.vale.ini` in the root of the project.
 
 We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
 
-> Note that formatter also runs and reformats Markdown files. Use `npm run format` from the root of the project.
+> Note that formatter also runs and reformats Markdown files. Use `pnpm run format` from the root of the project.
 
 ### Markdown link checking
 
@@ -220,27 +220,27 @@ The application maintains the following exit codes.
 
 ## Tests
 
-When running tests, make sure the code is compiled (`npm run compile`).
+When running tests, make sure the code is compiled (`pnpm run compile`).
 Having `redocly.yaml` in the root of the project affects the unit tests, and console logs affect the e2e tests, so make sure to get rid of both before running tests.
-Run `npm test` to start both unit and e2e tests (and additionally typecheck the code).
+Run `pnpm test` to start both unit and e2e tests (and additionally typecheck the code).
 
 ### Unit tests
 
-Run unit tests with this command: `npm run unit`.
+Run unit tests with this command: `pnpm run unit`.
 
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
 
-To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
-To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
-To update snapshots, run `npm run unit -- -u`.
+To run tests from a single file, run: `pnpm run unit -- <path/to/your/file.test.ts>`
+To run a specific test, use this command: `pnpm run unit -- -t 'Test name'`.
+To update snapshots, run `pnpm run unit -- -u`.
 
 ### E2E tests
 
-Run e2e tests with this command: `npm run e2e`.
+Run e2e tests with this command: `pnpm run e2e`.
 
 E2E tests are sensitive to any additional output (like `console.log`) in the source code.
 
-To update snapshots, run `npm run e2e -- -u`.
+To update snapshots, run `pnpm run e2e -- -u`.
 
 If you made any changes, make sure to compile the code before running the tests.
 
@@ -271,9 +271,9 @@ To update smoke tests for the `build-docs` command (which sometimes fails due to
 
 ```sh
 # Build and install the current CLI build locally
-npm run compile
-npm run pack:prepare
-npm i -g redocly-cli.tgz
+pnpm run compile
+pnpm run pack:prepare
+pnpm i -g redocly-cli.tgz
 
 # Re-build the docs
 (cd tests/smoke/basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
@@ -288,13 +288,13 @@ To run the performance tests locally, you should have `hyperfine` (v1.16.1+) ins
 Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations:
 
 ```sh
-(npm run compile && npm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f package-lock.json && npm i && npm run make-test)
+(pnpm run compile && pnpm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f package-lock.json && pnpm i && pnpm run make-test)
 ```
 
 and run the actual test:
 
 ```sh
-(cd tests/performance/ && npm run test && cat benchmark_check.md)
+(cd tests/performance/ && pnpm run test && cat benchmark_check.md)
 ```
 
 You might need to adjust the CLI versions that need to be tested in the `tests/performance/package.json` file.
@@ -303,7 +303,7 @@ You might need to adjust the CLI versions that need to be tested in the `tests/p
 
 What should be verified when changes applied to the `respect-core` package:
 
-- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `npm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
+- `mTLS` is working. Can be done by calling API endpoint with mTLA authentication `pnpm run cli respect {YOUR}.arazzo.yaml -- --verbose --mtls=='{"domain":{"caCert":"ca-cert.pem", "clientKey":"client-key.pem","clientCert":"client-cert.pem"}}'`. [Learn more about mTLS usage in Respect](https://redocly.com/docs/respect/guides/mtls-cli#use-mtls-with-respect-in-redocly-cli).
 - File upload is working for both `multipart/form-data` and `application/octet-stream`.
 
 ## Project structure
@@ -362,7 +362,7 @@ To release an experimental version to the **NPM** registry, follow these steps:
 2. Add the `snapshot` label to the PR.
    This triggers a release of the current branch changes to the **NPM** registry under the `snapshot` tag.
 
-The released version can be installed with `npm install @redocly/cli@snapshot`.
+The released version can be installed with `pnpm install @redocly/cli@snapshot`.
 
 ### Release a V1 version
 
