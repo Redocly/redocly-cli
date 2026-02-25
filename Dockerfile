@@ -1,9 +1,13 @@
 FROM node:alpine
 
 WORKDIR /build
+
+RUN npm i -g pnpm@10
+
 COPY . .
+
 RUN apk add --no-cache jq git && \
-    pnpm ci --no-optional --ignore-scripts && \
+    pnpm i --frozen-lockfile --no-optional --ignore-scripts && \
     pnpm run prepare && \
     pnpm run pack:prepare && \
     pnpm install --global redocly-cli.tgz && \

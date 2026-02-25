@@ -38,7 +38,7 @@ Before submitting a pull request, please make sure the following is done:
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
 1. Format your code (`pnpm run format`).
-1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`;
+1. Each feat/fix PR should also contain a changeset (to create one, run `pnpx changeset`;
    if your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well).
    Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
    This produces a file in `.changeset` folder.

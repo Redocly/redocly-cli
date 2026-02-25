@@ -2,6 +2,7 @@
 !package.json
 !tsconfig.build.json
 !tsconfig.json
-!package-lock.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
 !packages/*
 !scripts/local-pack.sh

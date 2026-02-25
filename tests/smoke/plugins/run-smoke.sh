@@ -9,11 +9,11 @@ ls -a
 echo
 
 # Install plugin package
-pnpm i
+npm i
 
 # Install CLI globally
-pnpm i redocly-cli.tgz -g
+npm i redocly-cli.tgz -g
 
 # Actual smoke test - executing the command provided as the second argument
-pnpm run redocly-version
-pnpm run  redocly-lint
+npm run redocly-version
+npm run redocly-lint

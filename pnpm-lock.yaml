@@ -71,6 +71,9 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: 1.34.0
         version: 1.34.0
+      '@redocly/config':
+        specifier: ^0.43.0
+        version: 0.43.0
       '@redocly/openapi-core':
         specifier: 2.19.2
         version: 2.19.2
