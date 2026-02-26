@@ -22,6 +22,7 @@ import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
 import type { VerifyConfigOptions } from '../types.js';
+import { exitWithError } from '../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
@@ -104,16 +105,7 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
     tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
   };
-  const statsAccumulatorAsync2: AsyncAPIStatsAccumulator = {
-    refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
-    externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
-    schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
-    parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
-    channels: { metric: '📡 Channels', total: 0, color: 'green' },
-    operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
-    tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-  };
-  const statsAccumulatorAsync3: AsyncAPIStatsAccumulator = {
+  const statsAccumulatorAsync: AsyncAPIStatsAccumulator = {
     refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
     externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
     schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
@@ -123,12 +115,26 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
   };
 
-  const [statsVisitor, statsAccumulator] =
-    specVersion === 'async2'
-      ? [StatsAsync2(statsAccumulatorAsync2), statsAccumulatorAsync2]
-      : specVersion === 'async3'
-        ? [StatsAsync3(statsAccumulatorAsync3), statsAccumulatorAsync3]
-        : [StatsOAS(statsAccumulatorOAS), statsAccumulatorOAS];
+  let statsVisitor, statsAccumulator;
+  switch (specVersion) {
+    case 'async2':
+      statsAccumulator = statsAccumulatorAsync;
+      statsVisitor = StatsAsync2(statsAccumulator);
+      break;
+    case 'async3':
+      statsAccumulator = statsAccumulatorAsync;
+      statsVisitor = StatsAsync3(statsAccumulator);
+      break;
+    case 'oas2':
+    case 'oas3_0':
+    case 'oas3_1':
+    case 'oas3_2':
+      statsAccumulator = statsAccumulatorOAS;
+      statsVisitor = StatsOAS(statsAccumulator);
+      break;
+    default:
+      return exitWithError(`Unsupported spec version: ${specVersion}.`);
+  }
 
   const startedAt = performance.now();
   const ctx: WalkContext = {
