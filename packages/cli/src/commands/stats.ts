@@ -6,11 +6,18 @@ import {
   getTypes,
   normalizeVisitors,
   walkDocument,
-  Stats,
+  StatsOAS,
+  StatsAsync2,
+  StatsAsync3,
   bundle,
   logger,
 } from '@redocly/openapi-core';
-import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
+import type {
+  OASStatsAccumulator,
+  AsyncAPIStatsAccumulator,
+  WalkContext,
+  OutputFormat,
+} from '@redocly/openapi-core';
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
@@ -18,7 +25,7 @@ import type { VerifyConfigOptions } from '../types.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
-const statsAccumulator: StatsAccumulator = {
+const createOASStatsAccumulator = (): OASStatsAccumulator => ({
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
   schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
@@ -28,44 +35,52 @@ const statsAccumulator: StatsAccumulator = {
   webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-};
+});
 
-function printStatsStylish(statsAccumulator: StatsAccumulator) {
+const createAsyncAPIStatsAccumulator = (): AsyncAPIStatsAccumulator => ({
+  refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
+  externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
+  schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
+  parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
+  channels: { metric: '📡 Channels', total: 0, color: 'green' },
+  operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
+  tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
+});
+
+function printStatsStylish(statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator) {
   for (const node in statsAccumulator) {
-    const { metric, total, color } = statsAccumulator[node as StatsName];
-
-    logger.output(colors[color](`${metric}: ${total} \n`));
+    const stat = statsAccumulator[node as keyof typeof statsAccumulator];
+    const { metric, total, color } = stat;
+    const colorFn = colors[color as keyof typeof colors] as (text: string) => string;
+    logger.output(colorFn(`${metric}: ${total} \n`));
   }
 }
 
-function printStatsJson(statsAccumulator: StatsAccumulator) {
+function printStatsJson(statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator) {
   const json: any = {};
   for (const key of Object.keys(statsAccumulator)) {
+    const stat = statsAccumulator[key as keyof typeof statsAccumulator];
     json[key] = {
-      metric: statsAccumulator[key as StatsName].metric,
-      total: statsAccumulator[key as StatsName].total,
+      metric: stat.metric,
+      total: stat.total,
     };
   }
 
   logger.output(JSON.stringify(json, null, 2));
 }
 
-function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
+function printStatsMarkdown(statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator) {
   let output = '| Feature  | Count  |\n| --- | --- |\n';
   for (const key of Object.keys(statsAccumulator)) {
-    output +=
-      '| ' +
-      statsAccumulator[key as StatsName].metric +
-      ' | ' +
-      statsAccumulator[key as StatsName].total +
-      ' |\n';
+    const stat = statsAccumulator[key as keyof typeof statsAccumulator];
+    output += '| ' + stat.metric + ' | ' + stat.total + ' |\n';
   }
 
   logger.output(output);
 }
 
 function printStats(
-  statsAccumulator: StatsAccumulator,
+  statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator,
   api: string,
   startedAt: number,
   format: string
@@ -100,6 +115,24 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 
+  const statsAccumulatorOAS = createOASStatsAccumulator();
+  const statsAccumulatorAsync2 = createAsyncAPIStatsAccumulator();
+  const statsAccumulatorAsync3 = createAsyncAPIStatsAccumulator();
+
+  const statsVisitor =
+    specVersion === 'async2'
+      ? StatsAsync2(statsAccumulatorAsync2)
+      : specVersion === 'async3'
+        ? StatsAsync3(statsAccumulatorAsync3)
+        : StatsOAS(statsAccumulatorOAS);
+
+  const statsAccumulator =
+    specVersion === 'async2'
+      ? statsAccumulatorAsync2
+      : specVersion === 'async3'
+        ? statsAccumulatorAsync3
+        : statsAccumulatorOAS;
+
   const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
@@ -114,12 +147,12 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
     externalRefResolver,
   });
 
-  const statsVisitor = normalizeVisitors(
+  const normalizedStatsVisitor = normalizeVisitors(
     [
       {
         severity: 'warn',
         ruleId: 'stats',
-        visitor: Stats(statsAccumulator),
+        visitor: statsVisitor,
       },
     ],
     types
@@ -128,7 +161,7 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   walkDocument({
     document,
     rootType: types.Root,
-    normalizedVisitors: statsVisitor,
+    normalizedVisitors: normalizedStatsVisitor,
     resolvedRefMap,
     ctx,
   });
