@@ -25,28 +25,6 @@ import type { VerifyConfigOptions } from '../types.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
-const createOASStatsAccumulator = (): OASStatsAccumulator => ({
-  refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
-  externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
-  schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
-  parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
-  links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
-  pathItems: { metric: '🔀 Path Items', total: 0, color: 'green' },
-  webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
-  operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
-  tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-});
-
-const createAsyncAPIStatsAccumulator = (): AsyncAPIStatsAccumulator => ({
-  refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
-  externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
-  schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
-  parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
-  channels: { metric: '📡 Channels', total: 0, color: 'green' },
-  operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
-  tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-});
-
 function printStatsStylish(statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator) {
   for (const node in statsAccumulator) {
     const stat = statsAccumulator[node as keyof typeof statsAccumulator];
@@ -115,23 +93,42 @@ export async function handleStats({ argv, config, collectSpecData }: CommandArgs
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 
-  const statsAccumulatorOAS = createOASStatsAccumulator();
-  const statsAccumulatorAsync2 = createAsyncAPIStatsAccumulator();
-  const statsAccumulatorAsync3 = createAsyncAPIStatsAccumulator();
+  const statsAccumulatorOAS: OASStatsAccumulator = {
+    refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
+    externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
+    schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
+    parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
+    links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
+    pathItems: { metric: '🔀 Path Items', total: 0, color: 'green' },
+    webhooks: { metric: '🎣 Webhooks', total: 0, color: 'green' },
+    operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
+    tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
+  };
+  const statsAccumulatorAsync2: AsyncAPIStatsAccumulator = {
+    refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
+    externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
+    schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
+    parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
+    channels: { metric: '📡 Channels', total: 0, color: 'green' },
+    operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
+    tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
+  };
+  const statsAccumulatorAsync3: AsyncAPIStatsAccumulator = {
+    refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
+    externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
+    schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
+    parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
+    channels: { metric: '📡 Channels', total: 0, color: 'green' },
+    operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
+    tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
+  };
 
-  const statsVisitor =
+  const [statsVisitor, statsAccumulator] =
     specVersion === 'async2'
-      ? StatsAsync2(statsAccumulatorAsync2)
+      ? [StatsAsync2(statsAccumulatorAsync2), statsAccumulatorAsync2]
       : specVersion === 'async3'
-        ? StatsAsync3(statsAccumulatorAsync3)
-        : StatsOAS(statsAccumulatorOAS);
-
-  const statsAccumulator =
-    specVersion === 'async2'
-      ? statsAccumulatorAsync2
-      : specVersion === 'async3'
-        ? statsAccumulatorAsync3
-        : statsAccumulatorOAS;
+        ? [StatsAsync3(statsAccumulatorAsync3), statsAccumulatorAsync3]
+        : [StatsOAS(statsAccumulatorOAS), statsAccumulatorOAS];
 
   const startedAt = performance.now();
   const ctx: WalkContext = {
