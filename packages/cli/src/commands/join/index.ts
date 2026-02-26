@@ -7,7 +7,6 @@ import {
   isRef,
   dequal,
   logger,
-  isString,
   isPlainObject,
   keysOf,
   isEmptyObject,
@@ -18,58 +17,41 @@ import type {
   Referenced,
   Exact,
   BundleResult,
-  Oas3Definition,
-  Oas3_1Definition,
-  Oas3_2Definition,
-  Oas3Parameter,
   Oas3PathItem,
   Oas3Server,
   Oas3Tag,
   Oas3_2Tag,
   SpecVersion,
+  Oas3Parameter,
 } from '@redocly/openapi-core';
-import { red, blue, yellow, green } from 'colorette';
+import { blue, yellow } from 'colorette';
 import * as path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
-import type { VerifyConfigOptions } from '../types.js';
-import { exitWithError } from '../utils/error.js';
+import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
-} from '../utils/miscellaneous.js';
-import type { CommandArgs } from '../wrapper.js';
-import { crawl, startsWithComponents } from './split/index.js';
-import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from './split/types.js';
+} from '../../utils/miscellaneous.js';
+import type { CommandArgs } from '../../wrapper.js';
+import { COMPONENTS, type Oas3Method, OPENAPI3_METHOD_NAMES } from '../split/types.js';
+import {
+  replace$Refs,
+  getInfoPrefix,
+  addSecurityPrefix,
+  addPrefix,
+  addComponentsPrefix,
+  formatTags,
+  getApiFilename,
+  iteratePotentialConflicts,
+} from './helpers/index.js';
+import type { JoinArgv, JoinDocumentContext, AnyOas3Definition } from './types.js';
 
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
-let potentialConflictsTotal = 0;
-
-type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
-
-type JoinDocumentContext = {
-  api: string;
-  apiFilename: string;
-  apiTitle?: string;
-  tags?: (Oas3Tag | Oas3_2Tag)[];
-  potentialConflicts: any;
-  tagsPrefix: string;
-  componentsPrefix: string | undefined;
-  oasVersion: Extract<SpecVersion, 'oas3_0' | 'oas3_1' | 'oas3_2'> | null;
-};
-
-export type JoinArgv = {
-  apis: string[];
-  'prefix-tags-with-info-prop'?: string;
-  'prefix-tags-with-filename'?: boolean;
-  'prefix-components-with-info-prop'?: string;
-  'without-x-tag-groups'?: boolean;
-  output?: string;
-} & VerifyConfigOptions;
 
 export async function handleJoin({
   argv,
@@ -242,7 +224,10 @@ export async function handleJoin({
     }
   }
 
-  iteratePotentialConflicts(potentialConflicts, withoutXTagGroups);
+  const potentialConflictsTotal = iteratePotentialConflicts({
+    potentialConflicts,
+    withoutXTagGroups,
+  });
   const noRefs = true;
 
   if (potentialConflictsTotal) {
@@ -665,154 +650,4 @@ export async function handleJoin({
     joinedDef.openapi = openapi.openapi;
     joinedDef.info = openapi.info;
   }
-}
-
-function doesComponentsDiffer(curr: object, next: object) {
-  return !dequal(Object.values(curr)[0], Object.values(next)[0]);
-}
-
-function validateComponentsDifference(files: any) {
-  let isDiffer = false;
-  for (let i = 0, len = files.length; i < len; i++) {
-    const next = files[i + 1];
-    if (next && doesComponentsDiffer(files[i], next)) {
-      isDiffer = true;
-    }
-  }
-  return isDiffer;
-}
-
-function iteratePotentialConflicts(potentialConflicts: any, withoutXTagGroups?: boolean) {
-  for (const group of Object.keys(potentialConflicts)) {
-    for (const [key, value] of Object.entries(potentialConflicts[group])) {
-      const conflicts = filterConflicts(value as object);
-      if (conflicts.length) {
-        if (group === COMPONENTS) {
-          for (const [_, conflict] of Object.entries(conflicts)) {
-            if (validateComponentsDifference(conflict[1])) {
-              conflict[1] = conflict[1].map((c: string) => Object.keys(c)[0]);
-              showConflicts(green(group) + ' => ' + key, [conflict]);
-              potentialConflictsTotal += 1;
-            }
-          }
-        } else {
-          if (withoutXTagGroups && group === 'tags') {
-            duplicateTagDescriptionWarning(conflicts);
-          } else {
-            potentialConflictsTotal += conflicts.length;
-            showConflicts(green(group) + ' => ' + key, conflicts);
-          }
-        }
-
-        if (group === 'tags' && !withoutXTagGroups) {
-          prefixTagSuggestion(conflicts.length);
-        }
-      }
-    }
-  }
-}
-
-function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
-  const tagsKeys = conflicts.map(([tagName]) => `\`${tagName}\``);
-  const joinString = yellow(', ');
-  logger.warn(
-    `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
-      tagsKeys.join(joinString)
-    )} tags description.\n`
-  );
-}
-
-function prefixTagSuggestion(conflictsLength: number) {
-  logger.info(
-    green(
-      `\n${conflictsLength} conflict(s) on tags.\nSuggestion: please use ${blue(
-        'prefix-tags-with-filename'
-      )}, ${blue('prefix-tags-with-info-prop')} or ${blue(
-        'without-x-tag-groups'
-      )} to prevent naming conflicts.\n\n`
-    )
-  );
-}
-
-function showConflicts(key: string, conflicts: any) {
-  for (const [path, files] of conflicts) {
-    logger.warn(`Conflict on ${key} : ${red(path)} in files: ${blue(files)} \n`);
-  }
-}
-
-function filterConflicts(entities: object) {
-  return Object.entries(entities).filter(([_, files]) => files.length > 1);
-}
-
-function getApiFilename(filePath: string) {
-  return path.basename(filePath, path.extname(filePath));
-}
-
-function addPrefix(tag: string, tagsPrefix: string) {
-  return tagsPrefix ? tagsPrefix + '_' + tag : tag;
-}
-
-function formatTags(tags: string[]) {
-  return tags.map((tag: string) => ({ name: tag }));
-}
-
-function addComponentsPrefix(description: string, componentsPrefix: string) {
-  return description.replace(/"(#\/components\/.*?)"/g, (match) => {
-    const componentName = path.basename(match);
-    return match.replace(componentName, addPrefix(componentName, componentsPrefix));
-  });
-}
-
-function addSecurityPrefix(security: any, componentsPrefix: string) {
-  return componentsPrefix
-    ? security?.map((s: any) => {
-        const joinedSecuritySchema = {};
-        for (const [key, value] of Object.entries(s)) {
-          Object.assign(joinedSecuritySchema, { [componentsPrefix + '_' + key]: value });
-        }
-        return joinedSecuritySchema;
-      })
-    : security;
-}
-
-function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
-  if (!prefixArg) return '';
-  if (!info) exitWithError('Info section is not found in specification.');
-  if (!info[prefixArg])
-    exitWithError(
-      `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section.`
-    );
-  if (!isString(info[prefixArg]))
-    exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string.`);
-  if (info[prefixArg].length > 50)
-    exitWithError(
-      `${yellow(
-        `prefix-${type}-with-info-prop`
-      )} argument value length should not exceed 50 characters.`
-    );
-  return info[prefixArg].replaceAll(/\s/g, '_');
-}
-
-function replace$Refs(obj: unknown, componentsPrefix: string) {
-  crawl(obj, (node: Record<string, unknown>) => {
-    if (isRef(node) && startsWithComponents(node.$ref)) {
-      const name = path.basename(node.$ref);
-      node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);
-    } else if (isPlainObject(node.discriminator) && isPlainObject(node.discriminator.mapping)) {
-      const { mapping } = node.discriminator;
-      for (const name of Object.keys(mapping)) {
-        const mappingPointer = mapping[name];
-        if (typeof mappingPointer === 'string' && startsWithComponents(mappingPointer)) {
-          mapping[name] = mappingPointer
-            .split('/')
-            .map((name, i, arr) => {
-              return arr.length - 1 === i && !name.includes(componentsPrefix)
-                ? componentsPrefix + '_' + name
-                : name;
-            })
-            .join('/');
-        }
-      }
-    }
-  });
 }
