@@ -28,7 +28,7 @@ import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
 import { handleSplit } from './commands/split/index.js';
-import { handleStats } from './commands/stats.js';
+import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
 import { handlePushStatus } from './reunite/commands/push-status.js';
 import { handlePush } from './reunite/commands/push.js';
