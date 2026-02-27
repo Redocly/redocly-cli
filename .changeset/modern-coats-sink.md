@@ -1,5 +1,5 @@
 ---
-"@redocly/openapi-core": major
+"@redocly/openapi-core": minor
 ---
 
 Added AsyncAPI support to the `stats` command.
