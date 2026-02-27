@@ -325,7 +325,7 @@ describe('handlePush()', () => {
     pathRelativeSpy.mockImplementationOnce((_, p) => p);
     pathDirnameSpy.mockImplementation((_: string) => '.');
 
-    expect(
+    await expect(
       handlePush({
         argv: {
           domain: 'test-domain',

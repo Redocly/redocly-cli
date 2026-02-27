@@ -23,7 +23,7 @@ export { OpenRpcTypes } from './types/openrpc.js';
 export { ConfigTypes, createConfigTypes } from './types/redocly-yaml.js';
 export { createEntityTypes } from './types/entity.js';
 export { normalizeTypes, type NormalizedNodeType, type NodeType } from './types/index.js';
-export { Stats } from './rules/other/stats.js';
+export { StatsOAS, StatsAsync2, StatsAsync3 } from './rules/other/stats.js';
 export {
   loadConfig,
   loadIgnoreConfig,
@@ -159,4 +159,9 @@ export type {
   ExtendedSecurity,
   ResolvedSecurity,
 } from './typings/arazzo.js';
-export type { StatsAccumulator, StatsName } from './typings/common.js';
+export type {
+  StatsAccumulator,
+  OASStatsAccumulator,
+  AsyncAPIStatsAccumulator,
+  StatsName,
+} from './typings/common.js';

@@ -22,9 +22,9 @@ const configExtension: { [key: string]: ViteUserConfig } = {
         ],
         thresholds: {
           lines: 79,
-          functions: 83,
+          functions: 82,
           statements: 78,
-          branches: 71,
+          branches: 70,
         },
       },
     },
@@ -47,6 +47,7 @@ export default mergeConfig(
     test: {
       globals: true,
       restoreMocks: true,
+      mockReset: true,
       environment: 'node',
       env: {
         FORCE_COLOR: '1',

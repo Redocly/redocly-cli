@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 2.20.0
+
+### Minor Changes
+
+- Added AsyncAPI support to the `stats` command.
+
+## 2.19.2
+
+### Patch Changes
+
+- Fixed an issue where `scorecardClassic` configurations were not resolved.
+
 ## 2.19.1
 
 ## 2.19.0
