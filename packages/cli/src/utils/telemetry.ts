@@ -76,7 +76,7 @@ export async function sendTelemetry({
       exit_code,
       execution_time,
       metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
-      environment_ci: process.env.CI,
+      environment_ci: isCIEnvironment() ? 'true' : 'false',
       has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
       spec_version,
       spec_keyword,
@@ -302,3 +302,39 @@ export const getCachedAnonymousId = (): string | undefined => {
     return;
   }
 };
+
+function isCIEnvironment(): boolean {
+  if (
+    process.env.CI ||
+    process.stdout.isTTY === false ||
+    process.env.CONTINUOUS_INTEGRATION ||
+    process.env.GITHUB_ACTIONS ||
+    process.env.GITLAB_CI ||
+    process.env.JENKINS_HOME ||
+    process.env.JENKINS_URL ||
+    process.env.BUILD_NUMBER ||
+    process.env.BUILD_ID ||
+    process.env.BITBUCKET_BUILD_NUMBER ||
+    process.env.BITBUCKET_COMMIT ||
+    process.env.CIRCLECI ||
+    process.env.TRAVIS ||
+    process.env.TF_BUILD ||
+    process.env.TEAMCITY_VERSION ||
+    process.env.bamboo_buildNumber ||
+    process.env.CODEBUILD_BUILD_ID ||
+    process.env.BUILDKITE ||
+    process.env.DRONE ||
+    process.env.SEMAPHORE ||
+    process.env.APPVEYOR ||
+    process.env.NETLIFY ||
+    process.env.VERCEL ||
+    process.env.RENDER ||
+    process.env.HEROKU_TEST_RUN_ID ||
+    process.env.BUDDY_WORKSPACE_ID ||
+    process.env.CI_NAME === 'codeship'
+  ) {
+    return true;
+  }
+
+  return false;
+}
