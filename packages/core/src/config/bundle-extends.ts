@@ -20,6 +20,18 @@ export function bundleExtends({
     return node;
   }
 
+  const invalidEntries = node.extends
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => typeof item !== 'string');
+
+  if (invalidEntries.length > 0) {
+    const positions = invalidEntries.map(({ index }) => index).join(', ');
+    throw new Error(
+      `Found ${invalidEntries.length} unresolvable "extends" entr${invalidEntries.length === 1 ? 'y' : 'ies'} ` +
+        `at position(s) [${positions}]. Each "extends" entry must be a resolvable preset name, file path, or URL.`
+    );
+  }
+
   const resolvedExtends = (node.extends || [])
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
