@@ -21,7 +21,7 @@ import { performance } from 'perf_hooks';
 import type { VerifyConfigOptions } from '../../types.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { resolveStatsVisitorAndAccumulator } from './resolve-visitor-and-accumulator.js';
+import { resolveStatsVisitorAndAccumulator } from './visitor-and-accumulator-resolver.js';
 
 function printStatsStylish(statsAccumulator: OASStatsAccumulator | AsyncAPIStatsAccumulator) {
   for (const node in statsAccumulator) {
