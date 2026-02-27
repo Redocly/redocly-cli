@@ -191,40 +191,7 @@ The following is an example JSON output for an OpenAPI description:
 }
 </pre>
 
-For AsyncAPI descriptions, the output uses `channels` instead of `links`, `pathItems`, and `webhooks`:
-
-<pre>
-{
-  "refs": {
-    "metric": "🚗 References",
-    "total": 2
-  },
-  "externalDocs": {
-    "metric": "📦 External Documents",
-    "total": 1
-  },
-  "schemas": {
-    "metric": "📈 Schemas",
-    "total": 1
-  },
-  "parameters": {
-    "metric": "👉 Parameters",
-    "total": 0
-  },
-  "channels": {
-    "metric": "📡 Channels",
-    "total": 1
-  },
-  "operations": {
-    "metric": "👷 Operations",
-    "total": 1
-  },
-  "tags": {
-    "metric": "🔖 Tags",
-    "total": 2
-  }
-}
-</pre>
+For AsyncAPI descriptions, the output uses `channels` instead of `links`, `pathItems`, and `webhooks`.
 
 The JSON format output is suitable when you want to use the stats data in another program.
 
