@@ -7,14 +7,14 @@ cp packages/cli/package.json packages/cli/package.json.bak
 
 # Build and pack core package
 cd packages/core
-core=$(npm pack | tail -n 1)
+core=$(pnpm pack | tail -n 1)
 mv $core ../../openapi-core.tgz
 cd ../../
 
 # Update and pack respect-core package
 cd packages/respect-core
 jq '.dependencies["@redocly/openapi-core"] = "./openapi-core.tgz"' package.json > tmp.json && mv tmp.json package.json
-respect_core=$(npm pack | tail -n 1)
+respect_core=$(pnpm pack | tail -n 1)
 mv $respect_core ../../respect-core.tgz
 cd ../../
 
@@ -22,7 +22,7 @@ cd ../../
 cd packages/cli
 jq '.dependencies["@redocly/openapi-core"] = "./openapi-core.tgz"' package.json > tmp.json && mv tmp.json package.json
 jq '.dependencies["@redocly/respect-core"] = "./respect-core.tgz"' package.json > tmp.json && mv tmp.json package.json
-cli=$(npm pack | tail -n 1)
+cli=$(pnpm pack | tail -n 1)
 mv $cli ../../redocly-cli.tgz
 cd ../../
 

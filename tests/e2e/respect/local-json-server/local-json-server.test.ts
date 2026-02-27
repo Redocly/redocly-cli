@@ -14,7 +14,7 @@ describe('local-json-server', () => {
 
   beforeAll(async () => {
     // Start json-server
-    serverProcess = spawn('npm', ['run', 'json-server'], { detached: true });
+    serverProcess = spawn('pnpm', ['run', 'json-server'], { detached: true });
 
     // Store original state of fake-bd.json
     originalData = fs.readFileSync(dbPath, 'utf8');
