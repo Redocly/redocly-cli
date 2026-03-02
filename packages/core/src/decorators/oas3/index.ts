@@ -1,3 +1,4 @@
+// FIXME: rename common to common-oas
 import type { Oas3Decorator } from '../../visitors.js';
 import { FilterIn } from '../common/filters/filter-in.js';
 import { FilterOut } from '../common/filters/filter-out.js';
@@ -15,8 +16,8 @@ export const decorators = {
   'info-description-override': InfoDescriptionOverride as Oas3Decorator,
   'info-override': InfoOverride as Oas3Decorator,
   'remove-x-internal': RemoveXInternal as Oas3Decorator,
-  'remove-unused-components': RemoveUnusedComponents,
   'filter-in': FilterIn as Oas3Decorator,
   'filter-out': FilterOut as Oas3Decorator,
   'media-type-examples-override': MediaTypeExamplesOverride as Oas3Decorator,
+  'remove-unused-components': RemoveUnusedComponents, // always the last one
 };

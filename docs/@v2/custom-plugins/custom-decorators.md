@@ -163,6 +163,8 @@ Here are the key points to understand:
   1. The order of plugins as listed in the `plugins` array in `redocly.yaml` configuration file.
   1. The order of decorators as defined in the `decorators` object of each plugin.
 
+Note that the built-in decorators are considered to be part of a special default plugin which is always executed last.
+
 The order in the `decorators` section of `redocly.yaml` **DOES NOT** affect the order in which the decorators are executed.
 
 ### Example
