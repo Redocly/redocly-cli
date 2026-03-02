@@ -1,4 +1,4 @@
-import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as redoclyConfig from '@redocly/config';
 
 import { replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
@@ -49,7 +49,7 @@ export const pluginsCollectorVisitor = normalizeVisitors(
             collectorHandleNode(node, ctx);
           },
         },
-        [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
           leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
@@ -105,7 +105,7 @@ export const configBundlerVisitor = normalizeVisitors(
             bundlerHandleNode(node, ctx);
           },
         },
-        [CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },
