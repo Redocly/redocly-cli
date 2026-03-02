@@ -3,13 +3,20 @@ import { checkIfMatchByStrategy, filter } from './filter-helper.js';
 
 const DEFAULT_STRATEGY = 'any';
 
-export const FilterIn: Oas3Decorator | Oas2Decorator = ({ property, value, matchStrategy }) => {
+export const FilterIn: Oas3Decorator | Oas2Decorator = ({
+  property,
+  value,
+  matchStrategy,
+  applyTo,
+}) => {
   const strategy = matchStrategy || DEFAULT_STRATEGY;
   const filterInCriteria = (item: any) =>
     item?.[property] && !checkIfMatchByStrategy(item?.[property], value, strategy);
 
+  const visitor = applyTo || 'any';
+
   return {
-    any: {
+    [visitor]: {
       enter: (node, ctx) => {
         filter(node, ctx, filterInCriteria);
       },
