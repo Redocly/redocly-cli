@@ -318,7 +318,7 @@ const ConfigHTTP: NodeType = {
 const Rules: NodeType = {
   properties: {},
   description:
-    'The rules configuration blocks configure linting rules and their severity. Configure built-in rules included by default, configurable rules you add yourself, and rules from plugins.',
+    'The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.',
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/rules#rules',
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('rule/')) {
