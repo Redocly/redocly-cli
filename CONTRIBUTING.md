@@ -288,7 +288,7 @@ To run the performance tests locally, you should have `hyperfine` (v1.16.1+) ins
 Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations:
 
 ```sh
-(pnpm run compile && pnpm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f package-lock.json && pnpm i && pnpm run make-test)
+(pnpm run compile && pnpm run pack:prepare && cd tests/performance/ && git clean -dX -f . && git clean -dX -ff .  && rm -rf node_modules && rm -f pnpm-lock.yaml && pnpm i && pnpm run make-test)
 ```
 
 and run the actual test:

@@ -18,7 +18,7 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint ./packages",
     "lint:fix": "oxlint --fix",
-    "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout package-lock.json",
+    "clear": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo node_modules && git checkout pnpm-lock.yaml",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "compile": "tsc -b tsconfig.build.json && pnpm run respect:parser:generate && pnpm run build-docs:copy-assets",
     "prepare": "husky && pnpm run compile",
