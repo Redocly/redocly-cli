@@ -10,7 +10,7 @@ Redocly CLI can help you combine separate API description files (such as if you 
 The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
 
 The `bundle` command differs from the [`join`](./join.md) command.
-The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file.
+The `bundle` command takes a root OpenAPI file as input and follows the `$ref` mentions to include all the referenced components into a single output file. All components are automatically resolved and included without requiring explicit definitions.
 The `join` command can combine multiple OpenAPI files into a single unified API description file.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.

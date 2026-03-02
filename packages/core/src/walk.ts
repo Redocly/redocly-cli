@@ -395,7 +395,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             node,
             {
               report,
-              resolve,
+              resolve: (ref, from = document.source.absoluteRef) => resolve(ref, from),
               rawNode: node,
               rawLocation,
               location,
