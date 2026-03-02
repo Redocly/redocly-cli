@@ -7,11 +7,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.34.10 (2026-03-02)
+
+### Patch Changes
+
+- Updated `js-yaml` dependency to v4.1.1.
+- Updated @redocly/openapi-core to v1.34.10.
+
 ## 1.34.9 (2026-03-02)
 
 ### Patch Changes
 
-- Updated minimatch dependency to v5.1.9.
+- Updated `minimatch` dependency to v5.1.9.
 - Updated @redocly/openapi-core to v1.34.9.
 
 ## 1.34.8 (2026-02-24)
