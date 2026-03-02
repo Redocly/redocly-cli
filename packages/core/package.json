@@ -41,7 +41,7 @@
     "https-proxy-agent": "7.0.6",
     "js-levenshtein": "1.1.6",
     "js-yaml": "4.1.0",
-    "minimatch": "5.1.6",
+    "minimatch": "5.1.9",
     "pluralize": "8.0.0",
     "yaml-ast-parser": "0.0.43"
   },
