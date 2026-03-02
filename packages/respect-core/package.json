@@ -46,7 +46,7 @@
     "colorette": "^2.0.20",
     "json-pointer": "^0.6.2",
     "jsonpath-rfc9535": "1.3.0",
-    "openapi-sampler": "^1.7.0",
+    "openapi-sampler": "^1.7.1",
     "outdent": "^0.8.0",
     "picomatch": "^4.0.3"
   },
