@@ -475,12 +475,12 @@ describe('Oas3 path-params-defined', () => {
       [
         {
           "from": {
-            "pointer": "#/components/parameters/path_userId/name",
+            "pointer": "#/paths/~1users~1data/post/parameters/1",
             "source": "foobar.yaml",
           },
           "location": [
             {
-              "pointer": "#/paths/~1users~1data/post/parameters/1",
+              "pointer": "#/components/parameters/path_userId/name",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
