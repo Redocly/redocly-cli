@@ -186,7 +186,7 @@ const validatePathParameter = (
     const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
 
     if (rawLocation !== location) {
-      report({ message, location: rawLocation, from: location.child(['name']) });
+      report({ message, location: location.child(['name']), from: rawLocation });
     } else {
       report({ message, location: location.child(['name']) });
     }
