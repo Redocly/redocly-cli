@@ -25,8 +25,11 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
       leave() {
         pathItemLeave(pathContext);
       },
-      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-        createPathItemParameterHandler(parameter, pathContext, report, location);
+      Parameter(
+        parameter: Oas2Parameter | Oas3Parameter,
+        { report, location, rawLocation }: UserContext
+      ) {
+        createPathItemParameterHandler(parameter, pathContext, report, location, rawLocation);
       },
       Operation: createOperationHandlers(pathContext, currentOperationParams),
     },
@@ -49,7 +52,8 @@ const createPathItemParameterHandler = (
   parameter: Oas2Parameter | Oas3Parameter,
   pathContext: { current: PathContext | null },
   report: UserContext['report'],
-  location: UserContext['location']
+  location: UserContext['location'],
+  rawLocation: UserContext['rawLocation']
 ) => {
   if (parameter.in === 'path' && parameter.name && pathContext.current) {
     pathContext.current.definedParams.add(parameter.name);
@@ -58,7 +62,8 @@ const createPathItemParameterHandler = (
       pathContext.current.templateParams,
       pathContext.current.path,
       report,
-      location
+      location,
+      rawLocation
     );
   }
 };
@@ -100,8 +105,11 @@ const createOperationHandlers = (
       leave() {
         pathContext.current = parentPathContext;
       },
-      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
-        createPathItemParameterHandler(parameter, pathContext, report, location);
+      Parameter(
+        parameter: Oas2Parameter | Oas3Parameter,
+        { report, location, rawLocation }: UserContext
+      ) {
+        createPathItemParameterHandler(parameter, pathContext, report, location, rawLocation);
       },
       get Operation() {
         return createOperationHandlers(pathContext, currentOperationParams, depth + 1);
@@ -125,7 +133,10 @@ const createOperationHandlers = (
         location
       );
     },
-    Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
+    Parameter(
+      parameter: Oas2Parameter | Oas3Parameter,
+      { report, location, rawLocation }: UserContext
+    ) {
       collectPathParamsFromOperation(parameter, currentOperationParams);
 
       if (parameter.in === 'path' && parameter.name && pathContext.current) {
@@ -135,7 +146,8 @@ const createOperationHandlers = (
           pathContext.current.templateParams,
           pathContext.current.path,
           report,
-          location
+          location,
+          rawLocation
         );
       }
     },
@@ -167,13 +179,17 @@ const validatePathParameter = (
   templateParams: Set<string>,
   path: string,
   report: UserContext['report'],
-  location: UserContext['location']
+  location: UserContext['location'],
+  rawLocation: UserContext['rawLocation']
 ): void => {
   if (!templateParams.has(paramName)) {
-    report({
-      message: `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`,
-      location: location.child(['name']),
-    });
+    const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
+
+    if (rawLocation !== location) {
+      report({ message, location: rawLocation, from: location.child(['name']) });
+    } else {
+      report({ message, location: location.child(['name']) });
+    }
   }
 };
 

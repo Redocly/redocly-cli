@@ -429,4 +429,68 @@ describe('Oas3 path-params-defined', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report error at $ref location when path parameter via $ref is not used in path (issue #1241)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test
+          version: 0.0.1
+        paths:
+          /users/data:
+            post:
+              summary: Query user data
+              operationId: queryUserData
+              parameters:
+                - $ref: "#/components/parameters/header_contentType"
+                - $ref: "#/components/parameters/path_userId"
+              responses:
+                "200":
+                  description: OK
+        components:
+          parameters:
+            header_contentType:
+              name: content-type
+              in: header
+              schema:
+                type: string
+            path_userId:
+              name: user-id
+              in: path
+              required: true
+              schema:
+                type: string
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/components/parameters/path_userId/name",
+            "source": "foobar.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/paths/~1users~1data/post/parameters/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Path parameter \`user-id\` is not used in the path \`/users/data\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
