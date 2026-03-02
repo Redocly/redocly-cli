@@ -1,14 +1,19 @@
-import { BaseResolver, logger } from '@redocly/openapi-core';
-import type { Document } from '@redocly/openapi-core';
+import { BaseResolver, logger, type Document } from '@redocly/openapi-core';
 import { blue, bold, cyan, gray, green, white } from 'colorette';
 
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
-import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
+import {
+  formatPath,
+  getExecutionTime,
+  getFallbackApisOrExit,
+  getAliasOrPath,
+} from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
+import { getTargetLevel } from './targets-handler/targets-handler.js';
 import type { ScorecardClassicArgv } from './types.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
 
@@ -24,27 +29,18 @@ export async function handleScorecardClassic({
     exitWithError('No APIs were provided.');
   }
 
-  const path = apis[0].path;
-  const externalRefResolver = new BaseResolver(config.resolve);
-  const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
-  const targetLevel = argv['target-level'];
-  collectSpecData?.(document.parsed);
-
   const projectUrl =
     argv['project-url'] ||
     config.resolvedConfig.scorecardClassic?.fromProjectUrl ||
     config.resolvedConfig.scorecard?.fromProjectUrl;
-  const apiKey = process.env.REDOCLY_AUTHORIZATION;
-
-  if (argv.verbose) {
-    logger.info(`Project URL: ${projectUrl || 'not configured'}\n`);
-  }
 
   if (!projectUrl) {
     exitWithError(
       'Scorecard is not configured. Please provide it via --project-url flag or configure it in redocly.yaml. Learn more: https://redocly.com/docs/realm/config/scorecard#fromprojecturl-example'
     );
   }
+
+  const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
   if (isNonInteractiveEnvironment() && !apiKey) {
     exitWithError(
@@ -58,12 +54,63 @@ export async function handleScorecardClassic({
     exitWithError('Failed to obtain access token or API key.');
   }
 
-  const remoteScorecardAndPlugins = await fetchRemoteScorecardAndPlugins({
+  const { scorecard, plugins } = await fetchRemoteScorecardAndPlugins({
     projectUrl,
     auth,
     isApiKey: !!apiKey,
     verbose: argv.verbose,
   });
+
+  // Get the API path from the command (first one is the one we're validating)
+  const { path, alias } = apis[0];
+
+  // Use the existing utility to find matching API and alias from config
+  const matchedEntry = getAliasOrPath(config, path);
+  const matchedAlias = matchedEntry.alias || alias;
+
+  // Get metadata from the matched API config
+  const apiConfigMetadata = matchedAlias
+    ? config.resolvedConfig.apis?.[matchedAlias]?.metadata
+    : undefined;
+
+  if (argv.verbose && matchedAlias && apiConfigMetadata) {
+    logger.info(`\n✓ Matched API "${cyan(matchedAlias)}" from config\n`);
+  }
+
+  if (argv.verbose) {
+    logger.info(`Processing API: ${cyan(matchedAlias || 'default')}\n`);
+    logger.info(`Path: ${formatPath(path)}\n`);
+    if (apiConfigMetadata) {
+      logger.info(`Config Metadata: ${JSON.stringify(apiConfigMetadata, null, 2)}\n`);
+    }
+    logger.info(`Project URL: ${projectUrl}\n`);
+  }
+
+  const externalRefResolver = new BaseResolver(config.resolve);
+  const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
+
+  collectSpecData?.(document.parsed);
+
+  // Build combined metadata from document and config
+  const documentInfo = (
+    document.parsed as unknown as {
+      info?: { title?: string; version?: string; 'x-metadata'?: Record<string, unknown> };
+    }
+  )?.info;
+  const builtInMetadata = documentInfo?.['x-metadata'] || {};
+
+  const metadata = {
+    title: documentInfo?.title,
+    version: documentInfo?.version,
+    ...builtInMetadata,
+    ...apiConfigMetadata,
+  };
+
+  if (argv.verbose) {
+    logger.info(`Combined Metadata for target matching: ${JSON.stringify(metadata, null, 2)}\n`);
+  }
+
+  const targetLevel = argv['target-level'] || getTargetLevel(scorecard, metadata);
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
   const {
@@ -73,10 +120,11 @@ export async function handleScorecardClassic({
   } = await validateScorecard({
     document,
     externalRefResolver,
-    scorecardConfig: remoteScorecardAndPlugins.scorecard!,
+    scorecardConfig: scorecard!,
     configPath: config.configPath,
-    pluginsCodeOrPlugins: remoteScorecardAndPlugins?.plugins,
+    pluginsCodeOrPlugins: plugins,
     targetLevel,
+    metadata,
     verbose: argv.verbose,
   });
 
@@ -106,11 +154,7 @@ export async function handleScorecardClassic({
   }
 
   const elapsed = getExecutionTime(startedAt);
-  logger.info(
-    `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
-      elapsed
-    )}.\n`
-  );
+  logger.info(`📊 Scorecard results for ${blue(formatPath(path))} ${green(elapsed)}.\n`);
 
   if (targetLevel && !targetLevelAchieved) {
     throw new AbortFlowError('Target scorecard level not achieved.');

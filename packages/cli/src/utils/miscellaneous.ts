@@ -50,7 +50,7 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+export function getConfigDirectory(config: Config) {
   return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 
@@ -70,7 +70,7 @@ function fallbackToAllDefinitions(config: Config): Entrypoint[] {
   }));
 }
 
-function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
   const configDir = getConfigDirectory(config);
   const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi
