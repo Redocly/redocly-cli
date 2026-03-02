@@ -38,6 +38,7 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
+    "@redocly/cli-otel": "0.0.0-20260225145457",
     "@opentelemetry/exporter-trace-otlp-http": "0.202.0",
     "@opentelemetry/resources": "2.0.1",
     "@opentelemetry/sdk-trace-node": "2.0.1",
@@ -68,7 +69,6 @@
     "yargs": "17.0.1"
   },
   "devDependencies": {
-    "@redocly/cli-otel": "^0.0.4",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/pluralize": "^0.0.29",
