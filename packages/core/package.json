@@ -2,26 +2,17 @@
   "name": "@redocly/openapi-core",
   "version": "1.34.8",
   "description": "",
-  "keywords": [
-    "Arazzo linter",
-    "AsyncAPI linter",
-    "OpenAPI",
-    "OpenAPI linter",
-    "Swagger",
-    "Swagger linter",
-    "linter",
-    "oas"
-  ],
-  "homepage": "https://github.com/Redocly/redocly-cli",
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.5.0"
+  },
+  "engineStrict": true,
   "license": "MIT",
-  "contributors": [
-    "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/redocly-cli.git"
   },
-  "main": "lib/index.js",
   "browser": {
     "fs": false,
     "path": "path-browserify",
@@ -29,6 +20,20 @@
     "colorette": false,
     "https-proxy-agent": false
   },
+  "homepage": "https://github.com/Redocly/redocly-cli",
+  "keywords": [
+    "linter",
+    "OpenAPI",
+    "Swagger",
+    "OpenAPI linter",
+    "Swagger linter",
+    "AsyncAPI linter",
+    "Arazzo linter",
+    "oas"
+  ],
+  "contributors": [
+    "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
+  ],
   "dependencies": {
     "@redocly/ajv": "8.11.2",
     "@redocly/config": "0.22.0",
@@ -47,10 +52,5 @@
     "@types/pluralize": "^0.0.29",
     "json-schema-to-ts": "^3.1.0",
     "typescript": "5.5.3"
-  },
-  "engines": {
-    "node": ">=18.17.0",
-    "npm": ">=9.5.0"
-  },
-  "engineStrict": true
+  }
 }
