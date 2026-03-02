@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.34.9
+
+### Patch Changes
+
+- Updated `minimatch` dependency to v5.1.9.
+
 ## 1.34.8
 
 ### Patch Changes
