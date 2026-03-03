@@ -7,6 +7,20 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.20.3 (2026-03-03)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.20.3.
+
+## 2.20.2 (2026-03-02)
+
+### Patch Changes
+
+- Add support for data: URLs (RFC 2397) in references.
+  The resolver now handles inline base64-encoded and URL-encoded data in $ref fields, allowing schemas and other content to be embedded directly as data URLs.
+- Updated @redocly/openapi-core to v2.20.2.
+
 ## 2.20.1 (2026-03-02)
 
 ### Patch Changes
