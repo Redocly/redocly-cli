@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.20.3
+
+### Patch Changes
+
+- Updated `openapi-sampler` dependency to v1.7.1.
+- Updated @redocly/openapi-core to v2.20.3.
+
 ## 2.20.2
 
 ### Patch Changes

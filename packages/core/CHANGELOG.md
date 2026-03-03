@@ -1,5 +1,7 @@
 # @redocly/openapi-core
 
+## 2.20.3
+
 ## 2.20.2
 
 ### Patch Changes
