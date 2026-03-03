@@ -1,6 +1,6 @@
 # filter-in
 
-Applies to any node type where the property is declared (for example Operations, schema properties, or Tags).
+Applies to any node type where the property is declared (for example Operations, schema properties, or Tags), or to nodes specifically defined by `target`.
 Nodes where the **property** exists but does not match are removed.
 Nodes missing the **property** are kept unless `requireProperty: true` is set.
 
