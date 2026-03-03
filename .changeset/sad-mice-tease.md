@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fix `path-parameters-defined` rule to report error at `$ref` location instead of component definition when path parameter is referenced via `$ref` but not used in path
+Fixed the `path-parameters-defined` rule to report an error at the `$ref` location instead of at the component definition when a path parameter is referenced via `$ref` but not used in the path.
