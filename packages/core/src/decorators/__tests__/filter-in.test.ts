@@ -255,6 +255,55 @@ describe('oas3 filter-in', () => {
 
     `);
   });
+
+  it('should remove nodes missing the property without target explicitly set when requireProperty is true', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          x-audience: Public
+          /keep:
+            x-audience: Public
+            get:
+              x-audience: Public
+              summary: Should be kept
+              responses:
+                '200':
+                  description: Will be removed because it's missing the x-audience property
+          /remove:
+            get:
+              x-audience: Public
+              summary: Will be removed because parent node is missing the x-audience property
+      `
+    );
+
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({
+        decorators: {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public'],
+            requireProperty: true,
+          },
+        },
+      }),
+      types: Oas3Types,
+    });
+
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        x-audience: Public
+        /keep:
+          x-audience: Public
+          get:
+            x-audience: Public
+            summary: Should be kept
+      components: {}
+    `);
+  });
 });
 
 describe('oas2 filter-in', () => {

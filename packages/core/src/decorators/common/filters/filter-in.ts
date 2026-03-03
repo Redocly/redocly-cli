@@ -80,8 +80,17 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
     throw new Error(`The 'target' option must be 'Operation' or 'PathItem' when provided.`);
   }
 
-  const filterInCriteria = (item: any) =>
-    item?.[property] && !checkIfMatchByStrategy(item?.[property], value, strategy);
+  const filterInCriteria = (item: unknown) => {
+    if (!isPlainObject(item)) {
+      return false;
+    }
+
+    if (item[property] === undefined) {
+      return requireProperty;
+    }
+
+    return !checkIfMatchByStrategy(item[property], value, strategy);
+  };
 
   return {
     any: {
