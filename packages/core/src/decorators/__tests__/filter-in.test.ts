@@ -348,7 +348,7 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'x-public',
             value: [true],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -434,7 +434,7 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'operationId',
             value: ['createFoo', 'getBar'],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -480,7 +480,7 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'tags',
             value: ['private'],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -528,7 +528,7 @@ describe('oas3 filter-in with target: Operation', () => {
             value: ['public', 'v2'],
             target: 'Operation',
             matchStrategy: 'all',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -547,7 +547,7 @@ describe('oas3 filter-in with target: Operation', () => {
     `);
   });
 
-  it('should remove operations without the specified property', async () => {
+  it('should remove operations without the specified property when requireProperty is true', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -572,7 +572,7 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'x-audience',
             value: ['Public'],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -662,7 +662,7 @@ describe('oas3 filter-in with target: PathItem', () => {
             property: 'x-audience',
             value: ['Public'],
             target: 'PathItem',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),
@@ -684,7 +684,7 @@ describe('oas3 filter-in with target: PathItem', () => {
     `);
   });
 
-  it('should keep path items without the property when noPropertyStrategy is keep (default)', async () => {
+  it('should keep path items without the property when requireProperty is false (default)', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -731,7 +731,7 @@ describe('oas3 filter-in with target: PathItem', () => {
     `);
   });
 
-  it('should remove path items without the property when noPropertyStrategy is remove', async () => {
+  it('should remove path items without the property when requireProperty is true', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -758,7 +758,7 @@ describe('oas3 filter-in with target: PathItem', () => {
             property: 'x-audience',
             value: ['Public'],
             target: 'PathItem',
-            noPropertyStrategy: 'remove',
+            requireProperty: true,
           },
         },
       }),

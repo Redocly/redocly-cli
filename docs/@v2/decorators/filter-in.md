@@ -1,6 +1,8 @@
 # filter-in
 
-Preserves nodes that have specific `property` set to the specific `value` and removes others.
+Applies to any node type where the property is declared (for example Operations, schema properties, or Tags).
+Nodes where the **property** exists but does not match are removed.
+Nodes missing the **property** are kept unless `requireProperty: true` is set.
 
 ## API design principles
 
@@ -8,21 +10,13 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 
 ## Configuration
 
-| Option             | Type     | Description                                                                                                                                                     |
-| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| property           | string   | **REQUIRED.** The property name used for evaluation. Attempts to match the values.                                                                           |
-| value              | [string] | **REQUIRED.** List of values used for the matching.                                                                                                             |
-| matchStrategy      | string   | Possible values: `all`, `any`. When `all`, must match all of the values supplied. When `any`, must match only one of the values supplied. Default value: `any`. |
-| target             | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                |
-| noPropertyStrategy | string   | Possible values: `keep`, `remove` (default value: `keep`). Decides whether to keep nodes without the specified property. Useful with `target`.                  |
-
-### Explicit vs. implicit target behavior
-
-When `target` is explicitly set, the decorator walks through all nodes of that type and keeps those where the `property` matches the specified values.
-Target nodes without the specified property are either kept (when `noPropertyStrategy` is set to `keep`) or removed (when `noPropertyStrategy` is set to `remove`).
-
-If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and keeps those where the property matches the specified values.
-Nodes without the property are left unchanged.
+| Option          | Type     | Description                                                                                                                                                     |
+| --------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| property        | string   | **REQUIRED.** The property name used for evaluation. Attempts to match the values.                                                                              |
+| value           | [string] | **REQUIRED.** List of values used for the matching.                                                                                                             |
+| matchStrategy   | string   | Possible values: `all`, `any`. When `all`, must match all of the values supplied. When `any`, must match only one of the values supplied. Default value: `any`. |
+| target          | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                |
+| requireProperty | boolean  | When set to `true`, nodes without the specified property are removed. Default value: `false`.                                                                   |
 
 ## Examples
 
@@ -50,7 +44,7 @@ apis:
         target: Operation
         property: operationId
         value: [createSpecialEvent, listSpecialEvents]
-        noPropertyStrategy: remove
+        requireProperty: true
 ```
 
 To apply the decorator, use the `bundle` command:
@@ -76,7 +70,7 @@ decorators:
     target: Operation
     property: x-audience
     value: [Public, Partner]
-    noPropertyStrategy: remove
+    requireProperty: true
 ```
 
 Operations without the `x-audience` property are removed, so only explicitly marked operations remain.

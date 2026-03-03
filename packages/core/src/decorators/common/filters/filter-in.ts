@@ -10,7 +10,7 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
   value,
   matchStrategy,
   target,
-  noPropertyStrategy,
+  requireProperty,
 }) => {
   const strategy = matchStrategy || DEFAULT_STRATEGY;
 
@@ -38,13 +38,12 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
 
               if (isPlainObject(operation)) {
                 const propertyValue = operation[property];
-                const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
-                const shouldKeepWhenNoProperty =
-                  propertyValue === undefined && noPropertyStrategy !== 'remove';
+                const shouldRemove =
+                  propertyValue === undefined
+                    ? requireProperty === true
+                    : !checkIfMatchByStrategy(propertyValue, value, strategy);
 
-                if (shouldKeepWhenNoProperty) {
-                  // Do nothing, keep the operation if the property is missing and noPropertyStrategy is not set to 'remove'
-                } else if (!shouldKeep) {
+                if (shouldRemove) {
                   delete pathItem[method];
                 }
               }
@@ -65,13 +64,12 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
         PathItem: {
           enter(pathItem, ctx) {
             const propertyValue = (pathItem as Record<string, unknown>)[property];
-            const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
-            const shouldKeepWhenNoProperty =
-              propertyValue === undefined && noPropertyStrategy !== 'remove';
+            const shouldRemove =
+              propertyValue === undefined
+                ? requireProperty === true
+                : !checkIfMatchByStrategy(propertyValue, value, strategy);
 
-            if (shouldKeepWhenNoProperty) {
-              // Do nothing, keep the path item if the property is missing and noPropertyStrategy is not set to 'remove'
-            } else if (!shouldKeep) {
+            if (shouldRemove) {
               delete ctx.parent[ctx.key];
             }
           },

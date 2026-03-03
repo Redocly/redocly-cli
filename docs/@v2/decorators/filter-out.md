@@ -16,13 +16,6 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | matchStrategy | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
 | target        | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
 
-### Explicit vs. implicit target behavior
-
-When `target` is explicitly set, the decorator walks through all nodes of that type and removes those where the `property` matches the specified values.
-
-If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and removes those where the property matches the specified values.
-Nodes without the property are left untouched.
-
 ## Examples
 
 ### Remove operations by tag
