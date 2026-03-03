@@ -13,6 +13,14 @@ type PathContext = {
   definedParams: Set<string>;
 };
 
+type PathItemParameterHandlerParams = {
+  parameter: Oas2Parameter | Oas3Parameter;
+  pathContext: { current: PathContext | null };
+  report: UserContext['report'];
+  location: UserContext['location'];
+  rawLocation: UserContext['rawLocation'];
+};
+
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   const pathContext = { current: null as PathContext | null };
   const currentOperationParams = new Set<string>();
@@ -29,7 +37,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         parameter: Oas2Parameter | Oas3Parameter,
         { report, location, rawLocation }: UserContext
       ) {
-        createPathItemParameterHandler(parameter, pathContext, report, location, rawLocation);
+        createPathItemParameterHandler({ parameter, pathContext, report, location, rawLocation });
       },
       Operation: createOperationHandlers(pathContext, currentOperationParams),
     },
@@ -48,13 +56,13 @@ const pathItemLeave = (pathContext: { current: PathContext | null }) => {
   pathContext.current = null;
 };
 
-const createPathItemParameterHandler = (
-  parameter: Oas2Parameter | Oas3Parameter,
-  pathContext: { current: PathContext | null },
-  report: UserContext['report'],
-  location: UserContext['location'],
-  rawLocation: UserContext['rawLocation']
-) => {
+const createPathItemParameterHandler = ({
+  parameter,
+  pathContext,
+  report,
+  location,
+  rawLocation,
+}: PathItemParameterHandlerParams) => {
   if (parameter.in === 'path' && parameter.name && pathContext.current) {
     pathContext.current.definedParams.add(parameter.name);
     validatePathParameter(
@@ -109,7 +117,7 @@ const createOperationHandlers = (
         parameter: Oas2Parameter | Oas3Parameter,
         { report, location, rawLocation }: UserContext
       ) {
-        createPathItemParameterHandler(parameter, pathContext, report, location, rawLocation);
+        createPathItemParameterHandler({ parameter, pathContext, report, location, rawLocation });
       },
       get Operation() {
         return createOperationHandlers(pathContext, currentOperationParams, depth + 1);
@@ -184,12 +192,9 @@ const validatePathParameter = (
 ): void => {
   if (!templateParams.has(paramName)) {
     const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
+    const refLocation = rawLocation !== location ? rawLocation : undefined;
 
-    if (rawLocation !== location) {
-      report({ message, location: location.child(['name']), from: rawLocation });
-    } else {
-      report({ message, location: location.child(['name']) });
-    }
+    report({ message, location: location.child(['name']), from: refLocation });
   }
 };
 

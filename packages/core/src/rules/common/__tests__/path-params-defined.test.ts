@@ -104,6 +104,7 @@ describe('Oas3 path-params-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets~1{a}/parameters/1/name",
@@ -117,6 +118,7 @@ describe('Oas3 path-params-defined', () => {
           "suggest": [],
         },
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets~1{a}/get/parameters/0/name",
@@ -323,6 +325,7 @@ describe('Oas3 path-params-defined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1projects~1{projectId}/post/callbacks/onEvent/{$request.body#~1callbackUrl~1{missingId}}/post/parameters/0/name",
@@ -433,28 +436,20 @@ describe('Oas3 path-params-defined', () => {
   it('should report error at $ref location when path parameter via $ref is not used in path (issue #1241)', async () => {
     const document = parseYamlToDocument(
       outdent`
-        openapi: 3.1.0
+        openapi: 3.2.0
         info:
           title: Test
           version: 0.0.1
         paths:
           /users/data:
             post:
-              summary: Query user data
-              operationId: queryUserData
               parameters:
-                - $ref: "#/components/parameters/header_contentType"
                 - $ref: "#/components/parameters/path_userId"
               responses:
                 "200":
                   description: OK
         components:
           parameters:
-            header_contentType:
-              name: content-type
-              in: header
-              schema:
-                type: string
             path_userId:
               name: user-id
               in: path
@@ -475,7 +470,7 @@ describe('Oas3 path-params-defined', () => {
       [
         {
           "from": {
-            "pointer": "#/paths/~1users~1data/post/parameters/1",
+            "pointer": "#/paths/~1users~1data/post/parameters/0",
             "source": "foobar.yaml",
           },
           "location": [
