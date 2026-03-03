@@ -1,16 +1,13 @@
-import { entityFileDefaultSchema, entityFileSchema } from '@redocly/config';
+import * as redoclyConfig from '@redocly/config';
 import type { EntityFileSchema, EntityBaseFileSchema, ScorecardConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
-import { createConfig } from './config/index.js';
-import type { Config } from './config/index.js';
+import { createConfig, type Config } from './config/index.js';
 import { lintDocument } from './lint.js';
 import { type SpecVersion } from './oas-types.js';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
-import type { Document } from './resolve.js';
+import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { EntityKeyValid } from './rules/catalog-entity/entity-key-valid.js';
-import { Assertions } from './rules/common/assertions/index.js';
-import type { Assertion } from './rules/common/assertions/index.js';
+import { Assertions, type Assertion } from './rules/common/assertions/index.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
 import {
@@ -26,10 +23,18 @@ import {
   findDataSchemaInDocument,
   transformScorecardRulesToAssertions,
 } from './utils/scorecards.js';
-import { normalizeVisitors } from './visitors.js';
-import type { BaseVisitor, NestedVisitObject, RuleInstanceConfig } from './visitors.js';
-import { walkDocument } from './walk.js';
-import type { NormalizedProblem, ProblemSeverity, WalkContext } from './walk.js';
+import {
+  normalizeVisitors,
+  type BaseVisitor,
+  type NestedVisitObject,
+  type RuleInstanceConfig,
+} from './visitors.js';
+import {
+  walkDocument,
+  type NormalizedProblem,
+  type ProblemSeverity,
+  type WalkContext,
+} from './walk.js';
 
 export async function lintEntityFile(opts: {
   document: Document;
@@ -164,8 +169,8 @@ export async function lintEntityWithScorecardLevel(
 
   const entityProblems = await lintEntityFile({
     document: entityDocument,
-    entitySchema: entityFileSchema,
-    entityDefaultSchema: entityFileDefaultSchema,
+    entitySchema: redoclyConfig.entityFileSchema,
+    entityDefaultSchema: redoclyConfig.entityFileDefaultSchema,
     externalRefResolver,
     assertionConfig: entityRules,
   });

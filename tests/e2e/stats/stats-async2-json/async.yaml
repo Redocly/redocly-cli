@@ -1,0 +1,37 @@
+asyncapi: '2.6.0'
+info:
+  title: AsyncAPI 2.x Example
+  version: '1.0.0'
+  description: Minimal AsyncAPI 2.x example for stats testing
+tags:
+  - name: test-tag
+externalDocs:
+  description: External docs
+  url: https://example.com
+
+channels:
+  user/signedup:
+    description: User signed up channel
+    parameters:
+      userId:
+        description: User ID
+        schema:
+          type: string
+    subscribe:
+      operationId: userSignedUp
+      tags:
+        - test-tag
+      message:
+        $ref: '#/components/messages/UserSignedUp'
+
+components:
+  messages:
+    UserSignedUp:
+      payload:
+        $ref: '#/components/schemas/UserPayload'
+  schemas:
+    UserPayload:
+      type: object
+      properties:
+        email:
+          type: string
