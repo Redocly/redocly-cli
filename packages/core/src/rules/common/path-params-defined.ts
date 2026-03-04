@@ -13,14 +13,6 @@ type PathContext = {
   definedParams: Set<string>;
 };
 
-type PathItemParameterHandlerParams = {
-  parameter: Oas2Parameter | Oas3Parameter;
-  pathContext: { current: PathContext | null };
-  report: UserContext['report'];
-  location: UserContext['location'];
-  rawLocation: UserContext['rawLocation'];
-};
-
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   const pathContext = { current: null as PathContext | null };
   const currentOperationParams = new Set<string>();
@@ -62,17 +54,23 @@ const createPathItemParameterHandler = ({
   report,
   location,
   rawLocation,
-}: PathItemParameterHandlerParams) => {
+}: {
+  parameter: Oas2Parameter | Oas3Parameter;
+  pathContext: { current: PathContext | null };
+  report: UserContext['report'];
+  location: UserContext['location'];
+  rawLocation: UserContext['rawLocation'];
+}): void => {
   if (parameter.in === 'path' && parameter.name && pathContext.current) {
     pathContext.current.definedParams.add(parameter.name);
-    validatePathParameter(
-      parameter.name,
-      pathContext.current.templateParams,
-      pathContext.current.path,
+    validatePathParameter({
+      paramName: parameter.name,
+      templateParams: pathContext.current.templateParams,
+      path: pathContext.current.path,
       report,
       location,
-      rawLocation
-    );
+      rawLocation,
+    });
   }
 };
 
@@ -132,14 +130,14 @@ const createOperationHandlers = (
     leave(_operation: unknown, { report, location }: UserContext) {
       if (!pathContext.current || !currentOperationParams) return;
 
-      validateRequiredPathParams(
-        pathContext.current.templateParams,
-        currentOperationParams,
-        pathContext.current.definedParams,
-        pathContext.current.path,
+      validateRequiredPathParams({
+        templateParams: pathContext.current.templateParams,
+        definedOperationParams: currentOperationParams,
+        definedPathParams: pathContext.current.definedParams,
+        path: pathContext.current.path,
         report,
-        location
-      );
+        location,
+      });
     },
     Parameter(
       parameter: Oas2Parameter | Oas3Parameter,
@@ -149,14 +147,14 @@ const createOperationHandlers = (
 
       if (parameter.in === 'path' && parameter.name && pathContext.current) {
         currentOperationParams.add(parameter.name);
-        validatePathParameter(
-          parameter.name,
-          pathContext.current.templateParams,
-          pathContext.current.path,
+        validatePathParameter({
+          paramName: parameter.name,
+          templateParams: pathContext.current.templateParams,
+          path: pathContext.current.path,
           report,
           location,
-          rawLocation
-        );
+          rawLocation,
+        });
       }
     },
     Callback: {
@@ -182,30 +180,44 @@ const collectPathParamsFromOperation = (
   }
 };
 
-const validatePathParameter = (
-  paramName: string,
-  templateParams: Set<string>,
-  path: string,
-  report: UserContext['report'],
-  location: UserContext['location'],
-  rawLocation: UserContext['rawLocation']
-): void => {
+const validatePathParameter = ({
+  paramName,
+  templateParams,
+  path,
+  report,
+  location,
+  rawLocation,
+}: {
+  paramName: string;
+  templateParams: Set<string>;
+  path: string;
+  report: UserContext['report'];
+  location: UserContext['location'];
+  rawLocation: UserContext['rawLocation'];
+}): void => {
   if (!templateParams.has(paramName)) {
     const message = `Path parameter \`${paramName}\` is not used in the path \`${path}\`.`;
-    const refLocation = rawLocation !== location ? rawLocation : undefined;
+    const from = rawLocation === location ? undefined : rawLocation;
 
-    report({ message, location: location.child(['name']), from: refLocation });
+    report({ message, location: location.child(['name']), from });
   }
 };
 
-const validateRequiredPathParams = (
-  templateParams: Set<string>,
-  definedOperationParams: Set<string>,
-  definedPathParams: Set<string>,
-  path: string,
-  report: UserContext['report'],
-  location: UserContext['location']
-): void => {
+const validateRequiredPathParams = ({
+  templateParams,
+  definedOperationParams,
+  definedPathParams,
+  path,
+  report,
+  location,
+}: {
+  templateParams: Set<string>;
+  definedOperationParams: Set<string>;
+  definedPathParams: Set<string>;
+  path: string;
+  report: UserContext['report'];
+  location: UserContext['location'];
+}): void => {
   const allDefinedParams = new Set([...definedOperationParams, ...definedPathParams]);
 
   for (const templateParam of templateParams) {
