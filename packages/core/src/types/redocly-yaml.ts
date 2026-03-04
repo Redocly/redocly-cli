@@ -230,8 +230,7 @@ const configGovernanceProperties: Record<
         directResolveAs: { name: 'ConfigGovernance', ...ConfigGovernance },
       } as PropType;
     },
-    description:
-      'The extends configuration entry allows your project configuration to extend an existing configuration set.',
+    description: 'Use extends to inherit rules and their configurations from other rulesets.',
     documentationLink: 'https://redocly.com/docs/cli/configuration/reference/extends#extends',
   } as PropType,
   plugins: { type: 'array', items: { type: 'string' } },
