@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.20.4 (2026-03-04)
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+- Updated @redocly/openapi-core to v2.20.4.
+
 ## 2.20.3 (2026-03-03)
 
 ### Patch Changes

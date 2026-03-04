@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.20.4
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+
 ## 2.20.3
 
 ## 2.20.2
