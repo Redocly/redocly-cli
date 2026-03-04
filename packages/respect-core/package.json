@@ -9,6 +9,14 @@
     ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
+    },
+    "./runtime-expressions": {
+      "import": "./lib/modules/runtime-expressions/index.js",
+      "types": "./lib/modules/runtime-expressions/index.d.ts"
+    },
+    "./run": {
+      "import": "./lib/run.js",
+      "types": "./lib/run.d.ts"
     }
   },
   "engines": {
