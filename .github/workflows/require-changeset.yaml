@@ -20,10 +20,15 @@ jobs:
         with:
           # check out full history
           fetch-depth: 0
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - name: Install Dependencies
+        run: pnpm i --frozen-lockfile
       - name: Check for changeset
         run: npx changeset status --since origin/main

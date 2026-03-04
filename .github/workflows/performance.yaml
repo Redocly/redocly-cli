@@ -18,12 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm i --frozen-lockfile
       - name: Install External
         run: npm i -g hyperfine
 
@@ -37,18 +41,18 @@ jobs:
 
       - name: Prepare
         run: |
-          npm run compile
-          npm run pack:prepare
+          pnpm run compile
+          pnpm run pack:prepare
           cd tests/performance/
-          npm i
-          npm run make-test
+          pnpm i
+          pnpm run make-test
 
       - name: Run Benchmark
         run: |
           cd tests/performance/
-          npm run test # This command is generated and injected into package.json in the previous step.
+          pnpm run test # This command is generated and injected into package.json in the previous step.
           cat benchmark_check.md
-          npm run chart # Creates benchmark_chart.md with the performance bar chart.
+          pnpm run chart # Creates benchmark_chart.md with the performance bar chart.
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}

@@ -16,16 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm i --frozen-lockfile
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
       - name: Unit Tests
-        run: npm run unit
+        run: pnpm run unit
 
       - name: Coverage Report
         if: always() # Also generate the report if tests are failing
@@ -33,19 +37,23 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@v2
 
       - name: E2E Tests
-        run: npm run e2e
+        run: pnpm run e2e
 
   code-style-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - uses: actions/setup-node@v3
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm i --frozen-lockfile
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - name: Check formatting
-        run: npm run format:check
+        run: pnpm run format:check

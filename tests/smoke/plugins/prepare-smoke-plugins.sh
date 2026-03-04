@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # For npm (Mutates packages/cli/package.json)
-npm run pack:prepare
+pnpm run pack:prepare
 
 cp ./redocly-cli.tgz ./openapi-core.tgz ./respect-core.tgz ./tests/smoke/plugins
 
