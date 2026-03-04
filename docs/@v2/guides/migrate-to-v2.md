@@ -208,6 +208,7 @@ paths:
 1. **Replace `spec` rule** with `struct`.
 1. **Update configurable rules** to use `rule/` prefix instead of `assert/`.
 1. **Replace `undefined` assertions** with `defined: true`.
+1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`
