@@ -1,0 +1,6 @@
+post:
+  parameters:
+    - $ref: ../components/parameters/path_userId_ref.yaml
+  responses:
+    '200':
+      description: OK
