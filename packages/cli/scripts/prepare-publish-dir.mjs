@@ -72,7 +72,10 @@ const publishPackageJson = compactObject({
   files: [binEntrypoint, 'lib/index.js', 'README.md', 'LICENSE'],
 });
 
-writeFileSync(path.join(publishDir, 'package.json'), `${JSON.stringify(publishPackageJson, null, 2)}\n`);
+writeFileSync(
+  path.join(publishDir, 'package.json'),
+  `${JSON.stringify(publishPackageJson, null, 2)}\n`
+);
 
 function compactObject(value) {
   if (Array.isArray(value)) {
