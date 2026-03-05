@@ -14,7 +14,7 @@ export const decorators = {
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
   'info-override': InfoOverride as Oas2Decorator,
   'remove-x-internal': RemoveXInternal as Oas2Decorator,
-  'remove-unused-components': RemoveUnusedComponents,
   'filter-in': FilterIn as Oas2Decorator,
   'filter-out': FilterOut as Oas2Decorator,
+  'remove-unused-components': RemoveUnusedComponents, // always the last one
 };
