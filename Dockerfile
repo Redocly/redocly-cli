@@ -2,8 +2,7 @@ FROM node:alpine
 
 WORKDIR /build
 COPY . .
-RUN apk add --no-cache jq git curl bash unzip && \
-    BUN_INSTALL=/usr/local bash -lc "curl -fsSL https://bun.sh/install | bash" && \
+RUN apk add --no-cache jq git && \
     npm ci --no-optional --ignore-scripts && \
     npm run prepare && \
     npm run pack:prepare && \
