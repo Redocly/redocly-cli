@@ -155,7 +155,8 @@ export function makeBundleVisitor({
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
-            resolveBundledComponent(node, resolved, ctx);
+            // Register the bundled component from the original location
+            resolveBundledComponent(node, resolved);
           }
         }
       },
@@ -217,8 +218,8 @@ export function makeBundleVisitor({
     };
   }
 
-  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref);
+  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>) {
+    const newRefId = makeRefId(rootDocument.source.absoluteRef, node.$ref);
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
       isRemote: false,
