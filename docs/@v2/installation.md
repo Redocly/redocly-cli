@@ -105,6 +105,32 @@ export HTTPS_PROXY=https://your-https-proxy-server:port
 {% /tab  %}
 {% /tabs  %}
 
+### Bypass proxy for specific hosts
+
+Use the `NO_PROXY` environment variable to specify hosts that should be accessed directly, without going through the proxy.
+The value is a comma-separated list of hostnames or domain suffixes:
+
+- `localhost` — exact hostname match.
+- `.example.com` — matches any subdomain of `example.com` (but not `example.com` itself).
+- `example.com` — matches `example.com` and any subdomain such as `api.example.com`.
+- `*` — bypasses the proxy for all requests.
+
+```bash
+export NO_PROXY=localhost,.internal.company.com,api.local
+```
+
+This is especially useful when some endpoints are on an internal network that should not be routed through the proxy, for example when running `redocly respect` against a local server:
+
+```bash
+export HTTPS_PROXY=http://corporate-proxy:8080
+export NO_PROXY=localhost,.internal.dev
+redocly respect test.arazzo.yaml
+```
+
+In this configuration, requests to `localhost` and `*.internal.dev` connect directly, while all other requests go through the proxy.
+
+The lowercase variant `no_proxy` is also supported.
+
 ### Use Environment Variables with CLI Commands
 
 To directly include the proxy environment variables in a Redocly CLI command:
