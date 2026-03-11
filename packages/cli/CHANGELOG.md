@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.21.0
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added support for the `NO_PROXY` environment variable.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.0.
+
 ## 2.20.5
 
 ### Patch Changes
