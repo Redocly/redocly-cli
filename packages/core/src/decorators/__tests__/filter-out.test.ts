@@ -346,7 +346,7 @@ describe('oas2 filter-out', () => {
   });
 });
 
-describe('oas3 filter-out with target: Operation', () => {
+describe('oas3 filter-out with applyTo: Operation', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
   it('should remove only operations with a matching property value', async () => {
@@ -375,7 +375,7 @@ describe('oas3 filter-out with target: Operation', () => {
           'filter-out': {
             property: 'x-audience',
             value: ['Internal'],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -418,7 +418,7 @@ describe('oas3 filter-out with target: Operation', () => {
           'filter-out': {
             property: 'x-audience',
             value: ['Internal'],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -461,7 +461,7 @@ describe('oas3 filter-out with target: Operation', () => {
           'filter-out': {
             property: 'operationId',
             value: ['getFoo', 'getBar'],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -478,7 +478,7 @@ describe('oas3 filter-out with target: Operation', () => {
     `);
   });
 
-  it('should support matchStrategy: all with target: Operation', async () => {
+  it('should support matchStrategy: all with applyTo: Operation', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -505,7 +505,7 @@ describe('oas3 filter-out with target: Operation', () => {
           'filter-out': {
             property: 'tags',
             value: ['internal', 'deprecated'],
-            target: 'Operation',
+            applyTo: 'Operation',
             matchStrategy: 'all',
           },
         },
@@ -529,7 +529,7 @@ describe('oas3 filter-out with target: Operation', () => {
   });
 });
 
-describe('oas3 filter-out with target: PathItem', () => {
+describe('oas3 filter-out with applyTo: PathItem', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
   it('should remove only path items with a matching property value but should not remove nodes with the property on operation level', async () => {
@@ -560,7 +560,7 @@ describe('oas3 filter-out with target: PathItem', () => {
           'filter-out': {
             property: 'x-audience',
             value: ['Internal'],
-            target: 'PathItem',
+            applyTo: 'PathItem',
           },
         },
       }),

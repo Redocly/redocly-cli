@@ -2,8 +2,8 @@
 
 Preserves nodes that have specific `property` set to the specific `value` and removes others.
 
-Applies to any node type defined by the `target` option.
-If there's no explicit `target`, applies to all nodes where the `property` is declared.
+Applies to any node type defined by the `applyTo` option.
+If `applyTo` is not set, applies to all nodes where the `property` is declared.
 
 ## API design principles
 
@@ -16,7 +16,7 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | property      | string   | **REQUIRED.** The property name used for evaluation. Attempts to match the values.                                                                              |
 | value         | [string] | **REQUIRED.** List of values used for the matching.                                                                                                             |
 | matchStrategy | string   | Possible values: `all`, `any`. When `all`, must match all of the values supplied. When `any`, must match only one of the values supplied. Default value: `any`. |
-| target        | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                |
+| applyTo       | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                |
 
 ## Examples
 
@@ -41,7 +41,7 @@ apis:
     root: openapi.yaml
     decorators:
       filter-in:
-        target: Operation
+        applyTo: Operation
         property: operationId
         value: [createSpecialEvent, listSpecialEvents]
 ```
@@ -66,7 +66,7 @@ To keep only the operations marked for a public audience using a custom extensio
 ```yaml
 decorators:
   filter-in:
-    target: Operation
+    applyTo: Operation
     property: x-audience
     value: [Public, Partner]
 ```
@@ -75,7 +75,7 @@ Operations without the `x-audience` property are removed, so only explicitly mar
 
 ### Filter any node (implicit target behavior)
 
-You can also use `filter-in` without `target` to filter on other elements, such as parameters, responses, or other OpenAPI items.
+You can also use `filter-in` without `applyTo` to filter on other elements, such as parameters, responses, or other OpenAPI items.
 The example `redocly.yaml` shown below includes everything from the OpenAPI description that has an `x-audience` property set to either "Public" or "Partner":
 
 ```yaml

@@ -9,7 +9,7 @@ export const FilterOut: Oas3Decorator | Oas2Decorator = ({
   property,
   value,
   matchStrategy,
-  target,
+  applyTo: target,
 }) => {
   const strategy = matchStrategy || DEFAULT_STRATEGY;
 

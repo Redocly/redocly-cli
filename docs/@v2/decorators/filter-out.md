@@ -3,8 +3,8 @@
 Removes nodes that have specific `property` set to the specific `value` and preserves others.
 Nodes that don't have the `property` defined are not impacted.
 
-Applies to any node type defined by the `target` option.
-If there's no explicit `target`, applies to all nodes where the `property` is declared.
+Applies to any node type defined by the `applyTo` option.
+If `applyTo` is not set, applies to all nodes where the `property` is declared.
 
 ## API design principles
 
@@ -17,7 +17,7 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | property      | string   | **REQUIRED.** The property name used for evaluation. It attempts to match the values.                                                                                   |
 | value         | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                     |
 | matchStrategy | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
-| target        | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
+| applyTo       | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
 
 ## Examples
 
@@ -44,7 +44,7 @@ apis:
       filter-out:
         property: tags
         value: Events
-        target: Operation
+        applyTo: Operation
 ```
 
 To apply the decorator to the OpenAPI description, run the `bundle` command, like this:

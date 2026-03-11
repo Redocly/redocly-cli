@@ -319,7 +319,7 @@ describe('oas2 filter-in', () => {
   });
 });
 
-describe('oas3 filter-in with target: Operation', () => {
+describe('oas3 filter-in with applyTo: Operation', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
   it('should keep only operations with a matching property value', async () => {
@@ -347,7 +347,7 @@ describe('oas3 filter-in with target: Operation', () => {
           'filter-in': {
             property: 'x-public',
             value: [true],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -388,7 +388,7 @@ describe('oas3 filter-in with target: Operation', () => {
           'filter-in': {
             property: 'operationId',
             value: ['createFoo', 'getBar'],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -433,7 +433,7 @@ describe('oas3 filter-in with target: Operation', () => {
           'filter-in': {
             property: 'tags',
             value: ['private'],
-            target: 'Operation',
+            applyTo: 'Operation',
           },
         },
       }),
@@ -451,7 +451,7 @@ describe('oas3 filter-in with target: Operation', () => {
     `);
   });
 
-  it('should support matchStrategy: all with target: Operation', async () => {
+  it('should support matchStrategy: all with applyTo: Operation', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -479,7 +479,7 @@ describe('oas3 filter-in with target: Operation', () => {
           'filter-in': {
             property: 'tags',
             value: ['public', 'v2'],
-            target: 'Operation',
+            applyTo: 'Operation',
             matchStrategy: 'all',
           },
         },
@@ -505,7 +505,7 @@ describe('oas3 filter-in with target: Operation', () => {
         'filter-in': {
           property: 'tags',
           value: ['internal'],
-          target: 'Operation',
+          applyTo: 'Operation',
         },
         'remove-unused-components': 'on',
       },
@@ -540,7 +540,7 @@ describe('oas3 filter-in with target: Operation', () => {
   });
 });
 
-describe('oas3 filter-in with target: PathItem', () => {
+describe('oas3 filter-in with applyTo: PathItem', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
   it('should keep only path items with a matching property value and remove others', async () => {
@@ -569,7 +569,7 @@ describe('oas3 filter-in with target: PathItem', () => {
           'filter-in': {
             property: 'x-audience',
             value: ['Public'],
-            target: 'PathItem',
+            applyTo: 'PathItem',
           },
         },
       }),
