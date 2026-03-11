@@ -1,7 +1,12 @@
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 export function getProxyUrl(): string | undefined {
-  return process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  return (
+    process.env.HTTPS_PROXY ||
+    process.env.HTTP_PROXY ||
+    process.env.http_proxy ||
+    process.env.https_proxy
+  );
 }
 
 export function getProxyAgent() {
