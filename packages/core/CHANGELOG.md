@@ -1,5 +1,18 @@
 # @redocly/openapi-core
 
+## 2.21.0
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.44.1.
+
 ## 2.20.4
 
 ### Patch Changes

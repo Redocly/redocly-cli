@@ -1,6 +1,6 @@
 import { Client, ProxyAgent, type RequestInfo, type RequestInit, fetch } from 'undici';
 
-import { getProxyUrl } from '../../utils/proxy-agent.js';
+import { getProxyUrl, shouldBypassProxy } from '../../utils/proxy-agent.js';
 
 export type MtlsCerts = {
   clientCert?: string;
@@ -16,9 +16,10 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   const { clientCert, clientKey, caCert } = mtlsCerts;
   const baseUrl = new URL(parsedPathToFetch).origin;
   const proxyUrl = getProxyUrl();
+  const useProxy = proxyUrl && !shouldBypassProxy(parsedPathToFetch);
 
   // Both mTLS and proxy
-  if (clientCert && clientKey && proxyUrl) {
+  if (clientCert && clientKey && useProxy) {
     return new ProxyAgent({
       uri: proxyUrl,
       connect: {
@@ -43,7 +44,7 @@ export function createNetworkDispatcher(parsedPathToFetch: string, mtlsCerts: Mt
   }
 
   // Only proxy
-  if (proxyUrl) {
+  if (useProxy) {
     return new ProxyAgent({ uri: proxyUrl });
   }
 

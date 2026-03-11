@@ -1,0 +1,10 @@
+operationId: adminOp
+tags:
+  - internal
+responses:
+  '200':
+    description: Success
+    content:
+      application/json:
+        schema:
+          $ref: admin-schema.yaml
