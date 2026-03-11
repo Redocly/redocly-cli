@@ -1,5 +1,4 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import type { ViteUserConfig } from 'vitest/config';
+import { defineConfig, mergeConfig, type ViteUserConfig } from 'vitest/config';
 
 const configExtension: { [key: string]: ViteUserConfig } = {
   unit: defineConfig({
@@ -24,7 +23,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           lines: 79,
           functions: 82,
           statements: 78,
-          branches: 70,
+          branches: 71,
         },
       },
     },
