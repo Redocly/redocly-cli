@@ -348,7 +348,6 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'x-public',
             value: [true],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
           },
         },
       }),
@@ -363,50 +362,6 @@ describe('oas3 filter-in with target: Operation', () => {
             summary: List users (public)
       components: {}
 
-    `);
-  });
-
-  it('should keep operations with a matching property value AND operations without the property', async () => {
-    const testDoc = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /users:
-            get:
-              x-public: true
-              summary: List users (public)
-            post:
-              summary: Create user (private)
-          /admin:
-            get:
-              x-public: false
-              summary: Admin only (private)
-      `
-    );
-    const { bundle: res } = await bundleDocument({
-      document: testDoc,
-      externalRefResolver: new BaseResolver(),
-      config: await createConfig({
-        decorators: {
-          'filter-in': {
-            property: 'x-public',
-            value: [true],
-            target: 'Operation',
-          },
-        },
-      }),
-      types: Oas3Types,
-    });
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.0.0
-      paths:
-        /users:
-          get:
-            x-public: true
-            summary: List users (public)
-          post:
-            summary: Create user (private)
-      components: {}
     `);
   });
 
@@ -434,7 +389,6 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'operationId',
             value: ['createFoo', 'getBar'],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
           },
         },
       }),
@@ -480,7 +434,6 @@ describe('oas3 filter-in with target: Operation', () => {
             property: 'tags',
             value: ['private'],
             target: 'Operation',
-            noPropertyStrategy: 'remove',
           },
         },
       }),
@@ -528,7 +481,6 @@ describe('oas3 filter-in with target: Operation', () => {
             value: ['public', 'v2'],
             target: 'Operation',
             matchStrategy: 'all',
-            noPropertyStrategy: 'remove',
           },
         },
       }),
@@ -542,49 +494,6 @@ describe('oas3 filter-in with target: Operation', () => {
             tags:
               - public
               - v2
-      components: {}
-
-    `);
-  });
-
-  it('should remove operations without the specified property', async () => {
-    const testDoc = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /users:
-            get:
-              x-audience: Public
-              summary: Public endpoint
-            post:
-              summary: No audience set
-          /internal:
-            get:
-              summary: No audience at all
-      `
-    );
-    const { bundle: res } = await bundleDocument({
-      document: testDoc,
-      externalRefResolver: new BaseResolver(),
-      config: await createConfig({
-        decorators: {
-          'filter-in': {
-            property: 'x-audience',
-            value: ['Public'],
-            target: 'Operation',
-            noPropertyStrategy: 'remove',
-          },
-        },
-      }),
-      types: Oas3Types,
-    });
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.0.0
-      paths:
-        /users:
-          get:
-            x-audience: Public
-            summary: Public endpoint
       components: {}
 
     `);
@@ -634,13 +543,12 @@ describe('oas3 filter-in with target: Operation', () => {
 describe('oas3 filter-in with target: PathItem', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
-  it('should keep only path items with a matching property value', async () => {
+  it('should keep only path items with a matching property value and remove others', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
         paths:
           /users:
-            x-audience: Public
             get:
               summary: List users
           /admin:
@@ -662,7 +570,6 @@ describe('oas3 filter-in with target: PathItem', () => {
             property: 'x-audience',
             value: ['Public'],
             target: 'PathItem',
-            noPropertyStrategy: 'remove',
           },
         },
       }),
@@ -671,106 +578,10 @@ describe('oas3 filter-in with target: PathItem', () => {
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
       paths:
-        /users:
-          x-audience: Public
-          get:
-            summary: List users
         /health:
           x-audience: Public
           get:
             summary: Health check
-      components: {}
-
-    `);
-  });
-
-  it('should keep path items without the property when noPropertyStrategy is keep (default)', async () => {
-    const testDoc = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /users:
-            x-audience: Public
-            get:
-              summary: List users
-          /admin:
-            x-audience: Internal
-            get:
-              summary: Admin panel
-          /health:
-            get:
-              summary: Health check (no audience)
-      `
-    );
-    const { bundle: res } = await bundleDocument({
-      document: testDoc,
-      externalRefResolver: new BaseResolver(),
-      config: await createConfig({
-        decorators: {
-          'filter-in': {
-            property: 'x-audience',
-            value: ['Public'],
-            target: 'PathItem',
-          },
-        },
-      }),
-      types: Oas3Types,
-    });
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.0.0
-      paths:
-        /users:
-          x-audience: Public
-          get:
-            summary: List users
-        /health:
-          get:
-            summary: Health check (no audience)
-      components: {}
-
-    `);
-  });
-
-  it('should remove path items without the property when noPropertyStrategy is remove', async () => {
-    const testDoc = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        paths:
-          /users:
-            x-audience: Public
-            get:
-              summary: List users
-          /admin:
-            x-audience: Internal
-            get:
-              summary: Admin panel
-          /health:
-            get:
-              summary: Health check (no audience)
-      `
-    );
-    const { bundle: res } = await bundleDocument({
-      document: testDoc,
-      externalRefResolver: new BaseResolver(),
-      config: await createConfig({
-        decorators: {
-          'filter-in': {
-            property: 'x-audience',
-            value: ['Public'],
-            target: 'PathItem',
-            noPropertyStrategy: 'remove',
-          },
-        },
-      }),
-      types: Oas3Types,
-    });
-    expect(res.parsed).toMatchInlineSnapshot(`
-      openapi: 3.0.0
-      paths:
-        /users:
-          x-audience: Public
-          get:
-            summary: List users
       components: {}
 
     `);

@@ -10,7 +10,6 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
   value,
   matchStrategy,
   target,
-  noPropertyStrategy,
 }) => {
   const strategy = matchStrategy || DEFAULT_STRATEGY;
 
@@ -39,12 +38,7 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
               if (isPlainObject(operation)) {
                 const propertyValue = operation[property];
                 const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
-                const shouldKeepWhenNoProperty =
-                  propertyValue === undefined && noPropertyStrategy !== 'remove';
-
-                if (shouldKeepWhenNoProperty) {
-                  // Do nothing, keep the operation if the property is missing and noPropertyStrategy is not set to 'remove'
-                } else if (!shouldKeep) {
+                if (!shouldKeep) {
                   delete pathItem[method];
                 }
               }
@@ -66,12 +60,7 @@ export const FilterIn: Oas3Decorator | Oas2Decorator = ({
           enter(pathItem, ctx) {
             const propertyValue = (pathItem as Record<string, unknown>)[property];
             const shouldKeep = checkIfMatchByStrategy(propertyValue, value, strategy);
-            const shouldKeepWhenNoProperty =
-              propertyValue === undefined && noPropertyStrategy !== 'remove';
-
-            if (shouldKeepWhenNoProperty) {
-              // Do nothing, keep the path item if the property is missing and noPropertyStrategy is not set to 'remove'
-            } else if (!shouldKeep) {
+            if (!shouldKeep) {
               delete ctx.parent[ctx.key];
             }
           },

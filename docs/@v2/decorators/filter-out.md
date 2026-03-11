@@ -3,6 +3,9 @@
 Removes nodes that have specific `property` set to the specific `value` and preserves others.
 Nodes that don't have the `property` defined are not impacted.
 
+Applies to any node type defined by the `target` option.
+If there's no explicit `target`, applies to all nodes where the `property` is declared.
+
 ## API design principles
 
 Giant monolithic API docs can be overwhelming. By filtering what is most relevant to the audience, they can focus on what is most relevant and not be overwhelmed or distracted by all of the other API operations.
@@ -15,13 +18,6 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 | value         | [string] | **REQUIRED.** List of values used for the matching.                                                                                                                     |
 | matchStrategy | string   | Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`. |
 | target        | string   | Possible values: `PathItem`, `Operation`. When set, filtering is scoped to the specified target.                                                                        |
-
-### Explicit vs. implicit target behavior
-
-When `target` is explicitly set, the decorator walks through all nodes of that type and removes those where the `property` matches the specified values.
-
-If there's no explicit `target`, the decorator evaluates every node in the API description that has the `property` and removes those where the property matches the specified values.
-Nodes without the property are left untouched.
 
 ## Examples
 
