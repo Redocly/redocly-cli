@@ -20,7 +20,7 @@ Giant monolithic API docs can be overwhelming. By filtering what is most relevan
 
 ## Examples
 
-### Filter operations by operationId
+### Filter operations by `operationId`
 
 Using the [Museum API](https://github.com/Redocly/museum-openapi-example) (v1.0.0), use the stats command to get a summary of its contents:
 
