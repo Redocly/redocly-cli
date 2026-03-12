@@ -1,69 +1,57 @@
 import { type ScorecardConfig } from '@redocly/config';
 import {
-  type Config,
+  Config,
   type RawUniversalConfig,
-  type Document,
+  type Plugin,
+  type RuleConfig,
   createConfig,
-  logger,
   mergeExtends,
+  logger,
 } from '@redocly/openapi-core';
 
 export async function resolveLevelsConfig(
   levelsConfig: NonNullable<ScorecardConfig['levels']>,
-  targets: ScorecardConfig['targets'] = [],
-  plugins: string[] = [],
+  plugins: Array<string | Plugin> = [],
   configPath: string
 ) {
   const configs: Record<string, Config> = {};
   for (const level of levelsConfig) {
-    configs[level.name] = await createConfig(
-      {
-        ...level,
-        plugins,
-      } as RawUniversalConfig,
-      {
-        configPath,
-      }
-    );
-
-    // console.log(
-    //   `Resolved config for level "${level.name}":`,
-    //   JSON.stringify(configs[level.name], null, 2)
-    // ); // Debug log for resolved config of each level
-
-    // configs[level.name] = mergeExtends([configs[level.name], { plugins }]);
+    configs[level.name] = await createConfig({ ...level, plugins } as RawUniversalConfig, {
+      configPath,
+    });
   }
   return configs;
 }
 
-export async function resolveTargetsConfig(
-  metadata: Record<string, unknown>,
-  targets: ScorecardConfig['targets'],
-  levelsConfig: NonNullable<ScorecardConfig['levels']>,
-  plugins: string[] = [],
+export async function resolveConfigForTarget(
+  targetRules: Record<string, unknown> | undefined,
+  scorecardLevels: ScorecardConfig['levels'],
+  plugins: Array<string | Plugin> = [],
   configPath: string
-) {
-  if (!targets) {
-    return [];
+): Promise<Record<string, Config>> {
+  const configs = await resolveLevelsConfig(scorecardLevels ?? [], plugins, configPath);
+
+  if (!targetRules) {
+    return configs;
   }
 
-  return Promise.all(
-    targets
-      ?.filter((target) => !!target.rules)
-      .map(async (target) => {
-        const overriddenLevels = levelsConfig;
+  const result: Record<string, Config> = {};
+  for (const [levelName, config] of Object.entries(configs)) {
+    const merged = mergeExtends([
+      config.resolvedConfig,
+      { rules: targetRules as Record<string, RuleConfig> },
+    ]);
 
-        return {
-          ...target,
-          configs: await resolveLevelsConfig(
-            overriddenLevels as NonNullable<ScorecardConfig['levels']>,
-            targets,
-            plugins,
-            configPath
-          ),
-        };
-      }) || []
-  );
+    result[levelName] = new Config(
+      { ...config.resolvedConfig, ...merged },
+      {
+        configPath: config.configPath,
+        plugins: config.plugins,
+      }
+    );
+  }
+
+  return result;
 }
 
 export function getTarget<T extends object>(

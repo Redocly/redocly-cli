@@ -10,7 +10,6 @@ export const assignConfig = <T extends string | { severity?: string }>(
     if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
       // If target is an object and source is a string, merge severity into the object
       target[k] = { ...(target[k] as Record<string, unknown>), severity: obj[k] } as T;
-      console.log(`Merged severity for key "${k}":`, target[k]); // Debug log for merged severity
     } else {
       target[k] = obj[k];
     }

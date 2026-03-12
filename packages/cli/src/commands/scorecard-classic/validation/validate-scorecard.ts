@@ -1,17 +1,20 @@
 import type { ScorecardConfig } from '@redocly/config';
 import {
   logger,
-  createConfig,
   lintDocument,
   pluralize,
   type Document,
-  type RawUniversalConfig,
   type Plugin,
   type BaseResolver,
+  type Config,
 } from '@redocly/openapi-core';
 
 import { exitWithError } from '../../../utils/error.js';
-import { resolveTargetsConfig } from '../targets-handler/targets-handler.js';
+import {
+  getTarget,
+  resolveConfigForTarget,
+  resolveLevelsConfig,
+} from '../targets-handler/targets-handler.js';
 import type { ScorecardProblem } from '../types.js';
 import { evaluatePluginsFromCode } from './plugin-evaluator.js';
 
@@ -44,6 +47,7 @@ export async function validateScorecard({
 }: ValidateScorecardParams): Promise<ScorecardValidationResult> {
   const problems: ScorecardProblem[] = [];
   const levelResults: Map<string, ScorecardProblem[]> = new Map();
+  const targets = scorecardConfig.targets || [];
 
   if (targetLevel && !scorecardConfig.levels?.some((level) => level.name === targetLevel)) {
     exitWithError(
@@ -57,23 +61,47 @@ export async function validateScorecard({
       ? await evaluatePluginsFromCode(pluginsCodeOrPlugins, verbose)
       : pluginsCodeOrPlugins;
 
-  const pluginsList = Array.isArray(plugins) ? plugins.map((p) => p.id) : [];
+  const pluginsList = Array.isArray(plugins) ? plugins : [];
+  let levelConfigs: Record<string, Config> = {};
 
-  // Resolve target configs with merged rules if targets exist
-  // Use the metadata passed from the caller (combined from document and config)
-  const targetsWithConfigs = await resolveTargetsConfig(
-    metadata,
-    scorecardConfig.targets,
-    scorecardConfig.levels || [],
-    pluginsList,
-    configPath || ''
-  );
+  if (targets.length > 0) {
+    if (verbose) {
+      logger.info(
+        `Scorecard has ${targets.length} ${pluralize('target', targets.length)} defined. Resolving target configurations...\n`
+      );
+    }
 
-  // console.log('Resolved target configs:', JSON.stringify(targetsWithConfigs, null, 2)); // Debug log for resolved target configs
+    const matchedTarget = getTarget(targets, metadata);
 
-  // Check if we have a matching target with configs
-  const targetConfigs =
-    targetsWithConfigs && targetsWithConfigs.length > 0 ? targetsWithConfigs[0].configs : undefined;
+    if (matchedTarget) {
+      if (verbose) {
+        logger.info(
+          `Found matching target for metadata. Resolving configurations for target "${JSON.stringify(matchedTarget.where)}"...\n`
+        );
+      }
+
+      levelConfigs = await resolveConfigForTarget(
+        matchedTarget.rules as Record<string, unknown> | undefined,
+        scorecardConfig.levels || [],
+        pluginsList,
+        configPath || ''
+      );
+    } else {
+      if (verbose) {
+        logger.info(
+          `No matching target found for metadata. Proceeding with level configurations only.\n`
+        );
+      }
+    }
+  }
+
+  if (Object.keys(levelConfigs).length === 0) {
+    levelConfigs = await resolveLevelsConfig(
+      scorecardConfig.levels || [],
+      pluginsList,
+      configPath || ''
+    );
+  }
 
   // Iterate through each level
   for (const level of scorecardConfig.levels || []) {
@@ -88,14 +116,7 @@ export async function validateScorecard({
     }
 
     // Use target config if available, otherwise create config from level
-    const config =
-      targetConfigs?.[level.name] ||
-      (await createConfig(
-        { ...level, plugins: Array.isArray(plugins) ? plugins : [] } as RawUniversalConfig,
-        {
-          configPath,
-        }
-      ));
+    const config = levelConfigs[level.name];
 
     if (verbose) {
       logger.info(`Linting document against level rules...\n`);
