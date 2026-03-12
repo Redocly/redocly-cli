@@ -4,6 +4,12 @@ vi.mock('@redocly/openapi-core', async (importOriginal) => {
     ...actual,
     bundle: vi.fn(),
     detectSpec: vi.fn(),
+    BaseResolver: vi.fn(),
+    resolveDocument: vi.fn(),
+    normalizeTypes: vi.fn(),
+    getTypes: vi.fn(),
+    normalizeVisitors: vi.fn(),
+    walkDocument: vi.fn(),
     logger: { output: vi.fn(), info: vi.fn(), error: vi.fn() },
   };
 });
@@ -13,49 +19,84 @@ vi.mock('../../../utils/miscellaneous.js', () => ({
   printExecutionTime: vi.fn(),
 }));
 
-import { bundle, detectSpec, logger } from '@redocly/openapi-core';
+vi.mock('../collectors/document-metrics.js', async (importOriginal) => {
+  const actual = (await importOriginal()) as any;
+  return {
+    ...actual,
+    createScoreAccumulator: vi.fn(),
+    createScoreVisitor: vi.fn(),
+  };
+});
+
+import {
+  bundle,
+  detectSpec,
+  logger,
+  normalizeTypes,
+  resolveDocument,
+  normalizeVisitors,
+  walkDocument,
+} from '@redocly/openapi-core';
 
 import { getFallbackApisOrExit } from '../../../utils/miscellaneous.js';
+import {
+  createScoreAccumulator,
+  createScoreVisitor,
+  type ScoreAccumulator,
+} from '../collectors/document-metrics.js';
 import { handleScore, type ScoreArgv } from '../index.js';
+import type { OperationMetrics } from '../types.js';
 
 const mockedBundle = vi.mocked(bundle);
 const mockedDetectSpec = vi.mocked(detectSpec);
 const mockedGetFallback = vi.mocked(getFallbackApisOrExit);
 const mockOutput = vi.mocked(logger.output);
-const mockInfo = vi.mocked(logger.info);
 const mockError = vi.mocked(logger.error);
+const mockedCreateAccumulator = vi.mocked(createScoreAccumulator);
+const mockedCreateVisitor = vi.mocked(createScoreVisitor);
+const mockedNormalizeTypes = vi.mocked(normalizeTypes);
+const mockedResolveDocument = vi.mocked(resolveDocument);
+const mockedNormalizeVisitors = vi.mocked(normalizeVisitors);
+const mockedWalkDocument = vi.mocked(walkDocument);
 
-function makeMinimalDoc(overrides: Record<string, any> = {}) {
+function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetrics {
   return {
-    openapi: '3.0.0',
-    info: { title: 'Test', version: '1.0.0' },
-    paths: {
-      '/items': {
-        get: {
-          operationId: 'listItems',
-          description: 'List items',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: { type: 'object', properties: { id: { type: 'string' } } },
-                  example: { id: '1' },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+    path: '/items',
+    method: 'get',
+    operationId: 'listItems',
+    parameterCount: 0,
+    requiredParameterCount: 0,
+    paramsWithDescription: 0,
+    requestBodyPresent: false,
+    topLevelWritableFieldCount: 0,
+    maxRequestSchemaDepth: 0,
+    maxResponseSchemaDepth: 1,
+    polymorphismCount: 0,
+    anyOfCount: 0,
+    hasDiscriminator: false,
+    propertyCount: 1,
+    operationDescriptionPresent: true,
+    schemaPropertiesWithDescription: 0,
+    totalSchemaProperties: 1,
+    constraintCount: 0,
+    requestExamplePresent: false,
+    responseExamplePresent: true,
+    structuredErrorResponseCount: 0,
+    totalErrorResponses: 0,
+    ambiguousIdentifierCount: 0,
+    refsUsed: new Set(),
     ...overrides,
   };
+}
+
+function makeAccumulator(ops: Map<string, OperationMetrics> = new Map()): ScoreAccumulator {
+  return { operations: ops, currentPath: '', pathLevelParams: [] };
 }
 
 function createArgs(overrides: Partial<ScoreArgv> = {}) {
   return {
     argv: { format: 'stylish' as const, ...overrides } as ScoreArgv,
-    config: {} as any,
+    config: { extendTypes: (types: any) => types, resolve: {} } as any,
     collectSpecData: vi.fn(),
   };
 }
@@ -63,17 +104,22 @@ function createArgs(overrides: Partial<ScoreArgv> = {}) {
 describe('handleScore', () => {
   beforeEach(() => {
     mockOutput.mockClear();
-    mockInfo.mockClear();
     mockError.mockClear();
     mockedGetFallback.mockResolvedValue([{ path: 'test.yaml' }] as any);
+    mockedBundle.mockResolvedValue({ bundle: { parsed: {} } } as any);
+    mockedDetectSpec.mockReturnValue('oas3_0');
+    mockedNormalizeTypes.mockReturnValue({ Root: {} } as any);
+    mockedResolveDocument.mockResolvedValue(new Map() as any);
+    mockedNormalizeVisitors.mockReturnValue([] as any);
+    mockedWalkDocument.mockImplementation(() => {});
+    mockedCreateVisitor.mockReturnValue({} as any);
+    mockedCreateAccumulator.mockReturnValue(
+      makeAccumulator(new Map([['listItems', makeTestMetrics()]]))
+    );
     process.exitCode = undefined;
   });
 
   it('should produce stylish output for a valid oas3 document', async () => {
-    const doc = makeMinimalDoc();
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_0');
-
     await handleScore(createArgs());
 
     const output = mockOutput.mock.calls.map(([s]: [string]) => s).join('');
@@ -82,10 +128,6 @@ describe('handleScore', () => {
   });
 
   it('should produce JSON output when format is json', async () => {
-    const doc = makeMinimalDoc();
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_0');
-
     await handleScore(createArgs({ format: 'json' }));
 
     const output = mockOutput.mock.calls[0][0];
@@ -96,7 +138,6 @@ describe('handleScore', () => {
   });
 
   it('should reject non-oas3 documents', async () => {
-    mockedBundle.mockResolvedValue({ bundle: { parsed: { swagger: '2.0' } } } as any);
     mockedDetectSpec.mockReturnValue('oas2');
 
     await handleScore(createArgs());
@@ -108,7 +149,7 @@ describe('handleScore', () => {
   });
 
   it('should call collectSpecData', async () => {
-    const doc = makeMinimalDoc();
+    const doc = { openapi: '3.0.0' };
     mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
     mockedDetectSpec.mockReturnValue('oas3_1');
 
@@ -119,9 +160,7 @@ describe('handleScore', () => {
   });
 
   it('should handle document with no operations', async () => {
-    const doc = makeMinimalDoc({ paths: {} });
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_0');
+    mockedCreateAccumulator.mockReturnValue(makeAccumulator());
 
     await handleScore(createArgs());
 
@@ -130,34 +169,23 @@ describe('handleScore', () => {
   });
 
   it('should handle document with multiple operations', async () => {
-    const doc = makeMinimalDoc({
-      paths: {
-        '/items': {
-          get: {
-            operationId: 'listItems',
-            description: 'List items',
-            responses: { '200': { description: 'OK' } },
-          },
-          post: {
-            operationId: 'createItem',
-            description: 'Create item',
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: { type: 'object', properties: { name: { type: 'string' } } },
-                },
-              },
-            },
-            responses: {
-              '201': { description: 'Created' },
-              '400': { description: 'Bad Request' },
-            },
-          },
-        },
-      },
-    });
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_0');
+    mockedCreateAccumulator.mockReturnValue(
+      makeAccumulator(
+        new Map([
+          ['listItems', makeTestMetrics()],
+          [
+            'createItem',
+            makeTestMetrics({
+              path: '/items',
+              method: 'post',
+              operationId: 'createItem',
+              requestBodyPresent: true,
+              operationDescriptionPresent: true,
+            }),
+          ],
+        ])
+      )
+    );
 
     await handleScore(createArgs({ format: 'json' }));
 
@@ -168,25 +196,23 @@ describe('handleScore', () => {
   });
 
   it('should include hotspots in output', async () => {
-    const doc = makeMinimalDoc({
-      paths: {
-        '/complex': {
-          post: {
-            operationId: 'complexOp',
-            parameters: Array.from({ length: 10 }, (_, i) => ({
-              name: `param${i}`,
-              in: 'query',
-            })),
-            requestBody: {
-              content: { 'application/json': { schema: { type: 'object' } } },
-            },
-            responses: { '200': { description: 'OK' } },
-          },
-        },
-      },
-    });
-    mockedBundle.mockResolvedValue({ bundle: { parsed: doc } } as any);
-    mockedDetectSpec.mockReturnValue('oas3_0');
+    mockedCreateAccumulator.mockReturnValue(
+      makeAccumulator(
+        new Map([
+          [
+            'complexOp',
+            makeTestMetrics({
+              path: '/complex',
+              method: 'post',
+              operationId: 'complexOp',
+              parameterCount: 10,
+              requestBodyPresent: true,
+              operationDescriptionPresent: false,
+            }),
+          ],
+        ])
+      )
+    );
 
     await handleScore(createArgs());
 

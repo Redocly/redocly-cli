@@ -4,16 +4,80 @@ import { walkSchema } from './schema-walker.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const;
 
+export interface ScoreAccumulator {
+  operations: Map<string, OperationMetrics>;
+  currentPath: string;
+  pathLevelParams: any[];
+}
+
+export function createScoreAccumulator(): ScoreAccumulator {
+  return {
+    operations: new Map(),
+    currentPath: '',
+    pathLevelParams: [],
+  };
+}
+
+export function createScoreVisitor(accumulator: ScoreAccumulator) {
+  return {
+    Paths: {
+      PathItem: {
+        enter(pathItem: any, ctx: any) {
+          accumulator.currentPath = ctx.key as string;
+          accumulator.pathLevelParams = Array.isArray(pathItem.parameters)
+            ? pathItem.parameters
+            : [];
+        },
+        Operation: {
+          enter(operation: any, ctx: any) {
+            const path = accumulator.currentPath;
+            const method = ctx.key as string;
+            const resolveRef = wrapCtxResolve(ctx.resolve);
+
+            const opKey = operation.operationId ?? `${method.toUpperCase()} ${path}`;
+            const metrics = collectOperationMetrics(
+              path,
+              method,
+              operation,
+              accumulator.pathLevelParams,
+              resolveRef
+            );
+            accumulator.operations.set(opKey, metrics);
+          },
+        },
+      },
+    },
+  };
+}
+
+export function getDocumentMetrics(accumulator: ScoreAccumulator): DocumentMetrics {
+  return { operationCount: accumulator.operations.size, operations: accumulator.operations };
+}
+
+function wrapCtxResolve(
+  resolve: (ref: { $ref: string }) => { node?: any } | undefined
+): RefResolver {
+  return (ref: string) => {
+    try {
+      const result = resolve({ $ref: ref });
+      return result?.node && typeof result.node === 'object'
+        ? (result.node as Record<string, any>)
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+}
+
 export function collectDocumentMetrics(document: Record<string, any>): DocumentMetrics {
   const operations = new Map<string, OperationMetrics>();
   const paths = document.paths;
-  const resolveRef = createRefResolver(document);
+  const resolveRef = createSimpleRefResolver(document);
 
   if (paths && typeof paths === 'object') {
     for (const [pathStr, pathItem] of Object.entries(paths)) {
       if (!pathItem || typeof pathItem !== 'object') continue;
-      const pathObj = resolveIfRef(pathItem as Record<string, any>, resolveRef);
-      if (!pathObj) continue;
+      const pathObj = resolveNode(pathItem as Record<string, any>, resolveRef);
 
       const pathLevelParams: any[] = Array.isArray(pathObj.parameters) ? pathObj.parameters : [];
 
@@ -37,7 +101,7 @@ export function collectDocumentMetrics(document: Record<string, any>): DocumentM
   return { operationCount: operations.size, operations };
 }
 
-function createRefResolver(document: Record<string, any>): RefResolver {
+function createSimpleRefResolver(document: Record<string, any>): RefResolver {
   return (ref: string) => {
     if (!ref.startsWith('#/')) return undefined;
     const parts = ref.slice(2).split('/');
@@ -50,12 +114,9 @@ function createRefResolver(document: Record<string, any>): RefResolver {
   };
 }
 
-function resolveIfRef(
-  node: Record<string, any>,
-  resolveRef: RefResolver
-): Record<string, any> | undefined {
+function resolveNode(node: Record<string, any>, resolveRef: RefResolver): Record<string, any> {
   if (node.$ref && typeof node.$ref === 'string') {
-    return resolveRef(node.$ref);
+    return resolveRef(node.$ref) ?? node;
   }
   return node;
 }
@@ -83,7 +144,7 @@ function collectOperationMetrics(
   }
 
   const reqBody = operation.requestBody
-    ? resolveIfRef(operation.requestBody, resolveRef)
+    ? resolveNode(operation.requestBody, resolveRef)
     : undefined;
   const requestBodyPresent = !!reqBody;
   let maxRequestSchemaDepth = 0;
@@ -136,8 +197,7 @@ function collectOperationMetrics(
   if (operation.responses && typeof operation.responses === 'object') {
     for (const [code, rawResponse] of Object.entries(operation.responses)) {
       if (!rawResponse || typeof rawResponse !== 'object') continue;
-      const resp = resolveIfRef(rawResponse as Record<string, any>, resolveRef);
-      if (!resp) continue;
+      const resp = resolveNode(rawResponse as Record<string, any>, resolveRef);
       collectRefs(rawResponse as Record<string, any>, refsUsed);
 
       const isError = isErrorCode(code);
@@ -205,13 +265,13 @@ function collectOperationMetrics(
 function mergeParameters(pathLevel: any[], opLevel: any[], resolveRef: RefResolver): any[] {
   const merged = new Map<string, any>();
   for (const raw of pathLevel) {
-    const p = raw && typeof raw === 'object' ? (resolveIfRef(raw, resolveRef) ?? raw) : raw;
+    const p = raw && typeof raw === 'object' ? resolveNode(raw, resolveRef) : raw;
     if (p && typeof p === 'object' && p.name && p.in) {
       merged.set(`${p.in}:${p.name}`, p);
     }
   }
   for (const raw of opLevel) {
-    const p = raw && typeof raw === 'object' ? (resolveIfRef(raw, resolveRef) ?? raw) : raw;
+    const p = raw && typeof raw === 'object' ? resolveNode(raw, resolveRef) : raw;
     if (p && typeof p === 'object' && p.name && p.in) {
       merged.set(`${p.in}:${p.name}`, p);
     }
