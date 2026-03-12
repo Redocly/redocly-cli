@@ -1,0 +1,56 @@
+
+  Scores
+
+  Integration Simplicity:  54.3/100
+  Agent Readiness:         41.7/100
+
+  Integration Simplicity Subscores
+
+  Parameter Simplicity     [██████████████████░░] 90%
+  Schema Simplicity        [████████████████░░░░] 81%
+  Documentation Quality    [░░░░░░░░░░░░░░░░░░░░] 0%
+  Constraint Clarity       [░░░░░░░░░░░░░░░░░░░░] 0%
+  Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
+  Error Clarity            [████████████████████] 100%
+  Workflow Clarity         [████████████████████] 100%
+
+  Agent Readiness Subscores
+
+  Documentation Quality    [░░░░░░░░░░░░░░░░░░░░] 0%
+  Constraint Clarity       [░░░░░░░░░░░░░░░░░░░░] 0%
+  Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
+  Error Clarity            [████████████████████] 100%
+  Identifier Clarity       [█████████████░░░░░░░] 67%
+  Workflow Clarity         [████████████████████] 100%
+  Polymorphism Clarity     [████████████████████] 100%
+
+  Raw Metrics Summary
+
+  Total operations: 2
+  Avg parameters/operation: 1.0
+  Avg max schema depth: 1.5
+  Avg polymorphism/operation: 0.0
+  Avg properties/operation: 2.0
+  Operations with request examples: 0/2 (0%)
+  Operations with response examples: 0/2 (0%)
+  Operations with description: 0/2 (0%)
+
+  Top 2 Hotspot Operations
+
+  GET /items (listItems)
+    Integration Simplicity: 51.0  Agent Readiness: 38.3
+    - Missing response examples
+    - Missing operation description
+    - No parameter descriptions
+    - Ambiguous identifiers (2)
+
+  POST /items (createItem)
+    Integration Simplicity: 57.5  Agent Readiness: 45.0
+    - Missing request and response examples
+    - Missing operation description
+
+
+Document: openapi.yaml score:
+
+openapi.yaml: score processed in <test>ms
+
