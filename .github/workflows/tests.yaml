@@ -32,6 +32,9 @@ jobs:
         continue-on-error: true # Do not fail if there is an error during reporting
         uses: davelosert/vitest-coverage-report-action@v2
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: E2E Tests
         run: npm run e2e
 
