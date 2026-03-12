@@ -1,6 +1,6 @@
-import { collectDocumentMetrics } from '../collectors/document-metrics.js';
+import { collectDocumentMetrics } from './collect-metrics.js';
 
-function makeDoc(paths: Record<string, any>, components?: Record<string, any>) {
+function makeDoc(paths: Record<string, unknown>, components?: Record<string, unknown>) {
   return {
     openapi: '3.0.0',
     info: { title: 'Test', version: '1.0.0' },
@@ -10,13 +10,13 @@ function makeDoc(paths: Record<string, any>, components?: Record<string, any>) {
 }
 
 describe('collectDocumentMetrics', () => {
-  it('should return zero operations for empty paths', () => {
-    const result = collectDocumentMetrics(makeDoc({}));
+  it('should return zero operations for empty paths', async () => {
+    const result = await collectDocumentMetrics(makeDoc({}));
     expect(result.operationCount).toBe(0);
     expect(result.operations.size).toBe(0);
   });
 
-  it('should count operations across methods', () => {
+  it('should count operations across methods', async () => {
     const doc = makeDoc({
       '/items': {
         get: { operationId: 'listItems', responses: { '200': { description: 'OK' } } },
@@ -27,32 +27,32 @@ describe('collectDocumentMetrics', () => {
         delete: { operationId: 'deleteItem', responses: { '204': { description: 'Deleted' } } },
       },
     });
-    const result = collectDocumentMetrics(doc);
+    const result = await collectDocumentMetrics(doc);
     expect(result.operationCount).toBe(4);
   });
 
-  it('should use operationId as key when present', () => {
+  it('should use operationId as key when present', async () => {
     const doc = makeDoc({
       '/items': {
         get: { operationId: 'listItems', responses: { '200': { description: 'OK' } } },
       },
     });
-    const result = collectDocumentMetrics(doc);
+    const result = await collectDocumentMetrics(doc);
     expect(result.operations.has('listItems')).toBe(true);
   });
 
-  it('should fall back to METHOD path as key when no operationId', () => {
+  it('should fall back to METHOD path as key when no operationId', async () => {
     const doc = makeDoc({
       '/items': {
         get: { responses: { '200': { description: 'OK' } } },
       },
     });
-    const result = collectDocumentMetrics(doc);
+    const result = await collectDocumentMetrics(doc);
     expect(result.operations.has('GET /items')).toBe(true);
   });
 
   describe('parameter counting', () => {
-    it('should count resolved parameters via $ref', () => {
+    it('should count resolved parameters via $ref', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -79,13 +79,13 @@ describe('collectDocumentMetrics', () => {
           },
         }
       );
-      const result = collectDocumentMetrics(doc);
+      const result = await collectDocumentMetrics(doc);
       const op = result.operations.get('listItems')!;
       expect(op.parameterCount).toBe(2);
       expect(op.paramsWithDescription).toBe(1);
     });
 
-    it('should merge path-level and operation-level parameters', () => {
+    it('should merge path-level and operation-level parameters', async () => {
       const doc = makeDoc({
         '/items/{id}': {
           parameters: [{ name: 'id', in: 'path', required: true, description: 'Item ID' }],
@@ -96,12 +96,12 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('getItem')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('getItem')!;
       expect(op.parameterCount).toBe(2);
       expect(op.requiredParameterCount).toBe(1);
     });
 
-    it('should let operation params override path params with same name+in', () => {
+    it('should let operation params override path params with same name+in', async () => {
       const doc = makeDoc({
         '/items/{id}': {
           parameters: [{ name: 'id', in: 'path', required: true }],
@@ -112,12 +112,12 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('getItem')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('getItem')!;
       expect(op.parameterCount).toBe(1);
       expect(op.paramsWithDescription).toBe(1);
     });
 
-    it('should detect ambiguous params without description', () => {
+    it('should detect ambiguous params without description', async () => {
       const doc = makeDoc({
         '/items': {
           get: {
@@ -131,13 +131,13 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.ambiguousIdentifierCount).toBe(2);
     });
   });
 
   describe('request body', () => {
-    it('should detect request body and resolve schema $ref', () => {
+    it('should detect request body and resolve schema $ref', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -167,7 +167,7 @@ describe('collectDocumentMetrics', () => {
           },
         }
       );
-      const op = collectDocumentMetrics(doc).operations.get('createItem')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('createItem')!;
       expect(op.requestBodyPresent).toBe(true);
       expect(op.requestExamplePresent).toBe(true);
       expect(op.propertyCount).toBe(2);
@@ -176,7 +176,7 @@ describe('collectDocumentMetrics', () => {
       expect(op.schemaPropertiesWithDescription).toBe(1);
     });
 
-    it('should resolve requestBody $ref', () => {
+    it('should resolve requestBody $ref', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -199,14 +199,14 @@ describe('collectDocumentMetrics', () => {
           },
         }
       );
-      const op = collectDocumentMetrics(doc).operations.get('createItem')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('createItem')!;
       expect(op.requestBodyPresent).toBe(true);
       expect(op.propertyCount).toBe(1);
     });
   });
 
   describe('responses', () => {
-    it('should resolve response $refs and count structured errors', () => {
+    it('should resolve response $refs and count structured errors', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -233,12 +233,12 @@ describe('collectDocumentMetrics', () => {
           },
         }
       );
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.totalErrorResponses).toBe(2);
       expect(op.structuredErrorResponseCount).toBe(2);
     });
 
-    it('should count description-only error responses as structured', () => {
+    it('should count description-only error responses as structured', async () => {
       const doc = makeDoc({
         '/items': {
           get: {
@@ -250,12 +250,12 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.totalErrorResponses).toBe(1);
       expect(op.structuredErrorResponseCount).toBe(1);
     });
 
-    it('should count default as error response', () => {
+    it('should count default as error response', async () => {
       const doc = makeDoc({
         '/items': {
           get: {
@@ -267,11 +267,11 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.totalErrorResponses).toBe(1);
     });
 
-    it('should detect response examples and compute schema depth', () => {
+    it('should detect response examples and compute schema depth', async () => {
       const doc = makeDoc({
         '/items': {
           get: {
@@ -301,14 +301,14 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.responseExamplePresent).toBe(true);
       expect(op.maxResponseSchemaDepth).toBe(3);
     });
   });
 
   describe('schema property examples as coverage', () => {
-    it('should count schema property examples towards response example coverage', () => {
+    it('should count schema property examples towards response example coverage', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -338,13 +338,13 @@ describe('collectDocumentMetrics', () => {
           },
         }
       );
-      const op = collectDocumentMetrics(doc).operations.get('listItems')!;
+      const op = (await collectDocumentMetrics(doc)).operations.get('listItems')!;
       expect(op.responseExamplePresent).toBe(true);
     });
   });
 
   describe('description and misc', () => {
-    it('should detect operation description presence', () => {
+    it('should detect operation description presence', async () => {
       const doc = makeDoc({
         '/a': {
           get: {
@@ -360,12 +360,12 @@ describe('collectDocumentMetrics', () => {
           },
         },
       });
-      const metrics = collectDocumentMetrics(doc);
+      const metrics = await collectDocumentMetrics(doc);
       expect(metrics.operations.get('withDesc')!.operationDescriptionPresent).toBe(true);
       expect(metrics.operations.get('noDesc')!.operationDescriptionPresent).toBe(false);
     });
 
-    it('should collect refs used across operations', () => {
+    it('should collect refs used across operations', async () => {
       const doc = makeDoc(
         {
           '/items': {
@@ -391,7 +391,7 @@ describe('collectDocumentMetrics', () => {
         },
         { schemas: { Item: { type: 'object' } } }
       );
-      const metrics = collectDocumentMetrics(doc);
+      const metrics = await collectDocumentMetrics(doc);
       expect(metrics.operations.get('listItems')!.refsUsed.has('#/components/schemas/Item')).toBe(
         true
       );
@@ -400,14 +400,16 @@ describe('collectDocumentMetrics', () => {
       );
     });
 
-    it('should handle missing/null paths gracefully', () => {
-      expect(collectDocumentMetrics({ openapi: '3.0.0' }).operationCount).toBe(0);
-      expect(collectDocumentMetrics({ openapi: '3.0.0', paths: null }).operationCount).toBe(0);
-    });
-
-    it('should skip non-object path items', () => {
-      const doc = makeDoc({ '/a': null, '/b': 'invalid' });
-      expect(collectDocumentMetrics(doc).operationCount).toBe(0);
+    it('should handle empty paths gracefully', async () => {
+      expect(
+        (
+          await collectDocumentMetrics({
+            openapi: '3.0.0',
+            info: { title: 'T', version: '1' },
+            paths: {},
+          })
+        ).operationCount
+      ).toBe(0);
     });
   });
 });

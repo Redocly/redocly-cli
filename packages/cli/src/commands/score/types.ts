@@ -1,19 +1,3 @@
-export type RefResolver = (ref: string) => Record<string, any> | undefined;
-
-export interface SchemaMetrics {
-  depth: number;
-  propertyCount: number;
-  oneOfCount: number;
-  anyOfCount: number;
-  allOfCount: number;
-  hasDiscriminator: boolean;
-  propertiesWithDescription: number;
-  totalProperties: number;
-  constraintCount: number;
-  writableTopLevelFieldCount: number;
-  propertiesWithExamples: number;
-}
-
 export interface OperationMetrics {
   path: string;
   method: string;

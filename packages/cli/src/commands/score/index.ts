@@ -72,7 +72,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
   };
 
   const normalizedVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor as any }],
+    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor }],
     types
   );
 

@@ -1,4 +1,3 @@
-import { collectDocumentMetrics } from '../collectors/document-metrics.js';
 import { DEFAULT_SCORING_CONSTANTS } from '../constants.js';
 import {
   computeOperationIntegrationSubscores,
@@ -9,6 +8,7 @@ import {
   computeDocumentScores,
 } from '../scoring.js';
 import type { OperationMetrics, ScoringConstants } from '../types.js';
+import { collectDocumentMetrics } from './collect-metrics.js';
 
 function makeBaseMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetrics {
   return {
@@ -121,7 +121,7 @@ describe('scoring', () => {
   });
 
   describe('determinism', () => {
-    it('should produce identical scores for the same input', () => {
+    it('should produce identical scores for the same input', async () => {
       const doc = {
         openapi: '3.0.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -187,8 +187,8 @@ describe('scoring', () => {
         },
       };
 
-      const metrics1 = collectDocumentMetrics(doc);
-      const metrics2 = collectDocumentMetrics(doc);
+      const metrics1 = await collectDocumentMetrics(doc);
+      const metrics2 = await collectDocumentMetrics(doc);
 
       const depths1 = new Map(Array.from(metrics1.operations.keys()).map((k) => [k, 0]));
       const depths2 = new Map(Array.from(metrics2.operations.keys()).map((k) => [k, 0]));
