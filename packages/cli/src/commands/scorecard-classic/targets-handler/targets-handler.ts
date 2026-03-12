@@ -9,14 +9,6 @@ import {
   logger,
 } from '@redocly/openapi-core';
 
-export async function resolveLevelsConfig(
-  levelsConfig: NonNullable<ScorecardConfig['levels']>,
-  plugins: Array<string | Plugin> = [],
-  configPath: string
-) {
-  return resolveConfigForTarget(undefined, levelsConfig, plugins, configPath);
-}
-
 export async function resolveConfigForTarget(
   targetRules: Record<string, unknown> | undefined,
   scorecardLevels: ScorecardConfig['levels'],

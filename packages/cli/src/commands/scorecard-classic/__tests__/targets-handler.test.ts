@@ -3,7 +3,6 @@ import * as openapiCore from '@redocly/openapi-core';
 import {
   getTarget,
   getTargetLevel,
-  resolveLevelsConfig,
   resolveConfigForTarget,
 } from '../targets-handler/targets-handler.js';
 
@@ -83,39 +82,6 @@ describe('getTargetLevel', () => {
       targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
     };
     expect(getTargetLevel(scorecardConfig, { env: 'prod' })).toBe('Gold');
-  });
-});
-
-describe('resolveLevelsConfig', () => {
-  beforeEach(() => {
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue({} as any);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('should return a config entry for each level', async () => {
-    const levels = [
-      { name: 'Baseline', rules: { 'operation-summary': 'error' } },
-      { name: 'Silver', rules: { 'operation-summary': 'error' } },
-    ];
-
-    const result = await resolveLevelsConfig(levels as any, [], '');
-
-    expect(Object.keys(result)).toEqual(['Baseline', 'Silver']);
-    expect(openapiCore.createConfig).toHaveBeenCalledTimes(2);
-  });
-
-  it('should pass plugins to createConfig', async () => {
-    const levels = [{ name: 'Baseline', rules: {} }];
-
-    await resolveLevelsConfig(levels as any, ['my-plugin'], '/path/to/config');
-
-    expect(openapiCore.createConfig).toHaveBeenCalledWith(
-      expect.objectContaining({ plugins: ['my-plugin'] }),
-      { configPath: '/path/to/config' }
-    );
   });
 });
 
