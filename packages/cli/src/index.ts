@@ -19,7 +19,7 @@ import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
 } from './commands/generate-arazzo.js';
-import { handleJoin } from './commands/join.js';
+import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
@@ -28,7 +28,7 @@ import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls
 import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
 import { handleSplit } from './commands/split/index.js';
-import { handleStats } from './commands/stats.js';
+import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
 import { handlePushStatus } from './reunite/commands/push-status.js';
 import { handlePush } from './reunite/commands/push.js';

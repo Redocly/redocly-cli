@@ -54,7 +54,7 @@ redocly scorecard-classic openapi/openapi.yaml --config=./another/directory/redo
 
 ### Configure scorecard in redocly.yaml
 
-You can configure the scorecard project URL in your Redocly configuration file to avoid passing it as a command-line argument:
+You can configure the scorecard project URL in your Redocly configuration file to avoid passing it as a command-line argument. The URL must use a hostname that ends with `.redocly.com` (for example, `app.cloud.redocly.com`), other domains are not allowed.
 
 ```yaml
 scorecard:

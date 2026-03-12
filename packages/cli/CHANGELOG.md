@@ -1,5 +1,66 @@
 # @redocly/cli
 
+## 2.21.1
+
+### Patch Changes
+
+- Restricted scorecard-classic project URL to the `.redocly.com` domain only.
+- Fixed an issue where `join --prefix-components-with-info-prop` would incorrectly rewrite discriminator mapping refs.
+  This issue occurred when schema names contained the same substring as the prefix.
+- Updated @redocly/openapi-core to v2.21.1.
+
+## 2.21.0
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added support for the `NO_PROXY` environment variable.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.0.
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.5.
+
+## 2.20.4
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+- Updated @redocly/openapi-core to v2.20.4.
+
+## 2.20.3
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.20.3.
+
+## 2.20.2
+
+### Patch Changes
+
+- Add support for data: URLs (RFC 2397) in references.
+  The resolver now handles inline base64-encoded and URL-encoded data in $ref fields, allowing schemas and other content to be embedded directly as data URLs.
+- Updated @redocly/openapi-core to v2.20.2.
+
+## 2.20.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+- Updated @redocly/respect-core to v2.20.1.
+
+## 2.20.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.0.
+
 ## 2.19.2
 
 ### Patch Changes

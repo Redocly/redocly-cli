@@ -1,5 +1,48 @@
 # @redocly/openapi-core
 
+## 2.21.1
+
+## 2.21.0
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/config to v0.44.1.
+
+## 2.20.4
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+
+## 2.20.3
+
+## 2.20.2
+
+### Patch Changes
+
+- Add support for data: URLs (RFC 2397) in references.
+  The resolver now handles inline base64-encoded and URL-encoded data in $ref fields, allowing schemas and other content to be embedded directly as data URLs.
+- Updated `@redocly/config` to v0.44.0.
+
+## 2.20.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+
+## 2.20.0
+
+### Minor Changes
+
+- Added AsyncAPI support to the `stats` command.
+
 ## 2.19.2
 
 ### Patch Changes

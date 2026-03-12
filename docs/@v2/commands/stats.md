@@ -3,7 +3,14 @@
 ## Introduction
 
 The `stats` command provides statistics about the structure of one or more API description files.
-This command generates statistics for the following metrics:
+
+{% admonition type="warning" name="OpenAPI 3.x, AsyncAPI 2.x and AsyncAPI 3 only" %}
+It supports OpenAPI 3.x, AsyncAPI 2.x, and AsyncAPI 3.x descriptions.
+{% /admonition %}
+
+The metrics reported depend on the type of API description:
+
+**OpenAPI 3.x**
 
 - References
 - External Documents
@@ -11,14 +18,21 @@ This command generates statistics for the following metrics:
 - Parameters
 - Links
 - Path Items
+- Webhooks
+- Operations
+- Tags
+
+**AsyncAPI 2.x and AsyncAPI 3.x**
+
+- References
+- External Documents
+- Schemas
+- Parameters
+- Channels
 - Operations
 - Tags
 
 If you're interested in the technical details, the statistics are calculated using the counting logic from the `StatsVisitor` module.
-
-{% admonition type="warning" name="OpenAPI 3.x only" %}
-The `stats` command supports OpenAPI 3.x descriptions only.
-{% /admonition %}
 
 ## Usage
 
@@ -47,10 +61,14 @@ The `stats` command behaves differently depending on how you pass the API to it,
 
 #### Pass an API directly
 
-You can use the `stats` command with an OpenAPI description directly, with a command like the following:
+You can use the `stats` command with an OpenAPI or AsyncAPI description directly, with a command like the following:
 
 ```bash
 redocly stats openapi/openapi.yaml
+```
+
+```bash
+redocly stats asyncapi/asyncapi.yaml
 ```
 
 In this case, `stats` shows statistics for the API description that was passed in.
@@ -89,7 +107,9 @@ redocly stats --config=./another/directory/config.yaml
 #### Specify the stylish (default) output format
 
 The default output format for `stats` is called "stylish".
-It outputs a nice format for your terminal, as shown in the following example:
+It outputs a nice format for your terminal, as shown in the following examples:
+
+**OpenAPI example:**
 
 <pre>
 Document: museum.yaml stats:
@@ -100,10 +120,27 @@ Document: museum.yaml stats:
 👉 Parameters: 6
 🔗 Links: 0
 🔀 Path Items: 5
+🎣 Webhooks: 0
 👷 Operations: 8
 🔖 Tags: 3
 
 museum.yaml: stats processed in 4ms
+</pre>
+
+**AsyncAPI example:**
+
+<pre>
+Document: asyncapi.yaml stats:
+
+🚗 References: 2
+📦 External Documents: 1
+📈 Schemas: 1
+👉 Parameters: 0
+📡 Channels: 1
+👷 Operations: 1
+🔖 Tags: 2
+
+asyncapi.yaml: stats processed in 4ms
 </pre>
 
 In this format, `stats` shows the statistics in a condensed but readable manner with an icon at the beginning of each line.
@@ -111,7 +148,7 @@ In this format, `stats` shows the statistics in a condensed but readable manner 
 #### Specify the JSON output format
 
 Use `--format=json` to get a machine-readable output format.
-The JSON format output is shown in the following example:
+The following is an example JSON output for an OpenAPI description:
 
 <pre>
 {
@@ -139,6 +176,10 @@ The JSON format output is shown in the following example:
     "metric": "🔀 Path Items",
     "total": 5
   },
+  "webhooks": {
+    "metric": "🎣 Webhooks",
+    "total": 0
+  },
   "operations": {
     "metric": "👷 Operations",
     "total": 8
@@ -150,6 +191,8 @@ The JSON format output is shown in the following example:
 }
 </pre>
 
+For AsyncAPI descriptions, the output uses `channels` instead of `links`, `pathItems`, and `webhooks`.
+
 The JSON format output is suitable when you want to use the stats data in another program.
 
 #### Specify the Markdown output format
@@ -157,7 +200,7 @@ The JSON format output is suitable when you want to use the stats data in anothe
 Use `--format=markdown` to return output that you can use in Markdown files or other Markdown-friendly applications.
 A table format is used.
 
-The following is an example source output:
+The following is an example source output for an OpenAPI description:
 
 <pre>
 | Feature  | Count  |
@@ -168,6 +211,7 @@ The following is an example source output:
 | 👉 Parameters | 6 |
 | 🔗 Links | 0 |
 | 🔀 Path Items | 5 |
+| 🎣 Webhooks | 0 |
 | 👷 Operations | 8 |
 | 🔖 Tags | 3 |
 
@@ -183,8 +227,11 @@ Here's the rendered example source output:
 | 👉 Parameters         | 6     |
 | 🔗 Links              | 0     |
 | 🔀 Path Items         | 5     |
+| 🎣 Webhooks           | 0     |
 | 👷 Operations         | 8     |
 | 🔖 Tags               | 3     |
+
+For AsyncAPI descriptions, the table includes a `📡 Channels` row instead of the `🔗 Links`, `🔀 Path Items`, and `🎣 Webhooks` rows.
 
 The Markdown format is suitable when a printable summary is needed, such as for regularly updated reports or human-readable output from your CI system.
 

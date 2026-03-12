@@ -48,6 +48,7 @@ describe('spec ruleset', () => {
           ],
         },
         {
+          "from": undefined,
           "location": [
             {
               "pointer": "#/paths/~1pets?id/get/parameters/1/name",
