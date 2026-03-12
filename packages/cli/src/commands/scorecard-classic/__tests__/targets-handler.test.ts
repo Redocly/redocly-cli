@@ -53,6 +53,16 @@ describe('getTarget', () => {
     expect(getTarget(targets, { publishedAt: '2025-01-01' })).toBeUndefined();
   });
 
+  it('should not match when metadata key is missing for date range or regex', () => {
+    const dateTarget = [
+      { where: { metadata: { publishedAt: '2024-01-01/2025-12-31' } }, minimumLevel: 'Gold' },
+    ];
+    expect(getTarget(dateTarget, {})).toBeUndefined();
+
+    const regexTarget = [{ where: { metadata: { version: '/^1\\.0/' } }, minimumLevel: 'Silver' }];
+    expect(getTarget(regexTarget, {})).toBeUndefined();
+  });
+
   it('should match all conditions in where.metadata', () => {
     const targets = [
       {
