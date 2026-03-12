@@ -31,6 +31,7 @@ The following raw metrics are collected per operation and aggregated across the 
 | Constraint coverage                | Count of constraining keywords (`enum`, `format`, `pattern`, `minimum`, `maximum`, `minLength`, `maxLength`, `discriminator`, etc.). |
 | Request/response example coverage  | Whether request and response media types include `example` or `examples`.                                                            |
 | Structured error response coverage | How many 4xx/5xx responses include a content schema or meaningful description.                                                       |
+| Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                          |
 | Workflow dependency depth          | Inferred from shared `$ref` usage across operations; deeper shared-schema graphs indicate more tightly coupled workflows.            |
 
 ### Subscores
@@ -109,7 +110,7 @@ redocly score --config=./another/directory/config.yaml
 
 The default output format shows a human-readable summary in your terminal:
 
-<pre>
+```sh
   Scores
 
   Integration Simplicity:  72.5/100
@@ -137,7 +138,7 @@ The default output format shows a human-readable summary in your terminal:
     Integration Simplicity: 52.1  Agent Readiness: 44.0
     - Polymorphism (anyOf) without discriminator (3 anyOf)
     - No structured error responses (4xx/5xx)
-</pre>
+```
 
 #### JSON output
 

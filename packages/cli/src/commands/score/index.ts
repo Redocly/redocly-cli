@@ -1,12 +1,26 @@
-import { bundle, detectSpec, logger } from '@redocly/openapi-core';
-import type { OutputFormat } from '@redocly/openapi-core';
+import {
+  normalizeTypes,
+  BaseResolver,
+  resolveDocument,
+  detectSpec,
+  getTypes,
+  normalizeVisitors,
+  walkDocument,
+  bundle,
+  logger,
+} from '@redocly/openapi-core';
+import type { OutputFormat, WalkContext } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
 import type { VerifyConfigOptions } from '../../types.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { collectDocumentMetrics } from './collectors/document-metrics.js';
+import {
+  createScoreAccumulator,
+  createScoreVisitor,
+  getDocumentMetrics,
+} from './collectors/document-metrics.js';
 import { computeWorkflowDepths } from './collectors/workflow-graph.js';
 import { printScoreJson } from './formatters/json.js';
 import { printScoreStylish } from './formatters/stylish.js';
@@ -25,6 +39,7 @@ export type ScoreArgv = {
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   collectSpecData?.(document.parsed);
 
@@ -39,7 +54,37 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
 
   const startedAt = performance.now();
 
-  const rawMetrics = collectDocumentMetrics(document.parsed as Record<string, any>);
+  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+  const accumulator = createScoreAccumulator();
+  const scoreVisitor = createScoreVisitor(accumulator);
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  const walkCtx: WalkContext = {
+    problems: [],
+    specVersion,
+    config,
+    visitorsData: {},
+  };
+
+  const normalizedVisitors = normalizeVisitors(
+    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor as any }],
+    types
+  );
+
+  walkDocument({
+    document,
+    rootType: types.Root,
+    normalizedVisitors,
+    resolvedRefMap,
+    ctx: walkCtx,
+  });
+
+  const rawMetrics = getDocumentMetrics(accumulator);
   const workflowDepths = computeWorkflowDepths(rawMetrics.operations);
   const operationScores = computeAllOperationScores(rawMetrics, workflowDepths);
   const { integrationSimplicity, agentReadiness } = computeDocumentScores(operationScores);
