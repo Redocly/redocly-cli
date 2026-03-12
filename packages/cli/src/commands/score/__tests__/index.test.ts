@@ -90,7 +90,7 @@ function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMe
 }
 
 function makeAccumulator(ops: Map<string, OperationMetrics> = new Map()): ScoreAccumulator {
-  return { operations: ops, currentPath: '', pathLevelParams: [] };
+  return { operations: ops, currentPath: '', pathLevelParams: [], current: null };
 }
 
 function createArgs(overrides: Partial<ScoreArgv> = {}) {

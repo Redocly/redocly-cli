@@ -1,10 +1,10 @@
-import { collectDocumentMetrics } from '../collectors/document-metrics.js';
 import {
   computeOperationIntegrationSubscores,
   computeOperationAgentSubscores,
   computeIntegrationSimplicity,
   computeAgentReadiness,
 } from '../scoring.js';
+import { collectDocumentMetrics } from './collect-metrics.js';
 
 describe('example coverage', () => {
   function makeDocument(overrides: {
@@ -50,9 +50,9 @@ describe('example coverage', () => {
     };
   }
 
-  it('should give perfect example coverage when both request and response examples present', () => {
+  it('should give perfect example coverage when both request and response examples present', async () => {
     const doc = makeDocument({ requestExample: true, responseExample: true, hasRequestBody: true });
-    const metrics = collectDocumentMetrics(doc);
+    const metrics = await collectDocumentMetrics(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     expect(opMetrics.requestExamplePresent).toBe(true);
@@ -62,13 +62,13 @@ describe('example coverage', () => {
     expect(subscores.exampleCoverage).toBe(1);
   });
 
-  it('should give half example coverage when only response example present', () => {
+  it('should give half example coverage when only response example present', async () => {
     const doc = makeDocument({
       requestExample: false,
       responseExample: true,
       hasRequestBody: true,
     });
-    const metrics = collectDocumentMetrics(doc);
+    const metrics = await collectDocumentMetrics(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     expect(opMetrics.requestExamplePresent).toBe(false);
@@ -78,20 +78,20 @@ describe('example coverage', () => {
     expect(subscores.exampleCoverage).toBe(0.5);
   });
 
-  it('should give zero example coverage when no examples', () => {
+  it('should give zero example coverage when no examples', async () => {
     const doc = makeDocument({
       requestExample: false,
       responseExample: false,
       hasRequestBody: true,
     });
-    const metrics = collectDocumentMetrics(doc);
+    const metrics = await collectDocumentMetrics(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     const subscores = computeOperationIntegrationSubscores(opMetrics, 0);
     expect(subscores.exampleCoverage).toBe(0);
   });
 
-  it('should affect integration simplicity score positively with examples', () => {
+  it('should affect integration simplicity score positively with examples', async () => {
     const docWith = makeDocument({
       requestExample: true,
       responseExample: true,
@@ -103,8 +103,10 @@ describe('example coverage', () => {
       hasRequestBody: true,
     });
 
-    const metricsWithExamples = collectDocumentMetrics(docWith).operations.get('createItem')!;
-    const metricsWithout = collectDocumentMetrics(docWithout).operations.get('createItem')!;
+    const metricsWithExamples = (await collectDocumentMetrics(docWith)).operations.get(
+      'createItem'
+    )!;
+    const metricsWithout = (await collectDocumentMetrics(docWithout)).operations.get('createItem')!;
 
     const subWith = computeOperationIntegrationSubscores(metricsWithExamples, 0);
     const subWithout = computeOperationIntegrationSubscores(metricsWithout, 0);
@@ -115,7 +117,7 @@ describe('example coverage', () => {
     expect(scoreWith).toBeGreaterThan(scoreWithout);
   });
 
-  it('should affect agent readiness score positively with examples', () => {
+  it('should affect agent readiness score positively with examples', async () => {
     const docWith = makeDocument({
       requestExample: true,
       responseExample: true,
@@ -127,8 +129,10 @@ describe('example coverage', () => {
       hasRequestBody: true,
     });
 
-    const metricsWithExamples = collectDocumentMetrics(docWith).operations.get('createItem')!;
-    const metricsWithout = collectDocumentMetrics(docWithout).operations.get('createItem')!;
+    const metricsWithExamples = (await collectDocumentMetrics(docWith)).operations.get(
+      'createItem'
+    )!;
+    const metricsWithout = (await collectDocumentMetrics(docWithout)).operations.get('createItem')!;
 
     const subWith = computeOperationAgentSubscores(metricsWithExamples, 0);
     const subWithout = computeOperationAgentSubscores(metricsWithout, 0);
@@ -139,7 +143,7 @@ describe('example coverage', () => {
     expect(scoreWith).toBeGreaterThan(scoreWithout);
   });
 
-  it('should handle examples via examples map', () => {
+  it('should handle examples via examples map', async () => {
     const doc = {
       openapi: '3.0.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -175,7 +179,7 @@ describe('example coverage', () => {
       },
     };
 
-    const metrics = collectDocumentMetrics(doc);
+    const metrics = await collectDocumentMetrics(doc);
     const opMetrics = metrics.operations.get('createItem')!;
     expect(opMetrics.requestExamplePresent).toBe(true);
     expect(opMetrics.responseExamplePresent).toBe(true);
