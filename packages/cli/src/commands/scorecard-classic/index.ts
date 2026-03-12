@@ -61,14 +61,11 @@ export async function handleScorecardClassic({
     verbose: argv.verbose,
   });
 
-  // Get the API path from the command (first one is the one we're validating)
   const { path, alias } = apis[0];
 
-  // Use the existing utility to find matching API and alias from config
   const matchedEntry = getAliasOrPath(config, path);
   const matchedAlias = matchedEntry.alias || alias;
 
-  // Get metadata from the matched API config
   const apiConfigMetadata = matchedAlias
     ? config.resolvedConfig.apis?.[matchedAlias]?.metadata
     : undefined;
@@ -91,7 +88,6 @@ export async function handleScorecardClassic({
 
   collectSpecData?.(document.parsed);
 
-  // Build combined metadata from document and config
   const documentInfo = (
     document.parsed as unknown as {
       info?: { title?: string; version?: string; 'x-metadata'?: Record<string, unknown> };
@@ -154,7 +150,11 @@ export async function handleScorecardClassic({
   }
 
   const elapsed = getExecutionTime(startedAt);
-  logger.info(`📊 Scorecard results for ${blue(formatPath(path))} ${green(elapsed)}.\n`);
+  logger.info(
+    `📊 Scorecard results for ${blue(formatPath(path))} at ${blue(path || 'stdout')} ${green(
+      elapsed
+    )}.\n`
+  );
 
   if (targetLevel && !targetLevelAchieved) {
     throw new AbortFlowError('Target scorecard level not achieved.');

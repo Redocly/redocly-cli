@@ -6,9 +6,7 @@ export const assignConfig = <T extends string | { severity?: string }>(
 ) => {
   if (!obj) return;
   for (const k of Object.keys(obj)) {
-    // console.log(`Processing key "${k}": target value =`, target[k], ', source value =', obj[k]); // Debug log for current key and values
     if (isPlainObject(target[k]) && typeof obj[k] === 'string') {
-      // If target is an object and source is a string, merge severity into the object
       target[k] = { ...(target[k] as Record<string, unknown>), severity: obj[k] } as T;
     } else {
       target[k] = obj[k];

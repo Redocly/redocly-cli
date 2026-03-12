@@ -55,7 +55,6 @@ export async function validateScorecard({
     );
   }
 
-  // Evaluate plugins first if they're provided as code
   const plugins =
     typeof pluginsCodeOrPlugins === 'string'
       ? await evaluatePluginsFromCode(pluginsCodeOrPlugins, verbose)
@@ -103,7 +102,6 @@ export async function validateScorecard({
     );
   }
 
-  // Iterate through each level
   for (const level of scorecardConfig.levels || []) {
     if (verbose) {
       logger.info(`\nValidating level: "${level.name}"\n`);
@@ -115,7 +113,6 @@ export async function validateScorecard({
       );
     }
 
-    // Use target config if available, otherwise create config from level
     const config = levelConfigs[level.name];
 
     if (verbose) {
