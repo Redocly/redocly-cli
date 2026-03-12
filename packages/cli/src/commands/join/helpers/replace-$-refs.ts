@@ -16,7 +16,7 @@ export function replace$Refs(obj: unknown, componentsPrefix: string) {
           mapping[name] = mappingPointer
             .split('/')
             .map((name, i, arr) => {
-              return arr.length - 1 === i && !name.includes(componentsPrefix)
+              return arr.length - 1 === i && !name.startsWith(componentsPrefix + '_')
                 ? componentsPrefix + '_' + name
                 : name;
             })
