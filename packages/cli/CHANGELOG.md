@@ -1,5 +1,14 @@
 # @redocly/cli
 
+## 2.21.1
+
+### Patch Changes
+
+- Restricted scorecard-classic project URL to the `.redocly.com` domain only.
+- Fixed an issue where `join --prefix-components-with-info-prop` would incorrectly rewrite discriminator mapping refs.
+  This issue occurred when schema names contained the same substring as the prefix.
+- Updated @redocly/openapi-core to v2.21.1.
+
 ## 2.21.0
 
 ### Minor Changes
