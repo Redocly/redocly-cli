@@ -97,6 +97,7 @@ function createArgs(overrides: Partial<ScoreArgv> = {}) {
   return {
     argv: { format: 'stylish' as const, ...overrides } as ScoreArgv,
     config: { extendTypes: (types: any) => types, resolve: {} } as any,
+    version: '0.0.0-test',
     collectSpecData: vi.fn(),
   };
 }
