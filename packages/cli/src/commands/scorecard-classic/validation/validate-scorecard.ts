@@ -10,11 +10,7 @@ import {
 } from '@redocly/openapi-core';
 
 import { exitWithError } from '../../../utils/error.js';
-import {
-  getTarget,
-  resolveConfigForTarget,
-  resolveLevelsConfig,
-} from '../targets-handler/targets-handler.js';
+import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
 import type { ScorecardProblem } from '../types.js';
 import { evaluatePluginsFromCode } from './plugin-evaluator.js';
 
@@ -63,6 +59,8 @@ export async function validateScorecard({
   const pluginsList = Array.isArray(plugins) ? plugins : [];
   let levelConfigs: Record<string, Config> = {};
 
+  let targetRules: Record<string, unknown> | undefined;
+
   if (targets.length > 0) {
     if (verbose) {
       logger.info(
@@ -79,12 +77,7 @@ export async function validateScorecard({
         );
       }
 
-      levelConfigs = await resolveConfigForTarget(
-        matchedTarget.rules as Record<string, unknown> | undefined,
-        scorecardConfig.levels || [],
-        pluginsList,
-        configPath || ''
-      );
+      targetRules = matchedTarget.rules as Record<string, unknown> | undefined;
     } else {
       if (verbose) {
         logger.info(
@@ -94,13 +87,12 @@ export async function validateScorecard({
     }
   }
 
-  if (Object.keys(levelConfigs).length === 0) {
-    levelConfigs = await resolveLevelsConfig(
-      scorecardConfig.levels || [],
-      pluginsList,
-      configPath || ''
-    );
-  }
+  levelConfigs = await resolveConfigForTarget(
+    targetRules,
+    scorecardConfig.levels || [],
+    pluginsList,
+    configPath || ''
+  );
 
   for (const level of scorecardConfig.levels || []) {
     if (verbose) {

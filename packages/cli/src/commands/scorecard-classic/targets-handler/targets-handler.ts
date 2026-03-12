@@ -14,13 +14,7 @@ export async function resolveLevelsConfig(
   plugins: Array<string | Plugin> = [],
   configPath: string
 ) {
-  const configs: Record<string, Config> = {};
-  for (const level of levelsConfig) {
-    configs[level.name] = await createConfig({ ...level, plugins } as RawUniversalConfig, {
-      configPath,
-    });
-  }
-  return configs;
+  return resolveConfigForTarget(undefined, levelsConfig, plugins, configPath);
 }
 
 export async function resolveConfigForTarget(
@@ -29,26 +23,29 @@ export async function resolveConfigForTarget(
   plugins: Array<string | Plugin> = [],
   configPath: string
 ): Promise<Record<string, Config>> {
-  const configs = await resolveLevelsConfig(scorecardLevels ?? [], plugins, configPath);
-
-  if (!targetRules) {
-    return configs;
-  }
-
   const result: Record<string, Config> = {};
-  for (const [levelName, config] of Object.entries(configs)) {
-    const merged = mergeExtends([
-      config.resolvedConfig,
-      { rules: targetRules as Record<string, RuleConfig> },
-    ]);
 
-    result[levelName] = new Config(
-      { ...config.resolvedConfig, ...merged },
-      {
-        configPath: config.configPath,
-        plugins: config.plugins,
-      }
-    );
+  for (const level of scorecardLevels ?? []) {
+    const config = await createConfig({ ...level, plugins } as RawUniversalConfig, {
+      configPath,
+    });
+
+    if (targetRules) {
+      const merged = mergeExtends([
+        config.resolvedConfig,
+        { rules: targetRules as Record<string, RuleConfig> },
+      ]);
+
+      result[level.name] = new Config(
+        { ...config.resolvedConfig, ...merged },
+        {
+          configPath: config.configPath,
+          plugins: config.plugins,
+        }
+      );
+    } else {
+      result[level.name] = config;
+    }
   }
 
   return result;
