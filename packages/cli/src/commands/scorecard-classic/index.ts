@@ -18,6 +18,12 @@ import type { ScorecardClassicArgv } from './types.js';
 import { isAllowedScorecardProjectUrl } from './validation/project-url.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
 
+type ExtendedDocument = Document & {
+  parsed: Document['parsed'] & {
+    info?: { title?: string; version?: string; 'x-metadata'?: Record<string, unknown> };
+  };
+};
+
 export async function handleScorecardClassic({
   argv,
   config,
@@ -93,11 +99,7 @@ export async function handleScorecardClassic({
 
   collectSpecData?.(document.parsed);
 
-  const documentInfo = (
-    document.parsed as unknown as {
-      info?: { title?: string; version?: string; 'x-metadata'?: Record<string, unknown> };
-    }
-  )?.info;
+  const documentInfo = (document as ExtendedDocument).parsed?.info;
   const builtInMetadata = documentInfo?.['x-metadata'] || {};
 
   const metadata = {
