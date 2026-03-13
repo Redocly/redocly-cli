@@ -25,12 +25,13 @@ import { computeWorkflowDepths } from './collectors/workflow-graph.js';
 import { printScoreJson } from './formatters/json.js';
 import { printScoreStylish } from './formatters/stylish.js';
 import { selectTopHotspots } from './hotspots.js';
-import { computeAllOperationScores, computeDocumentScores } from './scoring.js';
-import type {
-  AgentReadinessSubscores,
-  IntegrationSimplicitySubscores,
-  ScoreResult,
-} from './types.js';
+import {
+  averageAgentSubscores,
+  averageIntegrationSubscores,
+  computeAllOperationScores,
+  computeDocumentScores,
+} from './scoring.js';
+import type { ScoreResult } from './types.js';
 
 export type ScoreArgv = {
   api?: string;
@@ -64,7 +65,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     externalRefResolver,
   });
 
-  const walkCtx: WalkContext = {
+  const ctx: WalkContext = {
     problems: [],
     specVersion,
     config,
@@ -72,7 +73,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
   };
 
   const normalizedVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor }],
+    [{ severity: 'warn', ruleId: 'score', visitor: scoreVisitor as any }],
     types
   );
 
@@ -81,7 +82,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     rootType: types.Root,
     normalizedVisitors,
     resolvedRefMap,
-    ctx: walkCtx,
+    ctx,
   });
 
   const rawMetrics = getDocumentMetrics(accumulator);
@@ -91,23 +92,24 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
 
   const hotspots = selectTopHotspots(rawMetrics, operationScores, workflowDepths);
 
-  const avgIntSubscores = averageIntegrationSubscores(operationScores);
-  const avgAgentSubscores = averageAgentSubscores(operationScores);
-
   const result: ScoreResult = {
     integrationSimplicity,
     agentReadiness,
-    integrationSubscores: avgIntSubscores,
-    agentSubscores: avgAgentSubscores,
+    integrationSubscores: averageIntegrationSubscores(operationScores),
+    agentSubscores: averageAgentSubscores(operationScores),
     rawMetrics,
     hotspots,
     operationScores,
     workflowDepths,
   };
 
-  logger.info(`Document: ${colors.magenta(path)} score:\n`);
+  printScore(result, path, startedAt, argv.format);
+}
 
-  switch (argv.format) {
+function printScore(result: ScoreResult, api: string, startedAt: number, format: string): void {
+  logger.info(`Document: ${colors.magenta(api)} score:\n`);
+
+  switch (format) {
     case 'json':
       printScoreJson(result);
       break;
@@ -116,75 +118,5 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
       break;
   }
 
-  printExecutionTime('score', startedAt, path);
-}
-
-function averageIntegrationSubscores(
-  operationScores: Map<string, { integrationSubscores: IntegrationSimplicitySubscores }>
-): IntegrationSimplicitySubscores {
-  const n = operationScores.size || 1;
-  const result: IntegrationSimplicitySubscores = {
-    parameterSimplicity: 0,
-    schemaSimplicity: 0,
-    documentationQuality: 0,
-    constraintClarity: 0,
-    exampleCoverage: 0,
-    errorClarity: 0,
-    workflowClarity: 0,
-  };
-
-  for (const scores of operationScores.values()) {
-    result.parameterSimplicity += scores.integrationSubscores.parameterSimplicity;
-    result.schemaSimplicity += scores.integrationSubscores.schemaSimplicity;
-    result.documentationQuality += scores.integrationSubscores.documentationQuality;
-    result.constraintClarity += scores.integrationSubscores.constraintClarity;
-    result.exampleCoverage += scores.integrationSubscores.exampleCoverage;
-    result.errorClarity += scores.integrationSubscores.errorClarity;
-    result.workflowClarity += scores.integrationSubscores.workflowClarity;
-  }
-
-  result.parameterSimplicity /= n;
-  result.schemaSimplicity /= n;
-  result.documentationQuality /= n;
-  result.constraintClarity /= n;
-  result.exampleCoverage /= n;
-  result.errorClarity /= n;
-  result.workflowClarity /= n;
-
-  return result;
-}
-
-function averageAgentSubscores(
-  operationScores: Map<string, { agentSubscores: AgentReadinessSubscores }>
-): AgentReadinessSubscores {
-  const n = operationScores.size || 1;
-  const result: AgentReadinessSubscores = {
-    documentationQuality: 0,
-    constraintClarity: 0,
-    exampleCoverage: 0,
-    errorClarity: 0,
-    identifierClarity: 0,
-    workflowClarity: 0,
-    polymorphismClarity: 0,
-  };
-
-  for (const scores of operationScores.values()) {
-    result.documentationQuality += scores.agentSubscores.documentationQuality;
-    result.constraintClarity += scores.agentSubscores.constraintClarity;
-    result.exampleCoverage += scores.agentSubscores.exampleCoverage;
-    result.errorClarity += scores.agentSubscores.errorClarity;
-    result.identifierClarity += scores.agentSubscores.identifierClarity;
-    result.workflowClarity += scores.agentSubscores.workflowClarity;
-    result.polymorphismClarity += scores.agentSubscores.polymorphismClarity;
-  }
-
-  result.documentationQuality /= n;
-  result.constraintClarity /= n;
-  result.exampleCoverage /= n;
-  result.errorClarity /= n;
-  result.identifierClarity /= n;
-  result.workflowClarity /= n;
-  result.polymorphismClarity /= n;
-
-  return result;
+  printExecutionTime('score', startedAt, api);
 }

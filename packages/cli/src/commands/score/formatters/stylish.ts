@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { bold, cyan, green, red, white, yellow, gray } from 'colorette';
+import { bold, cyan, green, red, white, yellow } from 'colorette';
 
 import type { ScoreResult } from '../types.js';
 
@@ -43,7 +43,7 @@ function printSubscores(result: ScoreResult): void {
   printSubscore('Constraint Clarity', is.constraintClarity);
   printSubscore('Example Coverage', is.exampleCoverage);
   printSubscore('Error Clarity', is.errorClarity);
-  printSubscore('Workflow Clarity', is.workflowClarity);
+  printSubscore('Dependency Clarity', is.workflowClarity);
   out('');
 
   out(bold(white('  Agent Readiness Subscores')));
@@ -54,7 +54,7 @@ function printSubscores(result: ScoreResult): void {
   printSubscore('Example Coverage', ar.exampleCoverage);
   printSubscore('Error Clarity', ar.errorClarity);
   printSubscore('Identifier Clarity', ar.identifierClarity);
-  printSubscore('Workflow Clarity', ar.workflowClarity);
+  printSubscore('Dependency Clarity', ar.workflowClarity);
   printSubscore('Polymorphism Clarity', ar.polymorphismClarity);
   out('');
 }
@@ -142,7 +142,7 @@ function printHotspots(result: ScoreResult): void {
     );
 
     for (const reason of hotspot.reasons) {
-      out(gray(`    - ${reason}`));
+      out(yellow(`    - ${reason}`));
     }
     out('');
   }
