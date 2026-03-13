@@ -68,7 +68,7 @@
     "yargs": "17.0.1"
   },
   "devDependencies": {
-    "@redocly/cli-otel": "^0.0.4",
+    "@redocly/cli-otel": "^0.0.5",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/pluralize": "^0.0.29",
