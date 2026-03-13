@@ -2,7 +2,7 @@ asyncapi: '2.6.0'
 info:
   title: Simple AsyncAPI Example
   version: '1.0.0'
-  description: A simple AsyncAPI example for testing split command
+  description: A simple AsyncAPI v2 example for testing split command
 channels:
   user/signedup:
     description: Channel for user signup events
