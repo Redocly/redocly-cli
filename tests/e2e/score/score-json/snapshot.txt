@@ -1,22 +1,22 @@
 {
-  "integrationSimplicity": 82.1,
-  "agentReadiness": 81.2,
+  "integrationSimplicity": 83,
+  "agentReadiness": 86.6,
   "integrationSubscores": {
     "parameterSimplicity": 0.8625,
-    "schemaSimplicity": 0.921875,
-    "documentationQuality": 0.9374999999999999,
-    "constraintClarity": 0.27575757575757576,
-    "exampleCoverage": 0.75,
+    "schemaSimplicity": 0.796875,
+    "documentationQuality": 0.9017857142857143,
+    "constraintClarity": 0.5833333333333333,
+    "exampleCoverage": 0.875,
     "errorClarity": 1,
-    "workflowClarity": 0.8333333333333333
+    "workflowClarity": 0.7291666666666669
   },
   "agentSubscores": {
-    "documentationQuality": 0.9374999999999999,
-    "constraintClarity": 0.27575757575757576,
-    "exampleCoverage": 0.75,
+    "documentationQuality": 0.9017857142857143,
+    "constraintClarity": 0.5833333333333333,
+    "exampleCoverage": 0.875,
     "errorClarity": 1,
     "identifierClarity": 1,
-    "workflowClarity": 0.8333333333333333,
+    "workflowClarity": 0.7291666666666669,
     "polymorphismClarity": 1
   },
   "rawMetrics": {
@@ -36,10 +36,10 @@
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 5,
+        "propertyCount": 3,
         "operationDescriptionPresent": true,
         "schemaPropertiesWithDescription": 2,
-        "totalSchemaProperties": 5,
+        "totalSchemaProperties": 3,
         "constraintCount": 3,
         "requestExamplePresent": false,
         "responseExamplePresent": true,
@@ -57,7 +57,7 @@
         "requestBodyPresent": false,
         "topLevelWritableFieldCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 2,
+        "maxResponseSchemaDepth": 3,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
@@ -65,7 +65,7 @@
         "operationDescriptionPresent": true,
         "schemaPropertiesWithDescription": 6,
         "totalSchemaProperties": 6,
-        "constraintCount": 2,
+        "constraintCount": 3,
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "structuredErrorResponseCount": 0,
@@ -81,16 +81,16 @@
         "paramsWithDescription": 0,
         "requestBodyPresent": true,
         "topLevelWritableFieldCount": 5,
-        "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
+        "maxRequestSchemaDepth": 2,
+        "maxResponseSchemaDepth": 2,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 5,
+        "propertyCount": 6,
         "operationDescriptionPresent": true,
-        "schemaPropertiesWithDescription": 5,
-        "totalSchemaProperties": 5,
-        "constraintCount": 0,
+        "schemaPropertiesWithDescription": 6,
+        "totalSchemaProperties": 6,
+        "constraintCount": 3,
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "structuredErrorResponseCount": 0,
@@ -107,15 +107,15 @@
         "requestBodyPresent": false,
         "topLevelWritableFieldCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
+        "maxResponseSchemaDepth": 2,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 0,
+        "propertyCount": 6,
         "operationDescriptionPresent": true,
-        "schemaPropertiesWithDescription": 0,
-        "totalSchemaProperties": 0,
-        "constraintCount": 0,
+        "schemaPropertiesWithDescription": 6,
+        "totalSchemaProperties": 6,
+        "constraintCount": 3,
         "requestExamplePresent": false,
         "responseExamplePresent": true,
         "structuredErrorResponseCount": 0,
@@ -132,17 +132,17 @@
         "requestBodyPresent": false,
         "topLevelWritableFieldCount": 0,
         "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
+        "maxResponseSchemaDepth": 1,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 0,
+        "propertyCount": 2,
         "operationDescriptionPresent": true,
         "schemaPropertiesWithDescription": 0,
-        "totalSchemaProperties": 0,
+        "totalSchemaProperties": 2,
         "constraintCount": 0,
         "requestExamplePresent": false,
-        "responseExamplePresent": false,
+        "responseExamplePresent": true,
         "structuredErrorResponseCount": 1,
         "totalErrorResponses": 1,
         "ambiguousIdentifierCount": 0
@@ -156,16 +156,16 @@
         "paramsWithDescription": 1,
         "requestBodyPresent": true,
         "topLevelWritableFieldCount": 5,
-        "maxRequestSchemaDepth": 0,
-        "maxResponseSchemaDepth": 0,
+        "maxRequestSchemaDepth": 2,
+        "maxResponseSchemaDepth": 2,
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 5,
+        "propertyCount": 6,
         "operationDescriptionPresent": true,
-        "schemaPropertiesWithDescription": 5,
-        "totalSchemaProperties": 5,
-        "constraintCount": 0,
+        "schemaPropertiesWithDescription": 6,
+        "totalSchemaProperties": 6,
+        "constraintCount": 3,
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "structuredErrorResponseCount": 0,
@@ -186,11 +186,11 @@
         "polymorphismCount": 0,
         "anyOfCount": 0,
         "hasDiscriminator": false,
-        "propertyCount": 11,
+        "propertyCount": 6,
         "operationDescriptionPresent": true,
-        "schemaPropertiesWithDescription": 9,
-        "totalSchemaProperties": 11,
-        "constraintCount": 3,
+        "schemaPropertiesWithDescription": 5,
+        "totalSchemaProperties": 6,
+        "constraintCount": 4,
         "requestExamplePresent": true,
         "responseExamplePresent": true,
         "structuredErrorResponseCount": 0,
@@ -226,20 +226,20 @@
   },
   "operationScores": {
     "getMuseumHours": {
-      "integrationSimplicity": 78.3,
-      "agentReadiness": 85.7,
+      "integrationSimplicity": 85.2,
+      "agentReadiness": 95.5,
       "integrationSubscores": {
         "parameterSimplicity": 0.7,
         "schemaSimplicity": 0.75,
-        "documentationQuality": 0.6666666666666666,
-        "constraintClarity": 0.6,
+        "documentationQuality": 0.8571428571428571,
+        "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "workflowClarity": 0.8333333333333334
       },
       "agentSubscores": {
-        "documentationQuality": 0.6666666666666666,
-        "constraintClarity": 0.6,
+        "documentationQuality": 0.8571428571428571,
+        "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
@@ -248,140 +248,140 @@
       }
     },
     "listSpecialEvents": {
-      "integrationSimplicity": 78.7,
-      "agentReadiness": 88.3,
+      "integrationSimplicity": 76.2,
+      "agentReadiness": 89.2,
       "integrationSubscores": {
         "parameterSimplicity": 0.6,
-        "schemaSimplicity": 0.75,
+        "schemaSimplicity": 0.625,
         "documentationQuality": 1,
-        "constraintClarity": 0.3333333333333333,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
-        "constraintClarity": 0.3333333333333333,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "createSpecialEvent": {
-      "integrationSimplicity": 88.3,
-      "agentReadiness": 83.3,
+      "integrationSimplicity": 86.7,
+      "agentReadiness": 89.2,
       "integrationSubscores": {
         "parameterSimplicity": 1,
-        "schemaSimplicity": 1,
+        "schemaSimplicity": 0.75,
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "getSpecialEvent": {
-      "integrationSimplicity": 86.3,
-      "agentReadiness": 83.3,
+      "integrationSimplicity": 84.7,
+      "agentReadiness": 89.2,
       "integrationSubscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 1,
+        "schemaSimplicity": 0.75,
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "deleteSpecialEvent": {
-      "integrationSimplicity": 71.3,
-      "agentReadiness": 63.3,
+      "integrationSimplicity": 74.7,
+      "agentReadiness": 71.7,
       "integrationSubscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 1,
-        "documentationQuality": 1,
+        "schemaSimplicity": 0.875,
+        "documentationQuality": 0.5,
         "constraintClarity": 0,
-        "exampleCoverage": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
-        "documentationQuality": 1,
+        "documentationQuality": 0.5,
         "constraintClarity": 0,
-        "exampleCoverage": 0,
+        "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "updateSpecialEvent": {
-      "integrationSimplicity": 86.3,
-      "agentReadiness": 83.3,
+      "integrationSimplicity": 84.7,
+      "agentReadiness": 89.2,
       "integrationSubscores": {
         "parameterSimplicity": 0.9,
-        "schemaSimplicity": 1,
+        "schemaSimplicity": 0.75,
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
-        "constraintClarity": 0,
+        "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "buyMuseumTickets": {
-      "integrationSimplicity": 86.1,
-      "agentReadiness": 84.1,
+      "integrationSimplicity": 88.7,
+      "agentReadiness": 88.8,
       "integrationSubscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.875,
-        "documentationQuality": 0.8333333333333334,
-        "constraintClarity": 0.2727272727272727,
+        "documentationQuality": 0.8571428571428571,
+        "constraintClarity": 0.6666666666666666,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 0.6666666666666667
       },
       "agentSubscores": {
-        "documentationQuality": 0.8333333333333334,
-        "constraintClarity": 0.2727272727272727,
+        "documentationQuality": 0.8571428571428571,
+        "constraintClarity": 0.6666666666666666,
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
     "getTicketCode": {
-      "integrationSimplicity": 81.3,
-      "agentReadiness": 78.3,
+      "integrationSimplicity": 83,
+      "agentReadiness": 80,
       "integrationSubscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 1,
@@ -389,7 +389,7 @@
         "constraintClarity": 1,
         "exampleCoverage": 0,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "workflowClarity": 1
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -397,38 +397,28 @@
         "exampleCoverage": 0,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "workflowClarity": 1,
         "polymorphismClarity": 1
       }
     }
   },
   "workflowDepths": {
     "getMuseumHours": 1,
-    "listSpecialEvents": 1,
-    "createSpecialEvent": 1,
-    "getSpecialEvent": 1,
-    "deleteSpecialEvent": 1,
-    "updateSpecialEvent": 1,
-    "buyMuseumTickets": 1,
-    "getTicketCode": 1
+    "listSpecialEvents": 2,
+    "createSpecialEvent": 2,
+    "getSpecialEvent": 2,
+    "deleteSpecialEvent": 2,
+    "updateSpecialEvent": 2,
+    "buyMuseumTickets": 2,
+    "getTicketCode": 0
   },
   "hotspots": [
-    {
-      "path": "/special-events/{eventId}",
-      "method": "delete",
-      "operationId": "deleteSpecialEvent",
-      "integrationSimplicityScore": 71.3,
-      "agentReadinessScore": 63.3,
-      "reasons": [
-        "Missing response examples"
-      ]
-    },
     {
       "path": "/tickets/{ticketId}/qr",
       "method": "get",
       "operationId": "getTicketCode",
-      "integrationSimplicityScore": 81.3,
-      "agentReadinessScore": 78.3,
+      "integrationSimplicityScore": 83,
+      "agentReadinessScore": 80,
       "reasons": [
         "Missing response examples"
       ]

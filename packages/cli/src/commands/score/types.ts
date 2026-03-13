@@ -122,3 +122,20 @@ export interface ScoringConstants {
   weights: ScoringWeights;
   hotspotLimit: number;
 }
+
+export interface DebugSchemaEntry {
+  ref: string | null;
+  depth: number;
+  propertyNames: string[];
+  polymorphism: { oneOf?: number; anyOf?: number; allOf?: number };
+  constraintCount: number;
+}
+
+export interface DebugMediaTypeLog {
+  context: string;
+  entries: DebugSchemaEntry[];
+  totalProperties: number;
+  totalPolymorphism: number;
+  totalConstraints: number;
+  maxDepth: number;
+}

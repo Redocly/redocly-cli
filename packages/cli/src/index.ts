@@ -93,6 +93,15 @@ yargs(hideBin(process.argv))
             choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
             default: 'stylish' as OutputFormat,
           },
+          'operation-details': {
+            description: 'Print per-operation metric details.',
+            type: 'boolean' as const,
+            default: false,
+          },
+          'debug-operation-id': {
+            description: 'Print detailed schema breakdown for a specific operation.',
+            type: 'string' as const,
+          },
         }),
     (argv) => {
       commandWrapper(handleScore)(argv);

@@ -1,48 +1,44 @@
 
   Scores
 
-  Integration Simplicity:  82.1/100
-  Agent Readiness:         81.2/100
+  Integration Simplicity:  83.0/100
+  Agent Readiness:         86.6/100
 
   Integration Simplicity Subscores
 
   Parameter Simplicity     [█████████████████░░░] 86%
-  Schema Simplicity        [██████████████████░░] 92%
-  Documentation Quality    [███████████████████░] 94%
-  Constraint Clarity       [██████░░░░░░░░░░░░░░] 28%
-  Example Coverage         [███████████████░░░░░] 75%
+  Schema Simplicity        [████████████████░░░░] 80%
+  Documentation Quality    [██████████████████░░] 90%
+  Constraint Clarity       [████████████░░░░░░░░] 58%
+  Example Coverage         [██████████████████░░] 88%
   Error Clarity            [████████████████████] 100%
-  Workflow Clarity         [█████████████████░░░] 83%
+  Dependency Clarity       [███████████████░░░░░] 73%
 
   Agent Readiness Subscores
 
-  Documentation Quality    [███████████████████░] 94%
-  Constraint Clarity       [██████░░░░░░░░░░░░░░] 28%
-  Example Coverage         [███████████████░░░░░] 75%
+  Documentation Quality    [██████████████████░░] 90%
+  Constraint Clarity       [████████████░░░░░░░░] 58%
+  Example Coverage         [██████████████████░░] 88%
   Error Clarity            [████████████████████] 100%
   Identifier Clarity       [████████████████████] 100%
-  Workflow Clarity         [█████████████████░░░] 83%
+  Dependency Clarity       [███████████████░░░░░] 73%
   Polymorphism Clarity     [████████████████████] 100%
 
   Raw Metrics Summary
 
   Total operations: 8
   Avg parameters/operation: 1.4
-  Avg max schema depth: 0.6
+  Avg max schema depth: 1.6
   Avg polymorphism/operation: 0.0
-  Avg properties/operation: 4.0
+  Avg properties/operation: 4.4
   Operations with request examples: 3/8 (38%)
-  Operations with response examples: 6/8 (75%)
+  Operations with response examples: 7/8 (88%)
   Operations with description: 8/8 (100%)
 
-  Top 2 Hotspot Operations
-
-  DELETE /special-events/{eventId} (deleteSpecialEvent)
-    Integration Simplicity: 71.3  Agent Readiness: 63.3
-    - Missing response examples
+  Top 1 Hotspot Operations
 
   GET /tickets/{ticketId}/qr (getTicketCode)
-    Integration Simplicity: 81.3  Agent Readiness: 78.3
+    Integration Simplicity: 83.0  Agent Readiness: 80.0
     - Missing response examples
 
 
