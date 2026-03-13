@@ -2,4 +2,4 @@
 "@redocly/cli": major
 ---
 
-Support AsyncAPI 2 and 3 in the split command
+Added support for AsyncAPI v2 and v3 in the split command.
