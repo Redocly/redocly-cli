@@ -86,7 +86,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
   it('should output all problems inside a single file element', () => {
     const problems: ScorecardProblem[] = [
       {
-        message: 'Error in file A',
+        message: 'First error',
         ruleId: 'rule-a',
         severity: 'error',
         suggest: [],
@@ -101,7 +101,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
       {
         message: 'Second error',
-        ruleId: 'rule-c',
+        ruleId: 'rule-b',
         severity: 'warn',
         suggest: [],
         location: [
