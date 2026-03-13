@@ -22,12 +22,17 @@ function xmlEscape(s: string): string {
   });
 }
 
-export function printScorecardResultsAsCheckstyle(problems: ScorecardProblem[]): void {
-  const fileName = problems.find((p) => p.location[0])?.location[0].source.absoluteRef ?? '';
-
+export function printScorecardResultsAsCheckstyle(
+  path: string,
+  problems: ScorecardProblem[],
+  achievedLevel: string,
+  targetLevelAchieved: boolean
+): void {
   logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
-  logger.output('<checkstyle version="4.3">\n');
-  logger.output(`<file name="${xmlEscape(fileName)}">\n`);
+  logger.output(
+    `<checkstyle version="4.3" achievedLevel="${xmlEscape(achievedLevel)}" targetLevelAchieved="${targetLevelAchieved}">\n`
+  );
+  logger.output(`<file name="${xmlEscape(path)}">\n`);
 
   for (const problem of problems) {
     const loc = problem.location[0];

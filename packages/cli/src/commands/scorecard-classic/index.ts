@@ -108,7 +108,7 @@ export async function handleScorecardClassic({
   if (argv.format === 'json') {
     printScorecardResultsAsJson(result, achievedLevel, targetLevelAchieved, version);
   } else if (argv.format === 'checkstyle') {
-    printScorecardResultsAsCheckstyle(result);
+    printScorecardResultsAsCheckstyle(path, result, achievedLevel, targetLevelAchieved);
   } else {
     printScorecardResults(result, achievedLevel, targetLevelAchieved);
   }

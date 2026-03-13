@@ -20,13 +20,14 @@ describe('printScorecardResultsAsCheckstyle', () => {
   });
 
   it('should output XML header and empty checkstyle element when no problems', () => {
-    printScorecardResultsAsCheckstyle([]);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', [], 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     expect(calls).toContain('<?xml version="1.0" encoding="UTF-8"?>\n');
-    expect(calls).toContain('<checkstyle version="4.3">\n');
+    expect(calls).toContain(
+      '<checkstyle version="4.3" achievedLevel="Gold" targetLevelAchieved="true">\n'
+    );
     expect(calls).toContain('</checkstyle>\n');
-    expect(calls).not.toContain(expect.stringContaining('<file'));
   });
 
   it('should output a file element with an error element for a single error problem', () => {
@@ -47,7 +48,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     expect(calls).toContain('<file name="/api/openapi.yaml">\n');
@@ -75,11 +76,20 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Silver', false);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     expect(calls).toContain(
       '<error line="1" column="1" severity="warning" message="Missing description" source="operation-description" level="Silver" />\n'
+    );
+  });
+
+  it('should include achievedLevel and targetLevelAchieved as attributes on checkstyle element', () => {
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', [], 'Bronze', false);
+
+    const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
+    expect(calls).toContain(
+      '<checkstyle version="4.3" achievedLevel="Bronze" targetLevelAchieved="false">\n'
     );
   });
 
@@ -115,7 +125,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/file-a.yaml', problems, 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const fileOpens = calls.filter((c: string) => c.startsWith('<file'));
@@ -144,7 +154,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const errorLine = calls.find((c: string) => c.startsWith('<error'));
@@ -167,7 +177,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Gold', false);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const errorLine = calls.find((c: string) => c.startsWith('<error'));
@@ -187,7 +197,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Non Conformant', false);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const errorLine = calls.find((c: string) => c.startsWith('<error'));
@@ -212,11 +222,11 @@ describe('printScorecardResultsAsCheckstyle', () => {
       },
     ];
 
-    printScorecardResultsAsCheckstyle(problems);
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const xmlHeaderIdx = calls.indexOf('<?xml version="1.0" encoding="UTF-8"?>\n');
-    const checkstyleOpenIdx = calls.indexOf('<checkstyle version="4.3">\n');
+    const checkstyleOpenIdx = calls.findIndex((c: string) => c.startsWith('<checkstyle'));
     const fileOpenIdx = calls.indexOf('<file name="/api/openapi.yaml">\n');
     const errorIdx = calls.findIndex((c: string) => c.startsWith('<error'));
     const fileCloseIdx = calls.indexOf('</file>\n');
