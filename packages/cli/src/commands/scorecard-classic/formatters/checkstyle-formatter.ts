@@ -30,7 +30,7 @@ export function printScorecardResultsAsCheckstyle(
   targetLevelAchieved: boolean
 ): void {
   if (targetLevelAchieved) {
-    logger.info(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));
+    logger.info(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n\n`)));
   }
 
   const groupedByLevel: Record<string, ScorecardProblem[]> = {};
@@ -70,5 +70,5 @@ export function printScorecardResultsAsCheckstyle(
     logger.output(`</file>\n`);
   }
 
-  logger.output(`</checkstyle>\n`);
+  logger.output(`</checkstyle>\n\n`);
 }
