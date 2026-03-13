@@ -346,7 +346,7 @@ const Operation: NodeType = {
     operationId: {
       type: 'string',
       description:
-        'The operationId is path segment or path fragment in deep links to a specific operation.',
+        'Unique string used to identify the operation. The id MUST be unique among all operations described in the API. The operationId value is case-sensitive.',
       documentationLink:
         'https://redocly.com/learn/openapi/openapi-visual-reference/operation#operationid',
     },
