@@ -24,9 +24,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     expect(calls).toContain('<?xml version="1.0" encoding="UTF-8"?>\n');
-    expect(calls).toContain(
-      '<checkstyle version="4.3" achievedLevel="Gold" targetLevelAchieved="true">\n'
-    );
+    expect(calls).toContain('<checkstyle version="4.3" achievedLevel="Gold">\n');
     expect(calls).toContain('</checkstyle>\n');
   });
 
@@ -84,13 +82,19 @@ describe('printScorecardResultsAsCheckstyle', () => {
     );
   });
 
-  it('should include achievedLevel and targetLevelAchieved as attributes on checkstyle element', () => {
-    printScorecardResultsAsCheckstyle('/api/openapi.yaml', [], 'Bronze', false);
+  it('should include achievedLevel attribute only when target level is achieved', () => {
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', [], 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
-    expect(calls).toContain(
-      '<checkstyle version="4.3" achievedLevel="Bronze" targetLevelAchieved="false">\n'
-    );
+    expect(calls).toContain('<checkstyle version="4.3" achievedLevel="Gold">\n');
+  });
+
+  it('should not include achievedLevel attribute when target level is not achieved', () => {
+    printScorecardResultsAsCheckstyle('/api/openapi.yaml', [], 'Non Conformant', false);
+
+    const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
+    const checkstyleLine = calls.find((c: string) => c.startsWith('<checkstyle'));
+    expect(checkstyleLine).not.toContain('achievedLevel');
   });
 
   it('should output all problems inside a single file element', () => {

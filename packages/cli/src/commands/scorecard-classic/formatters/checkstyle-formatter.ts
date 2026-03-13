@@ -30,7 +30,7 @@ export function printScorecardResultsAsCheckstyle(
 ): void {
   logger.output('<?xml version="1.0" encoding="UTF-8"?>\n');
   logger.output(
-    `<checkstyle version="4.3" achievedLevel="${xmlEscape(achievedLevel)}" targetLevelAchieved="${targetLevelAchieved}">\n`
+    `<checkstyle version="4.3" ${targetLevelAchieved ? `achievedLevel="${xmlEscape(achievedLevel)}"` : ''}>\n`
   );
   logger.output(`<file name="${xmlEscape(path)}">\n`);
 
