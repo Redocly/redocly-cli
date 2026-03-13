@@ -1,14 +1,14 @@
 ---
-slug: /docs/cli/v1/rules/arazzo/struct
+slug: /docs/cli/v1/rules/overlay/struct
 ---
 
 # struct
 
-Ensures that your API document conforms to the [OpenAPI specification](https://spec.openapis.org/arazzo/latest.html#arazzo-specification).
+Ensures that your API document conforms to the [Overlay specification](https://spec.openapis.org/overlay/latest.html#Overlay-specification).
 
-| Arzzo | Compatibility |
-| ----- | ------------- |
-| 1.x   | ✅            |
+| Overlay | Compatibility |
+| ------- | ------------- |
+| 1.x     | ✅            |
 
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 
