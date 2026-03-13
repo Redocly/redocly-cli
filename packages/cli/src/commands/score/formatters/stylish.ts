@@ -1,12 +1,13 @@
 import { logger } from '@redocly/openapi-core';
 import { bold, cyan, green, red, white, yellow } from 'colorette';
 
-import type { ScoreResult } from '../types.js';
+import type { DebugMediaTypeLog, ScoreResult } from '../types.js';
 
-export function printScoreStylish(result: ScoreResult): void {
+export function printScoreStylish(result: ScoreResult, operationDetails = false): void {
   printScores(result);
   printSubscores(result);
   printRawMetricsSummary(result);
+  if (operationDetails) printOperationDetails(result);
   printHotspots(result);
 }
 
@@ -118,6 +119,133 @@ function printRawMetricsSummary(result: ScoreResult): void {
 
 function fmtPct(num: number, denom: number): string {
   return denom > 0 ? `${Math.round((num / denom) * 100)}%` : 'N/A';
+}
+
+function printOperationDetails(result: ScoreResult): void {
+  out(bold(white('  Per-Operation Metrics')));
+  out('');
+
+  const header =
+    '  ' +
+    'Operation'.padEnd(50) +
+    'Props'.padStart(7) +
+    'Poly'.padStart(7) +
+    'Depth'.padStart(7) +
+    'Params'.padStart(8) +
+    'Constr'.padStart(8);
+  out(cyan(header));
+  out(cyan('  ' + '─'.repeat(header.length - 2)));
+
+  const entries = [...result.rawMetrics.operations.entries()].sort(
+    ([, a], [, b]) => b.propertyCount - a.propertyCount
+  );
+
+  for (const [, m] of entries) {
+    const label = (m.operationId ?? `${m.method.toUpperCase()} ${m.path}`).slice(0, 48);
+    const depth = Math.max(m.maxRequestSchemaDepth, m.maxResponseSchemaDepth);
+    const line =
+      '  ' +
+      label.padEnd(50) +
+      String(m.propertyCount).padStart(7) +
+      String(m.polymorphismCount).padStart(7) +
+      String(depth).padStart(7) +
+      String(m.parameterCount).padStart(8) +
+      String(m.constraintCount).padStart(8);
+    out(line);
+  }
+  out('');
+}
+
+export function printDebugOperation(operationId: string, logs: DebugMediaTypeLog[]): void {
+  out('');
+  out(bold(white(`  Debug: ${operationId} schema breakdown`)));
+  out('');
+
+  if (logs.length === 0) {
+    out(yellow(`  No schemas found for operation "${operationId}".`));
+    out(yellow('  Make sure the value matches an operationId or "METHOD /path" exactly.'));
+    out('');
+    return;
+  }
+
+  for (const log of logs) {
+    out(bold(cyan(`  ${log.context}`)));
+    out(cyan('  ' + '─'.repeat(70)));
+
+    const refGroups = new Map<string, { count: number; totalProps: number; propNames: string[] }>();
+
+    for (const entry of log.entries) {
+      const key = entry.ref ?? `(inline depth ${entry.depth})`;
+      const group = refGroups.get(key);
+      if (group) {
+        group.count++;
+        group.totalProps += entry.propertyNames.length;
+        for (const n of entry.propertyNames) {
+          if (!group.propNames.includes(n)) group.propNames.push(n);
+        }
+      } else {
+        refGroups.set(key, {
+          count: 1,
+          totalProps: entry.propertyNames.length,
+          propNames: [...entry.propertyNames],
+        });
+      }
+    }
+
+    for (const entry of log.entries) {
+      const label = entry.ref ?? '(inline)';
+      const depthPad = '  '.repeat(Math.min(entry.depth, 6));
+      const propCount = entry.propertyNames.length;
+
+      let line = `  ${depthPad}${label}`;
+      if (propCount > 0) {
+        line += ` (${propCount} properties)`;
+      }
+
+      const polyParts: string[] = [];
+      if (entry.polymorphism.oneOf) polyParts.push(`oneOf:${entry.polymorphism.oneOf}`);
+      if (entry.polymorphism.anyOf) polyParts.push(`anyOf:${entry.polymorphism.anyOf}`);
+      if (entry.polymorphism.allOf) polyParts.push(`allOf:${entry.polymorphism.allOf}`);
+      if (polyParts.length > 0) {
+        line += ` [${polyParts.join(', ')}]`;
+      }
+      if (entry.constraintCount > 0) {
+        line += ` {${entry.constraintCount} constraints}`;
+      }
+
+      out(line);
+
+      if (propCount > 0 && propCount <= 20) {
+        out(`  ${depthPad}  properties: ${entry.propertyNames.join(', ')}`);
+      } else if (propCount > 20) {
+        const preview = entry.propertyNames.slice(0, 15).join(', ');
+        out(`  ${depthPad}  properties: ${preview}, ... +${propCount - 15} more`);
+      }
+    }
+
+    out('');
+    out(
+      `  Totals: ${log.totalProperties} properties, ` +
+        `${log.totalPolymorphism} polymorphism items, ` +
+        `${log.totalConstraints} constraints, ` +
+        `max depth ${log.maxDepth}`
+    );
+
+    const topRefs = [...refGroups.entries()]
+      .filter(([, v]) => v.totalProps > 0)
+      .sort(([, a], [, b]) => b.totalProps - a.totalProps)
+      .slice(0, 10);
+
+    if (topRefs.length > 0) {
+      out('');
+      out(bold('  Top schemas by property count:'));
+      for (const [ref, data] of topRefs) {
+        out(`    ${ref}: ${data.totalProps} properties`);
+      }
+    }
+
+    out('');
+  }
 }
 
 function printHotspots(result: ScoreResult): void {

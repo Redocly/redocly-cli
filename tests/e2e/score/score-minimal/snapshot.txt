@@ -12,7 +12,7 @@
   Constraint Clarity       [░░░░░░░░░░░░░░░░░░░░] 0%
   Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
   Error Clarity            [████████████████████] 100%
-  Workflow Clarity         [████████████████████] 100%
+  Dependency Clarity       [████████████████████] 100%
 
   Agent Readiness Subscores
 
@@ -21,7 +21,7 @@
   Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
   Error Clarity            [████████████████████] 100%
   Identifier Clarity       [█████████████░░░░░░░] 67%
-  Workflow Clarity         [████████████████████] 100%
+  Dependency Clarity       [████████████████████] 100%
   Polymorphism Clarity     [████████████████████] 100%
 
   Raw Metrics Summary
