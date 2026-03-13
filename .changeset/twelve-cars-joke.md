@@ -4,4 +4,4 @@
 ---
 
 Extended the `nonEmpty` assertion to support arrays.
-An empty array is now treated as empty.
+An empty array is now treated as empty during linting.
