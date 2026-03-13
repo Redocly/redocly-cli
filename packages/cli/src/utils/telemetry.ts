@@ -1,6 +1,11 @@
-import type { CloudEvents, EventPayload, EventType } from '@redocly/cli-otel';
-import { isAbsoluteUrl, isPlainObject } from '@redocly/openapi-core';
-import type { ArazzoDefinition, Config, Exact } from '@redocly/openapi-core';
+import { CloudEvents, type EventPayload, type EventType } from '@redocly/cli-otel';
+import {
+  isAbsoluteUrl,
+  isPlainObject,
+  type ArazzoDefinition,
+  type Config,
+  type Exact,
+} from '@redocly/openapi-core';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
@@ -64,55 +69,43 @@ export async function sendTelemetry({
       cacheAnonymousId(anonymous_id);
     }
 
-    const eventData: EventPayload<EventType> = {
-      id: 'cli-command-run',
-      object: 'command',
-      logged_in: logged_in ? 'yes' : 'no',
-      command: `${command}`,
-      ...cleanArgs(args, process.argv.slice(2)),
-      node_version: process.version,
-      npm_version: execSync('npm -v').toString().replace('\n', ''),
-      version,
-      exit_code,
-      execution_time,
-      metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
-      environment_ci: process.env.CI,
-      has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
-      spec_version,
-      spec_keyword,
-      spec_full_version,
-      respect_x_security_auth_types:
-        spec_version === 'arazzo1' && respect_x_security_auth_types?.length
-          ? JSON.stringify(respect_x_security_auth_types)
-          : undefined,
-    };
+    const eventData: EventPayload<EventType> = [
+      {
+        id: 'cli-command-run',
+        object: 'command',
+        uri: 'urn:redocly:cli',
+        logged_in: logged_in ? 'yes' : 'no',
+        command: `${command}`,
+        ...cleanArgs(args, process.argv.slice(2)),
+        node_version: process.version,
+        npm_version: execSync('npm -v').toString().replace('\n', ''),
+        version,
+        exit_code,
+        execution_time,
+        metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
+        environment_ci: process.env.CI,
+        has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+        spec_version,
+        spec_keyword,
+        spec_full_version,
+        respect_x_security_auth_types:
+          spec_version === 'arazzo1' && respect_x_security_auth_types?.length
+            ? JSON.stringify(respect_x_security_auth_types)
+            : undefined,
+      },
+    ];
 
-    const cloudEvent: CloudEvents.CommandRanMessage = {
-      id: `evt_${ulid()}`,
-      time: new Date().toISOString(),
-      type: 'command.ran',
-      object: 'event',
-      specversion: '1.0',
-      datacontenttype: 'application/json',
-      source: 'com.redocly.cli',
-      origin: 'cli',
-      productType: 'redocly-cli',
-      os_platform: os.platform(),
-      subjects: [
-        {
-          id: ulid(),
-          object: 'command.ran',
-          uri: '',
-        },
-      ],
-      environment: process.env.REDOCLY_ENVIRONMENT,
-      sourceDetails: {
+    const cloudEvent = CloudEvents.cloudEvents.mapToCloudEvent({
+      type: 'com.redocly.command.ran',
+      data: eventData,
+      actor: {
         id: anonymous_id,
         object: 'user',
         uri: '',
       },
-      data: eventData,
-    };
+      // TODO: FIX
+      osPlatform: os.platform(),
+    });
 
     const { otelTelemetry } = await import('./otel.js');
     otelTelemetry.send(cloudEvent);
