@@ -26,7 +26,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     expect(calls).toContain('<?xml version="1.0" encoding="UTF-8"?>\n');
     expect(calls).toContain('<checkstyle version="4.3">\n');
-    expect(calls).toContain('</checkstyle>\n');
+    expect(calls).toContain('</checkstyle>\n\n');
   });
 
   it('should output a file element with an error element for a single error problem', () => {
@@ -243,7 +243,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
     const fileOpenIdx = calls.findIndex((c: string) => c.startsWith('<file'));
     const errorIdx = calls.findIndex((c: string) => c.startsWith('<error'));
     const fileCloseIdx = calls.indexOf('</file>\n');
-    const checkstyleCloseIdx = calls.indexOf('</checkstyle>\n');
+    const checkstyleCloseIdx = calls.indexOf('</checkstyle>\n\n');
 
     expect(xmlHeaderIdx).toBeLessThan(checkstyleOpenIdx);
     expect(checkstyleOpenIdx).toBeLessThan(fileOpenIdx);
