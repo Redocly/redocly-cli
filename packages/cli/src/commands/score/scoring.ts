@@ -194,6 +194,76 @@ function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
+export function averageIntegrationSubscores(
+  operationScores: Map<string, { integrationSubscores: IntegrationSimplicitySubscores }>
+): IntegrationSimplicitySubscores {
+  const n = operationScores.size || 1;
+  const result: IntegrationSimplicitySubscores = {
+    parameterSimplicity: 0,
+    schemaSimplicity: 0,
+    documentationQuality: 0,
+    constraintClarity: 0,
+    exampleCoverage: 0,
+    errorClarity: 0,
+    workflowClarity: 0,
+  };
+
+  for (const scores of operationScores.values()) {
+    result.parameterSimplicity += scores.integrationSubscores.parameterSimplicity;
+    result.schemaSimplicity += scores.integrationSubscores.schemaSimplicity;
+    result.documentationQuality += scores.integrationSubscores.documentationQuality;
+    result.constraintClarity += scores.integrationSubscores.constraintClarity;
+    result.exampleCoverage += scores.integrationSubscores.exampleCoverage;
+    result.errorClarity += scores.integrationSubscores.errorClarity;
+    result.workflowClarity += scores.integrationSubscores.workflowClarity;
+  }
+
+  result.parameterSimplicity /= n;
+  result.schemaSimplicity /= n;
+  result.documentationQuality /= n;
+  result.constraintClarity /= n;
+  result.exampleCoverage /= n;
+  result.errorClarity /= n;
+  result.workflowClarity /= n;
+
+  return result;
+}
+
+export function averageAgentSubscores(
+  operationScores: Map<string, { agentSubscores: AgentReadinessSubscores }>
+): AgentReadinessSubscores {
+  const n = operationScores.size || 1;
+  const result: AgentReadinessSubscores = {
+    documentationQuality: 0,
+    constraintClarity: 0,
+    exampleCoverage: 0,
+    errorClarity: 0,
+    identifierClarity: 0,
+    workflowClarity: 0,
+    polymorphismClarity: 0,
+  };
+
+  for (const scores of operationScores.values()) {
+    result.documentationQuality += scores.agentSubscores.documentationQuality;
+    result.constraintClarity += scores.agentSubscores.constraintClarity;
+    result.exampleCoverage += scores.agentSubscores.exampleCoverage;
+    result.errorClarity += scores.agentSubscores.errorClarity;
+    result.identifierClarity += scores.agentSubscores.identifierClarity;
+    result.workflowClarity += scores.agentSubscores.workflowClarity;
+    result.polymorphismClarity += scores.agentSubscores.polymorphismClarity;
+  }
+
+  result.documentationQuality /= n;
+  result.constraintClarity /= n;
+  result.exampleCoverage /= n;
+  result.errorClarity /= n;
+  result.identifierClarity /= n;
+  result.workflowClarity /= n;
+  result.polymorphismClarity /= n;
+
+  return result;
+}
+
 function round(value: number): number {
   return Math.round(value * 10) / 10;
 }

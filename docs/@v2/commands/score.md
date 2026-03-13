@@ -33,15 +33,15 @@ The following raw metrics are collected per operation and aggregated across the 
 | Request/response example coverage  | Whether request and response media types include `example` or `examples`.                                                            |
 | Structured error response coverage | How many 4xx/5xx responses include a content schema or meaningful description.                                                       |
 | Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                          |
-| Workflow dependency depth          | Inferred from shared `$ref` usage across operations; deeper shared-schema graphs indicate more tightly coupled workflows.            |
+| Cross-operation dependency depth   | Inferred from shared `$ref` usage across operations; deeper shared-schema graphs indicate tightly coupled multi-step interactions.   |
 
 ### Subscores
 
 Subscores are normalized to 0–1 and grouped into two categories:
 
-**Integration Simplicity subscores:** `parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `workflowClarity`.
+**Integration Simplicity subscores:** `parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `dependencyClarity`.
 
-**Agent Readiness subscores:** `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `identifierClarity`, `workflowClarity`, `polymorphismClarity`.
+**Agent Readiness subscores:** `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `identifierClarity`, `dependencyClarity`, `polymorphismClarity`.
 
 ### Hotspots
 
@@ -66,7 +66,7 @@ redocly score <api> [--format=<option>] [--config=<path>]
 | Option        | Type    | Description                                                                                                                                    |
 | ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | api           | string  | **REQUIRED.** Path to the API description filename or alias that you want to score. Refer to [the API section](#specify-api) for more details. |
-| --config      | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                 |
+| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                           |
 | --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
 | --help        | boolean | Show help.                                                                                                                                     |
 | --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
@@ -80,29 +80,6 @@ redocly score <api> [--format=<option>] [--config=<path>]
 
 ```bash
 redocly score openapi/openapi.yaml
-```
-
-#### Pass an API alias
-
-Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
-
-```yaml
-apis:
-  core@v1:
-    root: ./openapi/api-description.json
-```
-
-```bash
-redocly score core@v1
-```
-
-### Use alternative configuration file
-
-By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory.
-Use the optional `--config` argument to provide an alternative path to a configuration file.
-
-```bash
-redocly score --config=./another/directory/config.yaml
 ```
 
 ### Specify output format
@@ -125,7 +102,7 @@ The default output format shows a human-readable summary in your terminal:
   Constraint Clarity       [██████████░░░░░░░░░░] 50%
   Example Coverage         [████████████████████] 100%
   Error Clarity            [████████████████░░░░] 80%
-  Workflow Clarity         [██████████████████░░] 90%
+  Dependency Clarity       [██████████████████░░] 90%
 
   Top 3 Hotspot Operations
 
