@@ -70,7 +70,7 @@ function fallbackToAllDefinitions(config: Config): Entrypoint[] {
   }));
 }
 
-function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
   const configDir = getConfigDirectory(config);
   const aliasApi = config.resolvedConfig.apis?.[aliasOrPath];
   return aliasApi

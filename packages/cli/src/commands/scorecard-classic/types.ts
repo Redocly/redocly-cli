@@ -1,3 +1,4 @@
+import type { ScorecardConfig } from '@redocly/config';
 import type { NormalizedProblem, OutputFormat, ResolvedConfig } from '@redocly/openapi-core';
 
 export type ScorecardClassicArgv = {
@@ -12,12 +13,12 @@ export type ScorecardClassicArgv = {
 export type ScorecardProblem = NormalizedProblem & { scorecardLevel?: string };
 
 export type RemoteScorecardAndPlugins = {
-  scorecard: ResolvedConfig['scorecard'];
+  scorecard: ScorecardConfig;
   plugins: string | undefined;
 };
 
 export type Project = {
   id: `prj_${string}`;
   slug: string;
-  config: ResolvedConfig & { pluginsUrl?: string; scorecardClassic?: ResolvedConfig['scorecard'] };
+  config: ResolvedConfig & { pluginsUrl?: string; scorecardClassic?: ScorecardConfig };
 };
