@@ -23,6 +23,7 @@ import { isBinaryContentType } from './binary-content-type-checker.js';
 import { generateDigestAuthHeader } from './digest-auth/generate-digest-auth-header.js';
 import { parseWwwAuthenticateHeader } from './digest-auth/parse-www-authenticate-header.js';
 import { isEmpty } from './is-empty.js';
+import { buildQueryString } from './url-encoding.js';
 
 interface IFetcher {
   verboseLogs?: VerboseLog;
@@ -142,7 +143,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     const headers: Record<string, string> = {};
-    const searchParams = new URLSearchParams();
+    const searchParams = [];
     const pathParams: Record<string, string | number | boolean> = {};
     const cookies: Record<string, string> = {};
 
@@ -152,7 +153,11 @@ export class ApiFetcher implements IFetcher {
           headers[param.name.toLowerCase()] = String(param.value);
           break;
         case 'query':
-          searchParams.set(param.name, String(param.value));
+          searchParams.push({
+            name: param.name,
+            value: String(param.value),
+            allowReserved: param.allowReserved,
+          });
           break;
         case 'path':
           pathParams[param.name] = String(param.value);
@@ -162,6 +167,8 @@ export class ApiFetcher implements IFetcher {
           break;
       }
     }
+
+    const queryString = buildQueryString(searchParams);
 
     if ((isPlainObject(requestBody) || Array.isArray(requestBody)) && !headers['content-type']) {
       headers['content-type'] = 'application/json';
@@ -174,9 +181,7 @@ export class ApiFetcher implements IFetcher {
     }
 
     const resolvedPath = resolvePath(path, pathParams) || '';
-    const pathWithSearchParams = `${resolvedPath}${
-      searchParams.toString() ? '?' + searchParams.toString() : ''
-    }`;
+    const pathWithSearchParams = `${resolvedPath}${queryString ? `?${queryString}` : ''}`;
     const resolvedServerUrl = resolvePath(serverUrl.url, pathParams) || '';
     const urlToFetch = `${trimTrailingSlash(resolvedServerUrl)}${pathWithSearchParams}`;
 
