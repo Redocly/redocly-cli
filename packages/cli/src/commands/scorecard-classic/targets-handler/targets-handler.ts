@@ -8,6 +8,7 @@ import {
 } from '@redocly/openapi-core';
 
 export async function resolveConfigForTarget(
+  apiPath: string,
   targetRules: Record<string, unknown> | undefined,
   scorecardLevels: ScorecardConfig['levels'],
   plugins: Array<string | Plugin> = [],
@@ -18,7 +19,7 @@ export async function resolveConfigForTarget(
   for (const level of scorecardLevels ?? []) {
     const apis = {
       [level.name]: {
-        root: './openapi.yaml',
+        root: apiPath,
         rules: targetRules,
       },
     };

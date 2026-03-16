@@ -21,6 +21,7 @@ export type ScorecardValidationResult = {
 };
 
 export type ValidateScorecardParams = {
+  apiPath: string;
   document: Document;
   externalRefResolver: BaseResolver;
   scorecardConfig: ScorecardConfig;
@@ -32,6 +33,7 @@ export type ValidateScorecardParams = {
 };
 
 export async function validateScorecard({
+  apiPath,
   document,
   externalRefResolver,
   scorecardConfig,
@@ -88,6 +90,7 @@ export async function validateScorecard({
   }
 
   levelConfigs = await resolveConfigForTarget(
+    apiPath,
     targetRules,
     scorecardConfig.levels || [],
     pluginsList,

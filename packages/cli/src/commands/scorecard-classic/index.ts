@@ -121,6 +121,7 @@ export async function handleScorecardClassic({
     achievedLevel,
     targetLevelAchieved,
   } = await validateScorecard({
+    apiPath: path,
     document,
     externalRefResolver,
     scorecardConfig: scorecard!,
