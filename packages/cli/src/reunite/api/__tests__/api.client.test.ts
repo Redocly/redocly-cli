@@ -18,6 +18,30 @@ function mockFetchResponse(response: any) {
   (global.fetch as jest.Mock).mockResolvedValue(response);
 }
 
+function expectFormDataToEqual(actual: FormData, expected: FormData) {
+  const sortByKey = (a: [string, FormDataEntryValue], b: [string, FormDataEntryValue]) =>
+    a[0].localeCompare(b[0]);
+  const actualEntries = Array.from(actual.entries()).sort(sortByKey);
+  const expectedEntries = Array.from(expected.entries()).sort(sortByKey);
+
+  expect(actualEntries.length).toBe(expectedEntries.length);
+
+  for (let i = 0; i < expectedEntries.length; i++) {
+    expect(actualEntries[i][0]).toBe(expectedEntries[i][0]);
+
+    const actualVal = actualEntries[i][1];
+    const expectedVal = expectedEntries[i][1];
+
+    if (typeof expectedVal === 'string') {
+      expect(actualVal).toBe(expectedVal);
+    } else {
+      expect(actualVal).toBeInstanceOf(Blob);
+      expect((actualVal as Blob).size).toBe((expectedVal as Blob).size);
+      expect((actualVal as Blob).type).toBe((expectedVal as Blob).type);
+    }
+  }
+}
+
 describe('ApiClient', () => {
   const testToken = 'test-token';
   const testDomain = 'test-domain.com';
@@ -238,7 +262,7 @@ describe('ApiClient', () => {
       formData.append('commit[author][name]', pushPayload.commit.author.name);
       formData.append('commit[author][email]', pushPayload.commit.author.email);
       formData.append('commit[branchName]', pushPayload.commit.branchName);
-      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream]));
+      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream as BlobPart]));
 
       const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
@@ -252,7 +276,7 @@ describe('ApiClient', () => {
           },
         })
       );
-      expect(passedFormData).toEqual(formData);
+      expectFormDataToEqual(passedFormData, formData);
       expect(result).toEqual(responseMock);
     });
 
