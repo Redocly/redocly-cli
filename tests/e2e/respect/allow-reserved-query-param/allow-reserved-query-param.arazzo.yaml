@@ -1,0 +1,23 @@
+arazzo: 1.0.1
+info:
+  title: Allow reserved query params (OpenAPI allowReserved)
+  version: 1.0.0
+sourceDescriptions:
+  - name: museum-api
+    type: openapi
+    url: ../museum-api.yaml
+workflows:
+  - workflowId: allow-reserved
+    steps:
+      - stepId: get-with-allow-reserved
+        x-operation:
+          url: https://httpbin.org/get
+          method: get
+        parameters:
+          - in: query
+            name: filter
+            value: "https://example.com/path/to;x,y(z)a*b.c[1]@v"
+            allowReserved: true
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/args/filter == "https://example.com/path/to;x,y(z)a*b.c[1]@v"
