@@ -1,5 +1,17 @@
 # @redocly/cli
 
+## 2.22.0
+
+### Minor Changes
+
+- Added support of `checkstyle` format for `scorecard-classic` command.
+
+### Patch Changes
+
+- Extended the `nonEmpty` assertion to support arrays.
+  An empty array is now treated as empty during linting.
+- Updated @redocly/openapi-core to v2.22.0.
+
 ## 2.21.1
 
 ### Patch Changes
