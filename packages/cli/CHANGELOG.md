@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.11
+
+### Patch Changes
+
+- Updated `undici` to the `6.24.1` version to ensure improved performance, security, and compatibility.
+- Updated @redocly/respect-core to v1.34.11.
+
 ## 1.34.10
 
 ### Patch Changes
