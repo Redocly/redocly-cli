@@ -1,4 +1,5 @@
 diff --git a/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js b/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
+index 38affe4..839d719 100644
 --- a/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
 @@ -1,5 +1,5 @@
@@ -10,6 +11,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js b/no
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/constants/config.js b/node_modules/@redocly/config/lib-esm/constants/config.js
+index 07c4507..3e1b516 100644
 --- a/node_modules/@redocly/config/lib-esm/constants/config.js
 +++ b/node_modules/@redocly/config/lib-esm/constants/config.js
 @@ -1,4 +1,4 @@
@@ -19,6 +21,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/constants/config.js b/node_mod
      RedirectSource: 'RedirectSource',
      Redirects: 'Redirects',
 diff --git a/node_modules/@redocly/config/lib-esm/constants/entities.js b/node_modules/@redocly/config/lib-esm/constants/entities.js
+index f236793..a6579b1 100644
 --- a/node_modules/@redocly/config/lib-esm/constants/entities.js
 +++ b/node_modules/@redocly/config/lib-esm/constants/entities.js
 @@ -1,4 +1,4 @@
@@ -28,6 +31,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/constants/entities.js b/node_m
      'partOf',
      'hasParts',
 diff --git a/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js b/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
+index b3b35db..c8a41bd 100644
 --- a/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
 @@ -1,9 +1,9 @@
@@ -47,6 +51,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js b/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
+index f0fe33c..f3c3493 100644
 --- a/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
 @@ -1,4 +1,4 @@
@@ -56,6 +61,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-s
      type: 'object',
      nodeTypeName: ENTITY_NODE_TYPE_NAMES.UserEntityMetadata,
 diff --git a/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js b/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
+index e7127c8..f6af90f 100644
 --- a/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
 +++ b/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
 @@ -1,7 +1,7 @@
@@ -71,6 +77,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js b/n
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/graphql-config-schema.js b/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
+index 6c301c9..f001fa6 100644
 --- a/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
 @@ -1,5 +1,5 @@
@@ -82,6 +89,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/graphql-config-schema.js b/nod
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/index.js b/node_modules/@redocly/config/lib-esm/index.js
+index 2f1b955..f4385cb 100644
 --- a/node_modules/@redocly/config/lib-esm/index.js
 +++ b/node_modules/@redocly/config/lib-esm/index.js
 @@ -1,10 +1,10 @@
@@ -94,7 +102,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/index.js b/node_modules/@redoc
 -export { CONFIG_NODE_TYPE_NAMES } from './constants/config';
 -export { ENTITY_RELATION_TYPES, ENTITY_NODE_TYPE_NAMES } from './constants/entities';
 -export * from './entities-catalog-entity-file-schema';
-+export { productThemeOverrideSchema, productConfigOverrideSchema, } from './product-override-schema.js';
++export { productThemeOverrideSchema, productConfigOverrideSchema } from './product-override-schema.js';
 +export { rbacConfigSchema, rootRedoclyConfigSchema } from './root-config-schema.js';
 +export { redocConfigSchema } from './redoc-config-schema.js';
 +export * from './types/index.js';
@@ -105,15 +113,8 @@ diff --git a/node_modules/@redocly/config/lib-esm/index.js b/node_modules/@redoc
 +export * from './entities-catalog-entity-file-schema.js';
  //# sourceMappingURL=index.js.map
 \ No newline at end of file
-diff --git a/node_modules/@redocly/config/lib-esm/package.json b/node_modules/@redocly/config/lib-esm/package.json
-new file mode 100644
---- /dev/null
-+++ b/node_modules/@redocly/config/lib-esm/package.json
-@@ -0,0 +1,3 @@
-+{
-+  "type": "module"
-+}
 diff --git a/node_modules/@redocly/config/lib-esm/product-override-schema.js b/node_modules/@redocly/config/lib-esm/product-override-schema.js
+index cfbdce8..e8cf109 100644
 --- a/node_modules/@redocly/config/lib-esm/product-override-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/product-override-schema.js
 @@ -1,6 +1,6 @@
@@ -127,6 +128,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/product-override-schema.js b/n
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/redoc-config-schema.js b/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
+index e61f584..4c1287b 100644
 --- a/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
 @@ -1,4 +1,4 @@
@@ -136,6 +138,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/redoc-config-schema.js b/node_
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/root-config-schema.js b/node_modules/@redocly/config/lib-esm/root-config-schema.js
+index 3ee9c24..4dfc000 100644
 --- a/node_modules/@redocly/config/lib-esm/root-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/root-config-schema.js
 @@ -1,14 +1,14 @@
@@ -165,6 +168,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/root-config-schema.js b/node_m
      type: 'object',
      properties: {
 diff --git a/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js b/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
+index ad761e5..fc07aa8 100644
 --- a/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
 +++ b/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
 @@ -1,4 +1,4 @@
@@ -174,6 +178,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js b/
      type: 'string',
      enum: [
 diff --git a/node_modules/@redocly/config/lib-esm/types/index.js b/node_modules/@redocly/config/lib-esm/types/index.js
+index 3568190..00854e2 100644
 --- a/node_modules/@redocly/config/lib-esm/types/index.js
 +++ b/node_modules/@redocly/config/lib-esm/types/index.js
 @@ -1,5 +1,5 @@
@@ -188,6 +193,7 @@ diff --git a/node_modules/@redocly/config/lib-esm/types/index.js b/node_modules/
  //# sourceMappingURL=index.js.map
 \ No newline at end of file
 diff --git a/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js b/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
+index 8bc049b..887cabb 100644
 --- a/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
 +++ b/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
 @@ -1,2 +1,2 @@
@@ -195,21 +201,262 @@ diff --git a/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js b
 +export * from './code-walkthrough-types.js';
  //# sourceMappingURL=portal-shared-types.js.map
 \ No newline at end of file
-diff --git a/node_modules/@redocly/config/package.json b/node_modules/@redocly/config/package.json
---- a/node_modules/@redocly/config/package.json
-+++ b/node_modules/@redocly/config/package.json
-@@ -5,6 +5,14 @@
-   "main": "./lib/index.js",
-   "module": "./lib-esm/index.js",
-   "types": "./lib/index.d.ts",
-+  "exports": {
-+    ".": {
-+      "import": "./lib-esm/index.js",
-+      "require": "./lib/index.js",
-+      "types": "./lib/index.d.ts",
-+      "default": "./lib/index.js"
-+    }
-+  },
-   "devDependencies": {
-     "@markdoc/markdoc": "0.5.2",
-     "@redocly/openapi-core": "2.20.5",
+diff --git a/node_modules/@redocly/config/lib/asyncapi-config-schema.js b/node_modules/@redocly/config/lib/asyncapi-config-schema.js
+index a07c63b..e281ad9 100644
+--- a/node_modules/@redocly/config/lib/asyncapi-config-schema.js
++++ b/node_modules/@redocly/config/lib/asyncapi-config-schema.js
+@@ -1,8 +1,8 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.asyncapiConfigSchema = void 0;
+-const feedback_config_schema_1 = require("./feedback-config-schema");
+-const redoc_config_schema_1 = require("./redoc-config-schema");
++const feedback_config_schema_1 = require("./feedback-config-schema.js");
++const redoc_config_schema_1 = require("./redoc-config-schema.js");
+ exports.asyncapiConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/constants/config.js b/node_modules/@redocly/config/lib/constants/config.js
+index 50105b0..2b09a4a 100644
+--- a/node_modules/@redocly/config/lib/constants/config.js
++++ b/node_modules/@redocly/config/lib/constants/config.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.CONFIG_NODE_TYPE_NAMES = void 0;
+-const enum_1 = require("./enum");
++const enum_1 = require("./enum.js");
+ exports.CONFIG_NODE_TYPE_NAMES = (0, enum_1.createEnum)({
+     RedirectSource: 'RedirectSource',
+     Redirects: 'Redirects',
+diff --git a/node_modules/@redocly/config/lib/constants/entities.js b/node_modules/@redocly/config/lib/constants/entities.js
+index 3daf3ee..b9cb250 100644
+--- a/node_modules/@redocly/config/lib/constants/entities.js
++++ b/node_modules/@redocly/config/lib/constants/entities.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.NODE_TYPE_NAMES = exports.ENTITY_NODE_TYPE_NAMES = exports.ENTITY_RELATION_TYPES = void 0;
+-const enum_1 = require("./enum");
++const enum_1 = require("./enum.js");
+ exports.ENTITY_RELATION_TYPES = [
+     'partOf',
+     'hasParts',
+diff --git a/node_modules/@redocly/config/lib/default-theme-config-schema.js b/node_modules/@redocly/config/lib/default-theme-config-schema.js
+index 50ca41a..818cbb9 100644
+--- a/node_modules/@redocly/config/lib/default-theme-config-schema.js
++++ b/node_modules/@redocly/config/lib/default-theme-config-schema.js
+@@ -1,12 +1,12 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.themeConfigSchema = void 0;
+-const graphql_config_schema_1 = require("./graphql-config-schema");
+-const asyncapi_config_schema_1 = require("./asyncapi-config-schema");
+-const feedback_config_schema_1 = require("./feedback-config-schema");
+-const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas");
+-const entities_catalog_config_schema_1 = require("./entities-catalog-config-schema");
+-const scorecards_config_schema_1 = require("./scorecards-config-schema");
++const graphql_config_schema_1 = require("./graphql-config-schema.js");
++const asyncapi_config_schema_1 = require("./asyncapi-config-schema.js");
++const feedback_config_schema_1 = require("./feedback-config-schema.js");
++const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas.js");
++const entities_catalog_config_schema_1 = require("./entities-catalog-config-schema.js");
++const scorecards_config_schema_1 = require("./scorecards-config-schema.js");
+ exports.themeConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/entities-catalog-entity-file-schema.js b/node_modules/@redocly/config/lib/entities-catalog-entity-file-schema.js
+index 7252243..0a9b997 100644
+--- a/node_modules/@redocly/config/lib/entities-catalog-entity-file-schema.js
++++ b/node_modules/@redocly/config/lib/entities-catalog-entity-file-schema.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.entityFileDefaultSchema = exports.entityFileSchema = exports.entityBaseProperties = exports.entityRelationFileSchema = exports.entityLinkFileSchema = exports.entityContactFileSchema = exports.slackContactFileSchema = exports.slackChannelFileSchema = exports.defaultMetadataSchema = exports.dataSchemaMetadataSchema = exports.apiOperationMetadataSchema = exports.apiDescriptionMetadataSchema = exports.userMetadataSchema = void 0;
+-const entities_1 = require("./constants/entities");
++const entities_1 = require("./constants/entities.js");
+ exports.userMetadataSchema = {
+     type: 'object',
+     nodeTypeName: entities_1.ENTITY_NODE_TYPE_NAMES.UserEntityMetadata,
+diff --git a/node_modules/@redocly/config/lib/ex-theme-config-schemas.js b/node_modules/@redocly/config/lib/ex-theme-config-schemas.js
+index 542b8ba..4c16974 100644
+--- a/node_modules/@redocly/config/lib/ex-theme-config-schemas.js
++++ b/node_modules/@redocly/config/lib/ex-theme-config-schemas.js
+@@ -1,10 +1,10 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.scorecardConfigSchema = exports.catalogsConfigSchema = exports.catalogSchema = exports.catalogFilterSchema = exports.breadcrumbsConfigSchema = exports.versionPickerConfigSchema = exports.userMenuConfigSchema = exports.analyticsConfigSchema = exports.googleAnalyticsConfigSchema = exports.productGoogleAnalyticsConfigSchema = exports.gtmAnalyticsConfigSchema = exports.segmentAnalyticsConfigSchema = exports.rudderstackAnalyticsConfigSchema = exports.heapAnalyticsConfigSchema = exports.fullstoryAnalyticsConfigSchema = exports.amplitudeAnalyticsConfigSchema = exports.asyncapiConfigSchema = exports.openapiConfigSchema = exports.markdownConfigSchema = exports.codeSnippetConfigSchema = exports.navigationConfigSchema = exports.colorModeConfigSchema = exports.aiAssistantSchema = exports.searchConfigSchema = exports.linksConfigSchema = exports.scriptsConfigSchema = exports.sidebarConfigSchema = exports.footerConfigSchema = exports.productsConfigSchema = exports.navbarConfigSchema = exports.logoConfigSchema = exports.searchFiltersConfigSchema = exports.searchFacetsConfigSchema = exports.aiSearchConfigSchema = exports.productConfigSchema = exports.navItemsSchema = void 0;
+-const redoc_config_schema_1 = require("./redoc-config-schema");
+-const reference_docs_config_schema_1 = require("./reference-docs-config-schema");
+-const common_1 = require("./common");
+-const config_1 = require("./constants/config");
++const redoc_config_schema_1 = require("./redoc-config-schema.js");
++const reference_docs_config_schema_1 = require("./reference-docs-config-schema.js");
++const common_1 = require("./common.js");
++const config_1 = require("./constants/config.js");
+ const hideConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/graphql-config-schema.js b/node_modules/@redocly/config/lib/graphql-config-schema.js
+index 5d2c46a..2576f83 100644
+--- a/node_modules/@redocly/config/lib/graphql-config-schema.js
++++ b/node_modules/@redocly/config/lib/graphql-config-schema.js
+@@ -1,8 +1,8 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.graphqlConfigSchema = void 0;
+-const feedback_config_schema_1 = require("./feedback-config-schema");
+-const redoc_config_schema_1 = require("./redoc-config-schema");
++const feedback_config_schema_1 = require("./feedback-config-schema.js");
++const redoc_config_schema_1 = require("./redoc-config-schema.js");
+ const typeGroupConfig = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/index.js b/node_modules/@redocly/config/lib/index.js
+index 373500f..8a49e37 100644
+--- a/node_modules/@redocly/config/lib/index.js
++++ b/node_modules/@redocly/config/lib/index.js
+@@ -15,27 +15,27 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.ENTITY_NODE_TYPE_NAMES = exports.ENTITY_RELATION_TYPES = exports.CONFIG_NODE_TYPE_NAMES = exports.REDOCLY_ROUTE_RBAC = exports.REDOCLY_TEAMS_RBAC = exports.LayoutVariant = exports.DEFAULT_TEAM_CLAIM_NAME = exports.AuthProviderType = exports.ApigeeDevOnboardingIntegrationAuthType = exports.redocConfigSchema = exports.rootRedoclyConfigSchema = exports.rbacConfigSchema = exports.productConfigOverrideSchema = exports.productThemeOverrideSchema = void 0;
+-var product_override_schema_1 = require("./product-override-schema");
++var product_override_schema_1 = require("./product-override-schema.js");
+ Object.defineProperty(exports, "productThemeOverrideSchema", { enumerable: true, get: function () { return product_override_schema_1.productThemeOverrideSchema; } });
+ Object.defineProperty(exports, "productConfigOverrideSchema", { enumerable: true, get: function () { return product_override_schema_1.productConfigOverrideSchema; } });
+-var root_config_schema_1 = require("./root-config-schema");
++var root_config_schema_1 = require("./root-config-schema.js");
+ Object.defineProperty(exports, "rbacConfigSchema", { enumerable: true, get: function () { return root_config_schema_1.rbacConfigSchema; } });
+ Object.defineProperty(exports, "rootRedoclyConfigSchema", { enumerable: true, get: function () { return root_config_schema_1.rootRedoclyConfigSchema; } });
+-var redoc_config_schema_1 = require("./redoc-config-schema");
++var redoc_config_schema_1 = require("./redoc-config-schema.js");
+ Object.defineProperty(exports, "redocConfigSchema", { enumerable: true, get: function () { return redoc_config_schema_1.redocConfigSchema; } });
+-__exportStar(require("./types"), exports);
+-__exportStar(require("./common"), exports);
+-var shared_1 = require("./constants/shared");
++__exportStar(require("./types/index.js"), exports);
++__exportStar(require("./common.js"), exports);
++var shared_1 = require("./constants/shared.js");
+ Object.defineProperty(exports, "ApigeeDevOnboardingIntegrationAuthType", { enumerable: true, get: function () { return shared_1.ApigeeDevOnboardingIntegrationAuthType; } });
+ Object.defineProperty(exports, "AuthProviderType", { enumerable: true, get: function () { return shared_1.AuthProviderType; } });
+ Object.defineProperty(exports, "DEFAULT_TEAM_CLAIM_NAME", { enumerable: true, get: function () { return shared_1.DEFAULT_TEAM_CLAIM_NAME; } });
+ Object.defineProperty(exports, "LayoutVariant", { enumerable: true, get: function () { return shared_1.LayoutVariant; } });
+ Object.defineProperty(exports, "REDOCLY_TEAMS_RBAC", { enumerable: true, get: function () { return shared_1.REDOCLY_TEAMS_RBAC; } });
+ Object.defineProperty(exports, "REDOCLY_ROUTE_RBAC", { enumerable: true, get: function () { return shared_1.REDOCLY_ROUTE_RBAC; } });
+-var config_1 = require("./constants/config");
++var config_1 = require("./constants/config.js");
+ Object.defineProperty(exports, "CONFIG_NODE_TYPE_NAMES", { enumerable: true, get: function () { return config_1.CONFIG_NODE_TYPE_NAMES; } });
+-var entities_1 = require("./constants/entities");
++var entities_1 = require("./constants/entities.js");
+ Object.defineProperty(exports, "ENTITY_RELATION_TYPES", { enumerable: true, get: function () { return entities_1.ENTITY_RELATION_TYPES; } });
+ Object.defineProperty(exports, "ENTITY_NODE_TYPE_NAMES", { enumerable: true, get: function () { return entities_1.ENTITY_NODE_TYPE_NAMES; } });
+-__exportStar(require("./entities-catalog-entity-file-schema"), exports);
++__exportStar(require("./entities-catalog-entity-file-schema.js"), exports);
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/@redocly/config/lib/product-override-schema.js b/node_modules/@redocly/config/lib/product-override-schema.js
+index 238f377..520a2de 100644
+--- a/node_modules/@redocly/config/lib/product-override-schema.js
++++ b/node_modules/@redocly/config/lib/product-override-schema.js
+@@ -1,9 +1,9 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.productConfigOverrideSchema = exports.productThemeOverrideSchema = void 0;
+-const default_theme_config_schema_1 = require("./default-theme-config-schema");
+-const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas");
+-const root_config_schema_1 = require("./root-config-schema");
++const default_theme_config_schema_1 = require("./default-theme-config-schema.js");
++const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas.js");
++const root_config_schema_1 = require("./root-config-schema.js");
+ exports.productThemeOverrideSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/redoc-config-schema.js b/node_modules/@redocly/config/lib/redoc-config-schema.js
+index a112d78..b352524 100644
+--- a/node_modules/@redocly/config/lib/redoc-config-schema.js
++++ b/node_modules/@redocly/config/lib/redoc-config-schema.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.redocConfigSchema = exports.downloadUrlsSchema = void 0;
+-const feedback_config_schema_1 = require("./feedback-config-schema");
++const feedback_config_schema_1 = require("./feedback-config-schema.js");
+ const codeSamplesConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/root-config-schema.js b/node_modules/@redocly/config/lib/root-config-schema.js
+index 7698069..526a4d2 100644
+--- a/node_modules/@redocly/config/lib/root-config-schema.js
++++ b/node_modules/@redocly/config/lib/root-config-schema.js
+@@ -1,17 +1,17 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.rootRedoclyConfigSchema = exports.redoclyConfigSchema = exports.accessConfigSchema = exports.l10nConfigSchema = exports.devOnboardingAdapterConfigSchema = exports.apigeeEdgeAdapterConfigSchema = exports.apigeeXAdapterConfigSchema = exports.apigeeAdapterAuthServiceAccountSchema = exports.apigeeAdapterAuthOauth2Schema = exports.graviteeAdapterConfigSchema = exports.graviteeAdapterAuthIdpSchema = exports.graviteeAdapterAuthStaticSchema = exports.rbacConfigSchema = exports.rbacEntitiesCatalogConfigSchema = exports.apiFunctionsConfigSchema = exports.seoConfigSchema = exports.apiConfigSchema = exports.bannersConfigSchema = exports.bannerConfigSchema = exports.rbacScopeItemsSchema = exports.bannerColorSchema = exports.redirectsConfigSchema = exports.redirectConfigSchema = exports.ssoConfigSchema = exports.ssoDirectConfigSchema = exports.authProviderConfigSchema = exports.saml2ProviderConfigSchema = exports.oidcProviderConfigSchema = exports.oidcIssuerMetadataSchema = void 0;
+-const shared_1 = require("./constants/shared");
+-const config_1 = require("./constants/config");
+-const default_theme_config_schema_1 = require("./default-theme-config-schema");
+-const feedback_config_schema_1 = require("./feedback-config-schema");
+-const graphql_config_schema_1 = require("./graphql-config-schema");
+-const remove_property_recursively_1 = require("./remove-property-recursively");
+-const reunite_config_schema_1 = require("./reunite-config-schema");
+-const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas");
+-const entities_catalog_config_schema_1 = require("./entities-catalog-config-schema");
+-const scorecards_config_schema_1 = require("./scorecards-config-schema");
+-const common_1 = require("./common");
++const shared_1 = require("./constants/shared.js");
++const config_1 = require("./constants/config.js");
++const default_theme_config_schema_1 = require("./default-theme-config-schema.js");
++const feedback_config_schema_1 = require("./feedback-config-schema.js");
++const graphql_config_schema_1 = require("./graphql-config-schema.js");
++const remove_property_recursively_1 = require("./remove-property-recursively.js");
++const reunite_config_schema_1 = require("./reunite-config-schema.js");
++const ex_theme_config_schemas_1 = require("./ex-theme-config-schemas.js");
++const entities_catalog_config_schema_1 = require("./entities-catalog-config-schema.js");
++const scorecards_config_schema_1 = require("./scorecards-config-schema.js");
++const common_1 = require("./common.js");
+ exports.oidcIssuerMetadataSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib/scorecards-config-schema.js b/node_modules/@redocly/config/lib/scorecards-config-schema.js
+index 7663315..9bf78cc 100644
+--- a/node_modules/@redocly/config/lib/scorecards-config-schema.js
++++ b/node_modules/@redocly/config/lib/scorecards-config-schema.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.scorecardsConfigSchema = exports.scorecardSchema = void 0;
+-const common_1 = require("./common");
++const common_1 = require("./common.js");
+ const comparisonOperatorSchema = {
+     type: 'string',
+     enum: [
+diff --git a/node_modules/@redocly/config/lib/types/index.js b/node_modules/@redocly/config/lib/types/index.js
+index 1524541..facf520 100644
+--- a/node_modules/@redocly/config/lib/types/index.js
++++ b/node_modules/@redocly/config/lib/types/index.js
+@@ -14,8 +14,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
+     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+-__exportStar(require("./api-functions-types"), exports);
+-__exportStar(require("./config-types"), exports);
+-__exportStar(require("./portal-shared-types"), exports);
+-__exportStar(require("./catalog-entity-types"), exports);
++__exportStar(require("./api-functions-types.js"), exports);
++__exportStar(require("./config-types.js"), exports);
++__exportStar(require("./portal-shared-types.js"), exports);
++__exportStar(require("./catalog-entity-types.js"), exports);
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/@redocly/config/lib/types/portal-shared-types.js b/node_modules/@redocly/config/lib/types/portal-shared-types.js
+index 77b02a6..9a3bc29 100644
+--- a/node_modules/@redocly/config/lib/types/portal-shared-types.js
++++ b/node_modules/@redocly/config/lib/types/portal-shared-types.js
+@@ -14,5 +14,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
+     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+-__exportStar(require("./code-walkthrough-types"), exports);
++__exportStar(require("./code-walkthrough-types.js"), exports);
+ //# sourceMappingURL=portal-shared-types.js.map
+\ No newline at end of file
