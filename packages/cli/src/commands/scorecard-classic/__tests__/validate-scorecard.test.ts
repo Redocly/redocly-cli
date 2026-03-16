@@ -23,7 +23,8 @@ describe('validateScorecard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue({} as any);
+    const mockConfig = { forAlias: vi.fn().mockReturnThis() };
+    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(mockConfig as any);
     vi.spyOn(openapiCore, 'lintDocument').mockResolvedValue([]);
   });
 

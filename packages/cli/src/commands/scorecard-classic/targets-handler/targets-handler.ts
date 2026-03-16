@@ -1,11 +1,9 @@
 import { type ScorecardConfig } from '@redocly/config';
 import {
-  Config,
+  type Config,
   type RawUniversalConfig,
   type Plugin,
-  type RuleConfig,
   createConfig,
-  mergeExtends,
   logger,
 } from '@redocly/openapi-core';
 
@@ -18,26 +16,17 @@ export async function resolveConfigForTarget(
   const result: Record<string, Config> = {};
 
   for (const level of scorecardLevels ?? []) {
-    const config = await createConfig({ ...level, plugins } as RawUniversalConfig, {
+    const apis = {
+      [level.name]: {
+        root: './openapi.yaml',
+        rules: targetRules,
+      },
+    };
+    const config = await createConfig({ apis, ...level, plugins } as RawUniversalConfig, {
       configPath,
     });
 
-    if (targetRules) {
-      const merged = mergeExtends([
-        config.resolvedConfig,
-        { rules: targetRules as Record<string, RuleConfig> },
-      ]);
-
-      result[level.name] = new Config(
-        { ...config.resolvedConfig, ...merged },
-        {
-          configPath: config.configPath,
-          plugins: config.plugins,
-        }
-      );
-    } else {
-      result[level.name] = config;
-    }
+    result[level.name] = config.forAlias(level.name);
   }
 
   return result;

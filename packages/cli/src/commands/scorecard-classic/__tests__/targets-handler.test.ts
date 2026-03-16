@@ -1,5 +1,3 @@
-import * as openapiCore from '@redocly/openapi-core';
-
 import {
   getTarget,
   getTargetLevel,
@@ -96,147 +94,97 @@ describe('getTargetLevel', () => {
 });
 
 describe('resolveConfigForTarget', () => {
-  function makeMockConfig(rules: Record<string, unknown>) {
-    return {
-      rules: {
-        oas3_0: { ...rules },
-        oas3_1: { ...rules },
-        oas2: { ...rules },
-        oas3_2: { ...rules },
-        async2: { ...rules },
-        async3: { ...rules },
-        arazzo1: { ...rules },
-        overlay1: { ...rules },
-        openrpc1: { ...rules },
-      },
-      resolvedConfig: {
-        rules: { ...rules },
-        oas2Rules: {},
-        oas3_0Rules: {},
-        oas3_1Rules: {},
-        oas3_2Rules: {},
-        async2Rules: {},
-        async3Rules: {},
-        arazzo1Rules: {},
-        overlay1Rules: {},
-        openrpc1Rules: {},
-        preprocessors: {},
-        decorators: {},
-      },
-      configPath: '',
-      plugins: [],
-    };
-  }
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('should return configs without modification when targetRules is undefined', async () => {
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(
-      makeMockConfig({ 'operation-summary': 'error' }) as any
-    );
-
-    const levels = [{ name: 'Baseline' }];
+  it('should return a config entry for each level', async () => {
+    const levels = [{ name: 'Baseline' }, { name: 'Silver' }];
     const result = await resolveConfigForTarget(undefined, levels, [], '');
 
-    expect(Object.keys(result)).toEqual(['Baseline']);
-    expect(result['Baseline'].rules.oas3_0['operation-summary']).toBe('error');
+    expect(Object.keys(result)).toEqual(['Baseline', 'Silver']);
   });
 
-  it('should override string rule severity with target rules in all spec versions', async () => {
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(
-      makeMockConfig({ 'response-contains-header': 'error' }) as any
-    );
-
-    const levels = [{ name: 'Baseline' }];
-    const result = await resolveConfigForTarget(
-      { 'response-contains-header': 'warn' },
-      levels,
-      [],
-      ''
-    );
-
-    for (const specRules of Object.values(result['Baseline'].rules)) {
-      expect((specRules as any)['response-contains-header']).toBe('warn');
-    }
-  });
-
-  it('should merge severity into object rule config, preserving other fields', async () => {
-    const baselineRule = {
-      severity: 'error',
-      names: { '2XX': ['x-api-server-version'] },
-      message: '{{message}}',
-    };
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(
-      makeMockConfig({ 'response-contains-header': baselineRule }) as any
-    );
-
-    const levels = [{ name: 'Baseline', extends: ['minimal', './@lint/baseline.yaml'] }];
-    const result = await resolveConfigForTarget(
-      { 'response-contains-header': 'warn' },
-      levels,
-      [],
-      ''
-    );
-
-    const rule = result['Baseline'].rules.oas3_0['response-contains-header'] as any;
-    expect(rule.severity).toBe('warn');
-    expect(rule.names).toEqual({ '2XX': ['x-api-server-version'] });
-    expect(rule.message).toBe('{{message}}');
-  });
-
-  it('should apply target rules to all levels', async () => {
-    vi.spyOn(openapiCore, 'createConfig')
-      .mockResolvedValueOnce(makeMockConfig({ 'operation-summary': { severity: 'error' } }) as any)
-      .mockResolvedValueOnce(makeMockConfig({ 'operation-summary': { severity: 'error' } }) as any);
-
-    const levels = [{ name: 'Baseline' }, { name: 'Silver' }];
-    const result = await resolveConfigForTarget({ 'operation-summary': 'warn' }, levels, [], '');
-
-    expect((result['Baseline'].rules.oas3_0['operation-summary'] as any).severity).toBe('warn');
-    expect((result['Silver'].rules.oas3_0['operation-summary'] as any).severity).toBe('warn');
-  });
-
-  it('should not mutate the original levels array', async () => {
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(makeMockConfig({}) as any);
-
+  it('should override level rules with target rules when targetRules provided', async () => {
     const levels = [{ name: 'Baseline', rules: { 'operation-summary': 'error' } }];
-    const levelsCopy = JSON.parse(JSON.stringify(levels));
+    const targetRules = { 'operation-summary': 'warn' };
 
-    await resolveConfigForTarget({ 'response-contains-header': 'warn' }, levels as any, [], '');
+    const result = await resolveConfigForTarget(targetRules, levels, [], '');
 
-    expect(levels).toEqual(levelsCopy);
+    expect(result.Baseline.rules['oas3_1']['operation-summary']).toBe('warn');
   });
 
-  it('should merge severity into object rule when level has no extends (inline rules only)', async () => {
-    const inlineRule = {
-      severity: 'error',
-      names: { '2XX': ['x-api-server-version'] },
-      message: '{{message}}',
-    };
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(
-      makeMockConfig({ 'response-contains-header': inlineRule }) as any
-    );
+  it('should return different rules for different levels', async () => {
+    const levels = [
+      { name: 'Baseline', rules: { 'operation-summary': 'error' } },
+      { name: 'Silver', rules: { 'operation-summary': 'warn' } },
+    ];
 
+    const result = await resolveConfigForTarget(undefined, levels, [], '');
+
+    expect(result.Baseline.rules['oas3_1']['operation-summary']).toBe('error');
+    expect(result.Silver.rules['oas3_1']['operation-summary']).toBe('warn');
+  });
+
+  it('should override severity of level configurable rule', async () => {
     const levels = [
       {
-        name: 'Silver',
+        name: 'Baseline',
         rules: {
-          'response-contains-header': inlineRule,
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['X-Rate-Limit'] },
+            message: 'Responses must include X-Rate-Limit header',
+          },
         },
       },
     ];
-    const result = await resolveConfigForTarget(
-      { 'response-contains-header': 'warn' },
-      levels as any,
-      [],
-      ''
-    );
 
-    const rule = result['Silver'].rules.oas3_0['response-contains-header'] as any;
-    expect(rule.severity).toBe('warn');
-    expect(rule.names).toEqual({ '2XX': ['x-api-server-version'] });
-    expect(rule.message).toBe('{{message}}');
+    const targetRules = { 'response-contains-header': 'warn' };
+
+    const result = await resolveConfigForTarget(targetRules, levels, [], '');
+
+    expect(result.Baseline.rules['oas3_1']['response-contains-header']).toEqual({
+      severity: 'warn',
+      names: { '2XX': ['X-Rate-Limit'] },
+      message: 'Responses must include X-Rate-Limit header',
+    });
+  });
+
+  it('should override severity of level configurable rule for every level', async () => {
+    const levels = [
+      {
+        name: 'Baseline',
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['X-Rate-Limit'] },
+            message: 'Responses must include X-Rate-Limit header',
+          },
+        },
+      },
+      {
+        name: 'Silver',
+        rules: {
+          'response-contains-header': {
+            severity: 'error',
+            names: { '2XX': ['X-Rate-Limit'] },
+            message: 'Responses must include X-Rate-Limit header',
+          },
+        },
+      },
+    ];
+
+    const targetRules = { 'response-contains-header': 'warn' };
+
+    const result = await resolveConfigForTarget(targetRules, levels, [], '');
+
+    expect(result.Baseline.rules['oas3_1']['response-contains-header']).toEqual({
+      severity: 'warn',
+      names: { '2XX': ['X-Rate-Limit'] },
+      message: 'Responses must include X-Rate-Limit header',
+    });
+
+    expect(result.Silver.rules['oas3_1']['response-contains-header']).toEqual({
+      severity: 'warn',
+      names: { '2XX': ['X-Rate-Limit'] },
+      message: 'Responses must include X-Rate-Limit header',
+    });
   });
 });

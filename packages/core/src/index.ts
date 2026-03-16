@@ -32,7 +32,6 @@ export {
   resolvePlugins,
   ConfigValidationError,
   Config, // FIXME: export it as a type
-  mergeExtends,
   type RawUniversalConfig,
   type RawUniversalApiConfig,
   type ResolvedConfig,
