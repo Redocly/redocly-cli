@@ -15,10 +15,6 @@ describe('printScorecardResultsAsJson', () => {
     vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should print empty results when no problems', () => {
     printScorecardResultsAsJson([], 'Gold', true);
 

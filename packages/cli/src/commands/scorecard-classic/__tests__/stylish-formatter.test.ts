@@ -16,10 +16,6 @@ describe('printScorecardResults', () => {
     vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should handle problems without location', () => {
     const problems: ScorecardProblem[] = [
       {
