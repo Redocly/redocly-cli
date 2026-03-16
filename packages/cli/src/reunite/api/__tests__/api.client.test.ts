@@ -18,6 +18,13 @@ function mockFetchResponse(response: any) {
   (global.fetch as jest.Mock).mockResolvedValue(response);
 }
 
+/**
+ * Compares two FormData instances by content. We can't use expect(actual).toEqual(expected)
+ * because FormData stores entries internally and has no enumerable properties, so Jest's
+ * deep equality sees both as {} and fails even when they have the same entries.
+ * This started failing after the undici 6.24.x bump because that version uses a more
+ * spec-compliant FormData with no enumerable props.
+ */
 function expectFormDataToEqual(actual: FormData, expected: FormData) {
   const sortByKey = (a: [string, FormDataEntryValue], b: [string, FormDataEntryValue]) =>
     a[0].localeCompare(b[0]);
@@ -255,14 +262,14 @@ describe('ApiClient', () => {
         }
       );
 
-      const formData = new globalThis.FormData();
+      const expectedFormData = new globalThis.FormData();
 
-      formData.append('remoteId', testRemoteId);
-      formData.append('commit[message]', pushPayload.commit.message);
-      formData.append('commit[author][name]', pushPayload.commit.author.name);
-      formData.append('commit[author][email]', pushPayload.commit.author.email);
-      formData.append('commit[branchName]', pushPayload.commit.branchName);
-      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream as BlobPart]));
+      expectedFormData.append('remoteId', testRemoteId);
+      expectedFormData.append('commit[message]', pushPayload.commit.message);
+      expectedFormData.append('commit[author][name]', pushPayload.commit.author.name);
+      expectedFormData.append('commit[author][email]', pushPayload.commit.author.email);
+      expectedFormData.append('commit[branchName]', pushPayload.commit.branchName);
+      expectedFormData.append('files[some-file.yaml]', new Blob([filesMock[0].stream as BlobPart]));
 
       const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
@@ -276,7 +283,7 @@ describe('ApiClient', () => {
           },
         })
       );
-      expectFormDataToEqual(passedFormData, formData);
+      expectFormDataToEqual(passedFormData, expectedFormData);
       expect(result).toEqual(responseMock);
     });
 
