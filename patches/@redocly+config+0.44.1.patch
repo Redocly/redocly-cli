@@ -1,0 +1,215 @@
+diff --git a/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js b/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/asyncapi-config-schema.js
+@@ -1,5 +1,5 @@
+-import { feedbackConfigSchema } from './feedback-config-schema';
+-import { downloadUrlsSchema } from './redoc-config-schema';
++import { feedbackConfigSchema } from './feedback-config-schema.js';
++import { downloadUrlsSchema } from './redoc-config-schema.js';
+ export const asyncapiConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/constants/config.js b/node_modules/@redocly/config/lib-esm/constants/config.js
+--- a/node_modules/@redocly/config/lib-esm/constants/config.js
++++ b/node_modules/@redocly/config/lib-esm/constants/config.js
+@@ -1,4 +1,4 @@
+-import { createEnum } from './enum';
++import { createEnum } from './enum.js';
+ export const CONFIG_NODE_TYPE_NAMES = createEnum({
+     RedirectSource: 'RedirectSource',
+     Redirects: 'Redirects',
+diff --git a/node_modules/@redocly/config/lib-esm/constants/entities.js b/node_modules/@redocly/config/lib-esm/constants/entities.js
+--- a/node_modules/@redocly/config/lib-esm/constants/entities.js
++++ b/node_modules/@redocly/config/lib-esm/constants/entities.js
+@@ -1,4 +1,4 @@
+-import { createEnum } from './enum';
++import { createEnum } from './enum.js';
+ export const ENTITY_RELATION_TYPES = [
+     'partOf',
+     'hasParts',
+diff --git a/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js b/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/default-theme-config-schema.js
+@@ -1,9 +1,9 @@
+-import { graphqlConfigSchema } from './graphql-config-schema';
+-import { asyncapiConfigSchema } from './asyncapi-config-schema';
+-import { feedbackConfigSchema } from './feedback-config-schema';
+-import { logoConfigSchema, analyticsConfigSchema, breadcrumbsConfigSchema, catalogsConfigSchema, codeSnippetConfigSchema, colorModeConfigSchema, footerConfigSchema, linksConfigSchema, markdownConfigSchema, navbarConfigSchema, navigationConfigSchema, openapiConfigSchema, productsConfigSchema, scorecardConfigSchema, scriptsConfigSchema, searchConfigSchema, aiAssistantSchema, sidebarConfigSchema, userMenuConfigSchema, versionPickerConfigSchema, } from './ex-theme-config-schemas';
+-import { entitiesCatalogConfigSchema } from './entities-catalog-config-schema';
+-import { scorecardsConfigSchema } from './scorecards-config-schema';
++import { graphqlConfigSchema } from './graphql-config-schema.js';
++import { asyncapiConfigSchema } from './asyncapi-config-schema.js';
++import { feedbackConfigSchema } from './feedback-config-schema.js';
++import { logoConfigSchema, analyticsConfigSchema, breadcrumbsConfigSchema, catalogsConfigSchema, codeSnippetConfigSchema, colorModeConfigSchema, footerConfigSchema, linksConfigSchema, markdownConfigSchema, navbarConfigSchema, navigationConfigSchema, openapiConfigSchema, productsConfigSchema, scorecardConfigSchema, scriptsConfigSchema, searchConfigSchema, aiAssistantSchema, sidebarConfigSchema, userMenuConfigSchema, versionPickerConfigSchema, } from './ex-theme-config-schemas.js';
++import { entitiesCatalogConfigSchema } from './entities-catalog-config-schema.js';
++import { scorecardsConfigSchema } from './scorecards-config-schema.js';
+ export const themeConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js b/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
+--- a/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
++++ b/node_modules/@redocly/config/lib-esm/entities-catalog-entity-file-schema.js
+@@ -1,4 +1,4 @@
+-import { ENTITY_RELATION_TYPES, ENTITY_NODE_TYPE_NAMES } from './constants/entities';
++import { ENTITY_RELATION_TYPES, ENTITY_NODE_TYPE_NAMES } from './constants/entities.js';
+ export const userMetadataSchema = {
+     type: 'object',
+     nodeTypeName: ENTITY_NODE_TYPE_NAMES.UserEntityMetadata,
+diff --git a/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js b/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
+--- a/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
++++ b/node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js
+@@ -1,7 +1,7 @@
+-import { redocConfigSchema } from './redoc-config-schema';
+-import { deprecatedRefDocsSchema } from './reference-docs-config-schema';
+-import { configGovernanceSchema } from './common';
+-import { CONFIG_NODE_TYPE_NAMES } from './constants/config';
++import { redocConfigSchema } from './redoc-config-schema.js';
++import { deprecatedRefDocsSchema } from './reference-docs-config-schema.js';
++import { configGovernanceSchema } from './common.js';
++import { CONFIG_NODE_TYPE_NAMES } from './constants/config.js';
+ const hideConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/graphql-config-schema.js b/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/graphql-config-schema.js
+@@ -1,5 +1,5 @@
+-import { feedbackConfigSchema } from './feedback-config-schema';
+-import { downloadUrlsSchema } from './redoc-config-schema';
++import { feedbackConfigSchema } from './feedback-config-schema.js';
++import { downloadUrlsSchema } from './redoc-config-schema.js';
+ const typeGroupConfig = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/index.js b/node_modules/@redocly/config/lib-esm/index.js
+--- a/node_modules/@redocly/config/lib-esm/index.js
++++ b/node_modules/@redocly/config/lib-esm/index.js
+@@ -1,10 +1,10 @@
+-export { productThemeOverrideSchema, productConfigOverrideSchema } from './product-override-schema';
+-export { rbacConfigSchema, rootRedoclyConfigSchema } from './root-config-schema';
+-export { redocConfigSchema } from './redoc-config-schema';
+-export * from './types';
+-export * from './common';
+-export { ApigeeDevOnboardingIntegrationAuthType, AuthProviderType, DEFAULT_TEAM_CLAIM_NAME, LayoutVariant, REDOCLY_TEAMS_RBAC, REDOCLY_ROUTE_RBAC, } from './constants/shared';
+-export { CONFIG_NODE_TYPE_NAMES } from './constants/config';
+-export { ENTITY_RELATION_TYPES, ENTITY_NODE_TYPE_NAMES } from './constants/entities';
+-export * from './entities-catalog-entity-file-schema';
++export { productThemeOverrideSchema, productConfigOverrideSchema, } from './product-override-schema.js';
++export { rbacConfigSchema, rootRedoclyConfigSchema } from './root-config-schema.js';
++export { redocConfigSchema } from './redoc-config-schema.js';
++export * from './types/index.js';
++export * from './common.js';
++export { ApigeeDevOnboardingIntegrationAuthType, AuthProviderType, DEFAULT_TEAM_CLAIM_NAME, LayoutVariant, REDOCLY_TEAMS_RBAC, REDOCLY_ROUTE_RBAC, } from './constants/shared.js';
++export { CONFIG_NODE_TYPE_NAMES } from './constants/config.js';
++export { ENTITY_RELATION_TYPES, ENTITY_NODE_TYPE_NAMES } from './constants/entities.js';
++export * from './entities-catalog-entity-file-schema.js';
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/@redocly/config/lib-esm/package.json b/node_modules/@redocly/config/lib-esm/package.json
+new file mode 100644
+--- /dev/null
++++ b/node_modules/@redocly/config/lib-esm/package.json
+@@ -0,0 +1,3 @@
++{
++  "type": "module"
++}
+diff --git a/node_modules/@redocly/config/lib-esm/product-override-schema.js b/node_modules/@redocly/config/lib-esm/product-override-schema.js
+--- a/node_modules/@redocly/config/lib-esm/product-override-schema.js
++++ b/node_modules/@redocly/config/lib-esm/product-override-schema.js
+@@ -1,6 +1,6 @@
+-import { themeConfigSchema } from './default-theme-config-schema';
+-import { productGoogleAnalyticsConfigSchema } from './ex-theme-config-schemas';
+-import { apiConfigSchema, redoclyConfigSchema } from './root-config-schema';
++import { themeConfigSchema } from './default-theme-config-schema.js';
++import { productGoogleAnalyticsConfigSchema } from './ex-theme-config-schemas.js';
++import { apiConfigSchema, redoclyConfigSchema } from './root-config-schema.js';
+ export const productThemeOverrideSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/redoc-config-schema.js b/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/redoc-config-schema.js
+@@ -1,4 +1,4 @@
+-import { feedbackConfigSchema } from './feedback-config-schema';
++import { feedbackConfigSchema } from './feedback-config-schema.js';
+ const codeSamplesConfigSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/root-config-schema.js b/node_modules/@redocly/config/lib-esm/root-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/root-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/root-config-schema.js
+@@ -1,14 +1,14 @@
+-import { DEFAULT_TEAM_CLAIM_NAME, AuthProviderType, ApigeeDevOnboardingIntegrationAuthType, } from './constants/shared';
+-import { CONFIG_NODE_TYPE_NAMES } from './constants/config';
+-import { themeConfigSchema } from './default-theme-config-schema';
+-import { feedbackConfigSchema } from './feedback-config-schema';
+-import { graphqlConfigSchema } from './graphql-config-schema';
+-import { removePropertyRecursively } from './remove-property-recursively';
+-import { reuniteConfigSchema } from './reunite-config-schema';
+-import { analyticsConfigSchema, breadcrumbsConfigSchema, catalogsConfigSchema, codeSnippetConfigSchema, colorModeConfigSchema, footerConfigSchema, linksConfigSchema, logoConfigSchema, markdownConfigSchema, navbarConfigSchema, navigationConfigSchema, openapiConfigSchema, productsConfigSchema, scorecardConfigSchema, scriptsConfigSchema, searchConfigSchema, aiAssistantSchema, sidebarConfigSchema, userMenuConfigSchema, versionPickerConfigSchema, } from './ex-theme-config-schemas';
+-import { entitiesCatalogConfigSchema } from './entities-catalog-config-schema';
+-import { scorecardsConfigSchema } from './scorecards-config-schema';
+-import { configGovernanceSchema } from './common';
++import { DEFAULT_TEAM_CLAIM_NAME, AuthProviderType, ApigeeDevOnboardingIntegrationAuthType, } from './constants/shared.js';
++import { CONFIG_NODE_TYPE_NAMES } from './constants/config.js';
++import { themeConfigSchema } from './default-theme-config-schema.js';
++import { feedbackConfigSchema } from './feedback-config-schema.js';
++import { graphqlConfigSchema } from './graphql-config-schema.js';
++import { removePropertyRecursively } from './remove-property-recursively.js';
++import { reuniteConfigSchema } from './reunite-config-schema.js';
++import { analyticsConfigSchema, breadcrumbsConfigSchema, catalogsConfigSchema, codeSnippetConfigSchema, colorModeConfigSchema, footerConfigSchema, linksConfigSchema, logoConfigSchema, markdownConfigSchema, navbarConfigSchema, navigationConfigSchema, openapiConfigSchema, productsConfigSchema, scorecardConfigSchema, scriptsConfigSchema, searchConfigSchema, aiAssistantSchema, sidebarConfigSchema, userMenuConfigSchema, versionPickerConfigSchema, } from './ex-theme-config-schemas.js';
++import { entitiesCatalogConfigSchema } from './entities-catalog-config-schema.js';
++import { scorecardsConfigSchema } from './scorecards-config-schema.js';
++import { configGovernanceSchema } from './common.js';
+ export const oidcIssuerMetadataSchema = {
+     type: 'object',
+     properties: {
+diff --git a/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js b/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
+--- a/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
++++ b/node_modules/@redocly/config/lib-esm/scorecards-config-schema.js
+@@ -1,4 +1,4 @@
+-import { configGovernanceSchema } from './common';
++import { configGovernanceSchema } from './common.js';
+ const comparisonOperatorSchema = {
+     type: 'string',
+     enum: [
+diff --git a/node_modules/@redocly/config/lib-esm/types/index.js b/node_modules/@redocly/config/lib-esm/types/index.js
+--- a/node_modules/@redocly/config/lib-esm/types/index.js
++++ b/node_modules/@redocly/config/lib-esm/types/index.js
+@@ -1,5 +1,5 @@
+-export * from './api-functions-types';
+-export * from './config-types';
+-export * from './portal-shared-types';
+-export * from './catalog-entity-types';
++export * from './api-functions-types.js';
++export * from './config-types.js';
++export * from './portal-shared-types.js';
++export * from './catalog-entity-types.js';
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js b/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
+--- a/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
++++ b/node_modules/@redocly/config/lib-esm/types/portal-shared-types.js
+@@ -1,2 +1,2 @@
+-export * from './code-walkthrough-types';
++export * from './code-walkthrough-types.js';
+ //# sourceMappingURL=portal-shared-types.js.map
+\ No newline at end of file
+diff --git a/node_modules/@redocly/config/package.json b/node_modules/@redocly/config/package.json
+--- a/node_modules/@redocly/config/package.json
++++ b/node_modules/@redocly/config/package.json
+@@ -5,6 +5,14 @@
+   "main": "./lib/index.js",
+   "module": "./lib-esm/index.js",
+   "types": "./lib/index.d.ts",
++  "exports": {
++    ".": {
++      "import": "./lib-esm/index.js",
++      "require": "./lib/index.js",
++      "types": "./lib/index.d.ts",
++      "default": "./lib/index.js"
++    }
++  },
+   "devDependencies": {
+     "@markdoc/markdoc": "0.5.2",
+     "@redocly/openapi-core": "2.20.5",
