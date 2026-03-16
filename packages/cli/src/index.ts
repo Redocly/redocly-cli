@@ -820,7 +820,7 @@ yargs(hideBin(process.argv))
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json'],
+          choices: ['stylish', 'json', 'checkstyle'],
           default: 'stylish',
         },
         'target-level': {

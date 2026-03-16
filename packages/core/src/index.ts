@@ -107,7 +107,13 @@ export {
   type UserContext,
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
-export { formatProblems, getTotals, type OutputFormat, type Totals } from './format/format.js';
+export {
+  formatProblems,
+  getTotals,
+  xmlEscape,
+  type OutputFormat,
+  type Totals,
+} from './format/format.js';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint.js';
 export { lintEntityFile, lintEntityWithScorecardLevel, lintSchema } from './lint-entity.js';
 export { bundle, bundleFromString, type BundleResult } from './bundle/bundle.js';
