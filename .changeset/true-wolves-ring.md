@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Added export of `mergeExtends` function.
+Added export of `regexFromString` function.
