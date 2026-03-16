@@ -1,5 +1,67 @@
 # @redocly/respect-core
 
+## 2.22.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.22.0.
+
+## 2.21.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.1.
+
+## 2.21.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.0.
+
+## 2.20.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.5.
+
+## 2.20.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.4.
+
+## 2.20.3
+
+### Patch Changes
+
+- Updated `openapi-sampler` dependency to v1.7.1.
+- Updated @redocly/openapi-core to v2.20.3.
+
+## 2.20.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.2.
+
+## 2.20.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+- Updated @redocly/openapi-core to v2.20.1.
+
+## 2.20.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.0.
+
+## 2.19.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.19.2.
+
 ## 2.19.1
 
 ### Patch Changes

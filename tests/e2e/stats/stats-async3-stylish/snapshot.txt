@@ -1,0 +1,13 @@
+🚗 References: 3 
+📦 External Documents: 0 
+📈 Schemas: 1 
+👉 Parameters: 0 
+📡 Channels: 1 
+👷 Operations: 1 
+🔖 Tags: 2 
+
+Document: asyncapi3.yaml stats:
+
+
+asyncapi3.yaml: stats processed in <test>ms
+

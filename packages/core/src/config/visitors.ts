@@ -1,3 +1,5 @@
+import * as redoclyConfig from '@redocly/config';
+
 import { replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -47,7 +49,12 @@ export const pluginsCollectorVisitor = normalizeVisitors(
             collectorHandleNode(node, ctx);
           },
         },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+          leave(node: unknown, ctx: UserContext) {
+            collectorHandleNode(node, ctx);
+          },
+        },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
           leave(node: unknown, ctx: UserContext) {
             collectorHandleNode(node, ctx);
           },
@@ -98,7 +105,12 @@ export const configBundlerVisitor = normalizeVisitors(
             bundlerHandleNode(node, ctx);
           },
         },
-        'rootRedoclyConfigSchema.scorecard.levels_items': {
+        [redoclyConfig.CONFIG_NODE_TYPE_NAMES.ScorecardClassicLevel]: {
+          leave(node: unknown, ctx: UserContext) {
+            bundlerHandleNode(node, ctx);
+          },
+        },
+        'rootRedoclyConfigSchema.scorecardClassic.levels_items': {
           leave(node: unknown, ctx: UserContext) {
             bundlerHandleNode(node, ctx);
           },

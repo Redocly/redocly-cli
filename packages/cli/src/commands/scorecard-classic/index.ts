@@ -6,10 +6,12 @@ import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { formatPath, getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { handleLoginAndFetchToken } from './auth/login-handler.js';
+import { printScorecardResultsAsCheckstyle } from './formatters/checkstyle-formatter.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
 import type { ScorecardClassicArgv } from './types.js';
+import { isAllowedScorecardProjectUrl } from './validation/project-url.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
 
 export async function handleScorecardClassic({
@@ -44,6 +46,10 @@ export async function handleScorecardClassic({
     exitWithError(
       'Scorecard is not configured. Please provide it via --project-url flag or configure it in redocly.yaml. Learn more: https://redocly.com/docs/realm/config/scorecard#fromprojecturl-example'
     );
+  }
+
+  if (!isAllowedScorecardProjectUrl(projectUrl)) {
+    exitWithError(`Project URL must be from the .redocly.com domain. Received: ${projectUrl}`);
   }
 
   if (isNonInteractiveEnvironment() && !apiKey) {
@@ -101,6 +107,8 @@ export async function handleScorecardClassic({
 
   if (argv.format === 'json') {
     printScorecardResultsAsJson(result, achievedLevel, targetLevelAchieved, version);
+  } else if (argv.format === 'checkstyle') {
+    printScorecardResultsAsCheckstyle(path, result, achievedLevel, targetLevelAchieved);
   } else {
     printScorecardResults(result, achievedLevel, targetLevelAchieved);
   }
