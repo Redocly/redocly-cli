@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.22.0
+
+### Patch Changes
+
+- Extended the `nonEmpty` assertion to support arrays.
+  An empty array is now treated as empty during linting.
+
 ## 2.21.1
 
 ## 2.21.0
