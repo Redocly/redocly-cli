@@ -96,7 +96,7 @@ describe('getTargetLevel', () => {
 describe('resolveConfigForTarget', () => {
   it('should return a config entry for each level', async () => {
     const levels = [{ name: 'Baseline' }, { name: 'Silver' }];
-    const result = await resolveConfigForTarget(undefined, levels, [], '');
+    const result = await resolveConfigForTarget('test.yaml', undefined, levels, [], '');
 
     expect(Object.keys(result)).toEqual(['Baseline', 'Silver']);
   });
@@ -105,7 +105,7 @@ describe('resolveConfigForTarget', () => {
     const levels = [{ name: 'Baseline', rules: { 'operation-summary': 'error' } }];
     const targetRules = { 'operation-summary': 'warn' };
 
-    const result = await resolveConfigForTarget(targetRules, levels, [], '');
+    const result = await resolveConfigForTarget('test.yaml', targetRules, levels, [], '');
 
     expect(result.Baseline.rules['oas3_1']['operation-summary']).toBe('warn');
   });
@@ -116,7 +116,7 @@ describe('resolveConfigForTarget', () => {
       { name: 'Silver', rules: { 'operation-summary': 'warn' } },
     ];
 
-    const result = await resolveConfigForTarget(undefined, levels, [], '');
+    const result = await resolveConfigForTarget('test.yaml', undefined, levels, [], '');
 
     expect(result.Baseline.rules['oas3_1']['operation-summary']).toBe('error');
     expect(result.Silver.rules['oas3_1']['operation-summary']).toBe('warn');
@@ -138,7 +138,7 @@ describe('resolveConfigForTarget', () => {
 
     const targetRules = { 'response-contains-header': 'warn' };
 
-    const result = await resolveConfigForTarget(targetRules, levels, [], '');
+    const result = await resolveConfigForTarget('test.yaml', targetRules, levels, [], '');
 
     expect(result.Baseline.rules['oas3_1']['response-contains-header']).toEqual({
       severity: 'warn',
@@ -173,7 +173,7 @@ describe('resolveConfigForTarget', () => {
 
     const targetRules = { 'response-contains-header': 'warn' };
 
-    const result = await resolveConfigForTarget(targetRules, levels, [], '');
+    const result = await resolveConfigForTarget('test.yaml', targetRules, levels, [], '');
 
     expect(result.Baseline.rules['oas3_1']['response-contains-header']).toEqual({
       severity: 'warn',
