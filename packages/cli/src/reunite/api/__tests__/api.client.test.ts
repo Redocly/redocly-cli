@@ -18,6 +18,37 @@ function mockFetchResponse(response: any) {
   (global.fetch as jest.Mock).mockResolvedValue(response);
 }
 
+/**
+ * Compares two FormData instances by content. We can't use expect(actual).toEqual(expected)
+ * because FormData stores entries internally and has no enumerable properties, so Jest's
+ * deep equality sees both as {} and fails even when they have the same entries.
+ * This started failing after the undici 6.24.x bump because that version uses a more
+ * spec-compliant FormData with no enumerable props.
+ */
+function expectFormDataToEqual(actual: FormData, expected: FormData) {
+  const sortByKey = (a: [string, FormDataEntryValue], b: [string, FormDataEntryValue]) =>
+    a[0].localeCompare(b[0]);
+  const actualEntries = Array.from(actual.entries()).sort(sortByKey);
+  const expectedEntries = Array.from(expected.entries()).sort(sortByKey);
+
+  expect(actualEntries.length).toBe(expectedEntries.length);
+
+  for (let i = 0; i < expectedEntries.length; i++) {
+    expect(actualEntries[i][0]).toBe(expectedEntries[i][0]);
+
+    const actualVal = actualEntries[i][1];
+    const expectedVal = expectedEntries[i][1];
+
+    if (typeof expectedVal === 'string') {
+      expect(actualVal).toBe(expectedVal);
+    } else {
+      expect(actualVal).toBeInstanceOf(Blob);
+      expect((actualVal as Blob).size).toBe((expectedVal as Blob).size);
+      expect((actualVal as Blob).type).toBe((expectedVal as Blob).type);
+    }
+  }
+}
+
 describe('ApiClient', () => {
   const testToken = 'test-token';
   const testDomain = 'test-domain.com';
@@ -231,14 +262,14 @@ describe('ApiClient', () => {
         }
       );
 
-      const formData = new globalThis.FormData();
+      const expectedFormData = new globalThis.FormData();
 
-      formData.append('remoteId', testRemoteId);
-      formData.append('commit[message]', pushPayload.commit.message);
-      formData.append('commit[author][name]', pushPayload.commit.author.name);
-      formData.append('commit[author][email]', pushPayload.commit.author.email);
-      formData.append('commit[branchName]', pushPayload.commit.branchName);
-      formData.append('files[some-file.yaml]', new Blob([filesMock[0].stream]));
+      expectedFormData.append('remoteId', testRemoteId);
+      expectedFormData.append('commit[message]', pushPayload.commit.message);
+      expectedFormData.append('commit[author][name]', pushPayload.commit.author.name);
+      expectedFormData.append('commit[author][email]', pushPayload.commit.author.email);
+      expectedFormData.append('commit[branchName]', pushPayload.commit.branchName);
+      expectedFormData.append('files[some-file.yaml]', new Blob([filesMock[0].stream as BlobPart]));
 
       const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
@@ -252,7 +283,7 @@ describe('ApiClient', () => {
           },
         })
       );
-      expect(passedFormData).toEqual(formData);
+      expectFormDataToEqual(passedFormData, expectedFormData);
       expect(result).toEqual(responseMock);
     });
 
