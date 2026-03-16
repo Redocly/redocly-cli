@@ -50,9 +50,9 @@ describe('printScorecardResultsAsCheckstyle', () => {
     printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Gold', true);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
-    expect(calls).toContain('<file name="/api/openapi.yaml [Gold]">\n');
+    expect(calls).toContain('<file name="/api/openapi.yaml">\n');
     expect(calls).toContain(
-      '<error line="1" column="1" severity="error" message="Missing summary" source="operation-summary" />\n'
+      '<error line="1" column="1" severity="error" message="Missing summary" source="Gold:operation-summary" />\n'
     );
     expect(calls).toContain('</file>\n');
   });
@@ -78,9 +78,9 @@ describe('printScorecardResultsAsCheckstyle', () => {
     printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Silver', false);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
-    expect(calls).toContain('<file name="/api/openapi.yaml [Silver]">\n');
+    expect(calls).toContain('<file name="/api/openapi.yaml">\n');
     expect(calls).toContain(
-      '<error line="1" column="1" severity="warning" message="Missing description" source="operation-description" />\n'
+      '<error line="1" column="1" severity="warning" message="Missing description" source="Silver:operation-description" />\n'
     );
   });
 
@@ -143,12 +143,13 @@ describe('printScorecardResultsAsCheckstyle', () => {
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
     const fileOpens = calls.filter((c: string) => c.startsWith('<file'));
-    expect(fileOpens).toHaveLength(2);
-    expect(fileOpens).toContain('<file name="/api/file-a.yaml [Gold]">\n');
-    expect(fileOpens).toContain('<file name="/api/file-a.yaml [Silver]">\n');
+    expect(fileOpens).toHaveLength(1);
+    expect(fileOpens[0]).toBe('<file name="/api/file-a.yaml">\n');
 
     const errorMessages = calls.filter((c: string) => c.startsWith('<error'));
     expect(errorMessages).toHaveLength(2);
+    expect(errorMessages[0]).toContain('source="Gold:rule-a"');
+    expect(errorMessages[1]).toContain('source="Silver:rule-b"');
   });
 
   it('should XML-escape special characters in message and ruleId', () => {
@@ -199,7 +200,7 @@ describe('printScorecardResultsAsCheckstyle', () => {
     expect(errorLine).toContain('line="0" column="0"');
   });
 
-  it('should use "Unknown" as level name in file element for problems without scorecardLevel', () => {
+  it('should use "Unknown" as level prefix in source for problems without scorecardLevel', () => {
     const problems: ScorecardProblem[] = [
       {
         message: 'No level error',
@@ -214,7 +215,8 @@ describe('printScorecardResultsAsCheckstyle', () => {
     printScorecardResultsAsCheckstyle('/api/openapi.yaml', problems, 'Non Conformant', false);
 
     const calls = (openapiCore.logger.output as any).mock.calls.map((c: any) => c[0]);
-    expect(calls).toContain('<file name="/api/openapi.yaml [Unknown]">\n');
+    const errorLine = calls.find((c: string) => c.startsWith('<error'));
+    expect(errorLine).toContain('source="Unknown:some-rule"');
   });
 
   it('should output valid XML structure with correct order of elements', () => {
