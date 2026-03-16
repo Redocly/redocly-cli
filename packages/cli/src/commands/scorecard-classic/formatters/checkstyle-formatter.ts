@@ -1,27 +1,7 @@
-import { getLineColLocation, logger } from '@redocly/openapi-core';
+import { getLineColLocation, logger, xmlEscape } from '@redocly/openapi-core';
 import { bold, cyan, white } from 'colorette';
 
 import type { ScorecardProblem } from '../types.js';
-
-function xmlEscape(s: string): string {
-  // eslint-disable-next-line no-control-regex
-  return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
-    switch (char) {
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '&':
-        return '&amp;';
-      case '"':
-        return '&quot;';
-      case "'":
-        return '&apos;';
-      default:
-        return `&#${char.charCodeAt(0)};`;
-    }
-  });
-}
 
 export function printScorecardResultsAsCheckstyle(
   path: string,
