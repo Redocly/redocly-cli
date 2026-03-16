@@ -5,6 +5,7 @@ import {
   type Plugin,
   createConfig,
   logger,
+  regexFromString,
 } from '@redocly/openapi-core';
 
 export async function resolveConfigForTarget(
@@ -45,7 +46,7 @@ export function getTarget<T extends object>(
     let matches = true;
     for (const [key, value] of Object.entries(target.where?.metadata || {})) {
       // support for ISO 8601 date ranges
-      if (String(value).match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?\/(\d{4}-\d{2}-\d{2})?$/)) {
+      if (value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?\/(\d{4}-\d{2}-\d{2})?$/)) {
         if (!metadata[key]) {
           matches = false;
           break;
@@ -58,14 +59,14 @@ export function getTarget<T extends object>(
           matches = false;
           break;
         }
-      } else if (String(value).match(/^\/.*\//)) {
+      } else if (value.match(/^\/.*\//)) {
         if (!metadata[key]) {
           matches = false;
           break;
         }
 
         try {
-          const regex = new RegExp(value.slice(1, -1));
+          const regex = regexFromString(value) as RegExp;
           if (!regex.test(metadata[key] as string)) {
             matches = false;
             break;

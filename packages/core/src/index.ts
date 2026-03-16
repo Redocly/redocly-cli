@@ -11,6 +11,7 @@ export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';
+export { regexFromString } from './utils/regex-from-string.js';
 export { Oas2Types } from './types/oas2.js';
 export { Oas3Types } from './types/oas3.js';
 export { Oas3_1Types } from './types/oas3_1.js';
