@@ -1,6 +1,5 @@
 *
 !lib/**/*
-!patches/**/*
 !package.json
 !README.md
 !LICENSE
