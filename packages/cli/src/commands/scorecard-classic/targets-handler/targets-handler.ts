@@ -88,12 +88,3 @@ export function getTarget<T extends object>(
 
   return undefined;
 }
-
-export function getTargetLevel(
-  scorecardConfig: ScorecardConfig,
-  metadata: Record<string, unknown>
-) {
-  const target = getTarget(scorecardConfig?.targets, metadata);
-
-  return target?.minimumLevel;
-}

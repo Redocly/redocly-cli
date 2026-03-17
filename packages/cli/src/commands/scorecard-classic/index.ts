@@ -13,7 +13,7 @@ import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
 import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
-import { getTargetLevel } from './targets-handler/targets-handler.js';
+import { getTarget } from './targets-handler/targets-handler.js';
 import type { ScorecardClassicArgv } from './types.js';
 import { isAllowedScorecardProjectUrl } from './validation/project-url.js';
 import { validateScorecard } from './validation/validate-scorecard.js';
@@ -113,7 +113,7 @@ export async function handleScorecardClassic({
     logger.info(`Combined Metadata for target matching: ${JSON.stringify(metadata, null, 2)}\n`);
   }
 
-  const targetLevel = argv['target-level'] || getTargetLevel(scorecard, metadata);
+  const targetLevel = argv['target-level'] || getTarget(scorecard?.targets, metadata)?.minimumLevel;
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
   const {

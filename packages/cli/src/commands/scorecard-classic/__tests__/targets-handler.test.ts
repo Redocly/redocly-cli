@@ -1,8 +1,4 @@
-import {
-  getTarget,
-  getTargetLevel,
-  resolveConfigForTarget,
-} from '../targets-handler/targets-handler.js';
+import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
 
 describe('getTarget', () => {
   it('should return undefined when no target matches', () => {
@@ -72,24 +68,6 @@ describe('getTarget', () => {
     expect(getTarget(targets, { title: 'My API' })).toBeUndefined();
 
     expect(getTarget(targets, { title: 'My API', env: 'prod' })?.minimumLevel).toBe('Gold');
-  });
-});
-
-describe('getTargetLevel', () => {
-  it('should return undefined when no target matches', () => {
-    const scorecardConfig = {
-      levels: [{ name: 'Baseline' }],
-      targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
-    };
-    expect(getTargetLevel(scorecardConfig, { env: 'dev' })).toBeUndefined();
-  });
-
-  it('should return minimumLevel from matching target', () => {
-    const scorecardConfig = {
-      levels: [{ name: 'Baseline' }],
-      targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
-    };
-    expect(getTargetLevel(scorecardConfig, { env: 'prod' })).toBe('Gold');
   });
 });
 
@@ -186,5 +164,21 @@ describe('resolveConfigForTarget', () => {
       names: { '2XX': ['X-Rate-Limit'] },
       message: 'Responses must include X-Rate-Limit header',
     });
+  });
+
+  it('should return undefined when no target matches', () => {
+    const scorecardConfig = {
+      levels: [{ name: 'Baseline' }],
+      targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
+    };
+    expect(getTarget(scorecardConfig.targets, { env: 'dev' })?.minimumLevel).toBeUndefined();
+  });
+
+  it('should return minimumLevel from matching target', () => {
+    const scorecardConfig = {
+      levels: [{ name: 'Baseline' }],
+      targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
+    };
+    expect(getTarget(scorecardConfig.targets, { env: 'prod' })?.minimumLevel).toBe('Gold');
   });
 });
