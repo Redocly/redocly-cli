@@ -1,6 +1,10 @@
 import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
 
 describe('getTarget', () => {
+  it('should return undefined when no targets provided', () => {
+    expect(getTarget(undefined, { env: 'prod' })).toBeUndefined();
+  });
+
   it('should return undefined when no target matches', () => {
     const targets = [{ where: { metadata: { env: 'prod' } } }];
     expect(getTarget(targets, { env: 'staging' })).toBeUndefined();
@@ -20,14 +24,22 @@ describe('getTarget', () => {
       { where: { metadata: { env: 'prod' } }, minimumLevel: 'Silver' },
       { where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' },
     ];
-    expect(getTarget(targets, { env: 'prod' })?.minimumLevel).toBe('Silver');
+    expect(getTarget(targets, { env: 'prod' })!.minimumLevel).toBe('Silver');
   });
 
   it('should match target using regex pattern', () => {
     const targets = [
       { where: { metadata: { version: '/^1\\.[0-9]+\\.[0-9]+/' } }, minimumLevel: 'Silver' },
     ];
-    expect(getTarget(targets, { version: '1.2.3' })?.minimumLevel).toBe('Silver');
+    expect(getTarget(targets, { version: '1.2.3' })!.minimumLevel).toBe('Silver');
+  });
+
+  it('should throws an error when regex pattern is invalid', () => {
+    const targets = [
+      { where: { metadata: { version: '/^(1\\.[0-9]+\\.[0-9]+/' } }, minimumLevel: 'Silver' },
+    ];
+
+    expect(getTarget(targets, { version: '1.2.3' })).toBeUndefined();
   });
 
   it('should not match target when regex does not match', () => {
@@ -39,7 +51,7 @@ describe('getTarget', () => {
     const targets = [
       { where: { metadata: { publishedAt: '2024-01-01/2025-12-31' } }, minimumLevel: 'Gold' },
     ];
-    expect(getTarget(targets, { publishedAt: '2024-06-15' })?.minimumLevel).toBe('Gold');
+    expect(getTarget(targets, { publishedAt: '2024-06-15' })!.minimumLevel).toBe('Gold');
   });
 
   it('should not match target when date is outside range', () => {
@@ -179,6 +191,6 @@ describe('resolveConfigForTarget', () => {
       levels: [{ name: 'Baseline' }],
       targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
     };
-    expect(getTarget(scorecardConfig.targets, { env: 'prod' })?.minimumLevel).toBe('Gold');
+    expect(getTarget(scorecardConfig.targets, { env: 'prod' })!.minimumLevel).toBe('Gold');
   });
 });

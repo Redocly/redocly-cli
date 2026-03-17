@@ -43,44 +43,34 @@ export function getTarget<T extends object>(
   }
 
   for (const target of targets) {
-    let matches = true;
-    for (const [key, value] of Object.entries(target.where?.metadata || {})) {
+    const matches = Object.entries(target.where?.metadata || {}).every(([key, value]) => {
       // support for ISO 8601 date ranges
       if (value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?\/(\d{4}-\d{2}-\d{2})?$/)) {
         if (!metadata[key]) {
-          matches = false;
-          break;
+          return false;
         }
 
         const [from, to] = value.split('/');
         const date = new Date(metadata[key] as string);
 
-        if (date < new Date(from) || (to && date > new Date(to))) {
-          matches = false;
-          break;
-        }
+        return !(date < new Date(from) || (to && date > new Date(to)));
       } else if (value.match(/^\/.*\//)) {
         if (!metadata[key]) {
-          matches = false;
-          break;
+          return false;
         }
 
         try {
           const regex = regexFromString(value) as RegExp;
-          if (!regex.test(metadata[key] as string)) {
-            matches = false;
-            break;
-          }
+          return regex.test(metadata[key] as string);
         } catch (e) {
           logger.error(`Invalid regex in scorecard target "${key}": ${value}`);
-          matches = false;
-          break;
+          return false;
         }
-      } else if (metadata[key] !== value) {
-        matches = false;
-        break;
       }
-    }
+
+      return metadata[key] === value;
+    });
+
     if (matches) {
       return target;
     }
