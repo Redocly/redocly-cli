@@ -79,7 +79,7 @@ describe('getTarget', () => {
 
     expect(getTarget(targets, { title: 'My API' })).toBeUndefined();
 
-    expect(getTarget(targets, { title: 'My API', env: 'prod' })?.minimumLevel).toBe('Gold');
+    expect(getTarget(targets, { title: 'My API', env: 'prod' })!.minimumLevel).toBe('Gold');
   });
 });
 
