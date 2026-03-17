@@ -6,6 +6,7 @@ coverage/
 .vscode/
 yarn.lock
 lib/
+lib-esm/
 output/
 *.tar.gz
 *.tsbuildinfo

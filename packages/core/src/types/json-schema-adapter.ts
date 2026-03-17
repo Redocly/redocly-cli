@@ -1,6 +1,6 @@
 // For internal usage only
 
-import Ajv from '@redocly/ajv/dist/2020.js';
+import { Ajv2020 as Ajv } from '@redocly/ajv/dist/2020.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';

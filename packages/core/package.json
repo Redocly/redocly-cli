@@ -3,17 +3,17 @@
   "version": "2.22.0",
   "description": "",
   "type": "module",
-  "types": "lib/index.d.ts",
+  "types": "lib-esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./lib/index.js",
-      "require": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "import": "./lib-esm/index.js",
+      "require": "./lib-esm/index.js",
+      "types": "./lib-esm/index.d.ts"
     },
-    "./lib/bundle-oas": {
-      "import": "./lib/bundle/bundle-oas.js",
-      "require": "./lib/bundle/bundle-oas.js",
-      "types": "./lib/bundle/bundle-oas.d.ts"
+    "./lib-esm/bundle-oas": {
+      "import": "./lib-esm/bundle/bundle-oas.js",
+      "require": "./lib-esm/bundle/bundle-oas.js",
+      "types": "./lib-esm/bundle/bundle-oas.d.ts"
     }
   },
   "engines": {
@@ -52,8 +52,8 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "dependencies": {
-    "@redocly/ajv": "8.18.0",
-    "@redocly/config": "0.44.1",
+    "@redocly/ajv": "^8.18.0",
+    "@redocly/config": "^0.44.1",
     "ajv": "npm:@redocly/ajv@8.18.0",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",

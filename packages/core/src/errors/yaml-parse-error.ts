@@ -1,4 +1,4 @@
-import type { Source } from '../resolve';
+import type { Source } from '../resolve.js';
 
 const jsYamlErrorLineColRegexp = /\((\d+):(\d+)\)$/;
 
