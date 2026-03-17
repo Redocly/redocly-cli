@@ -46,6 +46,7 @@ import { ComponentNameUnique } from './component-name-unique.js';
 import { NoEmptyServers } from './no-empty-servers.js';
 import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue.js';
 import { ValidContentExamples } from './no-invalid-media-type-examples.js';
+import { NoMixedMaximumAndExclusiveMaximum } from './no-mixed-maximum-and-exclusive-maximum.js';
 import { NoServerExample } from './no-server-example.com.js';
 import { NoServerTrailingSlash } from './no-server-trailing-slash.js';
 import { NoServerVariablesEmptyEnum } from './no-server-variables-empty-enum.js';
@@ -76,6 +77,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'operation-parameters-unique': OperationParametersUnique as Oas3Rule,
   'operation-tag-defined': OperationTagDefined as Oas3Rule,
   'no-example-value-and-externalValue': NoExampleValueAndExternalValue,
+  'no-mixed-maximum-and-exclusive-maximum': NoMixedMaximumAndExclusiveMaximum,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Oas3Rule,
   'no-path-trailing-slash': NoPathTrailingSlash as Oas3Rule,
   'no-empty-servers': NoEmptyServers,
