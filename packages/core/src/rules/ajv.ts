@@ -13,11 +13,13 @@ import { escapePointerFragment, type Location } from '../ref-utils.js';
 import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
 import type { ResolveFn } from '../walk.js';
 
-const AjvDraft4 = AjvDraft4Module.default;
-const addFormats = addFormatsModule.default;
+type AnyAjv = InstanceType<typeof Ajv2020>;
+// Under NodeNext, CJS default imports are typed as the module namespace rather than the
+// default export value. Cast each to its known functional type.
+const AjvDraft4 = AjvDraft4Module as unknown as new (opts?: Options) => AnyAjv;
+const addFormats = addFormatsModule as unknown as (ajv: AnyAjv) => void;
 
 type AjvDialect = '2020' | 'draft4';
-type AnyAjv = InstanceType<typeof Ajv2020> | InstanceType<typeof AjvDraft4>;
 
 const ajvInstances: Partial<Record<AjvDialect, AnyAjv>> = {};
 
@@ -65,7 +67,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
 
     ajvInstances[dialect] = dialect === '2020' ? new Ajv2020(options) : new AjvDraft4(options);
 
-    addFormats(ajvInstances[dialect] as any);
+    addFormats(ajvInstances[dialect]!);
   }
   return ajvInstances[dialect];
 }
@@ -132,7 +134,7 @@ export function validateJsonSchema(
     let message = error.message;
     const suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
     if (suggest) {
-      message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
+      message += ` ${suggest.map((e: unknown) => `"${e}"`).join(', ')}`;
     }
 
     if (error.keyword === 'type') {

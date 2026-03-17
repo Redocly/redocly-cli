@@ -8,7 +8,7 @@ import {
   type ResolvedApiConfig,
 } from '@redocly/openapi-core';
 import * as openapiCore from '@redocly/openapi-core';
-import { type ResolveConfig } from '@redocly/openapi-core/lib/config/types.js';
+import { type ResolveConfig } from '@redocly/openapi-core/lib-esm/config/types.js';
 import { blue, red, yellow } from 'colorette';
 import * as glob from 'glob';
 import * as fs from 'node:fs';
