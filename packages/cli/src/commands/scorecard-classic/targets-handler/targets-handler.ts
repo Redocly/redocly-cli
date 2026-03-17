@@ -11,13 +11,13 @@ import {
 export async function resolveConfigForTarget(
   apiPath: string,
   targetRules: Record<string, unknown> | undefined,
-  scorecardLevels: ScorecardConfig['levels'],
+  scorecardLevels: ScorecardConfig['levels'] = [],
   plugins: Array<string | Plugin> = [],
   configPath: string
 ): Promise<Record<string, Config>> {
   const result: Record<string, Config> = {};
 
-  for (const level of scorecardLevels ?? []) {
+  for (const level of scorecardLevels) {
     const apis = {
       [level.name]: {
         root: apiPath,
