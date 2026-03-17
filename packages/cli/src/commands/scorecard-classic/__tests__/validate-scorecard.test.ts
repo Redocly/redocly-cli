@@ -28,10 +28,6 @@ describe('validateScorecard', () => {
     vi.spyOn(openapiCore, 'lintDocument').mockResolvedValue([]);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should return empty array when no scorecard levels defined', async () => {
     const scorecardConfig = { levels: [] };
 

@@ -1,5 +1,24 @@
 # @redocly/cli
 
+## 2.22.1
+
+### Patch Changes
+
+- Updated `undici` to the `6.24.1` version to ensure improved performance, security, and compatibility.
+- Updated @redocly/openapi-core to v2.22.1.
+
+## 2.22.0
+
+### Minor Changes
+
+- Added support of `checkstyle` format for `scorecard-classic` command.
+
+### Patch Changes
+
+- Extended the `nonEmpty` assertion to support arrays.
+  An empty array is now treated as empty during linting.
+- Updated @redocly/openapi-core to v2.22.0.
+
 ## 2.21.1
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 import { logger } from '@redocly/openapi-core';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
 import * as errorUtils from '../../../utils/error.js';
@@ -33,10 +33,6 @@ describe('handleLoginAndFetchToken', () => {
     vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
       throw new Error('exitWithError called');
     });
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it('should return existing access token when available', async () => {

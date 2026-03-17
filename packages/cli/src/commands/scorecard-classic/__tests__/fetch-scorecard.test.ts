@@ -17,7 +17,6 @@ describe('fetchRemoteScorecardAndPlugins', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     delete process.env.REDOCLY_AUTHORIZATION;
-    vi.restoreAllMocks();
   });
 
   it('should handle invalid URL format', async () => {

@@ -195,11 +195,15 @@ export const asserts: Asserts = {
     }
   },
   nonEmpty: (
-    value: string | undefined | null,
+    value: string | any[] | undefined | null,
     condition: boolean = true,
     { baseLocation }: AssertionFnContext
   ) => {
-    const isEmpty = typeof value === 'undefined' || value === null || value === '';
+    const isEmpty =
+      typeof value === 'undefined' ||
+      value === null ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0);
     const isValid = condition ? !isEmpty : isEmpty;
     return isValid
       ? []
