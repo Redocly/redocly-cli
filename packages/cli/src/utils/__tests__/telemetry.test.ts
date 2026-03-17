@@ -39,9 +39,9 @@ describe('sendTelemetry', () => {
     vi.clearAllMocks();
     mockMapToCloudEvent.mockReturnValue({ id: 'mapped-event', type: 'com.redocly.command.ran' });
     vi.mocked(respondWithinMs).mockResolvedValue(true);
-    vi.mocked(RedoclyOAuthClient).mockImplementation(
-      () => ({ isAuthorized: vi.fn().mockResolvedValue(true) }) as any
-    );
+    vi.mocked(RedoclyOAuthClient).mockImplementation(function () {
+      return { isAuthorized: vi.fn().mockResolvedValue(true) } as any;
+    });
     vi.mocked(getReuniteUrl).mockReturnValue('https://app.redocly.com' as any);
     process.env.CI = 'true';
     process.env.REDOCLY_ENVIRONMENT = 'docker';

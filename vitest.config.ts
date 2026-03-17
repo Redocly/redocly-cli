@@ -52,6 +52,11 @@ export default mergeConfig(
         FORCE_COLOR: '1',
         REDOCLY_TELEMETRY: 'off',
       },
+      server: {
+        deps: {
+          inline: ['@redocly/cli-otel'],
+        },
+      },
     },
   }),
   configExtension[process.env.VITEST_SUITE || 'default']
