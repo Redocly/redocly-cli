@@ -79,7 +79,7 @@ describe('getTarget', () => {
 
     expect(getTarget(targets, { title: 'My API' })).toBeUndefined();
 
-    expect(getTarget(targets, { title: 'My API', env: 'prod' })?.minimumLevel).toBe('Gold');
+    expect(getTarget(targets, { title: 'My API', env: 'prod' })!.minimumLevel).toBe('Gold');
   });
 });
 
@@ -183,7 +183,7 @@ describe('resolveConfigForTarget', () => {
       levels: [{ name: 'Baseline' }],
       targets: [{ where: { metadata: { env: 'prod' } }, minimumLevel: 'Gold' }],
     };
-    expect(getTarget(scorecardConfig.targets, { env: 'dev' })?.minimumLevel).toBeUndefined();
+    expect(getTarget(scorecardConfig.targets, { env: 'dev' })!.minimumLevel).toBeUndefined();
   });
 
   it('should return minimumLevel from matching target', () => {
