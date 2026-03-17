@@ -97,30 +97,15 @@ export async function sendTelemetry({
     ];
 
     const cloudEvent = CloudEvents.cloudEvents.mapToCloudEvent({
-      // id: `evt_${ulid()}`,
-      // time: new Date().toISOString(),
       type: 'com.redocly.command.ran',
-      // object: 'event',
-      // specversion: '1.0',
-      // datacontenttype: 'application/json',
       source: 'com.redocly.cli',
       origin: 'redocly-cli',
       osPlatform: os.platform(),
-      // subject: 'command.ran',
-      // subjects: [
-      //   {
-      //     id: ulid(),
-      //     object: 'command.ran',
-      //     uri: '',
-      //   },
-      // ],
-      // environment: process.env.REDOCLY_ENVIRONMENT,
       actor: {
         id: anonymous_id,
         object: 'user',
         uri: '',
       },
-      //signal: 'log',
       category: 'product',
       data: eventData,
     });
