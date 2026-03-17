@@ -43,9 +43,9 @@ export function getTarget<T extends object>(
   }
 
   for (const target of targets) {
-    const allMetadataMatches = ([key, value]: [string, string]) =>
-      isTargetMatch(key, value, metadata);
-    const matches = Object.entries(target.where?.metadata || {}).every(allMetadataMatches);
+    const matches = Object.entries(target.where?.metadata || {}).every(
+      ([key, value]: [string, string]) => isTargetMatch(key, value, metadata)
+    );
 
     if (matches) {
       return target;
