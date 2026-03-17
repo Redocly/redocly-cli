@@ -82,4 +82,27 @@ describe('fetchWithTimeout', () => {
 
     expect(global.fetch).toHaveBeenCalledWith('url', {});
   });
+
+  it('should bypass proxy when URL matches NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(true);
+
+    await fetchWithTimeout('http://localhost:3000/api');
+
+    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api', {});
+  });
+
+  it('should use proxy when URL does not match NO_PROXY', async () => {
+    vi.spyOn(proxyAgent, 'getProxyUrl').mockReturnValueOnce('http://proxy:8080');
+    vi.spyOn(proxyAgent, 'shouldBypassProxy').mockReturnValueOnce(false);
+
+    await fetchWithTimeout('http://external.com/api');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://external.com/api',
+      expect.objectContaining({
+        dispatcher: expect.any(ProxyAgent),
+      })
+    );
+  });
 });

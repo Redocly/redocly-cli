@@ -7,6 +7,86 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.22.1 (2026-03-16)
+
+### Patch Changes
+
+- Updated `undici` to the `6.24.1` version to ensure improved performance, security, and compatibility.
+- Updated @redocly/openapi-core to v2.22.1.
+
+## 2.22.0 (2026-03-16)
+
+### Minor Changes
+
+- Added support of `checkstyle` format for `scorecard-classic` command.
+
+### Patch Changes
+
+- Extended the `nonEmpty` assertion to support arrays.
+  An empty array is now treated as empty during linting.
+- Updated @redocly/openapi-core to v2.22.0.
+
+## 2.21.1 (2026-03-12)
+
+### Patch Changes
+
+- Restricted scorecard-classic project URL to the `.redocly.com` domain only.
+- Fixed an issue where `join --prefix-components-with-info-prop` would incorrectly rewrite discriminator mapping refs.
+  This issue occurred when schema names contained the same substring as the prefix.
+- Updated @redocly/openapi-core to v2.21.1.
+
+## 2.21.0 (2026-03-11)
+
+### Minor Changes
+
+- Added a new option to the `filter-in` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added a new option to the `filter-out` decorator, allowing to filter through specific target nodes (`PathItem` or `Operation`).
+- Added support for the `NO_PROXY` environment variable.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.21.0.
+
+## 2.20.5 (2026-03-11)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.5.
+
+## 2.20.4 (2026-03-04)
+
+### Patch Changes
+
+- Improved error messaging when a path parameter referenced via `$ref` is not used in the path.
+- Updated @redocly/openapi-core to v2.20.4.
+
+## 2.20.3 (2026-03-03)
+
+### Patch Changes
+
+- Updated @redocly/respect-core to v2.20.3.
+
+## 2.20.2 (2026-03-02)
+
+### Patch Changes
+
+- Add support for data: URLs (RFC 2397) in references.
+  The resolver now handles inline base64-encoded and URL-encoded data in $ref fields, allowing schemas and other content to be embedded directly as data URLs.
+- Updated @redocly/openapi-core to v2.20.2.
+
+## 2.20.1 (2026-03-02)
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `v8.18.0`
+- Updated @redocly/respect-core to v2.20.1.
+
+## 2.20.0 (2026-02-27)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.20.0.
+
 ## 2.19.2 (2026-02-24)
 
 ### Patch Changes

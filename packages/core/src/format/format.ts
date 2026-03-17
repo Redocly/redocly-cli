@@ -407,7 +407,7 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
   return fileGroups;
 };
 
-function xmlEscape(s: string): string {
+export function xmlEscape(s: string): string {
   // eslint-disable-next-line no-control-regex
   return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
     switch (char) {

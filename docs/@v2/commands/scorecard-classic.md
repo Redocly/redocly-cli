@@ -25,7 +25,7 @@ redocly scorecard-classic <api> --verbose
 | -------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api            | string  | Path to the API description filename or alias that you want to evaluate. See [the API section](#specify-api) for more details.                                                                       |
 | --config       | string  | Specify path to the [configuration file](#use-alternative-configuration-file).                                                                                                                       |
-| --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                                                                      |
+| --format       | string  | Format for the output.<br />**Possible values:** `stylish`, `json`, `checkstyle`. Default value is `stylish`.                                                                                        |
 | --help         | boolean | Show help.                                                                                                                                                                                           |
 | --project-url  | string  | URL to the project scorecard configuration. Required if not configured in the Redocly configuration file. Example: `https://app.cloud.redocly.com/org/my-org/projects/my-project/scorecard-classic`. |
 | --target-level | string  | Target scorecard level to achieve. The command validates that the API meets this level and all preceding levels without errors. Exits with an error if the target level is not achieved.             |
@@ -54,7 +54,7 @@ redocly scorecard-classic openapi/openapi.yaml --config=./another/directory/redo
 
 ### Configure scorecard in redocly.yaml
 
-You can configure the scorecard project URL in your Redocly configuration file to avoid passing it as a command-line argument:
+You can configure the scorecard project URL in your Redocly configuration file to avoid passing it as a command-line argument. The URL must use a hostname that ends with `.redocly.com` (for example, `app.cloud.redocly.com`), other domains are not allowed.
 
 ```yaml
 scorecard:
@@ -149,7 +149,7 @@ The scorecard evaluation categorizes issues into multiple levels based on your p
 Each issue is associated with a specific scorecard level, allowing you to prioritize improvements.
 
 The command displays the achieved scorecard level, which is the highest level your API meets without errors.
-The achieved level is shown in both stylish and JSON output formats.
+The achieved level is shown in both stylish, JSON and checkstyle output formats.
 
 When all checks pass, the command displays a success message:
 
