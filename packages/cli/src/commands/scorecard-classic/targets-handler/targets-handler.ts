@@ -43,33 +43,9 @@ export function getTarget<T extends object>(
   }
 
   for (const target of targets) {
-    const matches = Object.entries(target.where?.metadata || {}).every(([key, value]) => {
-      // support for ISO 8601 date ranges
-      if (value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?\/(\d{4}-\d{2}-\d{2})?$/)) {
-        if (!metadata[key]) {
-          return false;
-        }
-
-        const [from, to] = value.split('/');
-        const date = new Date(metadata[key] as string);
-
-        return !(date < new Date(from) || (to && date > new Date(to)));
-      } else if (value.match(/^\/.*\//)) {
-        if (!metadata[key]) {
-          return false;
-        }
-
-        try {
-          const regex = regexFromString(value) as RegExp;
-          return regex.test(metadata[key] as string);
-        } catch (e) {
-          logger.error(`Invalid regex in scorecard target "${key}": ${value}`);
-          return false;
-        }
-      }
-
-      return metadata[key] === value;
-    });
+    const allMetadataMatches = ([key, value]: [string, string]) =>
+      isTargetMatch(key, value, metadata);
+    const matches = Object.entries(target.where?.metadata || {}).every(allMetadataMatches);
 
     if (matches) {
       return target;
@@ -77,4 +53,32 @@ export function getTarget<T extends object>(
   }
 
   return undefined;
+}
+
+function isTargetMatch(key: string, value: string, metadata: Record<string, unknown>) {
+  // support for ISO 8601 date ranges
+  if (value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?\/(\d{4}-\d{2}-\d{2})?$/)) {
+    if (!metadata[key]) {
+      return false;
+    }
+
+    const [from, to] = value.split('/');
+    const date = new Date(metadata[key] as string);
+
+    return !(date < new Date(from) || (to && date > new Date(to)));
+  } else if (value.match(/^\/.*\//)) {
+    if (!metadata[key]) {
+      return false;
+    }
+
+    try {
+      const regex = regexFromString(value) as RegExp;
+      return regex.test(metadata[key] as string);
+    } catch (e) {
+      logger.error(`Invalid regex in scorecard target "${key}": ${value}`);
+      return false;
+    }
+  }
+
+  return metadata[key] === value;
 }
