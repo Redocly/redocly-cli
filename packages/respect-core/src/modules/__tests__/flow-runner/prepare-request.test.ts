@@ -427,7 +427,7 @@ describe('prepareRequest', () => {
     expect(requestBody).toEqual(undefined);
   });
 
-  it('should pass allowReserved on query params when OpenAPI operation has allowReserved', async () => {
+  it('should pass x-allowReserved on query params when OpenAPI operation has allowReserved', async () => {
     const allowReservedCtx = {
       ...ctx,
       $sourceDescriptions: {
