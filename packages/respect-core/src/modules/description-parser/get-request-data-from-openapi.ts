@@ -72,6 +72,7 @@ function transformParameters(params: Parameter[], logger: LoggerInterface): Para
           name: parameter.name,
           in: parameter.in,
           value: generateExampleValue(parameter, logger),
+          ...(parameter.allowReserved && { allowReserved: parameter.allowReserved }),
         } as ParameterWithIn;
       }
       // Return undefined for non-matching parameters

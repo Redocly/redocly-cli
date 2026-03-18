@@ -1,5 +1,16 @@
 # @redocly/respect-core
 
+## 2.24.0
+
+### Minor Changes
+
+- Added `x-allowReserved` extension for Respect.
+  This extension enables the use of unencoded reserved characters in query parameter values in Arazzo workflows.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.24.0.
+
 ## 2.23.0
 
 ### Patch Changes
