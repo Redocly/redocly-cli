@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should leave reserved chars unencoded in query when x-allowReserved is true 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow x-allow-reserved-query-param.arazzo.yaml / allow-reserved 
+ 
+  ✓ GET https://httpbin.org/get - step get-with-allow-reserved 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body#/args/filter == "https://example.co...
+ 
+ 
+  Summary for x-allow-reserved-query-param.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 1 passed, 1 total
+  Checks: 2 passed, 2 total
+  Time: <test>ms 
+ 
+ 
+┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                         │ Workflows  │ Passed  │ Failed  │ Warnings │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ x-allow-reserved-query-param.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└──────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+"
+`;
