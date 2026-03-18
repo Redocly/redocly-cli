@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.23.0 (2026-03-18)
+
+### Minor Changes
+
+- Added support of `targets` property in `scorecardClassic`.
+  Use this property to override `scorecardClassic` rules for a specific API.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.23.0.
+
 ## 2.22.1 (2026-03-16)
 
 ### Patch Changes

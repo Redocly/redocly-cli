@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.23.0
+
+### Patch Changes
+
+- Added export of `regexFromString` function.
+
 ## 2.22.1
 
 ## 2.22.0
