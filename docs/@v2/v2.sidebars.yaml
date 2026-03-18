@@ -154,6 +154,7 @@
             - page: rules/respect/respect-supported-versions.md
             - page: rules/respect/no-x-security-both-scheme-and-scheme-name.md
             - page: rules/respect/no-x-security-scheme-name-without-openapi.md
+            - page: rules/respect/x-allow-reserved.md
             - page: rules/respect/x-security-scheme-name-reference.md
             - page: rules/respect/x-security-scheme-required-values.md
             - page: rules/arazzo/criteria-unique.md

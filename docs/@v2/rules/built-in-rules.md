@@ -125,6 +125,8 @@ Other rules, such as the `struct` and `info.*`, also apply to AsyncAPI.
 
 Within the Arazzo family of rules, there are rules for the main Arazzo specification format, and some additional rules for extensions supported by Respect, the Redocly testing utility.
 
+Respect also supports the **x-allowReserved** extension on step parameters: use it to leave RFC 3986 reserved characters unencoded in query parameter values (see [x-allowReserved](./respect/x-allow-reserved.md)).
+
 ### Arazzo
 
 - [criteria-unique](./arazzo/criteria-unique.md): the criteria list must not contain duplicated assertions
