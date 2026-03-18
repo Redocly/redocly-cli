@@ -23,7 +23,8 @@ describe('validateScorecard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue({} as any);
+    const mockConfig = { forAlias: vi.fn().mockReturnThis() };
+    vi.spyOn(openapiCore, 'createConfig').mockResolvedValue(mockConfig as any);
     vi.spyOn(openapiCore, 'lintDocument').mockResolvedValue([]);
   });
 
@@ -31,6 +32,7 @@ describe('validateScorecard', () => {
     const scorecardConfig = { levels: [] };
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -53,6 +55,7 @@ describe('validateScorecard', () => {
     };
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -80,6 +83,7 @@ describe('validateScorecard', () => {
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -115,6 +119,7 @@ describe('validateScorecard', () => {
     vi.mocked(openapiCore.lintDocument).mockResolvedValue(mockProblems as any);
 
     const result = await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -133,6 +138,7 @@ describe('validateScorecard', () => {
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -154,6 +160,7 @@ describe('validateScorecard', () => {
     const mockPlugins = [{ id: 'test-plugin' }];
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -176,6 +183,7 @@ describe('validateScorecard', () => {
     vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
 
     await validateScorecard({
+      apiPath: 'test.yaml',
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
@@ -203,6 +211,7 @@ describe('validateScorecard', () => {
       vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -234,6 +243,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has error
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -264,6 +274,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has warning but no errors
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -292,6 +303,7 @@ describe('validateScorecard', () => {
       ] as any);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -312,6 +324,7 @@ describe('validateScorecard', () => {
       vi.mocked(openapiCore.lintDocument).mockResolvedValue([]);
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
@@ -343,6 +356,7 @@ describe('validateScorecard', () => {
         ] as any); // Silver: has error
 
       const result = await validateScorecard({
+        apiPath: 'test.yaml',
         document: mockDocument,
         externalRefResolver: mockResolver,
         scorecardConfig,
