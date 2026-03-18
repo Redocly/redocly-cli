@@ -1,6 +1,6 @@
 arazzo: 1.0.1
 info:
-  title: Allow reserved query params (OpenAPI allowReserved)
+  title: Allow reserved query params
   version: 1.0.0
 sourceDescriptions:
   - name: museum-api
@@ -10,14 +10,12 @@ workflows:
   - workflowId: allow-reserved
     steps:
       - stepId: get-with-allow-reserved
-        x-operation:
-          url: https://httpbin.org/get
-          method: get
+        operationId: museum-api.getMuseumHours
         parameters:
+          - in: query
+            name: startDate
+            value: "2023-02-23"
           - in: query
             name: filter
             value: "https://example.com/path/to;x,y(z)a*b.c[1]@v"
             x-allowReserved: true
-        successCriteria:
-          - condition: $statusCode == 200
-          - condition: $response.body#/args/filter == "https://example.com/path/to;x,y(z)a*b.c[1]@v"

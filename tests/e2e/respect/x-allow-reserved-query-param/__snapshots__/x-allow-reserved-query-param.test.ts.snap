@@ -5,16 +5,33 @@ exports[`should leave reserved chars unencoded in query when x-allowReserved is 
  
   Running workflow x-allow-reserved-query-param.arazzo.yaml / allow-reserved 
  
-  ✓ GET https://httpbin.org/get - step get-with-allow-reserved 
-    ✓ success criteria check - $statusCode == 200
-    ✓ success criteria check - $response.body#/args/filter == "https://example.co...
+  ✓ GET /museum-hours - step get-with-allow-reserved 
+
+    Request URL: https://redocly.com/_mock/demo/openapi/museum-api/museum-hours?startDate=2023-02-23&filter=https://example.com/path/to;x,y(z)a*b.c[1]@v
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "object",
+        "title": "Not authenticated. Supported authentication types: MuseumPlaceholderAuth."
+      } 
+ 
+    ✓ status code check - $statusCode in [200, 400, 404]
+    ✓ content-type check
+    ✓ schema check
  
  
   Summary for x-allow-reserved-query-param.arazzo.yaml
   
   Workflows: 1 passed, 1 total
   Steps: 1 passed, 1 total
-  Checks: 2 passed, 2 total
+  Checks: 3 passed, 3 total
   Time: <test>ms 
  
  

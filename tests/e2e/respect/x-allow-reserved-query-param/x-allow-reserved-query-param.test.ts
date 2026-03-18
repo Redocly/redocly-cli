@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 test('should leave reserved chars unencoded in query when x-allowReserved is true', () => {
   const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
   const fixturesPath = join(__dirname, 'x-allow-reserved-query-param.arazzo.yaml');
-  const args = getParams(indexEntryPoint, ['respect', fixturesPath]);
+  const args = getParams(indexEntryPoint, ['respect', fixturesPath, '--verbose']);
 
   const result = getCommandOutput(args);
   expect(result).toMatchSnapshot();
