@@ -12,13 +12,15 @@ Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `
 | 3.0 | ❌            |
 | 3.1 | ✅            |
 
-In OAS 3.1, `exclusiveMaximum` and `exclusiveMinimum` changed from booleans to numbers (aligning with JSON Schema draft 2020-12). This means a schema can accidentally specify both `maximum: 10` and `exclusiveMaximum: 10`, creating conflicting constraints.
+In OpenAPI Specification version 3.1, `exclusiveMaximum` and `exclusiveMinimum` changed from booleans to numbers (aligning with JSON Schema draft 2020-12). This means a schema can accidentally specify both `maximum: 10` and `exclusiveMaximum: 10`, creating conflicting constraints.
 
 The default setting for this rule (in the built-in `recommended` configuration) is `warn`.
 
 ## API design principles
 
-When both `maximum` and `exclusiveMaximum` are present on the same schema, the intent is ambiguous. Is the upper bound inclusive or exclusive? Pick one:
+When both `maximum` and `exclusiveMaximum` are present on the same schema, the intent is ambiguous.
+Is the upper bound inclusive or exclusive?
+Pick one:
 
 - Use `maximum` for an inclusive upper bound (value <= N).
 - Use `exclusiveMaximum` for an exclusive upper bound (value < N).
