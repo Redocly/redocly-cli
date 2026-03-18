@@ -161,7 +161,7 @@ export const parameter = {
         value: {
           oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
         },
-        allowReserved: { type: 'boolean' },
+        'x-allowReserved': { type: 'boolean' },
       },
       required: ['name', 'value'],
       additionalProperties: false,

@@ -145,11 +145,6 @@ const Parameter: NodeType = {
       description: 'REQUIRED. The name of the parameter. Parameter names are case sensitive.',
     },
     value: {}, // any
-    allowReserved: {
-      type: 'boolean',
-      description:
-        'When true, RFC 3986 reserved characters in query parameter values are left unencoded.',
-    },
   },
   required: ['name', 'value'],
   extensionsPrefix: 'x-',
