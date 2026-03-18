@@ -4,4 +4,4 @@
 "@redocly/respect-core": minor
 ---
 
-Added support for OpenAPI `allowReserved` on query parameters in Respect.
+Added `x-allowReserved` extension for Respect that enables unencoded reserved characters in query parameter values in Arazzo workflows.
