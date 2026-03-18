@@ -4,7 +4,7 @@ import type { OperationDetails } from '../../description-parser/get-operation-fr
 import { getRequestDataFromOpenApi } from '../../description-parser/get-request-data-from-openapi.js';
 
 describe('getRequestDataFromOpenApi', () => {
-  it('should pass allowReserved only on query parameters where it is set', () => {
+  it('should pass x-allowReserved only on query parameters where it is set', () => {
     const operation = {
       method: 'get',
       path: '/search',
