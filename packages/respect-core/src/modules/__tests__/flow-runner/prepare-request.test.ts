@@ -427,6 +427,63 @@ describe('prepareRequest', () => {
     expect(requestBody).toEqual(undefined);
   });
 
+  it('should pass x-allowReserved on query params when OpenAPI operation has allowReserved', async () => {
+    const allowReservedCtx = {
+      ...ctx,
+      $sourceDescriptions: {
+        cats: {
+          paths: {
+            '/search': {
+              get: {
+                operationId: 'searchAllowReserved',
+                summary: 'Search',
+                parameters: [
+                  {
+                    name: 'filter',
+                    in: 'query',
+                    required: true,
+                    allowReserved: true,
+                    schema: { type: 'string' },
+                  },
+                ],
+                responses: { '200': { description: 'ok' } },
+              },
+            },
+          },
+          servers: [{ url: 'https://api.example.com/' }],
+        },
+      },
+      workflows: [
+        {
+          workflowId: 'search-workflow',
+          steps: [
+            {
+              stepId: 'search-step',
+              operationId: 'cats.searchAllowReserved',
+              checks: [],
+              response: {},
+            },
+          ],
+        },
+      ],
+      $workflows: {
+        'search-workflow': {
+          steps: {
+            'search-step': { request: {} },
+          },
+        },
+      },
+      $steps: {
+        'search-step': { request: {} },
+      },
+    } as unknown as TestContext;
+    const searchStep = allowReservedCtx.workflows[0].steps[0];
+    const { parameters } = await prepareRequest(allowReservedCtx, searchStep, 'search-workflow');
+    const filterParam = parameters.find((p) => p.name === 'filter');
+    expect(filterParam).toBeDefined();
+    expect(filterParam?.allowReserved).toBe(true);
+  });
+
   it('should set apiClient step params when descriptionOperation not provided', async () => {
     const step = {
       stepId: 'get-breeds-step',

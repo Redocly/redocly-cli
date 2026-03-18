@@ -259,9 +259,13 @@ function groupParametersValuesByName(
 function resolveParameters(parameters: Parameter[], ctx: TestContext): ParameterWithIn[] {
   return parameters
     .map((parameter) => {
+      const xAllowReserved = (parameter as Record<string, unknown>)['x-allowReserved'];
       const resolvedParameter = resolveReusableComponentItem(parameter, ctx);
       if (!isParameterWithIn(resolvedParameter)) {
         return undefined;
+      }
+      if (typeof xAllowReserved === 'boolean') {
+        return { ...resolvedParameter, allowReserved: xAllowReserved };
       }
       return resolvedParameter;
     })

@@ -59,6 +59,7 @@ export type AdditionalParameterProperties = {
   schema?: Record<string, any>;
   example?: unknown;
   examples?: Record<string, any> | unknown;
+  allowReserved?: boolean;
 };
 type ExtendedParameter<T> = T & AdditionalParameterProperties;
 export type Parameter = ExtendedParameter<ArazzoParameter>;
