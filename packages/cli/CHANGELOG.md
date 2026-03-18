@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.23.0
+
+### Minor Changes
+
+- Added support of `targets` property in `scorecardClassic`.
+  Use this property to override `scorecardClassic` rules for a specific API.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.23.0.
+
 ## 2.22.1
 
 ### Patch Changes
