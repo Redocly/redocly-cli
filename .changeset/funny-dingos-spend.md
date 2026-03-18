@@ -1,5 +1,4 @@
 ---
-"@redocly/cli": minor
 "@redocly/openapi-core": minor
 "@redocly/respect-core": minor
 ---
