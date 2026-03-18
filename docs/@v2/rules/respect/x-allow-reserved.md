@@ -18,7 +18,7 @@ Use `x-allowReserved` when a step passes a **query parameter** whose value must 
 - You need that value sent as-is in the query string (e.g. a full URL or a value that already uses reserved chars).
 - Without `x-allowReserved`, Respect encodes those characters (e.g. `:` → `%3A`).
 
-This matches the OpenAPI 3 [Parameter.allowReserved](https://spec.openapis.org/oas/v3.0.3#parameter-object) behavior. When a step uses an OpenAPI operation, Respect also honors `allowReserved` from the operation’s parameters; for steps that define parameters directly in Arazzo (e.g. with `x-operation`), use the `x-allowReserved` extension.
+This matches the OpenAPI 3 [Parameter.allowReserved](https://spec.openapis.org/oas/v3.0.3#parameter-object) behavior. When a step uses an OpenAPI operation, Respect also honors `allowReserved` from the operation’s parameters; for step parameters you define in the Arazzo description, use the `x-allowReserved` extension.
 
 ## Example
 
@@ -27,9 +27,7 @@ workflows:
   - workflowId: example
     steps:
       - stepId: get-with-filter
-        x-operation:
-          url: https://api.example.com/search
-          method: get
+        operationId: my-api.getSearch
         parameters:
           - in: query
             name: filter
