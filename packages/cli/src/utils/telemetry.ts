@@ -96,7 +96,7 @@ export async function sendTelemetry({
       } as EventPayload<EventType>[0],
     ];
 
-    const cloudEvent = CloudEvents.cloudEvents.mapToCloudEvent({
+    const cloudEvent = CloudEvents.mapToCloudEvent({
       type: 'com.redocly.command.ran',
       source: 'com.redocly.cli',
       origin: 'redocly-cli',

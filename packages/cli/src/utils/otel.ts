@@ -2,7 +2,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { CloudEvents } from '@redocly/cli-otel';
+import { type CloudEvents, processCloudEventAttributes } from '@redocly/cli-otel';
 import { ulid } from 'ulid';
 
 import { OTEL_TRACES_URL, DEFAULT_FETCH_TIMEOUT } from './constants.js';
@@ -30,12 +30,12 @@ export class OtelServerTelemetry {
     });
   }
 
-  send(cloudEvent: CloudEvents.cloudEvents.CloudEventMapperResult): void {
+  send(cloudEvent: CloudEvents.CloudEventMapperResult): void {
     const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
     const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
 
     const spanName = `event.${cloudEvent.type}`;
-    const attributes = CloudEvents.processCloudEventAttributes(cloudEvent, time);
+    const attributes = processCloudEventAttributes(cloudEvent, time);
 
     const span = tracer.startSpan(spanName, {
       attributes,
