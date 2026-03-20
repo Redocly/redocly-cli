@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.24.1
+
+### Patch Changes
+
+- Downgraded `undici` to resolve an issue where `formData` was being submitted empty.
+- Updated @redocly/openapi-core to v2.24.1.
+
 ## 2.24.0
 
 ### Patch Changes
