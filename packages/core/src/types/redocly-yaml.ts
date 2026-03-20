@@ -107,7 +107,7 @@ const builtInOAS3Rules = [
   'no-server-variables-empty-enum',
   'no-undefined-server-variable',
   'no-unused-components',
-  'no-mixed-maximum-and-exclusive-maximum',
+  'no-mixed-number-range-constraints',
   'operation-4xx-problem-details-rfc7807',
   'request-mime-type',
   'response-contains-property',

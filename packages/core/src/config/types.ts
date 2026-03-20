@@ -67,7 +67,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   oas3_0Rules?: RuleMap<
     Exclude<
       BuiltInOAS3RuleId,
-      | 'no-mixed-maximum-and-exclusive-maximum'
+      | 'no-mixed-number-range-constraints'
       | 'spec-no-invalid-tag-parents'
       | 'spec-no-invalid-encoding-combinations'
       | 'spec-discriminator-defaultMapping'

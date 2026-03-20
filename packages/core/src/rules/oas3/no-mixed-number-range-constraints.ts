@@ -1,6 +1,6 @@
 import type { Oas3Rule } from '../../visitors.js';
 
-export const NoMixedMaximumAndExclusiveMaximum: Oas3Rule = () => {
+export const NoMixedNumberRangeConstraints: Oas3Rule = () => {
   return {
     Schema(schema, { report, location }) {
       if (typeof schema.maximum === 'number' && typeof schema.exclusiveMaximum === 'number') {

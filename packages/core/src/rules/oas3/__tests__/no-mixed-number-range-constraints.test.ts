@@ -5,7 +5,7 @@ import { createConfig } from '../../../config/index.js';
 import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
-describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
+describe('Oas3 no-mixed-number-range-constraints', () => {
   it('should report when both maximum and exclusiveMaximum are used', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -33,7 +33,7 @@ describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-mixed-maximum-and-exclusive-maximum': 'error' },
+        rules: { 'no-mixed-number-range-constraints': 'error' },
       }),
     });
 
@@ -48,7 +48,7 @@ describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
             },
           ],
           "message": "Schema should not have both \`maximum\` and \`exclusiveMaximum\`. Use one or the other.",
-          "ruleId": "no-mixed-maximum-and-exclusive-maximum",
+          "ruleId": "no-mixed-number-range-constraints",
           "severity": "error",
           "suggest": [],
         },
@@ -83,7 +83,7 @@ describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-mixed-maximum-and-exclusive-maximum': 'error' },
+        rules: { 'no-mixed-number-range-constraints': 'error' },
       }),
     });
 
@@ -98,7 +98,7 @@ describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
             },
           ],
           "message": "Schema should not have both \`minimum\` and \`exclusiveMinimum\`. Use one or the other.",
-          "ruleId": "no-mixed-maximum-and-exclusive-maximum",
+          "ruleId": "no-mixed-number-range-constraints",
           "severity": "error",
           "suggest": [],
         },
@@ -142,7 +142,7 @@ describe('Oas3 no-mixed-maximum-and-exclusive-maximum', () => {
       externalRefResolver: new BaseResolver(),
       document,
       config: await createConfig({
-        rules: { 'no-mixed-maximum-and-exclusive-maximum': 'error' },
+        rules: { 'no-mixed-number-range-constraints': 'error' },
       }),
     });
 

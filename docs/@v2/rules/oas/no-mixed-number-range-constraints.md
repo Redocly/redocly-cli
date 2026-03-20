@@ -1,8 +1,8 @@
 ---
-slug: /docs/cli/rules/oas/no-mixed-maximum-and-exclusive-maximum
+slug: /docs/cli/rules/oas/no-mixed-number-range-constraints
 ---
 
-# no-mixed-maximum-and-exclusive-maximum
+# no-mixed-number-range-constraints
 
 Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `minimum` and `exclusiveMinimum`) at the same time.
 
@@ -34,7 +34,7 @@ Set the desired [severity](../../rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
-  no-mixed-maximum-and-exclusive-maximum: error
+  no-mixed-number-range-constraints: error
 ```
 
 | Option   | Type   | Description                                                                               |
@@ -45,7 +45,7 @@ An example configuration:
 
 ```yaml
 rules:
-  no-mixed-maximum-and-exclusive-maximum: error
+  no-mixed-number-range-constraints: error
 ```
 
 ## Examples
@@ -54,7 +54,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  no-mixed-maximum-and-exclusive-maximum: error
+  no-mixed-number-range-constraints: error
 ```
 
 Example of an **incorrect** schema:
@@ -84,10 +84,9 @@ exclusiveMaximum: 100
 
 ## Related rules
 
-- [spec](./spec.md)
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-mixed-maximum-and-exclusive-maximum.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-mixed-number-range-constraints.ts)
 - [JSON Schema draft 2020-12 - exclusiveMaximum](https://json-schema.org/draft/2020-12/json-schema-validation#section-6.2.3)
