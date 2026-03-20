@@ -31,7 +31,7 @@ export class OtelServerTelemetry {
   }
 
   send(cloudEvent: CloudEvents.CloudEventMapperResult): void {
-    const time = cloudEvent.time ? new Date(cloudEvent.time) : new Date();
+    const time = new Date(cloudEvent.time);
     const tracer = this.nodeTracerProvider.getTracer('CliTelemetry');
 
     const spanName = `event.${cloudEvent.type}`;
