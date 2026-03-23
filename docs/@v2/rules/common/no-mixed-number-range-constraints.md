@@ -94,9 +94,9 @@ exclusiveMaximum: 100
 
 ## Related rules
 
-- [no-schema-type-mismatch](./no-schema-type-mismatch.md) - Ensures that schema keywords are used with the correct data types.
-- [no-enum-type-mismatch](./no-enum-type-mismatch.md) - Ensures that `enum` values match the declared schema type.
-- [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md) - Ensures that required schema properties are defined.
+- [no-schema-type-mismatch](./no-schema-type-mismatch.md)
+- [no-enum-type-mismatch](./no-enum-type-mismatch.md)
+- [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md)
 
 ## Resources
 
