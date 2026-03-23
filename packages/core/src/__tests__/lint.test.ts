@@ -1967,4 +1967,46 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
+
+  it('should report no unresolved extends when scorecardClassic extends contains a ref to non existing preset', async () => {
+    const testConfigContent = outdent`
+      scorecardClassic:
+        levels:
+          - name: Baseline
+            extends:
+              - ./custom-rules.yaml
+    `;
+    const config = await createConfig(testConfigContent);
+    const results = await lintConfig({
+      externalConfigTypes: createConfigTypes(
+        {
+          type: 'object',
+          properties: {
+            scorecardClassic: rootRedoclyConfigSchema.properties.scorecardClassic,
+          },
+          additionalProperties: false,
+        },
+        config
+      ),
+      config,
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/scorecardClassic/levels/0/extends/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory '/Users/albinablazhko/redocly-cli/custom-rules.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

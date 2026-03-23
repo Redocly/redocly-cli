@@ -21,6 +21,7 @@ export function bundleExtends({
   }
 
   const resolvedExtends = (node.extends || [])
+    .filter(isTruthy)
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);

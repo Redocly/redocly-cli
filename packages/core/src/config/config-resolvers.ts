@@ -64,7 +64,12 @@ export async function resolveConfig({
   if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;
   }
-  if (isPlainObject<RawUniversalConfig>(config) && config?.extends?.some(isNotString)) {
+  if (
+    isPlainObject<RawUniversalConfig>(config) &&
+    (config?.extends?.some(isNotString) ||
+      config?.scorecardClassic?.levels?.some((level) => level.extends?.some(isNotString)) ||
+      config?.scorecard?.levels?.some((level) => level.extends?.some(isNotString)))
+  ) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 

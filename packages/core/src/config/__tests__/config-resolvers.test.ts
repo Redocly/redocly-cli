@@ -468,6 +468,38 @@ describe('resolveConfig', () => {
     expect(apis['petstore']).toMatchSnapshot();
   });
 
+  it('should throw when root extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({ extends: [2 as any] }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
+  it('should throw when scorecardClassic level extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({
+          scorecardClassic: {
+            levels: [{ name: 'Baseline', extends: [2 as any] }],
+          },
+        }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
+  it('should throw when scorecard level extends contains a non-string value', async () => {
+    await expect(
+      resolveConfig({
+        rawConfigDocument: makeDocument({
+          scorecard: {
+            levels: [{ name: 'Baseline', extends: [2 as any] }],
+          },
+        }),
+      })
+    ).rejects.toThrow('Configuration format not detected in extends: values must be strings.');
+  });
+
   it('should default to the extends from the main config if no extends defined', async () => {
     const rawConfig: RawUniversalConfig = {
       apis: {
