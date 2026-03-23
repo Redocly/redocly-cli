@@ -93,7 +93,7 @@ export async function sendTelemetry({
           spec_version === 'arazzo1' && respect_x_security_auth_types?.length
             ? JSON.stringify(respect_x_security_auth_types)
             : undefined,
-      } as EventPayload<EventType>[0],
+      },
     ];
 
     const cloudEvent = CloudEvents.mapToCloudEvent({
