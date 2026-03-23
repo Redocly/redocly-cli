@@ -1977,19 +1977,7 @@ describe('lint', () => {
               - ./custom-rules.yaml
     `;
     const config = await createConfig(testConfigContent);
-    const results = await lintConfig({
-      externalConfigTypes: createConfigTypes(
-        {
-          type: 'object',
-          properties: {
-            scorecardClassic: rootRedoclyConfigSchema.properties.scorecardClassic,
-          },
-          additionalProperties: false,
-        },
-        config
-      ),
-      config,
-    });
+    const results = await lintConfig({ config });
 
     expect(replaceSourceWithRef(results, process.cwd())).toMatchInlineSnapshot(`
       [
