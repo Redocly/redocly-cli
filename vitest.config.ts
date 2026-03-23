@@ -47,6 +47,7 @@ export default mergeConfig(
       globals: true,
       restoreMocks: true,
       mockReset: true,
+      unstubEnvs: true,
       environment: 'node',
       env: {
         FORCE_COLOR: '1',

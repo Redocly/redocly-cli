@@ -1,5 +1,4 @@
-import * as process from 'node:process';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const { mockMapToCloudEvent, mockOtelSend } = vi.hoisted(() => ({
   mockMapToCloudEvent: vi.fn(),
@@ -43,14 +42,8 @@ describe('sendTelemetry', () => {
       return { isAuthorized: vi.fn().mockResolvedValue(true) } as any;
     });
     vi.mocked(getReuniteUrl).mockReturnValue('https://app.redocly.com' as any);
-    process.env.CI = 'true';
-    process.env.REDOCLY_ENVIRONMENT = 'docker';
-  });
-
-  afterEach(() => {
-    delete process.env.CI;
-    delete process.env.REDOCLY_ENVIRONMENT;
-    delete process.env.REDOCLY_CLI_TELEMETRY_METADATA;
+    vi.stubEnv('CI', 'true');
+    vi.stubEnv('REDOCLY_ENVIRONMENT', 'docker');
   });
 
   it('should build CloudEvent with correct structure and send it', async () => {
