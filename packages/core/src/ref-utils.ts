@@ -87,10 +87,11 @@ export function refBaseName(ref: string) {
 
 export function isAbsoluteUrl(ref: string) {
   return (
-    ref.startsWith('http://') ||
-    ref.startsWith('https://') ||
-    ref.startsWith('file://') ||
-    ref.startsWith('data:')
+    typeof ref === 'string' &&
+    (ref.startsWith('http://') ||
+      ref.startsWith('https://') ||
+      ref.startsWith('file://') ||
+      ref.startsWith('data:'))
   );
 }
 
@@ -114,12 +115,13 @@ export function resolvePath(base: string, relative: string): string {
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (
-    mapping.startsWith('#') ||
-    mapping.startsWith('https://') ||
-    mapping.startsWith('http://') ||
-    mapping.startsWith('./') ||
-    mapping.startsWith('../') ||
-    mapping.indexOf('/') > -1
+    typeof mapping === 'string' &&
+    (mapping.startsWith('#') ||
+      mapping.startsWith('https://') ||
+      mapping.startsWith('http://') ||
+      mapping.startsWith('./') ||
+      mapping.startsWith('../') ||
+      mapping.indexOf('/') > -1)
   );
 }
 
