@@ -7,7 +7,7 @@ const { mockMapToCloudEvent, mockOtelSend } = vi.hoisted(() => ({
 }));
 
 vi.mock('@redocly/cli-otel', () => ({
-  CloudEvents: { cloudEvents: { mapToCloudEvent: mockMapToCloudEvent } },
+  CloudEvents: { mapToCloudEvent: mockMapToCloudEvent },
 }));
 vi.mock('../otel.js', () => ({ otelTelemetry: { send: mockOtelSend } }));
 vi.mock('../network-check.js');

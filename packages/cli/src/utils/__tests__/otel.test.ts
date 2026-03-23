@@ -12,7 +12,7 @@ const { mockSpanEnd, mockStartSpan, mockGetTracer, mockProcessCloudEventAttribut
 );
 
 vi.mock('@redocly/cli-otel', () => ({
-  CloudEvents: { processCloudEventAttributes: mockProcessCloudEventAttributes },
+  processCloudEventAttributes: mockProcessCloudEventAttributes,
 }));
 
 vi.mock('@opentelemetry/sdk-trace-node', () => ({
@@ -28,7 +28,7 @@ import type { CloudEvents } from '@redocly/cli-otel';
 
 import { OtelServerTelemetry } from '../otel.js';
 
-const TEST_EVENT: CloudEvents.cloudEvents.CloudEventMapperResult = {
+const TEST_EVENT: CloudEvents.CloudEventMapperResult = {
   id: 'evt_test_001',
   specversion: '1.0',
   object: 'event',
