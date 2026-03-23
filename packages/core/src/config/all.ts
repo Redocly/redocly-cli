@@ -261,6 +261,7 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
   },
   async3Rules: {
@@ -274,12 +275,14 @@ const all: RawGovernanceConfig<'built-in'> = {
     'no-duplicated-tag-names': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-schema-type-mismatch': 'error',
   },
   arazzo1Rules: {
     'criteria-unique': 'error',
     'no-criteria-xpath': 'off',
     'no-enum-type-mismatch': 'error',
+    'no-mixed-number-range-constraints': 'error',
     'no-required-schema-properties-undefined': 'error',
     'no-schema-type-mismatch': 'error',
     'no-x-security-both-scheme-and-scheme-name': 'off',

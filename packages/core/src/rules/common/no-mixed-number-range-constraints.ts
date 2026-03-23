@@ -1,8 +1,19 @@
-import type { Oas3Rule } from '../../visitors.js';
+import { type Oas3_1Schema } from '../../typings/openapi.js';
+import {
+  type Arazzo1Rule,
+  type Async2Rule,
+  type Async3Rule,
+  type Oas3Rule,
+} from '../../visitors.js';
+import { type UserContext } from '../../walk.js';
 
-export const NoMixedNumberRangeConstraints: Oas3Rule = () => {
+export const NoMixedNumberRangeConstraints:
+  | Oas3Rule
+  | Async3Rule
+  | Async2Rule
+  | Arazzo1Rule = () => {
   return {
-    Schema(schema, { report, location }) {
+    Schema(schema: Oas3_1Schema, { report, location }: UserContext) {
       if (typeof schema.maximum === 'number' && typeof schema.exclusiveMaximum === 'number') {
         report({
           message:

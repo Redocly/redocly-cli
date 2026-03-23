@@ -11,6 +11,7 @@ import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths.js';
 import { NoIdenticalPaths } from '../common/no-identical-paths.js';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples.js';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples.js';
+import { NoMixedNumberRangeConstraints } from '../common/no-mixed-number-range-constraints.js';
 import { NoPathTrailingSlash } from '../common/no-path-trailing-slash.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
@@ -46,7 +47,6 @@ import { ComponentNameUnique } from './component-name-unique.js';
 import { NoEmptyServers } from './no-empty-servers.js';
 import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue.js';
 import { ValidContentExamples } from './no-invalid-media-type-examples.js';
-import { NoMixedNumberRangeConstraints } from './no-mixed-number-range-constraints.js';
 import { NoServerExample } from './no-server-example.com.js';
 import { NoServerTrailingSlash } from './no-server-trailing-slash.js';
 import { NoServerVariablesEmptyEnum } from './no-server-variables-empty-enum.js';
@@ -77,7 +77,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'operation-parameters-unique': OperationParametersUnique as Oas3Rule,
   'operation-tag-defined': OperationTagDefined as Oas3Rule,
   'no-example-value-and-externalValue': NoExampleValueAndExternalValue,
-  'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints,
+  'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Oas3Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Oas3Rule,
   'no-path-trailing-slash': NoPathTrailingSlash as Oas3Rule,
   'no-empty-servers': NoEmptyServers,
