@@ -136,6 +136,7 @@ const builtInAsync2Rules = [
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
 ] as const;
 
@@ -150,6 +151,7 @@ const builtInAsync3Rules = [
   'no-duplicated-tag-names',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
 ] as const;
 
@@ -177,6 +179,7 @@ const builtInArazzo1Rules = [
   'no-x-security-both-scheme-and-scheme-name',
   'no-required-schema-properties-undefined',
   'no-enum-type-mismatch',
+  'no-mixed-number-range-constraints',
   'no-schema-type-mismatch',
   'x-security-scheme-name-reference',
 ] as const;

@@ -91,6 +91,7 @@
             - page: rules/common/no-enum-type-mismatch.md
             - page: rules/common/no-schema-type-mismatch.md
             - page: rules/common/no-required-schema-properties-undefined.md
+            - page: rules/common/no-mixed-number-range-constraints.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
             - page: rules/oas/boolean-parameter-prefixes.md
