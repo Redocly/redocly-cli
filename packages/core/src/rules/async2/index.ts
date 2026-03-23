@@ -5,6 +5,7 @@ import { InfoContact } from '../common/info-contact.js';
 import { InfoLicenseStrict } from '../common/info-license-strict.js';
 import { NoDuplicatedTagNames } from '../common/no-duplicated-tag-names.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
+import { NoMixedNumberRangeConstraints } from '../common/no-mixed-number-range-constraints.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
@@ -29,6 +30,7 @@ export const rules: Async2RuleSet<'built-in'> = {
   'no-duplicated-tag-names': NoDuplicatedTagNames as Async2Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Async2Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Async2Rule,
+  'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Async2Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Async2Rule,
 };
 
