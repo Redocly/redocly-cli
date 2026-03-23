@@ -1991,7 +1991,7 @@ describe('lint', () => {
       config,
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, process.cwd())).toMatchInlineSnapshot(`
       [
         {
           "location": [
@@ -2001,7 +2001,7 @@ describe('lint', () => {
               "source": "",
             },
           ],
-          "message": "Can't resolve $ref: ENOENT: no such file or directory '/Users/albinablazhko/redocly-cli/custom-rules.yaml'",
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'custom-rules.yaml'",
           "ruleId": "configuration no-unresolved-refs",
           "severity": "error",
           "suggest": [],
