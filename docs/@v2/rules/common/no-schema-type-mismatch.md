@@ -113,6 +113,7 @@ properties:
 ## Related rules
 
 - [no-enum-type-mismatch](./no-enum-type-mismatch.md)
+- [no-mixed-number-range-constraints](./no-mixed-number-range-constraints.md)
 - [no-required-schema-properties-undefined](./no-required-schema-properties-undefined.md)
 - [configurable rules](../configurable-rules.md)
 - [no-invalid-media-type-examples](../oas/no-invalid-media-type-examples.md)

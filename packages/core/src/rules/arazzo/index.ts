@@ -3,6 +3,7 @@ import type { Arazzo1Rule } from '../../visitors.js';
 import { SourceDescriptionType } from '../arazzo/sourceDescription-type.js';
 import { Assertions } from '../common/assertions/index.js';
 import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch.js';
+import { NoMixedNumberRangeConstraints } from '../common/no-mixed-number-range-constraints.js';
 import { NoRequiredSchemaPropertiesUndefined } from '../common/no-required-schema-properties-undefined.js';
 import { NoSchemaTypeMismatch } from '../common/no-schema-type-mismatch.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
@@ -30,6 +31,7 @@ export const rules: Arazzo1RuleSet<'built-in'> = {
   'criteria-unique': CriteriaUnique,
   'no-criteria-xpath': NoCriteriaXpath,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Arazzo1Rule,
+  'no-mixed-number-range-constraints': NoMixedNumberRangeConstraints as Arazzo1Rule,
   'no-required-schema-properties-undefined': NoRequiredSchemaPropertiesUndefined as Arazzo1Rule,
   'no-schema-type-mismatch': NoSchemaTypeMismatch as Arazzo1Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Arazzo1Rule,
