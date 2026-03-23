@@ -2,4 +2,4 @@
 "@redocly/openapi-core": patch
 ---
 
-Improved error when plugin is not exists.
+Improved error message when a plugin is not detected.
