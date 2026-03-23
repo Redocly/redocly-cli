@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.24.1 (2026-03-20)
+
+### Patch Changes
+
+- Downgraded `undici` to resolve an issue where `formData` was being submitted empty.
+- Updated @redocly/openapi-core to v2.24.1.
+
 ## 2.24.0 (2026-03-18)
 
 ### Patch Changes
