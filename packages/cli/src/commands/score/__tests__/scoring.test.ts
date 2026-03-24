@@ -8,7 +8,6 @@ import {
   computeDocumentScores,
 } from '../scoring.js';
 import type { OperationMetrics, ScoringConstants } from '../types.js';
-import { collectDocumentMetrics } from './collect-metrics.js';
 
 function makeBaseMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetrics {
   return {
@@ -121,80 +120,51 @@ describe('scoring', () => {
   });
 
   describe('determinism', () => {
-    it('should produce identical scores for the same input', async () => {
-      const doc = {
-        openapi: '3.0.0',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/a': {
-            get: {
+    it('should produce identical scores for the same input', () => {
+      const metrics = {
+        operationCount: 2,
+        operations: new Map([
+          [
+            'getA',
+            makeBaseMetrics({
+              path: '/a',
+              method: 'get',
               operationId: 'getA',
-              description: 'Get A',
-              parameters: [{ name: 'id', in: 'query', required: true, schema: { type: 'string' } }],
-              responses: {
-                '200': {
-                  description: 'OK',
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { name: { type: 'string' } } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          '/b': {
-            post: {
+              parameterCount: 1,
+              requiredParameterCount: 1,
+              paramsWithDescription: 0,
+              propertyCount: 1,
+              totalSchemaProperties: 1,
+              maxResponseSchemaDepth: 1,
+            }),
+          ],
+          [
+            'createB',
+            makeBaseMetrics({
+              path: '/b',
+              method: 'post',
               operationId: 'createB',
-              description: 'Create B',
-              requestBody: {
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'object',
-                      properties: {
-                        value: { type: 'string', minLength: 1 },
-                      },
-                    },
-                    example: { value: 'test' },
-                  },
-                },
-              },
-              responses: {
-                '201': {
-                  description: 'Created',
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { id: { type: 'string' } } },
-                      example: { id: '1' },
-                    },
-                  },
-                },
-                '400': {
-                  description: 'Bad Request',
-                  content: {
-                    'application/json': {
-                      schema: {
-                        type: 'object',
-                        properties: { message: { type: 'string' } },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+              requestBodyPresent: true,
+              requestExamplePresent: true,
+              constraintCount: 1,
+              propertyCount: 2,
+              totalSchemaProperties: 2,
+              maxRequestSchemaDepth: 1,
+              maxResponseSchemaDepth: 1,
+              structuredErrorResponseCount: 1,
+              totalErrorResponses: 1,
+            }),
+          ],
+        ]),
       };
 
-      const metrics1 = await collectDocumentMetrics(doc);
-      const metrics2 = await collectDocumentMetrics(doc);
+      const depths = new Map<string, number>([
+        ['getA', 0],
+        ['createB', 0],
+      ]);
 
-      const depths1 = new Map(Array.from(metrics1.operations.keys()).map((k) => [k, 0]));
-      const depths2 = new Map(Array.from(metrics2.operations.keys()).map((k) => [k, 0]));
-
-      const scores1 = computeAllOperationScores(metrics1, depths1);
-      const scores2 = computeAllOperationScores(metrics2, depths2);
+      const scores1 = computeAllOperationScores(metrics, depths);
+      const scores2 = computeAllOperationScores(metrics, depths);
 
       const doc1 = computeDocumentScores(scores1);
       const doc2 = computeDocumentScores(scores2);
