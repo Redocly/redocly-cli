@@ -17,8 +17,8 @@ jobs:
   historical-versions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: npm
@@ -52,7 +52,7 @@ jobs:
 
       - name: Comment PR
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          filePath: tests/performance/benchmark_chart.md
-          comment_tag: historical-versions-comparison
+          file-path: tests/performance/benchmark_chart.md
+          comment-tag: historical-versions-comparison

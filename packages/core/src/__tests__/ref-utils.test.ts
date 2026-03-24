@@ -9,6 +9,7 @@ import {
   refBaseName,
   unescapePointerFragment,
   isAbsoluteUrl,
+  isMappingRef,
   getDir,
   resolvePath,
 } from '../ref-utils.js';
@@ -205,6 +206,17 @@ describe('ref-utils', () => {
       expect(isAbsoluteUrl('./api.yaml')).toBe(false);
       expect(isAbsoluteUrl('../api.yaml')).toBe(false);
       expect(isAbsoluteUrl('/Users/test/api.yaml')).toBe(false);
+    });
+  });
+
+  describe('isMappingRef', () => {
+    it('should return true for a valid mapping ref', () => {
+      expect(isMappingRef('#/components/schemas/Foo')).toBe(true);
+      expect(isMappingRef('./test.yaml')).toBe(true);
+    });
+
+    it('should return false if the ref is not a string', () => {
+      expect(isMappingRef(null as any)).toBe(false);
     });
   });
 
