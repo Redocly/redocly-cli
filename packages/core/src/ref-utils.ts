@@ -114,13 +114,13 @@ export function resolvePath(base: string, relative: string): string {
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (
-    typeof mapping === 'string' &&
-    (mapping.startsWith('#') ||
-      mapping.startsWith('https://') ||
-      mapping.startsWith('http://') ||
-      mapping.startsWith('./') ||
-      mapping.startsWith('../') ||
-      mapping.indexOf('/') > -1)
+    // typeof mapping === 'string' &&
+    mapping.startsWith('#') ||
+    mapping.startsWith('https://') ||
+    mapping.startsWith('http://') ||
+    mapping.startsWith('./') ||
+    mapping.startsWith('../') ||
+    mapping.indexOf('/') > -1
   );
 }
 

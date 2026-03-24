@@ -670,7 +670,7 @@ const SchemaProperties: NodeType = {
 const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
-    if (isMappingRef(value)) {
+    if (typeof value === 'string' && isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };
