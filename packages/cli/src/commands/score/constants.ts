@@ -6,8 +6,9 @@ export const DEFAULT_SCORING_CONSTANTS: ScoringConstants = {
     maxDepthGood: 4,
     maxPolymorphismGood: 2,
     maxPropertiesGood: 20,
-    maxWorkflowDepthGood: 3,
+    maxDependencyDepthGood: 3,
     maxAmbiguousGood: 0,
+    maxOperationsForDiscoverability: 1000,
   },
   weights: {
     integration: {
@@ -17,7 +18,7 @@ export const DEFAULT_SCORING_CONSTANTS: ScoringConstants = {
       constraintClarity: 0.1,
       exampleCoverage: 0.15,
       errorClarity: 0.1,
-      workflowClarity: 0.1,
+      dependencyClarity: 0.1,
     },
     agent: {
       documentationQuality: 0.2,
@@ -25,10 +26,11 @@ export const DEFAULT_SCORING_CONSTANTS: ScoringConstants = {
       exampleCoverage: 0.2,
       errorClarity: 0.15,
       identifierClarity: 0.1,
-      workflowClarity: 0.1,
+      dependencyClarity: 0.1,
       polymorphismClarity: 0.1,
     },
     anyOfPenaltyMultiplier: 2.0,
+    discoverabilityWeight: 0.1,
   },
   hotspotLimit: 10,
 };

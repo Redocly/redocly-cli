@@ -39,9 +39,11 @@ The following raw metrics are collected per operation and aggregated across the 
 
 Subscores are normalized to 0–1 and grouped into two categories:
 
-**Integration Simplicity subscores:** `parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `dependencyClarity`.
+**Integration Simplicity subscores:** `parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `dependencyClarity`, `discoverability`.
 
-**Agent Readiness subscores:** `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `identifierClarity`, `dependencyClarity`, `polymorphismClarity`.
+**Agent Readiness subscores:** `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `identifierClarity`, `dependencyClarity`, `polymorphismClarity`, `discoverability`.
+
+The `discoverability` subscore reflects the total number of operations in the API. Larger APIs (approaching 1,000+ operations) receive a lower discoverability score because finding the right endpoint becomes harder for both humans and AI agents. This subscore is blended into both composite scores.
 
 ### Hotspots
 
@@ -63,14 +65,16 @@ redocly score <api> [--format=<option>] [--config=<path>]
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                                    |
-| ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| api           | string  | **REQUIRED.** Path to the API description filename or alias that you want to score. Refer to [the API section](#specify-api) for more details. |
-| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                           |
-| --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
-| --help        | boolean | Show help.                                                                                                                                     |
-| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
-| --version     | boolean | Show version number.                                                                                                                           |
+| Option               | Type    | Description                                                                                                                                    |
+| -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                  | string  | **REQUIRED.** Path to the API description filename or alias that you want to score. Refer to [the API section](#specify-api) for more details. |
+| --config             | string  | Specify path to the [configuration file](../configuration/index.md).                                                                           |
+| --format             | string  | Format for the output.<br />**Possible values:** `stylish`, `json`. Default value is `stylish`.                                                |
+| --operation-details  | boolean | Print a per-operation metrics table sorted by property count.                                                                                  |
+| --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                               |
+| --help               | boolean | Show help.                                                                                                                                     |
+| --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
+| --version            | boolean | Show version number.                                                                                                                           |
 
 ## Examples
 
@@ -103,6 +107,7 @@ The default output format shows a human-readable summary in your terminal:
   Example Coverage         [████████████████████] 100%
   Error Clarity            [████████████████░░░░] 80%
   Dependency Clarity       [██████████████████░░] 90%
+  Discoverability          [████████████████████] 100%
 
   Top 3 Hotspot Operations
 

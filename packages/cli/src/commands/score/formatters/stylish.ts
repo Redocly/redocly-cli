@@ -44,7 +44,8 @@ function printSubscores(result: ScoreResult): void {
   printSubscore('Constraint Clarity', is.constraintClarity);
   printSubscore('Example Coverage', is.exampleCoverage);
   printSubscore('Error Clarity', is.errorClarity);
-  printSubscore('Dependency Clarity', is.workflowClarity);
+  printSubscore('Dependency Clarity', is.dependencyClarity);
+  printSubscore('Discoverability', result.discoverability);
   out('');
 
   out(bold(white('  Agent Readiness Subscores')));
@@ -55,8 +56,9 @@ function printSubscores(result: ScoreResult): void {
   printSubscore('Example Coverage', ar.exampleCoverage);
   printSubscore('Error Clarity', ar.errorClarity);
   printSubscore('Identifier Clarity', ar.identifierClarity);
-  printSubscore('Dependency Clarity', ar.workflowClarity);
+  printSubscore('Dependency Clarity', ar.dependencyClarity);
   printSubscore('Polymorphism Clarity', ar.polymorphismClarity);
+  printSubscore('Discoverability', result.discoverability);
   out('');
 }
 
@@ -108,13 +110,22 @@ function printRawMetricsSummary(result: ScoreResult): void {
   }
 
   const n = result.rawMetrics.operationCount;
-  const avg = (arr: number[]) => (arr.reduce((s, v) => s + v, 0) / n).toFixed(1);
-  const med = (arr: number[]) => median(arr).toFixed(1);
 
-  out(`  Parameters/operation:   avg ${avg(params)}  median ${med(params)}`);
-  out(`  Schema depth:           avg ${avg(depths)}  median ${med(depths)}`);
-  out(`  Polymorphism/operation: avg ${avg(polys)}  median ${med(polys)}`);
-  out(`  Properties/operation:   avg ${avg(props)}  median ${med(props)}`);
+  function statLine(label: string, values: number[]): void {
+    const sum = values.reduce((s, v) => s + v, 0);
+    const avg = (sum / n).toFixed(1);
+    const med = median(values).toFixed(1);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    out(
+      `  ${label.padEnd(26)} avg ${avg.padStart(6)}  median ${med.padStart(6)}  min ${String(min).padStart(5)}  max ${String(max).padStart(5)}`
+    );
+  }
+
+  statLine('Parameters/operation:', params);
+  statLine('Schema depth:', depths);
+  statLine('Polymorphism/operation:', polys);
+  statLine('Properties/operation:', props);
   out(
     `  Operations with request examples: ${opsWithReqExample}/${n} (${fmtPct(opsWithReqExample, n)})`
   );

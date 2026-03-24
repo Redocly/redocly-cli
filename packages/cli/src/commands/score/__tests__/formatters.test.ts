@@ -12,6 +12,7 @@ const mockOutput = vi.mocked(logger.output);
 const RESULT: ScoreResult = {
   integrationSimplicity: 75,
   agentReadiness: 60,
+  discoverability: 0.95,
   integrationSubscores: {
     parameterSimplicity: 0.8,
     schemaSimplicity: 0.7,
@@ -19,7 +20,7 @@ const RESULT: ScoreResult = {
     constraintClarity: 0.5,
     exampleCoverage: 0.6,
     errorClarity: 1.0,
-    workflowClarity: 0.8,
+    dependencyClarity: 0.8,
   },
   agentSubscores: {
     documentationQuality: 0.9,
@@ -27,7 +28,7 @@ const RESULT: ScoreResult = {
     exampleCoverage: 0.6,
     errorClarity: 1.0,
     identifierClarity: 0.8,
-    workflowClarity: 0.8,
+    dependencyClarity: 0.8,
     polymorphismClarity: 1.0,
   },
   rawMetrics: {
@@ -104,7 +105,7 @@ const RESULT: ScoreResult = {
     },
   ],
   operationScores: new Map(),
-  workflowDepths: new Map(),
+  dependencyDepths: new Map(),
 };
 
 function getStylishOutput(result: ScoreResult): string {
@@ -153,12 +154,12 @@ describe('printScoreJson', () => {
     mockOutput.mockClear();
     printScoreJson({
       ...RESULT,
-      workflowDepths: new Map([
+      dependencyDepths: new Map([
         ['opA', 2],
         ['opB', 0],
       ]),
     });
     const parsed = JSON.parse(mockOutput.mock.calls[0][0]);
-    expect(parsed.workflowDepths).toEqual({ opA: 2, opB: 0 });
+    expect(parsed.dependencyDepths).toEqual({ opA: 2, opB: 0 });
   });
 });

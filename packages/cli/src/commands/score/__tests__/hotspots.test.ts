@@ -42,7 +42,7 @@ function makeScores(overrides: Partial<OperationScores> = {}): OperationScores {
       constraintClarity: 1,
       exampleCoverage: 1,
       errorClarity: 1,
-      workflowClarity: 1,
+      dependencyClarity: 1,
     },
     agentSubscores: {
       documentationQuality: 1,
@@ -50,7 +50,7 @@ function makeScores(overrides: Partial<OperationScores> = {}): OperationScores {
       exampleCoverage: 1,
       errorClarity: 1,
       identifierClarity: 1,
-      workflowClarity: 1,
+      dependencyClarity: 1,
       polymorphismClarity: 1,
     },
     ...overrides,
@@ -223,14 +223,14 @@ describe('selectTopHotspots', () => {
     expect(result[0].reasons).toContain('No parameter descriptions');
   });
 
-  it('detects high workflow dependency depth', () => {
+  it('detects high dependency depth', () => {
     const docMetrics: DocumentMetrics = {
       operationCount: 1,
       operations: new Map([['op1', makeMetrics()]]),
     };
     const opScores = new Map([['op1', makeScores()]]);
     const result = selectTopHotspots(docMetrics, opScores, new Map([['op1', 5]]));
-    expect(result[0].reasons).toContain('High workflow dependency depth (5)');
+    expect(result[0].reasons).toContain('High dependency depth (5)');
   });
 
   it('detects ambiguous identifiers', () => {

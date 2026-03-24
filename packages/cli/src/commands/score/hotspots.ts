@@ -9,7 +9,7 @@ import type {
 export function selectTopHotspots(
   documentMetrics: DocumentMetrics,
   operationScores: Map<string, OperationScores>,
-  workflowDepths: Map<string, number>,
+  dependencyDepths: Map<string, number>,
   constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
 ): HotspotOperation[] {
   const entries: HotspotOperation[] = [];
@@ -18,7 +18,7 @@ export function selectTopHotspots(
     const metrics = documentMetrics.operations.get(key);
     if (!metrics) continue;
 
-    const reasons = getHotspotReasons(metrics, scores, workflowDepths.get(key) ?? 0, constants);
+    const reasons = getHotspotReasons(metrics, scores, dependencyDepths.get(key) ?? 0, constants);
     if (reasons.length === 0) continue;
 
     entries.push({
@@ -59,7 +59,7 @@ function getHotspotReasons(
     ambiguousIdentifierCount: number;
   },
   scores: OperationScores,
-  workflowDepth: number,
+  dependencyDepth: number,
   constants: ScoringConstants
 ): string[] {
   const { thresholds } = constants;
@@ -103,8 +103,8 @@ function getHotspotReasons(
     reasons.push('No parameter descriptions');
   }
 
-  if (workflowDepth > thresholds.maxWorkflowDepthGood) {
-    reasons.push(`High workflow dependency depth (${workflowDepth})`);
+  if (dependencyDepth > thresholds.maxDependencyDepthGood) {
+    reasons.push(`High dependency depth (${dependencyDepth})`);
   }
 
   if (metrics.ambiguousIdentifierCount > thresholds.maxAmbiguousGood) {

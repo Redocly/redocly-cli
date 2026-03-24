@@ -45,32 +45,6 @@ interface SchemaStats {
   debugEntries?: import('./types.js').DebugSchemaEntry[];
 }
 
-function combineOneOfStats(
-  parent: SchemaStats,
-  branch: SchemaStats,
-  branchCount: number,
-  keyword: 'oneOf' | 'anyOf'
-): SchemaStats {
-  return {
-    maxDepth: Math.max(parent.maxDepth, branch.maxDepth + 1),
-    polymorphismCount: parent.polymorphismCount + branch.polymorphismCount + branchCount,
-    anyOfCount: parent.anyOfCount + branch.anyOfCount + (keyword === 'anyOf' ? branchCount : 0),
-    hasDiscriminator: parent.hasDiscriminator || branch.hasDiscriminator,
-    propertyCount: parent.propertyCount + branch.propertyCount,
-    totalSchemaProperties: parent.totalSchemaProperties + branch.totalSchemaProperties,
-    schemaPropertiesWithDescription:
-      parent.schemaPropertiesWithDescription + branch.schemaPropertiesWithDescription,
-    constraintCount: parent.constraintCount + branch.constraintCount,
-    hasPropertyExamples: parent.hasPropertyExamples || branch.hasPropertyExamples,
-    writableTopLevelFields: parent.writableTopLevelFields + branch.writableTopLevelFields,
-    refsUsed: [...parent.refsUsed, ...branch.refsUsed],
-    debugEntries:
-      parent.debugEntries || branch.debugEntries
-        ? [...(parent.debugEntries ?? []), ...(branch.debugEntries ?? [])]
-        : undefined,
-  };
-}
-
 export interface CollectMetricsOptions {
   document: Document;
   types: ReturnType<typeof normalizeTypes>;
@@ -84,6 +58,59 @@ export interface CollectMetricsResult {
   debugLogs: DebugMediaTypeLog[];
 }
 
+interface StrippedComposition {
+  discriminator?: any;
+  oneOf?: any[];
+  anyOf?: any[];
+}
+
+function stripCompositionKeywords(parsed: any): Map<object, StrippedComposition> {
+  const removed = new Map<object, StrippedComposition>();
+  const seen = new WeakSet<object>();
+
+  function walk(node: any): void {
+    if (!node || typeof node !== 'object' || seen.has(node)) return;
+    seen.add(node);
+
+    const stripped: StrippedComposition = {};
+    let hasStripped = false;
+
+    if (node.discriminator?.mapping) {
+      stripped.discriminator = node.discriminator;
+      delete node.discriminator;
+      hasStripped = true;
+    }
+    if (Array.isArray(node.oneOf) && node.oneOf.length > 1) {
+      stripped.oneOf = node.oneOf;
+      delete node.oneOf;
+      hasStripped = true;
+    }
+    if (Array.isArray(node.anyOf) && node.anyOf.length > 1) {
+      stripped.anyOf = node.anyOf;
+      delete node.anyOf;
+      hasStripped = true;
+    }
+
+    if (hasStripped) removed.set(node, stripped);
+
+    for (const val of Object.values(node)) {
+      walk(val);
+    }
+  }
+
+  walk(parsed);
+  return removed;
+}
+
+function restoreCompositionKeywords(removed: Map<object, StrippedComposition>): void {
+  for (const [schema, stripped] of removed) {
+    const s = schema as any;
+    if (stripped.discriminator) s.discriminator = stripped.discriminator;
+    if (stripped.oneOf) s.oneOf = stripped.oneOf;
+    if (stripped.anyOf) s.anyOf = stripped.anyOf;
+  }
+}
+
 export function collectMetrics({
   document,
   types,
@@ -91,6 +118,8 @@ export function collectMetrics({
   ctx,
   debugOperationId,
 }: CollectMetricsOptions): CollectMetricsResult {
+  const removedComposition = stripCompositionKeywords(document.parsed);
+
   const schemaWalkState = createSchemaWalkState();
   const schemaVisitor = createSchemaMetricVisitor(schemaWalkState);
   const normalizedSchemaVisitors = normalizeVisitors(
@@ -125,6 +154,42 @@ export function collectMetrics({
   };
 
   const schemaCache = new Map<string, SchemaStats>();
+  const computing = new WeakSet<object>();
+
+  const emptyStats: SchemaStats = {
+    maxDepth: 0,
+    polymorphismCount: 0,
+    anyOfCount: 0,
+    hasDiscriminator: false,
+    propertyCount: 0,
+    totalSchemaProperties: 0,
+    schemaPropertiesWithDescription: 0,
+    constraintCount: 0,
+    hasPropertyExamples: false,
+    writableTopLevelFields: 0,
+    refsUsed: [],
+  };
+
+  function addStats(a: SchemaStats, b: SchemaStats): SchemaStats {
+    return {
+      maxDepth: Math.max(a.maxDepth, b.maxDepth),
+      polymorphismCount: a.polymorphismCount + b.polymorphismCount,
+      anyOfCount: a.anyOfCount + b.anyOfCount,
+      hasDiscriminator: a.hasDiscriminator || b.hasDiscriminator,
+      propertyCount: a.propertyCount + b.propertyCount,
+      totalSchemaProperties: a.totalSchemaProperties + b.totalSchemaProperties,
+      schemaPropertiesWithDescription:
+        a.schemaPropertiesWithDescription + b.schemaPropertiesWithDescription,
+      constraintCount: a.constraintCount + b.constraintCount,
+      hasPropertyExamples: a.hasPropertyExamples || b.hasPropertyExamples,
+      writableTopLevelFields: a.writableTopLevelFields + b.writableTopLevelFields,
+      refsUsed: [...a.refsUsed, ...b.refsUsed],
+      debugEntries:
+        a.debugEntries || b.debugEntries
+          ? [...(a.debugEntries ?? []), ...(b.debugEntries ?? [])]
+          : undefined,
+    };
+  }
 
   const walkSchema = (schemaNode: any, debug = false): SchemaStats => {
     let resolved = schemaNode;
@@ -139,37 +204,101 @@ export function collectMetrics({
       resolved = resolveJsonPointer(document.parsed, ref) ?? schemaNode;
     }
 
+    if (resolved && typeof resolved === 'object' && computing.has(resolved)) {
+      return { ...emptyStats };
+    }
+    if (resolved && typeof resolved === 'object') {
+      computing.add(resolved);
+    }
+
+    const stripped =
+      resolved && typeof resolved === 'object' ? removedComposition.get(resolved) : undefined;
+
+    const oneOfBranches = resolved?.oneOf ?? stripped?.oneOf;
+    const anyOfBranches = resolved?.anyOf ?? stripped?.anyOf;
     const polyKeyword: 'oneOf' | 'anyOf' | null =
-      Array.isArray(resolved?.oneOf) && resolved.oneOf.length > 1
+      Array.isArray(oneOfBranches) && oneOfBranches.length > 1
         ? 'oneOf'
-        : Array.isArray(resolved?.anyOf) && resolved.anyOf.length > 1
+        : Array.isArray(anyOfBranches) && anyOfBranches.length > 1
           ? 'anyOf'
           : null;
+    const polyBranches: any[] | null =
+      polyKeyword === 'oneOf' ? oneOfBranches : polyKeyword === 'anyOf' ? anyOfBranches : null;
+
+    const hasAllOf = Array.isArray(resolved?.allOf) && resolved.allOf.length > 0;
+
+    const disc = resolved?.discriminator ?? stripped?.discriminator;
+    const discriminatorRefs =
+      !polyKeyword && disc?.mapping
+        ? (Object.values(disc.mapping) as string[])
+            .filter((v) => typeof v === 'string' && v.startsWith('#/'))
+            .map((v) => ({ $ref: v }))
+        : null;
+    const hasDiscriminatorBranches = discriminatorRefs != null && discriminatorRefs.length > 0;
 
     let result: SchemaStats;
 
-    if (polyKeyword && !resolved.allOf) {
-      const branches = resolved[polyKeyword] as any[];
-
+    if (polyKeyword || hasAllOf || hasDiscriminatorBranches) {
       const parentOnly = { ...resolved };
-      delete parentOnly[polyKeyword];
-      delete parentOnly.discriminator;
 
-      let maxBranch = walkSchema(branches[0], debug);
-      for (let i = 1; i < branches.length; i++) {
-        const branchStats = walkSchema(branches[i], debug);
-        if (branchStats.propertyCount > maxBranch.propertyCount) {
-          maxBranch = branchStats;
+      let polyStats: SchemaStats | null = null;
+      if (polyKeyword && polyBranches) {
+        delete parentOnly[polyKeyword];
+        delete parentOnly.discriminator;
+
+        let maxBranch = walkSchema(polyBranches[0], debug);
+        for (let i = 1; i < polyBranches.length; i++) {
+          const branchStats = walkSchema(polyBranches[i], debug);
+          if (branchStats.propertyCount > maxBranch.propertyCount) {
+            maxBranch = branchStats;
+          }
+        }
+        polyStats = {
+          ...maxBranch,
+          polymorphismCount: maxBranch.polymorphismCount + polyBranches.length,
+          anyOfCount: maxBranch.anyOfCount + (polyKeyword === 'anyOf' ? polyBranches.length : 0),
+        };
+      }
+
+      let discStats: SchemaStats | null = null;
+      if (hasDiscriminatorBranches) {
+        delete parentOnly.discriminator;
+
+        let maxBranch = walkSchema(discriminatorRefs![0], debug);
+        for (let i = 1; i < discriminatorRefs!.length; i++) {
+          const branchStats = walkSchema(discriminatorRefs![i], debug);
+          if (branchStats.propertyCount > maxBranch.propertyCount) {
+            maxBranch = branchStats;
+          }
+        }
+        discStats = {
+          ...maxBranch,
+          polymorphismCount: maxBranch.polymorphismCount + discriminatorRefs!.length,
+          hasDiscriminator: true,
+        };
+      }
+
+      let allOfStats: SchemaStats | null = null;
+      if (hasAllOf) {
+        delete parentOnly.allOf;
+        allOfStats = { ...emptyStats };
+        for (const member of resolved.allOf) {
+          allOfStats = addStats(allOfStats, walkSchema(member, debug));
         }
       }
 
       const parentStats = walkSchemaRaw(parentOnly, debug);
-
-      result = combineOneOfStats(parentStats, maxBranch, branches.length, polyKeyword);
+      result = parentStats;
+      if (allOfStats) result = addStats(result, allOfStats);
+      if (polyStats) result = addStats(result, polyStats);
+      if (discStats) result = addStats(result, discStats);
     } else {
       result = walkSchemaRaw(schemaNode, debug);
     }
 
+    if (resolved && typeof resolved === 'object') {
+      computing.delete(resolved);
+    }
     if (ref && !debug) {
       schemaCache.set(ref, result);
     }
@@ -192,6 +321,8 @@ export function collectMetrics({
     resolvedRefMap,
     ctx,
   });
+
+  restoreCompositionKeywords(removedComposition);
 
   return {
     metrics: getDocumentMetrics(accumulator),

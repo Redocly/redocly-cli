@@ -1,8 +1,8 @@
 
   Scores
 
-  Integration Simplicity:  54.3/100
-  Agent Readiness:         41.7/100
+  Integration Simplicity:  58.8/100
+  Agent Readiness:         47.5/100
 
   Integration Simplicity Subscores
 
@@ -13,6 +13,7 @@
   Example Coverage         [░░░░░░░░░░░░░░░░░░░░] 0%
   Error Clarity            [████████████████████] 100%
   Dependency Clarity       [████████████████████] 100%
+  Discoverability          [████████████████████] 100%
 
   Agent Readiness Subscores
 
@@ -23,14 +24,15 @@
   Identifier Clarity       [█████████████░░░░░░░] 67%
   Dependency Clarity       [████████████████████] 100%
   Polymorphism Clarity     [████████████████████] 100%
+  Discoverability          [████████████████████] 100%
 
   Raw Metrics Summary
 
   Total operations: 2
-  Parameters/operation:   avg 1.0  median 1.0
-  Schema depth:           avg 1.5  median 1.5
-  Polymorphism/operation: avg 0.0  median 0.0
-  Properties/operation:   avg 2.0  median 2.0
+  Parameters/operation:      avg    1.0  median    1.0  min     0  max     2
+  Schema depth:              avg    1.5  median    1.5  min     1  max     2
+  Polymorphism/operation:    avg    0.0  median    0.0  min     0  max     0
+  Properties/operation:      avg    2.0  median    2.0  min     2  max     2
   Operations with request examples: 0/2 (0%)
   Operations with response examples: 0/2 (0%)
   Operations with description: 0/2 (0%)
