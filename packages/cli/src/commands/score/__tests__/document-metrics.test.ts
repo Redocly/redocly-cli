@@ -6,11 +6,13 @@ import {
   resolveDocument,
   BaseResolver,
   Source,
-  parseYaml as yaml,
+  parseYaml,
   type Document,
   type WalkContext,
 } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
+
+const yaml = (source: string) => parseYaml(source) as Record<string, unknown>;
 
 import {
   createScoreAccumulator,

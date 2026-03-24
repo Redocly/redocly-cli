@@ -108,6 +108,7 @@ function makeAccumulator(ops: Map<string, OperationMetrics> = new Map()): ScoreA
       writableTopLevelFields: 0,
       refsUsed: [],
     }),
+    debugLogs: [],
   };
 }
 
