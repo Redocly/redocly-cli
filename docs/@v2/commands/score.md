@@ -18,22 +18,22 @@ OpenAPI 2.0 (Swagger) and AsyncAPI are not currently supported.
 
 The following raw metrics are collected per operation and aggregated across the document:
 
-| Metric                             | Description                                                                                                                          |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Parameter count                    | Total parameters (path, query, header, cookie) per operation.                                                                        |
-| Required parameter count           | How many of those parameters are required.                                                                                           |
-| Request body presence              | Whether the operation defines a request body.                                                                                        |
-| Top-level writable field count     | Number of non-`readOnly` top-level properties in request schemas.                                                                    |
-| Max request/response schema depth  | Deepest nesting level in request and response schemas.                                                                               |
-| Polymorphism count                 | Number of `oneOf`, `anyOf`, and `allOf` usages. `anyOf` is penalized more heavily.                                                   |
-| Property count                     | Total schema properties across request and response.                                                                                 |
-| Description coverage               | Fraction of operations, parameters, and schema properties that have descriptions.                                                    |
-| Ambiguous identifier count         | Parameters with generic names (e.g. `id`, `name`, `type`) and no description.                                                        |
-| Constraint coverage                | Count of constraining keywords (`enum`, `format`, `pattern`, `minimum`, `maximum`, `minLength`, `maxLength`, `discriminator`, etc.). |
-| Request/response example coverage  | Whether request and response media types include `example` or `examples`.                                                            |
-| Structured error response coverage | How many 4xx/5xx responses include a content schema or meaningful description.                                                       |
-| Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                          |
-| Cross-operation dependency depth   | Inferred from shared `$ref` usage across operations; deeper shared-schema graphs indicate tightly coupled multi-step interactions.   |
+| Metric                             | Description                                                                                                                                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parameter count                    | Total parameters (path, query, header, cookie) per operation.                                                                                                                                                       |
+| Required parameter count           | How many of those parameters are required.                                                                                                                                                                          |
+| Request body presence              | Whether the operation defines a request body.                                                                                                                                                                       |
+| Top-level writable field count     | Number of non-`readOnly` top-level properties in request schemas.                                                                                                                                                   |
+| Max request/response schema depth  | Deepest nesting level in request and response schemas.                                                                                                                                                              |
+| Polymorphism count                 | Number of `oneOf`, `anyOf`, and `allOf` usages. `anyOf` is penalized more heavily because it allows ambiguous combinations of schemas, making it harder for consumers and AI agents to determine the correct shape. |
+| Property count                     | Total schema properties across request and response.                                                                                                                                                                |
+| Description coverage               | Fraction of operations, parameters, and schema properties that have descriptions.                                                                                                                                   |
+| Ambiguous identifier count         | Parameters with generic names (e.g. `id`, `name`, `type`) and no description.                                                                                                                                       |
+| Constraint coverage                | Count of constraining keywords (`enum`, `format`, `pattern`, `minimum`, `maximum`, `minLength`, `maxLength`, `discriminator`, etc.).                                                                                |
+| Request/response example coverage  | Whether request and response media types include `example` or `examples`.                                                                                                                                           |
+| Structured error response coverage | How many 4xx/5xx responses include a content schema or meaningful description.                                                                                                                                      |
+| Security scheme coverage           | Whether operations reference documented security schemes with descriptions.                                                                                                                                         |
+| Cross-operation dependency depth   | Inferred from shared `$ref` usage across operations. Operations that share many schemas form a dependency graph; deeper graphs indicate tightly coupled multi-step interactions.                                    |
 
 ### Subscores
 
@@ -126,6 +126,6 @@ Use `--format=json` for machine-readable output:
 redocly score openapi.yaml --format=json
 ```
 
-The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, workflow depths, and hotspot details with reasoning.
+The JSON output includes the full data: top-level scores, subscores, per-operation raw metrics, per-operation scores, dependency depths, and hotspot details with reasoning.
 
 The JSON format is suitable for CI pipelines, quality gates, or feeding results into dashboards.
