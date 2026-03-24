@@ -205,5 +205,17 @@ describe('handleLint', () => {
         )} configuration by default.\n\n`
       );
     });
+
+    it('should not suggest recommended fallback if --extends is provided', async () => {
+      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+        return await loadConfig({});
+      });
+      await commandWrapper(handleLint)({ ...argvMock, extends: ['some/path'] });
+      expect(logger.info).not.toHaveBeenCalledWith(
+        `No configurations were provided -- using built in ${blue(
+          'recommended'
+        )} configuration by default.\n\n`
+      );
+    });
   });
 });
