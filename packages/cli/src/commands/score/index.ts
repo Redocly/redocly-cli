@@ -3,6 +3,7 @@ import {
   BaseResolver,
   resolveDocument,
   detectSpec,
+  getMajorSpecVersion,
   getTypes,
   normalizeVisitors,
   walkDocument,
@@ -15,6 +16,7 @@ import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
 import type { VerifyConfigOptions } from '../../types.js';
+import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import {
@@ -60,12 +62,10 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
   collectSpecData?.(document.parsed);
 
   const specVersion = detectSpec(document.parsed);
-  if (!specVersion.startsWith('oas3')) {
-    logger.error(
-      colors.red(`The score command currently supports only OpenAPI 3.x. Detected: ${specVersion}`)
+  if (getMajorSpecVersion(specVersion) !== 'oas3') {
+    return exitWithError(
+      `The score command currently supports only OpenAPI 3.x. Detected: ${specVersion}`
     );
-    process.exitCode = 1;
-    return;
   }
 
   const startedAt = performance.now();
@@ -241,6 +241,7 @@ function printScore(
     case 'json':
       printScoreJson(result);
       break;
+    case 'stylish':
     default:
       printScoreStylish(result, operationDetails);
       break;

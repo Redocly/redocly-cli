@@ -59,7 +59,8 @@ export interface SchemaWalkState {
 
 export function createSchemaWalkState(): SchemaWalkState {
   return {
-    depth: -1,
+    depth: -1, // starts at -1 because the root Schema.enter increments to 0
+
     maxDepth: 0,
     polymorphismCount: 0,
     anyOfCount: 0,
@@ -77,7 +78,8 @@ export function createSchemaWalkState(): SchemaWalkState {
 }
 
 export function resetSchemaWalkState(s: SchemaWalkState): void {
-  s.depth = -1;
+  s.depth = -1; // starts at -1 because the root Schema.enter increments to 0
+
   s.maxDepth = 0;
   s.polymorphismCount = 0;
   s.anyOfCount = 0;

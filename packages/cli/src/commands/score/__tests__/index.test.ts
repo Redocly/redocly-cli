@@ -159,12 +159,7 @@ describe('handleScore', () => {
   it('should reject non-oas3 documents', async () => {
     mockedDetectSpec.mockReturnValue('oas2');
 
-    await handleScore(createArgs());
-
-    expect(process.exitCode).toBe(1);
-    expect(mockError).toHaveBeenCalled();
-    const errorMsg = mockError.mock.calls[0][0];
-    expect(errorMsg).toContain('OpenAPI 3.x');
+    await expect(handleScore(createArgs())).rejects.toThrow('OpenAPI 3.x');
   });
 
   it('should call collectSpecData', async () => {

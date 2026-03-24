@@ -107,7 +107,7 @@ const RESULT: ScoreResult = {
   workflowDepths: new Map(),
 };
 
-function getStylishOutput(result: ScoreResult = RESULT): string {
+function getStylishOutput(result: ScoreResult): string {
   mockOutput.mockClear();
   printScoreStylish(result);
   return mockOutput.mock.calls.map(([s]: [string]) => s).join('');
@@ -115,7 +115,7 @@ function getStylishOutput(result: ScoreResult = RESULT): string {
 
 describe('printScoreStylish', () => {
   it('outputs scores, subscores, metrics, and hotspots', () => {
-    const output = getStylishOutput();
+    const output = getStylishOutput(RESULT);
     expect(output).toContain('Integration Simplicity');
     expect(output).toContain('Agent Readiness');
     expect(output).toContain('Parameter Simplicity');

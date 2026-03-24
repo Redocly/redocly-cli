@@ -90,7 +90,7 @@ yargs(hideBin(process.argv))
           },
           format: {
             description: 'Use a specific output format.',
-            choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
+            choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
             default: 'stylish' as OutputFormat,
           },
           'operation-details': {
