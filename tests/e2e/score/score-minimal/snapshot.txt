@@ -27,10 +27,10 @@
   Raw Metrics Summary
 
   Total operations: 2
-  Avg parameters/operation: 1.0
-  Avg max schema depth: 1.5
-  Avg polymorphism/operation: 0.0
-  Avg properties/operation: 2.0
+  Parameters/operation:   avg 1.0  median 1.0
+  Schema depth:           avg 1.5  median 1.5
+  Polymorphism/operation: avg 0.0  median 0.0
+  Properties/operation:   avg 2.0  median 2.0
   Operations with request examples: 0/2 (0%)
   Operations with response examples: 0/2 (0%)
   Operations with description: 0/2 (0%)
