@@ -1,3 +1,4 @@
+import { createConfig } from '@redocly/openapi-core';
 import { it, expect, vi } from 'vitest';
 
 import { RedoclyOAuthClient } from '../../auth/oauth-client.js';
@@ -18,8 +19,8 @@ it('sendTelemetry calls all telemetry functions', async () => {
   vi.mocked(respondWithinMs).mockResolvedValue(true);
 
   await sendTelemetry({
-    config: { document: { parsed: {} } } as any,
-    argv: { _: ['lint'], $0: 'redocly' } as any,
+    config: await createConfig({}),
+    argv: { _: ['lint'] } as any,
     exit_code: 0,
     execution_time: 1500,
     spec_version: 'oas3_1',
