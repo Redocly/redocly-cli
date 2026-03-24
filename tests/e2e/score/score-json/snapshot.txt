@@ -1,6 +1,7 @@
 {
-  "integrationSimplicity": 83,
-  "agentReadiness": 86.6,
+  "integrationSimplicity": 86.2,
+  "agentReadiness": 90.2,
+  "discoverability": 99,
   "integrationSubscores": {
     "parameterSimplicity": 0.8625,
     "schemaSimplicity": 0.796875,
@@ -8,7 +9,7 @@
     "constraintClarity": 0.5833333333333333,
     "exampleCoverage": 0.875,
     "errorClarity": 1,
-    "workflowClarity": 0.7291666666666669
+    "dependencyClarity": 0.7291666666666669
   },
   "agentSubscores": {
     "documentationQuality": 0.9017857142857143,
@@ -16,7 +17,7 @@
     "exampleCoverage": 0.875,
     "errorClarity": 1,
     "identifierClarity": 1,
-    "workflowClarity": 0.7291666666666669,
+    "dependencyClarity": 0.7291666666666669,
     "polymorphismClarity": 1
   },
   "rawMetrics": {
@@ -235,7 +236,7 @@
         "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.8333333333333334
+        "dependencyClarity": 0.8333333333333334
       },
       "agentSubscores": {
         "documentationQuality": 0.8571428571428571,
@@ -243,7 +244,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.8333333333333334,
+        "dependencyClarity": 0.8333333333333334,
         "polymorphismClarity": 1
       }
     },
@@ -257,7 +258,7 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -265,7 +266,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -279,7 +280,7 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -287,7 +288,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -301,7 +302,7 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -309,7 +310,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -323,7 +324,7 @@
         "constraintClarity": 0,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 0.5,
@@ -331,7 +332,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -345,7 +346,7 @@
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -353,7 +354,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -367,7 +368,7 @@
         "constraintClarity": 0.6666666666666666,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "workflowClarity": 0.6666666666666667
+        "dependencyClarity": 0.6666666666666667
       },
       "agentSubscores": {
         "documentationQuality": 0.8571428571428571,
@@ -375,7 +376,7 @@
         "exampleCoverage": 1,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 0.6666666666666667,
+        "dependencyClarity": 0.6666666666666667,
         "polymorphismClarity": 1
       }
     },
@@ -389,7 +390,7 @@
         "constraintClarity": 1,
         "exampleCoverage": 0,
         "errorClarity": 1,
-        "workflowClarity": 1
+        "dependencyClarity": 1
       },
       "agentSubscores": {
         "documentationQuality": 1,
@@ -397,12 +398,12 @@
         "exampleCoverage": 0,
         "errorClarity": 1,
         "identifierClarity": 1,
-        "workflowClarity": 1,
+        "dependencyClarity": 1,
         "polymorphismClarity": 1
       }
     }
   },
-  "workflowDepths": {
+  "dependencyDepths": {
     "getMuseumHours": 1,
     "listSpecialEvents": 2,
     "createSpecialEvent": 2,

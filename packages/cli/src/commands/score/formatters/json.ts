@@ -6,6 +6,7 @@ export function printScoreJson(result: ScoreResult): void {
   const output = {
     integrationSimplicity: result.integrationSimplicity,
     agentReadiness: result.agentReadiness,
+    discoverability: Math.round(result.discoverability * 100),
     integrationSubscores: result.integrationSubscores,
     agentSubscores: result.agentSubscores,
     rawMetrics: {
@@ -52,7 +53,7 @@ export function printScoreJson(result: ScoreResult): void {
         },
       ])
     ),
-    workflowDepths: Object.fromEntries(result.workflowDepths),
+    dependencyDepths: Object.fromEntries(result.dependencyDepths),
     hotspots: result.hotspots,
   };
 

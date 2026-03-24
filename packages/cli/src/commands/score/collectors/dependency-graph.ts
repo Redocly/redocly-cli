@@ -1,12 +1,12 @@
 import type { OperationMetrics } from '../types.js';
 
 /**
- * Builds a workflow dependency graph from shared $ref usage across operations.
+ * Builds a dependency graph from shared $ref usage across operations.
  * An edge from A to B means both A and B reference the same schema $ref.
  * The depth for each operation is the longest path from a root node (no incoming edges)
  * in the undirected "shared ref" graph.
  */
-export function computeWorkflowDepths(
+export function computeDependencyDepths(
   operations: Map<string, OperationMetrics>
 ): Map<string, number> {
   const refToOps = new Map<string, Set<string>>();

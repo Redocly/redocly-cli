@@ -1,4 +1,4 @@
-import { computeWorkflowDepths } from '../collectors/workflow-graph.js';
+import { computeDependencyDepths } from '../collectors/dependency-graph.js';
 import type { OperationMetrics } from '../types.js';
 
 function makeOp(path: string, method: string, refs: string[]): OperationMetrics {
@@ -29,13 +29,13 @@ function makeOp(path: string, method: string, refs: string[]): OperationMetrics 
   };
 }
 
-describe('computeWorkflowDepths', () => {
+describe('computeDependencyDepths', () => {
   it('returns depth 0 for isolated operations', () => {
     const ops = new Map([
       ['opA', makeOp('/a', 'get', ['#/components/schemas/A'])],
       ['opB', makeOp('/b', 'get', ['#/components/schemas/B'])],
     ]);
-    const depths = computeWorkflowDepths(ops);
+    const depths = computeDependencyDepths(ops);
     expect(depths.get('opA')).toBe(0);
     expect(depths.get('opB')).toBe(0);
   });
@@ -46,7 +46,7 @@ describe('computeWorkflowDepths', () => {
       ['opA', makeOp('/a', 'get', [shared])],
       ['opB', makeOp('/b', 'post', [shared])],
     ]);
-    const depths = computeWorkflowDepths(ops);
+    const depths = computeDependencyDepths(ops);
     expect(depths.get('opA')).toBe(1);
     expect(depths.get('opB')).toBe(1);
   });
@@ -57,20 +57,20 @@ describe('computeWorkflowDepths', () => {
       ['opB', makeOp('/b', 'post', ['#/schemas/AB', '#/schemas/BC'])],
       ['opC', makeOp('/c', 'put', ['#/schemas/BC'])],
     ]);
-    const depths = computeWorkflowDepths(ops);
+    const depths = computeDependencyDepths(ops);
     expect(depths.get('opA')).toBe(2);
     expect(depths.get('opC')).toBe(2);
     expect(depths.get('opB')).toBeLessThanOrEqual(2);
   });
 
   it('handles empty operations map', () => {
-    const depths = computeWorkflowDepths(new Map());
+    const depths = computeDependencyDepths(new Map());
     expect(depths.size).toBe(0);
   });
 
   it('handles operations with no refs', () => {
     const ops = new Map([['opA', makeOp('/a', 'get', [])]]);
-    const depths = computeWorkflowDepths(ops);
+    const depths = computeDependencyDepths(ops);
     expect(depths.get('opA')).toBe(0);
   });
 
@@ -81,7 +81,7 @@ describe('computeWorkflowDepths', () => {
       ['opB', makeOp('/b', 'post', [shared])],
       ['opC', makeOp('/c', 'put', [shared])],
     ]);
-    const depths = computeWorkflowDepths(ops);
+    const depths = computeDependencyDepths(ops);
     expect(depths.get('opA')).toBe(1);
     expect(depths.get('opB')).toBe(1);
     expect(depths.get('opC')).toBe(1);

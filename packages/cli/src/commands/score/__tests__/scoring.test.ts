@@ -5,6 +5,7 @@ import {
   computeIntegrationSimplicity,
   computeAgentReadiness,
   computeAllOperationScores,
+  computeDiscoverability,
   computeDocumentScores,
 } from '../scoring.js';
 import type { OperationMetrics, ScoringConstants } from '../types.js';
@@ -166,8 +167,8 @@ describe('scoring', () => {
       const scores1 = computeAllOperationScores(metrics, depths);
       const scores2 = computeAllOperationScores(metrics, depths);
 
-      const doc1 = computeDocumentScores(scores1);
-      const doc2 = computeDocumentScores(scores2);
+      const doc1 = computeDocumentScores(scores1, 1);
+      const doc2 = computeDocumentScores(scores2, 1);
 
       expect(doc1.integrationSimplicity).toBe(doc2.integrationSimplicity);
       expect(doc1.agentReadiness).toBe(doc2.agentReadiness);
@@ -267,18 +268,18 @@ describe('scoring', () => {
     });
   });
 
-  describe('workflow clarity', () => {
-    it('should give full score with 0 workflow depth', () => {
+  describe('dependency clarity', () => {
+    it('should give full score with 0 dependency depth', () => {
       const metrics = makeBaseMetrics();
       const sub = computeOperationIntegrationSubscores(metrics, 0);
-      expect(sub.workflowClarity).toBe(1);
+      expect(sub.dependencyClarity).toBe(1);
     });
 
-    it('should decrease with higher workflow depth', () => {
+    it('should decrease with higher dependency depth', () => {
       const metrics = makeBaseMetrics();
       const sub0 = computeOperationIntegrationSubscores(metrics, 0);
       const sub3 = computeOperationIntegrationSubscores(metrics, 3);
-      expect(sub0.workflowClarity).toBeGreaterThan(sub3.workflowClarity);
+      expect(sub0.dependencyClarity).toBeGreaterThan(sub3.dependencyClarity);
     });
   });
 
@@ -323,6 +324,40 @@ describe('scoring', () => {
     });
   });
 
+  describe('discoverability', () => {
+    it('should return 1 for small APIs', () => {
+      expect(computeDiscoverability(0)).toBe(1);
+      expect(computeDiscoverability(10)).toBeGreaterThan(0.9);
+    });
+
+    it('should decrease with more operations', () => {
+      expect(computeDiscoverability(50)).toBeGreaterThan(computeDiscoverability(200));
+    });
+
+    it('should clamp at 0 for very large APIs', () => {
+      expect(computeDiscoverability(1200)).toBe(0);
+    });
+
+    it('should factor into document scores', () => {
+      const op = makeBaseMetrics({
+        operationDescriptionPresent: true,
+        responseExamplePresent: true,
+      });
+      const doc = {
+        operationCount: 1,
+        operations: new Map([['op1', op]]),
+      };
+      const depths = new Map([['op1', 0]]);
+      const scores = computeAllOperationScores(doc, depths);
+
+      const highDisc = computeDocumentScores(scores, 1.0);
+      const lowDisc = computeDocumentScores(scores, 0.0);
+
+      expect(highDisc.integrationSimplicity).toBeGreaterThanOrEqual(lowDisc.integrationSimplicity);
+      expect(highDisc.agentReadiness).toBeGreaterThanOrEqual(lowDisc.agentReadiness);
+    });
+  });
+
   describe('composite scores', () => {
     it('should produce scores in 0-100 range', () => {
       const metrics = makeBaseMetrics({
@@ -344,7 +379,7 @@ describe('scoring', () => {
 
     it('should return 100/100 for an empty document', () => {
       const opScores = new Map();
-      const { integrationSimplicity, agentReadiness } = computeDocumentScores(opScores);
+      const { integrationSimplicity, agentReadiness } = computeDocumentScores(opScores, 1);
       expect(integrationSimplicity).toBe(100);
       expect(agentReadiness).toBe(100);
     });

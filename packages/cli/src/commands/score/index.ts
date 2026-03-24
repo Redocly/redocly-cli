@@ -17,14 +17,15 @@ import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectMetrics } from './collect-metrics.js';
-import { computeWorkflowDepths } from './collectors/workflow-graph.js';
+import { computeDependencyDepths } from './collectors/dependency-graph.js';
 import { printScoreJson } from './formatters/json.js';
 import { printDebugOperation, printScoreStylish } from './formatters/stylish.js';
 import { selectTopHotspots } from './hotspots.js';
 import {
-  averageAgentSubscores,
-  averageIntegrationSubscores,
+  aggregateAgentSubscores,
+  aggregateIntegrationSubscores,
   computeAllOperationScores,
+  computeDiscoverability,
   computeDocumentScores,
 } from './scoring.js';
 import type { DebugMediaTypeLog, ScoreResult } from './types.js';
@@ -68,21 +69,26 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
     debugOperationId: debugOpId,
   });
 
-  const workflowDepths = computeWorkflowDepths(rawMetrics.operations);
-  const operationScores = computeAllOperationScores(rawMetrics, workflowDepths);
-  const { integrationSimplicity, agentReadiness } = computeDocumentScores(operationScores);
+  const dependencyDepths = computeDependencyDepths(rawMetrics.operations);
+  const operationScores = computeAllOperationScores(rawMetrics, dependencyDepths);
+  const discoverability = computeDiscoverability(rawMetrics.operationCount);
+  const { integrationSimplicity, agentReadiness } = computeDocumentScores(
+    operationScores,
+    discoverability
+  );
 
-  const hotspots = selectTopHotspots(rawMetrics, operationScores, workflowDepths);
+  const hotspots = selectTopHotspots(rawMetrics, operationScores, dependencyDepths);
 
   const result: ScoreResult = {
     integrationSimplicity,
     agentReadiness,
-    integrationSubscores: averageIntegrationSubscores(operationScores),
-    agentSubscores: averageAgentSubscores(operationScores),
+    discoverability,
+    integrationSubscores: aggregateIntegrationSubscores(operationScores),
+    agentSubscores: aggregateAgentSubscores(operationScores),
     rawMetrics,
     hotspots,
     operationScores,
-    workflowDepths,
+    dependencyDepths,
   };
 
   printScore(

@@ -46,7 +46,7 @@ export interface IntegrationSimplicitySubscores {
   constraintClarity: number;
   exampleCoverage: number;
   errorClarity: number;
-  workflowClarity: number;
+  dependencyClarity: number;
 }
 
 export interface AgentReadinessSubscores {
@@ -55,7 +55,7 @@ export interface AgentReadinessSubscores {
   exampleCoverage: number;
   errorClarity: number;
   identifierClarity: number;
-  workflowClarity: number;
+  dependencyClarity: number;
   polymorphismClarity: number;
 }
 
@@ -78,12 +78,13 @@ export interface HotspotOperation {
 export interface ScoreResult {
   integrationSimplicity: number;
   agentReadiness: number;
+  discoverability: number;
   integrationSubscores: IntegrationSimplicitySubscores;
   agentSubscores: AgentReadinessSubscores;
   rawMetrics: DocumentMetrics;
   hotspots: HotspotOperation[];
   operationScores: Map<string, OperationScores>;
-  workflowDepths: Map<string, number>;
+  dependencyDepths: Map<string, number>;
 }
 
 export interface ScoringThresholds {
@@ -91,8 +92,9 @@ export interface ScoringThresholds {
   maxDepthGood: number;
   maxPolymorphismGood: number;
   maxPropertiesGood: number;
-  maxWorkflowDepthGood: number;
+  maxDependencyDepthGood: number;
   maxAmbiguousGood: number;
+  maxOperationsForDiscoverability: number;
 }
 
 export interface ScoringWeights {
@@ -103,7 +105,7 @@ export interface ScoringWeights {
     constraintClarity: number;
     exampleCoverage: number;
     errorClarity: number;
-    workflowClarity: number;
+    dependencyClarity: number;
   };
   agent: {
     documentationQuality: number;
@@ -111,10 +113,11 @@ export interface ScoringWeights {
     exampleCoverage: number;
     errorClarity: number;
     identifierClarity: number;
-    workflowClarity: number;
+    dependencyClarity: number;
     polymorphismClarity: number;
   };
   anyOfPenaltyMultiplier: number;
+  discoverabilityWeight: number;
 }
 
 export interface ScoringConstants {
