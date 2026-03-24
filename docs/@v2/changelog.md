@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.25.1 (2026-03-24)
+
+### Patch Changes
+
+- Fixed an issue where a message about a missing configuration was shown even though the `--extends` option was provided.
+- Updated @redocly/openapi-core to v2.25.1.
+
 ## 2.25.0 (2026-03-24)
 
 ### Minor Changes
