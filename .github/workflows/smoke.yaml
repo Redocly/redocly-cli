@@ -15,8 +15,8 @@ jobs:
   prepare-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: npm
@@ -24,7 +24,7 @@ jobs:
         run: npm ci
       - name: Prepare Smoke
         run: bash ./tests/smoke/basic/prepare-smoke.sh
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -33,11 +33,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
@@ -46,11 +46,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
@@ -59,11 +59,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
       - name: Clear Yarn Cache
@@ -77,11 +77,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
       - name: Clear Yarn Cache
@@ -94,15 +94,15 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
           version: 10
       - run: bash ./tests/smoke/basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
@@ -151,11 +151,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
@@ -164,11 +164,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
@@ -177,11 +177,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - name: Clear Yarn Cache
@@ -195,11 +195,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - name: Clear Yarn Cache
@@ -212,15 +212,15 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
           version: 10
       - run: bash ./tests/smoke/basic/run-smoke.sh "pnpm add ./redocly-cli.tgz" "pnpm run"
@@ -229,12 +229,12 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
@@ -243,12 +243,12 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 22
       - name: Clear caches
@@ -272,11 +272,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
@@ -285,11 +285,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
@@ -298,11 +298,11 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
       - name: Clear Yarn Cache
@@ -316,12 +316,12 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
       - run: bash ./tests/smoke/basic/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
@@ -330,12 +330,12 @@ jobs:
     needs: prepare-smoke
     runs-on: windows-latest
     steps:
-      - uses: actions/cache@v3
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: tests/smoke/basic/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
           enableCrossOsArchive: true
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 20
       - name: Clear caches
@@ -358,7 +358,7 @@ jobs:
   run-smoke--docker-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build docker image
         run: docker build -t redocly/cli:latest .
       - name: Run docker image
