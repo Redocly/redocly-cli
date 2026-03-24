@@ -1,5 +1,4 @@
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
-import type { Config } from '@redocly/openapi-core';
+import { isAbsoluteUrl, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';

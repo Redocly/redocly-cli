@@ -1,16 +1,23 @@
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from '../config/constants.js';
 import type { Plugin, ResolvedConfig } from '../config/types.js';
-import { configBundlerVisitor, pluginsCollectorVisitor } from '../config/visitors.js';
-import type { ConfigBundlerVisitorData, PluginsCollectorVisitorData } from '../config/visitors.js';
+import {
+  configBundlerVisitor,
+  pluginsCollectorVisitor,
+  type ConfigBundlerVisitorData,
+  type PluginsCollectorVisitorData,
+} from '../config/visitors.js';
 import { detectSpec } from '../detect-spec.js';
 import { getTypes } from '../oas-types.js';
-import { BaseResolver, makeDocumentFromString } from '../resolve.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
+import {
+  BaseResolver,
+  makeDocumentFromString,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { CollectFn } from '../utils/types.js';
-import { walkDocument } from '../walk.js';
-import type { WalkContext, NormalizedProblem } from '../walk.js';
+import { walkDocument, type NormalizedProblem, type WalkContext } from '../walk.js';
 import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
 
 export function collectConfigPlugins(

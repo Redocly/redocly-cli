@@ -12,8 +12,7 @@ import type {
   VisitFunction,
 } from '../../../visitors.js';
 import type { UserContext } from '../../../walk.js';
-import { asserts, runOnKeysSet, runOnValuesSet } from './asserts.js';
-import type { Asserts } from './asserts.js';
+import { asserts, runOnKeysSet, runOnValuesSet, type Asserts } from './asserts.js';
 import type { Assertion, AssertionDefinition, AssertionLocators } from './index.js';
 
 export type AssertToApply = {

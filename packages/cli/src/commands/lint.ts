@@ -6,8 +6,10 @@ import {
   pluralize,
   ConfigValidationError,
   logger,
+  type Config,
+  type Exact,
+  type OutputFormat,
 } from '@redocly/openapi-core';
-import type { Config, Exact, OutputFormat } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';

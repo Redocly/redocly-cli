@@ -12,8 +12,11 @@ import {
   ConfigValidationError,
   logger,
   HandledError,
+  type Config,
+  type Oas3Definition,
+  type Oas2Definition,
+  type Exact,
 } from '@redocly/openapi-core';
-import type { Config, Oas3Definition, Oas2Definition, Exact } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
@@ -24,8 +27,13 @@ import { Writable } from 'node:stream';
 import { performance } from 'perf_hooks';
 
 import { handleLintConfig } from '../commands/lint.js';
-import { outputExtensions } from '../types.js';
-import type { Totals, Entrypoint, OutputExtension, CommandArgv } from '../types.js';
+import {
+  outputExtensions,
+  type Totals,
+  type Entrypoint,
+  type OutputExtension,
+  type CommandArgv,
+} from '../types.js';
 import { exitWithError } from './error.js';
 
 export type ExitCode = 0 | 1 | 2;
@@ -137,7 +145,7 @@ export function escapeLanguageName(lang: string) {
 }
 
 export function langToExt(lang: string) {
-  const langObj: any = {
+  const langObj: Record<string, string> = {
     php: '.php',
     'c#': '.cs',
     shell: '.sh',
@@ -167,7 +175,7 @@ export function langToExt(lang: string) {
     'visual basic': '.vb',
     'c/al': '.al',
   };
-  return langObj[lang.toLowerCase()];
+  return langObj[lang.toLowerCase()] ?? '';
 }
 
 export class CircularJSONNotSupportedError extends Error {

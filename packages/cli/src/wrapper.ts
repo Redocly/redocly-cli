@@ -4,14 +4,16 @@ import {
   isPlainObject,
   logger,
   HandledError,
+  type Config,
+  type CollectFn,
+  type ArazzoDefinition,
+  type Exact,
 } from '@redocly/openapi-core';
-import type { Config, CollectFn, ArazzoDefinition, Exact } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv } from './types.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
-import { loadConfigAndHandleErrors } from './utils/miscellaneous.js';
-import type { ExitCode } from './utils/miscellaneous.js';
+import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import { sendTelemetry, collectXSecurityAuthTypes } from './utils/telemetry.js';
 

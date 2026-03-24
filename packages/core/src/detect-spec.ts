@@ -1,4 +1,4 @@
-import type { SpecMajorVersion, SpecVersion } from './oas-types';
+import type { SpecMajorVersion, SpecVersion } from './oas-types.js';
 import { VERSION_PATTERN } from './typings/arazzo.js';
 import { isPlainObject } from './utils/is-plain-object.js';
 

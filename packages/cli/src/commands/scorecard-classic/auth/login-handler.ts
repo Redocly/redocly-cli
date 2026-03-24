@@ -1,5 +1,4 @@
-import { logger } from '@redocly/openapi-core';
-import type { Config } from '@redocly/openapi-core';
+import { logger, type Config } from '@redocly/openapi-core';
 
 import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
 import { getReuniteUrl } from '../../../reunite/api/index.js';

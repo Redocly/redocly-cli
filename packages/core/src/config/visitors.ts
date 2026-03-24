@@ -7,8 +7,7 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
-import { preResolvePluginPath } from './config-resolvers.js';
-import type { PluginResolveInfo } from './config-resolvers.js';
+import { preResolvePluginPath, type PluginResolveInfo } from './config-resolvers.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
 import type { Plugin } from './types.js';
 

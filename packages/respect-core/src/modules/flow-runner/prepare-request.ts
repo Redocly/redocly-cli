@@ -16,14 +16,14 @@ import {
   resolveReusableComponentItem,
   isParameterWithIn,
   handlePayloadReplacements,
+  type ParameterWithIn,
 } from '../context-parser/index.js';
-import { type ParameterWithIn } from '../context-parser/index.js';
 import {
   getOperationFromDescriptionBySource,
   getRequestBodySchema,
   getRequestDataFromOpenApi,
+  type OperationDetails,
 } from '../description-parser/index.js';
-import { type OperationDetails } from '../description-parser/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { createRuntimeExpressionCtx, collectSecretValues } from './context/index.js';
 import { getServerUrl } from './get-server-url.js';
