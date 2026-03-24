@@ -1,82 +1,13 @@
-import {
-  normalizeTypes,
-  getTypes,
-  normalizeVisitors,
-  walkDocument,
-  resolveDocument,
-  BaseResolver,
-  Source,
-  type Document,
-  type WalkContext,
-} from '@redocly/openapi-core';
-
-import {
-  createScoreAccumulator,
-  createScoreVisitor,
-  createSchemaWalkState,
-  resetSchemaWalkState,
-  createSchemaMetricVisitor,
-  getDocumentMetrics,
-} from '../collectors/document-metrics.js';
+import { collectDocumentMetrics } from '../collect-metrics.js';
 import {
   computeOperationIntegrationSubscores,
   computeOperationAgentSubscores,
   computeIntegrationSimplicity,
   computeAgentReadiness,
 } from '../scoring.js';
-import type { DocumentMetrics } from '../types.js';
 
-async function collectDocumentMetrics(doc: Record<string, unknown>): Promise<DocumentMetrics> {
-  const types = normalizeTypes(getTypes('oas3_0'), {});
-  const source = new Source('test.yaml', JSON.stringify(doc));
-  const document: Document = { source, parsed: doc };
-  const externalRefResolver = new BaseResolver();
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-  const ctx: WalkContext = { problems: [], specVersion: 'oas3_0', visitorsData: {} };
-  const schemaWalkState = createSchemaWalkState();
-  const schemaVisitor = createSchemaMetricVisitor(schemaWalkState);
-  const normalizedSchemaVis = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'test-schema', visitor: schemaVisitor }],
-    types
-  );
-  const walkSchema = (schemaNode: any) => {
-    resetSchemaWalkState(schemaWalkState);
-    walkDocument({
-      document: { ...document, parsed: schemaNode },
-      rootType: types.Schema,
-      normalizedVisitors: normalizedSchemaVis,
-      resolvedRefMap,
-      ctx,
-    });
-    return {
-      maxDepth: schemaWalkState.maxDepth,
-      polymorphismCount: schemaWalkState.polymorphismCount,
-      anyOfCount: schemaWalkState.anyOfCount,
-      hasDiscriminator: schemaWalkState.hasDiscriminator,
-      propertyCount: schemaWalkState.propertyCount,
-      totalSchemaProperties: schemaWalkState.totalSchemaProperties,
-      schemaPropertiesWithDescription: schemaWalkState.schemaPropertiesWithDescription,
-      constraintCount: schemaWalkState.constraintCount,
-      hasPropertyExamples: schemaWalkState.hasPropertyExamples,
-      writableTopLevelFields: schemaWalkState.writableTopLevelFields,
-      refsUsed: [...schemaWalkState.refsUsed],
-    };
-  };
-  const accumulator = createScoreAccumulator(walkSchema);
-  const visitor = createScoreVisitor(accumulator);
-  const normalizedVis = normalizeVisitors([{ severity: 'warn', ruleId: 'test', visitor }], types);
-  walkDocument({
-    document,
-    rootType: types.Root,
-    normalizedVisitors: normalizedVis,
-    resolvedRefMap,
-    ctx,
-  });
-  return getDocumentMetrics(accumulator);
+async function collect(doc: Record<string, unknown>) {
+  return (await collectDocumentMetrics(doc)).metrics;
 }
 
 describe('example coverage', () => {
@@ -125,7 +56,7 @@ describe('example coverage', () => {
 
   it('should give perfect example coverage when both request and response examples present', async () => {
     const doc = makeDocument({ requestExample: true, responseExample: true, hasRequestBody: true });
-    const metrics = await collectDocumentMetrics(doc);
+    const metrics = await collect(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     expect(opMetrics.requestExamplePresent).toBe(true);
@@ -141,7 +72,7 @@ describe('example coverage', () => {
       responseExample: true,
       hasRequestBody: true,
     });
-    const metrics = await collectDocumentMetrics(doc);
+    const metrics = await collect(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     expect(opMetrics.requestExamplePresent).toBe(false);
@@ -157,7 +88,7 @@ describe('example coverage', () => {
       responseExample: false,
       hasRequestBody: true,
     });
-    const metrics = await collectDocumentMetrics(doc);
+    const metrics = await collect(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
     const subscores = computeOperationIntegrationSubscores(opMetrics, 0);
@@ -176,10 +107,8 @@ describe('example coverage', () => {
       hasRequestBody: true,
     });
 
-    const metricsWithExamples = (await collectDocumentMetrics(docWith)).operations.get(
-      'createItem'
-    )!;
-    const metricsWithout = (await collectDocumentMetrics(docWithout)).operations.get('createItem')!;
+    const metricsWithExamples = (await collect(docWith)).operations.get('createItem')!;
+    const metricsWithout = (await collect(docWithout)).operations.get('createItem')!;
 
     const subWith = computeOperationIntegrationSubscores(metricsWithExamples, 0);
     const subWithout = computeOperationIntegrationSubscores(metricsWithout, 0);
@@ -202,10 +131,8 @@ describe('example coverage', () => {
       hasRequestBody: true,
     });
 
-    const metricsWithExamples = (await collectDocumentMetrics(docWith)).operations.get(
-      'createItem'
-    )!;
-    const metricsWithout = (await collectDocumentMetrics(docWithout)).operations.get('createItem')!;
+    const metricsWithExamples = (await collect(docWith)).operations.get('createItem')!;
+    const metricsWithout = (await collect(docWithout)).operations.get('createItem')!;
 
     const subWith = computeOperationAgentSubscores(metricsWithExamples, 0);
     const subWithout = computeOperationAgentSubscores(metricsWithout, 0);
@@ -252,7 +179,7 @@ describe('example coverage', () => {
       },
     };
 
-    const metrics = await collectDocumentMetrics(doc);
+    const metrics = await collect(doc);
     const opMetrics = metrics.operations.get('createItem')!;
     expect(opMetrics.requestExamplePresent).toBe(true);
     expect(opMetrics.responseExamplePresent).toBe(true);

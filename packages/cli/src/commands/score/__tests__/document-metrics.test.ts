@@ -1,92 +1,17 @@
-import {
-  normalizeTypes,
-  getTypes,
-  normalizeVisitors,
-  walkDocument,
-  resolveDocument,
-  BaseResolver,
-  Source,
-  parseYaml,
-  type Document,
-  type WalkContext,
-} from '@redocly/openapi-core';
+import { parseYaml } from '@redocly/openapi-core';
 import { outdent } from 'outdent';
+
+import { collectDocumentMetrics } from '../collect-metrics.js';
 
 const yaml = (source: string) => parseYaml(source) as Record<string, unknown>;
 
-import {
-  createScoreAccumulator,
-  createScoreVisitor,
-  createSchemaWalkState,
-  resetSchemaWalkState,
-  createSchemaMetricVisitor,
-  getDocumentMetrics,
-} from '../collectors/document-metrics.js';
-import type { DocumentMetrics } from '../types.js';
-
-async function collectDocumentMetrics(doc: Record<string, unknown>): Promise<DocumentMetrics> {
-  const types = normalizeTypes(getTypes('oas3_0'), {});
-  const source = new Source('test.yaml', JSON.stringify(doc));
-  const document: Document = { source, parsed: doc };
-  const externalRefResolver = new BaseResolver();
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-  const ctx: WalkContext = {
-    problems: [],
-    specVersion: 'oas3_0',
-    visitorsData: {},
-  };
-
-  const schemaWalkState = createSchemaWalkState();
-  const schemaVisitor = createSchemaMetricVisitor(schemaWalkState);
-  const normalizedSchemaVis = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'test-schema', visitor: schemaVisitor }],
-    types
-  );
-
-  const walkSchema = (schemaNode: any) => {
-    resetSchemaWalkState(schemaWalkState);
-    walkDocument({
-      document: { ...document, parsed: schemaNode },
-      rootType: types.Schema,
-      normalizedVisitors: normalizedSchemaVis,
-      resolvedRefMap,
-      ctx,
-    });
-    return {
-      maxDepth: schemaWalkState.maxDepth,
-      polymorphismCount: schemaWalkState.polymorphismCount,
-      anyOfCount: schemaWalkState.anyOfCount,
-      hasDiscriminator: schemaWalkState.hasDiscriminator,
-      propertyCount: schemaWalkState.propertyCount,
-      totalSchemaProperties: schemaWalkState.totalSchemaProperties,
-      schemaPropertiesWithDescription: schemaWalkState.schemaPropertiesWithDescription,
-      constraintCount: schemaWalkState.constraintCount,
-      hasPropertyExamples: schemaWalkState.hasPropertyExamples,
-      writableTopLevelFields: schemaWalkState.writableTopLevelFields,
-      refsUsed: [...schemaWalkState.refsUsed],
-    };
-  };
-
-  const accumulator = createScoreAccumulator(walkSchema);
-  const visitor = createScoreVisitor(accumulator);
-  const normalizedVis = normalizeVisitors([{ severity: 'warn', ruleId: 'test', visitor }], types);
-  walkDocument({
-    document,
-    rootType: types.Root,
-    normalizedVisitors: normalizedVis,
-    resolvedRefMap,
-    ctx,
-  });
-  return getDocumentMetrics(accumulator);
+async function collect(doc: Record<string, unknown>) {
+  return (await collectDocumentMetrics(doc)).metrics;
 }
 
 describe('collectDocumentMetrics', () => {
   it('returns zero operations for empty paths', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -100,7 +25,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('counts operations, uses operationId as key or falls back to METHOD /path', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -132,7 +57,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('counts parameters, resolves $refs, merges path-level params, and detects ambiguous names', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -171,7 +96,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('detects request body with $ref schema, examples, constraints, and property descriptions', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -216,7 +141,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('resolves response $refs, counts structured errors, and computes schema depth', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -269,7 +194,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('detects operation descriptions and tracks shared $ref usage across operations', async () => {
-    const result = await collectDocumentMetrics(
+    const result = await collect(
       yaml(outdent`
         openapi: 3.0.0
         info:

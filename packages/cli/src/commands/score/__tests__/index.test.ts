@@ -8,8 +8,6 @@ vi.mock('@redocly/openapi-core', async (importOriginal) => {
     resolveDocument: vi.fn(),
     normalizeTypes: vi.fn(),
     getTypes: vi.fn(),
-    normalizeVisitors: vi.fn(),
-    walkDocument: vi.fn(),
     logger: { output: vi.fn(), info: vi.fn(), error: vi.fn() },
   };
 });
@@ -19,45 +17,24 @@ vi.mock('../../../utils/miscellaneous.js', () => ({
   printExecutionTime: vi.fn(),
 }));
 
-vi.mock('../collectors/document-metrics.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
-  return {
-    ...actual,
-    createScoreAccumulator: vi.fn(),
-    createScoreVisitor: vi.fn(),
-  };
-});
+vi.mock('../collect-metrics.js', () => ({
+  collectMetrics: vi.fn(),
+}));
 
-import {
-  bundle,
-  detectSpec,
-  logger,
-  normalizeTypes,
-  resolveDocument,
-  normalizeVisitors,
-  walkDocument,
-} from '@redocly/openapi-core';
+import { bundle, detectSpec, logger, normalizeTypes, resolveDocument } from '@redocly/openapi-core';
 
 import { getFallbackApisOrExit } from '../../../utils/miscellaneous.js';
-import {
-  createScoreAccumulator,
-  createScoreVisitor,
-  type ScoreAccumulator,
-} from '../collectors/document-metrics.js';
+import { collectMetrics } from '../collect-metrics.js';
 import { handleScore, type ScoreArgv } from '../index.js';
-import type { OperationMetrics } from '../types.js';
+import type { DocumentMetrics, OperationMetrics } from '../types.js';
 
 const mockedBundle = vi.mocked(bundle);
 const mockedDetectSpec = vi.mocked(detectSpec);
 const mockedGetFallback = vi.mocked(getFallbackApisOrExit);
 const mockOutput = vi.mocked(logger.output);
-const mockError = vi.mocked(logger.error);
-const mockedCreateAccumulator = vi.mocked(createScoreAccumulator);
-const mockedCreateVisitor = vi.mocked(createScoreVisitor);
+const mockedCollectMetrics = vi.mocked(collectMetrics);
 const mockedNormalizeTypes = vi.mocked(normalizeTypes);
 const mockedResolveDocument = vi.mocked(resolveDocument);
-const mockedNormalizeVisitors = vi.mocked(normalizeVisitors);
-const mockedWalkDocument = vi.mocked(walkDocument);
 
 function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetrics {
   return {
@@ -89,27 +66,8 @@ function makeTestMetrics(overrides: Partial<OperationMetrics> = {}): OperationMe
   };
 }
 
-function makeAccumulator(ops: Map<string, OperationMetrics> = new Map()): ScoreAccumulator {
-  return {
-    operations: ops,
-    currentPath: '',
-    pathLevelParams: [],
-    current: null,
-    walkSchema: () => ({
-      maxDepth: 0,
-      polymorphismCount: 0,
-      anyOfCount: 0,
-      hasDiscriminator: false,
-      propertyCount: 0,
-      totalSchemaProperties: 0,
-      schemaPropertiesWithDescription: 0,
-      constraintCount: 0,
-      hasPropertyExamples: false,
-      writableTopLevelFields: 0,
-      refsUsed: [],
-    }),
-    debugLogs: [],
-  };
+function makeDocumentMetrics(ops: Map<string, OperationMetrics> = new Map()): DocumentMetrics {
+  return { operationCount: ops.size, operations: ops };
 }
 
 function createArgs(overrides: Partial<ScoreArgv> = {}) {
@@ -124,18 +82,15 @@ function createArgs(overrides: Partial<ScoreArgv> = {}) {
 describe('handleScore', () => {
   beforeEach(() => {
     mockOutput.mockClear();
-    mockError.mockClear();
     mockedGetFallback.mockResolvedValue([{ path: 'test.yaml' }] as any);
     mockedBundle.mockResolvedValue({ bundle: { parsed: {} } } as any);
     mockedDetectSpec.mockReturnValue('oas3_0');
     mockedNormalizeTypes.mockReturnValue({ Root: {} } as any);
     mockedResolveDocument.mockResolvedValue(new Map() as any);
-    mockedNormalizeVisitors.mockReturnValue([] as any);
-    mockedWalkDocument.mockImplementation(() => {});
-    mockedCreateVisitor.mockReturnValue({} as any);
-    mockedCreateAccumulator.mockReturnValue(
-      makeAccumulator(new Map([['listItems', makeTestMetrics()]]))
-    );
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(new Map([['listItems', makeTestMetrics()]])),
+      debugLogs: [],
+    });
     process.exitCode = undefined;
   });
 
@@ -175,7 +130,10 @@ describe('handleScore', () => {
   });
 
   it('should handle document with no operations', async () => {
-    mockedCreateAccumulator.mockReturnValue(makeAccumulator());
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(),
+      debugLogs: [],
+    });
 
     await handleScore(createArgs());
 
@@ -184,8 +142,8 @@ describe('handleScore', () => {
   });
 
   it('should handle document with multiple operations', async () => {
-    mockedCreateAccumulator.mockReturnValue(
-      makeAccumulator(
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(
         new Map([
           ['listItems', makeTestMetrics()],
           [
@@ -199,8 +157,9 @@ describe('handleScore', () => {
             }),
           ],
         ])
-      )
-    );
+      ),
+      debugLogs: [],
+    });
 
     await handleScore(createArgs({ format: 'json' }));
 
@@ -211,8 +170,8 @@ describe('handleScore', () => {
   });
 
   it('should include hotspots in output', async () => {
-    mockedCreateAccumulator.mockReturnValue(
-      makeAccumulator(
+    mockedCollectMetrics.mockReturnValue({
+      metrics: makeDocumentMetrics(
         new Map([
           [
             'complexOp',
@@ -226,8 +185,9 @@ describe('handleScore', () => {
             }),
           ],
         ])
-      )
-    );
+      ),
+      debugLogs: [],
+    });
 
     await handleScore(createArgs());
 
