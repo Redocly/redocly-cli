@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.25.1
+
+### Patch Changes
+
+- Fixed an issue where a message about a missing configuration was shown even though the `--extends` option was provided.
+- Updated @redocly/openapi-core to v2.25.1.
+
 ## 2.25.0
 
 ### Minor Changes
