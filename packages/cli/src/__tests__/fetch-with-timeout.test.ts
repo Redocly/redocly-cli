@@ -1,4 +1,4 @@
-import AbortController from 'abort-controller';
+import { AbortController } from 'abort-controller';
 import { Agent, ProxyAgent } from 'undici';
 
 import fetchWithTimeout from '../utils/fetch-with-timeout.js';

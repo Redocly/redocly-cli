@@ -7,8 +7,8 @@ import type {
   ResolvedSecurity,
 } from '@redocly/openapi-core';
 
-import type { TestContext } from '../../types';
-import type { ParameterWithIn } from './parse-parameters';
+import type { TestContext } from '../../types.js';
+import type { ParameterWithIn } from './parse-parameters.js';
 
 export function getSecurityParameter(
   security: ResolvedSecurity,

@@ -9,7 +9,7 @@ import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 
-const ajv = new Ajv({
+const ajv = new (Ajv as any)({
   strictSchema: false,
   allowUnionTypes: true,
   useDefaults: true,

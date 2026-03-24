@@ -1,4 +1,4 @@
-import type { JSONSchemaType } from '@redocly/ajv/dist/2020';
+import type { JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 
 import { cleanColors } from '../../utils/clean-colors.js';
 import { printErrors } from '../ajv-errors.js';
