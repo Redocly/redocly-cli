@@ -207,10 +207,6 @@ describe('ref-utils', () => {
       expect(isAbsoluteUrl('../api.yaml')).toBe(false);
       expect(isAbsoluteUrl('/Users/test/api.yaml')).toBe(false);
     });
-
-    it('should return false if the ref is not a string', () => {
-      expect(isAbsoluteUrl(null as any)).toBe(false);
-    });
   });
 
   describe('isMappingRef', () => {

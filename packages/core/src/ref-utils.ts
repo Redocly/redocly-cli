@@ -87,11 +87,10 @@ export function refBaseName(ref: string) {
 
 export function isAbsoluteUrl(ref: string) {
   return (
-    typeof ref === 'string' &&
-    (ref.startsWith('http://') ||
-      ref.startsWith('https://') ||
-      ref.startsWith('file://') ||
-      ref.startsWith('data:'))
+    ref.startsWith('http://') ||
+    ref.startsWith('https://') ||
+    ref.startsWith('file://') ||
+    ref.startsWith('data:')
   );
 }
 
