@@ -72,6 +72,13 @@ function buildBar(fraction: number): string {
   return cyan('[' + '\u2588'.repeat(filled) + '\u2591'.repeat(width - filled) + ']');
 }
 
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
 function printRawMetricsSummary(result: ScoreResult): void {
   out(bold(white('  Raw Metrics Summary')));
   out('');
@@ -82,29 +89,32 @@ function printRawMetricsSummary(result: ScoreResult): void {
     return;
   }
 
-  let totalParams = 0;
-  let totalDepth = 0;
-  let totalPoly = 0;
-  let totalProps = 0;
+  const params: number[] = [];
+  const depths: number[] = [];
+  const polys: number[] = [];
+  const props: number[] = [];
   let opsWithReqExample = 0;
   let opsWithResExample = 0;
   let opsWithDescription = 0;
 
   for (const m of result.rawMetrics.operations.values()) {
-    totalParams += m.parameterCount;
-    totalDepth += Math.max(m.maxRequestSchemaDepth, m.maxResponseSchemaDepth);
-    totalPoly += m.polymorphismCount;
-    totalProps += m.propertyCount;
+    params.push(m.parameterCount);
+    depths.push(Math.max(m.maxRequestSchemaDepth, m.maxResponseSchemaDepth));
+    polys.push(m.polymorphismCount);
+    props.push(m.propertyCount);
     if (m.requestExamplePresent) opsWithReqExample++;
     if (m.responseExamplePresent) opsWithResExample++;
     if (m.operationDescriptionPresent) opsWithDescription++;
   }
 
   const n = result.rawMetrics.operationCount;
-  out(`  Avg parameters/operation: ${(totalParams / n).toFixed(1)}`);
-  out(`  Avg max schema depth: ${(totalDepth / n).toFixed(1)}`);
-  out(`  Avg polymorphism/operation: ${(totalPoly / n).toFixed(1)}`);
-  out(`  Avg properties/operation: ${(totalProps / n).toFixed(1)}`);
+  const avg = (arr: number[]) => (arr.reduce((s, v) => s + v, 0) / n).toFixed(1);
+  const med = (arr: number[]) => median(arr).toFixed(1);
+
+  out(`  Parameters/operation:   avg ${avg(params)}  median ${med(params)}`);
+  out(`  Schema depth:           avg ${avg(depths)}  median ${med(depths)}`);
+  out(`  Polymorphism/operation: avg ${avg(polys)}  median ${med(polys)}`);
+  out(`  Properties/operation:   avg ${avg(props)}  median ${med(props)}`);
   out(
     `  Operations with request examples: ${opsWithReqExample}/${n} (${fmtPct(opsWithReqExample, n)})`
   );
