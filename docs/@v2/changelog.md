@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.25.0 (2026-03-24)
+
+### Minor Changes
+
+- Added `no-mixed-number-range-constraints` rule for OpenAPI `3.1+`, as well as for AsyncAPI and Arazzo.
+  This rule warns when schemas use both `maximum` and `exclusiveMaximum` or both `minimum` and `exclusiveMinimum` keywords.
+
+### Patch Changes
+
+- Fixed an issue where invalid discriminator mapping values could cause linting to fail.
+- Resolved high severity audit vulnerabilities by updating dependency versions.
+- Updated @redocly/openapi-core to v2.25.0.
+
 ## 2.24.1 (2026-03-20)
 
 ### Patch Changes
