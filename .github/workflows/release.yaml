@@ -39,7 +39,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: RomanHotsiy/changesets-action@4ed657858ce1589cbe4a31fce7aed03b8346f446 # v1.4.2
+        uses: RomanHotsiy/changesets-action@v1
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: npm run release
@@ -174,7 +174,7 @@ jobs:
 
       - name: Send to a Slack channel
         id: slack
-        uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
         with:
           channel-id: C019K52TC0L #releases
           payload-file-path: ./output/release-message.json

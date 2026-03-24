@@ -54,5 +54,5 @@ jobs:
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          filePath: tests/performance/benchmark_chart.md
-          comment_tag: historical-versions-comparison
+          file-path: tests/performance/benchmark_chart.md
+          comment-tag: historical-versions-comparison
