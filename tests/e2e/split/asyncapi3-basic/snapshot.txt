@@ -28,7 +28,7 @@ asyncapi: 3.0.0
 info:
   title: Simple AsyncAPI 3 Example
   version: 1.0.0
-  description: A simple AsyncAPI 3 example for testing split command
+  description: A simple AsyncAPI v3 example for testing split command
 channels:
   userSignedup:
     $ref: channels/userSignedup.yaml
