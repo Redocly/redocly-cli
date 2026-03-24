@@ -66,7 +66,7 @@ export async function handleLint({
       aliasConfig.skipRules(argv['skip-rule']);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
 
-      if (typeof config.document?.parsed === 'undefined') {
+      if (typeof config.document?.parsed === 'undefined' && !argv.extends) {
         logger.info(
           `No configurations were provided -- using built in ${blue(
             'recommended'
