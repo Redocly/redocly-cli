@@ -71,21 +71,32 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   if (!fs.existsSync(api)) exitWithError(`File ${blue(api)} does not exist.`);
 
   const definition = readYaml(api) as AnyDefinition;
-  const specType = detectSpecType(definition);
-  validateDefinition(api, definition, specType);
   collectSpecData?.(definition);
 
-  if (specType === 'openapi') {
-    splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
-  } else {
-    const specVersion = detectSpec(definition) as 'async2' | 'async3';
-    splitAsyncApiDefinition({
-      asyncapi: definition as AnyAsyncApiDefinition,
-      asyncapiDir: outDir,
-      pathSeparator: separator,
-      ext,
-      specVersion,
-    });
+  const specVersion = detectSpec(definition);
+  switch (specVersion) {
+    case 'async2':
+    case 'async3':
+      splitAsyncApiDefinition({
+        asyncapi: definition as AnyAsyncApiDefinition,
+        asyncapiDir: outDir,
+        pathSeparator: separator,
+        ext,
+        specVersion,
+      });
+      break;
+    case 'oas3_0':
+    case 'oas3_1':
+    case 'oas3_2':
+      splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
+      break;
+    case 'oas2':
+      exitWithError('OpenAPI 2 is not supported by this command.');
+      break;
+    default:
+      exitWithError(
+        'File does not conform to the OpenAPI or AsyncAPI Specification. Version is not specified.'
+      );
   }
 
   logger.info(
@@ -138,41 +149,6 @@ export function startsWithComponents(node: string) {
 
 function isSupportedExtension(filename: string) {
   return filename.endsWith('.yaml') || filename.endsWith('.yml') || filename.endsWith('.json');
-}
-
-function detectSpecType(definition: Definition): 'openapi' | 'asyncapi' | null {
-  if ((definition as AnyOas3Definition).openapi) {
-    return 'openapi';
-  }
-  if ((definition as AnyAsyncApiDefinition).asyncapi) {
-    return 'asyncapi';
-  }
-  return null;
-}
-
-function validateDefinition(
-  fileName: string,
-  definition: Definition,
-  specType: 'openapi' | 'asyncapi' | null
-): void {
-  if ((definition as Oas2Definition).swagger) {
-    exitWithError('OpenAPI 2 is not supported by this command.');
-  }
-
-  if (!specType) {
-    exitWithError(
-      'File does not conform to the OpenAPI or AsyncAPI Specification. Version is not specified.'
-    );
-  }
-
-  if (specType === 'asyncapi') {
-    const version = detectSpec(definition);
-    if (version !== 'async2' && version !== 'async3') {
-      exitWithError(
-        `Unsupported AsyncAPI version: ${(definition as AnyAsyncApiDefinition).asyncapi}`
-      );
-    }
-  }
 }
 
 function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {
@@ -570,16 +546,11 @@ function iterateAsyncApiOperations({
 
 function findAsyncApiComponentTypes(components: any, specVersion: 'async2' | 'async3') {
   const componentNames =
-    specVersion === 'async2' ? ASYNCAPI2_COMPONENT_NAMES : ASYNCAPI3_COMPONENT_NAMES;
-  const excluded = new Set([
-    'securitySchemes',
-    'servers',
-    'serverVariables',
-    'channels',
-    'operations',
-  ]);
+    specVersion === 'async2'
+      ? ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES
+      : ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES;
 
-  return componentNames.filter((item) => !excluded.has(item) && item in components);
+  return componentNames.filter((item) => item in components);
 }
 
 function iterateAsyncApiComponents({
@@ -604,7 +575,7 @@ function iterateAsyncApiComponents({
     componentTypes.forEach(iterateComponentTypes);
 
     function iterateAndGatherComponentsFiles(
-      componentType: AsyncApi2Component | AsyncApi3Component
+      componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
     ) {
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
@@ -620,7 +591,9 @@ function iterateAsyncApiComponents({
       }
     }
 
-    function iterateComponentTypes(componentType: AsyncApi2Component | AsyncApi3Component) {
+    function iterateComponentTypes(
+      componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
+    ) {
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
@@ -638,17 +611,7 @@ function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        // Don't delete security schemes, servers, serverVariables, channels, and operations from components
-        const preservedTypes = [
-          'securitySchemes',
-          'servers',
-          'serverVariables',
-          'channels',
-          'operations',
-        ];
-        if (!preservedTypes.includes(componentType)) {
-          delete (asyncapi as any).components?.[componentType]?.[componentName];
-        }
+        delete (asyncapi as any).components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }
@@ -657,12 +620,15 @@ function iterateAsyncApiComponents({
 
 function removeAsyncApiEmptyComponents(
   asyncapi: AnyAsyncApiDefinition,
-  componentType: AsyncApi2Component | AsyncApi3Component
+  componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
 ) {
   const components = (asyncapi as any).components;
-  if (components && isEmptyObject(components[componentType])) {
+  if (!components) return;
+
+  if (isEmptyObject(components[componentType])) {
     delete components[componentType];
   }
+
   if (isEmptyObject(components)) {
     delete (asyncapi as any).components;
   }

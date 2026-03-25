@@ -75,6 +75,20 @@ export const ASYNCAPI2_COMPONENT_NAMES = [
   'messageBindings',
 ] as const;
 
+export type AsyncApi2SplittableComponent = (typeof ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES)[number];
+export const ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES = [
+  'schemas',
+  'messages',
+  'parameters',
+  'correlationIds',
+  'messageTraits',
+  'operationTraits',
+  'serverBindings',
+  'channelBindings',
+  'operationBindings',
+  'messageBindings',
+] as const;
+
 export type AsyncApi3Component = (typeof ASYNCAPI3_COMPONENT_NAMES)[number];
 export const ASYNCAPI3_COMPONENT_NAMES = [
   'schemas',
@@ -92,6 +106,24 @@ export const ASYNCAPI3_COMPONENT_NAMES = [
   'serverVariables',
   'channels',
   'operations',
+  'serverBindings',
+  'channelBindings',
+  'operationBindings',
+  'messageBindings',
+] as const;
+
+export type AsyncApi3SplittableComponent = (typeof ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES)[number];
+export const ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES = [
+  'schemas',
+  'messages',
+  'parameters',
+  'replies',
+  'replyAddresses',
+  'correlationIds',
+  'messageTraits',
+  'operationTraits',
+  'tags',
+  'externalDocs',
   'serverBindings',
   'channelBindings',
   'operationBindings',

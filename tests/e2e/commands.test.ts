@@ -435,6 +435,16 @@ describe('E2E', () => {
       const result = getCommandOutput(args, { testPath });
       await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
+
+    test('asyncapi3-complex', async () => {
+      const testPath = join(__dirname, `split/asyncapi3-complex`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
   });
 
   describe('join', () => {
