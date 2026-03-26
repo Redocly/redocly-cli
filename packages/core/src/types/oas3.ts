@@ -214,7 +214,7 @@ const License: NodeType = {
 
 const Paths: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) =>
+  additionalProperties: (_value: unknown, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
   description:
     'The Paths Object is a map of a paths to the path item object. A path starts with a /.',
@@ -224,7 +224,7 @@ const Paths: NodeType = {
 
 const WebhooksMap: NodeType = {
   properties: {},
-  additionalProperties: () => 'PathItem',
+  additionalProperties: (_value: unknown, _key: string) => 'PathItem',
   documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/webhooks#types',
 };
 
@@ -516,7 +516,7 @@ const Header: NodeType = {
 
 const Responses: NodeType = {
   properties: { default: 'Response' },
-  additionalProperties: (_v: any, key: string) =>
+  additionalProperties: (_v: unknown, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
   description: 'The list of possible responses as they are returned from executing this operation.',
   documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/named-responses',
@@ -611,14 +611,14 @@ const Schema: NodeType = {
     }),
     not: 'Schema',
     properties: 'SchemaProperties',
-    items: (value: any) => {
+    items: (value: unknown) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
       } else {
         return 'Schema';
       }
     },
-    additionalProperties: (value: any) => {
+    additionalProperties: (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
@@ -669,8 +669,8 @@ const SchemaProperties: NodeType = {
 
 const DiscriminatorMapping: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
-    if (isMappingRef(value)) {
+  additionalProperties: (value: unknown) => {
+    if (typeof value === 'string' && isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };
@@ -754,7 +754,7 @@ const AuthorizationCode: NodeType = {
     authorizationUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
-    'x-usePkce': (value: any) => {
+    'x-usePkce': (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
