@@ -31,33 +31,33 @@ export class Source {
     public mimeType?: string
   ) {}
 
-  private _ast: YAMLNode | undefined;
-  private _lines: string[] | undefined;
+  #ast: YAMLNode | undefined;
+  #lines: string[] | undefined;
 
   // pass safeLoad as argument to separate it from browser bundle
   getAst(safeLoad: (input: string, options?: LoadOptions | undefined) => YAMLNode) {
-    if (this._ast === undefined) {
-      this._ast = safeLoad(this.body, { filename: this.absoluteRef }) ?? undefined;
+    if (this.#ast === undefined) {
+      this.#ast = safeLoad(this.body, { filename: this.absoluteRef }) ?? undefined;
 
       // fix ast representation of file with newlines only
       if (
-        this._ast &&
-        this._ast.kind === 0 && // KIND.scalar = 0
-        this._ast.value === '' &&
-        this._ast.startPosition !== 1
+        this.#ast &&
+        this.#ast.kind === 0 && // KIND.scalar = 0
+        this.#ast.value === '' &&
+        this.#ast.startPosition !== 1
       ) {
-        this._ast.startPosition = 1;
-        this._ast.endPosition = 1;
+        this.#ast.startPosition = 1;
+        this.#ast.endPosition = 1;
       }
     }
-    return this._ast;
+    return this.#ast;
   }
 
   getLines() {
-    if (this._lines === undefined) {
-      this._lines = this.body.split(/\r\n|[\n\r]/g);
+    if (this.#lines === undefined) {
+      this.#lines = this.body.split(/\r\n|[\n\r]/g);
     }
-    return this._lines;
+    return this.#lines;
   }
 }
 
