@@ -8,12 +8,10 @@ import {
   walkDocument,
   bundle,
   logger,
-} from '@redocly/openapi-core';
-import type {
-  OASStatsAccumulator,
-  AsyncAPIStatsAccumulator,
-  WalkContext,
-  OutputFormat,
+  type OASStatsAccumulator,
+  type AsyncAPIStatsAccumulator,
+  type WalkContext,
+  type OutputFormat,
 } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';

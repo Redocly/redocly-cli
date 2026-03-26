@@ -7,20 +7,18 @@ import {
   logger,
   isEmptyObject,
   isPlainObject,
-} from '@redocly/openapi-core';
-import type {
-  Oas3Definition,
-  Oas3_1Definition,
-  Oas3_2Definition,
-  Oas2Definition,
-  Oas3Schema,
-  Oas3_1Schema,
-  Oas3Components,
-  Oas3_1Components,
-  Oas3ComponentName,
-  Oas3PathItem,
-  OasRef,
-  Referenced,
+  type Oas3Definition,
+  type Oas3_1Definition,
+  type Oas3_2Definition,
+  type Oas2Definition,
+  type Oas3Schema,
+  type Oas3_1Schema,
+  type Oas3Components,
+  type Oas3_1Components,
+  type Oas3ComponentName,
+  type Oas3PathItem,
+  type OasRef,
+  type Referenced,
 } from '@redocly/openapi-core';
 import { red, blue, green } from 'colorette';
 import * as fs from 'node:fs';
@@ -39,8 +37,15 @@ import {
   getAndValidateFileExtension,
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { COMPONENTS, OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './types.js';
-import type { ComponentsFiles, Definition, Oas3Component, RefObject } from './types.js';
+import {
+  COMPONENTS,
+  OPENAPI3_METHOD_NAMES,
+  OPENAPI3_COMPONENT_NAMES,
+  type ComponentsFiles,
+  type Definition,
+  type Oas3Component,
+  type RefObject,
+} from './types.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 

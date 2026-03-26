@@ -43,7 +43,7 @@
 
     "import/no-cycle": ["warn"],
     "import/no-duplicates": [
-      "warn",
+      "error",
       {
         "preferInline": true
       }

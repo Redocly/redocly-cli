@@ -7,8 +7,7 @@ import { makeDocumentFromString } from '../../../resolve.js';
 import { createEntityTypes } from '../../../types/entity.js';
 import { normalizeTypes } from '../../../types/index.js';
 import { normalizeVisitors } from '../../../visitors.js';
-import { walkDocument } from '../../../walk.js';
-import type { WalkContext } from '../../../walk.js';
+import { walkDocument, type WalkContext } from '../../../walk.js';
 import { EntityKeyValid } from '../entity-key-valid.js';
 
 function lintEntityKey(source: string): WalkContext['problems'] {

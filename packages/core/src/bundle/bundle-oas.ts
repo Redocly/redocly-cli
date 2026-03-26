@@ -1,8 +1,7 @@
 import { Config } from '../config/config.js';
 import { detectSpec } from '../detect-spec.js';
 // Specialized OAS only bundle export for vite bundle
-import { BaseResolver } from '../resolve.js';
-import { type Document } from '../resolve.js';
+import { BaseResolver, type Document } from '../resolve.js';
 import { type NodeType } from '../types/index.js';
 import { Oas2Types } from '../types/oas2.js';
 import { Oas3Types } from '../types/oas3.js';

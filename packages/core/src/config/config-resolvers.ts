@@ -7,8 +7,13 @@ import { bundleConfig, collectConfigPlugins } from '../bundle/bundle.js';
 import { isBrowser } from '../env.js';
 import { colorize, logger } from '../logger.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
-import { resolveDocument, BaseResolver, Source } from '../resolve.js';
-import type { Document, ResolvedRefMap } from '../resolve.js';
+import {
+  resolveDocument,
+  BaseResolver,
+  Source,
+  type Document,
+  type ResolvedRefMap,
+} from '../resolve.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';

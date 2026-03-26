@@ -1,5 +1,4 @@
-import { logger } from '@redocly/openapi-core';
-import type { OutputFormat } from '@redocly/openapi-core';
+import { logger, type OutputFormat } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 
 import type { VerifyConfigOptions } from '../../types.js';
