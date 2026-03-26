@@ -24,7 +24,7 @@ export const Schema: NodeType = {
     minProperties: { type: 'integer', minimum: 0 },
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
-    type: (value: any) => {
+    type: (value: unknown) => {
       return Array.isArray(value)
         ? {
             type: 'array',
@@ -45,10 +45,10 @@ export const Schema: NodeType = {
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
     properties: 'SchemaProperties',
-    items: (value: any) => {
+    items: (value: unknown) => {
       return Array.isArray(value) ? listOf('Schema') : 'Schema';
     },
-    additionalProperties: (value: any) => {
+    additionalProperties: (value: unknown) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
     description: { type: 'string' },
@@ -63,7 +63,7 @@ export const Schema: NodeType = {
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
-    additionalItems: (value: any) => {
+    additionalItems: (value: unknown) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
     dependencies: 'Dependencies',
@@ -72,22 +72,22 @@ export const Schema: NodeType = {
 
 export const SchemaProperties: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
+  additionalProperties: (value: unknown) => {
     return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
   },
 };
 
 export const Dependencies: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
+  additionalProperties: (value: unknown) => {
     return Array.isArray(value) ? { type: 'array', items: { type: 'string' } } : 'Schema';
   },
 };
 
 export const DiscriminatorMapping: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
-    if (isMappingRef(value)) {
+  additionalProperties: (value: unknown) => {
+    if (typeof value === 'string' && isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };

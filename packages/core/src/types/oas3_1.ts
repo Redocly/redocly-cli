@@ -128,7 +128,7 @@ const Schema: NodeType = {
     minProperties: { type: 'integer', minimum: 0 },
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
-    type: (value: any) => {
+    type: (value: unknown) => {
       if (Array.isArray(value)) {
         return {
           type: 'array',
@@ -171,14 +171,14 @@ const Schema: NodeType = {
     },
     summary: { type: 'string' },
     properties: 'SchemaProperties',
-    items: (value: any) => {
+    items: (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
         return 'Schema';
       }
     },
-    additionalProperties: (value: any) => {
+    additionalProperties: (value: unknown) => {
       return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
     description: { type: 'string' },
@@ -204,7 +204,7 @@ const Schema: NodeType = {
 
 const SchemaProperties: NodeType = {
   properties: {},
-  additionalProperties: (value: any) => {
+  additionalProperties: (value: unknown) => {
     if (typeof value === 'boolean') {
       return { type: 'boolean' };
     } else {
