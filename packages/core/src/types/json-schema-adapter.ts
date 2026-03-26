@@ -1,6 +1,6 @@
 // For internal usage only
 
-import Ajv from '@redocly/ajv/dist/2020.js';
+import { Ajv2020 } from '@redocly/ajv/dist/2020.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';
@@ -9,7 +9,7 @@ import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 
-const ajv = new (Ajv as any)({
+const ajv = new Ajv2020({
   strictSchema: false,
   allowUnionTypes: true,
   useDefaults: true,

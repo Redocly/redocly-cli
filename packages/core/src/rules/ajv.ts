@@ -1,10 +1,11 @@
-import Ajv2020, {
+import {
+  Ajv2020,
   type ErrorObject,
   type ValidateFunction,
   type Context as AjvContext,
   type Options,
 } from '@redocly/ajv/dist/2020.js';
-import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
+import { Ajv as AjvDraft04 } from '@redocly/ajv/dist/draft4.js';
 import addFormats from 'ajv-formats';
 
 import type { SpecVersion } from '../oas-types.js';
@@ -14,7 +15,9 @@ import type { ResolveFn } from '../walk.js';
 
 type AjvDialect = '2020' | 'draft4';
 
-const ajvInstances: Partial<Record<AjvDialect, any>> = {};
+type AnyAjv = Ajv2020 | AjvDraft04;
+
+const ajvInstances: Partial<Record<AjvDialect, AnyAjv>> = {};
 
 export function releaseAjvInstance() {
   ajvInstances['2020'] = undefined;
@@ -58,8 +61,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): any {
       logger: false,
     };
 
-    ajvInstances[dialect] =
-      dialect === '2020' ? new (Ajv2020 as any)(options) : new (AjvDraft4 as any)(options);
+    ajvInstances[dialect] = dialect === '2020' ? new Ajv2020(options) : new AjvDraft04(options);
 
     (addFormats as any)(ajvInstances[dialect]);
   }
