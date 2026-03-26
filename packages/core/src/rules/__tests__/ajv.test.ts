@@ -10,7 +10,7 @@ const { mockAjv2020Constructor, mockAjvDraft4Constructor, mockAddFormats } = vi.
 
 vi.mock('@redocly/ajv/dist/2020.js', () => {
   return {
-    default: vi.fn(function (...args: unknown[]) {
+    Ajv2020: vi.fn(function (...args: unknown[]) {
       return mockAjv2020Constructor(...args);
     }),
   };
@@ -18,7 +18,7 @@ vi.mock('@redocly/ajv/dist/2020.js', () => {
 
 vi.mock('@redocly/ajv/dist/draft4.js', () => {
   return {
-    default: vi.fn(function (...args: unknown[]) {
+    Ajv: vi.fn(function (...args: unknown[]) {
       return mockAjvDraft4Constructor(...args);
     }),
   };

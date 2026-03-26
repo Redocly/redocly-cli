@@ -52,6 +52,11 @@ export default mergeConfig(
         FORCE_COLOR: '1',
         REDOCLY_TELEMETRY: 'off',
       },
+      server: {
+        deps: {
+          inline: ['@redocly/ajv/dist/draft4.js'],
+        },
+      },
     },
   }),
   configExtension[process.env.VITEST_SUITE || 'default']
