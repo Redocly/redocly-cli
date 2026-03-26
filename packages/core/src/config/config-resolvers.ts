@@ -64,7 +64,12 @@ export async function resolveConfig({
   if (customExtends !== undefined && isPlainObject(config)) {
     config.extends = customExtends;
   }
-  if (isPlainObject<RawUniversalConfig>(config) && config?.extends?.some(isNotString)) {
+  if (
+    isPlainObject<RawUniversalConfig>(config) &&
+    (config?.extends?.some(isNotString) ||
+      config?.scorecardClassic?.levels?.some((level) => level?.extends?.some(isNotString)) ||
+      config?.scorecard?.levels?.some((level) => level?.extends?.some(isNotString)))
+  ) {
     throw new Error(`Configuration format not detected in extends: values must be strings.`);
   }
 
@@ -159,20 +164,26 @@ export const preResolvePluginPath = (
 
   const maybeAbsolutePluginPath = path.resolve(path.dirname(base), plugin);
 
-  return fs.existsSync(maybeAbsolutePluginPath)
-    ? { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false }
-    : {
-        absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
-          paths: [
-            // Plugins imported from the node_modules in the project directory
-            rootConfigDir,
-            // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
-            import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
-          ],
-        }),
-        isModule: true,
-        rawPath: plugin,
-      };
+  if (fs.existsSync(maybeAbsolutePluginPath)) {
+    return { absolutePath: maybeAbsolutePluginPath, rawPath: plugin, isModule: false };
+  }
+
+  try {
+    return {
+      absolutePath: module.createRequire(import.meta.url ?? __dirname).resolve(plugin, {
+        paths: [
+          // Plugins imported from the node_modules in the project directory
+          rootConfigDir,
+          // Plugins imported from the node_modules in the package install directory (for example, npx cache directory)
+          import.meta.url ? path.dirname(url.fileURLToPath(import.meta.url)) : __dirname,
+        ],
+      }),
+      isModule: true,
+      rawPath: plugin,
+    };
+  } catch {
+    throw new Error(`Plugin "${plugin}" not found.`);
+  }
 };
 
 export async function resolvePlugins(
