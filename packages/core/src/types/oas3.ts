@@ -224,7 +224,7 @@ const Paths: NodeType = {
 
 const WebhooksMap: NodeType = {
   properties: {},
-  additionalProperties: (_value: unknown, _key: string) => 'PathItem',
+  additionalProperties: () => 'PathItem',
   documentationLink: 'https://redocly.com/learn/openapi/openapi-visual-reference/webhooks#types',
 };
 
