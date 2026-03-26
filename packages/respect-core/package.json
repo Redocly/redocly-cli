@@ -47,9 +47,9 @@
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
     "@noble/hashes": "^1.8.0",
-    "@redocly/ajv": "^8.18.0",
+    "@redocly/ajv": "^8.18.1",
     "@redocly/openapi-core": "2.30.2",
-    "ajv": "npm:@redocly/ajv@8.18.0",
+    "ajv": "npm:@redocly/ajv@8.18.1",
     "better-ajv-errors": "^2.0.3",
     "colorette": "^2.0.20",
     "json-pointer": "^0.6.2",
