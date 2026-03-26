@@ -14,11 +14,6 @@
       "import": "./lib/bundle/bundle-oas.js",
       "require": "./lib/bundle/bundle-oas.js",
       "types": "./lib/bundle/bundle-oas.d.ts"
-    },
-    "./lib/config/types.js": {
-      "import": "./lib/config/types.js",
-      "require": "./lib/config/types.js",
-      "types": "./lib/config/types.d.ts"
     }
   },
   "engines": {
