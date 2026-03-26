@@ -14,8 +14,7 @@ import {
   isAnchor,
   isExternalValue,
 } from './ref-utils.js';
-import { isNamedType, SpecExtension } from './types/index.js';
-import type { NormalizedNodeType } from './types/index.js';
+import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { OasRef } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
 import { makeRefId } from './utils/make-ref-id.js';

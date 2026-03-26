@@ -1,7 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 
-import { type ResponseContext } from '../../../../types.js';
-import type { Workflow, TestContext } from '../../../../types.js';
+import { type ResponseContext, type Workflow, type TestContext } from '../../../../types.js';
 import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
 

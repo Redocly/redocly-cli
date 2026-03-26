@@ -1,5 +1,4 @@
-import { isBrowser } from '@redocly/openapi-core';
-import type { LoggerInterface, RuleSeverity } from '@redocly/openapi-core';
+import { isBrowser, type LoggerInterface, type RuleSeverity } from '@redocly/openapi-core';
 import { blue, yellow, green, gray, red } from 'colorette';
 import { outdent } from 'outdent';
 

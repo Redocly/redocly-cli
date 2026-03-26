@@ -1,5 +1,13 @@
-import { isRef, dequal, logger, keysOf } from '@redocly/openapi-core';
-import type { Referenced, Oas3PathItem, Oas3Server, Oas3Parameter } from '@redocly/openapi-core';
+import {
+  isRef,
+  dequal,
+  logger,
+  keysOf,
+  type Referenced,
+  type Oas3PathItem,
+  type Oas3Server,
+  type Oas3Parameter,
+} from '@redocly/openapi-core';
 
 import { exitWithError } from '../../../utils/error.js';
 import { type Oas3Method, OPENAPI3_METHOD_NAMES } from '../../split/types.js';

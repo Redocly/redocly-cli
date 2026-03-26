@@ -5,8 +5,7 @@ import {
   generateTestDataFromJsonSchema,
   generateExampleValue,
 } from '../arazzo-description-generator/index.js';
-import { isParameterWithIn } from '../context-parser/index.js';
-import type { ParameterWithIn } from '../context-parser/index.js';
+import { isParameterWithIn, type ParameterWithIn } from '../context-parser/index.js';
 import { extractFirstExample } from './extract-first-example.js';
 import type { OperationDetails } from './get-operation-from-description.js';
 

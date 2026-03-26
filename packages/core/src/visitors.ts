@@ -1,6 +1,5 @@
 import type { Location } from './ref-utils.js';
-import { SpecExtension } from './types/index.js';
-import type { NormalizedNodeType } from './types/index.js';
+import { SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type {
   ArazzoDefinition,
   ArazzoSourceDescription,
@@ -260,10 +259,12 @@ type Oas2FlatVisitor = {
 
 type Async2FlatVisitor = {
   Root?: VisitFunctionOrObject<Async2Definition>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
 };
 
 type Async3FlatVisitor = {
   Root?: VisitFunctionOrObject<Async3Definition>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
 };
 
 type ArazzoFlatVisitor = {
@@ -279,6 +280,7 @@ type ArazzoFlatVisitor = {
   CriterionObject?: VisitFunctionOrObject<CriterionObject>;
   OnSuccessObject?: VisitFunctionOrObject<OnSuccessObject>;
   OnFailureObject?: VisitFunctionOrObject<OnFailureObject>;
+  Schema?: VisitFunctionOrObject<Oas3_1Schema>;
   Step?: VisitFunctionOrObject<Step>;
   Steps?: VisitFunctionOrObject<Step[]>;
   Workflow?: VisitFunctionOrObject<Workflow>;

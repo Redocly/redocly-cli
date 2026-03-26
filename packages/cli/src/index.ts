@@ -1,20 +1,17 @@
 #!/usr/bin/env node
 import './utils/assert-node-version.js';
 
-import { logger } from '@redocly/openapi-core';
-import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import { logger, type OutputFormat, type RuleSeverity } from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
-import yargs from 'yargs';
-import type { Arguments } from 'yargs';
+import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { handleLogin, handleLogout } from './commands/auth.js';
 import { handlerBuildCommand } from './commands/build-docs/index.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
-import { handleEject } from './commands/eject.js';
-import type { EjectArgv } from './commands/eject.js';
+import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,

@@ -8,8 +8,7 @@ import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
-import { listOf, mapOf } from './index.js';
-import type { NodeType, PropType } from './index.js';
+import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
 
 const builtInOAS2Rules = [

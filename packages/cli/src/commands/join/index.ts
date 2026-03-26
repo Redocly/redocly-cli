@@ -8,8 +8,11 @@ import {
   isPlainObject,
   isEmptyObject,
   getTypes,
+  type Document,
+  type BundleResult,
+  type Oas3Server,
+  type SpecVersion,
 } from '@redocly/openapi-core';
-import type { Document, BundleResult, Oas3Server, SpecVersion } from '@redocly/openapi-core';
 import { blue, yellow } from 'colorette';
 import * as path from 'node:path';
 import { performance } from 'node:perf_hooks';

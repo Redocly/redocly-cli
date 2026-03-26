@@ -4,8 +4,7 @@ import { bgRed, inverse } from 'colorette';
 import { UnexpectedError, StatusCodeError } from '../modules/checks/checks.js';
 import { resolvePath } from '../modules/context-parser/index.js';
 import { getResponseSchema } from '../modules/description-parser/index.js';
-import { collectSecretValues } from '../modules/flow-runner/index.js';
-import { type RequestData } from '../modules/flow-runner/index.js';
+import { collectSecretValues, type RequestData } from '../modules/flow-runner/index.js';
 import { resolveSecurityScheme } from '../modules/flow-runner/resolve-security-scheme.js';
 import {
   getVerboseLogs,

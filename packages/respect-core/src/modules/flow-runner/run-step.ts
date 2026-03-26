@@ -18,8 +18,8 @@ import {
   getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
+  type ParameterWithoutIn,
 } from '../context-parser/index.js';
-import type { ParameterWithoutIn } from '../context-parser/index.js';
 import {
   printChildWorkflowSeparator,
   printStepDetails,

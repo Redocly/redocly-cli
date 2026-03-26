@@ -1,9 +1,14 @@
 import { type RuleSeverity } from '../config/types.js';
 import { type SpecMajorVersion } from '../oas-types.js';
-import { isAbsoluteUrl, replaceRef, isExternalValue, isRef, refBaseName } from '../ref-utils.js';
-import { type Location } from '../ref-utils.js';
-import { type ResolvedRefMap } from '../resolve.js';
-import { type Document } from '../resolve.js';
+import {
+  isAbsoluteUrl,
+  replaceRef,
+  isExternalValue,
+  isRef,
+  refBaseName,
+  type Location,
+} from '../ref-utils.js';
+import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';

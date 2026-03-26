@@ -1,5 +1,4 @@
-import { slash, pluralize, logger } from '@redocly/openapi-core';
-import type { OutputFormat } from '@redocly/openapi-core';
+import { slash, pluralize, logger, type OutputFormat } from '@redocly/openapi-core';
 import { green } from 'colorette';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

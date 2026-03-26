@@ -1,5 +1,4 @@
-import { listOf, mapOf } from './index.js';
-import type { NodeType } from './index.js';
+import { listOf, mapOf, type NodeType } from './index.js';
 import {
   Dependencies,
   Discriminator,

@@ -4,29 +4,26 @@ import type { Config } from './config/index.js';
 import { initRules } from './config/rules.js';
 import { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 import { getTypes } from './oas-types.js';
-import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve.js';
-import type { Document } from './resolve.js';
+import { BaseResolver, resolveDocument, makeDocumentFromString, type Document } from './resolve.js';
 import { releaseAjvInstance } from './rules/ajv.js';
 import { NoUnresolvedRefs } from './rules/common/no-unresolved-refs.js';
 import { Struct } from './rules/common/struct.js';
-import { normalizeTypes } from './types/index.js';
-import type { NodeType } from './types/index.js';
+import { normalizeTypes, type NodeType } from './types/index.js';
 import { createConfigTypes } from './types/redocly-yaml.js';
 import type { CollectFn } from './utils/types.js';
-import { normalizeVisitors } from './visitors.js';
-import type {
-  Arazzo1Visitor,
-  Async2Visitor,
-  Async3Visitor,
-  NestedVisitObject,
-  Oas2Visitor,
-  Oas3Visitor,
-  Overlay1Visitor,
-  OpenRpc1Visitor,
-  RuleInstanceConfig,
+import {
+  normalizeVisitors,
+  type Arazzo1Visitor,
+  type Async2Visitor,
+  type Async3Visitor,
+  type NestedVisitObject,
+  type Oas2Visitor,
+  type Oas3Visitor,
+  type Overlay1Visitor,
+  type OpenRpc1Visitor,
+  type RuleInstanceConfig,
 } from './visitors.js';
-import { walkDocument } from './walk.js';
-import type { ProblemSeverity, WalkContext } from './walk.js';
+import { walkDocument, type ProblemSeverity, type WalkContext } from './walk.js';
 
 // FIXME: remove this once we remove `theme` from the schema
 const { theme: _, ...propertiesWithoutTheme } = rootRedoclyConfigSchema.properties;

@@ -1,7 +1,6 @@
 import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
 
-import { isRef } from '../../ref-utils.js';
-import type { Location } from '../../ref-utils.js';
+import { isRef, type Location } from '../../ref-utils.js';
 import type { Oas3Example, Oas3MediaType } from '../../typings/openapi.js';
 import { isDefined } from '../../utils/is-defined.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
