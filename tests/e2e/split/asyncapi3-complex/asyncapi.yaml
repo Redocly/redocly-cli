@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits and correlationIds
 channels:
-  userSignedup:
+  userSignedUp:
     address: user/signedup
     messages:
       UserSignedUp:
@@ -18,9 +18,9 @@ operations:
   sendUserSignedup:
     action: send
     channel:
-      $ref: '#/channels/userSignedup'
+      $ref: '#/channels/userSignedUp'
     messages:
-      - $ref: '#/channels/userSignedup/messages/UserSignedUp'
+      - $ref: '#/channels/userSignedUp/messages/UserSignedUp'
   receiveUserLoggedIn:
     action: receive
     channel:

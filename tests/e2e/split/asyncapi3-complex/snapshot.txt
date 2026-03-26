@@ -43,14 +43,14 @@ messages:
     $ref: '#/components/messages/UserLoggedIn'
 action: send
 channel:
-  $ref: '#/channels/userSignedup'
+  $ref: ../channels/userSignedUp.yaml
 messages:
-  - $ref: '#/channels/userSignedup/messages/UserSignedUp'
+  - $ref: ../channels/userSignedUp.yaml#/messages/UserSignedUp
 action: receive
 channel:
-  $ref: '#/channels/userLoggedIn'
+  $ref: ../channels/userLoggedIn.yaml
 messages:
-  - $ref: '#/channels/userLoggedIn/messages/UserLoggedIn'
+  - $ref: ../channels/userLoggedIn.yaml#/messages/UserLoggedIn
 asyncapi: 3.0.0
 info:
   title: Complex AsyncAPI 3 Example
@@ -59,8 +59,8 @@ info:
     A complex AsyncAPI 3 example testing split with multiple channels,
     operations, schemas, messageTraits and correlationIds
 channels:
-  userSignedup:
-    $ref: channels/userSignedup.yaml
+  userSignedUp:
+    $ref: channels/userSignedUp.yaml
   userLoggedIn:
     $ref: channels/userLoggedIn.yaml
 operations:

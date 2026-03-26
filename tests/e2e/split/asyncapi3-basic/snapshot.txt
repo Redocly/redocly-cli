@@ -21,9 +21,9 @@ messages:
     $ref: '#/components/messages/UserSignedUp'
 action: send
 channel:
-  $ref: '#/channels/userSignedup'
+  $ref: ../channels/userSignedup.yaml
 messages:
-  - $ref: '#/channels/userSignedup/messages/UserSignedUp'
+  - $ref: ../channels/userSignedup.yaml#/messages/UserSignedUp
 asyncapi: 3.0.0
 info:
   title: Simple AsyncAPI 3 Example

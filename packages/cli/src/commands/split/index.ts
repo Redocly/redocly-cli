@@ -448,16 +448,16 @@ function splitAsyncApiDefinition({
 
   // Split channels
   const channels = (asyncapi as any).channels;
-  if (channels) {
-    iterateAsyncApiChannels({
-      channels,
-      asyncapiDir,
-      outDir: path.join(asyncapiDir, CHANNELS),
-      componentsFiles,
-      pathSeparator,
-      ext,
-    });
-  }
+  const channelsFiles: Record<string, string> = channels
+    ? iterateAsyncApiChannels({
+        channels,
+        asyncapiDir,
+        outDir: path.join(asyncapiDir, CHANNELS),
+        componentsFiles,
+        pathSeparator,
+        ext,
+      })
+    : {};
 
   // Split operations for AsyncAPI 3
   if (specVersion === 'async3' && (asyncapi as Async3Definition).operations) {
@@ -466,6 +466,7 @@ function splitAsyncApiDefinition({
       asyncapiDir,
       outDir: path.join(asyncapiDir, OPERATIONS),
       componentsFiles,
+      channelsFiles,
       pathSeparator,
       ext,
     });
@@ -489,8 +490,9 @@ function iterateAsyncApiChannels({
   componentsFiles: ComponentsFiles;
   pathSeparator: string;
   ext: string;
-}) {
-  if (!channels) return;
+}): Record<string, string> {
+  const channelsFiles: Record<string, string> = {};
+  if (!channels) return channelsFiles;
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const channelName of Object.keys(channels)) {
@@ -499,6 +501,7 @@ function iterateAsyncApiChannels({
 
     if (isRef(channelData)) continue;
 
+    channelsFiles[channelName] = channelFile;
     writeToFileByExtension(channelData, channelFile);
     channels[channelName] = {
       $ref: slash(path.relative(asyncapiDir, channelFile)),
@@ -506,6 +509,7 @@ function iterateAsyncApiChannels({
 
     traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
+  return channelsFiles;
 }
 
 function iterateAsyncApiOperations({
@@ -513,6 +517,7 @@ function iterateAsyncApiOperations({
   asyncapiDir,
   outDir,
   componentsFiles,
+  channelsFiles,
   pathSeparator,
   ext,
 }: {
@@ -520,6 +525,7 @@ function iterateAsyncApiOperations({
   asyncapiDir: string;
   outDir: string;
   componentsFiles: ComponentsFiles;
+  channelsFiles: Record<string, string>;
   pathSeparator: string;
   ext: string;
 }) {
@@ -535,12 +541,45 @@ function iterateAsyncApiOperations({
 
     if (isRef(operationData)) continue;
 
+    replaceChannelRefs(operationData, path.dirname(operationFile), channelsFiles);
     writeToFileByExtension(operationData, operationFile);
     operations[operationName] = {
       $ref: slash(path.relative(asyncapiDir, operationFile)),
     };
 
     traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
+  }
+}
+
+function replaceChannelRefs(
+  obj: any,
+  fromDir: string,
+  channelsFiles: Record<string, string>
+): void {
+  if (!isPlainObject(obj) && !Array.isArray(obj)) return;
+
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      replaceChannelRefs(item, fromDir, channelsFiles);
+    }
+    return;
+  }
+
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    if (key === '$ref' && typeof value === 'string' && value.startsWith('#/channels/')) {
+      const afterChannels = value.slice('#/channels/'.length);
+      const slashIdx = afterChannels.indexOf('/');
+      const channelName = slashIdx === -1 ? afterChannels : afterChannels.slice(0, slashIdx);
+      const rest = slashIdx === -1 ? '' : afterChannels.slice(slashIdx);
+      const channelFile = channelsFiles[channelName];
+      if (channelFile) {
+        const relative = slash(path.relative(fromDir, channelFile));
+        obj[key] = rest ? `${relative}#${rest}` : relative;
+      }
+    } else {
+      replaceChannelRefs(value, fromDir, channelsFiles);
+    }
   }
 }
 
