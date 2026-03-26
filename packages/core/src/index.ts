@@ -41,6 +41,7 @@ export {
   type RuleConfig,
   type RuleSeverity,
   type IgnoreConfig,
+  type ResolveConfig,
 } from './config/index.js';
 export * from './config/constants.js';
 export {
