@@ -1,5 +1,9 @@
-import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts.js';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts.js';
+import {
+  asserts,
+  buildAssertCustomFunction,
+  type Asserts,
+  type AssertionFn,
+} from '../rules/common/assertions/asserts.js';
 import type {
   RawAssertion,
   AssertionDefinition,
