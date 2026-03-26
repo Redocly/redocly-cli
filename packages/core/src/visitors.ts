@@ -201,11 +201,11 @@ type Oas3FlatVisitor = {
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema | Oas3_1Schema>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
-  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
   Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
   Components?: VisitFunctionOrObject<Oas3Components | Oas3_1Components>;
-  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response<Oas3Schema | Oas3_1Schema>>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter<Oas3Schema | Oas3_1Schema>>>;
   NamedExamples?: VisitFunctionOrObject<Record<string, Oas3Example>>;

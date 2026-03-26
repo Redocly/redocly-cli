@@ -5,6 +5,10 @@ import * as path from 'node:path';
 import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
 import { RedoclyOAuthClient } from '../oauth-client.js';
 
+vi.mock('node:fs');
+vi.mock('../device-flow.js');
+vi.mock('node:os');
+
 describe('RedoclyOAuthClient', () => {
   const mockBaseUrl = 'https://test.redocly.com';
   const mockHomeDir = '/mock/home/dir';
@@ -12,9 +16,6 @@ describe('RedoclyOAuthClient', () => {
   let client: RedoclyOAuthClient;
 
   beforeEach(() => {
-    vi.mock('node:fs');
-    vi.mock('../device-flow.js');
-    vi.mock('node:os');
     vi.mocked(os.homedir).mockReturnValue(mockHomeDir);
     process.env.HOME = mockHomeDir;
     client = new RedoclyOAuthClient();

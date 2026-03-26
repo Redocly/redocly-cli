@@ -6,7 +6,7 @@ import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('spec-discriminator-defaultMapping', () => {
-  it('should pass when optional propertyName has defaultMapping', async () => {
+  it('should pass when optional propertyName has defaultMapping (as a component name)', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.2.0
@@ -39,7 +39,40 @@ describe('spec-discriminator-defaultMapping', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should pass when required propertyName does not need defaultMapping', async () => {
+  it('should pass when optional propertyName has defaultMapping (as a JSON Pointer)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          schemas:
+            Base:
+              type: object
+              discriminator:
+                propertyName: test
+                defaultMapping: '#/components/schemas/DefaultType'
+              properties:
+                test:
+                  type: string
+            TypeA:
+              allOf:
+                - $ref: '#/components/schemas/Base'
+            DefaultType:
+              allOf:
+                - $ref: '#/components/schemas/Base'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should pass when required propertyName does not need defaultMapping (when the required property is in the parent schema)', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.2.0
@@ -59,6 +92,133 @@ describe('spec-discriminator-defaultMapping', () => {
             TypeA:
               allOf:
                 - $ref: '#/components/schemas/Base'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should pass when required propertyName does not need defaultMapping (when the required property is in the descendant schema)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          schemas:
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+            Foo:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: foo
+              required:
+                - test
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required:
+                - test
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should fail when propertyName is optional in a descendant oneOf schema', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          schemas:
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+            Foo:
+              type: object
+              properties:
+                test: # test is not required here
+                  type: string
+                  const: foo
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required:
+                - test
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Used/discriminator",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Discriminator with optional property 'test' must include a defaultMapping field.",
+          "ruleId": "spec-discriminator-defaultMapping",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should pass when required propertyName does not need defaultMapping (when the required property is in the descendant schema)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        components:
+          schemas:
+            Used:
+              allOf:
+                - $ref: '#/components/schemas/Base'
+              discriminator:
+                propertyName: test
+            Base:
+              type: object
+              properties:
+                test:
+                  type: string
+              required:
+                - test
       `,
       'foobar.yaml'
     );
