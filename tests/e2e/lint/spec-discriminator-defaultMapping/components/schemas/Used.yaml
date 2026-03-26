@@ -1,0 +1,5 @@
+discriminator:
+  propertyName: test
+oneOf:
+  - $ref: ./Deep.yaml
+  - $ref: ./Bar.yaml

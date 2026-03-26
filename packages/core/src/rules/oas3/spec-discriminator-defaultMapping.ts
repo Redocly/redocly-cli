@@ -5,11 +5,24 @@ import { type NonUndefined, type UserContext } from '../../walk.js';
 
 const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
-  ctx: UserContext
-) => (isRef(schemaOrRef) ? ctx.resolve<T>(schemaOrRef).node : schemaOrRef);
+  ctx: UserContext,
+  from?: string
+): {
+  schema: T | undefined;
+  location: string | undefined;
+} => {
+  if (isRef(schemaOrRef)) {
+    const resolved = ctx.resolve<T>(schemaOrRef, from);
+    return resolved
+      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
+      : { schema: undefined, location: from };
+  }
+
+  return { schema: schemaOrRef, location: from };
+};
 
 export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
-  let componentsSchemaNames: string[];
+  let componentsSchemaNames: string[] = [];
 
   return {
     Root: {
@@ -27,30 +40,42 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
         const defaultMapping = schema.discriminator?.defaultMapping;
 
         if (defaultMapping === undefined) {
-          const isPropertyRequired = (
-            schemaOrRef: Oas3Schema | Oas3_1Schema | undefined
+          const isDiscriminatorPropertyRequired = (
+            schemaOrRef: Oas3Schema | Oas3_1Schema | undefined,
+            resolveFrom?: string
           ): boolean => {
-            const s = resolveSchema(schemaOrRef, ctx);
-
-            if (!s) return false;
-            if (s.required?.includes(discriminatedPropertyName)) return true;
-            if (s.allOf?.some(isPropertyRequired)) return true;
-            if (s.oneOf?.every(isPropertyRequired)) return true;
-            if (s.anyOf?.every(isPropertyRequired)) return true;
+            const resolved = resolveSchema(schemaOrRef, ctx, resolveFrom);
+            if (!resolved.schema) {
+              return false;
+            }
+            if (
+              resolved.schema.required?.includes(discriminatedPropertyName) ||
+              resolved.schema.allOf?.some((s) =>
+                isDiscriminatorPropertyRequired(s, resolved.location)
+              ) ||
+              resolved.schema.oneOf?.every((s) =>
+                isDiscriminatorPropertyRequired(s, resolved.location)
+              ) ||
+              resolved.schema.anyOf?.every((s) =>
+                isDiscriminatorPropertyRequired(s, resolved.location)
+              )
+            ) {
+              return true;
+            }
             return false;
           };
 
-          if (!isPropertyRequired(schema)) {
+          if (!isDiscriminatorPropertyRequired(schema)) {
             ctx.report({
               message: `Discriminator with optional property '${discriminatedPropertyName}' must include a defaultMapping field.`,
               location: ctx.location.child('discriminator'),
             });
           }
         } else {
-          const isInComponentsSchemas = componentsSchemaNames.includes(defaultMapping);
-          const pointsToExistingComponent = ctx.resolve({ $ref: defaultMapping }).node;
-
-          if (!isInComponentsSchemas && !pointsToExistingComponent) {
+          if (
+            ctx.resolve({ $ref: defaultMapping }).node === undefined &&
+            !componentsSchemaNames.includes(defaultMapping)
+          ) {
             ctx.report({
               message: `defaultMapping value '${defaultMapping}' does not point to an existing schema component.`,
               location: ctx.location.child(['discriminator', 'defaultMapping']),
