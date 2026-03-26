@@ -226,7 +226,7 @@ const configGovernanceProperties: Record<
     properties: {},
     items: (node) => {
       // check if it's preset name
-      if (typeof node === 'string' && !isAbsoluteUrl(node) && !path.extname(node)) {
+      if (!isAbsoluteUrl(node) && !path.extname(node)) {
         return { type: 'string' };
       }
       return {

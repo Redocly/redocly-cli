@@ -481,7 +481,7 @@ describe('resolveConfig', () => {
       resolveConfig({
         rawConfigDocument: makeDocument({
           scorecardClassic: {
-            levels: [{ name: 'Baseline', extends: [2 as any] }],
+            levels: [{ name: 'Baseline', extends: [null as any] }],
           },
         }),
       })
@@ -493,7 +493,7 @@ describe('resolveConfig', () => {
       resolveConfig({
         rawConfigDocument: makeDocument({
           scorecard: {
-            levels: [{ name: 'Baseline', extends: [2 as any] }],
+            levels: [{ name: 'Baseline', extends: [false as any] }],
           },
         }),
       })

@@ -87,7 +87,7 @@ export const Dependencies: NodeType = {
 export const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
-    if (typeof value === 'string' && isMappingRef(value)) {
+    if (isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };
