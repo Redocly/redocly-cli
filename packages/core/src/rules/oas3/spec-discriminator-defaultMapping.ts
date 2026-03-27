@@ -1,25 +1,7 @@
-import { isRef } from '../../ref-utils.js';
-import type { Oas3_1Schema, Oas3Schema, Referenced } from '../../typings/openapi.js';
+import type { Oas3_1Schema, Oas3Schema } from '../../typings/openapi.js';
 import { type Oas3Rule } from '../../visitors.js';
-import { type NonUndefined, type UserContext } from '../../walk.js';
-
-const resolveSchema = <T extends NonUndefined>(
-  schemaOrRef: Referenced<T> | undefined,
-  ctx: UserContext,
-  from?: string
-): {
-  schema: T | undefined;
-  location: string | undefined;
-} => {
-  if (isRef(schemaOrRef)) {
-    const resolved = ctx.resolve<T>(schemaOrRef, from);
-    return resolved
-      ? { schema: resolved.node, location: resolved.location?.source.absoluteRef }
-      : { schema: undefined, location: from };
-  }
-
-  return { schema: schemaOrRef, location: from };
-};
+import { type UserContext } from '../../walk.js';
+import { resolveSchema } from '../utils.js';
 
 export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
   let componentsSchemaNames: string[] = [];
@@ -40,14 +22,17 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
         const defaultMapping = schema.discriminator?.defaultMapping;
 
         if (defaultMapping === undefined) {
+          const visited = new Set<Oas3Schema | Oas3_1Schema>();
+
           const isDiscriminatorPropertyRequired = (
             schemaOrRef: Oas3Schema | Oas3_1Schema | undefined,
             resolveFrom?: string
           ): boolean => {
             const resolved = resolveSchema(schemaOrRef, ctx, resolveFrom);
-            if (!resolved.schema) {
-              return false;
+            if (!resolved.schema || visited.has(resolved.schema)) {
+              return true; // TODO: investigate if this should be false instead, as it would mean we can't verify the property is required
             }
+            visited.add(resolved.schema);
             if (
               resolved.schema.required?.includes(discriminatedPropertyName) ||
               resolved.schema.allOf?.some((s) =>

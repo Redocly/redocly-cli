@@ -326,4 +326,262 @@ describe('spec-discriminator-defaultMapping', () => {
       ]
     `);
   });
+
+  it('should pass for cyclic references where the discriminator property is required', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Used'
+        components:
+          schemas:
+            Foo:
+              oneOf:
+                - type: object
+                  properties:
+                    test:
+                      type: string
+                      const: foo
+                  required:
+                    - test
+                - $ref: '#/components/schemas/Cyclic'
+            Cyclic:
+              allOf:
+                - $ref: '#/components/schemas/Foo'
+                - type: object
+                  properties:
+                    extra:
+                      type: string
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required:
+                - test
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should fail for cyclic references where the discriminator property is NOT required (oneOf -> allOf -> oneOf)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Used'
+        components:
+          schemas:
+            Foo:
+              oneOf:
+                - $ref: '#/components/schemas/Cyclic'
+                - type: object
+                  properties:
+                    test: # test is not required here
+                      type: string
+                      const: foo
+            Cyclic:
+              allOf:
+                - type: object
+                  properties:
+                    extra:
+                      type: string
+                - $ref: '#/components/schemas/Foo'
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required:
+                - test
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Used/discriminator",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Discriminator with optional property 'test' must include a defaultMapping field.",
+          "ruleId": "spec-discriminator-defaultMapping",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should fail for cyclic references where the discriminator property is NOT required (allOf -> oneOf -> allOf)', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Used'
+        components:
+          schemas:
+            Foo:
+              allOf:
+                - $ref: '#/components/schemas/Cyclic'
+                - type: object
+                  properties:
+                    test: # test is not required here
+                      type: string
+                      const: foo
+            Cyclic:
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - type: object
+                  properties:
+                    extra:
+                      type: string
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required:
+                - test
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Used/discriminator",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Discriminator with optional property 'test' must include a defaultMapping field.",
+          "ruleId": "spec-discriminator-defaultMapping",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should pass when there is a combination of the properties and required via allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.2.0
+        paths:
+          /:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Used'
+        components:
+          schemas:
+            Foo:
+              allOf:
+                - $ref: '#/components/schemas/WithRequired'
+                - type: object
+                  properties:
+                    test:
+                      type: string
+                      const: foo
+            WithRequired:
+              type: object
+              required: [test]
+            Bar:
+              type: object
+              properties:
+                test:
+                  type: string
+                  const: bar
+              required: [test]
+            Used:
+              discriminator:
+                propertyName: test
+              oneOf:
+                - $ref: '#/components/schemas/Foo'
+                - $ref: '#/components/schemas/Bar'
+
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
 });
