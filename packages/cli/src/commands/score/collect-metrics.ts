@@ -6,6 +6,7 @@ import {
   resolveDocument,
   BaseResolver,
   Source,
+  isPlainObject,
   type Document,
   type SpecVersion,
   type WalkContext,
@@ -204,15 +205,14 @@ export function collectMetrics({
       resolved = resolveJsonPointer(document.parsed, ref) ?? schemaNode;
     }
 
-    if (resolved && typeof resolved === 'object' && computing.has(resolved)) {
+    if (isPlainObject(resolved) && computing.has(resolved)) {
       return { ...emptyStats };
     }
-    if (resolved && typeof resolved === 'object') {
+    if (isPlainObject(resolved)) {
       computing.add(resolved);
     }
 
-    const stripped =
-      resolved && typeof resolved === 'object' ? removedComposition.get(resolved) : undefined;
+    const stripped = isPlainObject(resolved) ? removedComposition.get(resolved) : undefined;
 
     const oneOfBranches = resolved?.oneOf ?? stripped?.oneOf;
     const anyOfBranches = resolved?.anyOf ?? stripped?.anyOf;
@@ -296,7 +296,7 @@ export function collectMetrics({
       result = walkSchemaRaw(schemaNode, debug);
     }
 
-    if (resolved && typeof resolved === 'object') {
+    if (isPlainObject(resolved)) {
       computing.delete(resolved);
     }
     if (ref && !debug) {

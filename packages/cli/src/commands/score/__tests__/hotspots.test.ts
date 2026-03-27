@@ -31,6 +31,7 @@ function makeMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetric
   };
 }
 
+/** Baseline "no issues" operation scores — all subscores at 100%. */
 function makeScores(overrides: Partial<OperationScores> = {}): OperationScores {
   return {
     integrationSimplicity: 80,
