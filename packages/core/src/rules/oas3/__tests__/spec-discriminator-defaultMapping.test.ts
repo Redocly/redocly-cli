@@ -84,8 +84,7 @@ describe('spec-discriminator-defaultMapping', () => {
                 propertyName: test
                 mapping:
                   a: TypeA
-              required:
-                - test
+              required: [test]
               properties:
                 test:
                   type: string
@@ -123,16 +122,14 @@ describe('spec-discriminator-defaultMapping', () => {
                 test:
                   type: string
                   const: foo
-              required:
-                - test
+              required: [test]
             Bar:
               type: object
               properties:
                 test:
                   type: string
                   const: bar
-              required:
-                - test
+              required: [test]
       `,
       'foobar.yaml'
     );
@@ -170,8 +167,7 @@ describe('spec-discriminator-defaultMapping', () => {
                 test:
                   type: string
                   const: bar
-              required:
-                - test
+              required: [test]
       `,
       'foobar.yaml'
     );
@@ -217,8 +213,7 @@ describe('spec-discriminator-defaultMapping', () => {
               properties:
                 test:
                   type: string
-              required:
-                - test
+              required: [test]
       `,
       'foobar.yaml'
     );
@@ -349,8 +344,7 @@ describe('spec-discriminator-defaultMapping', () => {
                     test:
                       type: string
                       const: foo
-                  required:
-                    - test
+                  required: [test]  
                 - $ref: '#/components/schemas/Cyclic'
             Cyclic:
               allOf:
@@ -365,8 +359,7 @@ describe('spec-discriminator-defaultMapping', () => {
                 test:
                   type: string
                   const: bar
-              required:
-                - test
+              required: [test]  
             Used:
               discriminator:
                 propertyName: test
@@ -422,8 +415,7 @@ describe('spec-discriminator-defaultMapping', () => {
                 test:
                   type: string
                   const: bar
-              required:
-                - test
+              required: [test]
             Used:
               discriminator:
                 propertyName: test
@@ -495,8 +487,7 @@ describe('spec-discriminator-defaultMapping', () => {
                 test:
                   type: string
                   const: bar
-              required:
-                - test
+              required: [test]
             Used:
               discriminator:
                 propertyName: test
