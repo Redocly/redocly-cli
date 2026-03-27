@@ -79,6 +79,7 @@ export type AsyncApi2SplittableComponent = (typeof ASYNCAPI2_SPLITTABLE_COMPONEN
 export const ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES = [
   'schemas',
   'messages',
+  'securitySchemes',
   'parameters',
   'correlationIds',
   'messageTraits',
@@ -116,6 +117,9 @@ export type AsyncApi3SplittableComponent = (typeof ASYNCAPI3_SPLITTABLE_COMPONEN
 export const ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES = [
   'schemas',
   'messages',
+  'securitySchemes',
+  'servers',
+  'serverVariables',
   'parameters',
   'replies',
   'replyAddresses',

@@ -502,6 +502,7 @@ function iterateAsyncApiChannels({
     if (isRef(channelData)) continue;
 
     channelsFiles[channelName] = channelFile;
+    replace$Refs(channelData, path.dirname(channelFile), componentsFiles);
     writeToFileByExtension(channelData, channelFile);
     channels[channelName] = {
       $ref: slash(path.relative(asyncapiDir, channelFile)),
@@ -541,6 +542,7 @@ function iterateAsyncApiOperations({
 
     if (isRef(operationData)) continue;
 
+    replace$Refs(operationData, path.dirname(operationFile), componentsFiles);
     replaceChannelRefs(operationData, path.dirname(operationFile), channelsFiles);
     writeToFileByExtension(operationData, operationFile);
     operations[operationName] = {

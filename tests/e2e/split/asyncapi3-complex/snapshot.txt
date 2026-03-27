@@ -25,6 +25,9 @@ traits:
   - $ref: ../messageTraits/CommonHeaders.yaml
 payload:
   $ref: ../schemas/UserLoggedInPayload.yaml
+type: httpApiKey
+name: X-API-Key
+in: header
 location: $message.header#/correlationId
 headers:
   type: object
@@ -36,11 +39,15 @@ headers:
 address: user/signedup
 messages:
   UserSignedUp:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 address: user/loggedin
 messages:
   UserLoggedIn:
-    $ref: '#/components/messages/UserLoggedIn'
+    $ref: ../components/messages/UserLoggedIn.yaml
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 action: send
 channel:
   $ref: ../channels/userSignedUp.yaml
@@ -57,7 +64,7 @@ info:
   version: 1.0.0
   description: >-
     A complex AsyncAPI 3 example testing split with multiple channels,
-    operations, schemas, messageTraits and correlationIds
+    operations, schemas, messageTraits, correlationIds and securitySchemes
 channels:
   userSignedUp:
     $ref: channels/userSignedUp.yaml

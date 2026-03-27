@@ -18,7 +18,7 @@ payload:
 address: user/signedup
 messages:
   UserSignedUp:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
 action: send
 channel:
   $ref: ../channels/userSignedup.yaml

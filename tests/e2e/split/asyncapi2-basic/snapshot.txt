@@ -19,7 +19,7 @@ description: Channel for user signup events
 subscribe:
   operationId: onUserSignup
   message:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
 asyncapi: 2.6.0
 info:
   title: Simple AsyncAPI Example
