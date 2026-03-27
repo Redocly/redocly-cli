@@ -532,7 +532,7 @@ describe('spec-discriminator-defaultMapping', () => {
     `);
   });
 
-  it('should pass when there is a combination of the properties and required via allOf', async () => {
+  it('should pass when there is a combination of the properties and required via allOf (discriminator for polymorphism)', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.2.0
@@ -559,12 +559,13 @@ describe('spec-discriminator-defaultMapping', () => {
               type: object
               required: [test]
             Bar:
-              type: object
-              properties:
-                test:
-                  type: string
-                  const: bar
-              required: [test]
+              allOf:
+                - type: object
+                  properties:
+                    test:
+                      type: string
+                      const: bar
+                - required: [test]
             Used:
               discriminator:
                 propertyName: test
