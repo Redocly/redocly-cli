@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.25.2
+
+### Patch Changes
+
+- Updated `picomatch` dependency to `^4.0.4`.
+- Updated @redocly/openapi-core to v2.25.2.
+
 ## 2.25.1
 
 ### Patch Changes
