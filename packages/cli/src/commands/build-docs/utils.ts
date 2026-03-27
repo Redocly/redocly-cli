@@ -14,6 +14,31 @@ import type { BuildDocsOptions } from './types.js';
 const __internalDirname = import.meta.url
   ? path.dirname(url.fileURLToPath(import.meta.url))
   : __dirname;
+const DEFAULT_TEMPLATE_FILE_NAME = path.join(__internalDirname, './template.hbs');
+const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf8" />
+  <title>{{title}}</title>
+  <!-- needed for adaptive design -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+  {{{redocHead}}}
+  {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
+</head>
+
+<body>
+  {{{redocHTML}}}
+</body>
+
+</html>
+`;
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -74,8 +99,10 @@ export async function getPageHTML(
     ? templateFileName
     : redocOptions?.htmlTemplate
       ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
-      : path.join(__internalDirname, './template.hbs');
-  const template = handlebars.compile(readFileSync(templateFileName).toString());
+      : DEFAULT_TEMPLATE_FILE_NAME;
+
+  const templateSource = resolveTemplateSource(templateFileName);
+  const template = handlebars.compile(templateSource);
   return template({
     redocHTML: `
       <div id="redoc">${html || ''}</div>
@@ -93,6 +120,19 @@ export async function getPageHTML(
     disableGoogleFont,
     templateOptions,
   });
+}
+
+function resolveTemplateSource(templateFileName: string): string {
+  if (templateFileName !== DEFAULT_TEMPLATE_FILE_NAME) {
+    return readFileSync(templateFileName, 'utf-8');
+  }
+
+  try {
+    return readFileSync(templateFileName, 'utf-8');
+  } catch {
+    // Bun bundling may not include template.hbs as a real file; fallback to the embedded template.
+    return DEFAULT_TEMPLATE_SOURCE;
+  }
 }
 
 export function sanitizeJSONString(str: string): string {

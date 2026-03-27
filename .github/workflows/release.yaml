@@ -37,6 +37,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: RomanHotsiy/changesets-action@v1
@@ -200,6 +203,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Update package versions
         run: |
           TIMESTAMP=$(date +%s)
@@ -255,4 +261,6 @@ jobs:
           sleep 10
 
           cd ../cli
-          npm publish --tag snapshot
+          npm run prepare:publish-dir
+          npm publish ./.publish --tag snapshot
+          npm run clean:publish-dir

@@ -7,8 +7,6 @@ RUN apk add --no-cache jq git && \
     npm run prepare && \
     npm run pack:prepare && \
     npm install --global redocly-cli.tgz && \
-    cp packages/cli/src/commands/build-docs/template.hbs \
-       /usr/local/lib/node_modules/@redocly/cli/lib/commands/build-docs/ && \
     # Clean up to reduce image size
     npm cache clean --force && rm -rf /build
 
