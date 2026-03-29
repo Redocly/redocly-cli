@@ -712,6 +712,16 @@ describe('E2E', () => {
     });
   });
 
+  describe('bundle with parameter, which has reference to schemas', () => {
+    it('should correctly bundle the api and not remove components', async () => {
+      const testPath = join(__dirname, `bundle/parameters-reference-to-schemas`);
+      const args = getParams(indexEntryPoint, ['bundle', '--config=redocly.yaml']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+  });
+
   describe('miscellaneous', () => {
     const folderPath = join(__dirname, 'miscellaneous');
 
