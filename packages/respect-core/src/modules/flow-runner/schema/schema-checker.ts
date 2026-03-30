@@ -1,4 +1,5 @@
 import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import type { Oas3Responses } from '@redocly/openapi-core';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -67,7 +68,7 @@ function checkSchemaFromDescription({
     descriptionOperation?.responses['default'];
 
   const schemaFromDescription = $response?.contentType
-    ? descriptionResponseByCode?.content?.[$response.contentType]?.schema
+    ? resolveContentByType(descriptionResponseByCode?.content, $response.contentType)?.schema
     : undefined;
   const isSchemaWithCircularRef = checkCircularRefsInSchema(schemaFromDescription);
 
@@ -138,6 +139,44 @@ function checkStatusCodeFromDescription({
   });
 }
 
+function contentTypeMatchesPattern(contentType: string, pattern: string): boolean {
+  const normalizedPattern = pattern.toLowerCase();
+  const normalizedContentType = contentType.toLowerCase();
+
+  if (normalizedPattern === '*/*') return true;
+  if (normalizedPattern === normalizedContentType) return true;
+
+  const [patternType, patternSubtype] = normalizedPattern.split('/');
+  const [actualType, actualSubtype] = normalizedContentType.split('/');
+
+  if (patternType === '*') {
+    return patternSubtype === '*' || patternSubtype === actualSubtype;
+  }
+
+  if (patternSubtype === '*') {
+    return patternType === actualType;
+  }
+
+  return false;
+}
+
+type ResponseContent = NonNullable<Oas3Responses[string]['content']>;
+
+export function resolveContentByType(
+  content: ResponseContent | undefined,
+  contentType: string
+): ResponseContent[string] | undefined {
+  if (!content) return undefined;
+  if (content[contentType]) return content[contentType];
+
+  for (const pattern of Object.keys(content)) {
+    if (contentTypeMatchesPattern(contentType, pattern)) {
+      return content[pattern];
+    }
+  }
+  return undefined;
+}
+
 function checkContentTypeFromDescription({
   checks,
   descriptionOperation,
@@ -154,7 +193,12 @@ function checkContentTypeFromDescription({
     return;
   }
 
-  if (responseContentType && !possibleContentTypesFromDescription.includes(responseContentType)) {
+  if (
+    responseContentType &&
+    !possibleContentTypesFromDescription.some((pattern) =>
+      contentTypeMatchesPattern(responseContentType, pattern)
+    )
+  ) {
     checks.push({
       name: CHECKS.CONTENT_TYPE_CHECK,
       passed: false,
