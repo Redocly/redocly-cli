@@ -30,7 +30,7 @@ export const SpecDiscriminatorDefaultMapping: Oas3Rule = () => {
           ): boolean => {
             const resolved = resolveSchema(schemaOrRef, ctx, resolveFrom);
             if (!resolved.schema || visited.has(resolved.schema)) {
-              return true; // TODO: investigate if this should be false instead, as it would mean we can't verify the property is required
+              return true;
             }
             visited.add(resolved.schema);
             if (
