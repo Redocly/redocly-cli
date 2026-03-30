@@ -1,10 +1,11 @@
-import Ajv2020, {
+import {
+  Ajv2020,
   type ErrorObject,
   type ValidateFunction,
   type Context as AjvContext,
   type Options,
 } from '@redocly/ajv/dist/2020.js';
-import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
+import { Ajv as AjvDraft4 } from '@redocly/ajv/dist/draft4.js';
 import addFormats from 'ajv-formats';
 
 import type { SpecVersion } from '../oas-types.js';
@@ -61,7 +62,7 @@ function getAjv(resolve: ResolveFn, dialect: AjvDialect): AnyAjv {
 
     ajvInstances[dialect] = dialect === '2020' ? new Ajv2020(options) : new AjvDraft4(options);
 
-    addFormats(ajvInstances[dialect] as any);
+    (addFormats as any)(ajvInstances[dialect]);
   }
   return ajvInstances[dialect];
 }

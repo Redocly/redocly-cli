@@ -2,7 +2,7 @@ import { createConfig } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import { createStore, loadAndBundleSpec } from 'redoc';
-import { type OpenAPISpec } from 'redoc/typings/types';
+import { type OpenAPISpec } from 'redoc/typings/types/index.js';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';

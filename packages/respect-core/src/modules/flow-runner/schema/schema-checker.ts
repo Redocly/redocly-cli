@@ -1,4 +1,4 @@
-import Ajv, { type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
+import { Ajv2020, type JSONSchemaType } from '@redocly/ajv/dist/2020.js';
 import { blue, dim, red, yellow, green } from 'colorette';
 
 import {
@@ -12,7 +12,7 @@ import { checkCircularRefsInSchema } from '../../../utils/check-circular-refs-in
 import { CHECKS } from '../../checks/index.js';
 import { removeWriteOnlyProperties } from '../../description-parser/index.js';
 
-const ajvStrict = new Ajv({
+const ajvStrict = new Ajv2020({
   schemaId: '$id',
   meta: true,
   allErrors: true,
