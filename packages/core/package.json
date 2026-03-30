@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "2.25.1",
+  "version": "2.25.2",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -53,13 +53,13 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.18.1",
-    "@redocly/config": "^0.44.2",
+    "@redocly/config": "^0.45.0",
     "ajv": "npm:@redocly/ajv@8.18.1",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^4.1.0",
-    "picomatch": "^4.0.3",
+    "picomatch": "^4.0.4",
     "pluralize": "^8.0.0",
     "yaml-ast-parser": "0.0.43"
   },

@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.25.2 (2026-03-27)
+
+### Patch Changes
+
+- Updated `picomatch` dependency to `^4.0.4`.
+- Updated @redocly/openapi-core to v2.25.2.
+
 ## 2.25.1 (2026-03-24)
 
 ### Patch Changes
