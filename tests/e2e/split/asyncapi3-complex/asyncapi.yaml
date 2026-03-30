@@ -9,15 +9,11 @@ channels:
     messages:
       UserSignedUp:
         $ref: '#/components/messages/UserSignedUp'
-    security:
-      - $ref: '#/components/securitySchemes/ApiKeyAuth'
   userLoggedIn:
     address: user/loggedin
     messages:
       UserLoggedIn:
         $ref: '#/components/messages/UserLoggedIn'
-    security:
-      - $ref: '#/components/securitySchemes/ApiKeyAuth'
 operations:
   sendUserSignedup:
     action: send
@@ -25,12 +21,16 @@ operations:
       $ref: '#/channels/userSignedUp'
     messages:
       - $ref: '#/channels/userSignedUp/messages/UserSignedUp'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
   receiveUserLoggedIn:
     action: receive
     channel:
       $ref: '#/channels/userLoggedIn'
     messages:
       - $ref: '#/channels/userLoggedIn/messages/UserLoggedIn'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
 components:
   messages:
     UserSignedUp:

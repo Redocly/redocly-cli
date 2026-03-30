@@ -40,24 +40,24 @@ address: user/signedup
 messages:
   UserSignedUp:
     $ref: ../components/messages/UserSignedUp.yaml
-security:
-  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 address: user/loggedin
 messages:
   UserLoggedIn:
     $ref: ../components/messages/UserLoggedIn.yaml
-security:
-  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 action: send
 channel:
   $ref: ../channels/userSignedUp.yaml
 messages:
   - $ref: ../channels/userSignedUp.yaml#/messages/UserSignedUp
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 action: receive
 channel:
   $ref: ../channels/userLoggedIn.yaml
 messages:
   - $ref: ../channels/userLoggedIn.yaml#/messages/UserLoggedIn
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
 asyncapi: 3.0.0
 info:
   title: Complex AsyncAPI 3 Example
