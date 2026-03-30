@@ -415,6 +415,36 @@ describe('E2E', () => {
 
       expect(actual).toEqual(expected);
     });
+
+    test('asyncapi2-basic', async () => {
+      const testPath = join(__dirname, `split/asyncapi2-basic`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('asyncapi3-basic', async () => {
+      const testPath = join(__dirname, `split/asyncapi3-basic`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
+
+    test('asyncapi3-complex', async () => {
+      const testPath = join(__dirname, `split/asyncapi3-complex`);
+      const file = 'asyncapi.yaml';
+
+      const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+    });
   });
 
   describe('join', () => {

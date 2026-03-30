@@ -1,0 +1,84 @@
+asyncapi: 3.0.0
+info:
+  title: Complex AsyncAPI 3 Example
+  version: 1.0.0
+  description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits, correlationIds and securitySchemes
+channels:
+  userSignedUp:
+    address: user/signedup
+    messages:
+      UserSignedUp:
+        $ref: '#/components/messages/UserSignedUp'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
+  userLoggedIn:
+    address: user/loggedin
+    messages:
+      UserLoggedIn:
+        $ref: '#/components/messages/UserLoggedIn'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
+operations:
+  sendUserSignedup:
+    action: send
+    channel:
+      $ref: '#/channels/userSignedUp'
+    messages:
+      - $ref: '#/channels/userSignedUp/messages/UserSignedUp'
+  receiveUserLoggedIn:
+    action: receive
+    channel:
+      $ref: '#/channels/userLoggedIn'
+    messages:
+      - $ref: '#/channels/userLoggedIn/messages/UserLoggedIn'
+components:
+  messages:
+    UserSignedUp:
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/UserSignedUpPayload'
+    UserLoggedIn:
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/UserLoggedInPayload'
+  schemas:
+    UserBase:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+    UserSignedUpPayload:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+      properties:
+        displayName:
+          type: string
+    UserLoggedInPayload:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+      properties:
+        lastLoginAt:
+          type: string
+          format: date-time
+  messageTraits:
+    CommonHeaders:
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+          contentType:
+            type: string
+  correlationIds:
+    DefaultCorrelationId:
+      location: '$message.header#/correlationId'
+  securitySchemes:
+    ApiKeyAuth:
+      type: httpApiKey
+      name: X-API-Key
+      in: header

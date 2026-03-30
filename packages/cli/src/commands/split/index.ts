@@ -1,5 +1,4 @@
 import {
-  parseYaml,
   slash,
   isRef,
   isTruthy,
@@ -7,10 +6,10 @@ import {
   logger,
   isEmptyObject,
   isPlainObject,
+  detectSpec,
   type Oas3Definition,
   type Oas3_1Definition,
   type Oas3_2Definition,
-  type Oas2Definition,
   type Oas3Schema,
   type Oas3_1Schema,
   type Oas3Components,
@@ -19,6 +18,8 @@ import {
   type Oas3PathItem,
   type OasRef,
   type Referenced,
+  type Async2Definition,
+  type Async3Definition,
 } from '@redocly/openapi-core';
 import { red, blue, green } from 'colorette';
 import * as fs from 'node:fs';
@@ -39,15 +40,22 @@ import {
 import type { CommandArgs } from '../../wrapper.js';
 import {
   COMPONENTS,
+  CHANNELS,
+  OPERATIONS,
   OPENAPI3_METHOD_NAMES,
   OPENAPI3_COMPONENT_NAMES,
+  ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES,
+  ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES,
   type ComponentsFiles,
-  type Definition,
   type Oas3Component,
   type RefObject,
+  type AsyncApi2SplittableComponent,
+  type AsyncApi3SplittableComponent,
 } from './types.js';
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
+type AnyAsyncApiDefinition = Async2Definition | Async3Definition;
+type AnyDefinition = AnyOas3Definition | AnyAsyncApiDefinition;
 
 export type SplitArgv = {
   api: string;
@@ -58,11 +66,39 @@ export type SplitArgv = {
 export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitArgv>) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
-  validateDefinitionFileName(api);
   const ext = getAndValidateFileExtension(api);
-  const openapi = readYaml(api) as AnyOas3Definition;
-  collectSpecData?.(openapi);
-  splitDefinition(openapi, outDir, separator, ext);
+
+  if (!fs.existsSync(api)) exitWithError(`File ${blue(api)} does not exist.`);
+
+  const definition = readYaml(api) as AnyDefinition;
+  collectSpecData?.(definition);
+
+  const specVersion = detectSpec(definition);
+  switch (specVersion) {
+    case 'async2':
+    case 'async3':
+      splitAsyncApiDefinition({
+        asyncapi: definition as AnyAsyncApiDefinition,
+        asyncapiDir: outDir,
+        pathSeparator: separator,
+        ext,
+        specVersion,
+      });
+      break;
+    case 'oas3_0':
+    case 'oas3_1':
+    case 'oas3_2':
+      splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
+      break;
+    case 'oas2':
+      exitWithError('OpenAPI 2 is not supported by this command.');
+      break;
+    default:
+      exitWithError(
+        'File does not conform to the OpenAPI or AsyncAPI Specification. Version is not specified.'
+      );
+  }
+
   logger.info(
     `🪓 Document: ${blue(api)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
@@ -70,7 +106,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   printExecutionTime('split', startedAt, api);
 }
 
-function splitDefinition(
+function splitOASDefinition(
   openapi: AnyOas3Definition,
   openapiDir: string,
   pathSeparator: string,
@@ -113,26 +149,6 @@ export function startsWithComponents(node: string) {
 
 function isSupportedExtension(filename: string) {
   return filename.endsWith('.yaml') || filename.endsWith('.yml') || filename.endsWith('.json');
-}
-
-function loadFile(fileName: string) {
-  try {
-    return parseYaml(fs.readFileSync(fileName, 'utf8')) as Definition;
-  } catch (e) {
-    return exitWithError(e.message);
-  }
-}
-
-function validateDefinitionFileName(fileName: string) {
-  if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist.`);
-  const file = loadFile(fileName);
-  if ((file as Oas2Definition).swagger)
-    exitWithError('OpenAPI 2 is not supported by this command.');
-  if (!(file as AnyOas3Definition).openapi)
-    exitWithError(
-      'File does not conform to the OpenAPI Specification. OpenAPI version is not specified.'
-    );
-  return true;
 }
 
 function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {
@@ -402,6 +418,260 @@ function iterateComponents(
       }
       removeEmptyComponents(openapi, componentType);
     }
+  }
+}
+
+function splitAsyncApiDefinition({
+  asyncapi,
+  asyncapiDir,
+  pathSeparator,
+  ext,
+  specVersion,
+}: {
+  asyncapi: AnyAsyncApiDefinition;
+  asyncapiDir: string;
+  pathSeparator: string;
+  ext: string;
+  specVersion: 'async2' | 'async3';
+}) {
+  fs.mkdirSync(asyncapiDir, { recursive: true });
+
+  const componentsFiles: ComponentsFiles = {};
+
+  iterateAsyncApiComponents({
+    asyncapi,
+    asyncapiDir,
+    componentsFiles,
+    ext,
+    specVersion,
+  });
+
+  // Split channels
+  const channels = (asyncapi as any).channels;
+  const channelsFiles: Record<string, string> = channels
+    ? iterateAsyncApiChannels({
+        channels,
+        asyncapiDir,
+        outDir: path.join(asyncapiDir, CHANNELS),
+        componentsFiles,
+        pathSeparator,
+        ext,
+      })
+    : {};
+
+  // Split operations for AsyncAPI 3
+  if (specVersion === 'async3' && (asyncapi as Async3Definition).operations) {
+    iterateAsyncApiOperations({
+      operations: (asyncapi as Async3Definition).operations!,
+      asyncapiDir,
+      outDir: path.join(asyncapiDir, OPERATIONS),
+      componentsFiles,
+      channelsFiles,
+      pathSeparator,
+      ext,
+    });
+  }
+
+  replace$Refs(asyncapi, asyncapiDir, componentsFiles);
+  writeToFileByExtension(asyncapi, path.join(asyncapiDir, `asyncapi.${ext}`));
+}
+
+function iterateAsyncApiChannels({
+  channels,
+  asyncapiDir,
+  outDir,
+  componentsFiles,
+  pathSeparator,
+  ext,
+}: {
+  channels: Record<string, any> | undefined;
+  asyncapiDir: string;
+  outDir: string;
+  componentsFiles: ComponentsFiles;
+  pathSeparator: string;
+  ext: string;
+}): Record<string, string> {
+  const channelsFiles: Record<string, string> = {};
+  if (!channels) return channelsFiles;
+  fs.mkdirSync(outDir, { recursive: true });
+
+  for (const channelName of Object.keys(channels)) {
+    const channelFile = `${path.join(outDir, pathToFilename(channelName, pathSeparator))}.${ext}`;
+    const channelData = channels[channelName];
+
+    if (isRef(channelData)) continue;
+
+    channelsFiles[channelName] = channelFile;
+    replace$Refs(channelData, path.dirname(channelFile), componentsFiles);
+    writeToFileByExtension(channelData, channelFile);
+    channels[channelName] = {
+      $ref: slash(path.relative(asyncapiDir, channelFile)),
+    };
+
+    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
+  }
+  return channelsFiles;
+}
+
+function iterateAsyncApiOperations({
+  operations,
+  asyncapiDir,
+  outDir,
+  componentsFiles,
+  channelsFiles,
+  pathSeparator,
+  ext,
+}: {
+  operations: Record<string, any> | undefined;
+  asyncapiDir: string;
+  outDir: string;
+  componentsFiles: ComponentsFiles;
+  channelsFiles: Record<string, string>;
+  pathSeparator: string;
+  ext: string;
+}) {
+  if (!operations) return;
+  fs.mkdirSync(outDir, { recursive: true });
+
+  for (const operationName of Object.keys(operations)) {
+    const operationFile = `${path.join(
+      outDir,
+      pathToFilename(operationName, pathSeparator)
+    )}.${ext}`;
+    const operationData = operations[operationName];
+
+    if (isRef(operationData)) continue;
+
+    replace$Refs(operationData, path.dirname(operationFile), componentsFiles);
+    replaceChannelRefs(operationData, path.dirname(operationFile), channelsFiles);
+    writeToFileByExtension(operationData, operationFile);
+    operations[operationName] = {
+      $ref: slash(path.relative(asyncapiDir, operationFile)),
+    };
+
+    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
+  }
+}
+
+function replaceChannelRefs(
+  obj: any,
+  fromDir: string,
+  channelsFiles: Record<string, string>
+): void {
+  if (!isPlainObject(obj) && !Array.isArray(obj)) return;
+
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      replaceChannelRefs(item, fromDir, channelsFiles);
+    }
+    return;
+  }
+
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    if (key === '$ref' && typeof value === 'string' && value.startsWith('#/channels/')) {
+      const afterChannels = value.slice('#/channels/'.length);
+      const slashIdx = afterChannels.indexOf('/');
+      const channelName = slashIdx === -1 ? afterChannels : afterChannels.slice(0, slashIdx);
+      const rest = slashIdx === -1 ? '' : afterChannels.slice(slashIdx);
+      const channelFile = channelsFiles[channelName];
+      if (channelFile) {
+        const relative = slash(path.relative(fromDir, channelFile));
+        obj[key] = rest ? `${relative}#${rest}` : relative;
+      }
+    } else {
+      replaceChannelRefs(value, fromDir, channelsFiles);
+    }
+  }
+}
+
+function findAsyncApiComponentTypes(components: any, specVersion: 'async2' | 'async3') {
+  const componentNames =
+    specVersion === 'async2'
+      ? ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES
+      : ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES;
+
+  return componentNames.filter((item) => item in components);
+}
+
+function iterateAsyncApiComponents({
+  asyncapi,
+  asyncapiDir,
+  componentsFiles,
+  ext,
+  specVersion,
+}: {
+  asyncapi: AnyAsyncApiDefinition;
+  asyncapiDir: string;
+  componentsFiles: ComponentsFiles;
+  ext: string;
+  specVersion: 'async2' | 'async3';
+}) {
+  const { components } = asyncapi as any;
+  if (components) {
+    const componentsDir = path.join(asyncapiDir, COMPONENTS);
+    fs.mkdirSync(componentsDir, { recursive: true });
+    const componentTypes = findAsyncApiComponentTypes(components, specVersion);
+    componentTypes.forEach(iterateAndGatherComponentsFiles);
+    componentTypes.forEach(iterateComponentTypes);
+
+    function iterateAndGatherComponentsFiles(
+      componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
+    ) {
+      const componentDirPath = path.join(componentsDir, componentType);
+      for (const componentName of Object.keys(components?.[componentType] || {})) {
+        const filename = getFileNamePath(componentDirPath, componentName, ext);
+        let inherits: string[] = [];
+        if (componentType === 'schemas') {
+          inherits = ((components?.[componentType]?.[componentName] as any)?.allOf || [])
+            .map(({ $ref }: any) => $ref)
+            .filter(isTruthy);
+        }
+        componentsFiles[componentType] = componentsFiles[componentType] || {};
+        componentsFiles[componentType][componentName] = { inherits, filename };
+      }
+    }
+
+    function iterateComponentTypes(
+      componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
+    ) {
+      const componentDirPath = path.join(componentsDir, componentType);
+      createComponentDir(componentDirPath, componentType);
+      for (const componentName of Object.keys(components?.[componentType] || {})) {
+        const filename = getFileNamePath(componentDirPath, componentName, ext);
+        const componentData = components?.[componentType]?.[componentName];
+        replace$Refs(componentData, path.dirname(filename), componentsFiles);
+
+        if (doesFileDiffer(filename, componentData)) {
+          logger.warn(
+            `warning: conflict for ${componentName} - file already exists with different content: ${blue(
+              filename
+            )} ... Skip.\n`
+          );
+        } else {
+          writeToFileByExtension(componentData, filename);
+        }
+
+        delete (asyncapi as any).components?.[componentType]?.[componentName];
+      }
+      removeAsyncApiEmptyComponents(asyncapi, componentType);
+    }
+  }
+}
+
+function removeAsyncApiEmptyComponents(
+  asyncapi: AnyAsyncApiDefinition,
+  componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
+) {
+  const components = (asyncapi as any).components;
+  if (!components) return;
+
+  if (isEmptyObject(components[componentType])) {
+    delete components[componentType];
+  }
+
+  if (isEmptyObject(components)) {
+    delete (asyncapi as any).components;
   }
 }
 

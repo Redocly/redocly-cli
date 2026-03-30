@@ -176,4 +176,54 @@ describe('split', () => {
 
     expect(utils.escapeLanguageName).toBeCalledTimes(3);
   });
+
+  it('should split an AsyncAPI 2 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi2.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
+  });
+
+  it('should split an AsyncAPI 3 file and show the success message', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi3.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
+      `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
+    and all related files are saved to the directory: ${blue(openapiDir)} \n`
+    );
+    expect(vi.mocked(process.stderr.write).mock.calls[1][0]).toContain(
+      `${filePath}: split processed in <test>ms`
+    );
+  });
 });
