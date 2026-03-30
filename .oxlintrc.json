@@ -12,6 +12,7 @@
   "rules": {
     "eslint/no-array-constructor": "error",
     "eslint/no-case-declarations": "error",
+    "eslint/no-console": "error",
     "eslint/no-empty": "error",
     "eslint/no-redeclare": "error",
     "eslint/no-regex-spaces": "error",
@@ -57,6 +58,12 @@
         "typescript/no-explicit-any": "allow",
         "typescript/ban-ts-comment": "allow",
         "eslint/no-control-regex": "allow"
+      }
+    },
+    {
+      "files": ["packages/core/src/logger.ts"],
+      "rules": {
+        "eslint/no-console": "allow"
       }
     }
   ]
