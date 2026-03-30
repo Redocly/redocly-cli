@@ -1,5 +1,12 @@
 # @redocly/respect-core
 
+## 2.25.3
+
+### Patch Changes
+
+- Handled content type wildcards in response validation to improve Respect's accuracy when matching described content types.
+- Updated @redocly/openapi-core to v2.25.3.
+
 ## 2.25.2
 
 ### Patch Changes
