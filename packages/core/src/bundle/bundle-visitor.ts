@@ -269,12 +269,14 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  function reportComponentConflict(originalName: string, newName: string, ctx: UserContext) {
-    ctx.report({
-      message: `Two schemas are referenced with the same name but different content. Renamed ${originalName} to ${newName}.`,
-      location: ctx.location,
-      forceSeverity: componentRenamingConflicts,
-    });
+  function reportIfRenamed(fromName: string, toName: string, ctx: UserContext) {
+    if (fromName && toName !== fromName) {
+      ctx.report({
+        message: `Two schemas are referenced with the same name but different content. Renamed ${fromName} to ${toName}.`,
+        location: ctx.location,
+        forceSeverity: componentRenamingConflicts,
+      });
+    }
   }
 
   function getComponentName(
@@ -286,7 +288,7 @@ export function makeBundleVisitor({
     const componentsGroup = components[componentType];
 
     let name = '';
-    let originalName = '';
+    let renameSource = '';
 
     const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
     while (refParts.length > 0) {
@@ -296,24 +298,19 @@ export function makeBundleVisitor({
         !componentsGroup[name] ||
         isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
-        if (originalName && name !== originalName) {
-          reportComponentConflict(originalName, name, ctx);
-        }
+        reportIfRenamed(renameSource, name, ctx);
         return name;
       }
-      if (!originalName) {
-        originalName = name;
-      }
+      renameSource ||= name;
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
     if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      if (originalName && name !== originalName) {
-        reportComponentConflict(originalName, name, ctx);
-      }
+      reportIfRenamed(renameSource, name, ctx);
       return name;
     }
 
+    renameSource ||= name;
     const prevName = name;
     let serialId = 2;
     while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
@@ -322,7 +319,7 @@ export function makeBundleVisitor({
     }
 
     if (!componentsGroup[name]) {
-      reportComponentConflict(originalName || prevName, name, ctx);
+      reportIfRenamed(renameSource, name, ctx);
     }
 
     return name;
