@@ -151,7 +151,7 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
   });
 
-  it('should bundle external pointer refs and show errors for conflicting names', async () => {
+  it('should report error-severity problems for conflicting pointer ref names', async () => {
     const { problems } = await bundle({
       config: await createConfig({}),
       ref: path.join(
