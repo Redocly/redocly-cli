@@ -1,5 +1,22 @@
 # @redocly/openapi-core
 
+## 2.25.3
+
+### Patch Changes
+
+- Fixed multiple issues in the `spec-discriminator-defaultMapping` rule that could cause crashes or incorrect validation results.
+  The rule now correctly resolves existing schema names, traverses composite schemas (`allOf`, `anyOf`, `oneOf`) to find required properties, treats `defaultMapping` values as `$ref`s to schemas, resolves `$ref`s correctly across files, and handles cyclic schema dependencies.
+
+## 2.25.2
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.45.0`.
+- Fixed a crash when a non-string value (for example, a number) was used in an `extends` array in `redocly.yaml` inside `scorecard`/`scorecardClassic`.
+  Fixed a crash when reference could not be resolved in `extends`.
+- Improved error message when a plugin is not detected.
+- Updated `picomatch` dependency to `^4.0.4`.
+
 ## 2.25.1
 
 ## 2.25.0

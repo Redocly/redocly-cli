@@ -7,6 +7,21 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.25.3 (2026-03-30)
+
+### Patch Changes
+
+- Fixed multiple issues in the `spec-discriminator-defaultMapping` rule that could cause crashes or incorrect validation results.
+  The rule now correctly resolves existing schema names, traverses composite schemas (`allOf`, `anyOf`, `oneOf`) to find required properties, treats `defaultMapping` values as `$ref`s to schemas, resolves `$ref`s correctly across files, and handles cyclic schema dependencies.
+- Updated @redocly/respect-core to v2.25.3.
+
+## 2.25.2 (2026-03-27)
+
+### Patch Changes
+
+- Updated `picomatch` dependency to `^4.0.4`.
+- Updated @redocly/openapi-core to v2.25.2.
+
 ## 2.25.1 (2026-03-24)
 
 ### Patch Changes
