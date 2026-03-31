@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed `--component-renaming-conflicts-severity` ignoring conflicts when different files have components with the same name but different content.
+Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
