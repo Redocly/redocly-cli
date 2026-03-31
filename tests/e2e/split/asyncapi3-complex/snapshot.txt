@@ -1,4 +1,20 @@
 
+address: user/signedup
+messages:
+  UserSignedUp:
+    $ref: '#/components/messages/UserSignedUp'
+address: user/loggedin
+messages:
+  UserLoggedIn:
+    $ref: '#/components/messages/UserLoggedIn'
+address: user/loggedin/reply
+messages:
+  UserLoggedInReply:
+    payload:
+      type: object
+      properties:
+        success:
+          type: boolean
 type: object
 properties:
   id:
@@ -28,6 +44,11 @@ payload:
 type: httpApiKey
 name: X-API-Key
 in: header
+channel:
+  $ref: ../../channels/userLoggedInReply.yaml
+messages:
+  - $ref: ../../channels/userLoggedInReply.yaml#/messages/UserLoggedInReply
+location: $message.header#/replyTo
 location: $message.header#/correlationId
 headers:
   type: object
@@ -36,14 +57,6 @@ headers:
       type: string
     contentType:
       type: string
-address: user/signedup
-messages:
-  UserSignedUp:
-    $ref: ../components/messages/UserSignedUp.yaml
-address: user/loggedin
-messages:
-  UserLoggedIn:
-    $ref: ../components/messages/UserLoggedIn.yaml
 action: send
 channel:
   $ref: ../channels/userSignedUp.yaml
@@ -58,18 +71,23 @@ messages:
   - $ref: ../channels/userLoggedIn.yaml#/messages/UserLoggedIn
 security:
   - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
+reply:
+  $ref: ../components/replies/UserLoggedInReply.yaml
 asyncapi: 3.0.0
 info:
   title: Complex AsyncAPI 3 Example
   version: 1.0.0
   description: >-
     A complex AsyncAPI 3 example testing split with multiple channels,
-    operations, schemas, messageTraits, correlationIds and securitySchemes
+    operations, schemas, messageTraits, correlationIds, securitySchemes and
+    replies
 channels:
   userSignedUp:
     $ref: channels/userSignedUp.yaml
   userLoggedIn:
     $ref: channels/userLoggedIn.yaml
+  userLoggedInReply:
+    $ref: channels/userLoggedInReply.yaml
 operations:
   sendUserSignedup:
     $ref: operations/sendUserSignedup.yaml

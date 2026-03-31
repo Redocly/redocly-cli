@@ -438,15 +438,7 @@ function splitAsyncApiDefinition({
 
   const componentsFiles: ComponentsFiles = {};
 
-  iterateAsyncApiComponents({
-    asyncapi,
-    asyncapiDir,
-    componentsFiles,
-    ext,
-    specVersion,
-  });
-
-  // Split channels
+  // Split channels first so channelsFiles is available when writing component files
   const channels = (asyncapi as any).channels;
   const channelsFiles: Record<string, string> = channels
     ? iterateAsyncApiChannels({
@@ -458,6 +450,15 @@ function splitAsyncApiDefinition({
         ext,
       })
     : {};
+
+  iterateAsyncApiComponents({
+    asyncapi,
+    asyncapiDir,
+    componentsFiles,
+    channelsFiles,
+    ext,
+    specVersion,
+  });
 
   // Split operations for AsyncAPI 3
   if (specVersion === 'async3' && (asyncapi as Async3Definition).operations) {
@@ -598,12 +599,14 @@ function iterateAsyncApiComponents({
   asyncapi,
   asyncapiDir,
   componentsFiles,
+  channelsFiles,
   ext,
   specVersion,
 }: {
   asyncapi: AnyAsyncApiDefinition;
   asyncapiDir: string;
   componentsFiles: ComponentsFiles;
+  channelsFiles: Record<string, string>;
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
@@ -641,6 +644,7 @@ function iterateAsyncApiComponents({
         const filename = getFileNamePath(componentDirPath, componentName, ext);
         const componentData = components?.[componentType]?.[componentName];
         replace$Refs(componentData, path.dirname(filename), componentsFiles);
+        replaceChannelRefs(componentData, path.dirname(filename), channelsFiles);
 
         if (doesFileDiffer(filename, componentData)) {
           logger.warn(

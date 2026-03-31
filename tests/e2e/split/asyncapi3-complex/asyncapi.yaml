@@ -2,7 +2,7 @@ asyncapi: 3.0.0
 info:
   title: Complex AsyncAPI 3 Example
   version: 1.0.0
-  description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits, correlationIds and securitySchemes
+  description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits, correlationIds, securitySchemes and replies
 channels:
   userSignedUp:
     address: user/signedup
@@ -14,6 +14,15 @@ channels:
     messages:
       UserLoggedIn:
         $ref: '#/components/messages/UserLoggedIn'
+  userLoggedInReply:
+    address: user/loggedin/reply
+    messages:
+      UserLoggedInReply:
+        payload:
+          type: object
+          properties:
+            success:
+              type: boolean
 operations:
   sendUserSignedup:
     action: send
@@ -31,6 +40,8 @@ operations:
       - $ref: '#/channels/userLoggedIn/messages/UserLoggedIn'
     security:
       - $ref: '#/components/securitySchemes/ApiKeyAuth'
+    reply:
+      $ref: '#/components/replies/UserLoggedInReply'
 components:
   messages:
     UserSignedUp:
@@ -77,6 +88,15 @@ components:
   correlationIds:
     DefaultCorrelationId:
       location: '$message.header#/correlationId'
+  replies:
+    UserLoggedInReply:
+      channel:
+        $ref: '#/channels/userLoggedInReply'
+      messages:
+        - $ref: '#/channels/userLoggedInReply/messages/UserLoggedInReply'
+  replyAddresses:
+    UserLoggedInReplyAddress:
+      location: '$message.header#/replyTo'
   securitySchemes:
     ApiKeyAuth:
       type: httpApiKey
