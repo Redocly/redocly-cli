@@ -269,6 +269,14 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
+  function reportComponentConflict(originalName: string, newName: string, ctx: UserContext) {
+    ctx.report({
+      message: `Two schemas are referenced with the same name but different content. Renamed ${originalName} to ${newName}.`,
+      location: ctx.location,
+      forceSeverity: componentRenamingConflicts,
+    });
+  }
+
   function getComponentName(
     target: { node: unknown; location: Location },
     componentType: string,
@@ -278,6 +286,7 @@ export function makeBundleVisitor({
     const componentsGroup = components[componentType];
 
     let name = '';
+    let originalName = '';
 
     const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
     while (refParts.length > 0) {
@@ -287,12 +296,21 @@ export function makeBundleVisitor({
         !componentsGroup[name] ||
         isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
+        if (originalName && name !== originalName) {
+          reportComponentConflict(originalName, name, ctx);
+        }
         return name;
+      }
+      if (!originalName) {
+        originalName = name;
       }
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
     if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
+      if (originalName && name !== originalName) {
+        reportComponentConflict(originalName, name, ctx);
+      }
       return name;
     }
 
@@ -304,11 +322,7 @@ export function makeBundleVisitor({
     }
 
     if (!componentsGroup[name]) {
-      ctx.report({
-        message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
-        location: ctx.location,
-        forceSeverity: componentRenamingConflicts,
-      });
+      reportComponentConflict(originalName || prevName, name, ctx);
     }
 
     return name;

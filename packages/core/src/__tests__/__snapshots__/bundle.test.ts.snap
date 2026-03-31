@@ -1,5 +1,28 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`bundle > should bundle external pointer refs and warn for conflicting names 1`] = `
+openapi: 3.1.0
+paths:
+  /foo:
+    put:
+      parameters:
+        - $ref: '#/components/parameters/parameters-User'
+    get:
+      parameters:
+        - $ref: '#/components/parameters/User'
+components:
+  parameters:
+    User:
+      name: test
+      in: query
+      description: test-B
+    parameters-User:
+      name: test
+      in: path
+      description: test-A
+
+`;
+
 exports[`bundle > should bundle external refs 1`] = `
 openapi: 3.0.0
 paths:
