@@ -32,25 +32,18 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          PR_DESCRIPTION="$(printf '%s' "$PR_BODY" | tr -d '\r')" # read the PR description
-          REQUIRED_CHECKS=$(echo "$PR_DESCRIPTION" | grep "required 🔒") # pick required checks
-
-          REQUIRED_CHECKS_COUNT=$(echo "$REQUIRED_CHECKS" | wc -l)
-          COUNT_OF_REQUIRED_CHECKS_IN_TEMPLATE=$(grep 'required 🔒' .github/pull_request_template.md | wc -l)
-          if [ "$REQUIRED_CHECKS_COUNT" -ne "$COUNT_OF_REQUIRED_CHECKS_IN_TEMPLATE" ]; then
-            echo "❌ Do not change the PR template."
-            exit 1
-          fi
+          REQUIRED_CHECKS="$(grep 'required 🔒' .github/pull_request_template.md)"
 
           MISSING_REQUIRED_CHECKS=no
           while read line; do
-            if [[ ! $line =~ ^-\ \[x\] ]]; then
-              line="${line#- [ \] }" # clean up the line
-              line="${line%%<!--*-->}" # clean up the line
+            expected_checked_line="${line/#- [ \]/- [x]}"
+            if ! echo "$PR_BODY" | grep -Fiq -- "$expected_checked_line"; then
+              line="${line#- [ \] }"
               echo "❌ Please acknowledge the following: $line"
               MISSING_REQUIRED_CHECKS=yes
             fi
           done <<< "$REQUIRED_CHECKS"
+
           if [ "$MISSING_REQUIRED_CHECKS" = "yes" ]; then
             exit 1
           fi
