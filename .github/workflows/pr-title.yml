@@ -1,4 +1,4 @@
-name: PR Title Check
+name: PR Title and Description Check
 
 on:
   pull_request:
@@ -23,3 +23,36 @@ jobs:
             exit 1
           fi
           echo "✅ PR title format is valid"
+  check-pr-required-checklist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check required checklist items
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          PR_DESCRIPTION="$(printf '%s' "$PR_BODY" | tr -d '\r')" # read the PR description
+          REQUIRED_CHECKS=$(echo "$PR_DESCRIPTION" | grep "required 🔒") # pick required checks
+
+          REQUIRED_CHECKS_COUNT=$(echo "$REQUIRED_CHECKS" | wc -l)
+          COUNT_OF_REQUIRED_CHECKS_IN_TEMPLATE=$(grep 'required 🔒' .github/pull_request_template.md | wc -l)
+          if [ "$REQUIRED_CHECKS_COUNT" -ne "$COUNT_OF_REQUIRED_CHECKS_IN_TEMPLATE" ]; then
+            echo "❌ Do not change the PR template."
+            exit 1
+          fi
+
+          MISSING_REQUIRED_CHECKS=no
+          while read line; do
+            if [[ ! $line =~ ^-\ \[x\] ]]; then
+              line="${line#- [ \] }" # clean up the line
+              line="${line%%<!--*-->}" # clean up the line
+              echo "❌ Please acknowledge the following: $line"
+              MISSING_REQUIRED_CHECKS=yes
+            fi
+          done <<< "$REQUIRED_CHECKS"
+          if [ "$MISSING_REQUIRED_CHECKS" = "yes" ]; then
+            exit 1
+          fi
+
+          echo "✅ Required checklist items are checked"
