@@ -2,11 +2,11 @@
 address: user/signedup
 messages:
   UserSignedUp:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
 address: user/loggedin
 messages:
   UserLoggedIn:
-    $ref: '#/components/messages/UserLoggedIn'
+    $ref: ../components/messages/UserLoggedIn.yaml
 address: user/loggedin/reply
 messages:
   UserLoggedInReply:

@@ -17,6 +17,8 @@ export type Definition =
 export interface ComponentsFiles {
   [schemas: string]: any;
 }
+
+export type ChannelsFiles = Record<string, string>;
 export interface RefObject {
   [$ref: string]: string;
 }

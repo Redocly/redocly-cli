@@ -46,6 +46,7 @@ import {
   OPENAPI3_COMPONENT_NAMES,
   ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES,
   ASYNCAPI3_SPLITTABLE_COMPONENT_NAMES,
+  type ChannelsFiles,
   type ComponentsFiles,
   type Oas3Component,
   type RefObject,
@@ -55,6 +56,11 @@ import {
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyAsyncApiDefinition = Async2Definition | Async3Definition;
+/** Internal type for accessing loosely-typed top-level AsyncAPI fields */
+type AsyncApiWithFields = {
+  channels?: Record<string, unknown>;
+  components?: Record<string, Record<string, unknown>>;
+};
 type AnyDefinition = AnyOas3Definition | AnyAsyncApiDefinition;
 
 export type SplitArgv = {
@@ -438,9 +444,12 @@ function splitAsyncApiDefinition({
 
   const componentsFiles: ComponentsFiles = {};
 
-  // Split channels first so channelsFiles is available when writing component files
-  const channels = (asyncapi as any).channels;
-  const channelsFiles: Record<string, string> = channels
+  // Phase 1: gather component file paths so replace$Refs can resolve #/components/... when writing channels
+  gatherAsyncApiComponentFiles({ asyncapi, asyncapiDir, componentsFiles, ext, specVersion });
+
+  // Phase 2: split channels (componentsFiles is populated → replace$Refs rewrites #/components/... refs)
+  const channels = (asyncapi as AsyncApiWithFields).channels;
+  const channelsFiles: ChannelsFiles = channels
     ? iterateAsyncApiChannels({
         channels,
         asyncapiDir,
@@ -451,6 +460,7 @@ function splitAsyncApiDefinition({
       })
     : {};
 
+  // Phase 3: write component files (channelsFiles is populated → replaceChannelRefs rewrites #/channels/... refs)
   iterateAsyncApiComponents({
     asyncapi,
     asyncapiDir,
@@ -460,7 +470,7 @@ function splitAsyncApiDefinition({
     specVersion,
   });
 
-  // Split operations for AsyncAPI 3
+  // Phase 4: split operations for AsyncAPI 3
   if (specVersion === 'async3' && (asyncapi as Async3Definition).operations) {
     iterateAsyncApiOperations({
       operations: (asyncapi as Async3Definition).operations!,
@@ -491,8 +501,8 @@ function iterateAsyncApiChannels({
   componentsFiles: ComponentsFiles;
   pathSeparator: string;
   ext: string;
-}): Record<string, string> {
-  const channelsFiles: Record<string, string> = {};
+}): ChannelsFiles {
+  const channelsFiles: ChannelsFiles = {};
   if (!channels) return channelsFiles;
   fs.mkdirSync(outDir, { recursive: true });
 
@@ -527,7 +537,7 @@ function iterateAsyncApiOperations({
   asyncapiDir: string;
   outDir: string;
   componentsFiles: ComponentsFiles;
-  channelsFiles: Record<string, string>;
+  channelsFiles: ChannelsFiles;
   pathSeparator: string;
   ext: string;
 }) {
@@ -554,11 +564,7 @@ function iterateAsyncApiOperations({
   }
 }
 
-function replaceChannelRefs(
-  obj: any,
-  fromDir: string,
-  channelsFiles: Record<string, string>
-): void {
+function replaceChannelRefs(obj: unknown, fromDir: string, channelsFiles: ChannelsFiles): void {
   if (!isPlainObject(obj) && !Array.isArray(obj)) return;
 
   if (Array.isArray(obj)) {
@@ -595,6 +601,42 @@ function findAsyncApiComponentTypes(components: any, specVersion: 'async2' | 'as
   return componentNames.filter((item) => item in components);
 }
 
+function gatherAsyncApiComponentFiles({
+  asyncapi,
+  asyncapiDir,
+  componentsFiles,
+  ext,
+  specVersion,
+}: {
+  asyncapi: AnyAsyncApiDefinition;
+  asyncapiDir: string;
+  componentsFiles: ComponentsFiles;
+  ext: string;
+  specVersion: 'async2' | 'async3';
+}) {
+  const { components } = asyncapi as AsyncApiWithFields;
+  if (!components) return;
+  const componentsDir = path.join(asyncapiDir, COMPONENTS);
+  const componentTypes = findAsyncApiComponentTypes(components, specVersion);
+  for (const componentType of componentTypes) {
+    const componentDirPath = path.join(componentsDir, componentType);
+    for (const componentName of Object.keys(components[componentType] || {})) {
+      const filename = getFileNamePath(componentDirPath, componentName, ext);
+      let inherits: string[] = [];
+      if (componentType === 'schemas') {
+        inherits = (
+          (components[componentType]?.[componentName] as { allOf?: Array<{ $ref?: string }> })
+            ?.allOf || []
+        )
+          .map(({ $ref }) => $ref)
+          .filter(isTruthy);
+      }
+      componentsFiles[componentType] = componentsFiles[componentType] || {};
+      componentsFiles[componentType][componentName] = { inherits, filename };
+    }
+  }
+}
+
 function iterateAsyncApiComponents({
   asyncapi,
   asyncapiDir,
@@ -606,34 +648,17 @@ function iterateAsyncApiComponents({
   asyncapi: AnyAsyncApiDefinition;
   asyncapiDir: string;
   componentsFiles: ComponentsFiles;
-  channelsFiles: Record<string, string>;
+  channelsFiles: ChannelsFiles;
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi as any;
+  const asyncapiWithFields = asyncapi as AsyncApiWithFields;
+  const { components } = asyncapiWithFields;
   if (components) {
     const componentsDir = path.join(asyncapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
     const componentTypes = findAsyncApiComponentTypes(components, specVersion);
-    componentTypes.forEach(iterateAndGatherComponentsFiles);
     componentTypes.forEach(iterateComponentTypes);
-
-    function iterateAndGatherComponentsFiles(
-      componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
-    ) {
-      const componentDirPath = path.join(componentsDir, componentType);
-      for (const componentName of Object.keys(components?.[componentType] || {})) {
-        const filename = getFileNamePath(componentDirPath, componentName, ext);
-        let inherits: string[] = [];
-        if (componentType === 'schemas') {
-          inherits = ((components?.[componentType]?.[componentName] as any)?.allOf || [])
-            .map(({ $ref }: any) => $ref)
-            .filter(isTruthy);
-        }
-        componentsFiles[componentType] = componentsFiles[componentType] || {};
-        componentsFiles[componentType][componentName] = { inherits, filename };
-      }
-    }
 
     function iterateComponentTypes(
       componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
@@ -656,7 +681,7 @@ function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        delete (asyncapi as any).components?.[componentType]?.[componentName];
+        delete asyncapiWithFields.components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }
@@ -667,7 +692,7 @@ function removeAsyncApiEmptyComponents(
   asyncapi: AnyAsyncApiDefinition,
   componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
 ) {
-  const components = (asyncapi as any).components;
+  const components = (asyncapi as AsyncApiWithFields).components;
   if (!components) return;
 
   if (isEmptyObject(components[componentType])) {
@@ -675,7 +700,7 @@ function removeAsyncApiEmptyComponents(
   }
 
   if (isEmptyObject(components)) {
-    delete (asyncapi as any).components;
+    delete (asyncapi as AsyncApiWithFields).components;
   }
 }
 

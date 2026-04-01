@@ -3,7 +3,7 @@ description: Channel for user signup events
 subscribe:
   operationId: onUserSignup
   message:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
 type: object
 properties:
   id:

@@ -2,7 +2,7 @@
 address: user/signedup
 messages:
   UserSignedUp:
-    $ref: '#/components/messages/UserSignedUp'
+    $ref: ../components/messages/UserSignedUp.yaml
 type: object
 properties:
   id:
