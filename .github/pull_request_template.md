@@ -8,7 +8,7 @@
 
 ## Check yourself
 
-- [ ] Code changed? - Tested with Redoc/Realm/Reunite (internal)
+- [ ] I have followed the [contributing guide](../CONTRIBUTING.md#pull-request-guidelines)
 - [ ] All new/updated code is covered by tests
 - [ ] New package installed? - Tested in different environments (browser/node)
 - [ ] Documentation update considered
