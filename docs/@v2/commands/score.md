@@ -9,9 +9,10 @@ The `score` command analyzes an OpenAPI description and produces two composite s
 
 In addition to the top-level scores, the command reports normalized subscores, raw metrics for every operation, and a list of **hotspot operations** — the endpoints most likely to cause integration friction — along with human-readable explanations.
 
-{% admonition type="warning" name="OpenAPI 3.x only" %}
-The `score` command supports OpenAPI 3.0, 3.1, and 3.2 descriptions.
-OpenAPI 2.0 (Swagger) and AsyncAPI are not currently supported.
+{% admonition type="warning" name="Important" %}
+The `score` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
+
+The `score` command supports OpenAPI 3.x descriptions only.
 {% /admonition %}
 
 ### Metrics
@@ -60,7 +61,7 @@ The command identifies the operations with the lowest scores and provides reason
 
 ```bash
 redocly score <api>
-redocly score <api> [--format=<option>] [--config=<path>]
+redocly score <api> [--format=<option>]
 ```
 
 ## Options

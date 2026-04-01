@@ -1,3 +1,4 @@
+import { isNotEmptyObject, isPlainObject } from '@redocly/openapi-core';
 import type {
   Oas3Visitor,
   UserContext,
@@ -130,7 +131,7 @@ export function createSchemaMetricVisitor(state: SchemaWalkState): Oas3Visitor {
         }
 
         const localPropertyNames: string[] = [];
-        if (schema.properties && typeof schema.properties === 'object') {
+        if (isPlainObject(schema.properties)) {
           const props = Object.entries(schema.properties) as [string, any][];
           state.totalSchemaProperties += props.length;
           state.propertyCount += props.length;
@@ -486,8 +487,8 @@ function mergeParameters(
 
 function hasExample(mediaType: { example?: unknown; examples?: Record<string, unknown> }): boolean {
   if (mediaType.example !== undefined) return true;
-  if (mediaType.examples && typeof mediaType.examples === 'object') {
-    return Object.keys(mediaType.examples).length > 0;
+  if (isNotEmptyObject(mediaType.examples)) {
+    return true;
   }
   return false;
 }

@@ -7,6 +7,7 @@ import {
   BaseResolver,
   Source,
   isPlainObject,
+  isRef,
   type Document,
   type SpecVersion,
   type WalkContext,
@@ -194,8 +195,7 @@ export function collectMetrics({
 
   const walkSchema = (schemaNode: any, debug = false): SchemaStats => {
     let resolved = schemaNode;
-    const ref: string | undefined =
-      schemaNode?.$ref && typeof schemaNode.$ref === 'string' ? schemaNode.$ref : undefined;
+    const ref: string | undefined = isRef(schemaNode) ? schemaNode.$ref : undefined;
 
     if (ref) {
       if (!debug) {
@@ -229,12 +229,13 @@ export function collectMetrics({
 
     const disc = resolved?.discriminator ?? stripped?.discriminator;
     const discriminatorRefs =
-      !polyKeyword && disc?.mapping
-        ? (Object.values(disc.mapping) as string[])
-            .filter((v) => typeof v === 'string' && v.startsWith('#/'))
+      !polyKeyword && isPlainObject(disc?.mapping)
+        ? Object.values(disc.mapping)
+            .filter((v): v is string => typeof v === 'string' && v.startsWith('#/'))
             .map((v) => ({ $ref: v }))
         : null;
-    const hasDiscriminatorBranches = discriminatorRefs != null && discriminatorRefs.length > 0;
+    const hasDiscriminatorBranches =
+      Array.isArray(discriminatorRefs) && discriminatorRefs.length > 0;
 
     let result: SchemaStats;
 
@@ -264,16 +265,16 @@ export function collectMetrics({
       if (hasDiscriminatorBranches) {
         delete parentOnly.discriminator;
 
-        let maxBranch = walkSchema(discriminatorRefs![0], debug);
-        for (let i = 1; i < discriminatorRefs!.length; i++) {
-          const branchStats = walkSchema(discriminatorRefs![i], debug);
+        let maxBranch = walkSchema(discriminatorRefs[0], debug);
+        for (let i = 1; i < discriminatorRefs.length; i++) {
+          const branchStats = walkSchema(discriminatorRefs[i], debug);
           if (branchStats.propertyCount > maxBranch.propertyCount) {
             maxBranch = branchStats;
           }
         }
         discStats = {
           ...maxBranch,
-          polymorphismCount: maxBranch.polymorphismCount + discriminatorRefs!.length,
+          polymorphismCount: maxBranch.polymorphismCount + discriminatorRefs.length,
           hasDiscriminator: true,
         };
       }

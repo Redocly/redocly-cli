@@ -81,7 +81,6 @@ function createArgs(overrides: Partial<ScoreArgv> = {}) {
 
 describe('handleScore', () => {
   beforeEach(() => {
-    mockOutput.mockClear();
     mockedGetFallback.mockResolvedValue([{ path: 'test.yaml' }] as any);
     mockedBundle.mockResolvedValue({ bundle: { parsed: {} } } as any);
     mockedDetectSpec.mockReturnValue('oas3_0');
@@ -91,7 +90,6 @@ describe('handleScore', () => {
       metrics: makeDocumentMetrics(new Map([['listItems', makeTestMetrics()]])),
       debugLogs: [],
     });
-    process.exitCode = undefined;
   });
 
   it('should produce stylish output for a valid oas3 document', async () => {
