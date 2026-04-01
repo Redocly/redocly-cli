@@ -39,11 +39,13 @@ jobs:
 
           MISSING_REQUIRED_CHECKS=no
           while read line; do
-            expected_checked_line="$line"
-            expected_checked_line="${expected_checked_line/#- [ \]/- [x]}" # clean up the line
-            expected_checked_line="${expected_checked_line%%<!--*-->}" # clean up the line
+            line="${line%%<!--*-->}" # clean up the line
+            while [[ "$line" == *[[:space:]] ]]; do
+              line="${line%[[:space:]]}" # strip trailing spaces
+            done
+            expected_checked_line="${line/#- [ \]/- [x]}" # expect the same line, but with checked box
             if ! echo "$PR_BODY" | grep -Fiq -- "$expected_checked_line"; then
-              line="${line#- [ \] }"
+              line="${line#- [ \] }" # clean up the line
               echo "❌ Please acknowledge the following: $line"
               MISSING_REQUIRED_CHECKS=yes
             fi
