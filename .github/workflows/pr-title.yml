@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
+permissions:
+  contents: read
+
 jobs:
   check-pr-title:
     runs-on: ubuntu-latest
@@ -36,7 +39,9 @@ jobs:
 
           MISSING_REQUIRED_CHECKS=no
           while read line; do
-            expected_checked_line="${line/#- [ \]/- [x]}"
+            expected_checked_line="$line"
+            expected_checked_line="${expected_checked_line/#- [ \]/- [x]}" # clean up the line
+            expected_checked_line="${expected_checked_line%%<!--*-->}" # clean up the line
             if ! echo "$PR_BODY" | grep -Fiq -- "$expected_checked_line"; then
               line="${line#- [ \] }"
               echo "❌ Please acknowledge the following: $line"
