@@ -41,14 +41,14 @@ export function computeDependencyDepths(
   const depths = new Map<string, number>();
 
   for (const opKey of operations.keys()) {
-    const depth = bfsMaxDepth(opKey, adjacency);
+    const depth = computeLongestBfsPath(opKey, adjacency);
     depths.set(opKey, depth);
   }
 
   return depths;
 }
 
-function bfsMaxDepth(start: string, adjacency: Map<string, Set<string>>): number {
+function computeLongestBfsPath(start: string, adjacency: Map<string, Set<string>>): number {
   const visited = new Set<string>([start]);
   let queue = [start];
   let depth = 0;

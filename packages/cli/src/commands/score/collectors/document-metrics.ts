@@ -1,13 +1,14 @@
-import { isNotEmptyObject, isPlainObject } from '@redocly/openapi-core';
-import type {
-  Oas3Visitor,
-  UserContext,
-  Oas3PathItem,
-  Oas3Operation,
-  Oas3Parameter,
-  Oas3Schema,
-  Oas3_1Schema,
-  Referenced,
+import {
+  isNotEmptyObject,
+  isPlainObject,
+  type Oas3Visitor,
+  type UserContext,
+  type Oas3PathItem,
+  type Oas3Operation,
+  type Oas3Parameter,
+  type Oas3Schema,
+  type Oas3_1Schema,
+  type Referenced,
 } from '@redocly/openapi-core';
 
 import { AMBIGUOUS_PARAM_NAMES } from '../constants.js';
@@ -212,6 +213,7 @@ interface CurrentOperationContext {
   inRequestBody: boolean;
   inResponse: boolean;
   currentResponseCode: string;
+  errorStructuredCounted: boolean;
 
   refsUsed: Set<string>;
 }
@@ -278,6 +280,7 @@ function createOperationContext(
     inRequestBody: false,
     inResponse: false,
     currentResponseCode: '',
+    errorStructuredCounted: false,
 
     refsUsed: new Set(),
   };
@@ -334,11 +337,13 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
         const code = String(ctx.key);
         current.inResponse = true;
         current.currentResponseCode = code;
+        current.errorStructuredCounted = false;
 
         if (isErrorCode(code)) {
           current.totalErrorResponses++;
           if (!response.content && response.description) {
             current.structuredErrorResponseCount++;
+            current.errorStructuredCounted = true;
           }
         }
       },
@@ -359,8 +364,13 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
           if (current.inResponse) current.responseExamplePresent = true;
         }
 
-        if (current.inResponse && isErrorCode(current.currentResponseCode)) {
+        if (
+          current.inResponse &&
+          isErrorCode(current.currentResponseCode) &&
+          !current.errorStructuredCounted
+        ) {
           current.structuredErrorResponseCount++;
+          current.errorStructuredCounted = true;
         }
 
         if (mediaType.schema) {
@@ -372,14 +382,10 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
           const stats = accumulator.walkSchema(mediaType.schema, isDebugTarget);
 
           current.propertyCount = Math.max(current.propertyCount, stats.propertyCount);
-          current.totalSchemaProperties = Math.max(
-            current.totalSchemaProperties,
-            stats.totalSchemaProperties
-          );
-          current.schemaPropertiesWithDescription = Math.max(
-            current.schemaPropertiesWithDescription,
-            stats.schemaPropertiesWithDescription
-          );
+          if (stats.totalSchemaProperties > current.totalSchemaProperties) {
+            current.totalSchemaProperties = stats.totalSchemaProperties;
+            current.schemaPropertiesWithDescription = stats.schemaPropertiesWithDescription;
+          }
           current.constraintCount = Math.max(current.constraintCount, stats.constraintCount);
           current.polymorphismCount = Math.max(current.polymorphismCount, stats.polymorphismCount);
           current.anyOfCount = Math.max(current.anyOfCount, stats.anyOfCount);
