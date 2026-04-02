@@ -48,7 +48,7 @@ jobs:
             expected_checked_line="${line/#- [ \]/- [x]}" # expect the same line, but with checked box
             if ! echo "$PR_BODY" | grep -Fiq -- "$expected_checked_line"; then
               line="${line#- [ \] }" # clean up the line
-              echo "❌ Please acknowledge the following: $line"
+              echo "⚠️ Please acknowledge the following: $line"
               MISSING_REQUIRED_CHECKS=yes
             fi
           done <<< "$REQUIRED_CHECKS"
