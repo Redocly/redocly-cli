@@ -8,11 +8,11 @@
 
 ## Check yourself
 
-- [ ] Code follows the [contributing guide](../CONTRIBUTING.md#pull-request-guidelines) <!-- TODO: make it required -->
+- [ ] Code follows the [contributing guide](https://github.com/Redocly/redocly-cli/blob/main/CONTRIBUTING.md) <!-- TODO: make it required -->
 - [ ] All new/updated code is covered by tests
 - [ ] Core code changed? - Tested with other Redocly products (internal contributions only)
 - [ ] New package installed? - Tested in different environments (browser/node)
-- [ ] Documentation update considered <!-- required 🔒 -->
+- [ ] Documentation update has been considered <!-- required 🔒 -->
 
 ## Security
 
