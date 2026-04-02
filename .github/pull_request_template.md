@@ -12,7 +12,7 @@
 - [ ] All new/updated code is covered by tests
 - [ ] Core code changed? - Tested with other Redocly products (internal contributions only)
 - [ ] New package installed? - Tested in different environments (browser/node)
-- [ ] Documentation update has been considered <!-- required 🔒 -->
+- [ ] Documentation update has been considered <!-- TODO: make it required -->
 
 ## Security
 
