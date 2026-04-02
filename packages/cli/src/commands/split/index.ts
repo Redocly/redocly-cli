@@ -56,11 +56,6 @@ import {
 
 type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 type AnyAsyncApiDefinition = Async2Definition | Async3Definition;
-/** Internal type for accessing loosely-typed top-level AsyncAPI fields */
-type AsyncApiWithFields = {
-  channels?: Record<string, unknown>;
-  components?: Record<string, Record<string, unknown>>;
-};
 type AnyDefinition = AnyOas3Definition | AnyAsyncApiDefinition;
 
 export type SplitArgv = {
@@ -448,7 +443,7 @@ function splitAsyncApiDefinition({
   gatherAsyncApiComponentFiles({ asyncapi, asyncapiDir, componentsFiles, ext, specVersion });
 
   // Phase 2: split channels (componentsFiles is populated → replace$Refs rewrites #/components/... refs)
-  const channels = (asyncapi as AsyncApiWithFields).channels;
+  const channels = asyncapi.channels;
   const channelsFiles: ChannelsFiles = channels
     ? iterateAsyncApiChannels({
         channels,
@@ -614,7 +609,7 @@ function gatherAsyncApiComponentFiles({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi as AsyncApiWithFields;
+  const { components } = asyncapi as AnyAsyncApiDefinition;
   if (!components) return;
   const componentsDir = path.join(asyncapiDir, COMPONENTS);
   const componentTypes = findAsyncApiComponentTypes(components, specVersion);
@@ -652,8 +647,8 @@ function iterateAsyncApiComponents({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const asyncapiWithFields = asyncapi as AsyncApiWithFields;
-  const { components } = asyncapiWithFields;
+  const asyncapiMutable = asyncapi as AnyAsyncApiDefinition;
+  const { components } = asyncapiMutable;
   if (components) {
     const componentsDir = path.join(asyncapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
@@ -681,7 +676,7 @@ function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        delete asyncapiWithFields.components?.[componentType]?.[componentName];
+        delete asyncapiMutable.components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }
@@ -692,7 +687,7 @@ function removeAsyncApiEmptyComponents(
   asyncapi: AnyAsyncApiDefinition,
   componentType: AsyncApi2SplittableComponent | AsyncApi3SplittableComponent
 ) {
-  const components = (asyncapi as AsyncApiWithFields).components;
+  const components = asyncapi.components;
   if (!components) return;
 
   if (isEmptyObject(components[componentType])) {
@@ -700,7 +695,7 @@ function removeAsyncApiEmptyComponents(
   }
 
   if (isEmptyObject(components)) {
-    delete (asyncapi as AsyncApiWithFields).components;
+    delete asyncapi.components;
   }
 }
 
