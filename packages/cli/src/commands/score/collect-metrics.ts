@@ -28,7 +28,8 @@ function resolveJsonPointer(root: any, ref: string): any {
   if (!ref.startsWith('#/')) return undefined;
   let node = root;
   for (const segment of ref.slice(2).split('/')) {
-    node = node?.[decodeURIComponent(segment)];
+    const decoded = decodeURIComponent(segment).replace(/~1/g, '/').replace(/~0/g, '~');
+    node = node?.[decoded];
   }
   return node;
 }
@@ -289,6 +290,7 @@ export function collectMetrics({
           for (const member of resolved.allOf) {
             allOfStats = addStats(allOfStats, walkSchema(member, debug));
           }
+          allOfStats.polymorphismCount += resolved.allOf.length;
         }
 
         const parentStats = walkSchemaRaw(parentOnly, debug);

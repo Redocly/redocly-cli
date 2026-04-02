@@ -18,7 +18,7 @@ export function selectTopHotspots(
     const metrics = documentMetrics.operations.get(key);
     if (!metrics) continue;
 
-    const reasons = getHotspotReasons(metrics, scores, dependencyDepths.get(key) ?? 0, constants);
+    const reasons = getHotspotReasons(metrics, dependencyDepths.get(key) ?? 0, constants);
     if (reasons.length === 0) continue;
 
     entries.push({
@@ -58,7 +58,6 @@ function getHotspotReasons(
     paramsWithDescription: number;
     ambiguousIdentifierCount: number;
   },
-  scores: OperationScores,
   dependencyDepth: number,
   constants: ScoringConstants
 ): string[] {
