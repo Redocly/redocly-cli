@@ -33,11 +33,10 @@ Before submitting your contribution though, please make sure to take a moment an
 
 Before submitting a pull request, please make sure the following is done:
 
-1. Fork the repository and create your branch from `main`.
+1. Pull/fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
 1. If you've fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
 1. Ensure the test suite and lint checks pass (`npm run test` and `npm run lint`).
-1. Format your code (`npm run format`).
 1. Ensure your contribution does not violate copyright laws.
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`).
    If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.

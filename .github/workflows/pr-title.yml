@@ -35,6 +35,8 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          echo "Checking required checklist items in PR description..."  
+
           REQUIRED_CHECKS="$(grep 'required 🔒' .github/pull_request_template.md)"
 
           MISSING_REQUIRED_CHECKS=no
