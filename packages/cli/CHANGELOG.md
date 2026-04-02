@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.25.4
+
+### Patch Changes
+
+- Updated handlebars to v4.7.9.
+- Updated @redocly/openapi-core to v2.25.4.
+
 ## 2.25.3
 
 ### Patch Changes
