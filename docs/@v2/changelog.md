@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.25.4 (2026-04-02)
+
+### Patch Changes
+
+- Updated handlebars to v4.7.9.
+- Updated @redocly/openapi-core to v2.25.4.
+
 ## 2.25.3 (2026-03-30)
 
 ### Patch Changes
