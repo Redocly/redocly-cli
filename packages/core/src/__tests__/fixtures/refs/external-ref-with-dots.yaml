@@ -1,0 +1,12 @@
+components:
+  schemas:
+    my.org.User:
+      type: object
+      properties:
+        orgId:
+          type: string
+    my.User:
+      type: object
+      properties:
+        displayName:
+          type: string

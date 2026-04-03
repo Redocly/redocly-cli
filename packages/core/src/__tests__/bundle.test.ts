@@ -167,6 +167,23 @@ describe('bundle', () => {
     );
   });
 
+  it('should keep dotted JSON pointer schema keys and rename conflicting User schemas', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(
+        __dirname,
+        'fixtures/refs/openapi-bundle-external-schema-names-and-user-conflict.yaml'
+      ),
+    });
+
+    expect(problems).toHaveLength(0);
+    const schemas = (res.parsed as { components: { schemas: Record<string, unknown> } }).components
+      .schemas;
+    expect(schemas['my.org.User']).toBeDefined();
+    expect(schemas['my.User']).toBeDefined();
+    expect(res.parsed).toMatchSnapshot();
+  });
+
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),

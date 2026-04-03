@@ -5,6 +5,7 @@ import {
   replaceRef,
   isExternalValue,
   isRef,
+  pointerBaseName,
   refBaseName,
   type Location,
 } from '../ref-utils.js';
@@ -274,7 +275,8 @@ export function makeBundleVisitor({
     ctx: UserContext
   ) {
     const componentsGroup = components[componentType];
-    let name = refBaseName(target.location.absolutePointer);
+    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
+    let name = pointerBaseName(pointer) || refBaseName(fileRef);
 
     const prevName = name;
     let serialId = 2;

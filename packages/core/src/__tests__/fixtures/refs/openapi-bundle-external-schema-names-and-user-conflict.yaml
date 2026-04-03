@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Test ref with dots in component names
+  version: '1.0'
+  description: Demo
+  license:
+    name: DEMO
+    url: https://demo.com
+servers:
+  - url: http://demo.com/api
+paths:
+  /org-user:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: external-ref-with-dots.yaml#/components/schemas/my.org.User
+    post:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: external-ref-with-dots.yaml#/components/schemas/my.User

@@ -76,7 +76,7 @@ export function parsePointer(pointer: string) {
 
 export function pointerBaseName(pointer: string) {
   const parts = pointer.split('/');
-  return parts[parts.length - 1];
+  return unescapePointerFragment(parts[parts.length - 1]);
 }
 
 export function refBaseName(ref: string) {
