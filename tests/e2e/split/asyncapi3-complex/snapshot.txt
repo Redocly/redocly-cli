@@ -1,0 +1,100 @@
+
+address: user/signedup
+messages:
+  UserSignedUp:
+    $ref: ../components/messages/UserSignedUp.yaml
+address: user/loggedin
+messages:
+  UserLoggedIn:
+    $ref: ../components/messages/UserLoggedIn.yaml
+address: user/loggedin/reply
+messages:
+  UserLoggedInReply:
+    payload:
+      type: object
+      properties:
+        success:
+          type: boolean
+type: object
+properties:
+  id:
+    type: string
+  email:
+    type: string
+    format: email
+allOf:
+  - $ref: ./UserBase.yaml
+properties:
+  displayName:
+    type: string
+allOf:
+  - $ref: ./UserBase.yaml
+properties:
+  lastLoginAt:
+    type: string
+    format: date-time
+traits:
+  - $ref: ../messageTraits/CommonHeaders.yaml
+payload:
+  $ref: ../schemas/UserSignedUpPayload.yaml
+traits:
+  - $ref: ../messageTraits/CommonHeaders.yaml
+payload:
+  $ref: ../schemas/UserLoggedInPayload.yaml
+type: httpApiKey
+name: X-API-Key
+in: header
+channel:
+  $ref: ../../channels/userLoggedInReply.yaml
+messages:
+  - $ref: ../../channels/userLoggedInReply.yaml#/messages/UserLoggedInReply
+location: $message.header#/replyTo
+location: $message.header#/correlationId
+headers:
+  type: object
+  properties:
+    correlationId:
+      type: string
+    contentType:
+      type: string
+action: send
+channel:
+  $ref: ../channels/userSignedUp.yaml
+messages:
+  - $ref: ../channels/userSignedUp.yaml#/messages/UserSignedUp
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
+action: receive
+channel:
+  $ref: ../channels/userLoggedIn.yaml
+messages:
+  - $ref: ../channels/userLoggedIn.yaml#/messages/UserLoggedIn
+security:
+  - $ref: ../components/securitySchemes/ApiKeyAuth.yaml
+reply:
+  $ref: ../components/replies/UserLoggedInReply.yaml
+asyncapi: 3.0.0
+info:
+  title: Complex AsyncAPI 3 Example
+  version: 1.0.0
+  description: >-
+    A complex AsyncAPI 3 example testing split with multiple channels,
+    operations, schemas, messageTraits, correlationIds, securitySchemes and
+    replies
+channels:
+  userSignedUp:
+    $ref: channels/userSignedUp.yaml
+  userLoggedIn:
+    $ref: channels/userLoggedIn.yaml
+  userLoggedInReply:
+    $ref: channels/userLoggedInReply.yaml
+operations:
+  sendUserSignedup:
+    $ref: operations/sendUserSignedup.yaml
+  receiveUserLoggedIn:
+    $ref: operations/receiveUserLoggedIn.yaml
+🪓 Document: asyncapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+asyncapi.yaml: split processed in <test>ms
+
