@@ -1,6 +1,7 @@
 import {
   formatProblems,
   getTotals,
+  isAbsoluteUrl,
   lint,
   lintConfig,
   pluralize,
@@ -8,9 +9,11 @@ import {
   logger,
   type Config,
   type Exact,
+  type NormalizedProblem,
   type OutputFormat,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
+import { resolve as resolvePath } from 'node:path';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
@@ -51,14 +54,13 @@ export async function handleLint({
     exitWithError('No APIs were provided.');
   }
 
-  if (argv['generate-ignore-file']) {
-    config.ignore = {}; // clear ignore
-  }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
+  const ignoreFileResults: NormalizedProblem[] = [];
+  const lintedAbsRefs = new Set<string>();
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const { path, alias } of apis) {
+  for (const { path: apiPath, alias } of apis) {
     try {
       const startedAt = performance.now();
       const aliasConfig = config.forAlias(alias);
@@ -76,15 +78,15 @@ export async function handleLint({
         );
       }
       if (alias === undefined) {
-        logger.info(gray(`validating ${formatPath(path)}...\n`));
+        logger.info(gray(`validating ${formatPath(apiPath)}...\n`));
       } else {
         logger.info(
-          gray(`validating ${formatPath(path)} using lint rules for api '${alias}'...\n`)
+          gray(`validating ${formatPath(apiPath)} using lint rules for api '${alias}'...\n`)
         );
       }
 
       const results = await lint({
-        ref: path,
+        ref: apiPath,
         config: aliasConfig,
         collectSpecData,
       });
@@ -95,8 +97,9 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
+        lintedAbsRefs.add(isAbsoluteUrl(apiPath) ? apiPath : resolvePath(apiPath));
         for (const m of results) {
-          config.addIgnore(m);
+          ignoreFileResults.push(m);
           totalIgnored++;
         }
       } else {
@@ -110,13 +113,25 @@ export async function handleLint({
       }
 
       const elapsed = getExecutionTime(startedAt);
-      logger.info(gray(`${formatPath(path)}: validated in ${elapsed}\n\n`));
+      logger.info(gray(`${formatPath(apiPath)}: validated in ${elapsed}\n\n`));
     } catch (e) {
-      handleError(e, path);
+      handleError(e, apiPath);
     }
   }
 
   if (argv['generate-ignore-file']) {
+    for (const m of ignoreFileResults) {
+      const loc = m.location?.[0];
+      if (loc?.pointer !== undefined) {
+        lintedAbsRefs.add(loc.source.absoluteRef);
+      }
+    }
+    for (const absRef of lintedAbsRefs) {
+      delete config.ignore[absRef];
+    }
+    for (const m of ignoreFileResults) {
+      config.addIgnore(m);
+    }
     config.saveIgnore();
     logger.info(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`

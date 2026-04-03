@@ -114,7 +114,7 @@ describe('handleLint', () => {
       );
     });
 
-    it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
+    it('should call forAlias when `generate-ignore-file` argv is set', async () => {
       await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
       expect(configFixture.forAlias).toHaveBeenCalledWith(undefined);
     });
@@ -149,6 +149,27 @@ describe('handleLint', () => {
       });
       expect(configFixture.skipRules).toHaveBeenCalledWith(['rule']);
       expect(configFixture.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+    });
+
+    it('should preserve existing ignore entries for unrelated files when `generate-ignore-file` is used', async () => {
+      const otherFileAbsRef = '/some/other/api.yaml';
+      configFixture.ignore = {
+        [otherFileAbsRef]: { 'some-rule': new Set(['#/paths/~1foo']) },
+      };
+      vi.mocked(lint).mockResolvedValueOnce([
+        {
+          ruleId: 'operation-operationId',
+          severity: 1,
+          message: 'Missing operationId',
+          location: [
+            { source: { absoluteRef: '/absolute/openapi.yaml' }, pointer: '#/paths/~1bar' },
+          ],
+          suggest: [],
+          ignored: false,
+        } as any,
+      ]);
+      await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
+      expect(configFixture.ignore[otherFileAbsRef]).toBeDefined();
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
