@@ -67,7 +67,7 @@ describe('bundle', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('warn');
     expect(problems[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed first to param-a-first.`
+      `Two schemas are referenced with the same name but different content. Renamed first to first-2.`
     );
     expect(res.parsed).toMatchSnapshot();
   });
@@ -134,7 +134,7 @@ describe('bundle', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('warn');
     expect(problems[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed User to parameters-User.`
+      `Two schemas are referenced with the same name but different content. Renamed User to User-2.`
     );
     expect(res.parsed).toMatchSnapshot();
   });
@@ -163,7 +163,7 @@ describe('bundle', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].severity).toBe('error');
     expect(problems[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed User to parameters-User.`
+      `Two schemas are referenced with the same name but different content. Renamed User to User-2.`
     );
   });
 

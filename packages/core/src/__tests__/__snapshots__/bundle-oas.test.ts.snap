@@ -26,7 +26,7 @@ components:
         $ref: '#/components/schemas/schema-a'
       examples:
         first:
-          $ref: '#/components/examples/param-a-first'
+          $ref: '#/components/examples/first-2'
         second:
           $ref: '#/components/examples/second'
     path-param:
@@ -41,7 +41,7 @@ components:
   examples:
     first:
       value: b1
-    param-a-first:
+    first-2:
       value: a1
     second:
       value: a2

@@ -6,7 +6,7 @@ paths:
   /foo:
     put:
       parameters:
-        - $ref: '#/components/parameters/parameters-User'
+        - $ref: '#/components/parameters/User-2'
     get:
       parameters:
         - $ref: '#/components/parameters/User'
@@ -16,7 +16,7 @@ components:
       name: test
       in: query
       description: test-B
-    parameters-User:
+    User-2:
       name: test
       in: path
       description: test-A
@@ -49,7 +49,7 @@ components:
         $ref: '#/components/schemas/schema-a'
       examples:
         first:
-          $ref: '#/components/examples/param-a-first'
+          $ref: '#/components/examples/first-2'
         second:
           $ref: '#/components/examples/second'
     path-param:
@@ -64,7 +64,7 @@ components:
   examples:
     first:
       value: b1
-    param-a-first:
+    first-2:
       value: a1
     second:
       value: a2

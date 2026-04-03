@@ -12,7 +12,6 @@ import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef } from '../typings/openapi.js';
 import { dequal } from '../utils/dequal.js';
-import { isTruthy } from '../utils/is-truthy.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult } from '../walk.js';
@@ -269,48 +268,14 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  function reportIfRenamed(fromName: string, toName: string, ctx: UserContext) {
-    if (fromName && toName !== fromName) {
-      ctx.report({
-        message: `Two schemas are referenced with the same name but different content. Renamed ${fromName} to ${toName}.`,
-        location: ctx.location,
-        forceSeverity: componentRenamingConflicts,
-      });
-    }
-  }
-
   function getComponentName(
     target: { node: unknown; location: Location },
     componentType: string,
     ctx: UserContext
   ) {
-    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
     const componentsGroup = components[componentType];
+    let name = refBaseName(target.location.absolutePointer);
 
-    let name = '';
-    let renameSource = '';
-
-    const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
-    while (refParts.length > 0) {
-      name = refParts.pop() + (name ? `-${name}` : '');
-      if (
-        !componentsGroup ||
-        !componentsGroup[name] ||
-        isEqualOrEqualRef(componentsGroup[name], target, ctx)
-      ) {
-        reportIfRenamed(renameSource, name, ctx);
-        return name;
-      }
-      renameSource ||= name;
-    }
-
-    name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-      reportIfRenamed(renameSource, name, ctx);
-      return name;
-    }
-
-    renameSource ||= name;
     const prevName = name;
     let serialId = 2;
     while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
@@ -318,8 +283,12 @@ export function makeBundleVisitor({
       serialId++;
     }
 
-    if (!componentsGroup[name]) {
-      reportIfRenamed(renameSource, name, ctx);
+    if (!componentsGroup[name] && prevName !== name) {
+      ctx.report({
+        message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
+        location: ctx.location,
+        forceSeverity: componentRenamingConflicts,
+      });
     }
 
     return name;
