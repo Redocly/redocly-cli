@@ -609,7 +609,7 @@ function gatherAsyncApiComponentFiles({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const { components } = asyncapi as AnyAsyncApiDefinition;
+  const { components } = asyncapi;
   if (!components) return;
   const componentsDir = path.join(asyncapiDir, COMPONENTS);
   const componentTypes = findAsyncApiComponentTypes(components, specVersion);
@@ -647,8 +647,7 @@ function iterateAsyncApiComponents({
   ext: string;
   specVersion: 'async2' | 'async3';
 }) {
-  const asyncapiMutable = asyncapi as AnyAsyncApiDefinition;
-  const { components } = asyncapiMutable;
+  const { components } = asyncapi;
   if (components) {
     const componentsDir = path.join(asyncapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
@@ -676,7 +675,7 @@ function iterateAsyncApiComponents({
           writeToFileByExtension(componentData, filename);
         }
 
-        delete asyncapiMutable.components?.[componentType]?.[componentName];
+        delete asyncapi.components?.[componentType]?.[componentName];
       }
       removeAsyncApiEmptyComponents(asyncapi, componentType);
     }
