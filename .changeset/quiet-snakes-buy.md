@@ -4,3 +4,5 @@
 ---
 
 Fixed an issue where `--component-renaming-conflicts-severity` ignored conflicts when different files had components with the same name but different content.
+
+**Warning:** Bundled `$ref` paths may differ from older releases.
