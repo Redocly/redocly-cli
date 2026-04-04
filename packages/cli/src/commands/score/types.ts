@@ -39,7 +39,7 @@ export interface DocumentMetrics {
   operations: Map<string, OperationMetrics>;
 }
 
-export interface IntegrationSimplicitySubscores {
+export interface Subscores {
   parameterSimplicity: number;
   schemaSimplicity: number;
   documentationQuality: number;
@@ -47,40 +47,27 @@ export interface IntegrationSimplicitySubscores {
   exampleCoverage: number;
   errorClarity: number;
   dependencyClarity: number;
-}
-
-export interface AgentReadinessSubscores {
-  documentationQuality: number;
-  constraintClarity: number;
-  exampleCoverage: number;
-  errorClarity: number;
   identifierClarity: number;
-  dependencyClarity: number;
   polymorphismClarity: number;
 }
 
 export interface OperationScores {
-  integrationSimplicity: number;
   agentReadiness: number;
-  integrationSubscores: IntegrationSimplicitySubscores;
-  agentSubscores: AgentReadinessSubscores;
+  subscores: Subscores;
 }
 
 export interface HotspotOperation {
   path: string;
   method: string;
   operationId?: string;
-  integrationSimplicityScore: number;
   agentReadinessScore: number;
   reasons: string[];
 }
 
 export interface ScoreResult {
-  integrationSimplicity: number;
   agentReadiness: number;
   discoverability: number;
-  integrationSubscores: IntegrationSimplicitySubscores;
-  agentSubscores: AgentReadinessSubscores;
+  subscores: Subscores;
   rawMetrics: DocumentMetrics;
   hotspots: HotspotOperation[];
   operationScores: Map<string, OperationScores>;
@@ -98,24 +85,15 @@ export interface ScoringThresholds {
 }
 
 export interface ScoringWeights {
-  integration: {
-    parameterSimplicity: number;
-    schemaSimplicity: number;
-    documentationQuality: number;
-    constraintClarity: number;
-    exampleCoverage: number;
-    errorClarity: number;
-    dependencyClarity: number;
-  };
-  agent: {
-    documentationQuality: number;
-    constraintClarity: number;
-    exampleCoverage: number;
-    errorClarity: number;
-    identifierClarity: number;
-    dependencyClarity: number;
-    polymorphismClarity: number;
-  };
+  parameterSimplicity: number;
+  schemaSimplicity: number;
+  documentationQuality: number;
+  constraintClarity: number;
+  exampleCoverage: number;
+  errorClarity: number;
+  dependencyClarity: number;
+  identifierClarity: number;
+  polymorphismClarity: number;
   anyOfPenaltyMultiplier: number;
   discoverabilityWeight: number;
 }
@@ -141,4 +119,19 @@ export interface DebugMediaTypeLog {
   totalPolymorphism: number;
   totalConstraints: number;
   maxDepth: number;
+}
+
+export interface SchemaStats {
+  maxDepth: number;
+  polymorphismCount: number;
+  anyOfCount: number;
+  hasDiscriminator: boolean;
+  propertyCount: number;
+  totalSchemaProperties: number;
+  schemaPropertiesWithDescription: number;
+  constraintCount: number;
+  hasPropertyExamples: boolean;
+  writableTopLevelFields: number;
+  refsUsed: string[];
+  debugEntries?: DebugSchemaEntry[];
 }

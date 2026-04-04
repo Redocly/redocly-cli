@@ -96,7 +96,6 @@ describe('handleScore', () => {
     await handleScore(createArgs());
 
     const output = mockOutput.mock.calls.map(([s]: [string]) => s).join('');
-    expect(output).toContain('Integration Simplicity');
     expect(output).toContain('Agent Readiness');
   });
 
@@ -105,7 +104,6 @@ describe('handleScore', () => {
 
     const output = mockOutput.mock.calls[0][0];
     const parsed = JSON.parse(output);
-    expect(parsed.integrationSimplicity).toBeDefined();
     expect(parsed.agentReadiness).toBeDefined();
     expect(parsed.rawMetrics.operationCount).toBe(1);
   });

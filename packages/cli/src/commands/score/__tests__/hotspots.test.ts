@@ -31,12 +31,10 @@ function makeMetrics(overrides: Partial<OperationMetrics> = {}): OperationMetric
   };
 }
 
-/** Baseline "no issues" operation scores — all subscores at 100%. */
 function makeScores(overrides: Partial<OperationScores> = {}): OperationScores {
   return {
-    integrationSimplicity: 80,
     agentReadiness: 80,
-    integrationSubscores: {
+    subscores: {
       parameterSimplicity: 1,
       schemaSimplicity: 1,
       documentationQuality: 1,
@@ -44,14 +42,7 @@ function makeScores(overrides: Partial<OperationScores> = {}): OperationScores {
       exampleCoverage: 1,
       errorClarity: 1,
       dependencyClarity: 1,
-    },
-    agentSubscores: {
-      documentationQuality: 1,
-      constraintClarity: 1,
-      exampleCoverage: 1,
-      errorClarity: 1,
       identifierClarity: 1,
-      dependencyClarity: 1,
       polymorphismClarity: 1,
     },
     ...overrides,
@@ -244,7 +235,7 @@ describe('selectTopHotspots', () => {
     expect(result[0].reasons).toContain('Ambiguous identifiers (3)');
   });
 
-  it('sorts by reasons.length desc then by avg score asc', () => {
+  it('sorts by reasons.length desc then by agentReadinessScore asc', () => {
     const manyReasons = makeMetrics({
       parameterCount: 10,
       operationDescriptionPresent: false,
@@ -264,8 +255,8 @@ describe('selectTopHotspots', () => {
       ]),
     };
     const opScores = new Map([
-      ['opFewer', makeScores({ integrationSimplicity: 90, agentReadiness: 90 })],
-      ['opMany', makeScores({ integrationSimplicity: 90, agentReadiness: 90 })],
+      ['opFewer', makeScores({ agentReadiness: 90 })],
+      ['opMany', makeScores({ agentReadiness: 90 })],
     ]);
     const result = selectTopHotspots(
       docMetrics,

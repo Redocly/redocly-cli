@@ -1,10 +1,5 @@
 import { collectDocumentMetrics } from '../collect-metrics.js';
-import {
-  computeOperationIntegrationSubscores,
-  computeOperationAgentSubscores,
-  computeIntegrationSimplicity,
-  computeAgentReadiness,
-} from '../scoring.js';
+import { computeOperationSubscores, computeAgentReadiness } from '../scoring.js';
 
 async function collect(doc: Record<string, unknown>) {
   return (await collectDocumentMetrics(doc)).metrics;
@@ -62,7 +57,7 @@ describe('example coverage', () => {
     expect(opMetrics.requestExamplePresent).toBe(true);
     expect(opMetrics.responseExamplePresent).toBe(true);
 
-    const subscores = computeOperationIntegrationSubscores(opMetrics, 0);
+    const subscores = computeOperationSubscores(opMetrics, 0);
     expect(subscores.exampleCoverage).toBe(1);
   });
 
@@ -78,7 +73,7 @@ describe('example coverage', () => {
     expect(opMetrics.requestExamplePresent).toBe(false);
     expect(opMetrics.responseExamplePresent).toBe(true);
 
-    const subscores = computeOperationIntegrationSubscores(opMetrics, 0);
+    const subscores = computeOperationSubscores(opMetrics, 0);
     expect(subscores.exampleCoverage).toBe(0.5);
   });
 
@@ -91,32 +86,8 @@ describe('example coverage', () => {
     const metrics = await collect(doc);
     const opMetrics = metrics.operations.get('createItem')!;
 
-    const subscores = computeOperationIntegrationSubscores(opMetrics, 0);
+    const subscores = computeOperationSubscores(opMetrics, 0);
     expect(subscores.exampleCoverage).toBe(0);
-  });
-
-  it('should affect integration simplicity score positively with examples', async () => {
-    const docWith = makeDocument({
-      requestExample: true,
-      responseExample: true,
-      hasRequestBody: true,
-    });
-    const docWithout = makeDocument({
-      requestExample: false,
-      responseExample: false,
-      hasRequestBody: true,
-    });
-
-    const metricsWithExamples = (await collect(docWith)).operations.get('createItem')!;
-    const metricsWithout = (await collect(docWithout)).operations.get('createItem')!;
-
-    const subWith = computeOperationIntegrationSubscores(metricsWithExamples, 0);
-    const subWithout = computeOperationIntegrationSubscores(metricsWithout, 0);
-
-    const scoreWith = computeIntegrationSimplicity(subWith);
-    const scoreWithout = computeIntegrationSimplicity(subWithout);
-
-    expect(scoreWith).toBeGreaterThan(scoreWithout);
   });
 
   it('should affect agent readiness score positively with examples', async () => {
@@ -134,8 +105,8 @@ describe('example coverage', () => {
     const metricsWithExamples = (await collect(docWith)).operations.get('createItem')!;
     const metricsWithout = (await collect(docWithout)).operations.get('createItem')!;
 
-    const subWith = computeOperationAgentSubscores(metricsWithExamples, 0);
-    const subWithout = computeOperationAgentSubscores(metricsWithout, 0);
+    const subWith = computeOperationSubscores(metricsWithExamples, 0);
+    const subWithout = computeOperationSubscores(metricsWithout, 0);
 
     const scoreWith = computeAgentReadiness(subWith);
     const scoreWithout = computeAgentReadiness(subWithout);

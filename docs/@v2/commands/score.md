@@ -2,12 +2,9 @@
 
 ## Introduction
 
-The `score` command analyzes an OpenAPI description and produces two composite scores:
+The `score` command analyzes an OpenAPI description and produces a composite **Agent Readiness** score (0–100) that measures how easy the API is to integrate and how usable it is by AI agents and LLM-based tooling. Higher is better.
 
-- **Integration Simplicity** (0–100): How easy is this API to integrate? Higher is better.
-- **Agent Readiness** (0–100): How usable is this API by AI agents and LLM-based tooling? Higher is better.
-
-In addition to the top-level scores, the command reports normalized subscores, raw metrics for every operation, and a list of **hotspot operations** — the endpoints most likely to cause integration friction — along with human-readable explanations.
+In addition to the top-level score, the command reports normalized subscores, raw metrics for every operation, and a list of **hotspot operations** — the endpoints most likely to cause integration friction — along with human-readable explanations.
 
 {% admonition type="warning" name="Important" %}
 The `score` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
@@ -38,13 +35,11 @@ The following raw metrics are collected per operation and aggregated across the 
 
 ### Subscores
 
-Subscores are normalized to 0–1 and grouped into two categories:
+The following subscores are normalized to 0–1 and combined into the composite Agent Readiness score:
 
-**Integration Simplicity subscores:** `parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `dependencyClarity`, `discoverability`.
+`parameterSimplicity`, `schemaSimplicity`, `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `dependencyClarity`, `identifierClarity`, `polymorphismClarity`, `discoverability`.
 
-**Agent Readiness subscores:** `documentationQuality`, `constraintClarity`, `exampleCoverage`, `errorClarity`, `identifierClarity`, `dependencyClarity`, `polymorphismClarity`, `discoverability`.
-
-The `discoverability` subscore reflects the total number of operations in the API. Larger APIs (approaching 1,000+ operations) receive a lower discoverability score because finding the right endpoint becomes harder for both humans and AI agents. This subscore is blended into both composite scores.
+The `discoverability` subscore reflects the total number of operations in the API. Larger APIs (approaching 1,000+ operations) receive a lower discoverability score because finding the right endpoint becomes harder for both humans and AI agents.
 
 ### Hotspots
 
@@ -96,10 +91,9 @@ The default output format shows a human-readable summary in your terminal:
 ```sh
   Scores
 
-  Integration Simplicity:  72.5/100
-  Agent Readiness:         68.3/100
+  Agent Readiness:  68.3/100
 
-  Integration Simplicity Subscores
+  Subscores
 
   Parameter Simplicity     [████████████████░░░░] 80%
   Schema Simplicity        [██████████████░░░░░░] 70%
@@ -108,18 +102,20 @@ The default output format shows a human-readable summary in your terminal:
   Example Coverage         [████████████████████] 100%
   Error Clarity            [████████████████░░░░] 80%
   Dependency Clarity       [██████████████████░░] 90%
+  Identifier Clarity       [████████████████████] 100%
+  Polymorphism Clarity     [████████████████████] 100%
   Discoverability          [████████████████████] 100%
 
   Top 3 Hotspot Operations
 
   POST /orders (createOrder)
-    Integration Simplicity: 45.2  Agent Readiness: 38.7
+    Agent Readiness: 38.7
     - High parameter count (12)
     - Deep schema nesting (depth 6)
     - Missing request and response examples
 
   PUT /orders/{id} (updateOrder)
-    Integration Simplicity: 52.1  Agent Readiness: 44.0
+    Agent Readiness: 44.0
     - Polymorphism (anyOf) without discriminator (3 anyOf)
     - No structured error responses (4xx/5xx)
 ```

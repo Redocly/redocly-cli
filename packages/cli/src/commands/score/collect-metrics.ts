@@ -9,6 +9,7 @@ import {
   isPlainObject,
   isRef,
   isMappingRef,
+  unescapePointerFragment,
   type Document,
   type SpecVersion,
   type WalkContext,
@@ -22,31 +23,15 @@ import {
   createSchemaMetricVisitor,
   getDocumentMetrics,
 } from './collectors/document-metrics.js';
-import type { DebugMediaTypeLog, DocumentMetrics } from './types.js';
+import type { DebugMediaTypeLog, DocumentMetrics, SchemaStats } from './types.js';
 
 function resolveJsonPointer(root: any, ref: string): any {
   if (!ref.startsWith('#/')) return undefined;
   let node = root;
   for (const segment of ref.slice(2).split('/')) {
-    const decoded = decodeURIComponent(segment).replace(/~1/g, '/').replace(/~0/g, '~');
-    node = node?.[decoded];
+    node = node?.[unescapePointerFragment(segment)];
   }
   return node;
-}
-
-interface SchemaStats {
-  maxDepth: number;
-  polymorphismCount: number;
-  anyOfCount: number;
-  hasDiscriminator: boolean;
-  propertyCount: number;
-  totalSchemaProperties: number;
-  schemaPropertiesWithDescription: number;
-  constraintCount: number;
-  hasPropertyExamples: boolean;
-  writableTopLevelFields: number;
-  refsUsed: string[];
-  debugEntries?: import('./types.js').DebugSchemaEntry[];
 }
 
 export interface CollectMetricsOptions {
@@ -142,17 +127,9 @@ export function collectMetrics({
         resolvedRefMap,
         ctx,
       });
+      const { depth: _, pendingRef: __, debugEntries: _debug, ...stats } = schemaWalkState;
       return {
-        maxDepth: schemaWalkState.maxDepth,
-        polymorphismCount: schemaWalkState.polymorphismCount,
-        anyOfCount: schemaWalkState.anyOfCount,
-        hasDiscriminator: schemaWalkState.hasDiscriminator,
-        propertyCount: schemaWalkState.propertyCount,
-        totalSchemaProperties: schemaWalkState.totalSchemaProperties,
-        schemaPropertiesWithDescription: schemaWalkState.schemaPropertiesWithDescription,
-        constraintCount: schemaWalkState.constraintCount,
-        hasPropertyExamples: schemaWalkState.hasPropertyExamples,
-        writableTopLevelFields: schemaWalkState.writableTopLevelFields,
+        ...stats,
         refsUsed: [...schemaWalkState.refsUsed],
         debugEntries: debug ? (schemaWalkState.debugEntries ?? undefined) : undefined,
       };

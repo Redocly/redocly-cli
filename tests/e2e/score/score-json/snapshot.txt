@@ -1,23 +1,15 @@
 {
-  "integrationSimplicity": 86.2,
-  "agentReadiness": 90.2,
+  "agentReadiness": 88.4,
   "discoverability": 99,
-  "integrationSubscores": {
+  "subscores": {
     "parameterSimplicity": 0.8625,
     "schemaSimplicity": 0.796875,
     "documentationQuality": 0.9017857142857143,
     "constraintClarity": 0.5833333333333333,
     "exampleCoverage": 0.875,
     "errorClarity": 1,
-    "dependencyClarity": 0.7291666666666669
-  },
-  "agentSubscores": {
-    "documentationQuality": 0.9017857142857143,
-    "constraintClarity": 0.5833333333333333,
-    "exampleCoverage": 0.875,
-    "errorClarity": 1,
-    "identifierClarity": 1,
     "dependencyClarity": 0.7291666666666669,
+    "identifierClarity": 1,
     "polymorphismClarity": 1
   },
   "rawMetrics": {
@@ -227,178 +219,114 @@
   },
   "operationScores": {
     "getMuseumHours": {
-      "integrationSimplicity": 85.2,
-      "agentReadiness": 95.5,
-      "integrationSubscores": {
+      "agentReadiness": 90.3,
+      "subscores": {
         "parameterSimplicity": 0.7,
         "schemaSimplicity": 0.75,
         "documentationQuality": 0.8571428571428571,
         "constraintClarity": 1,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.8333333333333334
-      },
-      "agentSubscores": {
-        "documentationQuality": 0.8571428571428571,
-        "constraintClarity": 1,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.8333333333333334,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "listSpecialEvents": {
-      "integrationSimplicity": 76.2,
-      "agentReadiness": 89.2,
-      "integrationSubscores": {
+      "agentReadiness": 82.9,
+      "subscores": {
         "parameterSimplicity": 0.6,
         "schemaSimplicity": 0.625,
         "documentationQuality": 1,
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 1,
-        "constraintClarity": 0.5,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "createSpecialEvent": {
-      "integrationSimplicity": 86.7,
-      "agentReadiness": 89.2,
-      "integrationSubscores": {
+      "agentReadiness": 88.2,
+      "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.75,
         "documentationQuality": 1,
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 1,
-        "constraintClarity": 0.5,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "getSpecialEvent": {
-      "integrationSimplicity": 84.7,
-      "agentReadiness": 89.2,
-      "integrationSubscores": {
+      "agentReadiness": 87.2,
+      "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.75,
         "documentationQuality": 1,
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 1,
-        "constraintClarity": 0.5,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "deleteSpecialEvent": {
-      "integrationSimplicity": 74.7,
-      "agentReadiness": 71.7,
-      "integrationSubscores": {
+      "agentReadiness": 73.4,
+      "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.875,
         "documentationQuality": 0.5,
         "constraintClarity": 0,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 0.5,
-        "constraintClarity": 0,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "updateSpecialEvent": {
-      "integrationSimplicity": 84.7,
-      "agentReadiness": 89.2,
-      "integrationSubscores": {
+      "agentReadiness": 87.2,
+      "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 0.75,
         "documentationQuality": 1,
         "constraintClarity": 0.5,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 1,
-        "constraintClarity": 0.5,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "buyMuseumTickets": {
-      "integrationSimplicity": 88.7,
       "agentReadiness": 88.8,
-      "integrationSubscores": {
+      "subscores": {
         "parameterSimplicity": 1,
         "schemaSimplicity": 0.875,
         "documentationQuality": 0.8571428571428571,
         "constraintClarity": 0.6666666666666666,
         "exampleCoverage": 1,
         "errorClarity": 1,
-        "dependencyClarity": 0.6666666666666667
-      },
-      "agentSubscores": {
-        "documentationQuality": 0.8571428571428571,
-        "constraintClarity": 0.6666666666666666,
-        "exampleCoverage": 1,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 0.6666666666666667,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     },
     "getTicketCode": {
-      "integrationSimplicity": 83,
-      "agentReadiness": 80,
-      "integrationSubscores": {
+      "agentReadiness": 81,
+      "subscores": {
         "parameterSimplicity": 0.9,
         "schemaSimplicity": 1,
         "documentationQuality": 1,
         "constraintClarity": 1,
         "exampleCoverage": 0,
         "errorClarity": 1,
-        "dependencyClarity": 1
-      },
-      "agentSubscores": {
-        "documentationQuality": 1,
-        "constraintClarity": 1,
-        "exampleCoverage": 0,
-        "errorClarity": 1,
-        "identifierClarity": 1,
         "dependencyClarity": 1,
+        "identifierClarity": 1,
         "polymorphismClarity": 1
       }
     }
@@ -418,8 +346,7 @@
       "path": "/tickets/{ticketId}/qr",
       "method": "get",
       "operationId": "getTicketCode",
-      "integrationSimplicityScore": 83,
-      "agentReadinessScore": 80,
+      "agentReadinessScore": 81,
       "reasons": [
         "Missing response examples"
       ]

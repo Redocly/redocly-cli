@@ -2,6 +2,7 @@ import { DEFAULT_SCORING_CONSTANTS } from './constants.js';
 import type {
   DocumentMetrics,
   HotspotOperation,
+  OperationMetrics,
   OperationScores,
   ScoringConstants,
 } from './types.js';
@@ -25,7 +26,6 @@ export function selectTopHotspots(
       path: metrics.path,
       method: metrics.method,
       operationId: metrics.operationId,
-      integrationSimplicityScore: scores.integrationSimplicity,
       agentReadinessScore: scores.agentReadiness,
       reasons,
     });
@@ -33,31 +33,14 @@ export function selectTopHotspots(
 
   entries.sort((a, b) => {
     if (a.reasons.length !== b.reasons.length) return b.reasons.length - a.reasons.length;
-    const aAvg = (a.integrationSimplicityScore + a.agentReadinessScore) / 2;
-    const bAvg = (b.integrationSimplicityScore + b.agentReadinessScore) / 2;
-    return aAvg - bAvg;
+    return a.agentReadinessScore - b.agentReadinessScore;
   });
 
   return entries.slice(0, constants.hotspotLimit);
 }
 
 function getHotspotReasons(
-  metrics: {
-    parameterCount: number;
-    maxRequestSchemaDepth: number;
-    maxResponseSchemaDepth: number;
-    polymorphismCount: number;
-    anyOfCount: number;
-    hasDiscriminator: boolean;
-    requestBodyPresent: boolean;
-    requestExamplePresent: boolean;
-    responseExamplePresent: boolean;
-    structuredErrorResponseCount: number;
-    totalErrorResponses: number;
-    operationDescriptionPresent: boolean;
-    paramsWithDescription: number;
-    ambiguousIdentifierCount: number;
-  },
+  metrics: OperationMetrics,
   dependencyDepth: number,
   constants: ScoringConstants
 ): string[] {

@@ -1,18 +1,17 @@
 import { DEFAULT_SCORING_CONSTANTS } from './constants.js';
 import type {
-  AgentReadinessSubscores,
   DocumentMetrics,
-  IntegrationSimplicitySubscores,
   OperationMetrics,
   OperationScores,
   ScoringConstants,
+  Subscores,
 } from './types.js';
 
-export function computeOperationIntegrationSubscores(
+export function computeOperationSubscores(
   metrics: OperationMetrics,
   dependencyDepth: number,
   constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
-): IntegrationSimplicitySubscores {
+): Subscores {
   const { thresholds, weights } = constants;
 
   const parameterSimplicity = clamp01(1 - metrics.parameterCount / (thresholds.maxParamsGood * 2));
@@ -46,6 +45,18 @@ export function computeOperationIntegrationSubscores(
 
   const dependencyClarity = clamp01(1 - dependencyDepth / (thresholds.maxDependencyDepthGood * 2));
 
+  const identifierClarity = clamp01(
+    1 - metrics.ambiguousIdentifierCount / Math.max(thresholds.maxAmbiguousGood + 3, 1)
+  );
+
+  const polyScore = effectivePolymorphism(metrics, weights.anyOfPenaltyMultiplier);
+  const polymorphismClarity =
+    polyScore === 0
+      ? 1
+      : metrics.hasDiscriminator
+        ? clamp01(1 - polyScore / (thresholds.maxPolymorphismGood * 4))
+        : clamp01(1 - polyScore / (thresholds.maxPolymorphismGood * 2));
+
   return {
     parameterSimplicity,
     schemaSimplicity,
@@ -54,66 +65,16 @@ export function computeOperationIntegrationSubscores(
     exampleCoverage,
     errorClarity,
     dependencyClarity,
-  };
-}
-
-export function computeOperationAgentSubscores(
-  metrics: OperationMetrics,
-  dependencyDepth: number,
-  constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
-): AgentReadinessSubscores {
-  const { thresholds, weights } = constants;
-
-  const descCount =
-    (metrics.operationDescriptionPresent ? 1 : 0) +
-    metrics.paramsWithDescription +
-    metrics.schemaPropertiesWithDescription;
-  const descTotal = 1 + metrics.parameterCount + metrics.totalSchemaProperties;
-  const documentationQuality = descTotal > 0 ? clamp01(descCount / descTotal) : 1;
-
-  const propCount = metrics.totalSchemaProperties || 1;
-  const constraintClarity = clamp01(metrics.constraintCount / propCount);
-
-  const examplePoints =
-    (metrics.requestExamplePresent ? 1 : 0) + (metrics.responseExamplePresent ? 1 : 0);
-  const exampleTotal = (metrics.requestBodyPresent ? 1 : 0) + 1;
-  const exampleCoverage = clamp01(examplePoints / exampleTotal);
-
-  const errorClarity =
-    metrics.totalErrorResponses > 0
-      ? clamp01(metrics.structuredErrorResponseCount / metrics.totalErrorResponses)
-      : 1;
-
-  const identifierClarity = clamp01(
-    1 - metrics.ambiguousIdentifierCount / Math.max(thresholds.maxAmbiguousGood + 3, 1)
-  );
-
-  const dependencyClarity = clamp01(1 - dependencyDepth / (thresholds.maxDependencyDepthGood * 2));
-
-  const polyScore = effectivePolymorphism(metrics, weights.anyOfPenaltyMultiplier);
-  const polyClarity =
-    polyScore === 0
-      ? 1
-      : metrics.hasDiscriminator
-        ? clamp01(1 - polyScore / (thresholds.maxPolymorphismGood * 4))
-        : clamp01(1 - polyScore / (thresholds.maxPolymorphismGood * 2));
-
-  return {
-    documentationQuality,
-    constraintClarity,
-    exampleCoverage,
-    errorClarity,
     identifierClarity,
-    dependencyClarity,
-    polymorphismClarity: polyClarity,
+    polymorphismClarity,
   };
 }
 
-export function computeIntegrationSimplicity(
-  subscores: IntegrationSimplicitySubscores,
+export function computeAgentReadiness(
+  subscores: Subscores,
   constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
 ): number {
-  const w = constants.weights.integration;
+  const w = constants.weights;
   const raw =
     subscores.parameterSimplicity * w.parameterSimplicity +
     subscores.schemaSimplicity * w.schemaSimplicity +
@@ -121,22 +82,8 @@ export function computeIntegrationSimplicity(
     subscores.constraintClarity * w.constraintClarity +
     subscores.exampleCoverage * w.exampleCoverage +
     subscores.errorClarity * w.errorClarity +
-    subscores.dependencyClarity * w.dependencyClarity;
-  return round(clamp01(raw) * 100);
-}
-
-export function computeAgentReadiness(
-  subscores: AgentReadinessSubscores,
-  constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
-): number {
-  const w = constants.weights.agent;
-  const raw =
-    subscores.documentationQuality * w.documentationQuality +
-    subscores.constraintClarity * w.constraintClarity +
-    subscores.exampleCoverage * w.exampleCoverage +
-    subscores.errorClarity * w.errorClarity +
-    subscores.identifierClarity * w.identifierClarity +
     subscores.dependencyClarity * w.dependencyClarity +
+    subscores.identifierClarity * w.identifierClarity +
     subscores.polymorphismClarity * w.polymorphismClarity;
   return round(clamp01(raw) * 100);
 }
@@ -150,14 +97,11 @@ export function computeAllOperationScores(
 
   for (const [key, metrics] of documentMetrics.operations) {
     const depth = dependencyDepths.get(key) ?? 0;
-    const integrationSubscores = computeOperationIntegrationSubscores(metrics, depth, constants);
-    const agentSubscores = computeOperationAgentSubscores(metrics, depth, constants);
+    const subscores = computeOperationSubscores(metrics, depth, constants);
 
     result.set(key, {
-      integrationSimplicity: computeIntegrationSimplicity(integrationSubscores, constants),
-      agentReadiness: computeAgentReadiness(agentSubscores, constants),
-      integrationSubscores,
-      agentSubscores,
+      agentReadiness: computeAgentReadiness(subscores, constants),
+      subscores,
     });
   }
 
@@ -175,27 +119,21 @@ export function computeDocumentScores(
   operationScores: Map<string, OperationScores>,
   discoverability: number,
   constants: ScoringConstants = DEFAULT_SCORING_CONSTANTS
-): {
-  integrationSimplicity: number;
-  agentReadiness: number;
-} {
+): { agentReadiness: number } {
   if (operationScores.size === 0) {
-    return { integrationSimplicity: 100, agentReadiness: 100 };
+    return { agentReadiness: 100 };
   }
 
-  const intScores: number[] = [];
-  const agentScores: number[] = [];
-  for (const scores of operationScores.values()) {
-    intScores.push(scores.integrationSimplicity);
-    agentScores.push(scores.agentReadiness);
+  const scores: number[] = [];
+  for (const s of operationScores.values()) {
+    scores.push(s.agentReadiness);
   }
 
   const w = constants.weights.discoverabilityWeight;
   const discPct = discoverability * 100;
 
   return {
-    integrationSimplicity: round(median(intScores) * (1 - w) + discPct * w),
-    agentReadiness: round(median(agentScores) * (1 - w) + discPct * w),
+    agentReadiness: round(median(scores) * (1 - w) + discPct * w),
   };
 }
 
@@ -208,11 +146,11 @@ function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-export function aggregateIntegrationSubscores(
-  operationScores: Map<string, { integrationSubscores: IntegrationSimplicitySubscores }>
-): IntegrationSimplicitySubscores {
+export function aggregateSubscores(
+  operationScores: Map<string, { subscores: Subscores }>
+): Subscores {
   const n = operationScores.size || 1;
-  const result: IntegrationSimplicitySubscores = {
+  const result: Subscores = {
     parameterSimplicity: 0,
     schemaSimplicity: 0,
     documentationQuality: 0,
@@ -220,16 +158,20 @@ export function aggregateIntegrationSubscores(
     exampleCoverage: 0,
     errorClarity: 0,
     dependencyClarity: 0,
+    identifierClarity: 0,
+    polymorphismClarity: 0,
   };
 
   for (const scores of operationScores.values()) {
-    result.parameterSimplicity += scores.integrationSubscores.parameterSimplicity;
-    result.schemaSimplicity += scores.integrationSubscores.schemaSimplicity;
-    result.documentationQuality += scores.integrationSubscores.documentationQuality;
-    result.constraintClarity += scores.integrationSubscores.constraintClarity;
-    result.exampleCoverage += scores.integrationSubscores.exampleCoverage;
-    result.errorClarity += scores.integrationSubscores.errorClarity;
-    result.dependencyClarity += scores.integrationSubscores.dependencyClarity;
+    result.parameterSimplicity += scores.subscores.parameterSimplicity;
+    result.schemaSimplicity += scores.subscores.schemaSimplicity;
+    result.documentationQuality += scores.subscores.documentationQuality;
+    result.constraintClarity += scores.subscores.constraintClarity;
+    result.exampleCoverage += scores.subscores.exampleCoverage;
+    result.errorClarity += scores.subscores.errorClarity;
+    result.dependencyClarity += scores.subscores.dependencyClarity;
+    result.identifierClarity += scores.subscores.identifierClarity;
+    result.polymorphismClarity += scores.subscores.polymorphismClarity;
   }
 
   result.parameterSimplicity /= n;
@@ -239,40 +181,7 @@ export function aggregateIntegrationSubscores(
   result.exampleCoverage /= n;
   result.errorClarity /= n;
   result.dependencyClarity /= n;
-
-  return result;
-}
-
-export function aggregateAgentSubscores(
-  operationScores: Map<string, { agentSubscores: AgentReadinessSubscores }>
-): AgentReadinessSubscores {
-  const n = operationScores.size || 1;
-  const result: AgentReadinessSubscores = {
-    documentationQuality: 0,
-    constraintClarity: 0,
-    exampleCoverage: 0,
-    errorClarity: 0,
-    identifierClarity: 0,
-    dependencyClarity: 0,
-    polymorphismClarity: 0,
-  };
-
-  for (const scores of operationScores.values()) {
-    result.documentationQuality += scores.agentSubscores.documentationQuality;
-    result.constraintClarity += scores.agentSubscores.constraintClarity;
-    result.exampleCoverage += scores.agentSubscores.exampleCoverage;
-    result.errorClarity += scores.agentSubscores.errorClarity;
-    result.identifierClarity += scores.agentSubscores.identifierClarity;
-    result.dependencyClarity += scores.agentSubscores.dependencyClarity;
-    result.polymorphismClarity += scores.agentSubscores.polymorphismClarity;
-  }
-
-  result.documentationQuality /= n;
-  result.constraintClarity /= n;
-  result.exampleCoverage /= n;
-  result.errorClarity /= n;
   result.identifierClarity /= n;
-  result.dependencyClarity /= n;
   result.polymorphismClarity /= n;
 
   return result;

@@ -22,8 +22,7 @@ import { printScoreJson } from './formatters/json.js';
 import { printDebugOperation, printScoreStylish } from './formatters/stylish.js';
 import { selectTopHotspots } from './hotspots.js';
 import {
-  aggregateAgentSubscores,
-  aggregateIntegrationSubscores,
+  aggregateSubscores,
   computeAllOperationScores,
   computeDiscoverability,
   computeDocumentScores,
@@ -72,19 +71,14 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
   const dependencyDepths = computeDependencyDepths(rawMetrics.operations);
   const operationScores = computeAllOperationScores(rawMetrics, dependencyDepths);
   const discoverability = computeDiscoverability(rawMetrics.operationCount);
-  const { integrationSimplicity, agentReadiness } = computeDocumentScores(
-    operationScores,
-    discoverability
-  );
+  const { agentReadiness } = computeDocumentScores(operationScores, discoverability);
 
   const hotspots = selectTopHotspots(rawMetrics, operationScores, dependencyDepths);
 
   const result: ScoreResult = {
-    integrationSimplicity,
     agentReadiness,
     discoverability,
-    integrationSubscores: aggregateIntegrationSubscores(operationScores),
-    agentSubscores: aggregateAgentSubscores(operationScores),
+    subscores: aggregateSubscores(operationScores),
     rawMetrics,
     hotspots,
     operationScores,

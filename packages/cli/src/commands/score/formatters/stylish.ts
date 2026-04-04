@@ -29,35 +29,23 @@ function printScores(result: ScoreResult): void {
   out('');
   out(bold(white('  Scores')));
   out('');
-  out(`  Integration Simplicity:  ${formatScore(result.integrationSimplicity)}/100`);
-  out(`  Agent Readiness:         ${formatScore(result.agentReadiness)}/100`);
+  out(`  Agent Readiness:  ${formatScore(result.agentReadiness)}/100`);
   out('');
 }
 
 function printSubscores(result: ScoreResult): void {
-  out(bold(white('  Integration Simplicity Subscores')));
+  out(bold(white('  Subscores')));
   out('');
-  const is = result.integrationSubscores;
-  printSubscore('Parameter Simplicity', is.parameterSimplicity);
-  printSubscore('Schema Simplicity', is.schemaSimplicity);
-  printSubscore('Documentation Quality', is.documentationQuality);
-  printSubscore('Constraint Clarity', is.constraintClarity);
-  printSubscore('Example Coverage', is.exampleCoverage);
-  printSubscore('Error Clarity', is.errorClarity);
-  printSubscore('Dependency Clarity', is.dependencyClarity);
-  printSubscore('Discoverability', result.discoverability);
-  out('');
-
-  out(bold(white('  Agent Readiness Subscores')));
-  out('');
-  const ar = result.agentSubscores;
-  printSubscore('Documentation Quality', ar.documentationQuality);
-  printSubscore('Constraint Clarity', ar.constraintClarity);
-  printSubscore('Example Coverage', ar.exampleCoverage);
-  printSubscore('Error Clarity', ar.errorClarity);
-  printSubscore('Identifier Clarity', ar.identifierClarity);
-  printSubscore('Dependency Clarity', ar.dependencyClarity);
-  printSubscore('Polymorphism Clarity', ar.polymorphismClarity);
+  const s = result.subscores;
+  printSubscore('Parameter Simplicity', s.parameterSimplicity);
+  printSubscore('Schema Simplicity', s.schemaSimplicity);
+  printSubscore('Documentation Quality', s.documentationQuality);
+  printSubscore('Constraint Clarity', s.constraintClarity);
+  printSubscore('Example Coverage', s.exampleCoverage);
+  printSubscore('Error Clarity', s.errorClarity);
+  printSubscore('Dependency Clarity', s.dependencyClarity);
+  printSubscore('Identifier Clarity', s.identifierClarity);
+  printSubscore('Polymorphism Clarity', s.polymorphismClarity);
   printSubscore('Discoverability', result.discoverability);
   out('');
 }
@@ -285,10 +273,7 @@ function printHotspots(result: ScoreResult): void {
       : `${hotspot.method.toUpperCase()} ${hotspot.path}`;
 
     out(bold(`  ${label}`));
-    out(
-      `    Integration Simplicity: ${formatScore(hotspot.integrationSimplicityScore)}  ` +
-        `Agent Readiness: ${formatScore(hotspot.agentReadinessScore)}`
-    );
+    out(`    Agent Readiness: ${formatScore(hotspot.agentReadinessScore)}`);
 
     for (const reason of hotspot.reasons) {
       out(yellow(`    - ${reason}`));

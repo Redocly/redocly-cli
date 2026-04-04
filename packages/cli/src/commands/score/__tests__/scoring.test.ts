@@ -1,8 +1,6 @@
 import { DEFAULT_SCORING_CONSTANTS } from '../constants.js';
 import {
-  computeOperationIntegrationSubscores,
-  computeOperationAgentSubscores,
-  computeIntegrationSimplicity,
+  computeOperationSubscores,
   computeAgentReadiness,
   computeAllOperationScores,
   computeDiscoverability,
@@ -44,19 +42,19 @@ describe('scoring', () => {
   describe('depth normalization', () => {
     it('should give high schema simplicity for shallow schemas', () => {
       const metrics = makeBaseMetrics({ maxRequestSchemaDepth: 1, maxResponseSchemaDepth: 1 });
-      const subscores = computeOperationIntegrationSubscores(metrics, 0);
+      const subscores = computeOperationSubscores(metrics, 0);
       expect(subscores.schemaSimplicity).toBeGreaterThan(0.8);
     });
 
     it('should give lower schema simplicity for deep schemas', () => {
       const metrics = makeBaseMetrics({ maxRequestSchemaDepth: 8, maxResponseSchemaDepth: 6 });
-      const subscores = computeOperationIntegrationSubscores(metrics, 0);
+      const subscores = computeOperationSubscores(metrics, 0);
       expect(subscores.schemaSimplicity).toBeLessThan(0.5);
     });
 
     it('should clamp schema simplicity at 0 for extremely deep schemas', () => {
       const metrics = makeBaseMetrics({ maxRequestSchemaDepth: 20, maxResponseSchemaDepth: 20 });
-      const subscores = computeOperationIntegrationSubscores(metrics, 0);
+      const subscores = computeOperationSubscores(metrics, 0);
       expect(subscores.schemaSimplicity).toBe(0);
     });
   });
@@ -72,8 +70,8 @@ describe('scoring', () => {
         anyOfCount: 0,
       });
 
-      const subAnyOf = computeOperationIntegrationSubscores(metricsAnyOf, 0);
-      const subOneOf = computeOperationIntegrationSubscores(metricsOneOf, 0);
+      const subAnyOf = computeOperationSubscores(metricsAnyOf, 0);
+      const subOneOf = computeOperationSubscores(metricsOneOf, 0);
 
       expect(subAnyOf.schemaSimplicity).toBeLessThan(subOneOf.schemaSimplicity);
     });
@@ -95,13 +93,13 @@ describe('scoring', () => {
         },
       };
 
-      const subLow = computeOperationIntegrationSubscores(metrics, 0, lowPenalty);
-      const subHigh = computeOperationIntegrationSubscores(metrics, 0, highPenalty);
+      const subLow = computeOperationSubscores(metrics, 0, lowPenalty);
+      const subHigh = computeOperationSubscores(metrics, 0, highPenalty);
 
       expect(subLow.schemaSimplicity).toBeGreaterThan(subHigh.schemaSimplicity);
     });
 
-    it('should give higher agent polymorphism clarity when discriminator is present', () => {
+    it('should give higher polymorphism clarity when discriminator is present', () => {
       const withDisc = makeBaseMetrics({
         polymorphismCount: 4,
         anyOfCount: 2,
@@ -113,8 +111,8 @@ describe('scoring', () => {
         hasDiscriminator: false,
       });
 
-      const subWith = computeOperationAgentSubscores(withDisc, 0);
-      const subWithout = computeOperationAgentSubscores(withoutDisc, 0);
+      const subWith = computeOperationSubscores(withDisc, 0);
+      const subWithout = computeOperationSubscores(withoutDisc, 0);
 
       expect(subWith.polymorphismClarity).toBeGreaterThan(subWithout.polymorphismClarity);
     });
@@ -170,12 +168,10 @@ describe('scoring', () => {
       const doc1 = computeDocumentScores(scores1, 1);
       const doc2 = computeDocumentScores(scores2, 1);
 
-      expect(doc1.integrationSimplicity).toBe(doc2.integrationSimplicity);
       expect(doc1.agentReadiness).toBe(doc2.agentReadiness);
 
       for (const [key, s1] of scores1) {
         const s2 = scores2.get(key)!;
-        expect(s1.integrationSimplicity).toBe(s2.integrationSimplicity);
         expect(s1.agentReadiness).toBe(s2.agentReadiness);
       }
     });
@@ -188,7 +184,7 @@ describe('scoring', () => {
         requestExamplePresent: true,
         responseExamplePresent: true,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.exampleCoverage).toBe(1);
     });
 
@@ -198,7 +194,7 @@ describe('scoring', () => {
         requestExamplePresent: false,
         responseExamplePresent: true,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.exampleCoverage).toBe(1);
     });
 
@@ -208,7 +204,7 @@ describe('scoring', () => {
         requestExamplePresent: false,
         responseExamplePresent: true,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.exampleCoverage).toBe(0.5);
     });
   });
@@ -219,7 +215,7 @@ describe('scoring', () => {
         structuredErrorResponseCount: 3,
         totalErrorResponses: 3,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.errorClarity).toBe(1);
     });
 
@@ -228,7 +224,7 @@ describe('scoring', () => {
         structuredErrorResponseCount: 0,
         totalErrorResponses: 0,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.errorClarity).toBe(1);
     });
 
@@ -237,7 +233,7 @@ describe('scoring', () => {
         structuredErrorResponseCount: 0,
         totalErrorResponses: 2,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.errorClarity).toBe(0);
     });
   });
@@ -251,7 +247,7 @@ describe('scoring', () => {
         totalSchemaProperties: 3,
         schemaPropertiesWithDescription: 3,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.documentationQuality).toBe(1);
     });
 
@@ -263,7 +259,7 @@ describe('scoring', () => {
         totalSchemaProperties: 0,
         schemaPropertiesWithDescription: 0,
       });
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.documentationQuality).toBe(1);
     });
   });
@@ -271,14 +267,14 @@ describe('scoring', () => {
   describe('dependency clarity', () => {
     it('should give full score with 0 dependency depth', () => {
       const metrics = makeBaseMetrics();
-      const sub = computeOperationIntegrationSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.dependencyClarity).toBe(1);
     });
 
     it('should decrease with higher dependency depth', () => {
       const metrics = makeBaseMetrics();
-      const sub0 = computeOperationIntegrationSubscores(metrics, 0);
-      const sub3 = computeOperationIntegrationSubscores(metrics, 3);
+      const sub0 = computeOperationSubscores(metrics, 0);
+      const sub3 = computeOperationSubscores(metrics, 3);
       expect(sub0.dependencyClarity).toBeGreaterThan(sub3.dependencyClarity);
     });
   });
@@ -286,19 +282,19 @@ describe('scoring', () => {
   describe('agent-specific subscores', () => {
     it('should give full identifier clarity with no ambiguous identifiers', () => {
       const metrics = makeBaseMetrics({ ambiguousIdentifierCount: 0 });
-      const sub = computeOperationAgentSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.identifierClarity).toBe(1);
     });
 
     it('should decrease identifier clarity with ambiguous identifiers', () => {
       const metrics = makeBaseMetrics({ ambiguousIdentifierCount: 3 });
-      const sub = computeOperationAgentSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.identifierClarity).toBe(0);
     });
 
     it('should give full polymorphism clarity with no polymorphism', () => {
       const metrics = makeBaseMetrics({ polymorphismCount: 0, anyOfCount: 0 });
-      const sub = computeOperationAgentSubscores(metrics, 0);
+      const sub = computeOperationSubscores(metrics, 0);
       expect(sub.polymorphismClarity).toBe(1);
     });
   });
@@ -318,9 +314,7 @@ describe('scoring', () => {
       ]);
       const result = computeAllOperationScores(doc, depths);
       expect(result.size).toBe(2);
-      expect(result.get('op1')!.integrationSimplicity).toBeGreaterThan(
-        result.get('op2')!.integrationSimplicity
-      );
+      expect(result.get('op1')!.agentReadiness).toBeGreaterThan(result.get('op2')!.agentReadiness);
     });
   });
 
@@ -353,7 +347,6 @@ describe('scoring', () => {
       const highDisc = computeDocumentScores(scores, 1.0);
       const lowDisc = computeDocumentScores(scores, 0.0);
 
-      expect(highDisc.integrationSimplicity).toBeGreaterThanOrEqual(lowDisc.integrationSimplicity);
       expect(highDisc.agentReadiness).toBeGreaterThanOrEqual(lowDisc.agentReadiness);
     });
   });
@@ -366,21 +359,16 @@ describe('scoring', () => {
         polymorphismCount: 3,
         anyOfCount: 2,
       });
-      const intSub = computeOperationIntegrationSubscores(metrics, 2);
-      const agentSub = computeOperationAgentSubscores(metrics, 2);
-      const intScore = computeIntegrationSimplicity(intSub);
-      const agentScore = computeAgentReadiness(agentSub);
+      const sub = computeOperationSubscores(metrics, 2);
+      const score = computeAgentReadiness(sub);
 
-      expect(intScore).toBeGreaterThanOrEqual(0);
-      expect(intScore).toBeLessThanOrEqual(100);
-      expect(agentScore).toBeGreaterThanOrEqual(0);
-      expect(agentScore).toBeLessThanOrEqual(100);
+      expect(score).toBeGreaterThanOrEqual(0);
+      expect(score).toBeLessThanOrEqual(100);
     });
 
-    it('should return 100/100 for an empty document', () => {
+    it('should return 100 for an empty document', () => {
       const opScores = new Map();
-      const { integrationSimplicity, agentReadiness } = computeDocumentScores(opScores, 1);
-      expect(integrationSimplicity).toBe(100);
+      const { agentReadiness } = computeDocumentScores(opScores, 1);
       expect(agentReadiness).toBe(100);
     });
 
@@ -416,17 +404,9 @@ describe('scoring', () => {
         ambiguousIdentifierCount: 4,
       });
 
-      const goodIntSub = computeOperationIntegrationSubscores(good, 0);
-      const badIntSub = computeOperationIntegrationSubscores(bad, 3);
-      expect(computeIntegrationSimplicity(goodIntSub)).toBeGreaterThan(
-        computeIntegrationSimplicity(badIntSub)
-      );
-
-      const goodAgentSub = computeOperationAgentSubscores(good, 0);
-      const badAgentSub = computeOperationAgentSubscores(bad, 3);
-      expect(computeAgentReadiness(goodAgentSub)).toBeGreaterThan(
-        computeAgentReadiness(badAgentSub)
-      );
+      const goodSub = computeOperationSubscores(good, 0);
+      const badSub = computeOperationSubscores(bad, 3);
+      expect(computeAgentReadiness(goodSub)).toBeGreaterThan(computeAgentReadiness(badSub));
     });
   });
 });

@@ -5,13 +5,9 @@ import { collectDocumentMetrics } from '../collect-metrics.js';
 
 const yaml = (source: string) => parseYaml(source) as Record<string, unknown>;
 
-async function collect(doc: Record<string, unknown>) {
-  return (await collectDocumentMetrics(doc)).metrics;
-}
-
 describe('collectDocumentMetrics', () => {
   it('returns zero operations for empty paths', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -20,12 +16,12 @@ describe('collectDocumentMetrics', () => {
         paths: {}
       `)
     );
-    expect(result.operationCount).toBe(0);
-    expect(result.operations.size).toBe(0);
+    expect(metrics.operationCount).toBe(0);
+    expect(metrics.operations.size).toBe(0);
   });
 
   it('counts operations, uses operationId as key or falls back to METHOD /path', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -50,14 +46,14 @@ describe('collectDocumentMetrics', () => {
                   description: OK
       `)
     );
-    expect(result.operationCount).toBe(3);
-    expect(result.operations.has('listItems')).toBe(true);
-    expect(result.operations.has('getItem')).toBe(true);
-    expect(result.operations.has('POST /items')).toBe(true);
+    expect(metrics.operationCount).toBe(3);
+    expect(metrics.operations.has('listItems')).toBe(true);
+    expect(metrics.operations.has('getItem')).toBe(true);
+    expect(metrics.operations.has('POST /items')).toBe(true);
   });
 
   it('counts parameters, resolves $refs, merges path-level params, and detects ambiguous names', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -88,7 +84,7 @@ describe('collectDocumentMetrics', () => {
       `)
     );
 
-    const op = result.operations.get('getItem')!;
+    const op = metrics.operations.get('getItem')!;
     expect(op.parameterCount).toBe(3);
     expect(op.requiredParameterCount).toBe(1);
     expect(op.paramsWithDescription).toBe(2);
@@ -96,7 +92,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('detects request body with $ref schema, examples, constraints, and property descriptions', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -132,7 +128,7 @@ describe('collectDocumentMetrics', () => {
       `)
     );
 
-    const op = result.operations.get('createItem')!;
+    const op = metrics.operations.get('createItem')!;
     expect(op.requestBodyPresent).toBe(true);
     expect(op.requestExamplePresent).toBe(true);
     expect(op.propertyCount).toBe(2);
@@ -141,7 +137,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('resolves response $refs, counts structured errors, and computes schema depth', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -186,7 +182,7 @@ describe('collectDocumentMetrics', () => {
       `)
     );
 
-    const op = result.operations.get('listItems')!;
+    const op = metrics.operations.get('listItems')!;
     expect(op.responseExamplePresent).toBe(true);
     expect(op.maxResponseSchemaDepth).toBe(3);
     expect(op.totalErrorResponses).toBe(3);
@@ -194,7 +190,7 @@ describe('collectDocumentMetrics', () => {
   });
 
   it('detects operation descriptions and tracks shared $ref usage across operations', async () => {
-    const result = await collect(
+    const { metrics } = await collectDocumentMetrics(
       yaml(outdent`
         openapi: 3.0.0
         info:
@@ -233,14 +229,14 @@ describe('collectDocumentMetrics', () => {
       `)
     );
 
-    expect(result.operations.get('listItems')!.operationDescriptionPresent).toBe(true);
-    expect(result.operations.get('createItem')!.operationDescriptionPresent).toBe(false);
-    expect(result.operations.get('listItems')!.refsUsed.has('#/components/schemas/Item')).toBe(
+    expect(metrics.operations.get('listItems')!.operationDescriptionPresent).toBe(true);
+    expect(metrics.operations.get('createItem')!.operationDescriptionPresent).toBe(false);
+    expect(metrics.operations.get('listItems')!.refsUsed.has('#/components/schemas/Item')).toBe(
       true
     );
-    expect(result.operations.get('createItem')!.refsUsed.has('#/components/schemas/Item')).toBe(
+    expect(metrics.operations.get('createItem')!.refsUsed.has('#/components/schemas/Item')).toBe(
       true
     );
-    expect(result.operations.get('listItems')!.responseExamplePresent).toBe(true);
+    expect(metrics.operations.get('listItems')!.responseExamplePresent).toBe(true);
   });
 });

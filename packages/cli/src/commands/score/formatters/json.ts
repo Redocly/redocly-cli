@@ -4,11 +4,9 @@ import type { ScoreResult } from '../types.js';
 
 export function printScoreJson(result: ScoreResult): void {
   const output = {
-    integrationSimplicity: result.integrationSimplicity,
     agentReadiness: result.agentReadiness,
     discoverability: Math.round(result.discoverability * 100),
-    integrationSubscores: result.integrationSubscores,
-    agentSubscores: result.agentSubscores,
+    subscores: result.subscores,
     rawMetrics: {
       operationCount: result.rawMetrics.operationCount,
       operations: Object.fromEntries(

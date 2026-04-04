@@ -17,6 +17,7 @@ import type {
   DebugSchemaEntry,
   DocumentMetrics,
   OperationMetrics,
+  SchemaStats,
 } from '../types.js';
 
 type Schema = Oas3Schema | Oas3_1Schema;
@@ -80,21 +81,7 @@ export function createSchemaWalkState(): SchemaWalkState {
 }
 
 export function resetSchemaWalkState(s: SchemaWalkState): void {
-  s.depth = -1; // starts at -1 because the root Schema.enter increments to 0
-
-  s.maxDepth = 0;
-  s.polymorphismCount = 0;
-  s.anyOfCount = 0;
-  s.hasDiscriminator = false;
-  s.propertyCount = 0;
-  s.totalSchemaProperties = 0;
-  s.schemaPropertiesWithDescription = 0;
-  s.constraintCount = 0;
-  s.hasPropertyExamples = false;
-  s.writableTopLevelFields = 0;
-  s.refsUsed = [];
-  s.debugEntries = null;
-  s.pendingRef = null;
+  Object.assign(s, createSchemaWalkState());
 }
 
 export function createSchemaMetricVisitor(state: SchemaWalkState): Oas3Visitor {
@@ -164,21 +151,6 @@ export function createSchemaMetricVisitor(state: SchemaWalkState): Oas3Visitor {
       },
     },
   };
-}
-
-interface SchemaStats {
-  maxDepth: number;
-  polymorphismCount: number;
-  anyOfCount: number;
-  hasDiscriminator: boolean;
-  propertyCount: number;
-  totalSchemaProperties: number;
-  schemaPropertiesWithDescription: number;
-  constraintCount: number;
-  hasPropertyExamples: boolean;
-  writableTopLevelFields: number;
-  refsUsed: string[];
-  debugEntries?: DebugSchemaEntry[];
 }
 
 interface CurrentOperationContext {
@@ -352,10 +324,7 @@ export function createScoreVisitor(accumulator: ScoreAccumulator): Oas3Visitor {
       },
     },
     MediaType: {
-      enter(
-        mediaType: { schema?: any; example?: unknown; examples?: Record<string, unknown> },
-        _ctx: UserContext
-      ) {
+      enter(mediaType: any) {
         const current = accumulator.current;
         if (!current) return;
 
@@ -492,11 +461,7 @@ function mergeParameters(
 }
 
 function hasExample(mediaType: { example?: unknown; examples?: Record<string, unknown> }): boolean {
-  if (mediaType.example !== undefined) return true;
-  if (isNotEmptyObject(mediaType.examples)) {
-    return true;
-  }
-  return false;
+  return mediaType.example !== undefined || isNotEmptyObject(mediaType.examples);
 }
 
 function isAmbiguousParam(param: Param): boolean {
