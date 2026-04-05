@@ -61,4 +61,51 @@ describe('no-http-verbs-in-paths', () => {
       ]
     `);
   });
+
+  it('should not report on excluded paths', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /path/post:
+            get:
+              summary: Contains http verb post
+          /get/path:
+            get:
+              summary: Contains http verb get
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-http-verbs-in-paths': {
+            severity: 'error',
+            excludedPaths: ['/path/post'],
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1get~1path",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "path \`/get/path\` should not contain http verb get",
+          "ruleId": "no-http-verbs-in-paths",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });
