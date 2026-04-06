@@ -1,6 +1,7 @@
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi.js';
 import type { Oas2Schema } from '../../typings/swagger.js';
 import { getOwn } from '../../utils/get-own.js';
+import { isNotEmptyArray } from '../../utils/is-not-empty-array.js';
 import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { resolveSchema } from '../utils.js';
@@ -45,13 +46,15 @@ export const NoRequiredSchemaPropertiesUndefined:
           }
 
           if (
-            schema.anyOf?.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+            isNotEmptyArray<AnySchema>(schema.anyOf) &&
+            schema.anyOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
           ) {
             return true;
           }
 
           if (
-            schema.oneOf?.every((s) => hasProperty(s, propertyName, new Set(visited), location))
+            isNotEmptyArray<AnySchema>(schema.oneOf) &&
+            schema.oneOf.every((s) => hasProperty(s, propertyName, new Set(visited), location))
           ) {
             return true;
           }
