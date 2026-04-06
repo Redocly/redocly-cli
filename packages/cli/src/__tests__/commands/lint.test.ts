@@ -8,6 +8,7 @@ import {
   loadConfig,
 } from '@redocly/openapi-core';
 import { blue } from 'colorette';
+import { resolve } from 'node:path';
 import { performance } from 'perf_hooks';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
@@ -151,25 +152,57 @@ describe('handleLint', () => {
       expect(configFixture.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
-    it('should preserve existing ignore entries for unrelated files when `generate-ignore-file` is used', async () => {
-      const otherFileAbsRef = '/some/other/api.yaml';
+    it('should update only the linted file entries and preserve ignore entries for other files', async () => {
+      const barAbsRef = resolve('ignore-bar.yaml');
+      const fooAbsRef = resolve('ignore-foo.yaml');
+
       configFixture.ignore = {
-        [otherFileAbsRef]: { 'some-rule': new Set(['#/paths/~1foo']) },
+        [barAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+          'operation-summary': new Set(['#/paths/~1items/get/summary']),
+        },
+        [fooAbsRef]: {
+          'no-empty-servers': new Set(['#/servers']),
+        },
       };
+
+      vi.mocked(configFixture.addIgnore).mockImplementation((problem: any) => {
+        const loc = problem.location[0];
+        if (loc.pointer === undefined) return;
+        const fileIgnore = (configFixture.ignore[loc.source.absoluteRef] =
+          configFixture.ignore[loc.source.absoluteRef] || {});
+        const ruleIgnore = (fileIgnore[problem.ruleId] = fileIgnore[problem.ruleId] || new Set());
+        ruleIgnore.add(loc.pointer);
+      });
+
       vi.mocked(lint).mockResolvedValueOnce([
         {
-          ruleId: 'operation-operationId',
+          ruleId: 'no-empty-servers',
           severity: 1,
-          message: 'Missing operationId',
-          location: [
-            { source: { absoluteRef: '/absolute/openapi.yaml' }, pointer: '#/paths/~1bar' },
-          ],
+          message: 'Servers must not be empty',
+          location: [{ source: { absoluteRef: barAbsRef }, pointer: '#/servers' }],
           suggest: [],
           ignored: false,
         } as any,
       ]);
-      await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true });
-      expect(configFixture.ignore[otherFileAbsRef]).toBeDefined();
+
+      await commandWrapper(handleLint)({
+        ...argvMock,
+        apis: ['ignore-bar.yaml'],
+        'generate-ignore-file': true,
+      });
+
+      expect(configFixture.ignore[fooAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.ignore[barAbsRef]).toEqual({
+        'no-empty-servers': new Set(['#/servers']),
+      });
+
+      expect(configFixture.saveIgnore).toHaveBeenCalled();
+
+      configFixture.ignore = {};
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
