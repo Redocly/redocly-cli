@@ -22,9 +22,9 @@ export const NoRequiredSchemaPropertiesUndefined:
       leave(_: AnySchema) {
         parents.pop();
       },
-      enter(schema: AnySchema, ctx: UserContext) {
-        parents.push(schema);
-        if (!schema.required) return;
+      enter(currentSchema: AnySchema, ctx: UserContext) {
+        parents.push(currentSchema);
+        if (!currentSchema.required) return;
 
         const hasProperty = (
           schemaOrRef: AnySchema | undefined,
@@ -32,37 +32,26 @@ export const NoRequiredSchemaPropertiesUndefined:
           visited: Set<AnySchema>,
           resolveFrom?: string
         ): boolean => {
-          const resolved = resolveSchema(schemaOrRef, ctx, resolveFrom);
-          if (!resolved.schema || visited.has(resolved.schema)) return false;
-          visited.add(resolved.schema);
+          const { schema, location } = resolveSchema(schemaOrRef, ctx, resolveFrom);
+          if (!schema || visited.has(schema)) return false;
+          visited.add(schema);
+
+          if (schema.properties && getOwn(schema.properties, propertyName) !== undefined) {
+            return true;
+          }
+
+          if (schema.allOf?.some((s) => hasProperty(s, propertyName, visited, location))) {
+            return true;
+          }
 
           if (
-            resolved.schema.properties &&
-            getOwn(resolved.schema.properties, propertyName) !== undefined
+            schema.anyOf?.every((s) => hasProperty(s, propertyName, new Set(visited), location))
           ) {
             return true;
           }
 
           if (
-            resolved.schema.allOf?.some((s) =>
-              hasProperty(s, propertyName, visited, resolved.location)
-            )
-          ) {
-            return true;
-          }
-
-          if (
-            resolved.schema.anyOf?.every((s) =>
-              hasProperty(s, propertyName, new Set(visited), resolved.location)
-            )
-          ) {
-            return true;
-          }
-
-          if (
-            resolved.schema.oneOf?.every((s) =>
-              hasProperty(s, propertyName, new Set(visited), resolved.location)
-            )
+            schema.oneOf?.every((s) => hasProperty(s, propertyName, new Set(visited), location))
           ) {
             return true;
           }
@@ -87,11 +76,11 @@ export const NoRequiredSchemaPropertiesUndefined:
             : undefined;
         };
 
-        const compositionRoot = findCompositionRoot(parents.length - 2, schema);
+        const compositionRoot = findCompositionRoot(parents.length - 2, currentSchema);
 
-        for (const [i, requiredProperty] of schema.required.entries()) {
+        for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
-            !hasProperty(schema, requiredProperty, new Set()) &&
+            !hasProperty(currentSchema, requiredProperty, new Set()) &&
             !hasProperty(compositionRoot, requiredProperty, new Set())
           ) {
             ctx.report({
