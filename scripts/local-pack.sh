@@ -19,8 +19,9 @@ cd ../../
 
 # Update and pack cli package
 cd packages/cli
+publish_dir=$(jq -r '.publishConfig.directory // ".publish"' package.json)
 npm run prepare:publish-dir
-cli=$(npm pack ./.publish | tail -n 1)
+cli=$(npm pack "./$publish_dir" | tail -n 1)
 npm run clean:publish-dir
 mv $cli ../../redocly-cli.tgz
 cd ../../

@@ -261,6 +261,7 @@ jobs:
           sleep 10
 
           cd ../cli
+          PUBLISH_DIR=$(jq -r '.publishConfig.directory // ".publish"' package.json)
           npm run prepare:publish-dir
-          npm publish ./.publish --tag snapshot
+          npm publish "./$PUBLISH_DIR" --tag snapshot
           npm run clean:publish-dir

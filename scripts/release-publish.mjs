@@ -9,7 +9,6 @@ function run(command, args, { allowFailure = false } = {}) {
   const result = spawnSync(command, args, {
     cwd: rootDir,
     stdio: 'inherit',
-    shell: process.platform === 'win32',
   });
 
   if (!allowFailure) {
@@ -29,6 +28,8 @@ let publishFailed = false;
 
 try {
   run('npm', ['--workspace', 'packages/cli', 'run', 'prepare:publish-dir']);
+  // Changesets reads `publishConfig.directory` from the package manifest
+  // and publishes `packages/cli/.publish` instead of the workspace root.
   run('npm', ['exec', 'changeset', 'publish']);
 } catch {
   publishFailed = true;

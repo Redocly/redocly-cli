@@ -14,9 +14,9 @@
   },
   "engineStrict": true,
   "scripts": {
-    "compile": "bun build src/index.ts --target node --define process.env.NODE_ENV=process.env.NODE_ENV --outfile lib/index.js",
+    "compile": "node ./scripts/compile-bundle.mjs",
     "prepare:publish-dir": "node ./scripts/prepare-publish-dir.mjs",
-    "clean:publish-dir": "node ./scripts/clean-publish-dir.mjs"
+    "clean:publish-dir": "rm -rf .publish"
   },
   "publishConfig": {
     "directory": ".publish"

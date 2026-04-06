@@ -44,18 +44,11 @@ function cleanUpVersion(str: string): string {
   return str.replace(/"version":\s(".*")*/g, '"version": "<version>"');
 }
 
-function cleanUpStyledComponentWarnings(str: string): string {
-  return str.replace(/^styled-components: it looks like an unknown prop .*?(?:\r?\n|$)/gm, '');
-}
-
 // Vitest serializer does not modify strings, so we need to do it manually
 // https://github.com/vitest-dev/vitest/issues/5426
 export function cleanupOutput(message: string) {
   const cwdRegexp = new RegExp(process.cwd(), 'g');
 
   const cleanedFromCwd = message.replace(cwdRegexp, '.');
-  const cleanedFromVersion = cleanUpVersion(cleanedFromCwd);
-  const cleanedFromStyledComponentsWarnings = cleanUpStyledComponentWarnings(cleanedFromVersion);
-
-  return cleanedFromStyledComponentsWarnings;
+  return cleanUpVersion(cleanedFromCwd);
 }
