@@ -23,7 +23,6 @@ export const NoRequiredSchemaPropertiesUndefined:
         parents.pop();
       },
       enter(schema: AnySchema, ctx: UserContext) {
-        const { location, report } = ctx;
         parents.push(schema);
         if (!schema.required) return;
 
@@ -38,20 +37,17 @@ export const NoRequiredSchemaPropertiesUndefined:
           visited.add(resolved.schema);
 
           if (
-            (resolved.schema.properties &&
-              getOwn(resolved.schema.properties, propertyName) !== undefined) ||
-            resolved.schema.allOf?.some((s) =>
-              hasProperty(s, propertyName, visited, resolved.location)
-            ) ||
-            resolved.schema.anyOf?.every((s) =>
-              hasProperty(s, propertyName, visited, resolved.location)
-            ) ||
-            resolved.schema.oneOf?.every((s) =>
-              hasProperty(s, propertyName, visited, resolved.location)
-            )
+            resolved.schema.properties &&
+            getOwn(resolved.schema.properties, propertyName) !== undefined
           ) {
             return true;
           }
+
+          const check = (s: AnySchema) => hasProperty(s, propertyName, visited, resolved.location);
+
+          if (resolved.schema.allOf?.some(check)) return true;
+          if (resolved.schema.anyOf?.every(check)) return true;
+          if (resolved.schema.oneOf?.every(check)) return true;
 
           return false;
         };
@@ -66,18 +62,12 @@ export const NoRequiredSchemaPropertiesUndefined:
         };
 
         const findCompositionRoot = (): AnySchema | undefined => {
-          let root: AnySchema | undefined;
-          let child = schema;
-          for (let i = parents.length - 2; i >= 0; i--) {
+          const walk = (i: number, child: AnySchema): AnySchema | undefined => {
+            if (i < 0) return undefined;
             const parent = parents[i];
-            if (isCompositionChild(parent, child)) {
-              root = parent;
-              child = parent;
-            } else {
-              break;
-            }
-          }
-          return root;
+            return isCompositionChild(parent, child) ? (walk(i - 1, parent) ?? parent) : undefined;
+          };
+          return walk(parents.length - 2, schema);
         };
 
         const compositionRoot = findCompositionRoot();
@@ -85,11 +75,11 @@ export const NoRequiredSchemaPropertiesUndefined:
         for (const [i, requiredProperty] of schema.required.entries()) {
           if (
             !hasProperty(schema, requiredProperty, new Set()) &&
-            !(compositionRoot && hasProperty(compositionRoot, requiredProperty, new Set()))
+            !hasProperty(compositionRoot, requiredProperty, new Set())
           ) {
-            report({
-              message: `Required property '${requiredProperty}' is undefined.`,
-              location: location.child(['required', i]),
+            ctx.report({
+              message: `Required property '${requiredProperty}' is not defined.`,
+              location: ctx.location.child(['required', i]),
             });
           }
         }
