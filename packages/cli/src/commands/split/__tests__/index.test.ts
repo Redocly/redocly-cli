@@ -5,8 +5,9 @@ import * as process from 'node:process';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
-import { iteratePathItems, handleSplit } from '../index.js';
+import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
+import { iteratePathItems } from '../utils/iterate-path-items.js';
 import samplesJson from './fixtures/samples.json';
 import specJson from './fixtures/spec.json';
 import webhooksJson from './fixtures/webhooks.json';

@@ -9,7 +9,7 @@ import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
-import type { SplitArgv } from './commands/split/index.js';
+import type { SplitArgv } from './commands/split/types.js';
 import type { StatsArgv } from './commands/stats/index.js';
 import type { TranslationsArgv } from './commands/translations.js';
 import type { PushStatusArgv } from './reunite/commands/push-status.js';

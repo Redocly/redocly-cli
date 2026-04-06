@@ -1,5 +1,5 @@
 import { exitWithError } from '../../../utils/error.js';
-import { COMPONENTS } from '../../split/types.js';
+import { COMPONENTS } from '../../split/constants.js';
 import { addComponentsPrefix } from './add-components-prefix.js';
 import { getInfoPrefix } from './get-info-prefix.js';
 
