@@ -670,6 +670,45 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
+  it('should NOT report when anyOf branches share a $ref that defines the required property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Animal:
+                type: object
+                required:
+                  - name
+                anyOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Base'
+                      - properties:
+                          kind:
+                            enum: [cat]
+                  - allOf:
+                      - $ref: '#/components/schemas/Base'
+                      - properties:
+                          kind:
+                            enum: [dog]
+              Base:
+                type: object
+                properties:
+                  name:
+                    type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should NOT report when required property is in allOf sibling reached via oneOf parent', async () => {
     const document = parseYamlToDocument(
       outdent`

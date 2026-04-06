@@ -43,34 +43,51 @@ export const NoRequiredSchemaPropertiesUndefined:
             return true;
           }
 
-          const check = (s: AnySchema) => hasProperty(s, propertyName, visited, resolved.location);
+          if (
+            resolved.schema.allOf?.some((s) =>
+              hasProperty(s, propertyName, visited, resolved.location)
+            )
+          ) {
+            return true;
+          }
 
-          if (resolved.schema.allOf?.some(check)) return true;
-          if (resolved.schema.anyOf?.every(check)) return true;
-          if (resolved.schema.oneOf?.every(check)) return true;
+          if (
+            resolved.schema.anyOf?.every((s) =>
+              hasProperty(s, propertyName, new Set(visited), resolved.location)
+            )
+          ) {
+            return true;
+          }
+
+          if (
+            resolved.schema.oneOf?.every((s) =>
+              hasProperty(s, propertyName, new Set(visited), resolved.location)
+            )
+          ) {
+            return true;
+          }
 
           return false;
         };
 
         const isCompositionChild = (parent: AnySchema, child: AnySchema): boolean => {
-          const matches = (s: AnySchema) => resolveSchema(s, ctx).schema === child;
+          const matchesChild = (s: AnySchema) => resolveSchema(s, ctx).schema === child;
           return !!(
-            parent.allOf?.some(matches) ||
-            parent.anyOf?.some(matches) ||
-            parent.oneOf?.some(matches)
+            parent.allOf?.some(matchesChild) ||
+            parent.anyOf?.some(matchesChild) ||
+            parent.oneOf?.some(matchesChild)
           );
         };
 
-        const findCompositionRoot = (): AnySchema | undefined => {
-          const walk = (i: number, child: AnySchema): AnySchema | undefined => {
-            if (i < 0) return undefined;
-            const parent = parents[i];
-            return isCompositionChild(parent, child) ? (walk(i - 1, parent) ?? parent) : undefined;
-          };
-          return walk(parents.length - 2, schema);
+        const findCompositionRoot = (i: number, child: AnySchema): AnySchema | undefined => {
+          if (i < 0) return undefined;
+          const parent = parents[i];
+          return isCompositionChild(parent, child)
+            ? (findCompositionRoot(i - 1, parent) ?? parent)
+            : undefined;
         };
 
-        const compositionRoot = findCompositionRoot();
+        const compositionRoot = findCompositionRoot(parents.length - 2, schema);
 
         for (const [i, requiredProperty] of schema.required.entries()) {
           if (
