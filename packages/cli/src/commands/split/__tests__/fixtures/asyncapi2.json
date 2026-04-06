@@ -1,0 +1,38 @@
+{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "Test AsyncAPI 2",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/signedup": {
+      "subscribe": {
+        "message": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "userId": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserSignedUp": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" }
+        }
+      }
+    },
+    "messages": {
+      "UserSignedUpMessage": {
+        "payload": {
+          "$ref": "#/components/schemas/UserSignedUp"
+        }
+      }
+    }
+  }
+}

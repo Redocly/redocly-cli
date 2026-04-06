@@ -1,0 +1,104 @@
+asyncapi: 3.0.0
+info:
+  title: Complex AsyncAPI 3 Example
+  version: 1.0.0
+  description: A complex AsyncAPI 3 example testing split with multiple channels, operations, schemas, messageTraits, correlationIds, securitySchemes and replies
+channels:
+  userSignedUp:
+    address: user/signedup
+    messages:
+      UserSignedUp:
+        $ref: '#/components/messages/UserSignedUp'
+  userLoggedIn:
+    address: user/loggedin
+    messages:
+      UserLoggedIn:
+        $ref: '#/components/messages/UserLoggedIn'
+  userLoggedInReply:
+    address: user/loggedin/reply
+    messages:
+      UserLoggedInReply:
+        payload:
+          type: object
+          properties:
+            success:
+              type: boolean
+operations:
+  sendUserSignedup:
+    action: send
+    channel:
+      $ref: '#/channels/userSignedUp'
+    messages:
+      - $ref: '#/channels/userSignedUp/messages/UserSignedUp'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
+  receiveUserLoggedIn:
+    action: receive
+    channel:
+      $ref: '#/channels/userLoggedIn'
+    messages:
+      - $ref: '#/channels/userLoggedIn/messages/UserLoggedIn'
+    security:
+      - $ref: '#/components/securitySchemes/ApiKeyAuth'
+    reply:
+      $ref: '#/components/replies/UserLoggedInReply'
+components:
+  messages:
+    UserSignedUp:
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/UserSignedUpPayload'
+    UserLoggedIn:
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/UserLoggedInPayload'
+  schemas:
+    UserBase:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+    UserSignedUpPayload:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+      properties:
+        displayName:
+          type: string
+    UserLoggedInPayload:
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+      properties:
+        lastLoginAt:
+          type: string
+          format: date-time
+  messageTraits:
+    CommonHeaders:
+      headers:
+        type: object
+        properties:
+          correlationId:
+            type: string
+          contentType:
+            type: string
+  correlationIds:
+    DefaultCorrelationId:
+      location: '$message.header#/correlationId'
+  replies:
+    UserLoggedInReply:
+      channel:
+        $ref: '#/channels/userLoggedInReply'
+      messages:
+        - $ref: '#/channels/userLoggedInReply/messages/UserLoggedInReply'
+  replyAddresses:
+    UserLoggedInReplyAddress:
+      location: '$message.header#/replyTo'
+  securitySchemes:
+    ApiKeyAuth:
+      type: httpApiKey
+      name: X-API-Key
+      in: header
