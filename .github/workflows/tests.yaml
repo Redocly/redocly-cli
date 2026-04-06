@@ -30,7 +30,7 @@ jobs:
       - name: Coverage Report
         if: always() # Also generate the report if tests are failing
         continue-on-error: true # Do not fail if there is an error during reporting
-        uses: davelosert/vitest-coverage-report-action@2500dafcee7dd64f85ab689c0b83798a8359770e # v2.9.3
+        uses: davelosert/vitest-coverage-report-action@d63aa97db4c0319f304f1787689de1ca548365cf # v2.11.1
 
       - name: E2E Tests
         run: npm run e2e
