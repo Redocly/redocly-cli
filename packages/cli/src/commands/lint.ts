@@ -9,7 +9,6 @@ import {
   logger,
   type Config,
   type Exact,
-  type NormalizedProblem,
   type OutputFormat,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
@@ -56,8 +55,6 @@ export async function handleLint({
 
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
-  const ignoreFileResults: NormalizedProblem[] = [];
-  const lintedAbsRefs = new Set<string>();
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path: apiPath, alias } of apis) {
@@ -97,9 +94,10 @@ export async function handleLint({
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
-        lintedAbsRefs.add(isAbsoluteUrl(apiPath) ? apiPath : resolvePath(apiPath));
+        const apiAbsRef = isAbsoluteUrl(apiPath) ? apiPath : resolvePath(apiPath);
+        delete config.ignore[apiAbsRef];
         for (const m of results) {
-          ignoreFileResults.push(m);
+          config.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -120,22 +118,8 @@ export async function handleLint({
   }
 
   if (argv['generate-ignore-file']) {
-    for (const m of ignoreFileResults) {
-      const loc = m.location?.[0];
-      if (loc?.pointer !== undefined) {
-        lintedAbsRefs.add(loc.source.absoluteRef);
-      }
-    }
-    for (const absRef of lintedAbsRefs) {
-      delete config.ignore[absRef];
-    }
-    for (const m of ignoreFileResults) {
-      config.addIgnore(m);
-    }
     config.saveIgnore();
-    logger.info(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
-    );
+    logger.info(`Explicitly ignored ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`);
   } else {
     printLintTotals(totals, apis.length);
   }
