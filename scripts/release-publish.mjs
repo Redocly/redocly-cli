@@ -17,7 +17,9 @@ function run(command, args, { allowFailure = false } = {}) {
     }
 
     if (result.status !== 0) {
-      process.exit(result.status ?? 1);
+      throw new Error(
+        `${command} exited with status ${result.status ?? 1}: ${args.join(' ')}`,
+      );
     }
   }
 
