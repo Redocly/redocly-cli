@@ -6,6 +6,7 @@ import type {
   ScoringConstants,
   Subscores,
 } from './types.js';
+import { median } from './utils.js';
 
 export function computeOperationSubscores(
   metrics: OperationMetrics,
@@ -185,13 +186,6 @@ export function aggregateSubscores(
   result.polymorphismClarity /= n;
 
   return result;
-}
-
-function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 function round(value: number): number {

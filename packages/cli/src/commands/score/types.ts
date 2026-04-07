@@ -78,7 +78,6 @@ export interface ScoringThresholds {
   maxParamsGood: number;
   maxDepthGood: number;
   maxPolymorphismGood: number;
-  maxPropertiesGood: number;
   maxDependencyDepthGood: number;
   maxAmbiguousGood: number;
   maxOperationsForDiscoverability: number;

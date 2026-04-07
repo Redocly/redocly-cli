@@ -5,7 +5,6 @@ export const DEFAULT_SCORING_CONSTANTS: ScoringConstants = {
     maxParamsGood: 5,
     maxDepthGood: 4,
     maxPolymorphismGood: 2,
-    maxPropertiesGood: 20,
     maxDependencyDepthGood: 3,
     maxAmbiguousGood: 0,
     maxOperationsForDiscoverability: 1000,

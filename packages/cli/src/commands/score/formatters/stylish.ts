@@ -2,6 +2,7 @@ import { logger } from '@redocly/openapi-core';
 import { bold, cyan, green, red, white, yellow } from 'colorette';
 
 import type { DebugMediaTypeLog, ScoreResult } from '../types.js';
+import { median } from '../utils.js';
 
 export function printScoreStylish(result: ScoreResult, operationDetails = false): void {
   printScores(result);
@@ -60,13 +61,6 @@ function buildBar(fraction: number): string {
   const width = 20;
   const filled = Math.round(fraction * width);
   return cyan('[' + '\u2588'.repeat(filled) + '\u2591'.repeat(width - filled) + ']');
-}
-
-function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 function printRawMetricsSummary(result: ScoreResult): void {
