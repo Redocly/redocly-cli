@@ -285,8 +285,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           if (itemsType !== undefined) {
             const isTypeAFunction = typeof itemsType === 'function';
             for (let i = 0; i < resolvedNode.length; i++) {
+              const itemLocation = resolvedLocation.child([i]);
               let itemType = isTypeAFunction
-                ? itemsType(resolvedNode[i], resolvedLocation.child([i]).absolutePointer)
+                ? itemsType(resolvedNode[i], itemLocation.absolutePointer)
                 : itemsType;
               let itemValue = resolvedNode[i];
 
@@ -296,7 +297,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               }
 
               if (isNamedType(itemType)) {
-                walkNode(itemValue, itemType, resolvedLocation.child([i]), resolvedNode, i);
+                walkNode(itemValue, itemType, itemLocation, resolvedNode, i);
               }
             }
           }
